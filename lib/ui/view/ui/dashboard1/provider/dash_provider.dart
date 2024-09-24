@@ -24,7 +24,7 @@ class ApiService {
     required String startDate,
     required String endDate,
   }) async {
-    final url = Uri.parse('$_baseUrl/dashboard_list');
+    final url = Uri.parse('$_baseUrl${ApiConstants.dashboard_list}');
     final requestBody = {
       "salesman_id": salesmanId,
       "start_date": startDate,

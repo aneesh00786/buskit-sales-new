@@ -21,7 +21,6 @@ class ProductTopWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
       return Row(
         children: [
         //   Flexible(
@@ -71,7 +70,6 @@ class ProductTopWidget extends StatelessWidget {
         //       : const SizedBox()
         ],
       );
-    });
   }
 
   Widget get clearButton => AnimatedCrossFade(

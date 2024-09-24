@@ -6,7 +6,10 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class ProductVariantDialogue extends StatefulWidget {
   final List<Detail> productDetail;
@@ -31,6 +34,9 @@ class ProductVariantDialogue extends StatefulWidget {
 }
 
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
+
+  CustomerAndOrderController customerAndOrderController = Get.find<CustomerAndOrderController>();
+
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   @override
@@ -39,6 +45,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Dialog(
+      insetPadding: EdgeInsets.all(10),
       backgroundColor: white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
@@ -145,7 +152,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       child: DataTable(
                         headingRowHeight: screenHeight * 0.03,
                         dataRowHeight: screenHeight * 0.05,
-                        columnSpacing: screenWidth * 0.025,
+                        columnSpacing: screenWidth * 0.030,
                         headingRowColor:
                             const MaterialStatePropertyAll(secondaryColor),
                         columns: [
@@ -385,7 +392,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          List<CartItem> cartItems =
+                          if (customerAndOrderController.customerId.isNotEmpty) {
+                            List<CartItem> cartItems =
                               await CartDatabaseManager().getCartItems();
                           List<Detail> detailsFromCart = cartItems
                               .map((cartItem) => cartItem.detail)
@@ -400,7 +408,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               CartDatabaseManager().addToCart(
                                   detail,
                                   widget.product.productName ?? '',
-                                  totalPrice.toInt(),
+                                  detail.totalPrice!.toInt(),
                                   isPack);
                               log('Total Price: ${detail.totalPrice}');
                               log('Detail log is Pack: ${isPack}');
@@ -410,6 +418,17 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               log('Product with ID: ${detail.variationId} is already in the cart');
                             }
                             widget.onDone();
+                          }
+                          Navigator.pop(context);
+                          }else{
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text('No Customer Selected'),
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
                           }
                         },
                         style: ElevatedButton.styleFrom(

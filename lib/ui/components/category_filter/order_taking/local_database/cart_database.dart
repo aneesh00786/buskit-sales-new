@@ -53,13 +53,13 @@ class CartDatabaseManager {
           isPack: isPack);
       _cartBox.add(cartItem);
     }
-    _notifyListeners(); // Notify listeners on change
+    _notifyListeners();
   }
 
   void deleteCartItem(CartItem item) {
     final box = Hive.box<CartItem>('cartBox');
     box.delete(item.key);
-    _notifyListeners(); // Notify listeners on deletion
+    _notifyListeners();
   }
 
   void clearCart() {

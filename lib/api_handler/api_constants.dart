@@ -1,6 +1,6 @@
 mixin class ApiConstants {
 
-  static const String baseUrl = "http://16.50.232.153:3000";
+  static const String baseUrl = "http://16.50.232.153:3000/";
   static const String imageBaseUrl = "http://139.59.3.15:1000/uploads/";
   /// Login APi END Point
   static const String login = "salesman_login";

@@ -29,15 +29,13 @@ class ProductMiddelWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 1200,
-      width: 1000,
-
-      child: OrderTaking(
-        productsController: productsController,
-        
-      ));
+        height: 1200,
+        width: 1000,
+        child: OrderTaking(
+          productsController: productsController,
+        ));
     // return Container(
-      
+
     //     child: Row(
     //     crossAxisAlignment: CrossAxisAlignment.start,
     //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,7 +70,7 @@ class ProductMiddelWidget extends StatelessWidget {
     //           },
     //         );
     //       }),flex: 1)
-      
+
     //       ,
     //       nkMediumSizeBox(),
     //       Expanded(child: ProductGrid(optionName: ,),flex: 3,),

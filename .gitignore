@@ -38,3 +38,15 @@ web/index.html
 # VS Code
 .vscode/
 .history/
+
+# File types to ignore
+*.exe
+*.bin
+*.jar
+*.war
+*.mp3
+*.mp4
+# Directories to ignore
+target/
+.build/
+.env/

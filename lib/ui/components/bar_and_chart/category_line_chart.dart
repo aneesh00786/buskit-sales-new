@@ -1,0 +1,1684 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+
+import 'package:flutter/material.dart';
+
+/// Chart import
+import 'dart:math';
+//import 'package:charts_flutter_new/flutter.dart' as charts;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
+
+import '../../view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
+import '../../view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:fl_chart/fl_chart.dart';
+// import '../../view/ui/dashboard/provider/dash_provider.dart';
+
+class MyAppssss extends StatelessWidget {
+  const MyAppssss({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const BarChartSample();
+  }
+}
+
+class BarChartSample extends StatelessWidget {
+  const BarChartSample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: 100,
+        barGroups: [
+          BarChartGroupData(
+            x: 0,
+            barRods: [
+              BarChartRodData(
+                toY: 65,
+                color: const Color(0xffFF6384),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 55,
+                color: const Color(0xffFF9F40),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 75,
+                color: const Color(0xffFFCD56),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 1,
+            barRods: [
+              BarChartRodData(
+                toY: 59,
+                color: const Color(0xff4BC0C0),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 49,
+                color: const Color(0xff36A2EB),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 69,
+                color: const Color(0xff9966FF),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 2,
+            barRods: [
+              BarChartRodData(
+                toY: 80,
+                color: const Color(0xffFF6384),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 70,
+                color: const Color(0xffFF9F40),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 90,
+                color: const Color(0xffFFCD56),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 3,
+            barRods: [
+              BarChartRodData(
+                toY: 81,
+                color: const Color(0xff4BC0C0),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 71,
+                color: const Color(0xff36A2EB),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 91,
+                color: const Color(0xff9966FF),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 4,
+            barRods: [
+              BarChartRodData(
+                toY: 56,
+                color: const Color(0xffFF6384),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 46,
+                color: const Color(0xffFF9F40),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 66,
+                color: const Color(0xffFFCD56),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 5,
+            barRods: [
+              BarChartRodData(
+                toY: 55,
+                color: const Color(0xff4BC0C0),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 45,
+                color: const Color(0xff36A2EB),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 65,
+                color: const Color(0xff9966FF),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 6,
+            barRods: [
+              BarChartRodData(
+                toY: 40,
+                color: const Color(0xffFF6384),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 30,
+                color: const Color(0xffFF9F40),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+              BarChartRodData(
+                toY: 50,
+                color: const Color(0xffFFCD56),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// class CustomBarChart extends StatefulWidget {
+//   final List<Category> allCategory;
+//   final List<CategoryPerformancee> categoryPerformance;
+
+//   const CustomBarChart({
+//     super.key,
+//     required this.allCategory,
+//     required this.categoryPerformance,
+//   });
+
+//   @override
+//   // ignore: library_private_types_in_public_api
+//   _CustomBarChartState createState() => _CustomBarChartState();
+// }
+
+// class _CustomBarChartState extends State<CustomBarChart> {
+//   List<BarChartGroupData> barGroups = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _createBarGroups();
+//   }
+
+//   void _createBarGroups() {
+//     barGroups = widget.allCategory.asMap().entries.map((entry) {
+//       int index = entry.key;
+//       Category category = entry.value;
+
+//       // Find matching CategoryPerformance
+//       CategoryPerformancee? perf = widget.categoryPerformance.firstWhere(
+//         (performance) => performance.category == category.category,
+//         orElse: () => CategoryPerformancee(
+//           //  salesmanId: 'N/A',
+//           cid: -1,
+//           category: category.category,
+//           //   count: 0,
+//           actualProjection: 0.0,
+//           salesman: [], actualTarget: 0.0,
+//         ),
+//       );
+
+//       double target = perf.salesman
+//           .fold(0, (sum, salesman) => sum + salesman.projectionTarget)
+//           .toDouble();
+//       double projection = perf.salesman
+//           .fold(0, (sum, salesman) => sum + salesman.projectionPrice);
+//       double actual =
+//           perf.salesman.fold(0, (sum, salesman) => sum + salesman.actualPrice);
+
+//       return BarChartGroupData(
+//         x: index,
+//         barRods: [
+//           BarChartRodData(
+//             toY: target,
+//             color: const Color(0xff7a8f3d),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none, // Remove border
+//           ),
+//           BarChartRodData(
+//             toY: projection,
+//             color: const Color(0xff15396a),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none, // Remove border
+//           ),
+//           BarChartRodData(
+//             toY: actual,
+//             color: const Color(0xff3b6491),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none, // Remove border
+//           ),
+//         ],
+//       );
+//     }).toList();
+//   }
+
+//   void _showSalesmanPopup(List<Salesmann> salesman, String c) {
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return ClipRRect(
+//           borderRadius: BorderRadius.circular(8), // Add small curve border
+//           child: AlertDialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(10),
+//             ),
+//             contentPadding: EdgeInsets.zero,
+//             titlePadding: EdgeInsets.zero,
+//             title: Container(
+//               padding: const EdgeInsets.all(4.8),
+//               decoration: const BoxDecoration(
+//                 color: primaryColor,
+//                 borderRadius: BorderRadius.only(
+//                   topLeft: Radius.circular(10),
+//                   topRight: Radius.circular(10),
+//                 ),
+//               ),
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     c,
+//                     style: const TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 17.5,
+//                     ),
+//                   ),
+//                   CircleAvatar(
+//                     backgroundColor: Colors.transparent,
+//                     child: SizedBox(
+//                       width: 25.8,
+//                       height: 25.8,
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           shape: BoxShape.circle,
+//                           border: Border.all(
+//                             color: Colors.red,
+//                           ),
+//                         ),
+//                         child: Padding(
+//                           padding: const EdgeInsets.all(3.5),
+//                           child: IconButton(
+//                             icon: const Icon(
+//                               Icons.close,
+//                               color: Colors.red,
+//                               size: 16,
+//                             ),
+//                             padding: EdgeInsets.zero,
+//                             constraints: const BoxConstraints(),
+//                             onPressed: () => Navigator.of(context).pop(),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   )
+//                 ],
+//               ),
+//             ),
+//             content: SingleChildScrollView(
+//               child: Padding(
+//                 padding: const EdgeInsets.all(6.0),
+//                 child: DataTable(
+//                   dataRowHeight: 37,
+//                   headingRowHeight: 41,
+//                   border:
+//                       TableBorder.all(color: primaryTextFieldColor, width: 0.8),
+//                   columns: const [
+//                     DataColumn(
+//                         label: Text(
+//                       'Name',
+//                       style: TextStyle(
+//                         color: primaryTextColor,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                     DataColumn(
+//                         label: Text(
+//                       'Target',
+//                       style: TextStyle(
+//                         color: primaryTextColor,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                     DataColumn(
+//                         label: Text(
+//                       'Projection',
+//                       style: TextStyle(
+//                         color: primaryTextColor,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                     DataColumn(
+//                         label: Text(
+//                       'Actual',
+//                       style: TextStyle(
+//                         color: primaryTextColor,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                   ],
+//                   rows: salesman.map((s) {
+//                     return DataRow(
+//                       cells: [
+//                         DataCell(Text(
+//                           s.fullname,
+//                           style: TextStyle(
+//                             color: secondaryTextColor,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                         DataCell(Text(
+//                           '${s.projectionTarget}',
+//                           style: TextStyle(
+//                             color: secondaryTextColor,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                         DataCell(Text(
+//                           '${s.projectionPrice}',
+//                           style: TextStyle(
+//                             color: secondaryTextColor,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                         DataCell(Text(
+//                           '${s.actualPrice}',
+//                           style: TextStyle(
+//                             color: secondaryTextColor,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                       ],
+//                     );
+//                   }).toList(),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   Widget getBottomTitles(double value, TitleMeta meta) {
+//     const style = TextStyle(
+//       color: Color(0xff68737d),
+//       fontWeight: FontWeight.bold,
+//       fontSize: 8,
+//     );
+//     Widget text = Transform.rotate(
+//       angle: -2.12 / 4, // Adjust rotation angle as needed
+//       child: Text(
+//         widget.allCategory[value.toInt()].category,
+//         style: style,
+//         textAlign: TextAlign.center,
+//       ),
+//     );
+//     return Container(
+//       margin: const EdgeInsets.only(top: 16),
+//       child: text,
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Expanded(
+//           child: BarChart(
+//             BarChartData(
+//               alignment: BarChartAlignment.spaceAround,
+
+//               barGroups: barGroups,
+//               titlesData: FlTitlesData(
+//                 leftTitles: AxisTitles(
+//                   sideTitles: SideTitles(
+//                     showTitles: true,
+//                     reservedSize: 44,
+//                   ),
+//                 ),
+//                 bottomTitles: AxisTitles(
+//                   sideTitles: SideTitles(
+//                     showTitles: true,
+//                     getTitlesWidget: getBottomTitles,
+//                     reservedSize: 40, // Increase this to avoid cut-off text
+//                   ),
+//                 ),
+//                 topTitles: AxisTitles(
+//                   sideTitles: SideTitles(showTitles: false),
+//                 ),
+//                 rightTitles: AxisTitles(
+//                   sideTitles: SideTitles(showTitles: false),
+//                 ),
+//               ),
+//               borderData: FlBorderData(
+//                 show: true,
+//                 border: Border.all(
+//                   color: const Color(0xffe0e0e0), // Light grey color
+//                   width: 0.9,
+//                 ),
+//               ), // Add light grey border
+//               barTouchData: BarTouchData(
+//                 touchCallback:
+//                     (FlTouchEvent event, BarTouchResponse? touchResponse) {
+//                   if (touchResponse != null &&
+//                       touchResponse.spot != null &&
+//                       event is FlTapUpEvent) {
+//                     final int index = touchResponse.spot!.touchedBarGroupIndex;
+//                     CategoryPerformancee perf = widget.categoryPerformance
+//                         .firstWhere((performance) =>
+//                             performance.category ==
+//                             widget.allCategory[index].category);
+//                     _showSalesmanPopup(
+//                         perf.salesman, widget.allCategory[index].category);
+//                   }
+//                 },
+//               ),
+//             ),
+//           ),
+//         ),
+//         Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             _buildLegend(color: const Color(0xff7a8f3d), label: 'Target'),
+//             _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
+//             _buildLegend(color: const Color(0xff3b6491), label: 'Actuals'),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildLegend({required Color color, required String label}) {
+//     return Row(
+//       children: [
+//         Container(
+//           height: 12,
+//           width: 12,
+//           decoration: BoxDecoration(
+//             color: color,
+//             borderRadius: BorderRadius.circular(2.0),
+//           ),
+//         ),
+//         const SizedBox(width: 2),
+//         Text(
+//           label,
+//           style: const TextStyle(
+//             fontSize: 12,
+//             fontWeight: FontWeight.bold,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(width: 8),
+//       ],
+//     );
+//   }
+// }
+
+class CustomBarChart extends StatefulWidget {
+  final List<Category> allCategory;
+  final List<CategoryPerformancee> categoryPerformance;
+
+  const CustomBarChart({
+    super.key,
+    required this.allCategory,
+    required this.categoryPerformance,
+  });
+
+  @override
+  _CustomBarChartState createState() => _CustomBarChartState();
+}
+
+class _CustomBarChartState extends State<CustomBarChart> {
+  List<BarChartGroupData> barGroups = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _createBarGroups();
+  }
+
+  void _createBarGroups() {
+    barGroups = widget.allCategory.asMap().entries.map((entry) {
+      int index = entry.key;
+      Category category = entry.value;
+
+      // Find matching CategoryPerformance
+      CategoryPerformancee? perf = widget.categoryPerformance.firstWhere(
+        (performance) => performance.category == category.category,
+        orElse: () => CategoryPerformancee(
+          cid: -1,
+          category: category.category,
+          actualProjection: 0.0,
+          actualTarget: 0.0,
+          actualSales: 0.0,
+          salesman: [],
+        ),
+      );
+
+      double target = perf.actualTarget;
+      double projection = perf.actualProjection;
+      double actual = perf.actualSales ?? 0.0;
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: target,
+            color: const Color(0xff3b6491),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none, // Remove border
+          ),
+          BarChartRodData(
+            toY: projection,
+            color: const Color(0xff15396a),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none, // Remove border
+          ),
+          BarChartRodData(
+            toY: actual,
+            color: const Color(0xff7a8f3d),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none, // Remove border
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  void _showSalesmanPopup(int cid, String category) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer<DashboardProvider>(
+          builder: (context, provider, child) {
+            // Update the provider to fetch data based on the cid
+            provider.fetchchartCategoryPerformmenc(cid);
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding: EdgeInsets.zero,
+              titlePadding: EdgeInsets.zero,
+              content: FutureBuilder<ResponseModelCp>(
+                future: provider.responseModelCp,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox.shrink();
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else if (snapshot.hasData) {
+                    final categories = snapshot.data!.data;
+
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            height: 45,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: const BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10),
+                                )),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  category,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  backgroundColor: Colors.transparent,
+                                  child: SizedBox(
+                                    width: 25.8,
+                                    height: 25.8,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.5),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.red,
+                                            size: 16,
+                                          ),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: DataTable(
+                              headingRowHeight: 40,
+                              dataRowHeight: 30,
+                              columnSpacing: 30,
+                              columns: const [
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Name',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Target',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Projection',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Actual',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                              rows: categories.map((s) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(
+                                      Center(
+                                        child: Text(
+                                          s.fullname,
+                                          style: TextStyle(
+                                            color: secondaryTextColor,
+                                            fontSize: 13,
+                                            // fontFamily:
+                                            //     'Poppins_Regular',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Center(
+                                        child: Text(
+                                          '${s.targetTotal}',
+                                          style: TextStyle(
+                                            color: secondaryTextColor,
+                                            fontSize: 13,
+                                            // fontFamily:
+                                            //     'Poppins_Regular',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Center(
+                                        child: Text(
+                                          '${s.projectionTotal}',
+                                          style: TextStyle(
+                                            color: secondaryTextColor,
+                                            fontSize: 13,
+                                            // fontFamily:
+                                            //     'Poppins_Regular',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Center(
+                                        child: Text(
+                                          double.parse(s.orderTotal)
+                                              .toStringAsFixed(2),
+                                          style: TextStyle(
+                                            color: secondaryTextColor,
+                                            fontSize: 13,
+                                            // fontFamily:
+                                            //     'Poppins_Regular',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Center(child: Text('No data available'));
+                  }
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget getBottomTitles(double value, TitleMeta meta) {
+    final style = TextStyle(
+      color: secondaryTextColor,
+      fontWeight: NkGeneralSize.nkBoldFontWeight(),
+      fontSize: 11,
+    );
+    Widget text = Transform.rotate(
+      angle: -1.34 / 4,
+      child: MyRegularText(
+        label: widget.allCategory[value.toInt()].category ?? '',
+        fontWeight: FontWeight.w500,
+        fontSize: 11,
+        color: Colors.black,
+      ),
+
+      // Text(
+      //  ,
+      //   style: style,
+      //   textAlign: TextAlign.center,
+      // ),
+    );
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      child: text,
+    );
+  }
+
+  Widget getLeftTitles(double value, TitleMeta meta) {
+    final style = TextStyle(
+      color: secondaryTextColor,
+      fontWeight: NkGeneralSize.nkBoldFontWeight(),
+      fontSize: 11,
+    );
+    return MyRegularText(
+      label: value.toInt().toString(),
+      // fontWeight: FontWeight.w600,
+      fontSize: 10.6,
+      fontWeight: FontWeight.w500,
+      color: Colors.black,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Scrollbar(
+            // thumbVisibility: true, // Show the scrollbar
+            // thickness: 4.0, // Customize the thickness of the scrollbar
+            // radius: const Radius.circular(
+            //     2.0), // Customize the radius of the scrollbar
+            child: SingleChildScrollView(
+              controller: Provider.of<DashboardProvider>(context, listen: false)
+                  .scrollController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: barGroups.length * 66.0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3.0),
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      barGroups: barGroups,
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget:
+                                getLeftTitles, // Use custom left titles\
+                            reservedSize: 40,
+                          ),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: getBottomTitles,
+                            reservedSize: 40,
+                          ),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                      ),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(
+                          color: const Color(0xffe0e0e0),
+                          width: 0.9,
+                        ),
+                      ),
+                      barTouchData: BarTouchData(
+                        touchCallback: (FlTouchEvent event,
+                            BarTouchResponse? touchResponse) {
+                          if (touchResponse != null &&
+                              touchResponse.spot != null &&
+                              event is FlTapUpEvent) {
+                            final int index =
+                                touchResponse.spot!.touchedBarGroupIndex;
+                            CategoryPerformancee perf =
+                                widget.categoryPerformance.firstWhere(
+                              (performance) =>
+                                  performance.category ==
+                                  widget.allCategory[index].category,
+                            );
+                            _showSalesmanPopup(
+                                perf.cid, widget.allCategory[index].category);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+            _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
+            _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegend({required Color color, required String label}) {
+    return Row(
+      children: [
+        Container(
+          height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
+          width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(1.0),
+          ),
+        ),
+        const SizedBox(width: 2),
+        MyRegularText(
+          label: label,
+          color: secondaryTextColor,
+          fontSize: 11.6,
+          fontWeight: FontWeight.w600,
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+}
+
+class CustomBarChartCustomerDash extends StatefulWidget {
+  final List<FullCategory> allCategory;
+  final List<CategoryPerformancez> categoryPerformance;
+  final String customerId; // Assuming you have this available
+
+  final dynamic year;
+
+  const CustomBarChartCustomerDash({
+    Key? key,
+    required this.allCategory,
+    required this.categoryPerformance,
+    required this.customerId,
+    required this.year,
+  }) : super(key: key);
+
+  @override
+  _CustomBarChartCustomerDashState createState() =>
+      _CustomBarChartCustomerDashState();
+}
+
+class _CustomBarChartCustomerDashState
+    extends State<CustomBarChartCustomerDash> {
+  List<BarChartGroupData> barGroups = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _createBarGroups();
+  }
+
+  void _showSalesmanPopup(dynamic cid, String category) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer<CustomersProvider>(
+          builder: (context, provider, child) {
+            provider.fetchChartCategoryPerformance(
+                widget.customerId, cid, widget.year);
+
+            return FutureBuilder<ProductResponse>(
+              future: provider
+                  .productResponse, // Ensure this is updated in provider
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: SpinKitFadingCube(
+                      color: primaryColor,
+                      size: 20.0,
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  final categories = snapshot.data!.data;
+
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: EdgeInsets.zero,
+                    titlePadding: EdgeInsets.zero,
+                    content: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 45,
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                              color: primaryColor,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  category,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  backgroundColor: Colors.transparent,
+                                  child: SizedBox(
+                                    width: 25.8,
+                                    height: 25.8,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.5),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.red,
+                                            size: 16,
+                                          ),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: DataTable(
+                              dataRowHeight: 35,
+                              headingRowHeight: 40,
+                              columnSpacing: 30,
+                              columns: const [
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Product',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Invoice',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Quantity',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: DialogTableHeaderText(
+                                    text: 'Price',
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                              rows: categories.map((s) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Center(
+                                      child: Text(
+                                        s.variationName,
+                                        style: TextStyle(
+                                          color: secondaryTextColor,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    )),
+                                    DataCell(Center(
+                                      child: Text(
+                                        '${s.orderId}',
+                                        style: TextStyle(
+                                          color: secondaryTextColor,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    )),
+                                    DataCell(Center(
+                                      child: Text(
+                                        '${s.quantity}',
+                                        style: TextStyle(
+                                          color: secondaryTextColor,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    )),
+                                    DataCell(Center(
+                                      child: Text(
+                                        '\$${s.price}',
+                                        style: TextStyle(
+                                          color: secondaryTextColor,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    )),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                } else {
+                  return Center(child: Text('No data available'));
+                }
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _createBarGroups() {
+    barGroups = widget.allCategory.asMap().entries.map((entry) {
+      int index = entry.key;
+      FullCategory category = entry.value;
+
+      // Find matching CategoryPerformance
+      CategoryPerformancez? perf = widget.categoryPerformance.firstWhere(
+        (performance) => performance.category == category.categoryName,
+        orElse: () => CategoryPerformancez(
+          cid: -1,
+          category: category.categoryName,
+          totalPrice: '0', // Default to '0' if no match found
+        ),
+      );
+
+      // Attempt to parse totalPrice safely
+      double target = 0.0; // Default value
+      try {
+        target = double.tryParse(perf.totalPrice) ??
+            0.0; // Use tryParse to avoid exceptions
+      } catch (e) {
+        // Handle any exceptions here (optional)
+        target = 0.0; // Fallback to 0 if there's an error
+      }
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: target,
+            color: const Color(0xff7a8f3d),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none, // Remove border
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  // void _createBarGroups() {
+  //   barGroups = widget.allCategory.asMap().entries.map((entry) {
+  //     int index = entry.key;
+  //     FullCategory category = entry.value;
+
+  //     // Find matching CategoryPerformance
+  //     List<CategoryPerformancez> performances = widget.categoryPerformance
+  //         .where(
+  //           (performance) => performance.category == category.categoryName,
+  //         )
+  //         .toList();
+
+  //     // Calculate total price for the category
+  //     double totalPrice = performances.fold(0.0, (sum, performance) {
+  //       return sum + (double.tryParse(performance.totalPrice) ?? 0.0);
+  //     });
+
+  //     return BarChartGroupData(
+  //       x: index,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: totalPrice,
+  //           color: const Color(0xff39b1e4),
+  //           width: 8,
+  //           borderRadius: BorderRadius.zero,
+  //           borderSide: BorderSide.none,
+  //         ),
+  //       ],
+  //     );
+  //   }).toList();
+  // }
+  Widget getBottomTitles(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: Colors.black,
+      fontWeight: FontWeight.bold,
+      fontSize: 11,
+    );
+    Widget text = Transform.rotate(
+        angle: -1.34 / 4,
+        child: Text(widget.allCategory[value.toInt()].categoryName,
+            // fontWeight: FontWeight.w600,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            )));
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      child: text,
+    );
+  }
+
+  Widget getLeftTitles(double value, TitleMeta meta) {
+    const style = TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.w500,
+        fontSize: 11 // Customize your font size here
+        );
+    return
+
+        // Text(value.toInt().toString(),style: style);
+        Text(value.toInt().toString(),
+            // fontWeight: FontWeight.w600,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CustomersProvider>(
+      builder: (context, provider, child) {
+        return Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: provider.scrollController,
+                child: SizedBox(
+                  width: barGroups.length * 66.0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 3.0),
+                    child: BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        barGroups: barGroups,
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: getLeftTitles,
+                                reservedSize: 40),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: getBottomTitles,
+                              reservedSize: 40,
+                            ),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                        ),
+                        borderData: FlBorderData(
+                          show: true,
+                          border: Border.all(
+                            color: const Color(0xffe0e0e0),
+                            width: 0.9,
+                          ),
+                        ),
+                        barTouchData: BarTouchData(
+                          touchCallback: (FlTouchEvent event,
+                              BarTouchResponse? touchResponse) {
+                            if (touchResponse != null &&
+                                touchResponse.spot != null &&
+                                event is FlTapUpEvent) {
+                              final int index =
+                                  touchResponse.spot!.touchedBarGroupIndex;
+
+                              CategoryPerformancez perf = widget
+                                  .categoryPerformance
+                                  .firstWhere((performance) =>
+                                      performance.category ==
+                                      widget.allCategory[index].categoryName);
+
+                              _showSalesmanPopup(perf.cid,
+                                  widget.allCategory[index].categoryName ?? '');
+                            }
+                          },
+                          touchTooltipData: BarTouchTooltipData(
+                            // tooltipBgColor: Colors.transparent,
+                            tooltipPadding: EdgeInsets.zero,
+                            tooltipMargin: 8,
+                            getTooltipItem: (
+                              BarChartGroupData group,
+                              int groupIndex,
+                              BarChartRodData rod,
+                              int rodIndex,
+                            ) {
+                              return BarTooltipItem(
+                                rod.toY.toString(),
+                                const TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// class CustomBarChartCustomerDash extends StatefulWidget {
+//   final List<FullCategory> allCategory;
+//   final List<CategoryPerformancez> categoryPerformance;
+
+//   const CustomBarChartCustomerDash({
+//     Key? key,
+//     required this.allCategory,
+//     required this.categoryPerformance,
+//   }) : super(key: key);
+
+//   @override
+//   _CustomBarChartCustomerDashState createState() =>
+//       _CustomBarChartCustomerDashState();
+// }
+
+// class _CustomBarChartCustomerDashState
+//     extends State<CustomBarChartCustomerDash> {
+//   List<BarChartGroupData> barGroups = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _createBarGroups();
+//   }
+
+//   void _showSalesmanPopup(List<CategoryPerformancez> salesman, String c) {
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return ClipRRect(
+//           borderRadius: BorderRadius.circular(8),
+//           child: AlertDialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(10),
+//             ),
+//             contentPadding: EdgeInsets.zero,
+//             titlePadding: EdgeInsets.zero,
+//             title: Container(
+//               padding: const EdgeInsets.all(4.8),
+//               decoration: const BoxDecoration(
+//                 color: primaryColor,
+//                 borderRadius: BorderRadius.only(
+//                   topLeft: Radius.circular(10),
+//                   topRight: Radius.circular(10),
+//                 ),
+//               ),
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     c,
+//                     style: const TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 17.5,
+//                     ),
+//                   ),
+//                   CircleAvatar(
+//                     backgroundColor: Colors.transparent,
+//                     child: SizedBox(
+//                       width: 25.8,
+//                       height: 25.8,
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           shape: BoxShape.circle,
+//                           border: Border.all(
+//                             color: Colors.red,
+//                           ),
+//                         ),
+//                         child: Padding(
+//                           padding: const EdgeInsets.all(3.5),
+//                           child: IconButton(
+//                             icon: const Icon(
+//                               Icons.close,
+//                               color: Colors.red,
+//                               size: 16,
+//                             ),
+//                             padding: EdgeInsets.zero,
+//                             constraints: const BoxConstraints(),
+//                             onPressed: () => Navigator.of(context).pop(),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   )
+//                 ],
+//               ),
+//             ),
+//             content: SingleChildScrollView(
+//               child: Padding(
+//                 padding: const EdgeInsets.all(6.0),
+//                 child: DataTable(
+//                   dataRowHeight: 37,
+//                   headingRowHeight: 41,
+//                   border: TableBorder.all(color: Colors.grey, width: 0.8),
+//                   columns: const [
+//                     DataColumn(
+//                         label: Text(
+//                       'Product',
+//                       style: TextStyle(
+//                         color: Colors.black,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                     DataColumn(
+//                         label: Text(
+//                       'Invoice',
+//                       style: TextStyle(
+//                         color: Colors.black,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                     DataColumn(
+//                         label: Text(
+//                       'Quantity',
+//                       style: TextStyle(
+//                         color: Colors.black,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                     DataColumn(
+//                         label: Text(
+//                       'Price',
+//                       style: TextStyle(
+//                         color: Colors.black,
+//                         fontSize: 11.5,
+//                       ),
+//                     )),
+//                   ],
+//                   rows: salesman.map((s) {
+//                     return DataRow(
+//                       cells: [
+//                         DataCell(Text(
+//                           s.productName,
+//                           style: const TextStyle(
+//                             color: Colors.black,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                         DataCell(Text(
+//                           '${s.orderId}',
+//                           style: const TextStyle(
+//                             color: Colors.black,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                         DataCell(Text(
+//                           '${s.quantity}',
+//                           style: const TextStyle(
+//                             color: Colors.black,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                         DataCell(Text(
+//                           '${s.price}',
+//                           style: const TextStyle(
+//                             color: Colors.black,
+//                             fontSize: 11.5,
+//                           ),
+//                         )),
+//                       ],
+//                     );
+//                   }).toList(),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   void _createBarGroups() {
+//     barGroups = widget.allCategory.asMap().entries.map((entry) {
+//       int index = entry.key;
+//       FullCategory category = entry.value;
+
+//       // Find matching CategoryPerformance
+//       List<CategoryPerformancez> performances = widget.categoryPerformance
+//           .where(
+//             (performance) => performance.category == category.categoryName,
+//           )
+//           .toList();
+
+//       // Calculate total price for the category
+//       double totalPrice = performances.fold(0.0, (sum, performance) {
+//         return sum + (double.tryParse(performance.totalPrice) ?? 0.0);
+//       });
+
+//       return BarChartGroupData(
+//         x: index,
+//         barRods: [
+//           BarChartRodData(
+//             toY: totalPrice,
+//             color: const Color(0xff39b1e4),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none,
+//           ),
+//         ],
+//       );
+//     }).toList();
+//   }
+
+//   Widget getBottomTitles(double value, TitleMeta meta) {
+//     const style = TextStyle(
+//       color: Color(0xff68737d),
+//       fontWeight: FontWeight.bold,
+//       fontSize: 8,
+//     );
+//     Widget text = Transform.rotate(
+//       angle: -2.12 / 4,
+//       child: Text(
+//         widget.allCategory[value.toInt()].categories ?? '',
+//         style: style,
+//         textAlign: TextAlign.center,
+//       ),
+//     );
+//     return Container(
+//       margin: const EdgeInsets.only(top: 16),
+//       child: text,
+//     );
+//   }
+
+//   Widget getLeftTitles(double value, TitleMeta meta) {
+//     const style = TextStyle(
+//         color: Color(0xff68737d),
+//         fontWeight: FontWeight.bold,
+//         fontSize: 8 // Customize your font size here
+//         );
+//     return Text(
+//       value.toInt().toString(),
+//       style: style,
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Expanded(
+//           child: BarChart(
+//             BarChartData(
+//               alignment: BarChartAlignment.spaceAround,
+//               barGroups: barGroups,
+//               titlesData: FlTitlesData(
+//                 leftTitles: AxisTitles(
+//                   sideTitles: SideTitles(
+//                       showTitles: true,
+//                       // reservedSize: 44,
+
+//                       getTitlesWidget: getLeftTitles),
+//                 ),
+//                 bottomTitles: AxisTitles(
+//                   sideTitles: SideTitles(
+//                     showTitles: true,
+//                     getTitlesWidget: getBottomTitles,
+//                     reservedSize: 40,
+//                   ),
+//                 ),
+//                 topTitles: AxisTitles(
+//                   sideTitles: SideTitles(showTitles: false),
+//                 ),
+//                 rightTitles: AxisTitles(
+//                   sideTitles: SideTitles(showTitles: false),
+//                 ),
+//               ),
+//               borderData: FlBorderData(
+//                 show: true,
+//                 border: Border.all(
+//                   color: const Color(0xffe0e0e0),
+//                   width: 0.9,
+//                 ),
+//               ),
+//               barTouchData: BarTouchData(
+//                 touchCallback:
+//                     (FlTouchEvent event, BarTouchResponse? touchResponse) {
+//                   if (touchResponse != null &&
+//                       touchResponse.spot != null &&
+//                       event is FlTapUpEvent) {
+//                     final int index = touchResponse.spot!.touchedBarGroupIndex;
+//                     List<CategoryPerformancez> perf = widget.categoryPerformance
+//                         .where((performance) =>
+//                             performance.category ==
+//                             widget.allCategory[index].categoryName)
+//                         .toList();
+//                     _showSalesmanPopup(
+//                         perf, widget.allCategory[index].categoryName ?? '');
+//                   }
+//                 },
+//               ),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }

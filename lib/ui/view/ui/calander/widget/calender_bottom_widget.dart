@@ -1,0 +1,213 @@
+import 'dart:developer';
+
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/select_customer_diloag.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:calendar_view/calendar_view.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class CalenderBottomWidget extends StatelessWidget {
+  final CalenderController calenderController;
+
+  const CalenderBottomWidget({super.key, required this.calenderController});
+
+  @override
+  Widget build(BuildContext context) {
+    return MyCommnonContainer(
+      child: calenderWidget(),
+    );
+  }
+
+  Widget calenderWidget() {
+    //return Container();
+    return MonthView(
+      cellAspectRatio:
+          AppDimensions.instance.orientation == Orientation.landscape
+              ? 2.0
+              : 0.78,
+      headerStyle: HeaderStyle(
+        headerTextStyle: Get.textTheme.bodyMedium,
+      ),
+      pageTransitionCurve: Curves.easeInOutCubicEmphasized,
+      cellBuilder: 
+      // (date, event, isToday, isInMonth) {
+      //   log('event +++ ++ ${event.map((e) => e.event!.totalEvent.toString()).toString()}');
+        // return MyCommnonContainer(
+        //   color: isToday
+        //       ? primaryColor
+        //       : !isInMonth
+        //           ? secondaryTextColor.withOpacity(0.08)
+        //           : null,
+        //   borderRadius: 0,
+        //   onTap: () {
+        //     var data = event.map((e) => e.event).toList();
+        //     print("Events+++ 1234+++ ${date} ${data.length}");
+        //     print("Events+++ 1235+++  ${event.length}");
+        //     print(
+        //         "Events>>> +++ ${date} ${data.toString()} ${data.first!.toJson()}");
+
+        //     if (isInMonth) {
+        //       print('in2++ #${data.length}');
+        //       if (data.isNotEmpty) {
+        //         print('in++');
+        //         List<Customer> customerlist = [];
+        //         for (var element in data.first!.salesman!) {
+        //           print('in3++ ${element.customer!.length}');
+        //           // print('in111++ ${data.first.events!.first.salesman!}');
+        //           if (element.salesmanId ==
+        //               SessionHelper.loginSavedData!.salesmanId) {
+        //             customerlist = element.customer!;
+        //             print('in4++ ${customerlist.length}');
+        //           }
+        //         }
+        //         Get.dialog(SelectCustomerDiloag(
+        //           dateTime: date,
+        //           customerlist: customerlist,
+        //         ));
+        //       }
+        //     }
+        //   },
+        //   padding: nkRegularPadding(),
+        //   child: Column(
+        //     children: [
+        //       MyRegularText(
+        //         label: date.day.toString() + (isToday ? " Today" : ""),
+        //         color: isToday
+        //             ? buttonTextColor
+        //             : !isInMonth
+        //                 ? secondaryTextColor.withOpacity(0.5)
+        //                 : null,
+        //       ),
+        //       nkSmallSizeBox(),
+        //       Flexible(
+        //         child: NkWidgetExceptionHandel(
+        //           data: calenderController.eventControllerv1.events.isNotEmpty,
+        //           isShowRetrySection: false,
+        //           child: Wrap(
+        //             spacing: 5,
+        //             children: event
+        //                 .map((e) => ClipOval(
+        //                     child: nkChildWrappedSizeBox(
+        //                         width: 20,
+        //                         height: 20,
+        //                         child: ColoredBox(
+        //                           color: calenderController
+        //                               /* .getColor(e.event!.type!)
+        //                               .$1*/
+        //                               .getColor(2)
+        //                               .$1
+        //                               .withOpacity(!isInMonth ? 0.2 : 1),
+        //                           child: MyRegularText(
+        //                             color: Colors.white,
+        //                             label: "${e.event!.totalEvent}",
+        //                           ),
+        //                           //  "${data.isEmpty ? "0" : data.first.totalEvent}"),
+        //                         ))))
+        //                 .toList(),
+        //           ),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // );
+      // },
+      (date, event, isToday, isInMonth, hideDaysNotInMonth) {
+          return MyCommnonContainer(
+          color: isToday
+              ? primaryColor
+              : !isInMonth
+                  ? secondaryTextColor.withOpacity(0.08)
+                  : null,
+          borderRadius: 0,
+          onTap: () {
+            var data = event.map((e) => e.event).toList();
+            print("Events+++ 1234+++ ${date} ${data.length}");
+            print("Events+++ 1235+++  ${event.length}");
+            print(
+                "Events>>> +++ ${date} ${data.toString()} ${data.first!.toJson()}");
+
+            if (isInMonth) {
+              print('in2++ #${data.length}');
+              if (data.isNotEmpty) {
+                print('in++');
+                List<Customer> customerlist = [];
+                for (var element in data.first?.salesman??[]) {
+                  print('in3++ ${element.customer?.length??0}');
+                  // print('in111++ ${data.first.events!.first.salesman!}');
+                  if (element.salesmanId ==
+                      SessionHelper.loginSavedData?.salesmanId) {
+                    customerlist = element.customer??'';
+                    print('in4++ ${customerlist.length}');
+                  }
+                }
+                Get.dialog(SelectCustomerDiloag(
+                  dateTime: date,
+                  customerlist: customerlist,
+                ));
+              }
+            }
+          },
+          padding: nkRegularPadding(),
+          child: Column(
+            children: [
+              MyRegularText(
+                label: date.day.toString() + (isToday ? " Today" : ""),
+                color: isToday
+                    ? buttonTextColor
+                    : !isInMonth
+                        ? secondaryTextColor.withOpacity(0.5)
+                        : null,
+              ),
+              nkSmallSizeBox(),
+              Flexible(
+                child: NkWidgetExceptionHandel(
+                  data: calenderController.eventControllerv1.events.isNotEmpty,
+                  isShowRetrySection: false,
+                  child: Wrap(
+                    spacing: 5,
+                    children: event
+                        .map((e) => ClipOval(
+                            child: nkChildWrappedSizeBox(
+                                width: 20,
+                                height: 20,
+                                child: ColoredBox(
+                                  color: calenderController
+                                      /* .getColor(e.event!.type!)
+                                      .$1*/
+                                      .getColor(2)
+                                      .$1
+                                      .withOpacity(!isInMonth ? 0.2 : 1),
+                                  child: MyRegularText(
+                                    color: Colors.white,
+                                    label: "${e.event?.totalEvent}",
+                                  ),
+                                  //  "${data.isEmpty ? "0" : data.first.totalEvent}"),
+                                ))))
+                        .toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      headerStringBuilder: (date, {secondaryDate}) {
+        return NKDateUtils.formatMonth(date);
+      },
+      startDay: WeekDays.monday,
+      controller: calenderController.eventControllerv1,
+      initialMonth: DateTime.now(),
+      maxMonth: DateTime(DateTime.now().year, 12, 31),
+      minMonth: DateTime(DateTime.now().year, 1, 1),
+    );
+  }
+}

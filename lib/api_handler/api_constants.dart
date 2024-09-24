@@ -1,0 +1,53 @@
+mixin class ApiConstants {
+
+  static const String baseUrl = "http://16.50.232.153:3000";
+  static const String imageBaseUrl = "http://139.59.3.15:1000/uploads/";
+  /// Login APi END Point
+  static const String login = "salesman_login";
+  /// Dashboard API
+  static const String dashboard_list = "dashboard_list";
+  static const String search_customer = "search_customer";
+   static const String delete_customer = "delete_customer";
+  static const String fetch_on_salesman = "fetch_on_salesman";
+  static const String fetchcustomer = "fetchAllCustomer";
+  static const String customer_dashboard_list = "customer_dashboard_list";
+  static const String customer_total_sale = "customer_total_sale";
+  static const String place_order = "place_order";
+  static const String add_order_draft = "add_order_draft";
+  static const String fetch_cart = "fetch_cart";
+  static const String customer_order_history = "customer_order_history";
+  static const String add_to_cart = "add_to_cart";
+  static const String cart_delete = "cart_delete";
+  static const String fetch_one_customer = "fetch_one_customer";
+  static const String add_events = "add_events";
+  static const String update_product_price = "update_product_price";
+  static const String payment_add_detail = "payment_add_detail";
+
+  /// Category Api END Point
+  static const String fetchcategories = "fetch_categories";
+  
+  /// Product Api
+  static const String fetchproduct = "fetch_product";
+  static const String fetch_allproduct = "fetch_allproduct";
+
+  /// Leads Api
+  static const String add_customer = "add_customer";
+  static const String fetch_leads = "fetch_leads";
+  static const String update_customer = "update_customer";
+
+  /// CALENDAR API
+  static const String search_salesman = "search_salesman";
+  static const String schedule_customer = "schedule_customer";
+  static const String fetch_schedule_customer = "fetch_schedule_customer";
+  static const String update_events = "update_events";
+
+  /// ORDER API
+  static const String fetch_order = "fetch_order";
+  static const String fetch_all_order = "fetch_all_order";
+
+  /// PENDING  PAYMENT API
+  static const String fetch_pending_payments = "fetch_pending_payments";
+
+  // DUMMY IMAGE URL
+  static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
+}

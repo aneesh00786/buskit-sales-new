@@ -1,0 +1,1287 @@
+import 'dart:developer';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/generated/assets.dart';
+import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:provider/provider.dart';
+
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+class OptionWidgetCustomerDash extends StatelessWidget {
+  final String customerId;
+  final UserType userType;
+  final String userId;
+  final (String, VoidCallback) Function(int index, OrderStatus orderStatus)?
+      optionFun;
+  final String? customType;
+  final bool? isVisible;
+  final OrderStatus? customOrderStatusType;
+  final String? startDate;
+  final String? endDate;
+
+  const OptionWidgetCustomerDash({
+    super.key,
+    required this.customerId,
+    this.optionFun,
+    required this.userType,
+    required this.userId,
+    this.customType,
+    this.customOrderStatusType,
+    this.startDate,
+    this.endDate,
+    this.isVisible = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CustomersProvider>(
+      builder: (context, provider, child) {
+        // Fetch data once the widget is built
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (provider.countFuture == null) {
+            provider.fetchCustomerDashboardCountData(customerId);
+          }
+        });
+
+        return FutureBuilder<ApiResponsees>(
+          future: provider.countFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: SpinKitFadingCube(
+                  color: primaryColor,
+                  size: 20.0,
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else if (snapshot.hasData) {
+              final chatData = snapshot.data!.data;
+              return options(chatData, context, provider);
+            } else {
+              return const Center(child: Text('No data available'));
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget options(OrderDataas orderCountList, BuildContext context,
+      CustomersProvider provider) {
+    return Row(
+      children: _defaultOption(context, provider, orderCountList)
+          .map((e) => orderOptions(e, orderCountList, context))
+          .toList(),
+    );
+  }
+
+  List<OptionData> _defaultOption(BuildContext context,
+          CustomersProvider provider, OrderDataas orderCountList) =>
+      [
+        OptionData(
+          title: 'Orders',
+          count: orderCountList.totalOrder.toString(),
+          svg: Assets.iconsIcDashboardShoppingCart,
+          svgBgColor: const Color(0xFFFCDABD),
+          onTap: () {
+            _showOrderStatusDialog(context, provider, OrderStatus.delivered);
+
+            provider.fetchOrdersForCustomDash(
+                OrderStatus.delivered, customerId);
+          },
+        ),
+        OptionData(
+          title: 'Estimates',
+          count: orderCountList.estimateOrder.toString(),
+          svg: Assets.iconsIcDashboardEstimates,
+          svgBgColor: const Color(0xFFC3DDFD),
+          onTap: () {
+            _showOrderStatusDialog(context, provider, OrderStatus.estimates);
+
+            provider.fetchOrdersForCustomDash(
+                OrderStatus.estimates, customerId);
+          },
+        ),
+        OptionData(
+          title: 'Pre-Orders',
+          count: orderCountList.preorderOrder.toString(),
+          svg: Assets.iconsIcDashboardPreOrder,
+          svgBgColor: const Color(0xFFAFECEF),
+          onTap: () {
+            _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
+
+            provider.fetchOrdersForCustomDash(OrderStatus.preOrder, customerId);
+          },
+        ),
+        OptionData(
+          title: 'Draft',
+          count: orderCountList.draftOrder.toString(),
+          svg: Assets.iconsIcDashboardDraft,
+          svgBgColor: const Color(0xFFBCF0DA),
+          onTap: () {
+            _showOrderStatusDialog(context, provider, OrderStatus.draft);
+
+            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId);
+          },
+        ),
+        OptionData(
+          title: 'Cancelled',
+          count: orderCountList.cancelOrder.toString(),
+          svg: Assets.iconsIcDashboardDraft,
+          svgBgColor: const Color(0xFFBCF0DA),
+          onTap: () {
+            _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
+
+            provider.fetchOrdersForCustomDash(
+                OrderStatus.cancelled, customerId);
+          },
+        ),
+      ];
+
+  Widget orderOptions(
+      OptionData optionData, OrderDataas orderCountList, BuildContext context) {
+    SvgPicture svgComponent = SvgPicture.asset(
+      optionData.svg,
+      height: AppDimensions.instance!.height * 0.03,
+      fit: BoxFit.contain,
+    );
+
+    return Flexible(
+      child: MyCommnonContainer(
+        onTap: optionData.onTap,
+        margin: nkSymmetricPadding(
+          vertical: 0,
+          horizontal: AppDimensions.instance!.width * 0.001,
+        ),
+        padding: nkLargePadding(),
+        isCommonBorder: true,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ClipOval(
+              child: ColoredBox(
+                color: optionData.svgBgColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: svgComponent,
+                ),
+              ),
+            ),
+            Flexible(
+              child: Wrap(
+                direction: Axis.vertical,
+                children: [
+                  MyRegularText(
+                    label: optionData.title,
+                    fontSize: (MediaQuery.of(context).orientation ==
+                            Orientation.portrait)
+                        ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
+                        : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
+                    fontWeight: FontWeight.w600,
+                    color: secondaryTextColor,
+                    //maxLines: optionData.title.length,
+                  ),
+                  MyRegularText(
+                    label: _getCountForTitle(optionData.title, orderCountList),
+                    fontSize:
+                        ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
+                    fontWeight: FontWeight.w600,
+                    color: secondaryTextColor,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getCountForTitle(String title, OrderDataas orderCountList) {
+    switch (title.toLowerCase()) {
+      case 'orders':
+        return orderCountList.totalOrder.toString() ?? "0";
+      case 'estimates':
+        return orderCountList.estimateOrder.toString() ?? "0";
+      case 'pre-orders':
+        return orderCountList.preorderOrder.toString() ?? "0";
+      case 'draft':
+        return orderCountList.draftOrder.toString() ?? "0";
+      case 'cancelled':
+        return orderCountList.cancelOrder.toString() ?? "0";
+      default:
+        return "0";
+    }
+  }
+
+  String getOrderStatusString(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.preOrder:
+        return 'Pre Order';
+      case OrderStatus.outOfDelivery:
+        return 'Out For Delivery';
+      case OrderStatus.delivered:
+        return 'Delivered';
+      case OrderStatus.cancelled:
+        return 'Cancelled';
+      case OrderStatus.draft:
+        return 'Draft';
+      case OrderStatus.processing:
+        return 'Processing';
+      case OrderStatus.pending:
+        return 'Pending';
+      case OrderStatus.estimates:
+        return 'Estimates';
+
+      default:
+        throw Exception('Unsupported order status: $status');
+    }
+  }
+
+  String getOrderStatusName(int orderStatus) {
+    switch (orderStatus) {
+      case 0:
+        return 'Pre Order';
+      case 1:
+        return 'Out For Delivery';
+      case 2:
+        return 'Delivered';
+      case 3:
+        return 'Cancelled';
+      case 4:
+        return 'Draft';
+      case 5:
+        return 'Processing';
+      case 6:
+        return 'Pending';
+      case 7:
+        return 'Estimates';
+      case 8:
+        return 'Accept By Admin';
+      case 9:
+        return 'Reject By Admin';
+      case 10:
+        return 'Packed For Delivery';
+      default:
+        return '';
+    }
+  }
+
+  void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
+      OrderStatus _selectedOrderStatus) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: FutureBuilder<OrderResponse>(
+                future: provider.orderResponse,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox.shrink();
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    final orders = snapshot.data?.data ?? [];
+
+                    // Filter orders based on selected order status
+                    final filteredOrders = orders.where((order) {
+                      if (_selectedOrderStatus == null) {
+                        return true; // Show all orders if no status filter is selected
+                      } else {
+                        return order.orderStatus == _selectedOrderStatus.type;
+                      }
+                    }).toList();
+
+                    return LayoutBuilder(
+                      builder:
+                          (BuildContext context, BoxConstraints constraints) {
+                        double availableWidth = constraints.maxWidth;
+                        double fontSize = 14;
+                        double padding = availableWidth / 100;
+                        double fixedIconSize = fontSize;
+
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Stack(
+                            children: [
+                              DataTable(
+                                dataRowHeight: fontSize * 5.5,
+                                headingRowHeight: 45,
+                                headingRowColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                        (states) {
+                                  return primaryColor;
+                                }),
+                                columnSpacing: padding,
+                                columns: const [
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Customer List',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Order Number',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Order Created',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Order Price',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Invoice',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Payment Status',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: DialogHeaderText(
+                                      text: 'Status',
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                                rows: filteredOrders.map((order) {
+                                  final customer = order.customer.isNotEmpty
+                                      ? order.customer[0]
+                                      : null;
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Center(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                height: fixedIconSize * 1.6,
+                                                width: fixedIconSize * 1.6,
+                                                child: CircleAvatar(
+                                                  backgroundColor:
+                                                      const Color(0xffe6ecff),
+                                                  child: Icon(
+                                                    Icons.person,
+                                                    size: fixedIconSize,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(width: padding),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    customer != null
+                                                        ? customer.businessName
+                                                        : 'N/A',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                      height: fontSize * 0.1),
+                                                  Text(
+                                                    customer != null
+                                                        ? customer.fullName
+                                                        : 'N/A',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    customer != null
+                                                        ? customer.mobileNo
+                                                        : 'N/A',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    customer != null
+                                                        ? customer.email
+                                                        : 'N/A',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            order.orderId,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            order.orderCreatedAt != null
+                                                ? getFormattedOrderCreatAt(order
+                                                    .orderCreatedAt
+                                                    .toString())
+                                                : 'N/A',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            '\$${order.orderTotal.toStringAsFixed(2)}',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: InkWell(
+                                              onTap: () {
+                                                _showDetailedOrderDialog(
+                                                    context, order);
+                                              },
+                                              child: text(order.invoice, 14.0)),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: order.paymentStatus == 0
+                                                  ? Colors.red
+                                                  : Colors.green,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: order.paymentStatus == 0
+                                                    ? Colors.red
+                                                    : Colors.green,
+                                              ),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(1.0),
+                                              child: Icon(
+                                                order.paymentStatus == 0
+                                                    ? Icons.close
+                                                    : Icons.done,
+                                                color: Colors.white,
+                                                size: 14,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xffffdbb8),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(50)),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              child: Text(
+                                                _getStatusName(
+                                                    order.orderStatus),
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: SizedBox(
+                                  height: 45,
+                                  width: 45,
+                                  child: Center(
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.transparent,
+                                      child: SizedBox(
+                                        width: 26.2,
+                                        height: 26.2,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(
+                                              Icons.close,
+                                              color: Colors.red,
+                                              size: 10,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+}
+
+String _getStatusName(int status) {
+  switch (status) {
+    case 5:
+      return 'Order Processing';
+    case 10:
+      return 'Packed for Delivery';
+    case 1:
+      return 'Out for Delivery';
+    case 2:
+      return 'Delivered';
+    default:
+      return 'Unknown';
+  }
+}
+
+Text text(List<InvoiceDash> invoices, dynamic s) {
+  String invoiceIds = invoices.map((invoice) => invoice.invoiceId).join(', ');
+  return Text(invoiceIds,
+      style: TextStyle(
+        fontSize: s,
+        color: primaryColor,
+        fontWeight: FontWeight.w400,
+      ));
+}
+
+void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(9),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.transparent,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.red,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.2),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.red,
+                        size: 15,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Divider(),
+                        //     Text('${order.cart[0]}'),
+                        MyRegularText(
+                            label: order.customer.isNotEmpty
+                                ? '${order.customer[0].fullName}'
+                                : 'N/A',
+                            style: const TextStyle(fontSize: 20)),
+                        MyRegularText(
+                            label: order.invoice.isNotEmpty &&
+                                    order.invoice[0].createdAt != null
+                                ? 'Invoice Date: ${getFormattedOrderCreatAt(order.invoice[0].createdAt)}'
+                                : 'Invoice Date: N/A'),
+                        MyRegularText(
+                            label: order.invoice.isNotEmpty
+                                ? 'Invoice N0: ${order.invoice[0].invoiceId}'
+                                : 'Invoice N0: N/A'),
+                      ],
+                    ),
+                  ),
+                  //VerticalDivider(),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Divider(),
+                        MyRegularText(
+                            label: order.customer[0].businessName,
+                            style: const TextStyle(fontSize: 16)),
+                        MyRegularText(label: order.customer[0].fullName),
+                        MyRegularText(label: order.customer[0].email),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Divider(),
+                  LayoutBuilder(builder: (context, constraints) {
+                    return ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minWidth: constraints.maxWidth),
+                      child: SingleChildScrollView(
+                          child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                    color: secondaryTextColor, width: 0.7),
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                      label: 'QTY',
+                                      style:
+                                          TextStyle(color: secondaryTextColor),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                      label: 'Description',
+                                      style:
+                                          TextStyle(color: secondaryTextColor),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                      label: 'Price',
+                                      style:
+                                          TextStyle(color: secondaryTextColor),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                      label: 'Sub Total',
+                                      style:
+                                          TextStyle(color: secondaryTextColor),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ...order.cart.map((item) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                        label: item.quantity.toString()),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                        label: item.variationName),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                        label: item.price.toStringAsFixed(2)),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: MyRegularText(
+                                        label: (item.price).toStringAsFixed(2)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        ],
+                      )),
+                    );
+                  }),
+                ],
+              ),
+              const Divider(),
+              LayoutBuilder(builder: (context, constraints) {
+                return ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Column(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                                color: secondaryTextColor, width: 0.7),
+                          ),
+                        ),
+                        child: const Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: MyRegularText(
+                                  label: 'Payment Info',
+                                  style: TextStyle(color: secondaryTextColor),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: MyRegularText(
+                                  label: 'Due By',
+                                  style: TextStyle(color: secondaryTextColor),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: MyRegularText(
+                                  label: 'Total Due',
+                                  style: TextStyle(color: secondaryTextColor),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyRegularText(
+                                  label: order.paymentDetail.toString()),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyRegularText(
+                                  label: getFormattedOrderCreatAt(
+                                      order.checkDueDate)),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyRegularText(
+                                  label: order.orderTotal.toStringAsFixed(2)),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+
+                  // DataTable(
+                  //   columns: [
+                  //     DataColumn(label: Text('Payment Info')),
+                  //     DataColumn(label: Text('Due By')),
+                  //     DataColumn(label: Text('Total Due')),
+                  //   ],
+                  //   rows: [
+                  //     DataRow(cells: [
+                  //       DataCell(Text(order.paymentDetail)),
+                  //       DataCell(Text(order.checkDueDate.toString())),
+                  //       DataCell(Text(order.orderTotal.toStringAsFixed(2))),
+                  //     ]),
+                  //   ],
+                  // ),
+                );
+              }),
+              const Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(primaryColor),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              4.0), // Adjust the radius value as needed
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      // Handle reject action
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Reject',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    //  style: ElevatedButton.styleFrom(primary: Colors.red),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(primaryColor),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              4.0), // Adjust the radius value as needed
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      // Handle accept action
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Accept',
+                        style: const TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class OptionData {
+  String title;
+  String count;
+  String svg;
+  Color svgBgColor;
+  VoidCallback? onTap;
+
+  OptionData({
+    required this.title,
+    required this.count,
+    required this.svg,
+    required this.svgBgColor,
+    this.onTap,
+  });
+}
+
+// import 'package:flutter_spinkit/flutter_spinkit.dart';
+// class OptionWidget extends StatelessWidget {
+//   final UserType userType;
+//   final String userId;
+//   final (String, VoidCallback) Function(int index, OrderStatus orderStatus)? optionFun;
+//   final int? orderCount;
+//   final int? eastimatesCount;
+//   final int? preOrderCount;
+//   final int? draftCount;
+//   final int? cancelledCount;
+//   final String? customType;
+//   final bool? isVisible;
+//   final OrderStatus? customOrderStatusType;
+//   final String? startDate;
+//   final String? endDate;
+
+//   const OptionWidget({
+//     super.key,
+//     this.optionFun,
+//     required this.userType,
+//     required this.userId,
+//     this.orderCount,
+//     this.eastimatesCount,
+//     this.preOrderCount,
+//     this.draftCount,
+//     this.customType,
+//     this.customOrderStatusType,
+//     this.startDate,
+//     this.endDate,
+//     this.isVisible = false,
+//     this.cancelledCount,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer<DashboardProvider>(
+//       builder: (context, provider, child) {
+//         return FutureBuilder<ResponseModell>(
+//           future: provider.futureResponseModel,
+//           builder: (context, snapshot) {
+//             if (snapshot.connectionState == ConnectionState.waiting) {
+//               return const Center(
+//                 child: CircularProgressIndicator(),
+//               );
+//             } else if (snapshot.hasError) {
+//               return Center(
+//                 child: Text('Error: ${snapshot.error}'),
+//               );
+//             } else {
+//               final orderCountList = snapshot.data!.orderCountList;
+//               return options(orderCountList, provider, context);
+//             }
+//           },
+//         );
+//       },
+//     );
+//   }
+
+//   Widget options(OrderCountListt? orderCountList, DashboardProvider provider, BuildContext context) {
+//     return Row(
+//       children: _defaultOption
+//           .map((e) => orderOptions(e, orderCountList, provider, context))
+//           .toList(),
+//     );
+//   }
+
+//   List<OptionData> get _defaultOption => [
+//         OptionData(
+//           title: 'Orders',
+//           count: orderCount?.toString() ?? "0",
+//           svg: Assets.iconsIcDashboardShoppingCart,
+//           svgBgColor: const Color(0xFFFCDABD),
+//           orderStatus: OrderStatus.delivered,
+//         ),
+//         OptionData(
+//           title: 'Estimates',
+//           count: eastimatesCount?.toString() ?? "0",
+//           svg: Assets.iconsIcDashboardEstimates,
+//           svgBgColor: const Color(0xFFC3DDFD),
+//           orderStatus: OrderStatus.estimates,
+//         ),
+//         OptionData(
+//           title: 'Pre-Order',
+//           count: preOrderCount?.toString() ?? "0",
+//           svg: Assets.iconsIcDashboardPreOrder,
+//           svgBgColor: const Color(0xFFAFECEF),
+//           orderStatus: OrderStatus.preOrder,
+//         ),
+//         OptionData(
+//           title: 'Draft',
+//           count: draftCount?.toString() ?? "0",
+//           svg: Assets.iconsIcDashboardDraft,
+//           svgBgColor: const Color(0xFFBCF0DA),
+//           orderStatus: OrderStatus.draft,
+//         ),
+//         OptionData(
+//           title: 'Cancelled',
+//           count: cancelledCount?.toString() ?? "0",
+//           svg: Assets.iconsIcDashboardDraft,
+//           svgBgColor: const Color(0xFFBCF0DA),
+//           orderStatus: OrderStatus.cancelled,
+//         ),
+//       ];
+
+//   Widget orderOptions(OptionData optionData, OrderCountListt? orderCountList, DashboardProvider provider, BuildContext context) {
+//     SvgPicture svgComponent = SvgPicture.asset(
+//       optionData.svg,
+//       height: AppDimensions.instance!.height * 0.03,
+//       fit: BoxFit.contain,
+//     );
+//     return Flexible(
+//       child: MyCommnonContainer(
+//         onTap: () {
+//           if (optionFun != null) {
+//             optionFun!.call(_defaultOption.indexOf(optionData), optionData.orderStatus);
+//           } else {
+//             // Default action if optionFun is not provided
+//             showDialogForOrderStatus(optionData.orderStatus, provider, context);
+//           }
+//         },
+//         margin: nkSymmetricPadding(
+//           vertical: 0,
+//           horizontal: AppDimensions.instance!.width * 0.001,
+//         ),
+//         padding: nkSymmetricPadding(),
+//         isCommonBorder: true,
+//         child: Row(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           children: [
+//             ClipOval(
+//               child: ColoredBox(
+//                 color: optionData.svgBgColor,
+//                 child: Padding(
+//                   padding: const EdgeInsets.all(5.0),
+//                   child: svgComponent,
+//                 ),
+//               ),
+//             ),
+//             Flexible(
+//               child: Wrap(
+//                 direction: Axis.vertical,
+//                 children: [
+//                   MyRegularText(
+//                     label: optionData.title,
+//                     maxlines: optionData.title.length,
+//                   ),
+//                   MyRegularText(
+//                     label: _getCountForTitle(optionData.title, orderCountList),
+//                     fontWeight: FontWeight.bold,
+//                   )
+//                 ],
+//               ),
+//             )
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   String _getCountForTitle(String title, OrderCountListt? orderCountList) {
+//     switch (title.toLowerCase()) {
+//       case 'orders':
+//         return orderCountList?.totalOrder.toString() ?? "0";
+//       case 'estimates':
+//         return orderCountList?.estimateOrder.toString() ?? "0";
+//       case 'pre-order':
+//         return orderCountList?.preorderOrder.toString() ?? "0";
+//       case 'draft':
+//         return orderCountList?.draftOrder.toString() ?? "0";
+//       case 'cancelled':
+//         return orderCountList?.cancelOrder.toString() ?? "0";
+//       default:
+//         return "0";
+//     }
+//   }
+// void showDialogForOrderStatus(OrderStatus orderStatus, DashboardProvider provider, BuildContext context) {
+//   final orderStatusType = orderStatus.type; // Get the type of the order status
+
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return Dialog(
+//         child: FutureBuilder<OrderResponse>(
+//           future: provider.orderResponse,
+//           builder: (context, snapshot) {
+//             if (snapshot.connectionState == ConnectionState.waiting) {
+//               return const Center(
+//                 child: CircularProgressIndicator(),
+//               );
+//             } else if (snapshot.hasError) {
+//               return Center(
+//                 child: Text('Error: ${snapshot.error}'),
+//               );
+//             } else {
+//               final orders = snapshot.data?.data;
+
+//               // Filter orders based on orderStatusType
+//               final filteredOrders = orders?.where((order) => order.orderStatus == orderStatusType).toList();
+
+//               return Column(
+//                 children: [
+//                   ElevatedButton(
+//                     onPressed: () {
+//                       provider.fetchOrders();
+//                     },
+//                     child: const Text('Refresh Orders'),
+//                   ),
+//                   Expanded(
+//                     child: ListView.builder(
+//                       itemCount: filteredOrders?.length ?? 0,
+//                       itemBuilder: (context, index) {
+//                         final order = filteredOrders![index];
+//                         final customers = order.customer;
+
+//                         return ListTile(
+//                           title: Text('Order ID: ${order.orderId}'),
+//                           subtitle: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               if (customers != null && customers.isNotEmpty)
+//                                 Text('NUmber ID: ${customers[0].fullName}'), // Example accessing the first customer, adjust as needed
+//                               Text('Payment Type: ${order.paymentType}'),
+//                               Text('Order Created At: ${order.orderCreatedAt}'),
+//                               Text('Order Total: \$${order.orderTotal.toStringAsFixed(2)}'),
+//                               // Add more fields as needed
+//                             ],
+//                           ),
+//                           onTap: () {
+//                             // Handle tapping on an order item
+//                           },
+//                         );
+//                       },
+//                     ),
+//                   ),
+//                 ],
+//               );
+//             }
+//           },
+//         ),
+//       );
+//     },
+//   );
+// }
+
+//   String getOrderStatusName(OrderStatus orderStatus) {
+//     switch (orderStatus) {
+//       case OrderStatus.preOrder:
+//         return 'Pre Order';
+//       case OrderStatus.estimates:
+//         return 'Estimates';
+//       case OrderStatus.draft:
+//         return 'Draft';
+//       case OrderStatus.cancelled:
+//         return 'Cancelled';
+//       default:
+//         return '';
+//     }
+//   }
+// }
+
+// class OptionData {
+//   String title;
+//   String count;
+//   String svg;
+//   Color svgBgColor;
+//   OrderStatus orderStatus;
+
+//   OptionData({
+//     required this.title,
+//     required this.count,
+//     required this.svg,
+//     required this.svgBgColor,
+//     required this.orderStatus,
+//   });
+// }
+class YourWidget extends StatelessWidget {
+  final OrderStatus selectedOrderStatus;
+  final void Function(OrderStatus?)? onChanged; // Adjusted callback type
+
+  const YourWidget({
+    Key? key,
+    required this.selectedOrderStatus,
+    this.onChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<OrderStatus>(
+      value: selectedOrderStatus,
+      onChanged: onChanged,
+      items: OrderStatus.values.map((status) {
+        return DropdownMenuItem<OrderStatus>(
+          value: status,
+          child: Text(status.name),
+        );
+      }).toList(),
+    );
+  }
+}

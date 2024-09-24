@@ -1,0 +1,139 @@
+/// Dash Board Screen
+const String dashBoardHeadingName = "Admin";
+const String dashBoard = "Dashboard";
+const String customersAndOrders = "Customers & orders";
+const String products = "Products";
+const String pendingPayments = "Pending Payments";
+
+const String calendar = "Calendar";
+const String staff = "Staff";
+const String todayOrders = "Today’s Orders";
+const String topSellingProduct = "Top Selling Products";
+
+/// Login
+const String email = "Email";
+const String enterEmail = "Enter Email";
+const String password = "Password";
+const String enterPassword = "Enter Password";
+const String singIn = "Sing In";
+const String communications = "Communications";
+/// Dashboard
+const String today = "Today";
+const String routesString = "Routes";
+const String orders = "Orders";
+const String estimates = "Estimates";
+const String preOrder = "Pre-Order";
+const String draft = "Draft";
+const String categoryPerformanceProjection =
+    "Category Performance Projection V/S Actual";
+const String projectionsVsActual = "Projections Vs Actual";
+const String revenue = "Revenue";
+const String notifications = "Notifications";
+
+const String collection = "Collection";
+const String orderDelivery = "Order Delivery";
+const String orderTaking = "Order Taking";
+const String go = "Go";
+const String stops = "Stops";
+const String mapStr = "Map";
+
+/// Customers And Orders
+const String categorySales = "Category Sales";
+const String thereAreNoOrdersNow = "There are no orders now";
+const String thereAreNoDraftOrdersNow = "There are no Draft orders now";
+const String priceChanged = "Price Changed";
+const String bySTR = "By";
+const String amount = "Amount";
+const String quantity = "Quantity";
+const String details = "Details";
+const String submit = "Submit";
+
+/// Products
+const String bulkUpload = "Bulk Upload";
+const String addAndEditCategory = "Add/Edit Category and Products";
+const String editCategory = "Edit Category";
+const String add = "Add";
+const String update = "Update";
+const String category = "Category";
+const String save = "Save";
+const String addProduct = "Add Product";
+const String capture = "Capture";
+const String or = "or";
+const String browser = "browser";
+const String delete = "Delete";
+const String formatSupports = "Supports: PNG,JPEG,JPG";
+const String productName = "Product Name";
+const String brandName = "Brand Name";
+const String productDisCription = "Product Description";
+const String addToCart = "Add to Cart";
+const String noProductAvailable = "No Product Available";
+const String productVariant = "Product Variant";
+const String myCart = "My Cart";
+const String subtotal = "Subtotal";
+const String totalString = "Total";
+const String taxString = "Tax";
+const String finalAmountString = "Final Amount";
+const String saveAsdraft = "Save as draft";
+const String saveAsSend = "Save as Send";
+const String continueShopping = "Continue Shopping";
+const String orderPlacedSuccessfully = "Order Placed Successfully";
+const String orderAddedInDraft = "Order Added In Draft";
+const String edit = "Edit";
+const String price = "Price";
+const String reason = "Reason";
+
+/// Leads
+const String customer = "Customer";
+const String leads = "Leads";
+const String newStatus = "New";
+const String rejected = "Rejected";
+
+const String fullName = "Full Name";
+const String mobileNumber = "Mobile Number";
+const String zipCode = "Zip Code";
+const String businessContact = "Business Contact";
+const String remark = "Remark";
+const String city = "City";
+const String state = "State";
+const String businessName = "Business Name";
+const String address = "Address";
+const String contactNumber = "Contact Num";
+const String photo = "Photo";
+const String id = "ID";
+const String takeAPhotoOfIdCard = "Take a photo of Your ID card";
+
+/// Calendar
+const String dayTask = "Day Task";
+const String schedule = "Schedule";
+const String totalVisit = "Total Visits";
+const String event = "Event";
+
+/// COMMON TEXT
+const String setting = "Settings";
+const String logOut = "Logout";
+const String search = "Search";
+const String someThingWentWrong = "Oops Something Went Wrong";
+const String retry = "Retry";
+const String invoice = "Invoice";
+const String dateStr = "Date";
+const String numberStr = "Number";
+const String cancel = "Cancel";
+
+/// ERROR AND SNACK BAR
+const String pleaseEnterCategoryName = 'Please enter category name';
+const String pleaseEnterSubCategoryName = 'Please enter sub category name';
+const String areYouSureToDelete = 'Are you sure to delete?';
+const String pleaseFillAllDetails = 'Please fill all details';
+const String pleaseEnterProductDiscription = 'Please enter product description';
+const String pleaseEnterProductName = 'Please enter product name';
+const String pleaseSelectProductImage = 'Please select product image';
+const String pleaseSelectAUserToSend = 'Please select a User To Send';
+const String pleaseEnterMessage = 'Enter message to send';
+const String productNotAvailable = 'Product not available';
+const String pleaseSelectPhotoId = 'Please select photo id';
+const String pleaseSelectPhoto = 'Please select photo';
+const String locationPermissionDenied = 'Location Permission Denied';
+const String noItemAddedToCart = 'No Item Added To Cart';
+const String yes = "Yes";
+const String no = "No";
+const String to = "To";

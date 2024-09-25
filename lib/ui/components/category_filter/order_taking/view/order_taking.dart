@@ -65,7 +65,6 @@ class _OrderTakingState extends State<OrderTaking>
   void initState() {
     super.initState();
     //category= widget.productsController.fetchCategoryData();
-    
     fetchAndSetCustomers();
     _drawerTimer = Timer(const Duration(seconds: 4), () {
       setState(() {
@@ -147,60 +146,66 @@ class _OrderTakingState extends State<OrderTaking>
 
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
-  void handleBackNavigation(BuildContext context) {
-    if (CartDatabaseManager().cartItems.isNotEmpty &&
-        customeController.customerId.value.isNotEmpty) {
-      _showCartDialog();
-      Future.delayed(Duration(seconds: 1));
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Center(
-              child: Container(
-                  height: 150,
-                  width: 150,
-                  child: Lottie.asset(
-                      'assets/images/Animation - cart_has_data.json')),
+void handleBackNavigation(BuildContext context) {
+  if (CartDatabaseManager().cartItems.isNotEmpty &&
+      customeController.customerId.value.isNotEmpty) {
+    _showCartDialog();
+    
+    Future.delayed(Duration(seconds: 1));
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(
+            child: Container(
+              height: 150,
+              width: 150,
+              child: Lottie.asset('assets/images/Animation - cart_has_data.json'),
             ),
-            content: CustomText(
-              content: 'Would you like to save this as a draft?',
-              fontSize: 25,
+          ),
+          content: CustomText(
+            content: 'Would you like to save this as a draft?',
+            fontSize: 25,
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); 
+                    Navigator.of(context, rootNavigator: true).pop(); 
+
+                    Future.delayed(Duration(milliseconds: 300), () {
+                      homeController.sidebarXController.selectIndex(0);
+                      homeController.selectedIndex.value = 0;
+                      Get.toNamed(AppRoutes.dashboard, id: 2);
+                    });
+
+                    CartDatabaseManager().cartItems.clear();
+                    CartDatabaseManager().clearCart();
+                  },
+                  child: Text('Clear cart'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context); 
+                  },
+                  child: Text('Ok'),
+                ),
+              ],
             ),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Future.delayed(Duration(milliseconds: 300), () {
-                        homeController.sidebarXController.selectIndex(0);
-                        homeController.selectedIndex.value = 0;
-                        Get.toNamed(AppRoutes.dashboard, id: 2);
-                      });
-                      CartDatabaseManager().cartItems.clear();
-                      CartDatabaseManager().clearCart();
-                    },
-                    child: Text('Clear cart'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Ok'),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      Navigator.pop(context);
-    }
+          ],
+        );
+      },
+    );
+  } else {
+    Navigator.pop(context); 
   }
+}
+
 
   void showSaveDraftConfirmationDialog() {
     showDialog(

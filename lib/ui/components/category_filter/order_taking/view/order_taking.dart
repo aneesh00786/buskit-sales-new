@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard/dashboard_ui/dashboard_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -49,6 +52,7 @@ class _OrderTakingState extends State<OrderTaking>
   TextEditingController searchController = TextEditingController();
   CustomerAndOrderController customerAndOrderController =
       Get.find<CustomerAndOrderController>();
+  HomeController homeController = Get.find<HomeController>();
   bool isLoading = true;
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
@@ -61,6 +65,7 @@ class _OrderTakingState extends State<OrderTaking>
   void initState() {
     super.initState();
     //category= widget.productsController.fetchCategoryData();
+    
     fetchAndSetCustomers();
     _drawerTimer = Timer(const Duration(seconds: 4), () {
       setState(() {
@@ -145,6 +150,8 @@ class _OrderTakingState extends State<OrderTaking>
   void handleBackNavigation(BuildContext context) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
+      _showCartDialog();
+      Future.delayed(Duration(seconds: 1));
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -158,8 +165,7 @@ class _OrderTakingState extends State<OrderTaking>
                       'assets/images/Animation - cart_has_data.json')),
             ),
             content: CustomText(
-              content:
-                  'Would you like to save this as a draft? If not, your cart data will be lost',
+              content: 'Would you like to save this as a draft?',
               fontSize: 25,
             ),
             actions: [
@@ -170,60 +176,20 @@ class _OrderTakingState extends State<OrderTaking>
                     onPressed: () {
                       Navigator.pop(context);
                       Future.delayed(Duration(milliseconds: 300), () {
-                        triggerLeadingIcon();
+                        homeController.sidebarXController.selectIndex(0);
+                        homeController.selectedIndex.value = 0;
+                        Get.toNamed(AppRoutes.dashboard, id: 2);
                       });
                       CartDatabaseManager().cartItems.clear();
                       CartDatabaseManager().clearCart();
                     },
-                    child: Text('Don\'t Save'),
+                    child: Text('Clear cart'),
                   ),
                   TextButton(
                     onPressed: () async {
-                      List<Detail> detail = CartDatabaseManager()
-                          .cartItems
-                          .map((e) => e.detail)
-                          .toList();
-
-                      final productBYData = AddToCartModel(
-                        customerId: customeController.customerId.value,
-                        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                        cartId: '',
-                        cartList: detail
-                            .map((e) => SendCartData(
-                                  productId: e.productId ?? '',
-                                  variantId: e.variationId ?? '',
-                                  pack: '2',
-                                  price: e.price.toString(),
-                                  discount: '0',
-                                  quantity: e.count.toInt(),
-                                ))
-                            .toList(),
-                        total: widget.productsController.finalAmount.value
-                            .toStringAsFixed(0),
-                        discount: '0',
-                      );
-
-                      CartOrderModel? cartOrder =
-                          await ApiWorker().addToCart(productBYData.toJson());
-                      log('CartId :${cartOrder?.cartId}');
-                      if (cartOrder != null) {
-                        int orderStatus = 4;
-                        CartOrderModel order = CartOrderModel(
-                          customerId: customeController.customerId.value,
-                          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                          cartId: cartOrder.cartId,
-                          orderStatus: orderStatus,
-                        );
-                        log('CartId :${cartOrder.cartId}');
-                        await widget.productsController.placeOrder(order);
-                        CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCart();
-                      }
-
                       Navigator.pop(context);
-                      showSaveDraftConfirmationDialog();
                     },
-                    child: Text('Save as Draft'),
+                    child: Text('Ok'),
                   ),
                 ],
               ),
@@ -274,7 +240,9 @@ class _OrderTakingState extends State<OrderTaking>
         customeController.customerId.value.isNotEmpty) {
       handleBackNavigation(context);
     } else {
-      Navigator.pop(context);
+      homeController.sidebarXController.selectIndex(0);
+      homeController.selectedIndex.value = 0;
+      Get.toNamed(AppRoutes.dashboard, id: 2);
     }
   }
 
@@ -461,32 +429,34 @@ class _OrderTakingState extends State<OrderTaking>
                         children: [
                           IntrinsicWidth(
                             child: ListTile(
-                              title: Text(_selectedCustomerName.isEmpty
-                                  ? 'Name'
-                                  : _selectedCustomerName),
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    _selectedCustomerImageUrl.isEmpty
-                                        ? ''
-                                        : _selectedCustomerImageUrl),
-                                backgroundColor:
-                                    _selectedCustomerImageUrl.isEmpty
-                                        ? Colors.blueGrey
-                                        : Colors.transparent,
-                              ),
-                            ),
+                                title: Text(_selectedCustomerName.isEmpty
+                                    ? ''
+                                    : _selectedCustomerName),
+                                leading: _selectedCustomerName.isEmpty
+                                    ? null
+                                    : CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                            _selectedCustomerImageUrl.isEmpty
+                                                ? ''
+                                                : _selectedCustomerImageUrl),
+                                        backgroundColor:
+                                            _selectedCustomerImageUrl.isEmpty
+                                                ? Colors.blueGrey
+                                                : Color.fromARGB(
+                                                    123, 194, 192, 192),
+                                      )),
                           ),
                           SizedBox(
                             height: 40,
                             child: LiteRollingSwitch(
                               value: active,
-                              textOn: 'check in',
-                              textOff: 'check out',
+                              textOn: 'Checked-in',
+                              textOff: 'Checked out',
                               textOnColor: white,
                               textOffColor: white,
                               colorOn: Colors.greenAccent[700]!,
                               colorOff: Colors.redAccent[700]!,
-                              width: 100,
+                              width: 120,
                               iconOn: Icons.done,
                               iconOff: Icons.remove_circle_outline,
                               textSize: 10.0,
@@ -498,6 +468,23 @@ class _OrderTakingState extends State<OrderTaking>
                                   active = state;
                                 });
                                 print('Current State of SWITCH IS: $state');
+                                active == true
+                                    ? ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.green,
+                                          content: Text(
+                                              'You are successfully checked-in'),
+                                          duration: Duration(seconds: 3),
+                                        ),
+                                      )
+                                    : ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text(
+                                            'You are successfully checked-out'),
+                                        duration: Duration(seconds: 3),
+                                      ));
                               },
                             ),
                           )
@@ -651,7 +638,8 @@ class _OrderTakingState extends State<OrderTaking>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CartDialogue();
+        return CartDialogue(
+        );
       },
     );
   }

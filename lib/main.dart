@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,6 +47,7 @@ void main() async {
   ));
 
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
+      Get.lazyPut<HomeController>(() => HomeController());
   if (SessionHelper.loginSavedData != null) {
     runApp(MyApp(initialRout: AppRoutes.home));
   } else {
@@ -83,6 +85,7 @@ class _MyAppState extends State<MyApp> {
             initialRoute: widget.initialRout,
             themeMode: ThemeMode.system,
             debugShowCheckedModeBanner: false,
+            
           ),
         );
       },

@@ -7,9 +7,9 @@ import 'package:get/get.dart';
 class CommonBinding extends Bindings {
   @override
   void dependencies() {
+    Get.lazyPut(()=>  HomeController());
     Get.lazyPut(() => ApiWorker());
-    Get.lazyPut(()=>HomeController());
-    Get.lazyPut(()=>CustomerAndOrderController());
+    Get.lazyPut(()=>  CustomerAndOrderController());
     Get.lazyPut(() => DatabaseHelper.database);
   }
 }

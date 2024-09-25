@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_o
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_binding.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_ui/home_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_screen.dart';
@@ -50,7 +51,7 @@ class AppRoutes {
         GetPage(
           name: dashboard,
           page: () => DashBoardScreen(
-            homeController: Get.arguments,
+            homeController: Get.arguments??HomeController(),
           ),
         ),
         GetPage(
@@ -72,8 +73,10 @@ class AppRoutes {
           arguments: Get.arguments,
           transitionDuration: NkCommonFunction.longDuration(),
           transition: Transition.rightToLeft,
-          page: () =>
-              CustomerDachScreen(cusId: '',year: '',),
+          page: () => CustomerDachScreen(
+            cusId: '',
+            year: '',
+          ),
           binding: CommonBinding(),
         ),
         GetPage(

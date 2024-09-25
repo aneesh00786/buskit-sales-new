@@ -3,11 +3,15 @@ import 'dart:developer';
 import 'dart:io';
 //import 'package:charts_flutter/flutter.dart';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
+import 'package:dio/dio.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,103 +20,99 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
+import 'dash_models.dart';
+
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
+  
+Future<ResponseModell> fetchDashboardData({
+  required String salesmanId,
+  required String startDate,
+  required String endDate,
+  required String createdToken,
+}) async {
+  final url = '$_baseUrl${ApiConstants.dashboard_list}';
+  final requestBody = {
+    "salesman_id": "salesmanId",
+    "start_date": startDate,
+    "end_date": endDate,
+  };
 
-  Future<ResponseModell> fetchDashboardData({
-    required String salesmanId,
-    required String startDate,
-    required String endDate,
-  }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.dashboard_list}');
-    final requestBody = {
-      "salesman_id": salesmanId,
-      "start_date": startDate,
-      "end_date": endDate,
-    };
+  try {
+    log('API URL: $url');
+    log('Request Body: $requestBody');
+    log("Created Token: $createdToken");
 
-    try {
-      print('API URL: $url');
-      print('Request Body: $requestBody');
+    final response = await Dio().post(
+      url,
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $createdToken',
+          // 'Content-Type': 'application/json', // Set the content type if needed
+        },
+      ),
+      data: jsonEncode(requestBody), // Convert request body to JSON
+    );
 
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
+    log("Response Status Code: ${response.statusCode}");
+    log('Response Body: ${response.data}');
+
+    if (response.statusCode == 200) {
+      var jsonResponse = response.data;
+
+      print('Order Count List: ${jsonResponse['data']['order_count_list']}');
+
+      var allCategoryList = jsonResponse['data']['all_category'] as List;
+      List<Category> allCategory =
+          allCategoryList.map((json) => Category.fromJson(json)).toList();
+
+      var performanceList =
+          jsonResponse['data']['category_performance'] as List;
+      List<CategoryPerformancee> categoryPerformance = performanceList
+          .map((json) => CategoryPerformancee.fromJson(json))
+          .toList();
+
+      var revenueJson = jsonResponse['data']['revenu'];
+      Revenuee revenu = Revenuee.fromJson(revenueJson ?? {});
+
+      var collectionJson = jsonResponse['data']['collection'];
+      Collection collection = Collection.fromJson(collectionJson ?? {});
+
+      var deliveryJson = jsonResponse['data']['delivery'];
+      Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
+
+      var topSellingList =
+          jsonResponse['data']['top_selling_product'] as List;
+      List<TopSellingProductA> topSellingProducts = topSellingList
+          .map((json) => TopSellingProductA.fromJson(json))
+          .toList();
+
+      var orderCountListJson = jsonResponse['data']['order_count_list'];
+      OrderCountListt orderCountList =
+          OrderCountListt.fromJson(orderCountListJson ?? {});
+
+      return ResponseModell(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        allCategory: allCategory,
+        categoryPerformance: categoryPerformance,
+        revenue: revenu,
+        collection: collection,
+        delivery: delivery,
+        topSellingProducts: topSellingProducts,
+        orderCountList: orderCountList,
       );
-
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-
-        print(
-            'sabik kavungal ponmala plluippad i. .. .  . .. . . . .. . . . . .   ${jsonResponse['data']['order_count_list']}');
-
-        var allCategoryList = jsonResponse['data']['all_category'] as List;
-        List<Category> allCategory =
-            allCategoryList.map((json) => Category.fromJson(json)).toList();
-
-        var performanceList =
-            jsonResponse['data']['category_performance'] as List;
-        List<CategoryPerformancee> categoryPerformance = performanceList
-            .map((json) => CategoryPerformancee.fromJson(json))
-            .toList();
-
-        var revenueJson = jsonResponse['data']['revenu'];
-        Revenuee revenu = Revenuee.fromJson(revenueJson ?? {});
-
-        var collectionJson = jsonResponse['data']['collection'];
-        Collection collection = Collection.fromJson(collectionJson ?? {});
-
-        var deliveryJson = jsonResponse['data']['delivery'];
-        Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
-
-        var topSellingList =
-            jsonResponse['data']['top_selling_product'] as List;
-        List<TopSellingProductA> topSellingProducts = topSellingList
-            .map((json) => TopSellingProductA.fromJson(json))
-            .toList();
-
-        var orderCountListJson = jsonResponse['data']['order_count_list'];
-        OrderCountListt orderCountList =
-            OrderCountListt.fromJson(orderCountListJson ?? {});
-
-        // Uncomment for debugging purposes
-        // print('Parsed Data:');
-        // print('  All Categories:');
-        // allCategory.forEach((category) {
-        //   print('    Category: ${category.category}');
-        // });
-        // print('  Category Performances:');
-        // categoryPerformance.forEach((performance) {
-        //   print('    Salesman ID: ${performance.salesmanId}');
-        //   print('    Category: ${performance.category}');
-        //   print('    Count: ${performance.count}');
-        //   print('    Actual Projection: ${performance.actualProjection}');
-        // });
-
-        return ResponseModell(
-            statusCode: jsonResponse['status_code'] ?? 0,
-            status: jsonResponse['status'] ?? false,
-            message: jsonResponse['message'] ?? '',
-            allCategory: allCategory,
-            categoryPerformance: categoryPerformance,
-            revenue: revenu,
-            collection: collection,
-            delivery: delivery,
-            topSellingProducts: topSellingProducts,
-            orderCountList: orderCountList);
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-        throw Exception('Failed to load data');
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw Exception('Failed to fetch data: sabikk  kavungal $e');
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+      throw Exception('Failed to load data');
     }
+  } catch (e) {
+    print('Exception occurred: $e');
+    throw Exception('Failed to fetch data: $e');
   }
+}
+
 
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
@@ -149,20 +149,6 @@ class ApiService {
         var allCategoryList = jsonResponse['data'] as List;
         List<Salesmanvn> allCategory =
             allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-
-        // Uncomment for debugging purposes
-        // print('Parsed Data:');
-        // print('  All Categories:');
-        // allCategory.forEach((category) {
-        //   print('    Category: ${category.category}');
-        // });
-        // print('  Category Performances:');
-        // categoryPerformance.forEach((performance) {
-        //   print('    Salesman ID: ${performance.salesmanId}');
-        //   print('    Category: ${performance.category}');
-        //   print('    Count: ${performance.count}');
-        //   print('    Actual Projection: ${performance.actualProjection}');
-        // });
 
         return ResponseModelCp(
             statusCode: jsonResponse['status_code'] ?? 0,
@@ -213,20 +199,6 @@ class ApiService {
         List<ProductDetail> allproductDetail =
             productDetail.map((json) => ProductDetail.fromJson(json)).toList();
 
-        // Uncomment for debugging purposes
-        // print('Parsed Data:');
-        // print('  All Categories:');
-        // allCategory.forEach((category) {
-        //   print('    Category: ${category.category}');
-        // });
-        // print('  Category Performances:');
-        // categoryPerformance.forEach((performance) {
-        //   print('    Salesman ID: ${performance.salesmanId}');
-        //   print('    Category: ${performance.category}');
-        //   print('    Count: ${performance.count}');
-        //   print('    Actual Projection: ${performance.actualProjection}');
-        // });
-
         return ProductResponse(
             statusCode: jsonResponse['status_code'] ?? 0,
             status: jsonResponse['status'] ?? false,
@@ -258,8 +230,6 @@ class ApiService {
         final List<dynamic> rawData = json.decode(response.body)['data'];
 
         List<SalesmanChat> salesmanChats = [];
-
-        // Iterate through each chatList in rawData
         rawData.forEach((chatList) {
           // Iterate through each JSON object in chatList and create SalesmanChat objects
           chatList.forEach((json) {
@@ -877,7 +847,6 @@ class ApiService {
     String customerId,
   ) async {
     final url = Uri.parse('$_baseUrl/fetch_order_count');
-
     final requestBody = {
       "salesman_id": "",
       "customer_id": customerId,
@@ -1608,7 +1577,7 @@ class DashboardProvider with ChangeNotifier {
 
       // Fetch data only if the filter is not a range
       if (_selectedFilter != FilterDateEnum.range) {
-        fetchData(); // Fetch data based on the selected filter
+        fetchData(); 
         fetchOrders();
       }
 
@@ -1617,6 +1586,10 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
+      final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      String createdToken= jsonMap['createdToken'];
     try {
       final now = DateTime.now();
       String startDate;
@@ -1660,10 +1633,12 @@ class DashboardProvider with ChangeNotifier {
 
       // Debouncing network requests
       _futureResponseModel = Future.delayed(Duration(milliseconds: 300), () {
+        
         return _apiService.fetchDashboardData(
-          salesmanId: "",
+          salesmanId: salesmanId,
           startDate: startDate,
           endDate: endDate,
+          createdToken : createdToken,
         );
       });
 

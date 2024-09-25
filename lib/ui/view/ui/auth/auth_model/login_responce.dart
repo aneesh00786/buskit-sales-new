@@ -40,6 +40,7 @@ class LoginData {
   String? createAt;
   String? token;
   int? company_id;
+  String? createdToken;
   LoginData({
     this.id,
     this.salesmanId,
@@ -56,6 +57,7 @@ class LoginData {
     this.createAt,
     this.token,
     this.company_id,
+    this.createdToken,
   });
   LoginData.fromJson(Map<String, dynamic> json) {
     id = json['id'] as int?;
@@ -73,6 +75,7 @@ class LoginData {
     createAt = json['create_at'] as String?;
     token = json['token'] as String?;
     company_id = json['company_id'] as int?;
+    createdToken = json['createdToken'] as String?;
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
@@ -91,6 +94,7 @@ class LoginData {
     json['create_at'] = createAt;
     json['token'] = token;
     json['company_id'] = company_id;
+    json['createdToken'] = createdToken;
     return json;
   }
 }

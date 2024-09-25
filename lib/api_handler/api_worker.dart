@@ -44,6 +44,8 @@ class ApiWorker with ApiConstants {
         .postbycustom(
       ApiConstants.login,
       data: data,
+      
+      
     )
         .onError((DioError error, stackTrace) {
       log(error.toString());
@@ -70,21 +72,33 @@ class ApiWorker with ApiConstants {
   /// ************************ DASHBOARD SECTION ***************** ///
 
   Future<DashboardResponse> dashboardData(SearchModel searchData) async {
+      final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      int createdToken= jsonMap['createdToken'];
     Map<String, dynamic> data = {
-      'salesman_id': "",
+      'salesman_id': salesmanId,
       'start_date': searchData.startDate ?? "",
       'end_date': searchData.endDate ?? "",
     };
+      Map<String, dynamic> headers = {
+    'Authorization': 'Bearer $createdToken',
+  };
+    log('ceared Token$createdToken');
+    log('ceared Token$salesmanId');
     log('data++++ ${searchData.startDate} ${searchData.endDate}');
+  
     final response = await dio
         .postbycustom(
       ApiConstants.dashboard_list,
       data: data,
+      options: Options(headers: headers)
     )
         .onError((DioError error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
+    log(response.data);
     return DashboardResponse.fromJson(response.data);
   }
 

@@ -1632,6 +1632,7 @@ class _CommunicationsDisplayWidgetState
       padding: nkRegularPadding(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             'Communications',

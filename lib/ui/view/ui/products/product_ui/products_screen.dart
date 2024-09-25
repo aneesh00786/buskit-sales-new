@@ -1,6 +1,8 @@
+import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_order_details/widgets/customer_order_details_middel.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_widget/product_middel_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_widget/product_top_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -16,6 +18,7 @@ class ProductScreen extends StatefulWidget {
 
 class _ProductScreenState extends State<ProductScreen> {
   ProductsController productsController = Get.put(ProductsController());
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
@@ -30,6 +33,18 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
       return Scaffold(
+        // appBar: AppBar(
+        //   backgroundColor: Colors.white,
+        //   actions: [],
+        //   leading: InkWell(
+        //       onTap: () {
+        //         homeController.sidebarXController.selectIndex(0);
+        //         homeController.selectedIndex.value = 0;
+        //         Get.toNamed(AppRoutes.dashboard,
+        //             id: 2); 
+        //       },
+        //       child: Icon(Icons.arrow_back)),
+        // ),
         body: GetBuilder<ProductsController>(
             init: productsController,
             dispose: (state) {
@@ -39,25 +54,21 @@ class _ProductScreenState extends State<ProductScreen> {
             autoRemove: true,
             builder: (productsController) {
               return SingleChildScrollView(
-              
-                child:Column(
+                child: Column(
                   children: [
                     ProductTopWidget(productsController: productsController),
                     //nkLargeSizeBox(),
-                    productsController
-                        .customerAndOrderData.value.customerId !=
-                        null
-                        ?  CustomerOrderDetailMiddelWidget(
-                      key: const Key(
-                          "CustomerOrderDetailMiddelWidget"),
-                      productsController: productsController,
-                    )
-                        :  ProductMiddelWidget(
-                      productsController: productsController,
-                    ),
-              
+                    productsController.customerAndOrderData.value.customerId !=
+                            null
+                        ? CustomerOrderDetailMiddelWidget(
+                            key: const Key("CustomerOrderDetailMiddelWidget"),
+                            productsController: productsController,
+                          )
+                        : ProductMiddelWidget(
+                            productsController: productsController,
+                          ),
                   ],
-                ) ,
+                ),
                 scrollDirection: Axis.vertical,
               );
             }),

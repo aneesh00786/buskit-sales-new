@@ -15,7 +15,7 @@ const String email = "Email";
 const String enterEmail = "Enter Email";
 const String password = "Password";
 const String enterPassword = "Enter Password";
-const String singIn = "Sing In";
+const String singIn = "Sign In";
 const String communications = "Communications";
 /// Dashboard
 const String today = "Today";
@@ -25,8 +25,8 @@ const String estimates = "Estimates";
 const String preOrder = "Pre-Order";
 const String draft = "Draft";
 const String categoryPerformanceProjection =
-    "Category Performance Projection V/S Actual";
-const String projectionsVsActual = "Projections Vs Actual";
+    "Category Target / Projection / Actuals";
+const String projectionsVsActual = "Category Target / Projection / Actuals";
 const String revenue = "Revenue";
 const String notifications = "Notifications";
 

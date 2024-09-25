@@ -34,8 +34,8 @@ class ProductVariantDialogue extends StatefulWidget {
 }
 
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
-
-  CustomerAndOrderController customerAndOrderController = Get.find<CustomerAndOrderController>();
+  CustomerAndOrderController customerAndOrderController =
+      Get.find<CustomerAndOrderController>();
 
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
@@ -45,7 +45,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Dialog(
-      insetPadding: EdgeInsets.all(10),
+      insetPadding: EdgeInsets.all(40),
       backgroundColor: white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
@@ -392,43 +392,71 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          if (customerAndOrderController.customerId.isNotEmpty) {
+                          if (customerAndOrderController
+                              .customerId.isNotEmpty) {
                             List<CartItem> cartItems =
-                              await CartDatabaseManager().getCartItems();
-                          List<Detail> detailsFromCart = cartItems
-                              .map((cartItem) => cartItem.detail)
-                              .toList();
-                          for (var detail in widget.detailsCopy) {
-                            bool isProductAlreadyInCart = detailsFromCart.any(
-                                (item) =>
-                                    item.variationId == detail.variationId);
-                            if (detail.count > 0 && !isProductAlreadyInCart) {
-                              final bool isPack =
-                                  detail.saleBy == 'Pack' ? true : false;
-                              CartDatabaseManager().addToCart(
-                                  detail,
-                                  widget.product.productName ?? '',
-                                  detail.totalPrice!.toInt(),
-                                  isPack);
-                              log('Total Price: ${detail.totalPrice}');
-                              log('Detail log is Pack: ${isPack}');
-                              log('Product added to cart with ID: ${detail.variationId}');
-                              log('Pack or Pieces : ${detail.saleBy}');
-                            } else if (isProductAlreadyInCart) {
-                              log('Product with ID: ${detail.variationId} is already in the cart');
+                                await CartDatabaseManager().getCartItems();
+                            List<Detail> detailsFromCart = cartItems
+                                .map((cartItem) => cartItem.detail)
+                                .toList();
+                            for (var detail in widget.detailsCopy) {
+                              bool isProductAlreadyInCart = detailsFromCart.any(
+                                  (item) =>
+                                      item.variationId == detail.variationId);
+                              if (detail.count > 0 && !isProductAlreadyInCart) {
+                                final bool isPack =
+                                    detail.saleBy == 'Pack' ? true : false;
+                                CartDatabaseManager().addToCart(
+                                    detail,
+                                    widget.product.productName ?? '',
+                                    detail.totalPrice!.toInt(),
+                                    isPack);
+                                log('Total Price: ${detail.totalPrice}');
+                                log('Detail log is Pack: ${isPack}');
+                                log('Product added to cart with ID: ${detail.variationId}');
+                                log('Pack or Pieces : ${detail.saleBy}');
+                              } else if (isProductAlreadyInCart) {
+                                log('Product with ID: ${detail.variationId} is already in the cart');
+                              }
+                              widget.onDone();
                             }
-                            widget.onDone();
-                          }
-                          Navigator.pop(context);
-                          }else{
                             Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    backgroundColor: Colors.red,
-                                    content: Text('No Customer Selected'),
-                                    duration: Duration(seconds: 3),
-                                  ),
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  actions: [
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Center(
+                                      child: Icon(Icons.warning_amber_outlined,
+                                          size: 50,
+                                          color: Colors.orange,
+                                          ),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Center(
+                                      child: CustomText(
+                                        content: "Please Select a Customer",
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: CustomText(
+                                          content: "Ok",
+                                          color: primaryColor,
+                                        ))
+                                  ],
                                 );
+                              },
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -458,14 +486,14 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     );
   }
 
-void calulateAmount(Detail detail) {
-  double? price = double.tryParse(detail.sellPrice ?? '');
-  if (price != null && detail.saleBy == 'Pack') {
-    detail.totalPrice = price * detail.pieces! * detail.count;  
-    log("Total price for ${detail.price}, Pieces: ${detail.pieces}: Total Price ${detail.totalPrice}");
-  } else if (price != null) {
-    detail.totalPrice = price * detail.count;
-    log("Total price for ${detail.price}, Total Price: ${detail.totalPrice}");
-  }
+  void calulateAmount(Detail detail) {
+    double? price = double.tryParse(detail.sellPrice ?? '');
+    if (price != null && detail.saleBy == 'Pack') {
+      detail.totalPrice = price * detail.pieces! * detail.count;
+      log("Total price for ${detail.price}, Pieces: ${detail.pieces}: Total Price ${detail.totalPrice}");
+    } else if (price != null) {
+      detail.totalPrice = price * detail.count;
+      log("Total price for ${detail.price}, Total Price: ${detail.totalPrice}");
+    }
   }
 }

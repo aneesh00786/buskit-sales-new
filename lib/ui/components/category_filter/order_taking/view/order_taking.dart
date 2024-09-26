@@ -192,6 +192,7 @@ void handleBackNavigation(BuildContext context) {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(context); 
+                    _selectedCustomerName='';
                   },
                   child: Text('Ok'),
                 ),

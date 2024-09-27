@@ -19,7 +19,6 @@ class SessionHelper {
   // Todo:Difficulty Level
 
   Future<void> setLoginData(LoginData loginResponce) async {
-    // save user values in shared pref
     await SessionManager.setStringValue(
         SpString.spLogin, jsonEncode(loginResponce.toJson()));
   }

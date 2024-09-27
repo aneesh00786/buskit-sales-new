@@ -587,8 +587,8 @@ class _CustomBarChartState extends State<CustomBarChart> {
         ),
       );
 
-      double target = perf.actualTarget;
-      double projection = perf.actualProjection;
+      double target = perf.actualTarget??0.0;
+      double projection = perf.actualProjection??0.0;
       double actual = perf.actualSales ?? 0.0;
 
       return BarChartGroupData(
@@ -626,7 +626,6 @@ class _CustomBarChartState extends State<CustomBarChart> {
       builder: (context) {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
-            // Update the provider to fetch data based on the cid
             provider.fetchchartCategoryPerformmenc(cid);
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -736,7 +735,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                   ),
                                 ),
                               ],
-                              rows: categories.map((s) {
+                              rows: categories!.map((s) {
                                 return DataRow(
                                   cells: [
                                     DataCell(
@@ -921,7 +920,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                   widget.allCategory[index].category,
                             );
                             _showSalesmanPopup(
-                                perf.cid, widget.allCategory[index].category);
+                                perf.cid??0, widget.allCategory[index].category??'');
                           }
                         },
                       ),

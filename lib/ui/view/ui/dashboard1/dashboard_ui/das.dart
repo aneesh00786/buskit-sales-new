@@ -417,13 +417,13 @@ class DashBoardMiddleWidget extends StatelessWidget {
         shrinkWrap: true,
         physics: NkGeneralSize.commonPysics(),
         itemCount:
-            dashBoardController.dashbordData.value.topSellingProduct?.length ??
+            dashBoardController.dashbordData.value.topSellingProducts?.length ??
                 0,
         itemBuilder: (context, index) {
           var sellingData =
-              dashBoardController.dashbordData.value.topSellingProduct![index];
+              dashBoardController.dashbordData.value.topSellingProducts![index];
           return topSellingProductListComponent(
-              sellingData); /*  return topSellingProductListComponent(
+              sellingData as TopSellingProduct); /*  return topSellingProductListComponent(
               (sellingData.price?.toString() ?? "0").nkValueWithCurrencySymbol,
               sellingData.variationName?.toString() ?? '');*/
         },
@@ -473,7 +473,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget itemComponet(String title, String subTitle) {
     return nkChildWrappedSizeBox(
-      width: AppDimensions.instance!.width * 0.09,
+      width: AppDimensions.instance.width * 0.09,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

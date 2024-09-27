@@ -339,14 +339,14 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
 
   @override
   Widget build(BuildContext context) {
-    final totalBookingRevenue = widget.categoryData.bookingRevenueData.fold(
+    final totalBookingRevenue = widget.categoryData.bookingRevenueData?.fold(
       0.0,
-      (sum, item) => sum + (item.total ?? 0), // Add null check for 'total'
+      (sum, item) => sum + (item.total ?? 0),
     );
 
-    final totalOrderRevenue = widget.categoryData.orderRevenueData.fold(
+    final totalOrderRevenue = widget.categoryData.orderRevenueData?.fold(
       0.0,
-      (sum, item) => sum + (item.total ?? 0), // Add null check for 'total'
+      (sum, item) => sum + (item.total ?? 0), 
     );
 
     return Column(
@@ -501,7 +501,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                           ),
                         ),
                       ],
-                      rows: categoryData.orderRevenueData.map((item) {
+                      rows: categoryData.orderRevenueData!.map((item) {
                         return DataRow(
                           cells: [
                             DataCell(Center(
@@ -684,7 +684,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
   }
 
   double _getOrderValueByStatus(int status) {
-    final order = widget.deliveryData.order.totalOrders.lastWhere(
+    final order = widget.deliveryData.order?.totalOrders?.lastWhere(
       (orderDetails) => orderDetails.orderStatus == status,
       orElse: () => OrderDetails(
         orderId: '',
@@ -710,13 +710,13 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
       ),
     );
     return status == 5
-        ? order.orderProcessing.toDouble()
+        ? order!.orderProcessing!.toDouble()
         : status == 10
-            ? order.packedForDelivery.toDouble()
+            ? order!.packedForDelivery!.toDouble()
             : status == 1
-                ? order.outForDelivery.toDouble()
+                ? order!.outForDelivery!.toDouble()
                 : status == 2
-                    ? order.delivered.toDouble()
+                    ? order!.delivered!.toDouble()
                     : 0.0;
   }
 
@@ -726,7 +726,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
       context: context,
       builder: (context) {
         // Filter orders based on status
-        final filteredOrders = deliveryData.order.totalOrders
+        final filteredOrders = deliveryData.order!.totalOrders!
             .where((orderDetails) => orderDetails.orderStatus == status)
             .toList();
 
@@ -839,7 +839,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                 textAlign: TextAlign.center),
                           )),
                           DataCell(Center(
-                            child: Text(orderDetails.orderId,
+                            child: Text(orderDetails.orderId??'',
                                 style: const TextStyle(
                                   color: secondaryTextColor,
                                   fontSize: 13,
@@ -848,7 +848,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                           )),
                           DataCell(Center(
                             child:
-                                Text(_getStatusName(orderDetails.orderStatus),
+                                Text(_getStatusName(orderDetails.orderStatus??0),
                                     style: const TextStyle(
                                       color: secondaryTextColor,
                                       fontSize: 13,
@@ -1108,10 +1108,10 @@ class NestedPieChartj extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int completedOrdersCount = collection.payment.completedOrders.length;
-    int pendingAmountCount = collection.order.pendingAmount.length;
-    int dueAmountCount = collection.due.dueAmount.length;
-    int overdueAmountCount = collection.overdue.overdueAmount.length;
+    int completedOrdersCount = collection.payment?.completedOrders?.length??0;
+    int pendingAmountCount = collection.order?.pendingAmount?.length??0;
+    int dueAmountCount = collection.due?.dueAmount?.length??0;
+    int overdueAmountCount = collection.overdue?.overdueAmount?.length??0;
 
     return Center(
       child: Column(
@@ -1364,8 +1364,8 @@ void _showValueDialog(
 List<DataRow> _buildDataRows(Collection collection, String title) {
   switch (title) {
     case 'Completed':
-      return collection.payment.completedOrders
-          .map((completedOrder) => DataRow(
+      return collection.payment!.completedOrders
+          !.map((completedOrder) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -1416,8 +1416,8 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
               ))
           .toList();
     case 'Pending':
-      return collection.order.pendingAmount
-          .map((pendingAmount) => DataRow(
+      return collection.order!.pendingAmount
+          !.map((pendingAmount) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -1435,7 +1435,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        pendingAmount.cartId,
+                        pendingAmount.cartId??'',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -1446,7 +1446,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        pendingAmount.transactionDetails,
+                        pendingAmount.transactionDetails??'',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -1469,8 +1469,8 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
               ))
           .toList();
     case 'Due':
-      return collection.due.dueAmount
-          .map((dueAmount) => DataRow(
+      return collection.due!.dueAmount
+          !.map((dueAmount) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -1520,8 +1520,8 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
               ))
           .toList();
     case 'Overdue':
-      return collection.overdue.overdueAmount
-          .map((overdueAmount) => DataRow(
+      return collection.overdue!.overdueAmount
+          !.map((overdueAmount) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -1537,7 +1537,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        overdueAmount.cartId,
+                        overdueAmount.cartId??'',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -1548,7 +1548,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        overdueAmount.transactionDetails,
+                        overdueAmount.transactionDetails??'',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,

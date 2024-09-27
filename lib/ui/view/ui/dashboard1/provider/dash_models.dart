@@ -1,128 +1,11 @@
-// class Category {
-//   String category;
-
-//   Category({required this.category});
-
-//   factory Category.fromJson(Map<String, dynamic> json) {
-//     return Category(
-//       category: json['category'],
-//     );
-//   }
-// }
-
-// class Salesman {
-//   String fullname;
-//   String salesmanId;
-//   int projectionTarget;
-//   double projectionPrice;
-//   double actualPrice;
-
-//   Salesman({
-//     required this.fullname,
-//     required this.salesmanId,
-//     required this.projectionTarget,
-//     required this.projectionPrice,
-//     required this.actualPrice,
-//   });
-
-//   factory Salesman.fromJson(Map<String, dynamic> json) {
-//     return Salesman(
-//       fullname: json['fullname'],
-//       salesmanId: json['salesman_id'],
-//       projectionTarget: json['projection_target'],
-//       projectionPrice: json['projection_price'].toDouble(),
-//       actualPrice: json['actual_price'] != null
-//           ? double.tryParse(json['actual_price'].toString()).0
-//           : 0.0,
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'fullname': fullname,
-//       'salesman_id': salesmanId,
-//       'projection_target': projectionTarget,
-//       'projection_price': projectionPrice,
-//       'actual_price': actualPrice,
-//     };
-//   }
-// }
-
-// class CategoryPerformancee {
-//   String salesmanId;
-//   int cid;
-//   String category;
-//   int count;
-//   double actualProjection;
-//   List<Salesman> salesman;
-
-//   CategoryPerformancee({
-//     required this.salesmanId,
-//     required this.cid,
-//     required this.category,
-//     required this.count,
-//     required this.actualProjection,
-//     required this.salesman,
-//   });
-
-//   factory CategoryPerformancee.fromJson(Map<String, dynamic> json) {
-//     var salesmanList = json['salesman'] as List;
-//     List<Salesman> salesman =
-//         salesmanList.map((i) => Salesman.fromJson(i)).toList();
-
-//     return CategoryPerformancee(
-//       salesmanId: json['salesman_id'],
-//       cid: json['cid'],
-//       category: json['category'],
-//       count: json['count'],
-//       actualProjection: double.parse(json['actual_projection'].toString()),
-//       salesman: salesman,
-//     );
-//   }
-// }
-
-// class ResponseModell {
-//   int statusCode;
-//   bool status;
-//   String message;
-//   List<Category> allCategory;
-//   List<CategoryPerformancee> categoryPerformance;
-
-//   ResponseModell({
-//     required this.statusCode,
-//     required this.status,
-//     required this.message,
-//     required this.allCategory,
-//     required this.categoryPerformance,
-//   });
-
-//   factory ResponseModell.fromJson(Map<String, dynamic> json) {
-//     var categoryList = json['data']['all_category'] as List;
-//     List<Category> allCategory =
-//         categoryList.map((i) => Category.fromJson(i)).toList();
-
-//     var performanceList = json['data']['category_performance'] as List;
-//     List<CategoryPerformancee> categoryPerformance =
-//         performanceList.map((i) => CategoryPerformancee.fromJson(i)).toList();
-
-//     return ResponseModell(
-//       statusCode: json['status_code'],
-//       status: json['status'],
-//       message: json['message'],
-//       allCategory: allCategory,
-//       categoryPerformance: categoryPerformance,
-//     );
-//   }
-// }
-
 import 'dart:io';
 
 import 'package:intl/intl.dart';
 
 class Category {
-  String category;
+  String? category;
 
-  Category({required this.category});
+  Category({this.category});
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
@@ -138,18 +21,18 @@ class Category {
 }
 
 class Salesmann {
-  String fullname;
-  String salesmanId;
-  int projectionTarget;
-  double projectionPrice;
-  double actualPrice;
+  String? fullname;
+  String? salesmanId;
+  int? projectionTarget;
+  double? projectionPrice;
+  double? actualPrice;
 
   Salesmann({
-    required this.fullname,
-    required this.salesmanId,
-    required this.projectionTarget,
-    required this.projectionPrice,
-    required this.actualPrice,
+    this.fullname,
+    this.salesmanId,
+    this.projectionTarget,
+    this.projectionPrice,
+    this.actualPrice,
   });
 
   factory Salesmann.fromJson(Map<String, dynamic> json) {
@@ -174,68 +57,21 @@ class Salesmann {
     };
   }
 }
-
-// class CategoryPerformancee {
-//   String salesmanId;
-//   int cid;
-//   String category;
-//   int count;
-//   double actualProjection;
-//   List<Salesmann> salesman;
-
-//   CategoryPerformancee({
-//     required this.salesmanId,
-//     required this.cid,
-//     required this.category,
-//     required this.count,
-//     required this.actualProjection,
-//     required this.salesman,
-//   });
-
-//   factory CategoryPerformancee.fromJson(Map<String, dynamic> json) {
-//     var salesmanList = json['salesman'] as List;
-//     List<Salesmann> salesman =
-//         salesmanList.map((i) => Salesmann.fromJson(i)).toList();
-
-//     return CategoryPerformancee(
-//       salesmanId: json['salesman_id'],
-//       cid: json['cid'],
-//       category: json['category'],
-//       count: json['count'],
-//       actualProjection: json['actual_projection'] != null
-//           ? double.parse(json['actual_projection'].toString())
-//           : 0.0,
-//       salesman: salesman,
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'salesman_id': salesmanId,
-//       'cid': cid,
-//       'category': category,
-//       'count': count,
-//       'actual_projection': actualProjection,
-//       'salesman': salesman.map((e) => e.toJson()).toList(),
-//     };
-//   }
-// }
-
 class CategoryPerformancee {
-  int cid;
-  String category;
-  double actualProjection;
-  double actualTarget;
+  int? cid;
+  String? category;
+  double? actualProjection;
+  double? actualTarget;
   double? actualSales;
-  List<Salesmann> salesman;
+  List<Salesmann>? salesman;
 
   CategoryPerformancee({
-    required this.cid,
-    required this.category,
-    required this.actualProjection,
-    required this.actualTarget,
+    this.cid,
+    this.category,
+    this.actualProjection,
+    this.actualTarget,
     this.actualSales,
-    required this.salesman,
+    this.salesman,
   });
 
   factory CategoryPerformancee.fromJson(Map<String, dynamic> json) {
@@ -248,14 +84,14 @@ class CategoryPerformancee {
       category: json['category'],
       actualProjection: json['actual_projection'] != null
           ? double.parse(json['actual_projection'].toString())
-          : 0.0,
+          : null,
       actualTarget: json['actual_target'] != null
           ? double.parse(json['actual_target'].toString())
-          : 0.0,
+          : null,
       actualSales: json['actual_sales'] != null
           ? double.tryParse(json['actual_sales'].toString())
           : null,
-      salesman: salesman,
+      salesman: salesman.isNotEmpty ? salesman : null,
     );
   }
 
@@ -263,25 +99,25 @@ class CategoryPerformancee {
     return {
       'cid': cid,
       'category': category,
-      'actual_projection': actualProjection,
-      'actual_target': actualTarget,
+      'actual_projection': actualProjection?.toString(),
+      'actual_target': actualTarget?.toString(),
       'actual_sales': actualSales?.toString(),
-      'salesman': salesman.map((e) => e.toJson()).toList(),
+      'salesman': salesman?.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class ResponseModelCp {
-  final int statusCode;
-  final bool status;
-  final String message;
-  final List<Salesmanvn> data;
+  final int? statusCode;
+  final bool? status;
+  final String? message;
+  final List<Salesmanvn>? data;
 
   ResponseModelCp({
-    required this.statusCode,
-    required this.status,
-    required this.message,
-    required this.data,
+     this.statusCode,
+     this.status,
+     this.message,
+     this.data,
   });
 
   factory ResponseModelCp.fromJson(Map<String, dynamic> json) {
@@ -299,22 +135,22 @@ class ResponseModelCp {
 }
 
 class Salesmanvn {
-  final int id;
+  final int? id;
   final String salesmanId;
   final String fullname;
   final String lastname;
   final String orderTotal;
-  final int targetTotal;
-  final int projectionTotal;
+  final int? targetTotal;
+  final int? projectionTotal;
 
   Salesmanvn({
-    required this.id,
+     this.id,
     required this.salesmanId,
     required this.fullname,
     required this.lastname,
     required this.orderTotal,
-    required this.targetTotal,
-    required this.projectionTotal,
+     this.targetTotal,
+     this.projectionTotal,
   });
 
   factory Salesmanvn.fromJson(Map<String, dynamic> json) {
@@ -332,54 +168,54 @@ class Salesmanvn {
 }
 
 class OrderRevenueData {
-  int id;
-  String cartId;
-  String customerId;
-  String salesmanId;
-  double total;
-  String discount;
-  int status;
-  String createdAt;
-  String updatedAt;
-  String orderId;
-  int paymentStatus;
-  int paymentType;
-  String paymentDetail;
-  int orderStatus;
-  String orderCreatAt;
-  int orderTotal;
-  int receivedAmount;
-  String receivedAmountDate;
-  String checkDueDate;
-  int checkNumber;
-  String transactionDate;
-  String transactionDetails;
-  int totalOrderRevenue;
+  int? id;
+  String? cartId;
+  String? customerId;
+  String? salesmanId;
+  double? total;
+  String? discount;
+  int? status;
+  String? createdAt;
+  String? updatedAt;
+  String? orderId;
+  int? paymentStatus;
+  int? paymentType;
+  String? paymentDetail;
+  int? orderStatus;
+  String? orderCreatAt;
+  int? orderTotal;
+  int? receivedAmount;
+  String? receivedAmountDate;
+  String? checkDueDate;
+  int? checkNumber;
+  String? transactionDate;
+  String? transactionDetails;
+  int? totalOrderRevenue;
 
   OrderRevenueData({
-    required this.id,
-    required this.cartId,
-    required this.customerId,
-    required this.salesmanId,
-    required this.total,
-    required this.discount,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.orderId,
-    required this.paymentStatus,
-    required this.paymentType,
-    required this.paymentDetail,
-    required this.orderStatus,
-    required this.orderCreatAt,
-    required this.orderTotal,
-    required this.receivedAmount,
-    required this.receivedAmountDate,
-    required this.checkDueDate,
-    required this.checkNumber,
-    required this.transactionDate,
-    required this.transactionDetails,
-    required this.totalOrderRevenue,
+    this.id,
+    this.cartId,
+    this.customerId,
+    this.salesmanId,
+    this.total,
+    this.discount,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.orderId,
+    this.paymentStatus,
+    this.paymentType,
+    this.paymentDetail,
+    this.orderStatus,
+    this.orderCreatAt,
+    this.orderTotal,
+    this.receivedAmount,
+    this.receivedAmountDate,
+    this.checkDueDate,
+    this.checkNumber,
+    this.transactionDate,
+    this.transactionDetails,
+    this.totalOrderRevenue,
   });
 
   factory OrderRevenueData.fromJson(Map<String, dynamic> json) {
@@ -388,8 +224,7 @@ class OrderRevenueData {
       cartId: json['cart_id']?.toString() ?? '',
       customerId: json['customer_id']?.toString() ?? '',
       salesmanId: json['salesman_id']?.toString() ?? '',
-      total: json['total']?.toDouble() ??
-          0.0, // Ensure a default value is provided
+      total: json['total']?.toDouble() ?? 0.0,
       discount: json['discount']?.toString() ?? '',
       status: json['status'] ?? 0,
       createdAt: json['created_at']?.toString() ?? '',
@@ -439,12 +274,11 @@ class OrderRevenueData {
     };
   }
 }
-
 class Revenuee {
-  List<OrderRevenueData> bookingRevenueData;
-  List<OrderRevenueData> orderRevenueData;
+  List<OrderRevenueData>? bookingRevenueData;
+  List<OrderRevenueData>? orderRevenueData;
 
-  Revenuee({required this.bookingRevenueData, required this.orderRevenueData});
+  Revenuee({this.bookingRevenueData, this.orderRevenueData});
 
   factory Revenuee.fromJson(Map<String, dynamic> json) {
     var bookingRevenueList = json['booking_revenueData'] as List? ?? [];
@@ -463,207 +297,35 @@ class Revenuee {
 
   Map<String, dynamic> toJson() {
     return {
-      'booking_revenueData': bookingRevenueData.map((e) => e.toJson()).toList(),
-      'order_revenueData': orderRevenueData.map((e) => e.toJson()).toList(),
+      'booking_revenueData':
+          bookingRevenueData?.map((e) => e.toJson()).toList(),
+      'order_revenueData': orderRevenueData?.map((e) => e.toJson()).toList(),
     };
   }
 }
-
-// class ResponseModell {
-//   int statusCode;
-//   bool status;
-//   String message;
-//   List<Category> allCategory;
-//   List<CategoryPerformancee> categoryPerformance;
-//   Revenuee revenu;
-//   Collection collection; // Add Collection property
-
-//   ResponseModell({
-//     required this.statusCode,
-//     required this.status,
-//     required this.message,
-//     required this.allCategory,
-//     required this.categoryPerformance,
-//     required this.revenu,
-//     required this.collection, // Initialize Collection in constructor
-//   });
-
-//   factory ResponseModell.fromJson(Map<String, dynamic> json) {
-//     var categoryList = json['data']['all_category'] as List;
-//     List<Category> allCategory =
-//         categoryList.map((i) => Category.fromJson(i)).toList();
-
-//     var performanceList = json['data']['category_performance'] as List;
-//     List<CategoryPerformancee> categoryPerformance =
-//         performanceList.map((i) => CategoryPerformancee.fromJson(i)).toList();
-
-//     return ResponseModell(
-//       statusCode: json['status_code'] ?? 0,
-//       status: json['status'] ?? false,
-//       message: json['message'] ?? '',
-//       allCategory: allCategory,
-//       categoryPerformance: categoryPerformance,
-//       revenu: Revenuee.fromJson(json['data']['revenu'] ?? {}),
-//       collection: Collection.fromJson(json['data']['collection'] ?? {}), // Initialize Collection
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'status_code': statusCode,
-//       'status': status,
-//       'message': message,
-//       'all_category': allCategory.map((e) => e.toJson()).toList(),
-//       'category_performance':
-//           categoryPerformance.map((e) => e.toJson()).toList(),
-//       'revenu': revenu.toJson(),
-//       'collection': collection.toJson(), // Serialize Collection
-//     };
-//   }
-// }
-// class ResponseModell {
-//   int statusCode;
-//   bool status;
-//   String message;
-//   List<Category> allCategory;
-//   List<CategoryPerformancee> categoryPerformance;
-//   Revenuee revenu;
-//   Collection collection;
-//   Delivery delivery; // Add Delivery property
-
-//   ResponseModell({
-//     required this.statusCode,
-//     required this.status,
-//     required this.message,
-//     required this.allCategory,
-//     required this.categoryPerformance,
-//     required this.revenu,
-//     required this.collection,
-//     required this.delivery, // Initialize Delivery in constructor
-//   });
-
-//   factory ResponseModell.fromJson(Map<String, dynamic> json) {
-//     var categoryList = json['data']['all_category'] as List;
-//     List<Category> allCategory =
-//         categoryList.map((i) => Category.fromJson(i)).toList();
-
-//     var performanceList = json['data']['category_performance'] as List;
-//     List<CategoryPerformancee> categoryPerformance =
-//         performanceList.map((i) => CategoryPerformancee.fromJson(i)).toList();
-
-//     return ResponseModell(
-//       statusCode: json['status_code'] ?? 0,
-//       status: json['status'] ?? false,
-//       message: json['message'] ?? '',
-//       allCategory: allCategory,
-//       categoryPerformance: categoryPerformance,
-//       revenu: Revenuee.fromJson(json['data']['revenu'] ?? {}),
-//       collection: Collection.fromJson(json['data']['collection'] ?? {}),
-//       delivery: Delivery.fromJson(json['data']['delivery'] ?? {}), // Initialize Delivery
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'status_code': statusCode,
-//       'status': status,
-//       'message': message,
-//       'all_category': allCategory.map((e) => e.toJson()).toList(),
-//       'category_performance': categoryPerformance.map((e) => e.toJson()).toList(),
-//       'revenu': revenu.toJson(),
-//       'collection': collection.toJson(),
-//       'delivery': delivery.toJson(), // Serialize Delivery
-//     };
-//   }
-// }
-
-// class ResponseModell {
-//   int statusCode;
-//   bool status;
-//   String message;
-//   List<Category> allCategory;
-//   List<CategoryPerformancee> categoryPerformance;
-//   Revenuee revenue;
-//   Collection collection;
-//   Delivery delivery;
-//   List<TopSellingProductA> topSellingProducts;
-
-//   ResponseModell({
-//     required this.statusCode,
-//     required this.status,
-//     required this.message,
-//     required this.allCategory,
-//     required this.categoryPerformance,
-//     required this.revenue,
-//     required this.collection,
-//     required this.delivery,
-//     required this.topSellingProducts,
-//   });
-
-//   factory ResponseModell.fromJson(Map<String, dynamic> json) {
-//     var categoryList = json['data']['all_category'] as List;
-//     List<Category> allCategory =
-//         categoryList.map((e) => Category.fromJson(e)).toList();
-
-//     var performanceList = json['data']['category_performance'] as List;
-//     List<CategoryPerformancee> categoryPerformance =
-//         performanceList.map((e) => CategoryPerformancee.fromJson(e)).toList();
-
-//     var topSellingList = json['data']['top_selling_product'] as List;
-//     List<TopSellingProductA> topSellingProducts =
-//         topSellingList.map((e) => TopSellingProductA.fromJson(e)).toList();
-
-//     return ResponseModell(
-//       statusCode: json['status_code'] ?? 0,
-//       status: json['status'] ?? false,
-//       message: json['message'] ?? '',
-//       allCategory: allCategory,
-//       categoryPerformance: categoryPerformance,
-//       revenue: Revenuee.fromJson(json['data']['revenue'] ?? {}),
-//       collection: Collection.fromJson(json['data']['collection'] ?? {}),
-//       delivery: Delivery.fromJson(json['data']['delivery'] ?? {}),
-//       topSellingProducts: topSellingProducts,
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'status_code': statusCode,
-//       'status': status,
-//       'message': message,
-//       'all_category': allCategory.map((e) => e.toJson()).toList(),
-//       'category_performance':
-//           categoryPerformance.map((e) => e.toJson()).toList(),
-//       'revenue': revenue.toJson(),
-//       'collection': collection.toJson(),
-//       'delivery': delivery.toJson(),
-//       'top_selling_product': topSellingProducts.map((e) => e.toJson()).toList(),
-//     };
-//   }
-// }
 class ResponseModell {
-  int statusCode;
-  bool status;
-  String message;
-  List<Category> allCategory;
-  List<CategoryPerformancee> categoryPerformance;
-  Revenuee revenue;
-  Collection collection;
-  Delivery delivery;
-  List<TopSellingProductA> topSellingProducts;
-  OrderCountListt orderCountList;
+  int? statusCode;
+  bool? status;
+  String? message;
+  List<Category>? allCategory;
+  List<CategoryPerformancee>? categoryPerformance;
+  Revenuee? revenue;
+  Collection? collection;
+  Delivery? delivery;
+  List<TopSellingProductA>? topSellingProducts;
+  OrderCountListt? orderCountList;
 
   ResponseModell({
-    required this.statusCode,
-    required this.status,
-    required this.message,
-    required this.allCategory,
-    required this.categoryPerformance,
-    required this.revenue,
-    required this.collection,
-    required this.delivery,
-    required this.topSellingProducts,
-    required this.orderCountList,
+    this.statusCode,
+    this.status,
+    this.message,
+    this.allCategory,
+    this.categoryPerformance,
+    this.revenue,
+    this.collection,
+    this.delivery,
+    this.topSellingProducts,
+    this.orderCountList,
   });
 
   factory ResponseModell.fromJson(Map<String, dynamic> json) {
@@ -688,7 +350,7 @@ class ResponseModell {
       message: json['message'] ?? '',
       allCategory: allCategory,
       categoryPerformance: categoryPerformance,
-      revenue: Revenuee.fromJson(json['data']['revenue'] ?? {}),
+      revenue: Revenuee.fromJson(json['data']['revenu'] ?? {}),
       collection: Collection.fromJson(json['data']['collection'] ?? {}),
       delivery: Delivery.fromJson(json['data']['delivery'] ?? {}),
       topSellingProducts: topSellingProducts,
@@ -699,18 +361,18 @@ class ResponseModell {
 }
 
 class OrderCountListt {
-  final int totalOrder;
-  final int estimateOrder;
-  final int preorderOrder;
-  final int draftOrder;
-  final int cancelOrder;
+  int? totalOrder;
+  int? estimateOrder;
+  int? preorderOrder;
+  int? draftOrder;
+  int? cancelOrder;
 
   OrderCountListt({
-    required this.totalOrder,
-    required this.estimateOrder,
-    required this.preorderOrder,
-    required this.draftOrder,
-    required this.cancelOrder,
+    this.totalOrder,
+    this.estimateOrder,
+    this.preorderOrder,
+    this.draftOrder,
+    this.cancelOrder,
   });
 
   factory OrderCountListt.fromJson(Map<String, dynamic> json) {
@@ -723,85 +385,29 @@ class OrderCountListt {
     );
   }
 }
-
-// class TopSellingProductA {
-//   String variationId;
-//   String variationName;
-//   String price;
-//   String quantity;
-//   String totalPrice;
-//   DateTime createdAt;
-//   List<Customer> customers;
-//   List<QuantityList> quantityList;
-
-//   TopSellingProductA({
-//     required this.variationId,
-//     required this.variationName,
-//     required this.price,
-//     required this.quantity,
-//     required this.totalPrice,
-//     required this.createdAt,
-//     required this.customers,
-//     required this.quantityList,
-//   });
-
-//   factory TopSellingProductA.fromJson(Map<String, dynamic> json) {
-//     var customersList = json['customer'] as List? ?? [];
-//     List<Customer> customers =
-//         customersList.map((json) => Customer.fromJson(json)).toList();
-
-//     var quantityList = json['quantityList'] as List? ?? [];
-//     List<QuantityList> quantityListItems =
-//         quantityList.map((json) => QuantityList.fromJson(json)).toList();
-
-//     return TopSellingProductA(
-//       variationId: json['variation_id'],
-//       variationName: json['variation_name'],
-//       price: json['price'],
-//       quantity: json['quantity'],
-//       totalPrice: json['total_price'],
-//       createdAt: DateTime.parse(json['created_at']),
-//       customers: customers,
-//       quantityList: quantityListItems,
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'variation_id': variationId,
-//       'variation_name': variationName,
-//       'price': price,
-//       'quantity': quantity,
-//       'total_price': totalPrice,
-//       'created_at': createdAt.toIso8601String(),
-//       'customer': customers.map((customer) => customer.toJson()).toList(),
-//       'quantityList': quantityList.map((quantity) => quantity.toJson()).toList(),
-//     };
-//   }
-// }
 enum EventDays { EMPTY, FRIDAY, MONDAY }
 
 enum SalesmanName { B, N, RP, SALES6 }
 
 class TopSellingProductA {
-  String variationId;
-  String variationName;
-  String price;
-  String quantity;
-  String totalPrice;
-  DateTime createdAt;
-  List<Customer> customers;
-  List<QuantityList> quantityList;
+  String? variationId;
+  String? variationName;
+  String? price;
+  String? quantity;
+  String? totalPrice;
+  DateTime? createdAt;
+  List<Customer>? customers;
+  List<QuantityList>? quantityList;
 
   TopSellingProductA({
-    required this.variationId,
-    required this.variationName,
-    required this.price,
-    required this.quantity,
-    required this.totalPrice,
-    required this.createdAt,
-    required this.customers,
-    required this.quantityList,
+    this.variationId,
+    this.variationName,
+    this.price,
+    this.quantity,
+    this.totalPrice,
+    this.createdAt,
+    this.customers,
+    this.quantityList,
   });
 
   factory TopSellingProductA.fromJson(Map<String, dynamic> json) {
@@ -832,61 +438,61 @@ class TopSellingProductA {
       'price': price,
       'quantity': quantity,
       'total_price': totalPrice,
-      'created_at': createdAt.toIso8601String(),
-      'customer': customers.map((customer) => customer.toJson()).toList(),
+      'created_at': createdAt?.toIso8601String(),
+      'customer': customers?.map((customer) => customer.toJson()).toList(),
       'quantityList':
-          quantityList.map((quantity) => quantity.toJson()).toList(),
+          quantityList?.map((quantity) => quantity.toJson()).toList(),
     };
   }
 }
 
 class Customer {
   dynamic cartId;
-  String customerId;
-  int id;
-  String fullname;
-  String mobileno;
-  String email;
-  String town;
-  String state;
-  int zipcode;
-  String address;
-  String businessName;
-  String businessNo;
-  String remark;
-  String imageUrl;
+  String? customerId;
+  int? id;
+  String? fullname;
+  String? mobileno;
+  String? email;
+  String? town;
+  String? state;
+  int? zipcode;
+  String? address;
+  String? businessName;
+  String? businessNo;
+  String? remark;
+  String? imageUrl;
   SalesmanName? salesmanId;
-  int status;
-  DateTime createAt;
+  int? status;
+  DateTime? createAt;
   SalesmanName? salesmanName;
-  String discount;
-  int eventType;
+  String? discount;
+  int? eventType;
   EventDays? eventDays;
-  int creditPeriod;
+  int? creditPeriod;
 
   Customer({
-    required this.cartId,
-    required this.customerId,
-    required this.id,
-    required this.fullname,
-    required this.mobileno,
-    required this.email,
-    required this.town,
-    required this.state,
-    required this.zipcode,
-    required this.address,
-    required this.businessName,
-    required this.businessNo,
-    required this.remark,
-    required this.imageUrl,
-    required this.salesmanId,
-    required this.status,
-    required this.createAt,
-    required this.salesmanName,
-    required this.discount,
-    required this.eventType,
-    required this.eventDays,
-    required this.creditPeriod,
+    this.cartId,
+    this.customerId,
+    this.id,
+    this.fullname,
+    this.mobileno,
+    this.email,
+    this.town,
+    this.state,
+    this.zipcode,
+    this.address,
+    this.businessName,
+    this.businessNo,
+    this.remark,
+    this.imageUrl,
+    this.salesmanId,
+    this.status,
+    this.createAt,
+    this.salesmanName,
+    this.discount,
+    this.eventType,
+    this.eventDays,
+    this.creditPeriod,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -907,12 +513,12 @@ class Customer {
       imageUrl: json['image_url'],
       salesmanId: _parseSalesmanName(json['salesman_id']),
       status: _parseInt(json['status']),
-      createAt: DateTime.parse(json['create_at']),
+      createAt: json['create_at'] != null ? DateTime.parse(json['create_at']) : null,
       salesmanName: _parseSalesmanName(json['salesman_name']),
       discount: json['discount'],
       eventType: _parseInt(json['event_type']),
       eventDays: json['event_days'] != null
-          ? EventDays.values[_parseInt(json['event_days'])]
+          ? EventDays.values[_parseInt(json['event_days'])??0]
           : null,
       creditPeriod: _parseInt(json['credit_period']),
     );
@@ -936,7 +542,7 @@ class Customer {
       'image_url': imageUrl,
       'salesman_id': salesmanId?.toString().split('.').last,
       'status': status,
-      'create_at': createAt.toIso8601String(),
+      'create_at': createAt?.toIso8601String(),
       'salesman_name': salesmanName?.toString().split('.').last,
       'discount': discount,
       'event_type': eventType,
@@ -945,13 +551,13 @@ class Customer {
     };
   }
 
-  static int _parseInt(dynamic value) {
+  static int? _parseInt(dynamic value) {
     if (value is int) {
       return value;
     } else if (value is String) {
-      return int.tryParse(value) ?? 0; // Default to 0 or handle error as needed
+      return int.tryParse(value);
     } else {
-      throw TypeError();
+      return null;
     }
   }
 
@@ -961,7 +567,7 @@ class Customer {
         return SalesmanName.values.firstWhere((e) =>
             e.toString().split('.')[1].toUpperCase() == value.toUpperCase());
       } catch (_) {
-        return null; // Handle unrecognized string values
+        return null;
       }
     } else {
       return value as SalesmanName?;
@@ -969,55 +575,56 @@ class Customer {
   }
 }
 
+
 class QuantityList {
-  int id;
-  String cartId;
-  String productId;
-  String variationId;
-  String price;
+  int? id;
+  String? cartId;
+  String? productId;
+  String? variationId;
+  String? price;
   String? reason;
-  int quantity;
-  int status;
-  DateTime createdAt;
-  DateTime updatedAt;
-  String customerId;
+  int? quantity;
+  int? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  String? customerId;
   SalesmanName? salesmanId;
-  int total;
-  String discount;
-  String variationName;
-  String unitType;
-  String tax;
-  String packtype;
-  int pieces;
-  int stock;
-  int lowstock;
-  int fullstock;
-  String imageUrl;
+  int? total;
+  String? discount;
+  String? variationName;
+  String? unitType;
+  String? tax;
+  String? packtype;
+  int? pieces;
+  int? stock;
+  int? lowstock;
+  int? fullstock;
+  String? imageUrl;
 
   QuantityList({
-    required this.id,
-    required this.cartId,
-    required this.productId,
-    required this.variationId,
-    required this.price,
-    required this.reason,
-    required this.quantity,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.customerId,
-    required this.salesmanId,
-    required this.total,
-    required this.discount,
-    required this.variationName,
-    required this.unitType,
-    required this.tax,
-    required this.packtype,
-    required this.pieces,
-    required this.stock,
-    required this.lowstock,
-    required this.fullstock,
-    required this.imageUrl,
+    this.id,
+    this.cartId,
+    this.productId,
+    this.variationId,
+    this.price,
+    this.reason,
+    this.quantity,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.customerId,
+    this.salesmanId,
+    this.total,
+    this.discount,
+    this.variationName,
+    this.unitType,
+    this.tax,
+    this.packtype,
+    this.pieces,
+    this.stock,
+    this.lowstock,
+    this.fullstock,
+    this.imageUrl,
   });
 
   factory QuantityList.fromJson(Map<String, dynamic> json) {
@@ -1030,8 +637,8 @@ class QuantityList {
       reason: json['reason'],
       quantity: _parseInt(json['quantity']),
       status: _parseInt(json['status']),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
       customerId: json['customer_id'],
       salesmanId: _parseSalesmanName(json['salesman_id']),
       total: _parseInt(json['total']),
@@ -1058,8 +665,8 @@ class QuantityList {
       'reason': reason,
       'quantity': quantity,
       'status': status,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
       'customer_id': customerId,
       'salesman_id': salesmanId?.toString().split('.').last,
       'total': total,
@@ -1076,13 +683,13 @@ class QuantityList {
     };
   }
 
-  static int _parseInt(dynamic value) {
+  static int? _parseInt(dynamic value) {
     if (value is int) {
       return value;
     } else if (value is String) {
-      return int.tryParse(value) ?? 0; // Default to 0 or handle error as needed
+      return int.tryParse(value);
     } else {
-      throw TypeError();
+      return null;
     }
   }
 
@@ -1092,7 +699,7 @@ class QuantityList {
         return SalesmanName.values.firstWhere((e) =>
             e.toString().split('.')[1].toUpperCase() == value.toUpperCase());
       } catch (_) {
-        return null; // Handle unrecognized string values
+        return null;
       }
     } else {
       return value as SalesmanName?;
@@ -1100,13 +707,14 @@ class QuantityList {
   }
 }
 
+
 class Delivery {
-  OrderA order;
-  DeliveryOrder deliveryOrder;
+  OrderA? order;
+  DeliveryOrder? deliveryOrder;
 
   Delivery({
-    required this.order,
-    required this.deliveryOrder,
+     this.order,
+     this.deliveryOrder,
   });
 
   factory Delivery.fromJson(Map<String, dynamic> json) {
@@ -1118,17 +726,18 @@ class Delivery {
 
   Map<String, dynamic> toJson() {
     return {
-      'order': order.toJson(),
-      'delivery_order': deliveryOrder.toJson(),
+      'order': order?.toJson(),
+      'delivery_order': deliveryOrder?.toJson(),
     };
   }
 }
 
+
 class OrderA {
-  List<OrderDetails> totalOrders;
+  List<OrderDetails>? totalOrders;
 
   OrderA({
-    required this.totalOrders,
+     this.totalOrders,
   });
 
   factory OrderA.fromJson(Map<String, dynamic> json) {
@@ -1144,18 +753,18 @@ class OrderA {
 
   Map<String, dynamic> toJson() {
     return {
-      'total_orders': totalOrders.map((e) => e.toJson()).toList(),
+      'total_orders': totalOrders?.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class DeliveryOrder {
-  int count;
-  String percentage;
+  int? count;
+  String? percentage;
 
   DeliveryOrder({
-    required this.count,
-    required this.percentage,
+     this.count,
+     this.percentage,
   });
 
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
@@ -1174,75 +783,75 @@ class DeliveryOrder {
 }
 
 class OrderDetails {
-  int id;
-  String orderId;
-  String customerId;
-  String salesmanId;
-  int paymentStatus;
-  int paymentType;
-  String paymentDetail;
-  int orderStatus;
-  String cartId;
-  String orderCreateAt;
-  int orderTotal;
-  int receivedAmount;
-  String? receivedAmountDate;
-  String checkDueDate;
-  int checkNumber;
-  String transactionDate;
-  String transactionDetails;
-  int orderProcessing;
-  int packedForDelivery;
-  int delivered;
-  int outForDelivery;
+  int? id; // Nullable
+  String? orderId; // Nullable
+  String? customerId; // Nullable
+  String? salesmanId; // Nullable
+  int? paymentStatus; // Nullable
+  int? paymentType; // Nullable
+  String? paymentDetail; // Nullable
+  int? orderStatus; // Nullable
+  String? cartId; // Nullable
+  String? orderCreateAt; // Nullable
+  int? orderTotal; // Nullable
+  int? receivedAmount; // Nullable
+  String? receivedAmountDate; // Nullable
+  String? checkDueDate; // Nullable
+  int? checkNumber; // Nullable
+  String? transactionDate; // Nullable
+  String? transactionDetails; // Nullable
+  int? orderProcessing; // Nullable
+  int? packedForDelivery; // Nullable
+  int? delivered; // Nullable
+  int? outForDelivery; // Nullable
 
   OrderDetails({
-    required this.id,
-    required this.orderId,
-    required this.customerId,
-    required this.salesmanId,
-    required this.paymentStatus,
-    required this.paymentType,
-    required this.paymentDetail,
-    required this.orderStatus,
-    required this.cartId,
-    required this.orderCreateAt,
-    required this.orderTotal,
-    required this.receivedAmount,
+    this.id,
+    this.orderId,
+    this.customerId,
+    this.salesmanId,
+    this.paymentStatus,
+    this.paymentType,
+    this.paymentDetail,
+    this.orderStatus,
+    this.cartId,
+    this.orderCreateAt,
+    this.orderTotal,
+    this.receivedAmount,
     this.receivedAmountDate,
-    required this.checkDueDate,
-    required this.checkNumber,
-    required this.transactionDate,
-    required this.transactionDetails,
-    required this.orderProcessing,
-    required this.packedForDelivery,
-    required this.delivered,
-    required this.outForDelivery,
+    this.checkDueDate,
+    this.checkNumber,
+    this.transactionDate,
+    this.transactionDetails,
+    this.orderProcessing,
+    this.packedForDelivery,
+    this.delivered,
+    this.outForDelivery,
   });
 
   factory OrderDetails.fromJson(Map<String, dynamic> json) {
     return OrderDetails(
-      id: json['id'] ?? 0,
-      orderId: json['order_id'] ?? '',
-      customerId: json['customer_id'] ?? '',
-      salesmanId: json['salesman_id'] ?? '',
-      paymentStatus: json['payment_status'] ?? 0,
-      paymentType: json['payment_type'] ?? 0,
-      paymentDetail: json['payment_detail'] ?? '',
-      orderStatus: json['order_status'] ?? 0,
-      cartId: json['cart_id'] ?? '',
-      orderCreateAt: json['order_creat_at']?.toString() ?? '',
-      orderTotal: json['order_total'] ?? 0,
-      receivedAmount: json['received_amount'] ?? 0,
+      id: json['id'],
+      orderId: json['order_id'],
+      customerId: json['customer_id'],
+      salesmanId: json['salesman_id'],
+      paymentStatus: json['payment_status'],
+      paymentType: json['payment_type'],
+      paymentDetail: json['payment_detail'],
+      orderStatus: json['order_status'],
+      cartId: json['cart_id'],
+      orderCreateAt: json['order_creat_at']?.toString(),
+      orderTotal: json['order_total'],
+      receivedAmount: json['received_amount'],
       receivedAmountDate: json['received_amount_date']?.toString(),
-      checkDueDate: json['check_due_date']?.toString() ?? '',
-      checkNumber: json['check_number'] ?? 0,
-      transactionDate: json['transaction_date']?.toString() ?? '',
-      transactionDetails: json['transaction_details'] ?? '',
-      orderProcessing: json['order_processing'] ?? 0,
-      packedForDelivery: json['packed_for_delivery'] ?? 0,
-      delivered: json['deliverd'] ?? 0,
-      outForDelivery: json['outForDelivery'] ?? 0,
+      checkDueDate: json['check_due_date']?.toString(),
+      checkNumber: json['check_number'],
+      transactionDate: json['transaction_date']?.toString(),
+      transactionDetails: json['transaction_details'],
+      orderProcessing: json['order_processing'],
+      packedForDelivery: json['packed_for_delivery'],
+      delivered: json['deliverd'],
+      outForDelivery: json['outForDelivery'],
     );
   }
 
@@ -1274,16 +883,16 @@ class OrderDetails {
 }
 
 class Collection {
-  Order order;
-  Payment payment;
-  Due due;
-  Overdue overdue;
+  Order? order;
+  Payment? payment;
+  Due? due;
+  Overdue? overdue;
 
   Collection({
-    required this.order,
-    required this.payment,
-    required this.due,
-    required this.overdue,
+    this.order,
+    this.payment,
+    this.due,
+    this.overdue,
   });
 
   factory Collection.fromJson(Map<String, dynamic> json) {
@@ -1297,21 +906,19 @@ class Collection {
 
   Map<String, dynamic> toJson() {
     return {
-      'order': order.toJson(),
-      'payment': payment.toJson(),
-      'due': due.toJson(),
-      'overdue': overdue.toJson(),
+      'order': order?.toJson(),
+      'payment': payment?.toJson(),
+      'due': due?.toJson(),
+      'overdue': overdue?.toJson(),
     };
   }
 }
 
 class Order {
-  List<PendingAmount> pendingAmount;
-
+  List<PendingAmount>? pendingAmount;
   Order({
-    required this.pendingAmount,
+    this.pendingAmount,
   });
-
   factory Order.fromJson(Map<String, dynamic> json) {
     var pendingAmountList = json['pending_amount'] as List;
     return Order(
@@ -1319,21 +926,20 @@ class Order {
           pendingAmountList.map((i) => PendingAmount.fromJson(i)).toList(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
-      'pending_amount': pendingAmount.map((e) => e.toJson()).toList(),
+      'pending_amount': pendingAmount?.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class Payment {
-  int payedAmount;
-  List<CompletedOrder> completedOrders;
+  int? payedAmount;
+  List<CompletedOrder>? completedOrders;
 
   Payment({
-    required this.payedAmount,
-    required this.completedOrders,
+    this.payedAmount,
+    this.completedOrders,
   });
 
   factory Payment.fromJson(Map<String, dynamic> json) {
@@ -1348,7 +954,7 @@ class Payment {
   Map<String, dynamic> toJson() {
     return {
       'payed_amount': payedAmount,
-      'completed_orders': completedOrders.map((e) => e.toJson()).toList(),
+      'completed_orders': completedOrders?.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -1451,9 +1057,9 @@ class CompletedOrder {
 }
 
 class Due {
-  List<dynamic> dueAmount;
+  List<dynamic>? dueAmount;
 
-  Due({required this.dueAmount});
+  Due({this.dueAmount});
 
   factory Due.fromJson(Map<String, dynamic> json) {
     return Due(
@@ -1469,9 +1075,9 @@ class Due {
 }
 
 class Overdue {
-  List<PendingAmount> overdueAmount;
+  List<PendingAmount>? overdueAmount;
 
-  Overdue({required this.overdueAmount});
+  Overdue({this.overdueAmount});
 
   factory Overdue.fromJson(Map<String, dynamic> json) {
     var overdueAmountList = json['overdue_amount'] as List;
@@ -1483,62 +1089,62 @@ class Overdue {
 
   Map<String, dynamic> toJson() {
     return {
-      'overdue_amount': overdueAmount.map((e) => e.toJson()).toList(),
+      'overdue_amount': overdueAmount?.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class PendingAmount {
-  int id;
-  String orderId;
-  String customerId;
-  String salesmanId;
-  int paymentStatus;
-  int paymentType;
-  String paymentDetail;
-  int orderStatus;
-  String cartId;
-  String orderCreatAt;
-  int orderTotal;
-  int receivedAmount;
+  int? id;
+  String? orderId;
+  String? customerId;
+  String? salesmanId;
+  int? paymentStatus;
+  int? paymentType;
+  String? paymentDetail;
+  int? orderStatus;
+  String? cartId;
+  String? orderCreatAt;
+  int? orderTotal;
+  int? receivedAmount;
   String? receivedAmountDate;
-  String checkDueDate;
-  int checkNumber;
+  String? checkDueDate;
+  int? checkNumber;
   String? transactionDate;
-  String transactionDetails;
-  int creditPeriod;
-  int count;
-  String percentage;
-  int amount;
-  int dueAmount;
-  int overDue;
-  List<dynamic> dueDate;
+  String? transactionDetails;
+  int? creditPeriod;
+  int? count;
+  String? percentage;
+  int? amount;
+  int? dueAmount;
+  int? overDue;
+  List<dynamic>? dueDate;
 
   PendingAmount({
-    required this.id,
-    required this.orderId,
-    required this.customerId,
-    required this.salesmanId,
-    required this.paymentStatus,
-    required this.paymentType,
-    required this.paymentDetail,
-    required this.orderStatus,
-    required this.cartId,
-    required this.orderCreatAt,
-    required this.orderTotal,
-    required this.receivedAmount,
+    this.id,
+    this.orderId,
+    this.customerId,
+    this.salesmanId,
+    this.paymentStatus,
+    this.paymentType,
+    this.paymentDetail,
+    this.orderStatus,
+    this.cartId,
+    this.orderCreatAt,
+    this.orderTotal,
+    this.receivedAmount,
     this.receivedAmountDate,
-    required this.checkDueDate,
-    required this.checkNumber,
+    this.checkDueDate,
+    this.checkNumber,
     this.transactionDate,
-    required this.transactionDetails,
-    required this.creditPeriod,
-    required this.count,
-    required this.percentage,
-    required this.amount,
-    required this.dueAmount,
-    required this.overDue,
-    required this.dueDate,
+    this.transactionDetails,
+    this.creditPeriod,
+    this.count,
+    this.percentage,
+    this.amount,
+    this.dueAmount,
+    this.overDue,
+    this.dueDate,
   });
 
   factory PendingAmount.fromJson(Map<String, dynamic> json) {

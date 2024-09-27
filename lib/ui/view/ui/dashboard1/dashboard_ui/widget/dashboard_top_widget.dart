@@ -41,10 +41,31 @@ class DashboardTopWidget extends StatefulWidget {
 class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
+  bool isLoading = true; // To manage loading state
+  String? errorMessage;  // To manage error messages
 
   @override
   void initState() {
     super.initState();
+    fetchDashboardData();
+  }
+
+  Future<void> fetchDashboardData() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      await widget.dashBoardController.fetchDashboardData();
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -54,26 +75,27 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       children: [
         calender(),
         nkSmallSizeBox(),
-        OptionWidget(
-          customType: "",
-          customOrderStatusType: OrderStatus.preOrder,
-          draftCount: widget.dashBoardController.dashbordData.value
-                  .orderCountList?.draftOrder ??
-              0,
-          orderCount: widget.dashBoardController.dashbordData.value
-                  .orderCountList?.totalOrder ??
-              0,
-          preOrderCount: widget.dashBoardController.dashbordData.value
-                  .orderCountList?.preorderOrder ??
-              0,
-          eastimatesCount: widget.dashBoardController.dashbordData.value
-                  .orderCountList?.estimateOrder ??
-              0,
-          userType: UserType.customer,
-          userId: "",
-          startDate: startDate,
-          endDate: endDate,
-        ),
+        if (isLoading)
+          Center(child: CircularProgressIndicator()) 
+        else if (errorMessage != null)
+          Center(child: Text('Error: $errorMessage'))
+        else
+          OptionWidget(
+            customType: "",
+            customOrderStatusType: OrderStatus.preOrder,
+            draftCount: widget.dashBoardController.dashbordData.value
+                    .orderCountList?.draftOrder ?? 20,
+            orderCount: widget.dashBoardController.dashbordData.value
+                    .orderCountList?.totalOrder ?? 40,
+            preOrderCount: widget.dashBoardController.dashbordData.value
+                    .orderCountList?.preorderOrder ?? 60,
+            eastimatesCount: widget.dashBoardController.dashbordData.value
+                    .orderCountList?.estimateOrder ?? 80,
+            userType: UserType.customer,
+            userId: "",
+            startDate: startDate,
+            endDate: endDate,
+          ),
       ],
     );
   }
@@ -984,7 +1006,9 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             count: '109',
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color(0xFFFCDABD),
-            onTap: () {}),
+            onTap: () {
+              
+            }),
         nkSmallSizeBox(),
         orderOptions(
           title: estimates,

@@ -29,7 +29,6 @@ const String categoryPerformanceProjection =
 const String projectionsVsActual = "Category Target / Projection / Actuals";
 const String revenue = "Revenue";
 const String notifications = "Notifications";
-
 const String collection = "Collection";
 const String orderDelivery = "Order Delivery";
 const String orderTaking = "Order Taking";

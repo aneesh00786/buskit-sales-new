@@ -17,7 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/tod
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_total_sale_response.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard/dashboard_ui/model/dashboard_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_responce_temp.dart';
@@ -71,22 +71,22 @@ class ApiWorker with ApiConstants {
   // }
   /// ************************ DASHBOARD SECTION ***************** ///
 
-  Future<DashboardResponse> dashboardData(SearchModel searchData) async {
+  Future<DashboardResponse> dashboardData() async {
       final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
       final jsonString = await SessionManager.getStringValue(SpString.spLogin);
       Map<String, dynamic> jsonMap = jsonDecode(jsonString);
       int createdToken= jsonMap['createdToken'];
     Map<String, dynamic> data = {
       'salesman_id': salesmanId,
-      'start_date': searchData.startDate ?? "",
-      'end_date': searchData.endDate ?? "",
+      'start_date': "2024-09-30",
+      'end_date': "2024-09-01",
     };
       Map<String, dynamic> headers = {
     'Authorization': 'Bearer $createdToken',
   };
     log('ceared Token$createdToken');
     log('ceared Token$salesmanId');
-    log('data++++ ${searchData.startDate} ${searchData.endDate}');
+   // log('data++++ ${searchData.startDate} ${searchData.endDate}');
   
     final response = await dio
         .postbycustom(
@@ -98,7 +98,7 @@ class ApiWorker with ApiConstants {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-    log(response.data);
+    log('Dashboard api Response : ++++++++++++ ${response.data}');
     return DashboardResponse.fromJson(response.data);
   }
 
@@ -134,11 +134,11 @@ class ApiWorker with ApiConstants {
           "salesman_id": salesmanId,
         }),
       );
-      log("Response status of Customer Fetching: ${response.statusCode}");
-      log("Response data: ${response.data}");
+      // log("Response status of Customer Fetching: ${response.statusCode}");
+      // log("Response data: ${response.data}");
       return CustomerAndOrderResponce.fromJson(response.data);
     } catch (error) {
-      log("Error fetching customer data: $error");
+      // log("Error fetching customer data: $error");
       return Future.error('Failed to fetch customer data: $error');
     }
   }
@@ -203,7 +203,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<Response> buyProduct(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${FormData.fromMap(sendData).fields}");
+    // log("Send DATA: ${FormData.fromMap(sendData).fields}");
     final response = await dio
         .postbycustom(ApiConstants.place_order,
             data: FormData.fromMap(sendData))
@@ -215,33 +215,33 @@ class ApiWorker with ApiConstants {
   }
 
 Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-  log("Send DATA: ${FormData.fromMap(sendData).fields}");
-  log("Send DATA: $sendData");
+  // log("Send DATA: ${FormData.fromMap(sendData).fields}");
+  // log("Send DATA: $sendData");
   try {
     final response = await dio.postbycustom(
       ApiConstants.add_to_cart,
       data: FormData.fromMap(sendData),
     ).onError((DioError error, stackTrace) {
-      log('Dio Error: ${error.response?.data}');
+      // log('Dio Error: ${error.response?.data}');
       return Future.error(DioExceptionHandler.fromDioError(error));
     });
-    log('Cart Response Status: ${response.statusCode}');
-    log('Cart Response: ${response.data}');
+    // log('Cart Response Status: ${response.statusCode}');
+    // log('Cart Response: ${response.data}');
 
     if (response.statusCode == 200) {
       if (response.data['cart_id'] == null) {
-        log('Cart ID is null in response data: ${response.data}');
+        // log('Cart ID is null in response data: ${response.data}');
         return null;
       }
       final cartOrder = CartOrderModel.fromJson(response.data);
-      log('Parsed CartOrder: ${cartOrder}');
+      // log('Parsed CartOrder: ${cartOrder}');
       return cartOrder;
     } else {
-      log('Unexpected Response: ${response.data}');
+      // log('Unexpected Response: ${response.data}');
       return null;
     }
   } catch (e) {
-    log('Error on adding to cart: $e');
+    // log('Error on adding to cart: $e');
     return null;
   }
 }
@@ -251,10 +251,10 @@ Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
 
 
   Future<Response> deleteCartItem(String cartId, String variationId) async {
-    log("Send DATA: ${FormData.fromMap({
-          "cart_id": cartId,
-          "variation_id": variationId
-        }).fields}");
+    // log("Send DATA: ${FormData.fromMap({
+    //       "cart_id": cartId,
+    //       "variation_id": variationId
+    //     }).fields}");
     final response = await dio
         .postbycustom(ApiConstants.cart_delete,
             data: FormData.fromMap(

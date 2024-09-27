@@ -1,26 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/search_model.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard/dashboard_ui/dashboard_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -262,7 +251,7 @@ void handleBackNavigation(BuildContext context) {
         surfaceTintColor: Colors.white,
         centerTitle: true,
         title: Text(
-          'Order Taking',
+          'Products',
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(

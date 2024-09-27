@@ -133,7 +133,6 @@ class ProductProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
   Map<String, List<ProductPo>> initializeProductsByCategory(List<StoreDataPo> storeData) {
     final Map<String, List<ProductPo>> productsByCategory = {};
     for (final store in storeData) {

@@ -22,22 +22,22 @@ class CustomerDashbordTopWidget extends StatelessWidget {
       children: [
         topHeadingRow(),
         nkMediumSizeBox(),
-        OptionWidget(
-          draftCount:
-              customerDashbordController.customerAndOrderData.value.drafts ?? 0,
-          orderCount:
-              customerDashbordController.customerAndOrderData.value.preOrder ??
-                  0,
-          preOrderCount:
-              customerDashbordController.customerAndOrderData.value.delivery ??
-                  0,
-          eastimatesCount:
-              customerDashbordController.customerAndOrderData.value.estimates ??
-                  0,
-          userType: UserType.customer,
-          userId:
-              customerDashbordController.customerAndOrderData.value.customerId!,
-        ),
+        // OptionWidget(
+        //   draftCount:
+        //       customerDashbordController.customerAndOrderData.value.drafts ?? 0,
+        //   orderCount:
+        //       customerDashbordController.customerAndOrderData.value.preOrder ??
+        //           0,
+        //   preOrderCount:
+        //       customerDashbordController.customerAndOrderData.value.delivery ??
+        //           0,
+        //   eastimatesCount:
+        //       customerDashbordController.customerAndOrderData.value.estimates ??
+        //           0,
+        //   userType: UserType.customer,
+        //   userId:
+        //       customerDashbordController.customerAndOrderData.value.customerId!,
+        // ),
       ],
     );
   }

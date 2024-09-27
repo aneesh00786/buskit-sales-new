@@ -64,7 +64,7 @@ class OptionWidget extends StatelessWidget {
   List<OptionData> get _defaultOption => [
         OptionData(
             title: orders,
-            count: orderCount?.toString() ?? "0",
+            count: orderCount.toString(),
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color(0xFFFCDABD),
             onTap: optionFun?.call(0, OrderStatus.preOrder).$2 ??
@@ -85,7 +85,7 @@ class OptionWidget extends StatelessWidget {
                 }),
         OptionData(
           title: estimates,
-          count: eastimatesCount?.toString() ?? "0",
+          count: eastimatesCount.toString(),
           svg: Assets.iconsIcDashboardEstimates,
           svgBgColor: const Color(0xFFC3DDFD),
           onTap: optionFun?.call(1, OrderStatus.estimates).$2 ??
@@ -104,7 +104,7 @@ class OptionWidget extends StatelessWidget {
         ),
         OptionData(
           title: preOrder,
-          count: preOrderCount?.toString() ?? "0",
+          count: preOrderCount.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
           onTap: optionFun?.call(2, OrderStatus.preOrder).$2 ??
               () {

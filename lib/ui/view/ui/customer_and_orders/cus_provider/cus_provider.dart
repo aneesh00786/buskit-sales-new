@@ -300,8 +300,6 @@ class CustomersProvider with ChangeNotifier {
           (startDate.isEmpty || endDate.isEmpty)) {
         throw Exception('Select both start and end dates');
       }
-
-      // Debouncing network requests
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,

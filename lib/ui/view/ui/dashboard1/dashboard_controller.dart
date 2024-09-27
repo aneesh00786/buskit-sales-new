@@ -15,6 +15,8 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -23,15 +25,10 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 class DashBoardController extends GetxController {
   RxDouble totalRevenue = 0.20.obs;
   RxString revenueAmount = "107,431".obs;
-
   RxInt selectedCommunicationIndex = (-1).obs;
-
   TextEditingController communicationController = TextEditingController();
-
-  Rx<Data> dashbordData = Data().obs;
-
+  //Rx<Data> dashbordData = Data().obs;
   SearchModel searchModel = SearchModel();
-
   RxList<Map<String, dynamic>> communicationList = [
     {
       "image":
@@ -71,7 +68,16 @@ class DashBoardController extends GetxController {
   ].obs;
   // ignore: unused_field
   final ApiWorker _apiWorker = ApiWorker();
-
+  var dashbordData = ResponseModell().obs;
+  Future<void> fetchDashboardData() async {
+    try {
+      final response = await ApiService().fetchDashboardData();
+      dashbordData.value = response;
+      log('Response from New Function :${response}');
+    } catch (e) {
+      throw Exception('Error fetching dashboard data:++ $e');
+    }
+  }
   Widget revenueProgressBar(
     double value,
     Color revenueProgressBarFilledColor,
@@ -110,12 +116,12 @@ class DashBoardController extends GetxController {
   }
 
   get loadDahsbordData async {
-    var data = await _apiWorker.dashboardData(searchModel);
-    //log("API DASHBORD DATA IS ${data.toJson()}");
-    dashbordData = data.data!.obs as Rx<Data>;
-    log("Loded  DASHBORD DATA IS ${dashbordData.value.toJson()}");
-    log("Loded  DASHBORD DATA encode ${jsonEncode(dashbordData.value)}");
-    refresh();
+    // var data = await _apiWorker.dashboardData();
+    // log("API DASHBORD DATA IS ${data.toJson()}");
+    // dashbordData = data.data!.obs as Rx<Data>;
+    // log("DashBoard Data Load ++++++++++++++ ${dashbordData.value.toJson()}");
+    // log("Loded  DASHBORD DATA encode ${jsonEncode(dashbordData.value)}");
+    // refresh();
   }
 
   List<int> colorList = [

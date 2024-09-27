@@ -25,19 +25,19 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
       children: [
         topHeadingRow(),
         nkMediumSizeBox(),
-        OptionWidget(
-          eastimatesCount: customerOrderDetailsController
-              .customerAndOrderData.value.estimates,
-          preOrderCount: customerOrderDetailsController
-              .customerAndOrderData.value.delivery,
-          draftCount:
-              customerOrderDetailsController.customerAndOrderData.value.drafts,
-          orderCount: customerOrderDetailsController
-              .customerAndOrderData.value.preOrder,
-          userType: UserType.customer,
-          userId: customerOrderDetailsController
-              .customerAndOrderData.value.customerId!,
-        ),
+        // OptionWidget(
+        //   eastimatesCount: customerOrderDetailsController
+        //       .customerAndOrderData.value.estimates,
+        //   preOrderCount: customerOrderDetailsController
+        //       .customerAndOrderData.value.delivery,
+        //   draftCount:
+        //       customerOrderDetailsController.customerAndOrderData.value.drafts,
+        //   orderCount: customerOrderDetailsController
+        //       .customerAndOrderData.value.preOrder,
+        //   userType: UserType.customer,
+        //   userId: customerOrderDetailsController
+        //       .customerAndOrderData.value.customerId!,
+        // ),
       ],
     );
   }

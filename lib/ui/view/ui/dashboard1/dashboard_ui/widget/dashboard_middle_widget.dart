@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
@@ -112,6 +114,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget collectionChart(BuildContext context) {
     return MyCommnonContainer(
+      color:white,
       height: 280,
       isCommonBorder: true,
       padding: nkRegularPadding(),
@@ -138,7 +141,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ),
                     );
                   } else if (snapshot.hasError) {
-                    return const Center(
+                    log('Snapshot Error collectionChart ==========${snapshot.error}');
+                    log('Snapshot Data collectionChart ==========${snapshot.data}');
+                    return  Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -146,7 +151,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                               size: 50, color: Colors.red),
                           SizedBox(height: 10),
                           Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.${snapshot.error}",
                               textAlign: TextAlign.center),
                         ],
                       ),
@@ -155,30 +160,28 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     return const Center(child: Text('No data available'));
                   } else {
                     final responseModel = snapshot.data!;
-
                     // Calculate the total amounts
                     final totalCompletedAmount = responseModel
-                        .collection.payment.completedOrders
-                        .fold(0.0, (sum, order) => sum + order.orderTotal);
+                        .collection?.payment?.completedOrders
+                        ?.fold(0.0, (sum, order) => sum + order.orderTotal);
 
                     final pendingAmountLabel = responseModel
-                            .collection.order.pendingAmount.isNotEmpty
-                        ? 'Pending : \$${responseModel.collection.order.pendingAmount.last.amount}'
+                            .collection!.order!.pendingAmount!.isNotEmpty
+                        ? 'Pending : \$${responseModel.collection!.order?.pendingAmount?.last.amount}'
                         : 'Pending : \$0.00';
-
                     final dueAmountLabel = responseModel
-                            .collection.order.pendingAmount.isNotEmpty
-                        ? 'Due : \$${responseModel.collection.order.pendingAmount.last.dueAmount}'
+                            .collection!.order!.pendingAmount!.isNotEmpty
+                        ? 'Due : \$${responseModel.collection!.order?.pendingAmount?.last.dueAmount}'
                         : 'Due : \$0.00';
 
                     final overdueAmountLabel = responseModel
-                            .collection.order.pendingAmount.isNotEmpty
-                        ? 'Overdue : \$${responseModel.collection.order.pendingAmount.last.overDue}'
+                            .collection!.order!.pendingAmount!.isNotEmpty
+                        ? 'Overdue : \$${responseModel.collection!.order?.pendingAmount?.last.overDue}'
                         : 'Overdue : \$0.00';
 
                     // Labels
                     final completedOrdersLabel =
-                        'Completed : \$${totalCompletedAmount.toStringAsFixed(0)}';
+                        'Completed : \$${totalCompletedAmount?.toStringAsFixed(0)}';
 
                     return NestedPieChartj(
                       sabik: Row(
@@ -291,7 +294,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      collection: responseModel.collection,
+                      collection: responseModel.collection!,
                     );
                   }
                 },
@@ -307,6 +310,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget orderDeliveryChart(BuildContext context) {
     return MyCommnonContainer(
+      color:white,
       height: 280,
       width: double.infinity,
       isCommonBorder: true,
@@ -331,6 +335,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ),
                     );
                   } else if (snapshot.hasError) {
+                    log('Snapshot Error orderDeliveryChart ==========${snapshot.error}');
+                    log('Snapshot Data orderDeliveryChart ==========${snapshot.data}');
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -345,11 +351,12 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ),
                     );
                   } else if (snapshot.hasData) {
+                    log('Snapshot Error collectionChart ==========${snapshot.error}');
+                    log('Snapshot Data collectionChart ==========${snapshot.data}');
                     final categories = snapshot.data!.allCategory;
                     final categoryPerformance = snapshot.data!.delivery;
-
                     if (categoryPerformance == null ||
-                        categoryPerformance.order.totalOrders.isEmpty) {
+                        categoryPerformance.order!.totalOrders!.isEmpty) {
                       return const Center(child: Text('No data available'));
                     }
 
@@ -377,7 +384,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             const SizedBox(width: 2),
                             MyRegularText(
                               label:
-                                  "Out for delivery : \$${categoryPerformance.order.totalOrders.last.outForDelivery}",
+                                  "Out for delivery : \$${categoryPerformance.order!.totalOrders?.last.outForDelivery}",
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
                               color: secondaryTextColor,
@@ -408,7 +415,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             const SizedBox(width: 2),
                             MyRegularText(
                               label:
-                                  "Delivered : \$${categoryPerformance.order.totalOrders.last.delivered}",
+                                  "Delivered : \$${categoryPerformance.order?.totalOrders?.last.delivered}",
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
                               color: secondaryTextColor,
@@ -434,7 +441,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             const SizedBox(width: 2),
                             MyRegularText(
                               label:
-                                  "Processing : \$${categoryPerformance.order.totalOrders.last.orderProcessing}",
+                                  "Processing : \$${categoryPerformance.order?.totalOrders?.last.orderProcessing}",
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
                               color: secondaryTextColor,
@@ -465,7 +472,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             const SizedBox(width: 2),
                             MyRegularText(
                               label:
-                                  "Packed for delivery : \$${categoryPerformance.order.totalOrders.last.packedForDelivery}",
+                                  "Packed for delivery : \$${categoryPerformance.order?.totalOrders?.last.packedForDelivery}",
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
                               color: secondaryTextColor,
@@ -490,6 +497,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget middleTopLeftComponet() {
     return MyCommnonContainer(
+      color: white,
         height: 280,
         width: double.infinity,
         isCommonBorder: true,
@@ -518,6 +526,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           ),
                         );
                       } else if (snapshot.hasError) {
+                      log('Snapshot Error ==========${snapshot.error}');
+                      log('Snapshot Data middleTopLeftComponet ==========${snapshot.data}');
                         final errorMessage = snapshot.error.toString();
                         return Center(
                           child: Column(
@@ -537,8 +547,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
                         return Center(
                           child: CustomBarChart(
-                            categoryPerformance: categoryPerformance,
-                            allCategory: categories,
+                            categoryPerformance: categoryPerformance!,
+                            allCategory: categories!,
                           ),
                         );
                       } else {
@@ -557,18 +567,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   );
                 },
               ),
-
-              // StackedLine100Chart(
-              //   series: dashBoardController.getDashbordData(
-              //       dashBoardController
-              //               .dashbordData.value.categoryPerformance ??
-              //           []),
-              // );
-              /* return BarChartSample2(
-                      categoryData: dashBoardController
-                              .dashbordData.value.categoryPerformance ??
-                          [],
-                    );*/
             )
           ],
         ));
@@ -576,6 +574,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget middleTopRightComponet() {
     return MyCommnonContainer(
+      color: white,
       height: 280,
       width: double.infinity,
       isCommonBorder: true,
@@ -600,6 +599,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ),
                     );
                   } else if (snapshot.hasError) {
+                    
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -627,14 +627,14 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     }
 
                     final bookingRevenueLength =
-                        categoryPerformance.bookingRevenueData.isNotEmpty
-                            ? categoryPerformance.bookingRevenueData.last.total
+                        categoryPerformance.bookingRevenueData!.isNotEmpty
+                            ? categoryPerformance.bookingRevenueData?.last.total
                             : 0.0;
 
                     final orderRevenueLast =
-                        categoryPerformance.orderRevenueData.isNotEmpty
+                        categoryPerformance.orderRevenueData!.isNotEmpty
                             ? categoryPerformance
-                                .orderRevenueData.last.totalOrderRevenue
+                                .orderRevenueData?.last.totalOrderRevenue
                             : 0.0;
 
                     return Center(
@@ -664,7 +664,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             const SizedBox(width: 2),
                             MyRegularText(
                               label:
-                                  'Booking : \$${bookingRevenueLength.toStringAsFixed(0)}',
+                                  'Booking : \$${bookingRevenueLength?.toStringAsFixed(0)}',
                               color: secondaryTextColor,
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
@@ -695,7 +695,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             const SizedBox(width: 2),
                             MyRegularText(
                               label:
-                                  'Order : \$${orderRevenueLast.toStringAsFixed(0)}',
+                                  'Order : \$${orderRevenueLast?.toStringAsFixed(0)}',
                               color: secondaryTextColor,
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
@@ -801,8 +801,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ClipOval(
                           child: MyNetworkImage(
                         imageUrl: data["image"],
-                        height: AppDimensions.instance!.height * 0.05,
-                        width: AppDimensions.instance!.height * 0.05,
+                        height: AppDimensions.instance.height * 0.05,
+                        width: AppDimensions.instance.height * 0.05,
                       )),
                       Text(
                         // ignore: prefer_interpolation_to_compose_strings
@@ -857,8 +857,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
             ClipOval(
                 child: MyNetworkImage(
               imageUrl: data["image"],
-              height: AppDimensions.instance!.height * 0.05,
-              width: AppDimensions.instance!.height * 0.05,
+              height: AppDimensions.instance.height * 0.05,
+              width: AppDimensions.instance.height * 0.05,
             )),
             nkSmallSizeBox(),
             Flexible(
@@ -886,28 +886,14 @@ class DashBoardMiddleWidget extends StatelessWidget {
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
         double fontSize = 11;
-            // MediaQuery.of(context).orientation == Orientation.portrait
-            //     ? 9.7
-            //     : availableWidth / 44;
-
         double padding = availableWidth / 100;
-        double fixedIconSize = 13.0; // Fixed icon size
-
-        // Sort the topSellingProducts by quantity in descending order
-        topSellingProducts.sort((a, b) => b.quantity.compareTo(a.quantity));
-
+        double fixedIconSize = 13.0;
+        topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity??''));
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: ConstrainedBox(
             constraints: BoxConstraints(minWidth: availableWidth),
             child: DataTable(
-              // border: const TableBorder(
-              //   left: BorderSide(width: 0.2, color: Colors.grey),
-              //   right: BorderSide(width: 0.2, color: Colors.grey),
-              //   bottom: BorderSide(width: 0.2, color: Colors.grey),
-              //   horizontalInside: BorderSide(width: 0.2, color: Colors.grey),
-              //   verticalInside: BorderSide(width: 0.2, color: Colors.grey),
-              // ),
               dataRowHeight: 30,
               headingRowHeight: 40,
               columns: const <DataColumn>[
@@ -983,7 +969,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     DataCell(
                       Center(
                         child: MyRegularText(
-                          label: product.variationName,
+                          label: product.variationName??'',
                           color: secondaryTextColor,
                           fontSize: fontSize,
                         ),
@@ -993,7 +979,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       Center(
                         child: MyRegularText(
                           label: DateFormat('dd-MM-yyyy')
-                              .format(product.createdAt),
+                              .format(product.createdAt!),
                           // fontWeight: NkGeneralSize.nkBoldFontWeight(),
                           color: secondaryTextColor,
                           fontSize: fontSize,
@@ -1031,7 +1017,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                product.variationName,
+                                                product.variationName??'',
                                                 style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 16,
@@ -1110,12 +1096,12 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                 ),
                                               ),
                                             ],
-                                            rows: product.quantityList
+                                            rows: product.quantityList!
                                                 .map((quantity) {
                                               return DataRow(cells: [
                                                 DataCell(Center(
                                                   child: Text(
-                                                    '\$${double.parse(quantity.price).toStringAsFixed(2)}',
+                                                    '\$${double.parse(quantity.price??'').toStringAsFixed(2)}',
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       color: secondaryTextColor,
@@ -1136,7 +1122,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                 )),
                                                 DataCell(Center(
                                                   child: Text(
-                                                    '\$${(quantity.quantity).toStringAsFixed(2)}',
+                                                    '\$${(quantity.quantity)?.toStringAsFixed(2)}',
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       color: secondaryTextColor,
@@ -1148,7 +1134,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                   child: Text(
                                                     DateFormat('dd-MM-yyyy')
                                                         .format(
-                                                            quantity.createdAt)
+                                                            quantity.createdAt??DateTime.now())
                                                         .toString(),
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
@@ -1177,7 +1163,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             ),
                             child: Center(
                               child: MyRegularText(
-                                label: product.quantityList.length.toString(),
+                                label: product.quantityList!.length.toString(),
                                 // fontWeight: NkGeneralSize.nkBoldFontWeight(),
                                 color: buttonTextColor,
                                 align: TextAlign.center,
@@ -1192,7 +1178,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       Center(
                         child: MyRegularText(
                           label:
-                              '\$${double.parse(product.price).toStringAsFixed(2)}',
+                              '\$${double.parse(product.price??'').toStringAsFixed(2)}',
                           // fontWeight: NkGeneralSize.nkBoldFontWeight(),
                           color: secondaryTextColor,
                           fontSize: fontSize,
@@ -1220,6 +1206,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget topSellingProductWidget() {
     return MyCommnonContainer(
+      color:white,
       height: 280,
       isCommonBorder: true,
       padding: EdgeInsets.zero,
@@ -1258,7 +1245,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   } else if (snapshot.hasData) {
                     final topSellingProducts =
                         snapshot.data!.topSellingProducts ?? [];
-                    return topSellingProductList(topSellingProducts);
+                    return Expanded(child: topSellingProductList(topSellingProducts));
                   } else {
                     return const Center(
                       child: MyRegularText(
@@ -1627,6 +1614,7 @@ class _CommunicationsDisplayWidgetState
     final DashboardProvider provider = Provider.of<DashboardProvider>(context);
 
     return MyCommnonContainer(
+      color: white,
       height: 280,
       isCommonBorder: true,
       padding: nkRegularPadding(),

@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard/dashboard_ui/model/dashboard_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

@@ -22,6 +22,19 @@ mixin class ApiConstants {
   static const String add_events = "add_events";
   static const String update_product_price = "update_product_price";
   static const String payment_add_detail = "payment_add_detail";
+  static const String fetchCategoryPerformance = "fetchCategoryPerformance";
+  static const String customerSaleByCategory = "CustomerSaleByCategory";
+  static const String fetchChat = "fetch_chat";
+  static const String fetchIndividualChat = "fetch_individual_chat";
+  static const String postAdminMessage = "post_admin_message";
+  static const String fetchAllOrders = "fetch_all_order";
+  static const String changeOrderStatus = "change_order_status";
+  static const String adminOnPopUp = "admin_on_popup";
+  static const String updateAdmin= "update_admin";
+  static const String fetchCustomer = "fetch_customer";
+  static const String addEvent = "add_events";
+  static const String customeTotalSale = "customer_total_sale";
+  static const String fetchOrderCount = "fetch_order_count";
 
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";

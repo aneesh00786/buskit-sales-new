@@ -9,117 +9,111 @@ import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
-
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
 import 'package:dio/dio.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-
 import 'dash_models.dart';
 
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
-  
-Future<ResponseModell> fetchDashboardData({
-  required String salesmanId,
-  required String startDate,
-  required String endDate,
-  required String createdToken,
-}) async {
-  final url = '$_baseUrl${ApiConstants.dashboard_list}';
-  final requestBody = {
-    "salesman_id": "salesmanId",
-    "start_date": startDate,
-    "end_date": endDate,
-  };
 
-  try {
-    log('API URL: $url');
-    log('Request Body: $requestBody');
-    log("Created Token: $createdToken");
+  Future<ResponseModell> fetchDashboardData() async {
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    String createdToken = jsonMap['createdToken'];
+    final url = '$_baseUrl${ApiConstants.dashboard_list}';
+    final requestBody = {
+      "salesman_id": salesmanId,
+      "start_date": "2024-09-01",
+      "end_date": "2024-09-30",
+    };
 
-    final response = await Dio().post(
-      url,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $createdToken',
-          // 'Content-Type': 'application/json', // Set the content type if needed
-        },
-      ),
-      data: jsonEncode(requestBody), // Convert request body to JSON
-    );
+    try {
+      log('API URL: $url');
+      log('Request Body: $requestBody');
+      log("Created Token: $createdToken");
 
-    log("Response Status Code: ${response.statusCode}");
-    log('Response Body: ${response.data}');
-
-    if (response.statusCode == 200) {
-      var jsonResponse = response.data;
-
-      print('Order Count List: ${jsonResponse['data']['order_count_list']}');
-
-      var allCategoryList = jsonResponse['data']['all_category'] as List;
-      List<Category> allCategory =
-          allCategoryList.map((json) => Category.fromJson(json)).toList();
-
-      var performanceList =
-          jsonResponse['data']['category_performance'] as List;
-      List<CategoryPerformancee> categoryPerformance = performanceList
-          .map((json) => CategoryPerformancee.fromJson(json))
-          .toList();
-
-      var revenueJson = jsonResponse['data']['revenu'];
-      Revenuee revenu = Revenuee.fromJson(revenueJson ?? {});
-
-      var collectionJson = jsonResponse['data']['collection'];
-      Collection collection = Collection.fromJson(collectionJson ?? {});
-
-      var deliveryJson = jsonResponse['data']['delivery'];
-      Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
-
-      var topSellingList =
-          jsonResponse['data']['top_selling_product'] as List;
-      List<TopSellingProductA> topSellingProducts = topSellingList
-          .map((json) => TopSellingProductA.fromJson(json))
-          .toList();
-
-      var orderCountListJson = jsonResponse['data']['order_count_list'];
-      OrderCountListt orderCountList =
-          OrderCountListt.fromJson(orderCountListJson ?? {});
-
-      return ResponseModell(
-        statusCode: jsonResponse['status_code'] ?? 0,
-        status: jsonResponse['status'] ?? false,
-        message: jsonResponse['message'] ?? '',
-        allCategory: allCategory,
-        categoryPerformance: categoryPerformance,
-        revenue: revenu,
-        collection: collection,
-        delivery: delivery,
-        topSellingProducts: topSellingProducts,
-        orderCountList: orderCountList,
+      final response = await Dio().post(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $createdToken',
+          },
+        ),
+        data: jsonEncode(requestBody),
       );
-    } else {
-      print('Request failed with status: ${response.statusCode}');
-      throw Exception('Failed to load data');
-    }
-  } catch (e) {
-    print('Exception occurred: $e');
-    throw Exception('Failed to fetch data: $e');
-  }
-}
 
+      log("Response Status Code: ${response.statusCode}");
+      log('Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        var jsonResponse = response.data;
+
+        log('Order Count List:++++++++ ${jsonResponse['data']}');
+
+        var allCategoryList = jsonResponse['data']['all_category'] as List;
+        List<Category> allCategory =
+            allCategoryList.map((json) => Category.fromJson(json)).toList();
+
+        var performanceList =
+            jsonResponse['data']['category_performance'] as List;
+        List<CategoryPerformancee> categoryPerformance = performanceList
+            .map((json) => CategoryPerformancee.fromJson(json))
+            .toList();
+
+        var revenueJson = jsonResponse['data']['revenu'];
+        Revenuee revenu = Revenuee.fromJson(revenueJson ?? {});
+
+        var collectionJson = jsonResponse['data']['collection'];
+        Collection collection = Collection.fromJson(collectionJson ?? {});
+
+        var deliveryJson = jsonResponse['data']['delivery'];
+        Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
+
+        var topSellingList =
+            jsonResponse['data']['top_selling_product'] as List;
+        List<TopSellingProductA> topSellingProducts = topSellingList
+            .map((json) => TopSellingProductA.fromJson(json))
+            .toList();
+
+        var orderCountListJson = jsonResponse['data']['order_count_list'];
+        OrderCountListt orderCountList =
+            OrderCountListt.fromJson(orderCountListJson ?? {});
+
+        return ResponseModell(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? '',
+          allCategory: allCategory,
+          categoryPerformance: categoryPerformance,
+          revenue: revenu,
+          collection: collection,
+          delivery: delivery,
+          topSellingProducts: topSellingProducts,
+          orderCountList: orderCountList,
+        );
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Exception occurred: $e');
+      throw Exception('Failed to fetch data: $e');
+    }
+  }
 
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
     required String startDate,
     required String endDate,
   }) async {
-    final url = Uri.parse('$_baseUrl/fetchCategoryPerformance');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchCategoryPerformance}');
     final requestBody = {
       'catId': catId,
       'startdate': startDate,
@@ -169,7 +163,7 @@ Future<ResponseModell> fetchDashboardData({
       {required dynamic customerId,
       required dynamic catId,
       required dynamic selectedYearCategory}) async {
-    final url = Uri.parse('$_baseUrl/CustomerSaleByCategory');
+    final url = Uri.parse('$_baseUrl${ApiConstants.customerSaleByCategory}');
     final requestBody = {
       'customerId': customerId,
       'catId': catId,
@@ -215,7 +209,7 @@ Future<ResponseModell> fetchDashboardData({
   }
 
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
-    final url = Uri.parse('$_baseUrl/fetch_chat');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
     final requestBody = {
       "salesman_id": salesmanId,
     };
@@ -255,7 +249,7 @@ Future<ResponseModell> fetchDashboardData({
 
   // ignore: non_constant_identifier_names
   Future<MessagesResponse> fetch_individual_chat(String chatId) async {
-    final url = Uri.parse('$_baseUrl/fetch_individual_chat');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchIndividualChat}');
     final requestBody = {
       "salesman_id": chatId,
     };
@@ -294,7 +288,7 @@ Future<ResponseModell> fetchDashboardData({
     required String salesmanId,
     required String message,
   }) async {
-    final url = Uri.parse('$_baseUrl/post_admin_message');
+    final url = Uri.parse('$_baseUrl${ApiConstants.postAdminMessage}');
 
     try {
       final response = await http.post(
@@ -316,14 +310,12 @@ Future<ResponseModell> fetchDashboardData({
   }
 
   Future<OrderResponse> fetchAllOrders({
-    required String salesmanId,
     required String startDate,
     required String endDate,
-    OrderStatus? orderStatus, // New parameter for filtering by order status
+    OrderStatus? orderStatus,
   }) async {
-    final url = Uri.parse('$_baseUrl/fetch_all_order');
-
-    // Determine order_status based on orderStatus parameter
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
     String orderStatusString = '';
     if (orderStatus != null) {
       orderStatusString = orderStatus.type.toString(); // Convert int to String
@@ -385,7 +377,7 @@ Future<ResponseModell> fetchDashboardData({
     required String endDate,
     OrderStatus? orderStatus, // New parameter for filtering by order status
   }) async {
-    final url = Uri.parse('$_baseUrl/fetch_all_order');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
 
     // Determine order_status based on orderStatus parameter
     String orderStatusString = '';
@@ -452,7 +444,7 @@ Future<ResponseModell> fetchDashboardData({
 
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/change_order_status'),
+        Uri.parse('$_baseUrl${ApiConstants.changeOrderStatus}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -484,7 +476,7 @@ Future<ResponseModell> fetchDashboardData({
   }
 
   Future<AdminResponse> fetchAdminDetails({required String token}) async {
-    final url = Uri.parse('$_baseUrl/admin_on_popup');
+    final url = Uri.parse('$_baseUrl${ApiConstants.adminOnPopUp}');
     final requestBody = {"token": token};
 
     try {
@@ -527,7 +519,7 @@ Future<ResponseModell> fetchDashboardData({
     required File adminProfilePicture,
     required String token,
   }) async {
-    final url = Uri.parse('$_baseUrl/update_admin');
+    final url = Uri.parse('$_baseUrl${ApiConstants.updateAdmin}');
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -580,7 +572,7 @@ Future<ResponseModell> fetchDashboardData({
     required String page,
     required String valueFromDw,
   }) async {
-    final url = Uri.parse('$_baseUrl/fetch_customer');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
     final requestBody = {
       "salesman_id": salesmanId,
       "customer_name": customerName,
@@ -636,7 +628,7 @@ Future<ResponseModell> fetchDashboardData({
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
     final String daysJson = jsonEncode(daysList); // Convert to JSON string
-    final url = Uri.parse('$_baseUrl/add_events');
+    final url = Uri.parse('$_baseUrl${ApiConstants.addEvent}');
     final body = jsonEncode({
       'customer_id': customerId,
       'event_status': eventStatus,
@@ -669,7 +661,7 @@ Future<ResponseModell> fetchDashboardData({
 
   Future<ApiResponseModel> fetchCustomerDashboardDataa(
       String customerId, int specifiedYear) async {
-    final url = Uri.parse('$_baseUrl/customer_dashboard_list');
+    final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
 
     final requestBody = {
       "customer_id": customerId,
@@ -761,7 +753,7 @@ Future<ResponseModell> fetchDashboardData({
 
   Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
       String customerId, int year) async {
-    final url = Uri.parse('$_baseUrl/customer_total_sale');
+    final url = Uri.parse('$_baseUrl${ApiConstants.customeTotalSale}');
 
     final requestBody = {
       "customer_id": customerId,
@@ -817,7 +809,7 @@ Future<ResponseModell> fetchDashboardData({
   }
 
   Future<ApiResponseModel> fetchCustomerDashboardData() async {
-    final url = Uri.parse('$_baseUrl/customer_dashboard_list');
+    final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
 
     final body = {
       'customer_id': 'CUSTO42',
@@ -846,7 +838,7 @@ Future<ResponseModell> fetchDashboardData({
   Future<ApiResponsees> fetchOrderCount(
     String customerId,
   ) async {
-    final url = Uri.parse('$_baseUrl/fetch_order_count');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchOrderCount}');
     final requestBody = {
       "salesman_id": "",
       "customer_id": customerId,
@@ -884,7 +876,7 @@ Future<ResponseModell> fetchDashboardData({
   }
 
   Future<CustomerResponse> fetchOneCustomer(String customerId) async {
-    final url = Uri.parse('$_baseUrl/fetch_one_customer');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetch_one_customer}');
     final requestBody = {
       "customer_id": customerId,
     };
@@ -929,7 +921,7 @@ Future<ResponseModell> fetchDashboardData({
     required File adminProfilePicture,
     required String customerId,
   }) async {
-    final url = Uri.parse('$_baseUrl/update_customer');
+    final url = Uri.parse('$_baseUrl${ApiConstants.update_customer}');
 
     try {
       var request = http.MultipartRequest('PATCH', url);
@@ -981,7 +973,7 @@ Future<ResponseModell> fetchDashboardData({
       {required CustomerDashMo model,
       required File adminProfilePicture,
       required String salesmanId}) async {
-    final url = Uri.parse('$_baseUrl/add_customer');
+    final url = Uri.parse('$_baseUrl${ApiConstants.add_customer}');
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -1035,7 +1027,7 @@ Future<ResponseModell> fetchDashboardData({
     required File adminProfilePicture,
     required String salesmanId,
   }) async {
-    final url = Uri.parse('$_baseUrl/add_customer');
+    final url = Uri.parse('$_baseUrl${ApiConstants.add_customer}');
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -1085,7 +1077,8 @@ Future<ResponseModell> fetchDashboardData({
   }
 
   Future<CategoryResponse> fetchCategories() async {
-    const String url = 'http://16.50.232.153:3000/fetch_categories?company_id=1';
+    const String url =
+        'http://16.50.232.153:3000/fetch_categories?company_id=1';
     // '$_baseUrl/fetch_categories?company_id=1';
     print('this is the fetchCategories() function');
 
@@ -1187,7 +1180,6 @@ class DashboardProvider with ChangeNotifier {
     fetchChatData('');
     fetchOrders();
     fetchAdminData();
-    // fetchDatas();
   }
 
   OrderStatus selectedOrderStatus = OrderStatus.preOrder;
@@ -1290,19 +1282,7 @@ class DashboardProvider with ChangeNotifier {
   String get selectedStartDate => _selectedStartDate;
   String get selectedEndDate => _selectedEndDate;
   SalesmanChat? selectedChat;
-
-  // void selectChat(SalesmanChat chat) {
-  //   selectedChat = chat;
-  //   fetch_individual_chat(
-  //       chat.salesmanId); // Fetch individual chat when selected
-  //   notifyListeners();
-  // }
-
-  // void clearSelectedChat() {
-  //   selectedChat = null;
-  //   notifyListeners();
-  // }
-
+  final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
   Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId) async {
     try {
       final now = DateTime.now();
@@ -1350,7 +1330,7 @@ class DashboardProvider with ChangeNotifier {
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
-            salesmanId: "",
+            salesmanId: salesmanId,
             startDate: startDate,
             endDate: endDate,
             orderStatus: s);
@@ -1370,6 +1350,7 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchOrdersSabik(OrderStatus s) async {
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     try {
       final now = DateTime.now();
       String startDate;
@@ -1415,7 +1396,6 @@ class DashboardProvider with ChangeNotifier {
       // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-            salesmanId: "",
             startDate: startDate,
             endDate: endDate,
             orderStatus: s);
@@ -1441,10 +1421,8 @@ class DashboardProvider with ChangeNotifier {
       final now = DateTime.now();
       String startDate;
       String endDate;
-
-      // Iterate over each OrderStatus enum value
       for (OrderStatus status in OrderStatus.values) {
-        _selectedStatus = status; // Set current status
+        _selectedStatus = status;
 
         switch (_selectedFilter) {
           case FilterDateEnum.thisMonth:
@@ -1486,7 +1464,6 @@ class DashboardProvider with ChangeNotifier {
         // Debouncing network requests
         _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
           return _apiService.fetchAllOrders(
-            salesmanId: "",
             startDate: startDate,
             endDate: endDate,
             orderStatus: _selectedStatus, // Pass current status
@@ -1506,7 +1483,6 @@ class DashboardProvider with ChangeNotifier {
       rethrow;
     }
   }
-
   // Future<void> selectDate(BuildContext context, bool isStartDate) async {
   //   final DateTime? pickedDate = await showDatePicker(
   //     context: context,
@@ -1577,8 +1553,8 @@ class DashboardProvider with ChangeNotifier {
 
       // Fetch data only if the filter is not a range
       if (_selectedFilter != FilterDateEnum.range) {
-        fetchData(); 
-        fetchOrders();
+        fetchData();
+        // fetchOrders();
       }
 
       notifyListeners();
@@ -1586,10 +1562,10 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
-      final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      String createdToken= jsonMap['createdToken'];
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    String createdToken = jsonMap['createdToken'];
     try {
       final now = DateTime.now();
       String startDate;
@@ -1631,20 +1607,25 @@ class DashboardProvider with ChangeNotifier {
           break;
       }
 
-      // Debouncing network requests
-      _futureResponseModel = Future.delayed(Duration(milliseconds: 300), () {
-        
+      _futureResponseModel = Future.delayed(Duration(seconds: 2), () {
+        Future<ResponseModell> api = _apiService.fetchDashboardData(
+          // salesmanId: salesmanId,
+          // startDate: startDate,
+          // endDate: endDate,
+          // createdToken: createdToken,
+        );
+        log('Future response :++++++++++${api}');
         return _apiService.fetchDashboardData(
-          salesmanId: salesmanId,
-          startDate: startDate,
-          endDate: endDate,
-          createdToken : createdToken,
+          // salesmanId: salesmanId,
+          // startDate: startDate,
+          // endDate: endDate,
+          // createdToken: createdToken,
         );
       });
-
+      //log('Salesman ID :++++++++++ $salesmanId');
       // Only fetch orders when not in the range filter, or when both dates are set
       if (_selectedFilter != FilterDateEnum.range) {
-        fetchOrders();
+        //fetchOrders();
       }
 
       notifyListeners();
@@ -1794,8 +1775,7 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  OrderStatus _selectedOrderStatuss =
-      OrderStatus.pending; // Initial selected order status
+  OrderStatus _selectedOrderStatuss = OrderStatus.pending;
 
   OrderStatus get selectedOrderStatuss => _selectedOrderStatuss;
 
@@ -1809,7 +1789,7 @@ class DashboardProvider with ChangeNotifier {
   Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
     try {
       await _apiService.changeOrderStatus(orderId, newStatus);
-      fetchOrders();
+      //fetchOrders();
       print('sabik . . . . .. orderid $orderId');
       print('sabik  . . . . . . . .newData $newStatus');
       fetchData();
@@ -2282,15 +2262,15 @@ class CategoryListScreen extends StatelessWidget {
                             snapshot.data!.topSellingProducts; // New
 
                         return ListView.builder(
-                          itemCount: categories.length,
+                          itemCount: categories?.length,
                           itemBuilder: (context, index) {
-                            final category = categories[index];
-                            final categoryPerf = categoryPerformance.firstWhere(
-                              (perf) => perf.category == category.category,
+                            final category = categories?[index];
+                            final categoryPerf = categoryPerformance!.firstWhere(
+                              (perf) => perf.category == category?.category,
                               orElse: () => CategoryPerformancee(
                                 // salesmanId: '',
                                 cid: 0,
-                                category: category.category,
+                                category: category!.category,
                                 //   count: 0,
                                 actualProjection: 0.0,
                                 salesman: [], actualTarget: 0,
@@ -2301,7 +2281,7 @@ class CategoryListScreen extends StatelessWidget {
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
                               child: ExpansionTile(
-                                title: Text(category.category),
+                                title: Text(category!.category!),
                                 children: [
                                   ListTile(
                                     title: const Text('Category Performance'),
@@ -2312,13 +2292,13 @@ class CategoryListScreen extends StatelessWidget {
                                         Text(
                                             'Count: ${categoryPerf.actualProjection}'),
                                         Text(
-                                            'Actual Projection: ${categoryPerf.actualProjection.toStringAsFixed(2)}'),
+                                            'Actual Projection: ${categoryPerf.actualProjection?.toStringAsFixed(2)}'),
                                         const Divider(),
                                         const Text('Salesmen:'),
                                         ...categoryPerf.salesman
-                                            .map((salesman) => ListTile(
+                                            !.map((salesman) => ListTile(
                                                   title:
-                                                      Text(salesman.fullname),
+                                                      Text(salesman.fullname??''),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -2329,9 +2309,9 @@ class CategoryListScreen extends StatelessWidget {
                                                       Text(
                                                           'Projection Target: ${salesman.projectionTarget}'),
                                                       Text(
-                                                          'Projection Price: ${salesman.projectionPrice.toStringAsFixed(2)}'),
+                                                          'Projection Price: ${salesman.projectionPrice?.toStringAsFixed(2)}'),
                                                       Text(
-                                                          'Actual Price: ${salesman.actualPrice.toStringAsFixed(2)}'),
+                                                          'Actual Price: ${salesman.actualPrice?.toStringAsFixed(2)}'),
                                                     ],
                                                   ),
                                                 )),
@@ -2352,12 +2332,12 @@ class CategoryListScreen extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                            'Booking Revenue Data: ${revenu.bookingRevenueData}'),
+                                            'Booking Revenue Data: ${revenu!.bookingRevenueData}'),
                                         const Divider(),
                                         Text('Order Revenue Data:'),
                                         ...revenu.orderRevenueData
-                                            .map((order) => ListTile(
-                                                  title: Text(order.orderId),
+                                            !.map((order) => ListTile(
+                                                  title: Text(order.orderId??''),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -2385,11 +2365,11 @@ class CategoryListScreen extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                            'Total Pending Amount: ${collection.order!.pendingAmount.length}'),
+                                            'Total Pending Amount: ${collection!.order!.pendingAmount?.length}'),
                                         const Divider(),
                                         Text('Completed Orders:'),
                                         ...collection.payment!.completedOrders
-                                            .map((order) => ListTile(
+                                            !.map((order) => ListTile(
                                                   title: Text(order.orderId),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
@@ -2409,8 +2389,8 @@ class CategoryListScreen extends StatelessWidget {
                                         const Divider(),
                                         Text('Overdue Amount:'),
                                         ...collection.overdue!.overdueAmount
-                                            .map((order) => ListTile(
-                                                  title: Text(order.orderId),
+                                            !.map((order) => ListTile(
+                                                  title: Text(order.orderId??''),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -2435,11 +2415,11 @@ class CategoryListScreen extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                            'Order Count: ${delivery.order.totalOrders.length}'),
+                                            'Order Count: ${delivery?.order?.totalOrders?.length}'),
                                         const Divider(),
                                         Text(
-                                            'Delivery Percentage: ${delivery.deliveryOrder.percentage}'),
-                                        ...delivery.order.totalOrders
+                                            'Delivery Percentage: ${delivery?.deliveryOrder?.percentage}'),
+                                        ...delivery!.order!.totalOrders!
                                             .map((orderDetails) => ListTile(
                                                   title: Text('Order Details'),
                                                   subtitle: Column(
@@ -2466,7 +2446,7 @@ class CategoryListScreen extends StatelessWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        ...topSellingProducts.map((product) =>
+                                        ...topSellingProducts!.map((product) =>
                                             ListTile(
                                               title: Text(
                                                   'Product ID: ${product.variationId}'),
@@ -2477,10 +2457,10 @@ class CategoryListScreen extends StatelessWidget {
                                                   Text(
                                                       'Created At: ${product.createdAt}'),
                                                   const Text('Customers:'),
-                                                  ...product.customers.map(
+                                                  ...product.customers!.map(
                                                       (customer) => ListTile(
                                                             title: Text(customer
-                                                                .fullname),
+                                                                .fullname??''),
                                                             subtitle: Column(
                                                               crossAxisAlignment:
                                                                   CrossAxisAlignment
@@ -2497,7 +2477,7 @@ class CategoryListScreen extends StatelessWidget {
                                                             ),
                                                           )),
                                                   const Text('Quantity List:'),
-                                                  ...product.quantityList.map(
+                                                  ...product.quantityList!.map(
                                                       (quantity) => ListTile(
                                                             title: Text(
                                                                 'Quantity ID: ${quantity.id}'),

@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
@@ -24,6 +25,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: white,
       body: Padding(
         padding: const EdgeInsets.all(5.0),
         child: Column(

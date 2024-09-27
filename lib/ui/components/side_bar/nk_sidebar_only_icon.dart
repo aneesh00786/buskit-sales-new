@@ -51,6 +51,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         width: widget.sideBarSize?.width,
         height: widget.sideBarSize?.height,
         child: Container(
+          color: white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

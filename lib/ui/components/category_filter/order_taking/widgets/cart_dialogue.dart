@@ -631,6 +631,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
+                                            Navigator.of(context, rootNavigator: true).pop(); 
                                           },
                                           child: Text('OK'),
                                         ),

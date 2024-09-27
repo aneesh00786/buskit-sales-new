@@ -5,13 +5,14 @@ const Color primaryColor = Color(0xFF727CF5);
 const Color lightPrimaryColor = Color.fromARGB(255, 216, 219, 252);
 const Color secondaryColor = Color(0xFFDCDEFC);
 const Color white = Colors.white;
-const Color black =Colors.black;
+const Color black = Colors.black;
 /// BACK GROUND COLOR
-const Color backgroundColor = Color(0xFFFAFAFF);
+const Color backgroundColor = Color(0xffFFFFFF);
 
 /// TEXT COLOR
 const Color primaryTextColor = Color(0xFF222529);
-const Color secondaryTextColor = Color(0xFF91989E);
+const Color secondaryTextColor = Color.fromARGB(255, 52, 54, 55);
+const Color anotherTextColor = Color.fromARGB(255, 99, 99, 99);
 const Color buttonTextColor = Color(0xFFFFFFFF);
 
 /// Container Color

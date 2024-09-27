@@ -114,7 +114,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget collectionChart(BuildContext context) {
     return MyCommnonContainer(
-      color:white,
+      color: white,
       height: 280,
       isCommonBorder: true,
       padding: nkRegularPadding(),
@@ -143,7 +143,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   } else if (snapshot.hasError) {
                     log('Snapshot Error collectionChart ==========${snapshot.error}');
                     log('Snapshot Data collectionChart ==========${snapshot.data}');
-                    return  Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -310,7 +310,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget orderDeliveryChart(BuildContext context) {
     return MyCommnonContainer(
-      color:white,
+      color: white,
       height: 280,
       width: double.infinity,
       isCommonBorder: true,
@@ -497,7 +497,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget middleTopLeftComponet() {
     return MyCommnonContainer(
-      color: white,
+        color: white,
         height: 280,
         width: double.infinity,
         isCommonBorder: true,
@@ -526,8 +526,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           ),
                         );
                       } else if (snapshot.hasError) {
-                      log('Snapshot Error ==========${snapshot.error}');
-                      log('Snapshot Data middleTopLeftComponet ==========${snapshot.data}');
+                        log('Snapshot Error ==========${snapshot.error}');
+                        log('Snapshot Data middleTopLeftComponet ==========${snapshot.data}');
                         final errorMessage = snapshot.error.toString();
                         return Center(
                           child: Column(
@@ -599,7 +599,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ),
                     );
                   } else if (snapshot.hasError) {
-                    
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -888,315 +887,343 @@ class DashBoardMiddleWidget extends StatelessWidget {
         double fontSize = 11;
         double padding = availableWidth / 100;
         double fixedIconSize = 13.0;
-        topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity??''));
-        return SingleChildScrollView(
-          scrollDirection: Axis.vertical,
+        topSellingProducts
+            .sort((a, b) => b.quantity!.compareTo(a.quantity ?? ''));
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(minWidth: availableWidth),
-            child: DataTable(
-              dataRowHeight: 30,
-              headingRowHeight: 40,
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Expanded(
-                    child: Center(
-                      child: MyRegularText(
-                        label: "Product",
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                        fontSize: 11.3,
-                      ),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Center(
-                      child: MyRegularText(
-                        label: "Last Purchase",
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                        fontSize: 11.3,
-                      ),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Center(
-                      child: MyRegularText(
-                        label: "Times",
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                        fontSize: 11.3,
-                      ),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Center(
-                      child: MyRegularText(
-                        label: "Price",
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                        fontSize: 11.3,
-                      ),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Center(
-                      child: MyRegularText(
-                        label: "Qty",
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                        fontSize: 11.3,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              rows: topSellingProducts.map((product) {
-                return DataRow(
-                  cells: <DataCell>[
-                    DataCell(
-                      Center(
-                        child: MyRegularText(
-                          label: product.variationName??'',
-                          color: secondaryTextColor,
-                          fontSize: fontSize,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Center(
-                        child: MyRegularText(
-                          label: DateFormat('dd-MM-yyyy')
-                              .format(product.createdAt!),
-                          // fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                          color: secondaryTextColor,
-                          fontSize: fontSize,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Center(
-                        child: InkWell(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  contentPadding: EdgeInsets.zero,
-                                  titlePadding: EdgeInsets.zero,
-                                  content: SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          height: 45,
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: const BoxDecoration(
-                                            color: primaryColor,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(10),
-                                              topRight: Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                product.variationName??'',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  fontFamily: 'Poppins_Regular',
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              CircleAvatar(
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                child: SizedBox(
-                                                  width: 25.8,
-                                                  height: 25.8,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(
-                                                        color: Colors.red,
-                                                      ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              3.5),
-                                                      child: IconButton(
-                                                        icon: const Icon(
-                                                          Icons.close,
-                                                          color: Colors.red,
-                                                          size: 16,
-                                                        ),
-                                                        padding:
-                                                            EdgeInsets.zero,
-                                                        constraints:
-                                                            const BoxConstraints(),
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: DataTable(
-                                            dataRowHeight: 30,
-                                            headingRowHeight: 35,
-                                            columnSpacing: 30,
-                                            columns: [
-                                              DataColumn(
-                                                label: DialogTableHeaderText(
-                                                  text: 'Price',
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                              DataColumn(
-                                                label: DialogTableHeaderText(
-                                                  text: 'Quantity',
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                              DataColumn(
-                                                label: DialogTableHeaderText(
-                                                  text: 'Amount',
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                              DataColumn(
-                                                label: DialogTableHeaderText(
-                                                  text: 'Purchased At',
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                            ],
-                                            rows: product.quantityList!
-                                                .map((quantity) {
-                                              return DataRow(cells: [
-                                                DataCell(Center(
-                                                  child: Text(
-                                                    '\$${double.parse(quantity.price??'').toStringAsFixed(2)}',
-                                                    textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                      color: secondaryTextColor,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ),
-                                                )),
-                                                DataCell(Center(
-                                                  child: Text(
-                                                    quantity.quantity
-                                                        .toString(),
-                                                    textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                      color: secondaryTextColor,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ),
-                                                )),
-                                                DataCell(Center(
-                                                  child: Text(
-                                                    '\$${(quantity.quantity)?.toStringAsFixed(2)}',
-                                                    textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                      color: secondaryTextColor,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ),
-                                                )),
-                                                DataCell(Center(
-                                                  child: Text(
-                                                    DateFormat('dd-MM-yyyy')
-                                                        .format(
-                                                            quantity.createdAt??DateTime.now())
-                                                        .toString(),
-                                                    textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                      color: secondaryTextColor,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ),
-                                                )), // Format this date as needed
-                                              ]);
-                                            }).toList(),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          child: Container(
-                            height: 20,
-                            width: 20,
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: MyRegularText(
-                                label: product.quantityList!.length.toString(),
-                                // fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                                color: buttonTextColor,
-                                align: TextAlign.center,
-                                fontSize: fontSize,
-                              ),
-                            ),
+            child: Container(
+              width: availableWidth,
+              child: SingleChildScrollView(
+                child: DataTable(
+                  dataRowHeight: 30,
+                  headingRowHeight: 40,
+                  columnSpacing: 10,
+                  columns: const <DataColumn>[
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
+                          child: MyRegularText(
+                            label: "Product",
+                            fontWeight: FontWeight.w600,
+                            color: secondaryTextColor,
+                            align: TextAlign.center,
+                            fontSize: 11.3,
                           ),
                         ),
                       ),
                     ),
-                    DataCell(
-                      Center(
-                        child: MyRegularText(
-                          label:
-                              '\$${double.parse(product.price??'').toStringAsFixed(2)}',
-                          // fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                          color: secondaryTextColor,
-                          fontSize: fontSize,
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
+                          child: MyRegularText(
+                            label: "Last Purchase",
+                            fontWeight: FontWeight.w600,
+                            color: secondaryTextColor,
+                            align: TextAlign.center,
+                            fontSize: 11.3,
+                          ),
                         ),
                       ),
                     ),
-                    DataCell(
-                      Center(
-                        child: MyRegularText(
-                          label: " ${product.quantity}",
-                          color: secondaryTextColor,
-                          fontSize: fontSize,
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
+                          child: MyRegularText(
+                            label: "Times",
+                            fontWeight: FontWeight.w600,
+                            color: secondaryTextColor,
+                            align: TextAlign.center,
+                            fontSize: 11.3,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
+                          child: MyRegularText(
+                            label: "Price",
+                            fontWeight: FontWeight.w600,
+                            color: secondaryTextColor,
+                            align: TextAlign.center,
+                            fontSize: 11.3,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
+                          child: MyRegularText(
+                            label: "Qty",
+                            fontWeight: FontWeight.w600,
+                            color: secondaryTextColor,
+                            align: TextAlign.center,
+                            fontSize: 11.3,
+                          ),
                         ),
                       ),
                     ),
                   ],
-                );
-              }).toList(),
+                  rows: topSellingProducts.map((product) {
+                    return DataRow(
+                      cells: <DataCell>[
+                        DataCell(
+                          Center(
+                            child: MyRegularText(
+                              label: product.variationName ?? '',
+                              color: anotherTextColor,
+                              fontSize: fontSize,
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(
+                            child: MyRegularText(
+                              label: DateFormat('dd-MM-yyyy')
+                                  .format(product.createdAt!),
+                              // fontWeight: NkGeneralSize.nkBoldFontWeight(),
+                              color: secondaryTextColor,
+                              fontSize: fontSize,
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      contentPadding: EdgeInsets.zero,
+                                      titlePadding: EdgeInsets.zero,
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              height: 45,
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: const BoxDecoration(
+                                                color: primaryColor,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(10),
+                                                  topRight: Radius.circular(10),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    product.variationName ?? '',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    child: SizedBox(
+                                                      width: 25.8,
+                                                      height: 25.8,
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(3.5),
+                                                          child: IconButton(
+                                                            icon: const Icon(
+                                                              Icons.close,
+                                                              color: Colors.red,
+                                                              size: 16,
+                                                            ),
+                                                            padding:
+                                                                EdgeInsets.zero,
+                                                            constraints:
+                                                                const BoxConstraints(),
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: DataTable(
+                                                dataRowHeight: 30,
+                                                headingRowHeight: 35,
+                                                columnSpacing: 30,
+                                                columns: [
+                                                  DataColumn(
+                                                    label:
+                                                        DialogTableHeaderText(
+                                                      text: 'Price',
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                  DataColumn(
+                                                    label:
+                                                        DialogTableHeaderText(
+                                                      text: 'Quantity',
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                  DataColumn(
+                                                    label:
+                                                        DialogTableHeaderText(
+                                                      text: 'Amount',
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                  DataColumn(
+                                                    label:
+                                                        DialogTableHeaderText(
+                                                      text: 'Purchased At',
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                ],
+                                                rows: product.quantityList!
+                                                    .map((quantity) {
+                                                  return DataRow(cells: [
+                                                    DataCell(Center(
+                                                      child: Text(
+                                                        '\$${double.parse(quantity.price ?? '').toStringAsFixed(2)}',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: const TextStyle(
+                                                          color:
+                                                              secondaryTextColor,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    )),
+                                                    DataCell(Center(
+                                                      child: Text(
+                                                        quantity.quantity
+                                                            .toString(),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: const TextStyle(
+                                                          color:
+                                                              secondaryTextColor,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    )),
+                                                    DataCell(Center(
+                                                      child: Text(
+                                                        '\$${(quantity.quantity)?.toStringAsFixed(2)}',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: const TextStyle(
+                                                          color:
+                                                              secondaryTextColor,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    )),
+                                                    DataCell(Center(
+                                                      child: Text(
+                                                        DateFormat('dd-MM-yyyy')
+                                                            .format(quantity
+                                                                    .createdAt ??
+                                                                DateTime.now())
+                                                            .toString(),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: const TextStyle(
+                                                          color:
+                                                              secondaryTextColor,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    )), // Format this date as needed
+                                                  ]);
+                                                }).toList(),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Container(
+                                height: 20,
+                                width: 20,
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: MyRegularText(
+                                    label:
+                                        product.quantityList!.length.toString(),
+                                    // fontWeight: NkGeneralSize.nkBoldFontWeight(),
+                                    color: buttonTextColor,
+                                    align: TextAlign.center,
+                                    fontSize: fontSize,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(
+                            child: MyRegularText(
+                              label:
+                                  '\$${double.parse(product.price ?? '').toStringAsFixed(2)}',
+                              // fontWeight: NkGeneralSize.nkBoldFontWeight(),
+                              color: secondaryTextColor,
+                              fontSize: fontSize,
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(
+                            child: MyRegularText(
+                              label: " ${product.quantity}",
+                              color: secondaryTextColor,
+                              fontSize: fontSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ),
         );
@@ -1206,7 +1233,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget topSellingProductWidget() {
     return MyCommnonContainer(
-      color:white,
+      color: white,
       height: 280,
       isCommonBorder: true,
       padding: EdgeInsets.zero,
@@ -1245,7 +1272,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   } else if (snapshot.hasData) {
                     final topSellingProducts =
                         snapshot.data!.topSellingProducts ?? [];
-                    return Expanded(child: topSellingProductList(topSellingProducts));
+                    return Expanded(
+                        child: topSellingProductList(topSellingProducts));
                   } else {
                     return const Center(
                       child: MyRegularText(
@@ -1320,128 +1348,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       ),
     );
   }
-
-/*
-  Widget exportWidget(String lable) {
-    return MyCommnonContainer(
-      padding: nkRegularPadding(
-          left: AppDimensions.instance!.height * 0.018,
-          right: AppDimensions.instance!.height * 0.018),
-      color: const Color(0xFFEEF2F7),
-      onTap: () {
-        // Get.dialog(CalanderDiloag());
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MyRegularText(label: lable),
-          nkSmallSizeBox(),
-          const Flexible(child: Icon(Icons.ios_share_rounded)),
-        ],
-      ),
-    );
-  }
-*/
 }
-// class MessageScreen extends StatelessWidget {
-//   final String salesmanId;
-//   final TextEditingController _messageController = TextEditingController();
 
-//   MessageScreen({required this.salesmanId});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final DashboardProvider provider = Provider.of<DashboardProvider>(context);
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(
-//           'Chat with Salesman $salesmanId',
-//           style: const TextStyle(color: Colors.black, fontSize: 15.5),
-//         ),
-//         centerTitle: false,
-//       ),
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: FutureBuilder<MessagesResponse>(
-//               future: provider.fetch_individual_chat(salesmanId),
-//               builder: (context, snapshot) {
-//                 if (snapshot.connectionState == ConnectionState.waiting) {
-//                   return const Center(child: CircularProgressIndicator());
-//                 } else if (snapshot.hasError) {
-//                   return Center(child: Text('Error: ${snapshot.error}'));
-//                 } else if (snapshot.hasData) {
-//                   return ListView.builder(
-//                     itemCount: snapshot.data!.data.length,
-//                     itemBuilder: (context, index) {
-//                       Messages message = snapshot.data!.data[index];
-//                       // Determine color based on source
-//                       Color tileColor = Colors.white;
-//                       if (message.source == 'admin') {
-//                         tileColor = const Color(0xffd1e7dd);
-//                       } else if (message.source == 'salesman') {
-//                         tileColor = const Color(0xfff1f1f1);
-//                       }
-
-//                       return Align(
-//                         alignment: message.source == 'admin'
-//                             ? Alignment.centerRight
-//                             : Alignment.centerLeft,
-//                         child: Container(
-//                           margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-//                           padding: EdgeInsets.all(10),
-//                           decoration: BoxDecoration(
-//                             color: tileColor,
-//                             borderRadius: BorderRadius.circular(10),
-//                           ),
-//                           child: Text(message.message ?? ''),
-//                         ),
-//                       );
-//                     },
-//                   );
-//                 } else {
-//                   return const Center(child: Text('No data available'));
-//                 }
-//               },
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Row(
-//               children: [
-//                 Expanded(
-//                   child: TextField(
-//                     controller: _messageController,
-//                     decoration: InputDecoration(
-//                       hintText: 'Type a message',
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(20),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//                 IconButton(
-//                   icon: Icon(Icons.send),
-//                   onPressed: () async {
-//                     if (_messageController.text.trim().isNotEmpty) {
-//                       await provider.postAdminMessage(salesmanId, _messageController.text.trim());
-//                       _messageController.clear();
-//                       // Re-fetch the chat data to refresh the messages
-//                       await provider.fetch_individual_chat(salesmanId);
-//                     }
-//                   },
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 class ChatScreen extends StatelessWidget {
   final String chatId;
   final VoidCallback onBack;
@@ -1512,43 +1420,46 @@ class ChatScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyFormField(
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            hintText: 'Type a message',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: MyFormField(
+                            controller: _messageController,
+                            decoration: InputDecoration(
+                              hintText: 'Type a message',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
                             ),
+                            labelText: 'Type a message',
                           ),
-                          labelText: 'Type a message',
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.send,
-                          size: 22.5,
+                        IconButton(
+                          icon: const Icon(
+                            Icons.send,
+                            size: 22.5,
+                          ),
+                          onPressed: () {
+                            if (_messageController.text.trim().isNotEmpty) {
+                              provider
+                                  .postAdminMessage(
+                                      chatId, _messageController.text.trim())
+                                  .then((_) {
+                                _messageController.clear();
+                                provider.fetchChatData(chatId);
+                                if (_scrollController.hasClients) {
+                                  _scrollController.jumpTo(
+                                    _scrollController.position.maxScrollExtent,
+                                  );
+                                }
+                              });
+                            }
+                          },
                         ),
-                        onPressed: () {
-                          if (_messageController.text.trim().isNotEmpty) {
-                            provider
-                                .postAdminMessage(
-                                    chatId, _messageController.text.trim())
-                                .then((_) {
-                              _messageController.clear();
-                              provider.fetchChatData(chatId);
-                              if (_scrollController.hasClients) {
-                                _scrollController.jumpTo(
-                                  _scrollController.position.maxScrollExtent,
-                                );
-                              }
-                            });
-                          }
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               );
@@ -1557,48 +1468,6 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// class MessageScreen extends StatelessWidget {
-//   final SalesmanChat chat;
-//   final VoidCallback onBack;
-
-//   MessageScreen({required this.chat, required this.onBack});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         IconButton(
-//           icon: Icon(Icons.arrow_back),
-//           onPressed: onBack,
-//         ),
-//         Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 'Chat ID: ${chat.chatId}',
-//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//               ),
-//               SizedBox(height: 16),
-//               Text('Message: ${chat.address }'),
-//               SizedBox(height: 8),
-//               Text('Sender: ${chat.fullname}'),
-//               SizedBox(height: 8),
-//               Text('Date: ${chat.createdAt}'),
-//               // Add other details as needed
-//               if (chat.imageUrl != null) ...[
-//                 SizedBox(height: 8),
-//                 Image.network(chat.imageUrl!),
-//               ],
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
 class CommunicationsDisplayWidget extends StatefulWidget {
   @override
   _CommunicationsDisplayWidgetState createState() =>
@@ -1657,8 +1526,9 @@ class _CommunicationsDisplayWidgetState
                             padding: const EdgeInsets.all(3.0),
                             child: MyCommnonContainer(
                               borderRadius: 3.7,
+                              color: white,
                               border: Border.all(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withOpacity(0.4),
                                   width: 0.4),
                               // color: const Color(0xffe1e4e6),
                               child: ListTile(
@@ -1752,105 +1622,210 @@ class _CommunicationsDisplayWidgetState
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        contentPadding: EdgeInsets.zero,
-                                        titlePadding: EdgeInsets.zero,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                        ),
-                                        content: SizedBox(
-                                          width: 300,
-                                          height: 414,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.all(4.8),
-                                                decoration: const BoxDecoration(
-                                                  color: primaryColor,
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(10),
-                                                    topRight:
-                                                        Radius.circular(10),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                      return LayoutBuilder(
+                                        builder: (context, constraints) =>
+                                            AlertDialog(
+                                          contentPadding: EdgeInsets.zero,
+                                          titlePadding: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          content: SizedBox(
+                                            width: constraints.maxWidth * 0.5,
+                                            height: constraints.maxHeight * 0.5,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Stack(
                                                   children: [
-                                                    Text(
-                                                      chat.fullname,
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 17.5,
-                                                      ),
-                                                    ),
-                                                    CircleAvatar(
-                                                      backgroundColor:
-                                                          Colors.transparent,
-                                                      child: SizedBox(
-                                                        width: 25.8,
-                                                        height: 25.8,
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            border: Border.all(
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(3.5),
-                                                            child: IconButton(
-                                                                icon:
-                                                                    const Icon(
-                                                                  Icons.close,
-                                                                  color: Colors
-                                                                      .red,
-                                                                  size: 16,
-                                                                ),
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .zero,
-                                                                constraints:
-                                                                    const BoxConstraints(),
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                  provider
-                                                                      .clearSelectedChat();
-                                                                }),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 20,
+                                                              right: 50),
+                                                      child: Container(
+                                                        height: 10,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          color: primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    100),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    100),
                                                           ),
                                                         ),
+                                                        width: double.infinity,
                                                       ),
-                                                    )
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Container(
+                                                          padding: EdgeInsets.symmetric(
+                                                              vertical: constraints
+                                                                      .maxHeight *
+                                                                  0.01,
+                                                              horizontal:
+                                                                  constraints
+                                                                          .maxHeight *
+                                                                      0.04),
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: primaryColor,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .only(
+                                                              topLeft: Radius
+                                                                  .circular(10),
+                                                              bottomRight:
+                                                                  Radius
+                                                                      .circular(
+                                                                          30),
+                                                            ),
+                                                          ),
+                                                          child: Center(
+                                                            child: CustomText(
+                                                              content:
+                                                                  chat.fullname,
+                                                              fontSize:
+                                                                  constraints.maxWidth >
+                                                                          1200
+                                                                      ? 24
+                                                                      : 20,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontFamily:
+                                                                  fontFamilyName,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        IconButton(
+                                                          icon:
+                                                              const CircleAvatar(
+                                                            radius: 15,
+                                                            child: Icon(
+                                                              Icons
+                                                                  .close_rounded,
+                                                              color:
+                                                                  Colors.black,
+                                                              size: 14,
+                                                            ),
+                                                          ),
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            provider
+                                                                .clearSelectedChat();
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ],
                                                 ),
-                                              ),
-                                              SizedBox(height: 5),
-                                              Divider(),
-                                              Expanded(
-                                                child: ChatScreen(
-                                                  chatId: chat.salesmanId,
-                                                  onBack: () {
-                                                    Navigator.of(context).pop();
-                                                    provider
-                                                        .clearSelectedChat();
-                                                  },
+                                                // Container(
+                                                //   padding:
+                                                //       const EdgeInsets.all(4.8),
+                                                //   decoration: const BoxDecoration(
+                                                //     color: primaryColor,
+                                                //     borderRadius:
+                                                //         BorderRadius.only(
+                                                //       topLeft:
+                                                //           Radius.circular(10),
+                                                //       topRight:
+                                                //           Radius.circular(10),
+                                                //     ),
+                                                //   ),
+                                                //   child: Row(
+                                                //     mainAxisAlignment:
+                                                //         MainAxisAlignment
+                                                //             .spaceBetween,
+                                                //     children: [
+                                                //       Text(
+                                                //         chat.fullname,
+                                                //         style: const TextStyle(
+                                                //           color: Colors.white,
+                                                //           fontSize: 17.5,
+                                                //         ),
+                                                //       ),
+                                                //       CircleAvatar(
+                                                //         backgroundColor:
+                                                //             Colors.transparent,
+                                                //         child: SizedBox(
+                                                //           width: 25.8,
+                                                //           height: 25.8,
+                                                //           child: Container(
+                                                //             decoration:
+                                                //                 BoxDecoration(
+                                                //               shape:
+                                                //                   BoxShape.circle,
+                                                //               border: Border.all(
+                                                //                 color: Colors.red,
+                                                //               ),
+                                                //             ),
+                                                //             child: Padding(
+                                                //               padding:
+                                                //                   const EdgeInsets
+                                                //                       .all(3.5),
+                                                //               child: IconButton(
+                                                //                   icon:
+                                                //                       const Icon(
+                                                //                     Icons.close,
+                                                //                     color: Colors
+                                                //                         .red,
+                                                //                     size: 16,
+                                                //                   ),
+                                                //                   padding:
+                                                //                       EdgeInsets
+                                                //                           .zero,
+                                                //                   constraints:
+                                                //                       const BoxConstraints(),
+                                                //                   onPressed: () {
+                                                // Navigator.of(
+                                                //         context)
+                                                //     .pop();
+                                                // provider
+                                                //     .clearSelectedChat();
+                                                //                   }),
+                                                //             ),
+                                                //           ),
+                                                //         ),
+                                                //       )
+                                                //     ],
+                                                //   ),
+                                                // ),
+                                                SizedBox(height: 5),
+                                                Divider(),
+                                                Expanded(
+                                                  child: ChatScreen(
+                                                    chatId: chat.salesmanId,
+                                                    onBack: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      provider
+                                                          .clearSelectedChat();
+                                                    },
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       );

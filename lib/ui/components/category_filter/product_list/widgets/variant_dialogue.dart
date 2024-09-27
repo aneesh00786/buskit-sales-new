@@ -51,11 +51,21 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final fontSize = constraints.maxWidth > 1000
-              ? 13.0
+          final fontSize = constraints.maxWidth > 1200
+              ? 14.0
               : (constraints.maxWidth > 800
-                  ? 10.0
-                  : (constraints.maxWidth > 400 ? 9.0 : 8.0));
+                  ? 12.0
+                  : (constraints.maxWidth > 600
+                      ? 10.0
+                      : (constraints.maxWidth > 400 ? 8.0 : 7.0)));
+
+          final columnSpacing = screenWidth > 1200
+              ? screenWidth * 0.05
+              : (screenWidth > 800
+                  ? screenWidth * 0.04
+                  : (screenWidth > 400
+                      ? screenWidth * 0.03
+                      : screenWidth * 0.02));
 
           return SingleChildScrollView(
             child: Column(
@@ -143,229 +153,242 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 Container(
-                  decoration: BoxDecoration(
-                    
-                    border: Border.all(color: secondaryColor),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  width: screenWidth * 0.85,
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(color: secondaryColor),
+                  //   borderRadius: BorderRadius.circular(20),
+                  // ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowHeight: screenHeight * 0.03,
-                      dataRowHeight: screenHeight * 0.05,
-                      columnSpacing: screenWidth > 1000
-                          ? screenWidth * 0.05
-                          : (screenWidth > 800
-                              ? screenWidth * 0.04
-                              : (screenWidth > 400
-                                  ? screenWidth * 0.02
-                                  : screenWidth * 0.01)),
-                      headingRowColor:
-                          const MaterialStatePropertyAll(secondaryColor),
-                      columns: [
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Variant',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                    child: SizedBox(
+                      width: screenWidth *
+                          0.85, // Ensure the DataTable takes the full width of the container
+                      child: DataTable(
+                        headingRowHeight: screenHeight *
+                            0.03, // Increased for better readability
+                        dataRowHeight: screenHeight *
+                            0.05, // Increased for better readability
+                        columnSpacing:
+                            columnSpacing, // Use the calculated column spacing
+
+                        headingRowColor:
+                            const MaterialStatePropertyAll(secondaryColor),
+                        columns: [
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Variant',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Unit',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Unit',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Sale price',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Sale price',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Tax',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Tax',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Pack',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Pack',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Total',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Total',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Stock',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Stock',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Sale by',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Sale by',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: CustomText(
-                            content: 'Quantity',
-                            color: black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                          DataColumn(
+                            label: CustomText(
+                              content: 'Quantity',
+                              color: black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
-                        ),
-                      ],
-                      rows: List.generate(
-                        widget.detailsCopy.length,
-                        (i) {
-                          Detail detail = widget.detailsCopy[i];
-                          return DataRow(
-                            cells: [
-                              DataCell(Center(
-                                  child: CustomText(
-                                content: detail.variationName ?? '',
-                                fontSize: fontSize,
-                              ))),
-                              DataCell(CustomText(
-                                  content: '${detail.unitType}',
-                                  fontSize: fontSize)),
-                              DataCell(Center(
-                                  child: CustomText(
-                                content: detail.sellPrice ?? '',
-                                fontSize: fontSize,
-                              ))),
-                              DataCell(Center(
-                                  child: CustomText(
-                                content: detail.tax ?? '',
-                                fontSize: fontSize,
-                              ))),
-                              DataCell(Center(
-                                  child: CustomText(
-                                content: '${detail.pieces ?? 0}',
-                                fontSize: fontSize,
-                              ))),
-                              DataCell(Center(
-                                  child: CustomText(
-                                content: '${detail.fullstock}',
-                                fontSize: fontSize,
-                              ))),
-                              DataCell(
-                                Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: detail.stock == 0
-                                          ? Colors.red
-                                          : detail.stock! < detail.lowstock!
-                                              ? Colors.orange
-                                              : Colors.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(1.0),
-                                      child: Icon(
-                                        detail.stock == 0
-                                            ? Icons.close
+                        ],
+                        rows: List.generate(
+                          widget.detailsCopy.length,
+                          (i) {
+                            Detail detail = widget.detailsCopy[i];
+                            return DataRow(
+                              cells: [
+                                DataCell(Center(
+                                    child: CustomText(
+                                  content: detail.variationName ?? '',
+                                  fontSize: fontSize,
+                                ))),
+                                DataCell(CustomText(
+                                    content: '${detail.unitType}',
+                                    fontSize: fontSize)),
+                                DataCell(Center(
+                                    child: CustomText(
+                                  content: detail.sellPrice ?? '',
+                                  fontSize: fontSize,
+                                ))),
+                                DataCell(Center(
+                                    child: CustomText(
+                                  content: detail.tax ?? '',
+                                  fontSize: fontSize,
+                                ))),
+                                DataCell(Center(
+                                    child: CustomText(
+                                  content: '${detail.pieces ?? 0}',
+                                  fontSize: fontSize,
+                                ))),
+                                DataCell(Center(
+                                    child: CustomText(
+                                  content: '${detail.fullstock}',
+                                  fontSize: fontSize,
+                                ))),
+                                DataCell(
+                                  Center(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: detail.stock == 0
+                                            ? Colors.red
                                             : detail.stock! < detail.lowstock!
-                                                ? Icons.warning_amber_rounded
-                                                : Icons.check,
-                                        color: Colors.white,
-                                        size: 14.0,
+                                                ? Colors.orange
+                                                : Colors.green,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(1.0),
+                                        child: Icon(
+                                          detail.stock == 0
+                                              ? Icons.close
+                                              : detail.stock! < detail.lowstock!
+                                                  ? Icons.warning_amber_rounded
+                                                  : Icons.check,
+                                          color: Colors.white,
+                                          size: 14.0,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              DataCell(
-                                Center(
-                                  child: DropdownButton<String>(
-                                    dropdownColor: white,
-                                    value: detail.saleBy ?? droDownItem[0],
-                                    items: droDownItem
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: CustomText(
-                                          content: value,
-                                          fontSize: fontSize,
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        detail.saleBy = newValue;
-                                      });
-                                    },
+                                DataCell(
+                                  Center(
+                                    child: DropdownButton<String>(
+                                      dropdownColor: white,
+                                      value: detail.saleBy ?? droDownItem[0],
+                                      items: droDownItem
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: CustomText(
+                                            content: value,
+                                            fontSize: fontSize,
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          detail.saleBy = newValue;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                              DataCell(
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          color: primaryColor,
-                                          borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(5),
-                                              bottomLeft: Radius.circular(5))),
-                                      child: InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              if (detail.count > 0) {
-                                                detail.count--;
-                                                calulateAmount(detail);
-                                              }
-                                            });
-                                          },
-                                          child: Icon(
-                                            Icons.remove,
-                                            color: white,
-                                            size: fontSize,
-                                          )),
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.01,
-                                    ),
-                                    CustomText(
-                                      content:
-                                          '${detail.count.toStringAsFixed(0)}',
-                                      fontSize: fontSize,
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.01,
-                                    ),
-                                    Container(
-                                        decoration: BoxDecoration(
+                                DataCell(
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        color:
+                                            Color.fromARGB(255, 240, 239, 239)),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: primaryColor,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                bottomLeft: Radius.circular(5)),
+                                          ),
+                                          child: InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                if (detail.count > 0) {
+                                                  detail.count--;
+                                                  calulateAmount(detail);
+                                                }
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(2.5),
+                                              child: Icon(
+                                                Icons.remove,
+                                                color: white,
+                                                size: fontSize,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth * 0.01,
+                                        ),
+                                        CustomText(
+                                          content:
+                                              '${detail.count.toStringAsFixed(0)}',
+                                          fontSize: fontSize,
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth * 0.01,
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
                                             color: primaryColor,
                                             borderRadius: BorderRadius.only(
                                                 topRight: Radius.circular(5),
                                                 bottomRight:
-                                                    Radius.circular(5))),
-                                        child: InkWell(
+                                                    Radius.circular(5)),
+                                          ),
+                                          child: InkWell(
                                             onTap: () {
                                               setState(() {
                                                 detail.saleBy ??= 'Pack';
@@ -390,17 +413,25 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                 }
                                               });
                                             },
-                                            child: Icon(
-                                              Icons.add,
-                                              color: white,
-                                              size: fontSize,
-                                            ))),
-                                  ],
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(2.5),
+                                              child: Icon(
+                                                Icons.add,
+                                                color: white,
+                                                size: fontSize,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),

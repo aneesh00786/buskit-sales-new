@@ -143,15 +143,35 @@ class OptionWidget extends StatelessWidget {
                 ));
               },
         ),
+        OptionData(
+          title: cancel,
+          count: cancelledCount?.toString() ?? "0",
+          svg: Assets.iconsIcDashboardDraft,
+          svgBgColor: const Color(0xFFBCF0DA),
+          onTap: optionFun?.call(3, OrderStatus.draft).$2 ??
+              () {
+                Get.dialog(OrderStatusDialogWithOutPayment(
+                  orderStatus: OrderStatus.draft,
+                  heading: draft,
+                  userType: userType,
+                  userId: userId,
+                  customType: customOrderStatusType == OrderStatus.draft
+                      ? customType
+                      : null,
+                  startDate: startDate,
+                  endDate: endDate,
+                ));
+              },
+        ),
       ];
 
   Widget orderOptions(OptionData optionData) {
     /* log("count++++${optionData.count.toString()}");*/
     double containerWidth;
     if (ResponsiveInfo.isMobile()) {
-      containerWidth = AppDimensions.instance.width * 0.07;
+      containerWidth = AppDimensions.instance.width * 0.05;
     } else if (ResponsiveInfo.isTablet()) {
-      containerWidth = AppDimensions.instance.width * 0.14;
+      containerWidth = AppDimensions.instance.width * 0.12;
     } else {
       containerWidth = AppDimensions.instance.width * 0.65;
     }

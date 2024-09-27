@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarX_sidebar.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebar_only_icon.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
@@ -43,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: white,
         resizeToAvoidBottomInset: false,
         key: HomeController.homeScaffoldKey,
         extendBody: false,

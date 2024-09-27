@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_left_side_widgte.dart';
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     });
     return Scaffold(
+        backgroundColor: white,
         extendBody: true,
         resizeToAvoidBottomInset: true,
         body: Row(

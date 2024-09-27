@@ -144,6 +144,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                 SizedBox(height: screenHeight * 0.02),
                 Container(
                   decoration: BoxDecoration(
+                    
                     border: Border.all(color: secondaryColor),
                     borderRadius: BorderRadius.circular(20),
                   ),

@@ -22,7 +22,11 @@ import 'dash_models.dart';
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
 
-  Future<ResponseModell> fetchDashboardData() async {
+  Future<ResponseModell> fetchDashboardData(
+      {String? salesmanId,
+      String? startDate,
+      String? endDate,
+      String? createdToken}) async {
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
@@ -30,10 +34,9 @@ class ApiService {
     final url = '$_baseUrl${ApiConstants.dashboard_list}';
     final requestBody = {
       "salesman_id": salesmanId,
-      "start_date": "2024-09-01",
-      "end_date": "2024-09-30",
+      "start_date": startDate,
+      "end_date": endDate,
     };
-
     try {
       log('API URL: $url');
       log('Request Body: $requestBody');
@@ -1396,9 +1399,7 @@ class DashboardProvider with ChangeNotifier {
       // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-            startDate: startDate,
-            endDate: endDate,
-            orderStatus: s);
+            startDate: startDate, endDate: endDate, orderStatus: s);
       });
       print("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
 
@@ -1609,17 +1610,17 @@ class DashboardProvider with ChangeNotifier {
 
       _futureResponseModel = Future.delayed(Duration(seconds: 2), () {
         Future<ResponseModell> api = _apiService.fetchDashboardData(
-          // salesmanId: salesmanId,
-          // startDate: startDate,
-          // endDate: endDate,
-          // createdToken: createdToken,
+          salesmanId: salesmanId,
+          startDate: startDate,
+          endDate: endDate,
+          createdToken: createdToken,
         );
         log('Future response :++++++++++${api}');
         return _apiService.fetchDashboardData(
-          // salesmanId: salesmanId,
-          // startDate: startDate,
-          // endDate: endDate,
-          // createdToken: createdToken,
+          salesmanId: salesmanId,
+          startDate: startDate,
+          endDate: endDate,
+          createdToken: createdToken,
         );
       });
       //log('Salesman ID :++++++++++ $salesmanId');
@@ -2265,7 +2266,8 @@ class CategoryListScreen extends StatelessWidget {
                           itemCount: categories?.length,
                           itemBuilder: (context, index) {
                             final category = categories?[index];
-                            final categoryPerf = categoryPerformance!.firstWhere(
+                            final categoryPerf =
+                                categoryPerformance!.firstWhere(
                               (perf) => perf.category == category?.category,
                               orElse: () => CategoryPerformancee(
                                 // salesmanId: '',
@@ -2295,10 +2297,10 @@ class CategoryListScreen extends StatelessWidget {
                                             'Actual Projection: ${categoryPerf.actualProjection?.toStringAsFixed(2)}'),
                                         const Divider(),
                                         const Text('Salesmen:'),
-                                        ...categoryPerf.salesman
-                                            !.map((salesman) => ListTile(
-                                                  title:
-                                                      Text(salesman.fullname??''),
+                                        ...categoryPerf.salesman!
+                                            .map((salesman) => ListTile(
+                                                  title: Text(
+                                                      salesman.fullname ?? ''),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -2335,9 +2337,10 @@ class CategoryListScreen extends StatelessWidget {
                                             'Booking Revenue Data: ${revenu!.bookingRevenueData}'),
                                         const Divider(),
                                         Text('Order Revenue Data:'),
-                                        ...revenu.orderRevenueData
-                                            !.map((order) => ListTile(
-                                                  title: Text(order.orderId??''),
+                                        ...revenu.orderRevenueData!
+                                            .map((order) => ListTile(
+                                                  title:
+                                                      Text(order.orderId ?? ''),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -2368,8 +2371,8 @@ class CategoryListScreen extends StatelessWidget {
                                             'Total Pending Amount: ${collection!.order!.pendingAmount?.length}'),
                                         const Divider(),
                                         Text('Completed Orders:'),
-                                        ...collection.payment!.completedOrders
-                                            !.map((order) => ListTile(
+                                        ...collection.payment!.completedOrders!
+                                            .map((order) => ListTile(
                                                   title: Text(order.orderId),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
@@ -2388,9 +2391,10 @@ class CategoryListScreen extends StatelessWidget {
                                                 )),
                                         const Divider(),
                                         Text('Overdue Amount:'),
-                                        ...collection.overdue!.overdueAmount
-                                            !.map((order) => ListTile(
-                                                  title: Text(order.orderId??''),
+                                        ...collection.overdue!.overdueAmount!
+                                            .map((order) => ListTile(
+                                                  title:
+                                                      Text(order.orderId ?? ''),
                                                   subtitle: Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -2460,7 +2464,8 @@ class CategoryListScreen extends StatelessWidget {
                                                   ...product.customers!.map(
                                                       (customer) => ListTile(
                                                             title: Text(customer
-                                                                .fullname??''),
+                                                                    .fullname ??
+                                                                ''),
                                                             subtitle: Column(
                                                               crossAxisAlignment:
                                                                   CrossAxisAlignment

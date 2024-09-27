@@ -1234,7 +1234,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: SpinKitFadingCube(
-                        color: primaryColor, // Customize color if needed
+                        color: primaryColor,
                         size: 20.0,
                       ),
                     );

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
@@ -20,53 +21,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../utills/nk_common_function.dart';
 import '../../../../../utills/nk_date_utils.dart';
 import '../../dashboard_controller.dart';
 
-class DashboardTopWidget extends StatefulWidget {
+class DashboardTopWidget extends StatelessWidget {
   final DashBoardController dashBoardController;
   final HomeController homeController;
-  const DashboardTopWidget(
-      {super.key,
-      required this.dashBoardController,
-      required this.homeController});
 
-  @override
-  State<DashboardTopWidget> createState() => _DashboardTopWidgetState();
-}
-
-class _DashboardTopWidgetState extends State<DashboardTopWidget> {
-  String? startDate;
-  String? endDate;
-  bool isLoading = true; // To manage loading state
-  String? errorMessage;  // To manage error messages
-
-  @override
-  void initState() {
-    super.initState();
-    fetchDashboardData();
-  }
-
-  Future<void> fetchDashboardData() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-
-      await widget.dashBoardController.fetchDashboardData();
-    } catch (e) {
-      setState(() {
-        errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  const DashboardTopWidget({
+    Key? key,
+    required this.dashBoardController,
+    required this.homeController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,28 +44,32 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         calender(),
-        nkSmallSizeBox(),
-        if (isLoading)
-          Center(child: CircularProgressIndicator()) 
-        else if (errorMessage != null)
-          Center(child: Text('Error: $errorMessage'))
-        else
-          OptionWidget(
+        SizedBox(height: 10),
+        Obx(() {
+          if (dashBoardController.isLoading.value) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (dashBoardController.errorMessage.value.isNotEmpty) {
+            log('Error: ${dashBoardController.errorMessage.value}');
+            return Center(
+                child:
+                    Text('Error: ${dashBoardController.errorMessage.value}'));
+          }
+          final data = dashBoardController.dashbordData.value;
+          log('DashBoard data Value ===========${data.orderCountList}');
+          return OptionWidget(
             customType: "",
             customOrderStatusType: OrderStatus.preOrder,
-            draftCount: widget.dashBoardController.dashbordData.value
-                    .orderCountList?.draftOrder ?? 20,
-            orderCount: widget.dashBoardController.dashbordData.value
-                    .orderCountList?.totalOrder ?? 40,
-            preOrderCount: widget.dashBoardController.dashbordData.value
-                    .orderCountList?.preorderOrder ?? 60,
-            eastimatesCount: widget.dashBoardController.dashbordData.value
-                    .orderCountList?.estimateOrder ?? 80,
+            draftCount: data.orderCountList?.draftOrder ?? 0,
+            orderCount: data.orderCountList?.totalOrder ?? 40,
+            preOrderCount: data.orderCountList?.preorderOrder ?? 60,
+            eastimatesCount: data.orderCountList?.estimateOrder ?? 80,
             userType: UserType.customer,
             userId: "",
-            startDate: startDate,
-            endDate: endDate,
-          ),
+            startDate: dashBoardController.selectedStartDate.value,
+            endDate: dashBoardController.selectedEndDate.value,
+          );
+        }),
       ],
     );
   }
@@ -230,7 +204,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                                         ],
                                       ),
                                       alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Row(
                                         mainAxisAlignment:
@@ -241,7 +215,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                                                 ? 'DD-MM-YYYY'
                                                 : provider.selectedStartDate,
                                             style: TextStyle(
-                                                fontSize: isSmallScreen ? 7.7 : 10.5,
+                                                fontSize:
+                                                    isSmallScreen ? 7.7 : 10.5,
                                                 color: Colors.grey[800]),
                                           ),
                                           Icon(
@@ -289,7 +264,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                                                 ? 'DD-MM-YYYY'
                                                 : provider.selectedEndDate,
                                             style: TextStyle(
-                                                fontSize: isSmallScreen ? 7.7 : 10.5,
+                                                fontSize:
+                                                    isSmallScreen ? 7.7 : 10.5,
                                                 color: Colors.grey[800]),
                                           ),
                                           Icon(
@@ -994,8 +970,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
         fontSize: NkFontSize.smallFont() + 4,
         padding: nkSymmetricPadding(vertical: 0),
         //width: AppDimensions.instance!.width * 0.12,
-        onPressed: () =>
-            {widget.homeController.sidebarXController.selectIndex(1)},
+        onPressed: () => {homeController.sidebarXController.selectIndex(1)},
       );
 
   Widget options() {
@@ -1006,9 +981,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             count: '109',
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color(0xFFFCDABD),
-            onTap: () {
-              
-            }),
+            onTap: () {}),
         nkSmallSizeBox(),
         orderOptions(
           title: estimates,

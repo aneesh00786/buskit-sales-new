@@ -10,9 +10,13 @@ import 'dart:developer';
 // import 'package:busskit_admin/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -23,12 +27,6 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DashBoardController extends GetxController {
-  RxDouble totalRevenue = 0.20.obs;
-  RxString revenueAmount = "107,431".obs;
-  RxInt selectedCommunicationIndex = (-1).obs;
-  TextEditingController communicationController = TextEditingController();
-  //Rx<Data> dashbordData = Data().obs;
-  SearchModel searchModel = SearchModel();
   RxList<Map<String, dynamic>> communicationList = [
     {
       "image":
@@ -66,18 +64,102 @@ class DashBoardController extends GetxController {
           "Hahapura venubok elivodcu deancij bapo wucte acezehge me Zob gok co aloow zaz kup zecmieji ol je."
     },
   ].obs;
+  void onInit() {
+    fetchDashboardData();
+    super.onInit();
+  }
+
+  RxDouble totalRevenue = 0.20.obs;
+  RxString revenueAmount = "107,431".obs;
+  RxInt selectedCommunicationIndex = (-1).obs;
+  TextEditingController communicationController = TextEditingController();
+  //Rx<Data> dashbordData = Data().obs;
+  SearchModel searchModel = SearchModel();
   // ignore: unused_field
   final ApiWorker _apiWorker = ApiWorker();
   var dashbordData = ResponseModell().obs;
+  var selectedFilter =
+      FilterDateEnum.thisMonth.obs; // observable for the selected filter
+  var selectedStartDate = ''.obs;
+  var selectedEndDate = ''.obs;
+  var isLoading = false.obs; // Reactive variable for loading
+  var errorMessage = ''.obs;
+  var futureResponseModel = Future<ResponseModell>.value(ResponseModell()).obs;
+  final _apiService = ApiService();
   Future<void> fetchDashboardData() async {
     try {
-      final response = await ApiService().fetchDashboardData();
+      isLoading.value = true;
+      final response = await fetchData();
       dashbordData.value = response;
-      log('Response from New Function :${response}');
     } catch (e) {
-      throw Exception('Error fetching dashboard data:++ $e');
+      errorMessage.value = 'Error fetching dashboard data: $e';
+    } finally {
+      isLoading.value = false;
     }
   }
+
+  Future<ResponseModell> fetchData() async {
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    String createdToken = jsonMap['createdToken'];
+    try {
+      final now = DateTime.now();
+      String startDate;
+      String endDate;
+      switch (selectedFilter.value) {
+        case FilterDateEnum.thisMonth:
+          startDate = DateTime(now.year, now.month, 1)
+              .toIso8601String()
+              .substring(0, 10);
+          endDate = DateTime(now.year, now.month + 1, 0)
+              .toIso8601String()
+              .substring(0, 10);
+          break;
+        case FilterDateEnum.today:
+          startDate = DateTime(now.year, now.month, now.day)
+              .toIso8601String()
+              .substring(0, 10);
+          endDate = startDate;
+          break;
+        case FilterDateEnum.thisWeek:
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          startDate = startOfWeek.toIso8601String().substring(0, 10);
+          endDate = now.toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.thisYear:
+          startDate =
+              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+          endDate =
+              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.range:
+          startDate = selectedStartDate.value;
+          endDate = selectedEndDate.value;
+          if (startDate.isEmpty || endDate.isEmpty) {
+            throw Exception(
+                'Start and End dates must be set for range filter.');
+          }
+          break;
+      }
+      final apiResponse = await _apiService.fetchDashboardData(
+        salesmanId: salesmanId,
+        startDate: startDate,
+        endDate: endDate,
+        createdToken: createdToken,
+      );
+
+      log('Api Response: $apiResponse');
+      if (apiResponse == null) {
+        return ResponseModell();
+      }
+      return apiResponse;
+    } catch (e, stackTrace) {
+      print('Error fetching data: $e');
+      rethrow;
+    }
+  }
+
   Widget revenueProgressBar(
     double value,
     Color revenueProgressBarFilledColor,
@@ -100,7 +182,6 @@ class DashBoardController extends GetxController {
       percent: value,
     );
   }
-
   updateCustomerVisitScheduleSet(DateTime? startDate, DateTime? endDate) {
     if (startDate != null && endDate != null) {
       searchModel.startDate = NKDateUtils.apiDayFormat(startDate);

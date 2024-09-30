@@ -53,7 +53,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   const SizedBox(height: 4.7),
                   SizedBox(height: 200, child: middleTopLeftComponet()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: middleTopRightComponet()),
+                  SizedBox(height: 200, child: middleTopRightComponent()),
                   const SizedBox(height: 4.7),
                   SizedBox(height: 200, child: CommunicationsDisplayWidget()),
                   const SizedBox(height: 4.7),
@@ -75,7 +75,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       const SizedBox(
                         width: 4.7,
                       ),
-                      Flexible(child: middleTopRightComponet())
+                      Flexible(child: middleTopRightComponent())
                     ],
                   ),
                 ),
@@ -521,7 +521,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                           child: SpinKitFadingCube(
-                            color: primaryColor, // Customize color if needed
+                            color: primaryColor,
                             size: 20.0,
                           ),
                         );
@@ -572,21 +572,22 @@ class DashBoardMiddleWidget extends StatelessWidget {
         ));
   }
 
-  Widget middleTopRightComponet() {
-    return MyCommnonContainer(
-      color: white,
-      height: 280,
-      width: double.infinity,
-      isCommonBorder: true,
-      padding: nkRegularPadding(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Revenue',
-            style: cardHeadingTextStyle,
-          ),
-          Expanded(child: Consumer<DashboardProvider>(
+Widget middleTopRightComponent() {
+  return MyCommnonContainer(
+    color: Colors.white,
+    height: 280,
+    width: double.infinity,
+    isCommonBorder: true,
+    padding: nkRegularPadding(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Revenue',
+          style: cardHeadingTextStyle,
+        ),
+        Expanded(
+          child: Consumer<DashboardProvider>(
             builder: (context, provider, child) {
               return FutureBuilder<ResponseModell>(
                 future: provider.futureResponseModel,
@@ -603,22 +604,24 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.error_outline,
-                              size: 50, color: Colors.red),
+                          Icon(Icons.error_outline, size: 50, color: Colors.red),
+                          SizedBox(height: 10),
                           Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
+                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     );
                   } else if (snapshot.hasData) {
-                    final categoryPerformance = snapshot.data!.revenue;
-                    if (categoryPerformance == null) {
+                    final revenueData = snapshot.data!.revenue;
+                    if (revenueData == null) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.info_outline,
-                                size: 50, color: Colors.grey),
+                            Icon(Icons.info_outline, size: 50, color: Colors.grey),
+                            SizedBox(height: 10),
                             Text('No data available'),
                           ],
                         ),
@@ -626,21 +629,24 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     }
 
                     final bookingRevenueLength =
-                        categoryPerformance.bookingRevenueData!.isNotEmpty
-                            ? categoryPerformance.bookingRevenueData?.last.total
+                        revenueData.bookingRevenueData != null &&
+                                revenueData.bookingRevenueData!.isNotEmpty
+                            ? revenueData.bookingRevenueData!.last.total ?? 0.0
                             : 0.0;
+                    log('Booking Revenue : $bookingRevenueLength');
 
                     final orderRevenueLast =
-                        categoryPerformance.orderRevenueData!.isNotEmpty
-                            ? categoryPerformance
-                                .orderRevenueData?.last.totalOrderRevenue
+                        revenueData.orderRevenueData != null &&
+                                revenueData.orderRevenueData!.isNotEmpty
+                            ? revenueData.orderRevenueData!.last.totalOrderRevenue?.toDouble() ?? 0.0
                             : 0.0;
+                    log('Order Revenue : $orderRevenueLast');
 
                     return Center(
                       child: DoughnutDefault(
-                        categoryData: categoryPerformance,
-                        booking: "Booking : 3",
-                        order: "Order : 3",
+                        categoryData: revenueData,
+                        booking: "Booking : \$${bookingRevenueLength.toStringAsFixed(0)}",
+                        order: "Order : \$${orderRevenueLast.toStringAsFixed(0)}",
                         aColor: const Color.fromARGB(255, 125, 65, 255),
                         bColor: const Color(0xff1d3d63),
                         sabik: SizedBox.shrink(),
@@ -648,53 +654,36 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
+                              height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
+                              width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
                               decoration: const BoxDecoration(
                                 color: Color(0xff1d3d63),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
+                                borderRadius: BorderRadius.all(Radius.circular(1.0)),
                               ),
                             ),
                             const SizedBox(width: 2),
                             MyRegularText(
-                              label:
-                                  'Booking : \$${bookingRevenueLength?.toStringAsFixed(0)}',
+                              label: 'Booking : \$${bookingRevenueLength.toStringAsFixed(0)}',
                               color: secondaryTextColor,
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
                             ),
                             SizedBox(
-                              width: (MediaQuery.of(context).orientation ==
-                                      Orientation.portrait)
-                                  ? (ResponsiveInfo.isMobileDimension(context)
-                                      ? 6.2
-                                      : 8.3)
-                                  : (ResponsiveInfo.isMobileDimension(context)
-                                      ? 7
-                                      : 8.3),
+                              width: (MediaQuery.of(context).orientation == Orientation.portrait)
+                                  ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 8.3)
+                                  : (ResponsiveInfo.isMobileDimension(context) ? 7 : 8.3),
                             ),
                             Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
+                              height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
+                              width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
                               decoration: const BoxDecoration(
                                 color: Color.fromARGB(255, 125, 65, 255),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
+                                borderRadius: BorderRadius.all(Radius.circular(1.0)),
                               ),
                             ),
                             const SizedBox(width: 2),
                             MyRegularText(
-                              label:
-                                  'Order : \$${orderRevenueLast?.toStringAsFixed(0)}',
+                              label: 'Order : \$${orderRevenueLast.toStringAsFixed(0)}',
                               color: secondaryTextColor,
                               fontSize: 11.6,
                               fontWeight: FontWeight.w600,
@@ -708,8 +697,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.info_outline,
-                              size: 50, color: Colors.grey),
+                          Icon(Icons.info_outline, size: 50, color: Colors.grey),
+                          SizedBox(height: 10),
                           Text('No data available'),
                         ],
                       ),
@@ -718,11 +707,13 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 },
               );
             },
-          )),
-        ],
-      ),
-    );
-  }
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget sendReply(DashboardProvider provider) {
     double iconSize = 20.0;
@@ -900,6 +891,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   dataRowHeight: 30,
                   headingRowHeight: 40,
                   columnSpacing: 10,
+                  dividerThickness: 0,
+                  border: TableBorder.all(color: Colors.transparent,width: 0),
                   columns: const <DataColumn>[
                     DataColumn(
                       label: Expanded(

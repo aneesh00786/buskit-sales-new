@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/snack_bar_widget.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -49,7 +50,6 @@ class _OrderTakingState extends State<OrderTaking>
   String _selectedCustomerImageUrl = '';
   bool active = false;
   int cartItemCount = 0;
-
   @override
   void initState() {
     super.initState();
@@ -135,67 +135,67 @@ class _OrderTakingState extends State<OrderTaking>
 
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
-void handleBackNavigation(BuildContext context) {
-  if (CartDatabaseManager().cartItems.isNotEmpty &&
-      customeController.customerId.value.isNotEmpty) {
-    _showCartDialog();
-    
-    Future.delayed(Duration(seconds: 1));
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Center(
-            child: Container(
-              height: 150,
-              width: 150,
-              child: Lottie.asset('assets/images/Animation - cart_has_data.json'),
-            ),
-          ),
-          content: CustomText(
-            content: 'Would you like to save this as a draft?',
-            fontSize: 25,
-          ),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); 
-                    Navigator.of(context, rootNavigator: true).pop(); 
+  void handleBackNavigation(BuildContext context) {
+    if (CartDatabaseManager().cartItems.isNotEmpty &&
+        customeController.customerId.value.isNotEmpty) {
+      _showCartDialog();
 
-                    Future.delayed(Duration(milliseconds: 300), () {
-                      homeController.sidebarXController.selectIndex(0);
-                      homeController.selectedIndex.value = 0;
-                      Get.toNamed(AppRoutes.dashboard, id: 2);
-                    });
+      Future.delayed(Duration(seconds: 1));
 
-                    CartDatabaseManager().cartItems.clear();
-                    CartDatabaseManager().clearCart();
-                  },
-                  child: Text('Clear cart'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context); 
-                    _selectedCustomerName='';
-                  },
-                  child: Text('Ok'),
-                ),
-              ],
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(
+              child: Container(
+                height: 150,
+                width: 150,
+                child: Lottie.asset(
+                    'assets/images/Animation - cart_has_data.json'),
+              ),
             ),
-          ],
-        );
-      },
-    );
-  } else {
-    Navigator.pop(context); 
+            content: CustomText(
+              content: 'Would you like to save this as a draft?',
+              fontSize: 25,
+            ),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context, rootNavigator: true).pop();
+
+                      Future.delayed(Duration(milliseconds: 300), () {
+                        homeController.sidebarXController.selectIndex(0);
+                        homeController.selectedIndex.value = 0;
+                        Get.toNamed(AppRoutes.dashboard, id: 2);
+                      });
+
+                      CartDatabaseManager().cartItems.clear();
+                      CartDatabaseManager().clearCart([]);
+                    },
+                    child: Text('Clear cart'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      _selectedCustomerName = '';
+                    },
+                    child: Text('Ok'),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.pop(context);
+    }
   }
-}
-
 
   void showSaveDraftConfirmationDialog() {
     showDialog(
@@ -346,8 +346,22 @@ void handleBackNavigation(BuildContext context) {
                                                           customer.customerId ??
                                                               '');
                                                   setState(() {
+                                                    String
+                                                        getFormattedCustomerName(
+                                                            String? fullname) {
+                                                      if (fullname == null ||
+                                                          fullname.isEmpty) {
+                                                        return '';
+                                                      }
+                                                      return fullname.length > 6
+                                                          ? '${fullname.substring(0, 6)}...'
+                                                          : fullname;
+                                                    }
+
+// Usage
                                                     _selectedCustomerName =
-                                                        customer.fullname ?? '';
+                                                        getFormattedCustomerName(
+                                                            customer.fullname);
                                                     _selectedCustomerImageUrl =
                                                         customer.imageUrl ?? '';
                                                     customerSearchController
@@ -455,31 +469,48 @@ void handleBackNavigation(BuildContext context) {
                               iconOn: Icons.done,
                               iconOff: Icons.remove_circle_outline,
                               textSize: 12.0,
-                              onTap: () {},
+                              onTap: () {
+                                // Debug print to check if the customer name and ID are correct
+                                print(
+                                    'Selected Customer Name: $_selectedCustomerName');
+                                print(
+                                    'Customer ID: ${customeController.customerId}');
+
+                                if (customeController.customerId.isNotEmpty &&
+                                    _selectedCustomerName.isNotEmpty) {
+                                  // Toggle the active state if customer is selected
+                                  setState(() {
+                                    active = !active; // Toggle the active state
+                                  });
+
+                                  // Show the corresponding Snackbar based on the new state
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor:
+                                          active ? Colors.green : Colors.red,
+                                      content: Text(active
+                                          ? 'You are successfully checked-in'
+                                          : 'You are successfully checked-out'),
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
+                                } else {
+                                  showCustomSnackBar(
+                                    context,
+                                    'Please select a Customer',
+                                    backgroundColor: Colors.red,
+                                    durationSeconds: 3,
+                                  );
+                                  setState(() {
+                                    active =
+                                        false; 
+                                  });
+                                }
+                              },
                               onDoubleTap: () {},
                               onSwipe: () {},
                               onChanged: (bool state) {
-                                setState(() {
-                                  active = state;
-                                });
-                                print('Current State of SWITCH IS: $state');
-                                active == true
-                                    ? ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.green,
-                                          content: Text(
-                                              'You are successfully checked-in'),
-                                          duration: Duration(seconds: 3),
-                                        ),
-                                      )
-                                    : ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                        backgroundColor: Colors.red,
-                                        content: Text(
-                                            'You are successfully checked-out'),
-                                        duration: Duration(seconds: 3),
-                                      ));
+                              
                               },
                             ),
                           )
@@ -633,8 +664,7 @@ void handleBackNavigation(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CartDialogue(
-        );
+        return CartDialogue();
       },
     );
   }

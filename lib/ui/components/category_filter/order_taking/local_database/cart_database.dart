@@ -62,8 +62,10 @@ class CartDatabaseManager {
     _notifyListeners();
   }
 
-  void clearCart() {
-    _cartBox.clear();
+  void clearCart(List<CartItem> index) {
+    final box = Hive.box<CartItem>('cartBox');
+    box.deleteAll(index);
+    box.clear();
     _notifyListeners();
   }
 }

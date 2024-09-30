@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -58,6 +59,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                   : (constraints.maxWidth > 600
                       ? 10.0
                       : (constraints.maxWidth > 400 ? 8.0 : 7.0)));
+          final iconSize = constraints.maxWidth > 1200
+              ? 16.0
+              : (constraints.maxWidth > 800
+                  ? 14.0
+                  : (constraints.maxWidth > 600
+                      ? 12.0
+                      : (constraints.maxWidth > 400 ? 10.0 : 9.0)));
 
           final columnSpacing = screenWidth > 1200
               ? screenWidth * 0.05
@@ -364,7 +372,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                               child: Icon(
                                                 Icons.remove,
                                                 color: white,
-                                                size: fontSize,
+                                                size: iconSize,
                                               ),
                                             ),
                                           ),
@@ -419,7 +427,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                               child: Icon(
                                                 Icons.add,
                                                 color: white,
-                                                size: fontSize,
+                                                size: iconSize,
                                               ),
                                             ),
                                           ),
@@ -460,91 +468,102 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                         width: screenWidth * 0.05,
                       ),
                       ElevatedButton(
-                        onPressed: () async {
-                          if (customerAndOrderController
-                              .customerId.isNotEmpty) {
-                            List<CartItem> cartItems =
-                                await CartDatabaseManager().getCartItems();
-                            List<Detail> detailsFromCart = cartItems
-                                .map((cartItem) => cartItem.detail)
-                                .toList();
-                            for (var detail in widget.detailsCopy) {
-                              bool isProductAlreadyInCart = detailsFromCart.any(
-                                  (item) =>
-                                      item.variationId == detail.variationId);
-                              if (detail.count > 0 && !isProductAlreadyInCart) {
-                                final bool isPack =
-                                    detail.saleBy == 'Pack' ? true : false;
-                                CartDatabaseManager().addToCart(
-                                    detail,
-                                    widget.product.productName ?? '',
-                                    detail.totalPrice!.toInt(),
-                                    isPack);
-                                log('Total Price: ${detail.totalPrice}');
-                                log('Detail log is Pack: ${isPack}');
-                                log('Product added to cart with ID: ${detail.variationId}');
-                                log('Pack or Pieces : ${detail.saleBy}');
-                              } else if (isProductAlreadyInCart) {
-                                log('Product with ID: ${detail.variationId} is already in the cart');
+                          onPressed: () async {
+                            if (customerAndOrderController
+                                .customerId.isNotEmpty) {
+                              List<CartItem> cartItems =
+                                  await CartDatabaseManager().getCartItems();
+                              List<Detail> detailsFromCart = cartItems
+                                  .map((cartItem) => cartItem.detail)
+                                  .toList();
+                              for (var detail in widget.detailsCopy) {
+                                bool isProductAlreadyInCart =
+                                    detailsFromCart.any((item) =>
+                                        item.variationId == detail.variationId);
+                                if (detail.count > 0 &&
+                                    !isProductAlreadyInCart) {
+                                  final bool isPack =
+                                      detail.saleBy == 'Pack' ? true : false;
+                                  CartDatabaseManager().addToCart(
+                                      detail,
+                                      widget.product.productName ?? '',
+                                      detail.totalPrice!.toInt(),
+                                      isPack);
+                                  log('Total Price: ${detail.totalPrice}');
+                                  log('Detail log is Pack: ${isPack}');
+                                  log('Product added to cart with ID: ${detail.variationId}');
+                                  log('Pack or Pieces : ${detail.saleBy}');
+                                } else if (isProductAlreadyInCart) {
+                                  log('Product with ID: ${detail.variationId} is already in the cart');
+                                }
+                                widget.onDone();
                               }
-                              widget.onDone();
-                            }
-                            Navigator.pop(context);
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  actions: [
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Center(
-                                      child: Icon(
-                                        Icons.warning_amber_outlined,
-                                        size: 50,
-                                        color: Colors.orange,
+                              Navigator.pop(context);
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      SizedBox(
+                                        height: 20,
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Center(
-                                      child: CustomText(
-                                        content: "Please Select a Customer",
-                                        fontSize: 18,
+                                      Center(
+                                        child: Icon(
+                                          Icons.warning_amber_outlined,
+                                          size: 50,
+                                          color: Colors.orange,
+                                        ),
                                       ),
-                                    ),
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      Center(
                                         child: CustomText(
-                                          content: "Ok",
-                                          color: primaryColor,
-                                        ))
-                                  ],
-                                );
-                              },
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryButtonColor,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.04,
-                            vertical: screenHeight * 0.01,
+                                          content: "Please Select a Customer",
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: CustomText(
+                                            content: "Ok",
+                                            color: primaryColor,
+                                          ))
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryButtonColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.01,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: CustomText(
-                          content: "Done",
-                          fontSize: screenWidth * 0.02,
-                          color: Colors.white,
-                        ),
-                      ),
+                          child: Row(
+                            children: [
+                              CustomText(
+                                content: "Add",
+                                fontSize: screenWidth * 0.02,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Icon(
+                                EneftyIcons.shopping_cart_outline,
+                                color: white,
+                              )
+                            ],
+                          )),
                     ],
                   ),
                 ),

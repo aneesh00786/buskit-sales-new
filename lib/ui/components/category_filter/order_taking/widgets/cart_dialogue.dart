@@ -21,7 +21,9 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
 class CartDialogue extends StatefulWidget {
-  CartDialogue({super.key,});
+  CartDialogue({
+    super.key,
+  });
 
   @override
   State<CartDialogue> createState() => _CartDialogueState();
@@ -267,152 +269,196 @@ class _CartDialogueState extends State<CartDialogue> {
                                         ),
                                         Row(
                                           children: [
-                                            Expanded(
-                                              child: DataTable(
-                                                headingRowHeight: 40,
-                                                dataRowHeight: 40,
-                                                horizontalMargin: 5,
-                                                columns: const [
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                              text: 'Variant')),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                              text: 'Pack')),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                              text: 'Price')),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                              text: 'Tax')),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                              text:
-                                                                  'Quantity')),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                              text: 'Total')),
-                                                ],
-                                                rows: [
-                                                  DataRow(
-                                                    cells: [
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100), 
-                                                            child: Text(
-                                                              '${cartItem.detail.unitType}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100), 
-                                                            child: Text(
-                                                              '${cartItem.detail.packtype}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
-                                                            child: Text(
-                                                              '\$${double.parse(cartItem.detail.price ?? '0').toStringAsFixed(2)}',
-                                                              textAlign: TextAlign
-                                                                  .right,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100), 
-                                                            child: Text(
-                                                              '${formatAmountToMatch(cartItem.detail.tax ?? '0', 2)}',
-                                                              textAlign: TextAlign
-                                                                  .right, 
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
+                                            Expanded(child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                                double availableWidth =
+                                                    constraints.maxWidth;
+                                                double fontSize =
+                                                    availableWidth / 40;
+                                                double columnSpacing =
+                                                    availableWidth / 70;
+                                                return DataTable(
+                                                  headingRowHeight: 40,
+                                                  dataRowHeight: 40,
+                                                  horizontalMargin: 5,
+                                                  columnSpacing: columnSpacing,
+                                                  columns: [
+                                                    DataColumn(
+                                                        label:
+                                                            DialogTableHeaderText(
+                                                      text: 'Variant',
+                                                      fontSize: fontSize,
+                                                    )),
+                                                    DataColumn(
+                                                        label:
+                                                            DialogTableHeaderText(
+                                                      text: 'Pack',
+                                                      fontSize: fontSize,
+                                                    )),
+                                                    DataColumn(
+                                                        label:
+                                                            DialogTableHeaderText(
+                                                      text: 'Price',
+                                                      fontSize: fontSize,
+                                                    )),
+                                                    DataColumn(
+                                                        label:
+                                                            DialogTableHeaderText(
+                                                      text: 'Tax',
+                                                      fontSize: fontSize,
+                                                    )),
+                                                    DataColumn(
+                                                        label:
+                                                            DialogTableHeaderText(
+                                                      text: 'Quantity',
+                                                      fontSize: fontSize,
+                                                    )),
+                                                    DataColumn(
+                                                        label:
+                                                            DialogTableHeaderText(
+                                                      text: 'Total',
+                                                      fontSize: fontSize,
+                                                    )),
+                                                  ],
+                                                  rows: [
+                                                    DataRow(
+                                                      cells: [
+                                                        DataCell(
+                                                          Center(
                                                             child:
-                                                                productQuantityManager(
-                                                              cartItem,
-                                                              cartItem
-                                                                  .totalPrice
-                                                                  .toString(),
+                                                                ConstrainedBox(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
+                                                                content:
+                                                                    '${cartItem.detail.unitType}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100), 
-                                                            child: Text(
-                                                              '\$${formatAmountToMatch(cartItem.totalPrice.toString(), 2)}',
-                                                              textAlign: TextAlign
-                                                                  .right, 
+                                                        DataCell(
+                                                          Center(
+                                                            child:
+                                                                ConstrainedBox(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
+                                                                content:
+                                                                    '${cartItem.detail.packtype}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            )
+                                                        DataCell(
+                                                          Center(
+                                                            child:
+                                                                ConstrainedBox(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
+                                                                content:
+                                                                    '\$${double.parse(cartItem.detail.price ?? '0').toStringAsFixed(2)}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        DataCell(
+                                                          Center(
+                                                            child:
+                                                                ConstrainedBox(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
+                                                                content:
+                                                                    '${formatAmountToMatch(cartItem.detail.tax ?? '0', 2)}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        DataCell(
+                                                          Center(
+                                                            child:
+                                                                ConstrainedBox(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: productQuantityManager(
+                                                                  cartItem,
+                                                                  cartItem
+                                                                      .totalPrice
+                                                                      .toString(),
+                                                                  fontSize,
+                                                                  availableWidth),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        DataCell(
+                                                          Center(
+                                                            child:
+                                                                ConstrainedBox(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
+                                                                content:
+                                                                    '\$${formatAmountToMatch(cartItem.totalPrice.toString(), 2)}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ))
                                           ],
                                         ),
                                       ],
@@ -495,51 +541,56 @@ class _CartDialogueState extends State<CartDialogue> {
                           CustomCartButton(
                             text: 'Save as Draft',
                             size: width > 1200 ? 14 : 10,
-                            onTap: ()async {
+                            onTap: () async {
                               List<Detail> detail = CartDatabaseManager()
-                          .cartItems
-                          .map((e) => e.detail)
-                          .toList();
+                                  .cartItems
+                                  .map((e) => e.detail)
+                                  .toList();
 
-                      final productBYData = AddToCartModel(
-                        customerId: customeController.customerId.value,
-                        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                        cartId: '',
-                        cartList: detail
-                            .map((e) => SendCartData(
-                                  productId: e.productId ?? '',
-                                  variantId: e.variationId ?? '',
-                                  pack: '2',
-                                  price: e.price.toString(),
-                                  discount: '0',
-                                  quantity: e.count.toInt(),
-                                ))
-                            .toList(),
-                        total: productsController.finalAmount.value
-                            .toStringAsFixed(0),
-                        discount: '0',
-                      );
-                      CartOrderModel? cartOrder =
-                          await ApiWorker().addToCart(productBYData.toJson());
-                      log('CartId :${cartOrder?.cartId}');
-                      if (cartOrder != null) {
-                        int orderStatus = 4;
-                        CartOrderModel order = CartOrderModel(
-                          customerId: customeController.customerId.value,
-                          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                          cartId: cartOrder.cartId,
-                          orderStatus: orderStatus,
-                        );
-                        log('CartId :${cartOrder.cartId}');
-                        await productsController.placeOrder(order);
-                        CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCart();
-                        Navigator.pop(context);
-                      }
-                      // homeController.sidebarXController.selectIndex(0);
-                      // homeController.selectedIndex.value = 0;
-                      // Get.toNamed(AppRoutes.dashboard, id: 2);
-                      // showSaveDraftConfirmationDialog();
+                              final productBYData = AddToCartModel(
+                                customerId: customeController.customerId.value,
+                                salesmanId:
+                                    SessionHelper.loginSavedData!.salesmanId!,
+                                cartId: '',
+                                cartList: detail
+                                    .map((e) => SendCartData(
+                                          productId: e.productId ?? '',
+                                          variantId: e.variationId ?? '',
+                                          pack: '2',
+                                          price: e.price.toString(),
+                                          discount: '0',
+                                          quantity: e.count.toInt(),
+                                        ))
+                                    .toList(),
+                                total: productsController.finalAmount.value
+                                    .toStringAsFixed(0),
+                                discount: '0',
+                              );
+                              CartOrderModel? cartOrder = await ApiWorker()
+                                  .addToCart(productBYData.toJson());
+                              log('CartId :${cartOrder?.cartId}');
+                              if (cartOrder != null) {
+                                int orderStatus = 4;
+                                CartOrderModel order = CartOrderModel(
+                                  customerId:
+                                      customeController.customerId.value,
+                                  salesmanId:
+                                      SessionHelper.loginSavedData!.salesmanId!,
+                                  cartId: cartOrder.cartId,
+                                  orderStatus: orderStatus,
+                                );
+                                log('CartId :${cartOrder.cartId}');
+                                await productsController.placeOrder(order);
+                                setState(() {
+                                  CartDatabaseManager().cartItems.clear();
+                                  CartDatabaseManager().clearCart(cartItems);
+                                });
+                                Navigator.pop(context);
+                              }
+                              // homeController.sidebarXController.selectIndex(0);
+                              // homeController.selectedIndex.value = 0;
+                              // Get.toNamed(AppRoutes.dashboard, id: 2);
+                              // showSaveDraftConfirmationDialog();
                             },
                           ),
                           const SizedBox(width: 30),
@@ -607,7 +658,7 @@ class _CartDialogueState extends State<CartDialogue> {
 
                                   log('CartId :${cartOrder.cartId}');
                                   await productsController.placeOrder(order);
-                                  _clearCartItem();
+                                  _clearCartItem(cartItems);
                                 }
                                 Navigator.pop(context);
                                 showDialog(
@@ -631,7 +682,10 @@ class _CartDialogueState extends State<CartDialogue> {
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
-                                            Navigator.of(context, rootNavigator: true).pop(); 
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
+                                                .pop();
+                                         _clearCartItem(cartItems);
                                           },
                                           child: Text('OK'),
                                         ),
@@ -681,9 +735,11 @@ class _CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  Container productQuantityManager(CartItem cartItem, String sellPrice) {
+  Container productQuantityManager(CartItem cartItem, String sellPrice,
+      double fontSize, double availableWidth) {
+    double padding = availableWidth > 400 ? 6 : 3;
     return Container(
-      width: 80,
+      width: availableWidth > 400 ? 80 : 50,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           color: const Color.fromARGB(255, 241, 240, 240)),
@@ -708,17 +764,21 @@ class _CartDialogueState extends State<CartDialogue> {
                     });
                   },
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 6, right: 6),
+                    padding: EdgeInsets.only(left: padding, right: padding),
                     child: CustomText(
                       color: white,
                       content: '-',
-                      fontSize: 13,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
                     ),
                   )),
             ),
           ),
-          Text('${cartItem.detail.count.toStringAsFixed(0)}'),
+          CustomText(
+            content: '${cartItem.detail.count.toStringAsFixed(0)}',
+            fontSize: fontSize,
+          ),
           Container(
             decoration: const BoxDecoration(
                 color: primaryColor,
@@ -734,10 +794,15 @@ class _CartDialogueState extends State<CartDialogue> {
                     calulateAmount(cartItem);
                   });
                 },
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 18,
+                child: Padding(
+                  padding: EdgeInsets.only(left: padding, right: padding),
+                  child: CustomText(
+                    color: white,
+                    content: '+',
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
@@ -756,12 +821,13 @@ class _CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  void _clearCartItem() {
-    CartDatabaseManager().clearCart();
+  void _clearCartItem(List<CartItem> cartItem) {
+    CartDatabaseManager().clearCart(cartItem);
     setState(() {
-      cartItems.clear();
-      quantities.clear();
+      cartItems.remove(cartItem);
+      quantities.remove(cartItem);
     });
+    log('CartItem Cleared');
   }
 
   void _deleteItem(int index) {

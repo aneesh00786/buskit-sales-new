@@ -115,6 +115,7 @@ class CustomText extends StatelessWidget {
   String? content;
   double? fontSize;
   FontWeight? fontWeight;
+  TextAlign? textAlign;
 
    CustomText({
     super.key,
@@ -123,16 +124,19 @@ class CustomText extends StatelessWidget {
     this.content,
     this.fontSize,
     this.fontWeight,
+    this.textAlign,
   });
 
   @override
   Widget build(BuildContext context) {
     return Text(content??'',
+    textAlign: textAlign,
     style: TextStyle(
       color: color ?? Colors.black,
       fontFamily:fontFamily ?? 'Poppins_Regular',
       fontSize: fontSize,
-      fontWeight: fontWeight
+      fontWeight: fontWeight,
+      
     ),
     );
   }

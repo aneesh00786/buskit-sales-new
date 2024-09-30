@@ -70,8 +70,9 @@ class ApiService {
             .map((json) => CategoryPerformancee.fromJson(json))
             .toList();
 
-        var revenueJson = jsonResponse['data']['revenu'];
-        Revenuee revenu = Revenuee.fromJson(revenueJson ?? {});
+        final revenueJson =
+            jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
+        final Revenuee revenue = Revenuee.fromJson(revenueJson);
 
         var collectionJson = jsonResponse['data']['collection'];
         Collection collection = Collection.fromJson(collectionJson ?? {});
@@ -95,7 +96,7 @@ class ApiService {
           message: jsonResponse['message'] ?? '',
           allCategory: allCategory,
           categoryPerformance: categoryPerformance,
-          revenue: revenu,
+          revenue: revenue,
           collection: collection,
           delivery: delivery,
           topSellingProducts: topSellingProducts,

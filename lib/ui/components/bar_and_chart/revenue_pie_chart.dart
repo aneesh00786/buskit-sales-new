@@ -306,8 +306,8 @@ const Color revenueProgressBarFilledColor = Colors.green;
 
 class DoughnutDefault extends StatefulWidget {
   final Revenuee categoryData;
-  final dynamic booking;
-  final dynamic order;
+  final String booking;
+  final String order;
   final Color aColor;
   final Color bColor;
   final Widget sabik;
@@ -340,14 +340,16 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
   @override
   Widget build(BuildContext context) {
     final totalBookingRevenue = widget.categoryData.bookingRevenueData?.fold(
-      0.0,
-      (sum, item) => sum + (item.total ?? 0),
-    );
+          0.0,
+          (sum, item) => sum + (item.total ?? 0.0),
+        ) ??
+        0.0;
 
     final totalOrderRevenue = widget.categoryData.orderRevenueData?.fold(
-      0.0,
-      (sum, item) => sum + (item.total ?? 0), 
-    );
+          0.0,
+          (sum, item) => sum + (item.totalOrderRevenue?.toDouble() ?? 0.0),
+        ) ??
+        0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -375,17 +377,15 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                 ),
               ],
               pieTouchData: fl_chart.PieTouchData(
-                touchCallback:
-                    (FlTouchEvent event, PieTouchResponse? response) {
+                touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
                   if (event is FlTapUpEvent &&
                       response != null &&
                       response.touchedSection != null) {
                     final section = response.touchedSection!;
-                    final PieChartSectionData touchedSectionData =
-                        section.touchedSection!;
-                    final title = touchedSectionData.value == totalOrderRevenue
-                        ? 'Delivered Orders'
-                        : 'Booking';
+                    final fl_chart.PieTouchedSection touchedSectionData = section;
+                    final title = touchedSectionData == totalOrderRevenue
+                        ? 'Order Revenue'
+                        : 'Booking Revenue';
                     _showValueDialog(context, widget.categoryData, title);
                   }
                 },
@@ -399,6 +399,27 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
       ],
     );
   }
+
+//   void _showValueDialog(BuildContext context, Revenue categoryData, String title) {
+//     // Implement your dialog here
+//     showDialog(
+//       context: context,
+//       builder: (_) => AlertDialog(
+//         title: Text(title),
+//         content: Text(title == 'Order Revenue'
+//             ? 'Total Order Revenue: \$${categoryData.orderRevenueData?.fold(0.0, (sum, item) => sum + (item.totalOrderRevenue?.toDouble() ?? 0.0)).toStringAsFixed(2)}'
+//             : 'Total Booking Revenue: \$${categoryData.bookingRevenueData?.fold(0.0, (sum, item) => sum + (item.total ?? 0.0)).toStringAsFixed(2)}'),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('Close'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 
   void _showValueDialog(
       BuildContext context, Revenuee categoryData, String title) {

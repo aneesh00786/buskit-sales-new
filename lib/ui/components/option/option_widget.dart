@@ -171,7 +171,7 @@ class OptionWidget extends StatelessWidget {
     if (ResponsiveInfo.isMobile()) {
       containerWidth = AppDimensions.instance.width * 0.05;
     } else if (ResponsiveInfo.isTablet()) {
-      containerWidth = AppDimensions.instance.width * 0.12;
+      containerWidth = AppDimensions.instance.width * 0.11;
     } else {
       containerWidth = AppDimensions.instance.width * 0.65;
     }

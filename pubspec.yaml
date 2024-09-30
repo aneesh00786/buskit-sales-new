@@ -29,6 +29,7 @@ dependencies:
   calendar_view: ^1.0.3
   connectivity_plus: ^6.0.5
   cupertino_icons: ^1.0.5
+  data_table_2: ^2.5.15
   device_preview: ^1.1.0
   dio: 4.0.6
   enefty_icons: ^1.0.7

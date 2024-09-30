@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class OrderStatusDiloag extends StatefulWidget {
   final String heading;
@@ -219,7 +220,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
                 color: buttonTextColor,
                 fontSize: NkFontSize.largeFont(),
                 fontWeight: FontWeight.bold),
-            dataRowMaxHeight: AppDimensions.instance!.height * 0.11,
+            dataRowMaxHeight: AppDimensions.instance.height * 0.11,
             /* columns: orderTableColumCategory
           .map((element) => DataColumn(
                   label: MyRegularText(
@@ -246,33 +247,57 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
           ))
       .toList();
 
-  List<Widget> orderRowsWidget(OptionOrderData orderData) => [
-        customerDetailsWidget(orderData.cart!.first),
-        orderNumberWidget(orderData.cart!.first),
-        orderCreatedDateWidget(orderData.cart!.first),
-        orderPrice(orderData.cart!.first),
-        Padding(
-          padding: const EdgeInsets.only(left: 0.0, right: 40.0),
-          child: NkCommonFunction.isPaymentComplete(
-                  orderData.cart!.first.optionOrderData?.paymentStatus ?? 0)
-              .$1,
-        ),
-        orderStatus(orderData.cart!.first),
-        viewOrder(orderData),
-      ];
+List<Widget> orderRowsWidget(OptionOrderData orderData) {
+  if (orderData.cart == null || orderData.cart!.isEmpty) {
+    return [
+      MyRegularText(label: 'No Data'),
+      MyRegularText(label: 'No Data'),
+      MyRegularText(label: 'No Data'),
+      MyRegularText(label: 'No Data'),
+      MyRegularText(label: 'No Data'),
+      MyRegularText(label: 'No Data'),
+
+      IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: () {},
+      ),
+    ];
+  }
+
+   final cartItem = orderData.cart!.first;
+  //   return [
+  //   if (cart != null) customerDetailsWidget(cart),
+  //   if (cart != null) orderNumberWidget(cart),
+  //   if (cart != null) orderCreatedDateWidget(cart),
+  //   if (cart != null) orderPrice(cart),
+  //   Padding(
+  //     padding: const EdgeInsets.only(left: 0.0, right: 40.0),
+  //     child: NkCommonFunction.isPaymentComplete(
+  //         cart?.optionOrderData?.paymentStatus ?? 0).$1,
+  //   ),
+  //   if (cart != null) orderStatus(cart),
+  //   if (cart != null) viewOrder(orderData),
+  // ];
+  return [
+    MyRegularText(label: cartItem.customerDetails?.fullname ?? 'N/A'), 
+    MyRegularText(label: '${cartItem.optionOrderData?.orderId ?? 'N/A'}'), 
+    MyRegularText(label: formatDate(cartItem.createdAt)), 
+    MyRegularText(label: '${cartItem.optionOrderData?.orderTotal ?? 'N/A'}'),
+    MyRegularText(label: 'Paid'), 
+    MyRegularText(label: '${cartItem.pieces ?? 'N/A'}'), 
+    IconButton(
+      icon: const Icon(Icons.close),
+      onPressed: () {},
+    ), // Column 7
+  ];
+}
+
+
 
   Widget customerDetailsWidget(CustomerCart orderData) {
     return GestureDetector(
       onTap: () => {},
       child: Row(children: [
-        /*ClipOval(
-          child: MyNetworkImage(
-            imageUrl: orderData.imageUrl ?? '',
-            height: AppDimensions.instance!.height * 0.09,
-            width: AppDimensions.instance!.height * 0.09,
-          ),
-        ),
-        nkSmallSizeBox(),*/
         Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -324,7 +349,16 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
       ),
     );
   }
-
+String formatDate(String? dateString) {
+  if (dateString == null) {
+    return 'N/A';
+  }
+  DateTime? dateTime = DateTime.tryParse(dateString);
+  if (dateTime == null) {
+    return 'Invalid Date';
+  }
+  return DateFormat('yyyy-MM-dd – kk:mm').format(dateTime);
+}
   Widget orderStatus(CustomerCart orderData) {
     return Container(
       padding: nkRegularPadding(),

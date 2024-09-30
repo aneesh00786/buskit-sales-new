@@ -659,8 +659,10 @@ Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
             PaginationModel().limit.toString(),
         "page": paginationModel?.currentPage.toString() ??
             PaginationModel().currentPage.toString(),
-        "start_date": searchModel?.startDate ?? '',
-        "end_date": searchModel?.endDate ?? '',
+        "start_date": '2024-10-01',
+        //searchModel?.startDate ?? ,
+        "end_date": "2024-10-30",
+        //searchModel?.endDate ?? '',
       }),
     )
         .onError((DioError error, stackTrace) {

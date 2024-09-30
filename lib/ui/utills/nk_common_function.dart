@@ -239,7 +239,7 @@ abstract class NkCommonFunction {
         child: Icon(
           Icons.close,
           color: secondaryIconColor,
-          size: NkGeneralSize.nkIconSize() - 10,
+          size: NkGeneralSize.nkIconSize() - 20,
         ),
       );
       return (widget, false);
@@ -250,7 +250,7 @@ abstract class NkCommonFunction {
         child: Icon(
           Icons.check,
           color: secondaryIconColor,
-          size: NkGeneralSize.nkIconSize() - 10,
+          size: NkGeneralSize.nkIconSize() - 20,
         ),
       );
       return (widgets, true);

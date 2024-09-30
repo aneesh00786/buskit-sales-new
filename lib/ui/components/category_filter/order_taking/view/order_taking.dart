@@ -456,64 +456,13 @@ class _OrderTakingState extends State<OrderTaking>
                                       )),
                           ),
                           SizedBox(
-                            height: 40,
-                            child: LiteRollingSwitch(
-                              value: active,
-                              textOn: 'Check-in',
-                              textOff: 'Check-out',
-                              textOnColor: white,
-                              textOffColor: white,
-                              colorOn: Colors.greenAccent[700]!,
-                              colorOff: Colors.redAccent[700]!,
-                              width: 120,
-                              iconOn: Icons.done,
-                              iconOff: Icons.remove_circle_outline,
-                              textSize: 12.0,
-                              onTap: () {
-                                // Debug print to check if the customer name and ID are correct
-                                print(
-                                    'Selected Customer Name: $_selectedCustomerName');
-                                print(
-                                    'Customer ID: ${customeController.customerId}');
-
-                                if (customeController.customerId.isNotEmpty &&
-                                    _selectedCustomerName.isNotEmpty) {
-                                  // Toggle the active state if customer is selected
-                                  setState(() {
-                                    active = !active; // Toggle the active state
-                                  });
-
-                                  // Show the corresponding Snackbar based on the new state
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor:
-                                          active ? Colors.green : Colors.red,
-                                      content: Text(active
-                                          ? 'You are successfully checked-in'
-                                          : 'You are successfully checked-out'),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                } else {
-                                  showCustomSnackBar(
-                                    context,
-                                    'Please select a Customer',
-                                    backgroundColor: Colors.red,
-                                    durationSeconds: 3,
-                                  );
-                                  setState(() {
-                                    active =
-                                        false; 
-                                  });
-                                }
-                              },
-                              onDoubleTap: () {},
-                              onSwipe: () {},
-                              onChanged: (bool state) {
-                              
-                              },
-                            ),
-                          )
+                              height: 40,
+                              child: CustomSwitch(
+                                customeController: customeController,
+                                selectedCustomerName: _selectedCustomerName,
+                              )),
+                              //CustomSwitch
+                              //CustomSwitchWithText
                         ],
                       )
                     ],
@@ -725,3 +674,141 @@ class CustomSearchBar extends StatelessWidget {
     );
   }
 }
+
+class CustomSwitchWithText extends StatefulWidget {
+  CustomerAndOrderController customeController;
+  String selectedCustomerName;
+  CustomSwitchWithText(
+      {super.key,
+      required this.customeController,
+      required this.selectedCustomerName});
+  @override
+  _CustomSwitchWithTextState createState() => _CustomSwitchWithTextState();
+}
+
+class _CustomSwitchWithTextState extends State<CustomSwitchWithText> {
+  bool _isSwitched = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          _isSwitched==true ? "Check-in" : "Check-out",
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+        SizedBox(width: 8),
+        Switch(
+          value: true,
+          onChanged: (value) {
+            if (widget.customeController.customerId.isNotEmpty &&
+                widget.selectedCustomerName.isNotEmpty) {
+              setState(() {
+                _isSwitched = true;
+              });
+    
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: _isSwitched ? Colors.green : Colors.red,
+                  content: Text(_isSwitched
+                      ? 'You are successfully checked-in'
+                      : 'You are successfully checked-out'),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            } else {
+              // Prevent the switch from toggling
+              setState(() {
+                _isSwitched = false; 
+              });
+    
+              showCustomSnackBar(
+                context,
+                'Please select a Customer',
+                backgroundColor: Colors.red,
+                durationSeconds: 3,
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class CustomSwitch extends StatefulWidget {
+  CustomerAndOrderController customeController;
+  String selectedCustomerName;
+  CustomSwitch(
+      {super.key,
+      required this.customeController,
+      required this.selectedCustomerName});
+
+  @override
+  State<CustomSwitch> createState() => _CustomSwitchState();
+}
+
+class _CustomSwitchState extends State<CustomSwitch> {
+  var active = false.obs; // Observable boolean
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => LiteRollingSwitch(
+          onDoubleTap: () {},
+          onSwipe: () {},
+          value: active.value, // Use the .value getter for RxBool
+          textOn: 'Check-in',
+          textOff: 'Check-out',
+          textOnColor: Colors.white,
+          textOffColor: Colors.white,
+          colorOn: Colors.greenAccent[700]!,
+          colorOff: Colors.redAccent[700]!,
+          width: 120,
+          iconOn: Icons.done,
+          iconOff: Icons.remove_circle_outline,
+          textSize: 12.0,
+          onTap: () {           
+          },
+          onChanged: (bool state) {
+             if (widget.customeController.customerId.isNotEmpty &&
+                widget.selectedCustomerName.isNotEmpty) {
+              active.toggle();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: active.value ? Colors.green : Colors.red,
+                  content: Text(active.value
+                      ? 'You are successfully checked-in'
+                      : 'You are successfully checked-out'),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+
+              if (active.value) {
+                Future.delayed(Duration(seconds: 1), () {
+                  active.value = false;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text('You are successfully checked-out'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                });
+              }
+            } else {
+              // Show snackbar if no customer is selected
+              showCustomSnackBar(
+                context,
+                'Please select a Customer',
+                backgroundColor: Colors.red,
+                durationSeconds: 3,
+              );
+            }
+          },
+        ));
+  }
+}
+
+

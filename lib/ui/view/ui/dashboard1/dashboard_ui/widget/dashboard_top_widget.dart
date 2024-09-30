@@ -914,7 +914,7 @@ class DashboardTopWidget extends StatelessWidget {
                           child: admin.imagePath != null
                               ? CachedNetworkImage(
                                   imageUrl:
-                                      'http://16.50.232.153:3000/uploads/${admin.imagePath}',
+                                      '${homeController.userDetails?.imagePath}',
                                   placeholder: (context, url) =>
                                       CircularProgressIndicator(),
                                   errorWidget: (context, url, error) =>
@@ -939,12 +939,12 @@ class DashboardTopWidget extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            MyRegularText(label: admin.name, fontSize: 10.5),
+                            MyRegularText(label: homeController.userDetails?.fullname??'', fontSize: 10.5),
                             // SizedBox(
                             //   height: 2.5,
                             // ),
                             MyRegularText(
-                              label: "Admin",
+                              label: "Salesman",
                               fontSize: 8.5,
                               color: Colors.grey,
                               fontWeight: FontWeight.bold,

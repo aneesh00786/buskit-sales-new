@@ -41,11 +41,11 @@ class DashBoardMiddleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    bool isMobile = screenWidth < 600; // Adjust the breakpoint as needed
+    bool isMobile = screenWidth < 600;
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height, // For larger screens
-      width: MediaQuery.of(context).size.width, // For larger screens
+      height: MediaQuery.of(context).size.height, 
+      width: MediaQuery.of(context).size.width,
       child: isMobile
           ? SingleChildScrollView(
               child: Column(
@@ -136,8 +136,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: SpinKitFadingCube(
-                        color: primaryColor, // Customize color if needed
-                        size: 20.0, // Adjust size as needed
+                        color: primaryColor, 
+                        size: 20.0, 
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -888,11 +888,10 @@ Widget middleTopRightComponent() {
               width: availableWidth,
               child: SingleChildScrollView(
                 child: DataTable(
-                  dataRowHeight: 30,
                   headingRowHeight: 40,
                   columnSpacing: 10,
-                  dividerThickness: 0,
-                  border: TableBorder.all(color: Colors.transparent,width: 0),
+                  dividerThickness: 0.0,
+                  border: TableBorder.all(color: Colors.white,width: 0),
                   columns: const <DataColumn>[
                     DataColumn(
                       label: Expanded(

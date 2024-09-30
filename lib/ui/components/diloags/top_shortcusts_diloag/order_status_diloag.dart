@@ -56,7 +56,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
   SearchModel searchModel = SearchModel();
 
   RxList<String> orderTableColumCategory = [
-    " Customer List",
+    "Customer List",
     "Order Number",
     "Order created",
     "Order Price",
@@ -112,82 +112,76 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return OrientationBuilder(builder: (context, ore) {
-      return SafeArea(
-        minimum: nkSymmetricPadding(
-            vertical: AppDimensions.instance!.height * 0.08,
-            horizontal:
-                AppDimensions.instance!.orientation == Orientation.landscape
-                    ? AppDimensions.instance!.width * 0.10
-                    : AppDimensions.instance!.width * 0.05),
-        child: Card(
-          color: Colors.transparent,
-          child: ClipRRect(
-            borderRadius:
-                BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-            child: Scaffold(
-              appBar: _customerCartResponce.data != null &&
-                      _customerCartResponce.data!.isNotEmpty
-                  ? null
-                  : DiloagAppBar(
-                      title: widget.heading,
+@override
+Widget build(BuildContext context) {
+  return Dialog(
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_customerCartResponce.data == null || _customerCartResponce.data!.isEmpty)
+              DiloagAppBar(title: widget.heading),
+            NkWidgetExceptionHandel(
+              errorCustomWidgets: Center(
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  direction: Axis.vertical,
+                  children: [
+                    MyNetworkImage(
+                      withoutBaseUrl: true,
+                      imageUrl:
+                          "https://i.ibb.co/r5kZLkw/bpnlauwze4-79c04e73-online-video-cutter-com-1-Adobe-Express.gif",
+                      height: AppDimensions.instance.height * 0.3, 
+                      width: AppDimensions.instance.width * 0.3,
                     ),
-              body: NkWidgetExceptionHandel(
-                  errorCustomWidgets: Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      direction: Axis.vertical,
-                      children: [
-                        MyNetworkImage(
-                          withoutBaseUrl: true,
-                          imageUrl:
-                              "https://i.ibb.co/r5kZLkw/bpnlauwze4-79c04e73-online-video-cutter-com-1-Adobe-Express.gif",
-                          height: AppDimensions.instance!.height * 0.5,
-                          width: AppDimensions.instance!.height * 0.5,
-                        ),
-                        MyRegularText(
-                          align: TextAlign.center,
-                          label: productNotAvailable,
-                          fontSize: NkFontSize.largeFont() + 5,
+                    MyRegularText(
+                      align: TextAlign.center,
+                      label: productNotAvailable,
+                      fontSize: NkFontSize.largeFont() + 5,
+                    ),
+                  ],
+                ),
+              ),
+              data: _customerCartResponce.data,
+              child: Column(
+                children: [
+                  _buildDataTableHeader(),
+                  _customerCartResponce.data != null && _customerCartResponce.data!.isNotEmpty
+                      ? SizedBox(
+                          height: AppDimensions.instance.height * 0.5, // Giving height to avoid overflow
+                          child: orderBottomTableWidget,
                         )
-                      ],
-                    ),
-                  ),
-                  data: _customerCartResponce.data,
-                  child: Column(
-                    children: [
-                      _buildDataTableHeader(),
-                      _customerCartResponce.data != null &&
-                              _customerCartResponce.data!.isNotEmpty
-                          ? Expanded(child: orderBottomTableWidget)
-                          : nkChildWrappedSizeBox()
-                    ],
-                  )),
+                      : nkChildWrappedSizeBox(),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
-      );
-    });
-  }
+      ),
+    ),
+  );
+}
 
-  Widget _buildDataTableHeader() {
+
+
+
+  Widget _buildDataTableHeader(){
     return SingleChildScrollView(
-      //scrollDirection: Axis.horizontal,
       child: nkChildWrappedSizeBox(
         width: AppDimensions.instance!.width,
         child: DataTable(
           horizontalMargin: 22,
-          //horizontalMargin: BorderSide.strokeAlignCenter,
           headingRowColor:
               MaterialStateColor.resolveWith((states) => primaryColor),
           headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
               color: buttonTextColor,
               fontSize: NkFontSize.largeFont(),
               fontWeight: FontWeight.bold),
-          dataRowMaxHeight: AppDimensions.instance!.height * 0.11,
+          columnSpacing: AppDimensions.instance.width * 0.04,
+          dataRowMaxHeight: AppDimensions.instance.height * 0.11,
           columns: List.generate(
               orderTableColumCategory.length,
               (index) => index != orderTableColumCategory.length - 1
@@ -196,7 +190,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
                       child: MyRegularText(
                         label: orderTableColumCategory[index],
                         color: buttonTextColor,
-                        fontSize: NkFontSize.largeFont(),
+                        fontSize: NkFontSize.largeFont(largeFont: 13),
                       ),
                     ))
                   : DataColumn(
@@ -221,6 +215,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
                 fontSize: NkFontSize.largeFont(),
                 fontWeight: FontWeight.bold),
             dataRowMaxHeight: AppDimensions.instance.height * 0.11,
+            columnSpacing: AppDimensions.instance.width * 0.03,
             /* columns: orderTableColumCategory
           .map((element) => DataColumn(
                   label: MyRegularText(
@@ -247,52 +242,65 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
           ))
       .toList();
 
-List<Widget> orderRowsWidget(OptionOrderData orderData) {
-  if (orderData.cart == null || orderData.cart!.isEmpty) {
-    return [
-      MyRegularText(label: 'No Data'),
-      MyRegularText(label: 'No Data'),
-      MyRegularText(label: 'No Data'),
-      MyRegularText(label: 'No Data'),
-      MyRegularText(label: 'No Data'),
-      MyRegularText(label: 'No Data'),
+  List<Widget> orderRowsWidget(OptionOrderData orderData) {
+    if (orderData.cart == null || orderData.cart!.isEmpty) {
+      return [
+        MyRegularText(label: 'No Data'),
+        MyRegularText(label: 'No Data'),
+        MyRegularText(label: 'No Data'),
+        MyRegularText(label: 'No Data'),
+        MyRegularText(label: 'No Data'),
+        MyRegularText(label: 'No Data'),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {},
+        ),
+      ];
+    }
 
-      IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () {},
+    final cartItem = orderData.cart!.first;
+    //   return [
+    //   if (cart != null) customerDetailsWidget(cart),
+    //   if (cart != null) orderNumberWidget(cart),
+    //   if (cart != null) orderCreatedDateWidget(cart),
+    //   if (cart != null) orderPrice(cart),
+    // Padding(
+    //   padding: const EdgeInsets.only(left: 0.0, right: 40.0),
+    //   child: NkCommonFunction.isPaymentComplete(
+    //       cart?.optionOrderData?.paymentStatus ?? 0).$1,
+    // ),
+    //   if (cart != null) orderStatus(cart),
+    //   if (cart != null) viewOrder(orderData),
+    // ];
+    return [
+      Row(
+        children: [
+          CircleAvatar(
+            backgroundImage: AssetImage("assets/images/user-138-32.png"),
+          ),
+          SizedBox(width: 5,),
+          MyRegularText(label: cartItem.customerDetails?.fullname ?? 'N/A'),
+        ],
       ),
+      MyRegularText(label: '${cartItem.optionOrderData?.orderId ?? 'N/A'}'),
+      MyRegularText(label: formatDate(cartItem.createdAt)),
+      MyRegularText(label: '${cartItem.optionOrderData?.orderTotal ?? 'N/A'}'),
+      NkCommonFunction.isPaymentComplete(
+              cartItem.optionOrderData?.paymentStatus ?? 0)
+          .$1,
+      MyRegularText(label: '${cartItem.pieces ?? 'N/A'}'),
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: Colors.orange.withOpacity(0.3),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 3,right: 3),
+          child: Text('Delivered'),
+        ),
+      )
     ];
   }
-
-   final cartItem = orderData.cart!.first;
-  //   return [
-  //   if (cart != null) customerDetailsWidget(cart),
-  //   if (cart != null) orderNumberWidget(cart),
-  //   if (cart != null) orderCreatedDateWidget(cart),
-  //   if (cart != null) orderPrice(cart),
-  //   Padding(
-  //     padding: const EdgeInsets.only(left: 0.0, right: 40.0),
-  //     child: NkCommonFunction.isPaymentComplete(
-  //         cart?.optionOrderData?.paymentStatus ?? 0).$1,
-  //   ),
-  //   if (cart != null) orderStatus(cart),
-  //   if (cart != null) viewOrder(orderData),
-  // ];
-  return [
-    MyRegularText(label: cartItem.customerDetails?.fullname ?? 'N/A'), 
-    MyRegularText(label: '${cartItem.optionOrderData?.orderId ?? 'N/A'}'), 
-    MyRegularText(label: formatDate(cartItem.createdAt)), 
-    MyRegularText(label: '${cartItem.optionOrderData?.orderTotal ?? 'N/A'}'),
-    MyRegularText(label: 'Paid'), 
-    MyRegularText(label: '${cartItem.pieces ?? 'N/A'}'), 
-    IconButton(
-      icon: const Icon(Icons.close),
-      onPressed: () {},
-    ), // Column 7
-  ];
-}
-
-
 
   Widget customerDetailsWidget(CustomerCart orderData) {
     return GestureDetector(
@@ -349,16 +357,18 @@ List<Widget> orderRowsWidget(OptionOrderData orderData) {
       ),
     );
   }
-String formatDate(String? dateString) {
-  if (dateString == null) {
-    return 'N/A';
+
+  String formatDate(String? dateString) {
+    if (dateString == null) {
+      return 'N/A';
+    }
+    DateTime? dateTime = DateTime.tryParse(dateString);
+    if (dateTime == null) {
+      return 'Invalid Date';
+    }
+    return DateFormat('yyyy-MM-dd').format(dateTime);
   }
-  DateTime? dateTime = DateTime.tryParse(dateString);
-  if (dateTime == null) {
-    return 'Invalid Date';
-  }
-  return DateFormat('yyyy-MM-dd – kk:mm').format(dateTime);
-}
+
   Widget orderStatus(CustomerCart orderData) {
     return Container(
       padding: nkRegularPadding(),

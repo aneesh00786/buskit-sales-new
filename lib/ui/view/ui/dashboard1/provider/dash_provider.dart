@@ -57,9 +57,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
-
         log('Order Count List:++++++++ ${jsonResponse['data']}');
-
         var allCategoryList = jsonResponse['data']['all_category'] as List;
         List<Category> allCategory =
             allCategoryList.map((json) => Category.fromJson(json)).toList();

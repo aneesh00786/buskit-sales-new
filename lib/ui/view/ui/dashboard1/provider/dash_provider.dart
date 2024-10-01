@@ -52,12 +52,12 @@ class ApiService {
         data: jsonEncode(requestBody),
       );
 
-      log("Response Status Code: ${response.statusCode}");
-      log('Response Body: ${response.data}');
+      log("fetchDashboardData Code: ${response.statusCode}");
+      log('fetchDashboardData Body: ${response.data['status']}');
 
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
-        log('Order Count List:++++++++ ${jsonResponse['data']}');
+        //log('Order Count List:++++++++ ${jsonResponse['data']}');
         var allCategoryList = jsonResponse['data']['all_category'] as List;
         List<Category> allCategory =
             allCategoryList.map((json) => Category.fromJson(json)).toList();
@@ -133,8 +133,8 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('fetchDashboardCategoruPerformenceData ${response.statusCode}');
+      print('fetchDashboardCategoruPerformenceData Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -182,8 +182,8 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('fetchCustomerDashboardCartData: ${response.statusCode}');
+      print('fetchCustomerDashboardCartData Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -491,8 +491,8 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('fetchAdminDetails : ${response.statusCode}');
+      print('fetchAdminDetails Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -550,8 +550,8 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('updateAdminDetails : ${response.statusCode}');
+      print('updateAdminDetails Body: ${response.body}');
 
       if (response.statusCode == 200) {
         print('Admin details updated successfully');
@@ -595,8 +595,8 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('fetchCustomer : ${response.statusCode}');
+      print('fetchCustomer Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -956,8 +956,8 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('updateCustomerDashDetails : ${response.statusCode}');
+      print('updateCustomerDashDetails Body: ${response.body}');
 
       if (response.statusCode == 200) {
         print('Admin details updated successfully');
@@ -1009,8 +1009,8 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('addCustomer : ${response.statusCode}');
+      print('addCustomer Body: ${response.body}');
 
       if (response.statusCode == 200) {
         print('Admin details updated successfully');
@@ -1063,8 +1063,8 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('addLead : ${response.statusCode}');
+      print('addLead Body: ${response.body}');
 
       if (response.statusCode == 200) {
         print('Admin details updated successfully');

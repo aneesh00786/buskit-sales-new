@@ -1,5 +1,9 @@
 
+import 'dart:developer';
+
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
@@ -28,7 +32,47 @@ class HomeController extends GetxController {
 
   static final GlobalKey<ScaffoldState> homeScaffoldKey =
       GlobalKey<ScaffoldState>();
+ final ApiWorker _apiWorker = ApiWorker(); // Create an instance of your API worker
 
+  @override
+  void onInit() {
+    super.onInit();
+    fetchDashboardData(); // Fetch dashboard data on initialization
+  }
+
+  Future<void> fetchDashboardData() async {
+    try {
+      await _apiWorker.dashboardData(); // Call the API method
+      // Handle the data as necessary after successful fetch
+    } catch (e) {
+      // If an error occurs, check if it's a session expiration
+      if (e.toString().contains('Session expired')) {
+        _handleTokenExpiration(); // Show the dialog if token is expired
+      }
+      log('Error fetching dashboard data: $e');
+    }
+  }
+
+  void _handleTokenExpiration() async {
+    if (!Get.isDialogOpen!) {
+      await Get.dialog(
+        AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () async {
+                await SessionHelper().clearAll(); // Clear session data
+                Get.offAllNamed(AppRoutes.login); // Navigate to login page
+              },
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
+  }
   Route? onGenerateRoute(RouteSettings settings) {
     if (settings.name == AppRoutes.dashboard &&
         sidebarXController.selectedIndex == 0) {

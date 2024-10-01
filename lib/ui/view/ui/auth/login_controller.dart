@@ -38,37 +38,51 @@ class LoginController extends GetxController {
     }
   }
 
-  get loginCall async {
-    loginResponce = (await Future.wait([
-      _apiWorker.loginApi(
-          emailController.text.removeAllWhitespace, passwordController.text)
-    ]).onError((error, stackTrace) {
-       loginButtonController.error();
-       loginButtonController.reset();
-      return Future.error(error.toString());
-    })).first;
-    
+get loginCall async {
+  try {
+    loginResponce = (await Future.wait([_apiWorker.loginApi(
+      emailController.text.removeAllWhitespace, 
+      passwordController.text
+    )])).first;
+
     if (loginResponce != null) {
       loginButtonController.success();
       await SessionHelper().setLoginData(loginResponce!.data!).then((value) {
         SessionHelper.loginSavedData = loginResponce!.data;
-        Get.offAllNamed(AppRoutes.home);
-      }
-      );
+        Get.offAllNamed(AppRoutes.home); // Navigate to home after login
+      });
     }
-  }
-/*
-  get loginCall async {
-    try {
-      loginResponce = (await _apiWorker.loginApi(
-          emailController.text, passwordController.text));
+  } catch (e) {
+    loginButtonController.error();
+    loginButtonController.reset();
 
-      log("AAAAAA ", error: loginResponce.toString());
-      loginButtonController.success();
-    } on DioError catch (e) {
-      loginButtonController.error();
-      loginButtonController.reset();
+    if (e.toString().contains("401")) {
+      handleTokenExpiration(); // Call the token expiration handler
+    } else {
+      Get.snackbar('Login Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
     }
   }
-*/
+}
+
+void handleTokenExpiration() async {
+  if (!Get.isDialogOpen!) {
+    await Get.dialog(
+      AlertDialog(
+        title: Text("Session Expired"),
+        content: Text("Your session has expired. Please log in again."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () async {
+              await SessionHelper().clearAll();
+              Get.offAllNamed(AppRoutes.login); // Navigate to login page
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+}
+
 }

@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
+import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
@@ -23,6 +24,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_re
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_responce_temp.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/route_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../common/pagination_model.dart';
@@ -71,36 +75,67 @@ class ApiWorker with ApiConstants {
   // }
   /// ************************ DASHBOARD SECTION ***************** ///
 
-  Future<DashboardResponse> dashboardData() async {
-      final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      int createdToken= jsonMap['createdToken'];
-    Map<String, dynamic> data = {
-      'salesman_id': salesmanId,
-      'start_date': "2024-09-30",
-      'end_date': "2024-09-01",
-    };
-      Map<String, dynamic> headers = {
+Future<DashboardResponse> dashboardData() async {
+  final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+  Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  String createdToken = jsonMap['createdToken'];
+
+  Map<String, dynamic> data = {
+    'salesman_id': salesmanId,
+    'start_date': "2024-09-30",
+    'end_date': "2024-09-01",
+  };
+
+  Map<String, dynamic> headers = {
     'Authorization': 'Bearer $createdToken',
   };
-    log('ceared Token$createdToken');
-    log('ceared Token$salesmanId');
-   // log('data++++ ${searchData.startDate} ${searchData.endDate}');
-  
-    final response = await dio
-        .postbycustom(
+
+  log('Created Token: $createdToken');
+  log('Salesman ID: $salesmanId');
+
+  try {
+    final response = await dio.postbycustom(
       ApiConstants.dashboard_list,
       data: data,
-      options: Options(headers: headers)
-    )
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    log('Dashboard api Response : ++++++++++++ ${response.data}');
+      options: Options(headers: headers),
+    );
+
+    log('Dashboard API Response: ${response.data}');
+    if (response.data['status_code'] == 200) {
+      _handleTokenExpiration(); 
+      throw Exception('Session expired');
+    }
+
     return DashboardResponse.fromJson(response.data);
+  } catch (e) {
+    log('Error fetching dashboard data: $e');
+    rethrow;
   }
+}
+
+void _handleTokenExpiration() async {
+  if (!Get.isDialogOpen!) {
+    await Get.dialog(
+      AlertDialog(
+        title: Text("Session Expired"),
+        content: Text("Your session has expired. Please log in again."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () async {
+              await SessionHelper().clearAll(); 
+              Get.offAllNamed(AppRoutes.login);
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+}
+
+
 
   /// ************************ COMMON SEARCH SECTION ***************** ///
 

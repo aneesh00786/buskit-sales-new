@@ -35,4 +35,8 @@ class SessionHelper {
       return LoginData.fromJson(jsonDecode(response));
     }
   }
+    Future<void> clearAll() async {
+    await SessionManager.clearData();
+    loginSavedData = null;
+  }
 }

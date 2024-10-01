@@ -21,8 +21,10 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
 class CartDialogue extends StatefulWidget {
+  bool? active;
   CartDialogue({
     super.key,
+    this.active
   });
 
   @override
@@ -598,7 +600,8 @@ class _CartDialogueState extends State<CartDialogue> {
                             text: 'Save & Send',
                             size: width > 1200 ? 14 : 10,
                             onTap: () async {
-                              if (cartItems.isNotEmpty &&
+                              if (widget.active==true) {
+                                if (cartItems.isNotEmpty &&
                                   customeController
                                       .customerId.value.isNotEmpty) {
                                 showDialog(
@@ -709,6 +712,35 @@ class _CartDialogueState extends State<CartDialogue> {
                                     content: Text('Ypur cart is Empty'),
                                     duration: Duration(seconds: 3),
                                   ),
+                                );
+                              }
+                              }else{
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Center(
+                                        child: Icon(Icons.warning_amber_rounded,color: Colors.red,size: 60,),
+                                      ),
+                                      content: CustomText(
+                                        content:
+                                            'Please check-in before processing order',
+                                        fontSize: 18,
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
+                                                .pop();
+                                          },
+                                          child: Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               }
                             },

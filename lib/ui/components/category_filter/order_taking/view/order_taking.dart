@@ -298,177 +298,229 @@ class _OrderTakingState extends State<OrderTaking>
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.43,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomSearchBar(
-                        text: "Search customer...",
-                        controller: customerSearchController,
-                        onChange: (value) {
-                          filterCustomers(value);
-                        },
-                        icon: EneftyIcons.profile_outline,
-                      ),
-                      Expanded(
-                        child: isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : customerSearchController.text.isNotEmpty
-                                ? filteredCustomers.isEmpty
-                                    ? const Center(
-                                        child: Text('No customers found.'))
-                                    : SizedBox(
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: filteredCustomers.length,
-                                          itemBuilder: (context, index) {
-                                            CustomerAndOrderData customer =
-                                                filteredCustomers[index];
-                                            return Container(
-                                              color: Colors.white,
-                                              child: ListTile(
-                                                leading: CircleAvatar(
-                                                  backgroundImage: NetworkImage(
-                                                      customer.imageUrl ?? ''),
-                                                ),
-                                                title: Text(
-                                                    customer.fullname ?? ''),
-                                                subtitle: Text(
-                                                    customer.customerId ?? ''),
-                                                onTap: () {
-                                                  customerAndOrderController
-                                                      .setCustomerId(
-                                                          customer.customerId ??
-                                                              '');
-                                                  setState(() {
-                                                    String
-                                                        getFormattedCustomerName(
-                                                            String? fullname) {
-                                                      if (fullname == null ||
-                                                          fullname.isEmpty) {
-                                                        return '';
-                                                      }
-                                                      return fullname.length > 6
-                                                          ? '${fullname.substring(0, 6)}...'
-                                                          : fullname;
-                                                    }
-
-// Usage
-                                                    _selectedCustomerName =
-                                                        getFormattedCustomerName(
-                                                            customer.fullname);
-                                                    _selectedCustomerImageUrl =
-                                                        customer.imageUrl ?? '';
-                                                    customerSearchController
-                                                        .clear();
-                                                  });
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                : const SizedBox.shrink(),
-                      ),
-                    ],
-                  ),
-                ),
-                IntrinsicWidth(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Hero(
-                        tag: 'product_image',
-                        child: AnimatedBuilder(
-                          animation: animationController,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(0, animation.value),
-                              child: child,
-                            );
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 45,
+              ),
+              child: Row(
+                mainAxisAlignment: _selectedCustomerName.isNotEmpty
+                    ? MainAxisAlignment.spaceEvenly
+                    : MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.43,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomSearchBar(
+                          text: "Search customer...",
+                          controller: customerSearchController,
+                          onChange: (value) {
+                            filterCustomers(value);
                           },
-                          child: IconButton(
-                            onPressed: () {
-                              _showCartDialog();
-                            },
-                            icon: Stack(
-                              children: [
-                                const Icon(
-                                  Icons.shopping_cart_outlined,
-                                  size: 30,
-                                ),
-                                if (cartItemCount > 0)
-                                  Positioned(
-                                    right: 0,
-                                    top: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(2),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 16,
-                                        minHeight: 16,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '${cartItemCount}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
+                          icon: EneftyIcons.profile_outline,
+                        ),
+                        Expanded(
+                          child: isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : customerSearchController.text.isNotEmpty
+                                  ? filteredCustomers.isEmpty
+                                      ? const Center(
+                                          child: Text('No customers found.'))
+                                      : SizedBox(
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: filteredCustomers.length,
+                                            itemBuilder: (context, index) {
+                                              CustomerAndOrderData customer =
+                                                  filteredCustomers[index];
+                                              return Container(
+                                                color: Colors.white,
+                                                child: ListTile(
+                                                  leading: CircleAvatar(
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                            customer.imageUrl ??
+                                                                ''),
+                                                  ),
+                                                  title: Text(
+                                                      customer.fullname ?? ''),
+                                                  subtitle: Text(
+                                                      customer.customerId ??
+                                                          ''),
+                                                  onTap: () {
+                                                    customerAndOrderController
+                                                        .setCustomerId(customer
+                                                                .customerId ??
+                                                            '');
+                                                    setState(() {
+                                                      String
+                                                          getFormattedCustomerName(
+                                                              String?
+                                                                  fullname) {
+                                                        if (fullname == null ||
+                                                            fullname.isEmpty) {
+                                                          return '';
+                                                        }
+                                                        return fullname.length >
+                                                                6
+                                                            ? '${fullname.substring(0, 6)}...'
+                                                            : fullname;
+                                                      }
+
+                                                      // Usage
+                                                      _selectedCustomerName =
+                                                          getFormattedCustomerName(
+                                                              customer
+                                                                  .fullname);
+                                                      _selectedCustomerImageUrl =
+                                                          customer.imageUrl ??
+                                                              '';
+                                                      customerSearchController
+                                                          .clear();
+                                                    });
+                                                  },
+                                                ),
+                                              );
+                                            },
                                           ),
+                                        )
+                                  : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _selectedCustomerName.isNotEmpty
+                      ? IntrinsicWidth(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Hero(
+                                tag: 'product_image',
+                                child: AnimatedBuilder(
+                                  animation: animationController,
+                                  builder: (context, child) {
+                                    return Transform.translate(
+                                      offset: Offset(0, animation.value),
+                                      child: child,
+                                    );
+                                  },
+                                  child: IconButton(
+                                    onPressed: () {
+                                      _showCartDialog();
+                                    },
+                                    icon: Stack(
+                                      children: [
+                                        const Icon(
+                                          Icons.shopping_cart_outlined,
+                                          size: 30,
                                         ),
-                                      ),
+                                        if (cartItemCount > 0)
+                                          Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 16,
+                                                minHeight: 16,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${cartItemCount}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IntrinsicWidth(
-                            child: ListTile(
-                                title: Text(_selectedCustomerName.isEmpty
-                                    ? ''
-                                    : _selectedCustomerName),
-                                leading: _selectedCustomerName.isEmpty
-                                    ? null
-                                    : CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            _selectedCustomerImageUrl.isEmpty
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IntrinsicWidth(
+                                    child: ListTile(
+                                        title: Text(
+                                            _selectedCustomerName.isEmpty
                                                 ? ''
-                                                : _selectedCustomerImageUrl),
-                                        backgroundColor:
-                                            _selectedCustomerImageUrl.isEmpty
-                                                ? Colors.blueGrey
-                                                : Color.fromARGB(
-                                                    123, 194, 192, 192),
-                                      )),
+                                                : _selectedCustomerName),
+                                        leading: _selectedCustomerName.isEmpty
+                                            ? null
+                                            : CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                    _selectedCustomerImageUrl
+                                                            .isEmpty
+                                                        ? ''
+                                                        : _selectedCustomerImageUrl),
+                                                backgroundColor:
+                                                    _selectedCustomerImageUrl
+                                                            .isEmpty
+                                                        ? Colors.blueGrey
+                                                        : Color.fromARGB(
+                                                            123, 194, 192, 192),
+                                              )),
+                                  ),
+                                  SizedBox(
+                                    height: 40,
+                                    child: _selectedCustomerName.isNotEmpty
+                                        ? LiteRollingSwitch(
+                                            onDoubleTap: () {},
+                                            onSwipe: () {},
+                                            value: active,
+                                            textOn: 'Check-in',
+                                            textOff: 'Check-out',
+                                            textOnColor: Colors.white,
+                                            textOffColor: Colors.white,
+                                            colorOn: Colors.greenAccent[700]!,
+                                            colorOff: Colors.redAccent[700]!,
+                                            width: 120,
+                                            iconOn: Icons.done,
+                                            iconOff:
+                                                Icons.remove_circle_outline,
+                                            textSize: 12.0,
+                                            onTap: () {},
+                                            onChanged: (bool state) {
+                                              setState(() {
+                                                active = state;
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor: active
+                                                      ? Colors.green
+                                                      : Colors.red,
+                                                  content: Text(active
+                                                      ? 'You are successfully checked-in'
+                                                      : 'You are successfully checked-out'),
+                                                  duration:
+                                                      Duration(seconds: 3),
+                                                ),
+                                              );
+                                              log('Active value : $active');
+                                            },
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              )
+                            ],
                           ),
-                          SizedBox(
-                              height: 40,
-                              child: CustomSwitch(
-                                customeController: customeController,
-                                selectedCustomerName: _selectedCustomerName,
-                              )),
-                              //CustomSwitch
-                              //CustomSwitchWithText
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
+                        )
+                      : Container(),
+                ],
+              ),
             ),
             Positioned(
               left: 0,
@@ -613,7 +665,9 @@ class _OrderTakingState extends State<OrderTaking>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CartDialogue();
+        return CartDialogue(
+          active: active,
+        );
       },
     );
   }
@@ -674,141 +728,3 @@ class CustomSearchBar extends StatelessWidget {
     );
   }
 }
-
-class CustomSwitchWithText extends StatefulWidget {
-  CustomerAndOrderController customeController;
-  String selectedCustomerName;
-  CustomSwitchWithText(
-      {super.key,
-      required this.customeController,
-      required this.selectedCustomerName});
-  @override
-  _CustomSwitchWithTextState createState() => _CustomSwitchWithTextState();
-}
-
-class _CustomSwitchWithTextState extends State<CustomSwitchWithText> {
-  bool _isSwitched = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          _isSwitched==true ? "Check-in" : "Check-out",
-          style: TextStyle(fontSize: 16, color: Colors.black),
-        ),
-        SizedBox(width: 8),
-        Switch(
-          value: true,
-          onChanged: (value) {
-            if (widget.customeController.customerId.isNotEmpty &&
-                widget.selectedCustomerName.isNotEmpty) {
-              setState(() {
-                _isSwitched = true;
-              });
-    
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: _isSwitched ? Colors.green : Colors.red,
-                  content: Text(_isSwitched
-                      ? 'You are successfully checked-in'
-                      : 'You are successfully checked-out'),
-                  duration: Duration(seconds: 3),
-                ),
-              );
-            } else {
-              // Prevent the switch from toggling
-              setState(() {
-                _isSwitched = false; 
-              });
-    
-              showCustomSnackBar(
-                context,
-                'Please select a Customer',
-                backgroundColor: Colors.red,
-                durationSeconds: 3,
-              );
-            }
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class CustomSwitch extends StatefulWidget {
-  CustomerAndOrderController customeController;
-  String selectedCustomerName;
-  CustomSwitch(
-      {super.key,
-      required this.customeController,
-      required this.selectedCustomerName});
-
-  @override
-  State<CustomSwitch> createState() => _CustomSwitchState();
-}
-
-class _CustomSwitchState extends State<CustomSwitch> {
-  var active = false.obs; // Observable boolean
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() => LiteRollingSwitch(
-          onDoubleTap: () {},
-          onSwipe: () {},
-          value: active.value, // Use the .value getter for RxBool
-          textOn: 'Check-in',
-          textOff: 'Check-out',
-          textOnColor: Colors.white,
-          textOffColor: Colors.white,
-          colorOn: Colors.greenAccent[700]!,
-          colorOff: Colors.redAccent[700]!,
-          width: 120,
-          iconOn: Icons.done,
-          iconOff: Icons.remove_circle_outline,
-          textSize: 12.0,
-          onTap: () {           
-          },
-          onChanged: (bool state) {
-             if (widget.customeController.customerId.isNotEmpty &&
-                widget.selectedCustomerName.isNotEmpty) {
-              active.toggle();
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: active.value ? Colors.green : Colors.red,
-                  content: Text(active.value
-                      ? 'You are successfully checked-in'
-                      : 'You are successfully checked-out'),
-                  duration: Duration(seconds: 3),
-                ),
-              );
-
-              if (active.value) {
-                Future.delayed(Duration(seconds: 1), () {
-                  active.value = false;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: Colors.red,
-                      content: Text('You are successfully checked-out'),
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                });
-              }
-            } else {
-              // Show snackbar if no customer is selected
-              showCustomSnackBar(
-                context,
-                'Please select a Customer',
-                backgroundColor: Colors.red,
-                durationSeconds: 3,
-              );
-            }
-          },
-        ));
-  }
-}
-
-

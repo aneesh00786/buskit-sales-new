@@ -178,11 +178,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             .collection!.order!.pendingAmount!.isNotEmpty
                         ? 'Overdue : \$${responseModel.collection!.order?.pendingAmount?.last.overDue}'
                         : 'Overdue : \$0.00';
-
-                    // Labels
                     final completedOrdersLabel =
                         'Completed : \$${totalCompletedAmount?.toStringAsFixed(0)}';
-
                     return NestedPieChartj(
                       sabik: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

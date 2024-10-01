@@ -146,7 +146,7 @@ class DashBoardController extends GetxController {
         salesmanId: salesmanId,
         startDate: "2024-10-01",
         //startDate,
-        endDate: '2024-10-01',
+        endDate: '2024-10-30',
         //endDate,
         createdToken: createdToken,
       );

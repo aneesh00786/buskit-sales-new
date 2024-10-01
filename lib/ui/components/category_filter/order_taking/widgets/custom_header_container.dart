@@ -6,8 +6,10 @@ class CustomHeaderContainer extends StatelessWidget {
   const CustomHeaderContainer({
     super.key,
     required this.text,
+    required this.fontSize,
   });
   final String text;
+  final double fontSize;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -23,7 +25,7 @@ class CustomHeaderContainer extends StatelessWidget {
             padding: const EdgeInsets.only(right: 20),
             child: CustomText(
                 content: text,
-                fontSize: 16,
+                fontSize: fontSize,
                 color: Colors.black,
                 fontWeight: FontWeight.w600),
           ),

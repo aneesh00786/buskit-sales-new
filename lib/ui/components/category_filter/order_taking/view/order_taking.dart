@@ -299,8 +299,8 @@ class _OrderTakingState extends State<OrderTaking>
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(
-                left: 45,
+              padding:  EdgeInsets.only(
+                left:_selectedCustomerName.isEmpty? 45:0,
               ),
               child: Row(
                 mainAxisAlignment: _selectedCustomerName.isNotEmpty

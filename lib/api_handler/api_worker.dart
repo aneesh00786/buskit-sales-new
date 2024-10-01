@@ -102,7 +102,7 @@ Future<DashboardResponse> dashboardData() async {
     );
 
     log('Dashboard API Response: ${response.data}');
-    if (response.data['status_code'] == 200) {
+    if (response.data['status_code'] == 400) {
       _handleTokenExpiration(); 
       throw Exception('Session expired');
     }

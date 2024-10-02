@@ -463,7 +463,7 @@ class _OrderTakingState extends State<OrderTaking>
                                           backgroundImage: NetworkImage(
                                               _selectedCustomerImageUrl.isEmpty
                                                   ? ''
-                                                  : _selectedCustomerImageUrl),
+                                                  : '${ApiConstants.imageBaseUrl}/$_selectedCustomerImageUrl'),
                                           backgroundColor:
                                               _selectedCustomerImageUrl.isEmpty
                                                   ? Colors.blueGrey

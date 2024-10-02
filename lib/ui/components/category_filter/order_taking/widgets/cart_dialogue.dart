@@ -404,7 +404,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '${formatAmountToMatch(cartItem.detail.tax ?? '0', 2)}',
+                                                                  '${double.parse(cartItem.detail.tax??'').toStringAsFixed(2)}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .right,
@@ -444,7 +444,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '\$${formatAmountToMatch(cartItem.totalPrice.toString(), 2)}',
+                                                                  '\$${cartItem.totalPrice.toStringAsFixed(2)}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .right,
@@ -882,17 +882,17 @@ class _CartDialogueState extends State<CartDialogue> {
     });
   }
 
-  String formatAmountToMatch(String price, int maxIntegerDigits) {
-    if (price == null || price.isEmpty) return '0.00';
-    final double amount = double.parse(price);
-    int integerDigits = amount.floor().toString().length;
+  // String formatAmountToMatch(String price, int maxIntegerDigits) {
+  //   if (price == null || price.isEmpty) return '0.00';
+  //   final double amount = double.parse(price);
+  //   int integerDigits = amount.floor().toString().length;
 
-    int decimalPlaces = maxIntegerDigits - integerDigits;
+  //   int decimalPlaces = maxIntegerDigits - integerDigits;
 
-    if (decimalPlaces > 0) {
-      return amount.toStringAsFixed(decimalPlaces + 2);
-    } else {
-      return amount.toStringAsFixed(2);
-    }
-  }
+  //   if (decimalPlaces > 0) {
+  //     return amount.toStringAsFixed(decimalPlaces + 2);
+  //   } else {
+  //     return amount.toStringAsFixed(2);
+  //   }
+  // }
 }

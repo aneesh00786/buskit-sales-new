@@ -250,12 +250,12 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     fontSize: fontSize)),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: detail.sellPrice ?? '',
+                                  content: double.parse(detail.sellPrice??'').toStringAsFixed(2),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: detail.tax ?? '',
+                                  content: double.parse(detail.tax??'').toStringAsFixed(2),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
@@ -265,7 +265,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: '${detail.fullstock}',
+                                  content: '${detail.fullstock?.toStringAsFixed(2)}',
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(

@@ -501,20 +501,20 @@ class _OrderTakingState extends State<OrderTaking>
                               //           setState(() {
                               //             active = state;
                               //           });
-                              //           ScaffoldMessenger.of(context)
-                              //               .showSnackBar(
-                              //             SnackBar(
-                              //               backgroundColor: active
-                              //                   ? Colors.green
-                              //                   : Colors.red,
-                              //               content: Text(active
-                              //                   ? 'You are successfully checked-in'
-                              //                   : 'You are successfully checked-out'),
-                              //               duration:
-                              //                   Duration(seconds: 3),
-                              //             ),
-                              //           );
-                              //           log('Active value : $active');
+                                        // ScaffoldMessenger.of(context)
+                                        //     .showSnackBar(
+                                        //   SnackBar(
+                                        //     backgroundColor: active
+                                        //         ? Colors.green
+                                        //         : Colors.red,
+                                        //     content: Text(active
+                                        //         ? 'You are successfully checked-in'
+                                        //         : 'You are successfully checked-out'),
+                                        //     duration:
+                                        //         Duration(seconds: 3),
+                                        //   ),
+                                        // );
+                                        // log('Active value : $active');
                               //         },
                               //       )
                               //     : null,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -36,6 +38,16 @@ class _CustomSwitchState extends State<CustomSwitch> {
       isOn = !isOn;
     });
     widget.onChanged(isOn);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: isOn ? Colors.green : Colors.red,
+        content: Text(isOn
+            ? 'You are successfully checked-in'
+            : 'You are successfully checked-out'),
+        duration: Duration(seconds: 3),
+      ),
+    );
+    log('Active value : $isOn');
   }
 
   @override
@@ -49,7 +61,9 @@ class _CustomSwitchState extends State<CustomSwitch> {
                 builder: (context) {
                   return AlertDialog(
                     actions: [
-                      SizedBox(height: 20,),
+                      SizedBox(
+                        height: 20,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
@@ -60,7 +74,11 @@ class _CustomSwitchState extends State<CustomSwitch> {
                           ),
                         ),
                       ),
-                      Center(child: CustomText(content:'Please select a customer to check-in',fontSize: 17,)),
+                      Center(
+                          child: CustomText(
+                        content: 'Please select a customer to check-in',
+                        fontSize: 17,
+                      )),
                       TextButton(
                           onPressed: () {
                             Navigator.pop(context);
@@ -80,11 +98,15 @@ class _CustomSwitchState extends State<CustomSwitch> {
           color: isOn ? Colors.green : Colors.red,
         ),
         child: Stack(
-          alignment:isOn ? Alignment.centerLeft:Alignment.centerRight,
+          alignment: isOn ? Alignment.centerLeft : Alignment.centerRight,
           children: [
             Padding(
               padding: const EdgeInsets.all(3.0),
-              child: MyRegularText(label: isOn?"Check-in":"Check-out",color: white,fontWeight: FontWeight.w700,),
+              child: MyRegularText(
+                label: isOn ? "Check-in" : "Check-out",
+                color: white,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             AnimatedAlign(
               duration: Duration(milliseconds: 300),

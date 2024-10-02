@@ -349,8 +349,8 @@ class _ProductGridState extends State<ProductGrid> {
                                           const SizedBox(width: 5),
                                           Text(
                                             product.detail!.length > 1
-                                                ? '\$${firstTotal}(${pieces}pcs) - ${lastTotal}(${pieces}pcs)'
-                                                : '\$${firstTotal}(${pieces}pcs)',
+                                                ? '\$${firstTotal}(${pieces} pcs) - ${lastTotal}(${pieces} pcs)'
+                                                : '\$${firstTotal}(${pieces} pcs)',
                                             style: GoogleFonts.poppins(
                                                 fontSize: stockFontSize,
                                                 fontWeight: FontWeight.w600),

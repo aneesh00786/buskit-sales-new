@@ -84,7 +84,7 @@ class _CartDialogueState extends State<CartDialogue> {
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
           double columnSpacing = availableWidth / 40;
-          double rowHeight = availableHeight/10;
+          double rowHeight = availableHeight / 10;
           return Column(
             children: [
               Stack(
@@ -283,43 +283,48 @@ class _CartDialogueState extends State<CartDialogue> {
                                                 dataRowHeight: rowHeight,
                                                 horizontalMargin: 5,
                                                 columnSpacing: columnSpacing,
-                                                
                                                 columns: [
                                                   DataColumn(
                                                       label:
                                                           DialogTableHeaderText(
                                                     text: 'Variant',
                                                     fontSize: fontSize,
+                                                    align: TextAlign.center,
                                                   )),
                                                   DataColumn(
                                                       label:
                                                           DialogTableHeaderText(
                                                     text: 'Pack',
                                                     fontSize: fontSize,
+                                                    align: TextAlign.center,
                                                   )),
                                                   DataColumn(
                                                       label:
                                                           DialogTableHeaderText(
                                                     text: 'Price',
                                                     fontSize: fontSize,
+                                                    align: TextAlign.center,
                                                   )),
                                                   DataColumn(
                                                       label:
                                                           DialogTableHeaderText(
                                                     text: 'Tax',
                                                     fontSize: fontSize,
+                                                    align: TextAlign.center,
                                                   )),
                                                   DataColumn(
                                                       label:
                                                           DialogTableHeaderText(
                                                     text: 'Quantity',
                                                     fontSize: fontSize,
+                                                    align: TextAlign.center,
                                                   )),
                                                   DataColumn(
                                                       label:
                                                           DialogTableHeaderText(
                                                     text: 'Total',
                                                     fontSize: fontSize,
+                                                    align: TextAlign.center,
                                                   )),
                                                 ],
                                                 rows: [
@@ -336,7 +341,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '${cartItem.detail.variationName}${cartItem.detail.unitType}',
+                                                                  '${cartItem.detail.variationName} ${cartItem.detail.unitType}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -354,7 +359,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                     minWidth:
                                                                         50,
                                                                     maxWidth:
-                                                                        100),
+                                                                        150),
                                                             child: CustomText(
                                                               content:
                                                                   '${cartItem.detail.packtype}/ ${cartItem.detail.pieces} Pcs',

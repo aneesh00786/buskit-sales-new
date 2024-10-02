@@ -4,6 +4,8 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/snack_bar_widget.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -299,13 +301,11 @@ class _OrderTakingState extends State<OrderTaking>
               ],
             ),
             Padding(
-              padding:  EdgeInsets.only(
-                left:_selectedCustomerName.isEmpty? 45:0,
+              padding: EdgeInsets.only(
+                left: _selectedCustomerName.isEmpty ? 45 : 0,
               ),
               child: Row(
-                mainAxisAlignment: _selectedCustomerName.isNotEmpty
-                    ? MainAxisAlignment.spaceEvenly
-                    : MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
@@ -391,134 +391,141 @@ class _OrderTakingState extends State<OrderTaking>
                       ],
                     ),
                   ),
-                  _selectedCustomerName.isNotEmpty
-                      ? IntrinsicWidth(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Hero(
-                                tag: 'product_image',
-                                child: AnimatedBuilder(
-                                  animation: animationController,
-                                  builder: (context, child) {
-                                    return Transform.translate(
-                                      offset: Offset(0, animation.value),
-                                      child: child,
-                                    );
-                                  },
-                                  child: IconButton(
-                                    onPressed: () {
-                                      _showCartDialog();
-                                    },
-                                    icon: Stack(
-                                      children: [
-                                        const Icon(
-                                          Icons.shopping_cart_outlined,
-                                          size: 30,
+                  // _selectedCustomerName.isNotEmpty
+                  //     ?
+                  IntrinsicWidth(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Hero(
+                          tag: 'product_image',
+                          child: AnimatedBuilder(
+                            animation: animationController,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, animation.value),
+                                child: child,
+                              );
+                            },
+                            child: IconButton(
+                              onPressed: () {
+                                _showCartDialog();
+                              },
+                              icon: Stack(
+                                children: [
+                                  const Icon(
+                                    Icons.shopping_cart_outlined,
+                                    size: 30,
+                                  ),
+                                  if (cartItemCount > 0)
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
                                         ),
-                                        if (cartItemCount > 0)
-                                          Positioned(
-                                            right: 0,
-                                            top: 0,
-                                            child: Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              constraints: const BoxConstraints(
-                                                minWidth: 16,
-                                                minHeight: 16,
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  '${cartItemCount}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${cartItemCount}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                      ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  IntrinsicWidth(
-                                    child: ListTile(
-                                        title: Text(
-                                            _selectedCustomerName.isEmpty
-                                                ? ''
-                                                : _selectedCustomerName),
-                                        leading: _selectedCustomerName.isEmpty
-                                            ? null
-                                            : CircleAvatar(
-                                                backgroundImage: NetworkImage(
-                                                    _selectedCustomerImageUrl
-                                                            .isEmpty
-                                                        ? ''
-                                                        : _selectedCustomerImageUrl),
-                                                backgroundColor:
-                                                    _selectedCustomerImageUrl
-                                                            .isEmpty
-                                                        ? Colors.blueGrey
-                                                        : Color.fromARGB(
-                                                            123, 194, 192, 192),
-                                              )),
-                                  ),
-                                  SizedBox(
-                                    height: 40,
-                                    child: _selectedCustomerName.isNotEmpty
-                                        ? LiteRollingSwitch(
-                                            onDoubleTap: () {},
-                                            onSwipe: () {},
-                                            value: active,
-                                            textOn: 'Check-in',
-                                            textOff: 'Check-out',
-                                            textOnColor: Colors.white,
-                                            textOffColor: Colors.white,
-                                            colorOn: Colors.greenAccent[700]!,
-                                            colorOff: Colors.redAccent[700]!,
-                                            width: 120,
-                                            iconOn: Icons.done,
-                                            iconOff:
-                                                Icons.remove_circle_outline,
-                                            textSize: 12.0,
-                                            onTap: () {},
-                                            onChanged: (bool state) {
-                                              setState(() {
-                                                active = state;
-                                              });
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  backgroundColor: active
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                  content: Text(active
-                                                      ? 'You are successfully checked-in'
-                                                      : 'You are successfully checked-out'),
-                                                  duration:
-                                                      Duration(seconds: 3),
-                                                ),
-                                              );
-                                              log('Active value : $active');
-                                            },
-                                          )
-                                        : null,
-                                  ),
                                 ],
-                              )
-                            ],
+                              ),
+                            ),
                           ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IntrinsicWidth(
+                              child: ListTile(
+                                  title: Text(_selectedCustomerName.isEmpty
+                                      ? ''
+                                      : _selectedCustomerName),
+                                  leading: _selectedCustomerName.isEmpty
+                                      ? null
+                                      : CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              _selectedCustomerImageUrl.isEmpty
+                                                  ? ''
+                                                  : _selectedCustomerImageUrl),
+                                          backgroundColor:
+                                              _selectedCustomerImageUrl.isEmpty
+                                                  ? Colors.blueGrey
+                                                  : Color.fromARGB(
+                                                      123, 194, 192, 192),
+                                        )),
+                            ),
+                            SizedBox(
+                              height: 40,
+                              child: CustomSwitch(
+                                initialValue: active,
+                                onChanged: (value) {
+                                  active = value;
+                                },
+                                active: active,
+                                selectedName: _selectedCustomerName,
+                              ),
+                              // child: _selectedCustomerName.isNotEmpty
+                              //     ? LiteRollingSwitch(
+                              //         onDoubleTap: () {},
+                              //         onSwipe: () {},
+                              //         value: active,
+                              //         textOn: 'Check-in',
+                              //         textOff: 'Check-out',
+                              //         textOnColor: Colors.white,
+                              //         textOffColor: Colors.white,
+                              //         colorOn: Colors.greenAccent[700]!,
+                              //         colorOff: Colors.redAccent[700]!,
+                              //         width: 120,
+                              //         iconOn: Icons.done,
+                              //         iconOff:
+                              //             Icons.remove_circle_outline,
+                              //         textSize: 12.0,
+                              //         onTap: () {},
+                              //         onChanged: (bool state) {
+                              //           setState(() {
+                              //             active = state;
+                              //           });
+                              //           ScaffoldMessenger.of(context)
+                              //               .showSnackBar(
+                              //             SnackBar(
+                              //               backgroundColor: active
+                              //                   ? Colors.green
+                              //                   : Colors.red,
+                              //               content: Text(active
+                              //                   ? 'You are successfully checked-in'
+                              //                   : 'You are successfully checked-out'),
+                              //               duration:
+                              //                   Duration(seconds: 3),
+                              //             ),
+                              //           );
+                              //           log('Active value : $active');
+                              //         },
+                              //       )
+                              //     : null,
+                            ),
+                          ],
                         )
-                      : Container(),
+                      ],
+                    ),
+                  )
+                  // :
+                  // Container(),
                 ],
               ),
             ),
@@ -728,3 +735,5 @@ class CustomSearchBar extends StatelessWidget {
     );
   }
 }
+
+

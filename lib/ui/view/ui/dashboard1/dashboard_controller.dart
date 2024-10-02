@@ -75,14 +75,14 @@ class DashBoardController extends GetxController {
   TextEditingController communicationController = TextEditingController();
   //Rx<Data> dashbordData = Data().obs;
   SearchModel searchModel = SearchModel();
-  // ignore: unused_field
-  final ApiWorker _apiWorker = ApiWorker();
+  // // ignore: unused_field
+  // final ApiWorker _apiWorker = ApiWorker();
   var dashbordData = ResponseModell().obs;
   var selectedFilter =
-      FilterDateEnum.thisMonth.obs; // observable for the selected filter
+      FilterDateEnum.thisMonth.obs; 
   var selectedStartDate = ''.obs;
   var selectedEndDate = ''.obs;
-  var isLoading = false.obs; // Reactive variable for loading
+  var isLoading = false.obs; 
   var errorMessage = ''.obs;
   var futureResponseModel = Future<ResponseModell>.value(ResponseModell()).obs;
   final _apiService = ApiService();

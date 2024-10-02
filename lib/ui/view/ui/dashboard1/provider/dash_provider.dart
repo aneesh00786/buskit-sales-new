@@ -6,12 +6,14 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
+import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +23,30 @@ import 'dash_models.dart';
 
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
-
+  final Dio dio = Dio();
+   ApiService() {
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+        if (jsonString.isNotEmpty) {
+          Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+          String createdToken = jsonMap['createdToken'];
+          options.headers["Authorization"] = "Bearer $createdToken";
+          log('Authorization Header Set: Bearer $createdToken');
+        }
+        return handler.next(options);
+      },
+      onResponse: (response, handler) {
+        return handler.next(response);
+      },
+      onError: (DioError error, handler) async {
+        if (error.response?.statusCode == 401 || error.response?.statusCode == 400) {
+           _handleTokenExpiration();
+        }
+        return handler.next(error); 
+      },
+    ));
+  }
   Future<ResponseModell> fetchDashboardData(
       {String? salesmanId,
       String? startDate,
@@ -100,16 +125,44 @@ class ApiService {
           topSellingProducts: topSellingProducts,
           orderCountList: orderCountList,
         );
+       } else if (response.statusCode == 400 || response.statusCode == 401) {
+        _handleTokenExpiration();
+        throw Exception('Session expired');
       } else {
-        print('Request failed with status: ${response.statusCode}');
-        throw Exception('Failed to load data');
+        throw Exception('Failed to load data with status code: ${response.statusCode}');
       }
+    } on DioError catch (e) {
+      log('DioError: ${e.response?.statusCode} - ${e.message}');
+      if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
+        _handleTokenExpiration();
+        throw Exception('Session expired');
+      }
+      throw Exception('DioError: ${e.message}');
     } catch (e) {
-      print('Exception occurred: $e');
+      log('Error fetching dashboard data: $e');
       throw Exception('Failed to fetch data: $e');
     }
   }
-
+  void _handleTokenExpiration() async {
+  if (!Get.isDialogOpen!) {
+    await Get.dialog(
+      AlertDialog(
+        title: Text("Session Expired"),
+        content: Text("Your session has expired. Please log in again."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () async {
+              await SessionHelper().clearAll(); 
+              Get.offAllNamed(AppRoutes.login);
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+}
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
     required String startDate,

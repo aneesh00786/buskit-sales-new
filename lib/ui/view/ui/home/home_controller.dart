@@ -32,22 +32,20 @@ class HomeController extends GetxController {
 
   static final GlobalKey<ScaffoldState> homeScaffoldKey =
       GlobalKey<ScaffoldState>();
- final ApiWorker _apiWorker = ApiWorker(); // Create an instance of your API worker
+ final ApiWorker _apiWorker = ApiWorker();
 
   @override
   void onInit() {
     super.onInit();
-    fetchDashboardData(); // Fetch dashboard data on initialization
+    fetchDashboardData();
   }
 
   Future<void> fetchDashboardData() async {
     try {
-      await _apiWorker.dashboardData(); // Call the API method
-      // Handle the data as necessary after successful fetch
+      await _apiWorker.dashboardData();
     } catch (e) {
-      // If an error occurs, check if it's a session expiration
       if (e.toString().contains('Session expired')) {
-        _handleTokenExpiration(); // Show the dialog if token is expired
+        _handleTokenExpiration();
       }
       log('Error fetching dashboard data: $e');
     }
@@ -63,8 +61,8 @@ class HomeController extends GetxController {
             TextButton(
               child: Text("OK"),
               onPressed: () async {
-                await SessionHelper().clearAll(); // Clear session data
-                Get.offAllNamed(AppRoutes.login); // Navigate to login page
+                await SessionHelper().clearAll();
+                Get.offAllNamed(AppRoutes.login);
               },
             ),
           ],

@@ -1,0 +1,122 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:enefty_icons/enefty_icons.dart';
+import 'package:flutter/material.dart';
+
+class CustomSwitch extends StatefulWidget {
+  final bool initialValue;
+  final ValueChanged<bool> onChanged;
+  final bool active;
+  final String selectedName;
+
+  const CustomSwitch({
+    Key? key,
+    required this.initialValue,
+    required this.onChanged,
+    required this.active,
+    required this.selectedName,
+  }) : super(key: key);
+
+  @override
+  _CustomSwitchState createState() => _CustomSwitchState();
+}
+
+class _CustomSwitchState extends State<CustomSwitch> {
+  late bool isOn;
+
+  @override
+  void initState() {
+    super.initState();
+    isOn = widget.initialValue;
+  }
+
+  void _toggleSwitch() {
+    setState(() {
+      isOn = !isOn;
+    });
+    widget.onChanged(isOn);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.selectedName.isNotEmpty
+          ? _toggleSwitch
+          : () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    actions: [
+                      SizedBox(height: 20,),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange,
+                            size: 50,
+                          ),
+                        ),
+                      ),
+                      Center(child: CustomText(content:'Please select a customer to check-in',fontSize: 17,)),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('Ok'))
+                    ],
+                  );
+                },
+              );
+            },
+      child: Container(
+        width: 120.0,
+        height: 50.0,
+        padding: EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25.0),
+          color: isOn ? Colors.green : Colors.red,
+        ),
+        child: Stack(
+          alignment:isOn ? Alignment.centerLeft:Alignment.centerRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: MyRegularText(label: isOn?"Check-in":"Check-out",color: white,fontWeight: FontWeight.w700,),
+            ),
+            AnimatedAlign(
+              duration: Duration(milliseconds: 300),
+              alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
+              curve: Curves.easeInOut,
+              child: Container(
+                width: 40.0,
+                height: 40.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4.0,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Icon(
+                    isOn
+                        ? EneftyIcons.tick_circle_outline
+                        : EneftyIcons.close_circle_outline,
+                    color: isOn ? Colors.green : Colors.red,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

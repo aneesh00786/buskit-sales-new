@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
@@ -52,29 +53,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final fontSize = constraints.maxWidth > 1200
-              ? 14.0
-              : (constraints.maxWidth > 800
-                  ? 12.0
-                  : (constraints.maxWidth > 600
-                      ? 10.0
-                      : (constraints.maxWidth > 400 ? 8.0 : 7.0)));
-          final iconSize = constraints.maxWidth > 1200
-              ? 16.0
-              : (constraints.maxWidth > 800
-                  ? 14.0
-                  : (constraints.maxWidth > 600
-                      ? 12.0
-                      : (constraints.maxWidth > 400 ? 10.0 : 9.0)));
-
-          final columnSpacing = screenWidth > 1200
-              ? screenWidth * 0.05
-              : (screenWidth > 800
-                  ? screenWidth * 0.04
-                  : (screenWidth > 400
-                      ? screenWidth * 0.03
-                      : screenWidth * 0.02));
-
+          final fontSize = constraints.maxWidth/55;
+          final iconSize = constraints.maxWidth / 45;
+          final columnSpacing = screenWidth /40;
           return SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -134,30 +115,28 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: widget.product.imageUrl == null ||
-                                widget.product.imageUrl!.contains('.jpg') ||
-                                widget.product.imageUrl!.contains('.jpeg') ||
-                                widget.product.imageUrl!.contains('.png') ||
-                                widget.product.imageUrl!.contains('.webp')
+                        image: widget.product.imageUrl == null 
                             ? AssetImage('assets/images/otp.png')
                                 as ImageProvider
-                            : NetworkImage(widget.product.imageUrl ?? ''),
+                            : NetworkImage('${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}' ?? ''),
                       ),
                     ),
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                Column(
-                  children: [
-                    Text(
-                      widget.product.productName ?? '',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: screenWidth * 0.03,
+                Padding(
+                  padding:  EdgeInsets.only(left: screenWidth*0.03,right: screenWidth*0.03),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CustomText(
+                       content:  widget.product.productName ?? '',
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth * 0.03,
                       ),
-                    ),
-                    Text('Product ID : ${widget.product.id}'),
-                  ],
+                      CustomText(content: 'Product ID : ${widget.product.id}',fontSize: screenWidth * 0.02,),
+                    ],
+                  ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 Container(

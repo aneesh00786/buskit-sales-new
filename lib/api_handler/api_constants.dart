@@ -1,13 +1,16 @@
 mixin class ApiConstants {
 
   static const String baseUrl = "http://16.50.232.153:3000/";
-  static const String imageBaseUrl = "http://139.59.3.15:1000/uploads/";
+  static const String imageBaseUrl = "${baseUrl}uploads/";
   /// Login APi END Point
   static const String login = "salesman_login";
+  /// Image API end
+  static const String prooduct = "product";
+  static const String customer = "customer";
   /// Dashboard API
   static const String dashboard_list = "dashboard_list";
   static const String search_customer = "search_customer";
-   static const String delete_customer = "delete_customer";
+  static const String delete_customer = "delete_customer";
   static const String fetch_on_salesman = "fetch_on_salesman";
   static const String fetchcustomer = "fetchAllCustomer";
   static const String customer_dashboard_list = "customer_dashboard_list";

@@ -90,7 +90,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
               );
             },
       child: Container(
-        width: 120.0,
+        width: 140.0,
         height: 50.0,
         padding: EdgeInsets.all(4.0),
         decoration: BoxDecoration(
@@ -101,11 +101,12 @@ class _CustomSwitchState extends State<CustomSwitch> {
           alignment: isOn ? Alignment.centerLeft : Alignment.centerRight,
           children: [
             Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: isOn ? EdgeInsets.only(left: 8):EdgeInsets.only(right: 8),
               child: MyRegularText(
                 label: isOn ? "Check-in" : "Check-out",
                 color: white,
                 fontWeight: FontWeight.w700,
+                fontSize: 15,
               ),
             ),
             AnimatedAlign(

@@ -1231,10 +1231,10 @@ class DashboardProvider with ChangeNotifier {
   DashboardProvider({required ApiService apiService, required Logger logger})
       : _apiService = apiService,
         _logger = logger {
-    fetchData();
-    fetchChatData('');
-    fetchOrders();
-    fetchAdminData();
+     fetchData();
+    // fetchChatData('');
+     fetchOrders();
+    // fetchAdminData();
   }
 
   OrderStatus selectedOrderStatus = OrderStatus.preOrder;
@@ -1316,9 +1316,7 @@ class DashboardProvider with ChangeNotifier {
 
         notifyListeners();
 
-        print("Fetching orders for status: $_selectedStatus"); // Debug print
-
-        // You might want to await _orderResponse here if needed
+        print("Fetching orders for status: $_selectedStatus"); 
 
         notifyListeners();
       }
@@ -1380,8 +1378,6 @@ class DashboardProvider with ChangeNotifier {
           (startDate.isEmpty || endDate.isEmpty)) {
         throw Exception('Select both start and end dates');
       }
-
-      // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
@@ -1594,20 +1590,15 @@ class DashboardProvider with ChangeNotifier {
 // }
   void onFilterChanged(FilterDateEnum? selectedFilter) {
     log('on filter changed');
-
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
-
-      // Reset dates if not in range
       if (_selectedFilter != FilterDateEnum.range) {
         _selectedStartDate = '';
         _selectedEndDate = '';
       }
-
-      // Fetch data only if the filter is not a range
       if (_selectedFilter != FilterDateEnum.range) {
         fetchData();
-        // fetchOrders();
+        fetchOrders();
       }
 
       notifyListeners();
@@ -1653,13 +1644,12 @@ class DashboardProvider with ChangeNotifier {
         case FilterDateEnum.range:
           startDate = _selectedStartDate;
           endDate = _selectedEndDate;
-          // Check if start and end dates are both set before fetching
+         
           if (startDate.isEmpty || endDate.isEmpty) {
-            return; // Exit if either date is not set
+            return;
           }
           break;
       }
-
       _futureResponseModel = Future.delayed(Duration(seconds: 2), () {
         Future<ResponseModell> api = _apiService.fetchDashboardData(
           salesmanId: salesmanId,
@@ -1667,16 +1657,9 @@ class DashboardProvider with ChangeNotifier {
           endDate: endDate,
           createdToken: createdToken,
         );
-        log('Future response :++++++++++${api}');
-        return _apiService.fetchDashboardData(
-          salesmanId: salesmanId,
-          startDate: startDate,
-          endDate: endDate,
-          createdToken: createdToken,
-        );
+        //log('Future response :++++++++++${api}');
+        return api;
       });
-      //log('Salesman ID :++++++++++ $salesmanId');
-      // Only fetch orders when not in the range filter, or when both dates are set
       if (_selectedFilter != FilterDateEnum.range) {
         //fetchOrders();
       }

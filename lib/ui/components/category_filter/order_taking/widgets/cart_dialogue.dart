@@ -83,7 +83,7 @@ class _CartDialogueState extends State<CartDialogue> {
           double availableWidth = constraints.maxWidth;
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
-          double columnSpacing = availableWidth / 70;
+          double columnSpacing = availableWidth / 40;
           double rowHeight = availableHeight/10;
           return Column(
             children: [
@@ -357,7 +357,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '${cartItem.detail.packtype}/${cartItem.detail.pieces} Pcs',
+                                                                  '${cartItem.detail.packtype}/ ${cartItem.detail.pieces} Pcs',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -480,7 +480,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: '${total.toDouble()}',
+                                content: '${total.toStringAsFixed(2)}',
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,

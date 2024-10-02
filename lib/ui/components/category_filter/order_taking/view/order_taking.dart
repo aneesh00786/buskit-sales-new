@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/snack_bar_widget.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
@@ -341,7 +342,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                   leading: CircleAvatar(
                                                     backgroundImage:
                                                         NetworkImage(
-                                                            customer.imageUrl ??
+                                                            '${ApiConstants.imageBaseUrl}${customer.imageUrl}' ??
                                                                 ''),
                                                   ),
                                                   title: Text(

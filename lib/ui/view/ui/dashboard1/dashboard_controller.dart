@@ -84,6 +84,8 @@ class DashBoardController extends GetxController {
   var selectedEndDate = ''.obs;
   var isLoading = false.obs; 
   var errorMessage = ''.obs;
+  var allCategory = <Category>[].obs;
+  var categoryPerformance = <CategoryPerformancee>[].obs;
   var futureResponseModel = Future<ResponseModell>.value(ResponseModell()).obs;
   final _apiService = ApiService();
   Future<void> fetchDashboardData() async {

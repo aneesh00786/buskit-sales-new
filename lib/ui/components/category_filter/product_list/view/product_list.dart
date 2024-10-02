@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -29,16 +30,18 @@ class _ProductGridState extends State<ProductGrid> {
   late List<ProductModel> products;
   String? name;
   bool isLoading = true;
-    bool hasInternet = true;
+  bool hasInternet = true;
   @override
   void initState() {
     super.initState();
-     _checkInternetConnection();
+    _checkInternetConnection();
     //_fetchInitialProducts();
     log('Option name : ${widget.optionName}');
   }
-    Future<void> _checkInternetConnection() async {
-    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+
+  Future<void> _checkInternetConnection() async {
+    final List<ConnectivityResult> connectivityResult =
+        await (Connectivity().checkConnectivity());
     hasInternet = !connectivityResult.contains(ConnectivityResult.none);
     log('Has Internet: $hasInternet');
 
@@ -48,8 +51,11 @@ class _ProductGridState extends State<ProductGrid> {
       _loadProductsFromHive();
     }
   }
-    Future<void> _loadProductsFromHive() async {
-    var productBox = Hive.isBoxOpen('products') ? Hive.box<ProductModel>('products') : await Hive.openBox<ProductModel>('products');
+
+  Future<void> _loadProductsFromHive() async {
+    var productBox = Hive.isBoxOpen('products')
+        ? Hive.box<ProductModel>('products')
+        : await Hive.openBox<ProductModel>('products');
     if (productBox.isNotEmpty) {
       setState(() {
         products = productBox.values.toList();
@@ -88,7 +94,7 @@ class _ProductGridState extends State<ProductGrid> {
       });
     }
   }
-  
+
   Future<void> _fetchProductsByCategory(String categoryId) async {
     setState(() {
       isLoading = true;
@@ -117,7 +123,7 @@ class _ProductGridState extends State<ProductGrid> {
             final double fontSize =
                 (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
             return Text(
-              widget.optionName.isEmpty ? name??'' : widget.optionName,
+              widget.optionName.isEmpty ? name ?? '' : widget.optionName,
               style: GoogleFonts.poppins(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
@@ -151,8 +157,6 @@ class _ProductGridState extends State<ProductGrid> {
                                 constraints.maxHeight * 0.45;
                             final double nameFontSize =
                                 (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
-                            final double priceFontSize =
-                                (constraints.maxWidth * 0.05).clamp(10.0, 14.0);
                             final double stockFontSize =
                                 (constraints.maxWidth * 0.04).clamp(8, 12.0);
                             int pieces = 0;
@@ -191,8 +195,9 @@ class _ProductGridState extends State<ProductGrid> {
                                     .reduce((a, b) => a > b ? a : b)
                                 : 0.0;
                             String firstSellPrice =
-                                smallestSellPrice.toString();
-                            String lastSellPrice = largestSellPrice.toString();
+                                smallestSellPrice.toStringAsFixed(0);
+                            String lastSellPrice =
+                                largestSellPrice.toStringAsFixed(0);
                             num lowstockItem = 0;
                             num stock = 0;
                             num lowstock = 0;
@@ -223,20 +228,15 @@ class _ProductGridState extends State<ProductGrid> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Container(
-                                        color: Colors.blueGrey,
+                                        color: const Color.fromARGB(
+                                            255, 247, 247, 247),
                                         height: imageHeight,
                                         width: double.maxFinite,
-                                        child: product.imageUrl == null ||
-                                                product.imageUrl!
-                                                    .contains('.jpg') ||
-                                                product.imageUrl!
-                                                    .contains('.png') ||
-                                                product.imageUrl!
-                                                    .contains('.jpeg')
-                                            ? Image.asset(
-                                                'assets/images/otp.png')
-                                            : Image.network(
-                                                product.imageUrl ?? '')),
+                                        child: product.imageUrl != null
+                                            ? Image.network(
+                                                '${ApiConstants.imageBaseUrl}/${product.imageUrl}')
+                                            : Image.asset(
+                                                'assets/images/otp.png')),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
@@ -296,7 +296,9 @@ class _ProductGridState extends State<ProductGrid> {
                                           ),
                                           const Spacer(),
                                           Text(
-                                            '\$${firstSellPrice} - $lastSellPrice',
+                                            product.detail!.length > 1
+                                                ? '\$${firstSellPrice} - $lastSellPrice'
+                                                : '${firstSellPrice}',
                                             style: GoogleFonts.poppins(
                                               fontSize: 9,
                                               fontWeight: FontWeight.w600,
@@ -346,7 +348,9 @@ class _ProductGridState extends State<ProductGrid> {
                                           ),
                                           const SizedBox(width: 5),
                                           Text(
-                                            '\$${firstTotal}(${pieces}pcs) - ${lastTotal}(${pieces}pcs)',
+                                            product.detail!.length > 1
+                                                ? '\$${firstTotal}(${pieces}pcs) - ${lastTotal}(${pieces}pcs)'
+                                                : '\$${firstTotal}(${pieces}pcs)',
                                             style: GoogleFonts.poppins(
                                                 fontSize: stockFontSize,
                                                 fontWeight: FontWeight.w600),

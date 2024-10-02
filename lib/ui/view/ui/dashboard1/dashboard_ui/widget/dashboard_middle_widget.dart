@@ -1592,20 +1592,13 @@ class _CommunicationsDisplayWidgetState
                                       ),
                                       MyRegularText(
                                         label: chat.message ?? '',
-                                        // fontWeight:
-                                        //     NkGeneralSize.nkBoldFontWeight(),
                                         fontSize: 10,
                                         color: secondaryTextColor,
                                       ),
                                     ],
                                   ),
                                 ),
-                                // trailing: Checkbox(
-                                //   value: provider.selectedChats.contains(chat),
-                                //   onChanged: (bool? value) {
-                                //     provider.toggleChatSelection(chat);
-                                //   },
-                                // ),
+
                                 onTap: () {
                                   provider.selectChat(chat);
                                   showDialog(
@@ -1729,77 +1722,6 @@ class _CommunicationsDisplayWidgetState
                                                     ),
                                                   ],
                                                 ),
-                                                // Container(
-                                                //   padding:
-                                                //       const EdgeInsets.all(4.8),
-                                                //   decoration: const BoxDecoration(
-                                                //     color: primaryColor,
-                                                //     borderRadius:
-                                                //         BorderRadius.only(
-                                                //       topLeft:
-                                                //           Radius.circular(10),
-                                                //       topRight:
-                                                //           Radius.circular(10),
-                                                //     ),
-                                                //   ),
-                                                //   child: Row(
-                                                //     mainAxisAlignment:
-                                                //         MainAxisAlignment
-                                                //             .spaceBetween,
-                                                //     children: [
-                                                //       Text(
-                                                //         chat.fullname,
-                                                //         style: const TextStyle(
-                                                //           color: Colors.white,
-                                                //           fontSize: 17.5,
-                                                //         ),
-                                                //       ),
-                                                //       CircleAvatar(
-                                                //         backgroundColor:
-                                                //             Colors.transparent,
-                                                //         child: SizedBox(
-                                                //           width: 25.8,
-                                                //           height: 25.8,
-                                                //           child: Container(
-                                                //             decoration:
-                                                //                 BoxDecoration(
-                                                //               shape:
-                                                //                   BoxShape.circle,
-                                                //               border: Border.all(
-                                                //                 color: Colors.red,
-                                                //               ),
-                                                //             ),
-                                                //             child: Padding(
-                                                //               padding:
-                                                //                   const EdgeInsets
-                                                //                       .all(3.5),
-                                                //               child: IconButton(
-                                                //                   icon:
-                                                //                       const Icon(
-                                                //                     Icons.close,
-                                                //                     color: Colors
-                                                //                         .red,
-                                                //                     size: 16,
-                                                //                   ),
-                                                //                   padding:
-                                                //                       EdgeInsets
-                                                //                           .zero,
-                                                //                   constraints:
-                                                //                       const BoxConstraints(),
-                                                //                   onPressed: () {
-                                                // Navigator.of(
-                                                //         context)
-                                                //     .pop();
-                                                // provider
-                                                //     .clearSelectedChat();
-                                                //                   }),
-                                                //             ),
-                                                //           ),
-                                                //         ),
-                                                //       )
-                                                //     ],
-                                                //   ),
-                                                // ),
                                                 SizedBox(height: 5),
                                                 Divider(),
                                                 Expanded(
@@ -1855,21 +1777,6 @@ class _CommunicationsDisplayWidgetState
                     maxLines: 1,
                   ),
                 ),
-
-                //  Container(
-                //       decoration: BoxDecoration(
-                //         border: Border.all(color: secondaryTextColor, width: 2.0),
-                //         borderRadius: BorderRadius.circular(10.0),
-                //       ),
-                //       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                //       child: TextField(
-                //         controller: _messageController,
-                //         decoration: InputDecoration(
-                //           hintText: 'Enter message',
-                //           border: InputBorder.none, // Remove the default border
-                //         ),
-                //       ),
-                //     ),
               ),
               IconButton(
                 icon: const Icon(
@@ -2096,7 +2003,7 @@ class _CommunicationsDisplayWidgetState
                                                                         shape: BoxShape
                                                                             .circle,
                                                                         color: Color(
-                                                                            0xffe6ecff), // Background color
+                                                                            0xffe6ecff), 
                                                                       ),
                                                                       child:
                                                                           const Icon(

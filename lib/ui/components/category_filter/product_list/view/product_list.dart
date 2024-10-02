@@ -195,9 +195,9 @@ class _ProductGridState extends State<ProductGrid> {
                                     .reduce((a, b) => a > b ? a : b)
                                 : 0.0;
                             String firstSellPrice =
-                                smallestSellPrice.toStringAsFixed(0);
+                                smallestSellPrice.toStringAsFixed(2);
                             String lastSellPrice =
-                                largestSellPrice.toStringAsFixed(0);
+                                largestSellPrice.toStringAsFixed(2);
                             num lowstockItem = 0;
                             num stock = 0;
                             num lowstock = 0;
@@ -297,8 +297,8 @@ class _ProductGridState extends State<ProductGrid> {
                                           const Spacer(),
                                           Text(
                                             product.detail!.length > 1
-                                                ? '\$${firstSellPrice} - $lastSellPrice'
-                                                : '${firstSellPrice}',
+                                                ? '\$ ${firstSellPrice} - $lastSellPrice'
+                                                : '\$ ${firstSellPrice}',
                                             style: GoogleFonts.poppins(
                                               fontSize: 9,
                                               fontWeight: FontWeight.w600,
@@ -349,8 +349,8 @@ class _ProductGridState extends State<ProductGrid> {
                                           const SizedBox(width: 5),
                                           Text(
                                             product.detail!.length > 1
-                                                ? '\$${firstTotal}(${pieces} pcs) - ${lastTotal}(${pieces} pcs)'
-                                                : '\$${firstTotal}(${pieces} pcs)',
+                                                ? '\$ ${firstTotal?.toStringAsFixed(2)}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)'
+                                                : '\$ ${firstTotal?.toStringAsFixed(2)}(${pieces} pcs)',
                                             style: GoogleFonts.poppins(
                                                 fontSize: stockFontSize,
                                                 fontWeight: FontWeight.w600),

@@ -47,7 +47,12 @@ class DashboardTopWidget extends StatelessWidget {
         SizedBox(height: 10),
         Obx(() {
           if (dashBoardController.isLoading.value) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+        child: SpinKitFadingCube(
+          color: primaryColor,
+          size: 20.0,
+        ),
+      );;
           }
           if (dashBoardController.errorMessage.value.isNotEmpty) {
             log('Error: ${dashBoardController.errorMessage.value}');

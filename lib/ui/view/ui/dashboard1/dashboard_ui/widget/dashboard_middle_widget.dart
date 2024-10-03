@@ -44,7 +44,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
     bool isMobile = screenWidth < 600;
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height, 
+      height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: isMobile
           ? SingleChildScrollView(
@@ -128,176 +128,173 @@ class DashBoardMiddleWidget extends StatelessWidget {
             style: cardHeadingTextStyle,
           ),
           nkSmallSizeBox(),
-          Expanded(child: Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, AsyncSnapshot<ResponseModell> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor, 
-                        size: 20.0, 
+          Expanded(
+            child: Obx(() {
+              if (dashBoardController.isLoading.value) {
+                return const Center(
+                  child: SpinKitFadingCube(
+                    color: primaryColor,
+                    size: 20.0,
+                  ),
+                );
+              } else if (dashBoardController.errorMessage.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 50, color: Colors.red),
+                      SizedBox(height: 10),
+                      Text(
+                        "Our servers are currently down for maintenance. "
+                        "We’re working to resolve the issue as quickly as possible. "
+                        "Please check back soon, and thank you for your understanding. "
+                        "${dashBoardController.errorMessage.value}",
+                        textAlign: TextAlign.center,
                       ),
-                    );
-                  } else if (snapshot.hasError) {
-                    log('Snapshot Error collectionChart ==========${snapshot.error}');
-                    log('Snapshot Data collectionChart ==========${snapshot.data}');
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline,
-                              size: 50, color: Colors.red),
-                          SizedBox(height: 10),
-                          Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.${snapshot.error}",
-                              textAlign: TextAlign.center),
-                        ],
-                      ),
-                    );
-                  } else if (!snapshot.hasData) {
-                    return const Center(child: Text('No data available'));
-                  } else {
-                    final responseModel = snapshot.data!;
-                    // Calculate the total amounts
-                    final totalCompletedAmount = responseModel
-                        .collection?.payment?.completedOrders
-                        ?.fold(0.0, (sum, order) => sum + order.orderTotal);
+                    ],
+                  ),
+                );
+              } else if (dashBoardController.dashbordData.value == null) {
+                return const Center(child: Text('No data available'));
+              } else {
+                final responseModel = dashBoardController.dashbordData.value!;
+                final totalCompletedAmount = responseModel
+                    .collection?.payment?.completedOrders
+                    ?.fold(0.0, (sum, order) => sum + order.orderTotal);
 
-                    final pendingAmountLabel = responseModel
-                            .collection!.order!.pendingAmount!.isNotEmpty
-                        ? 'Pending : \$${responseModel.collection!.order?.pendingAmount?.last.amount}'
-                        : 'Pending : \$0.00';
-                    final dueAmountLabel = responseModel
-                            .collection!.order!.pendingAmount!.isNotEmpty
-                        ? 'Due : \$${responseModel.collection!.order?.pendingAmount?.last.dueAmount}'
-                        : 'Due : \$0.00';
+                final pendingAmountLabel = responseModel
+                            .collection?.order?.pendingAmount?.isNotEmpty ??
+                        false
+                    ? 'Pending : \$${responseModel.collection!.order?.pendingAmount?.last.amount}'
+                    : 'Pending : \$0.00';
 
-                    final overdueAmountLabel = responseModel
-                            .collection!.order!.pendingAmount!.isNotEmpty
-                        ? 'Overdue : \$${responseModel.collection!.order?.pendingAmount?.last.overDue}'
-                        : 'Overdue : \$0.00';
-                    final completedOrdersLabel =
-                        'Completed : \$${totalCompletedAmount?.toStringAsFixed(0)}';
-                    return NestedPieChartj(
-                      sabik: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: ResponsiveInfo.isMobileDimension(context)
-                                ? 11.5
-                                : 11.9,
-                            width: ResponsiveInfo.isMobileDimension(context)
-                                ? 14.9
-                                : 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color(0xff4f6c18),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: completedOrdersLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).orientation ==
-                                    Orientation.portrait
-                                ? (ResponsiveInfo.isMobileDimension(context)
-                                    ? 6.2
-                                    : 8.3)
-                                : (ResponsiveInfo.isMobileDimension(context)
-                                    ? 7
-                                    : 8.3),
-                          ),
-                          Container(
-                            height: ResponsiveInfo.isMobileDimension(context)
-                                ? 11.5
-                                : 11.9,
-                            width: ResponsiveInfo.isMobileDimension(context)
-                                ? 14.9
-                                : 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color(0xffa30c13),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: pendingAmountLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                        ],
+                final dueAmountLabel = responseModel
+                            .collection?.order?.pendingAmount?.isNotEmpty ??
+                        false
+                    ? 'Due : \$${responseModel.collection!.order?.pendingAmount?.last.dueAmount}'
+                    : 'Due : \$0.00';
+
+                final overdueAmountLabel = responseModel
+                            .collection?.order?.pendingAmount?.isNotEmpty ??
+                        false
+                    ? 'Overdue : \$${responseModel.collection!.order?.pendingAmount?.last.overDue}'
+                    : 'Overdue : \$0.00';
+
+                final completedOrdersLabel =
+                    'Completed : \$${totalCompletedAmount?.toStringAsFixed(0)}';
+
+                return NestedPieChartj(
+                  sabik: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: ResponsiveInfo.isMobileDimension(context)
+                            ? 11.5
+                            : 11.9,
+                        width: ResponsiveInfo.isMobileDimension(context)
+                            ? 14.9
+                            : 14.9,
+                        decoration: const BoxDecoration(
+                          color: Color(0xff4f6c18),
+                          borderRadius: BorderRadius.all(Radius.circular(1.0)),
+                        ),
                       ),
-                      sabi2: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: ResponsiveInfo.isMobileDimension(context)
-                                ? 11.5
-                                : 11.9,
-                            width: ResponsiveInfo.isMobileDimension(context)
-                                ? 14.9
-                                : 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color(0xfff4b26a),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: dueAmountLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).orientation ==
-                                    Orientation.portrait
-                                ? (ResponsiveInfo.isMobileDimension(context)
-                                    ? 6.2
-                                    : 8.3)
-                                : (ResponsiveInfo.isMobileDimension(context)
-                                    ? 7
-                                    : 8.3),
-                          ),
-                          Container(
-                            height: ResponsiveInfo.isMobileDimension(context)
-                                ? 11.5
-                                : 11.9,
-                            width: ResponsiveInfo.isMobileDimension(context)
-                                ? 14.9
-                                : 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color(0xffcc8f3d),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: overdueAmountLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                        ],
+                      const SizedBox(width: 2),
+                      MyRegularText(
+                        label: completedOrdersLabel,
+                        fontSize: 11.6,
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
                       ),
-                      collection: responseModel.collection!,
-                    );
-                  }
-                },
-              );
-            },
-          )),
+                      SizedBox(
+                        width: MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                            ? (ResponsiveInfo.isMobileDimension(context)
+                                ? 6.2
+                                : 8.3)
+                            : (ResponsiveInfo.isMobileDimension(context)
+                                ? 7
+                                : 8.3),
+                      ),
+                      Container(
+                        height: ResponsiveInfo.isMobileDimension(context)
+                            ? 11.5
+                            : 11.9,
+                        width: ResponsiveInfo.isMobileDimension(context)
+                            ? 14.9
+                            : 14.9,
+                        decoration: const BoxDecoration(
+                          color: Color(0xffa30c13),
+                          borderRadius: BorderRadius.all(Radius.circular(1.0)),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      MyRegularText(
+                        label: pendingAmountLabel,
+                        fontSize: 11.6,
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                      ),
+                    ],
+                  ),
+                  sabi2: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: ResponsiveInfo.isMobileDimension(context)
+                            ? 11.5
+                            : 11.9,
+                        width: ResponsiveInfo.isMobileDimension(context)
+                            ? 14.9
+                            : 14.9,
+                        decoration: const BoxDecoration(
+                          color: Color(0xfff4b26a),
+                          borderRadius: BorderRadius.all(Radius.circular(1.0)),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      MyRegularText(
+                        label: dueAmountLabel,
+                        fontSize: 11.6,
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                            ? (ResponsiveInfo.isMobileDimension(context)
+                                ? 6.2
+                                : 8.3)
+                            : (ResponsiveInfo.isMobileDimension(context)
+                                ? 7
+                                : 8.3),
+                      ),
+                      Container(
+                        height: ResponsiveInfo.isMobileDimension(context)
+                            ? 11.5
+                            : 11.9,
+                        width: ResponsiveInfo.isMobileDimension(context)
+                            ? 14.9
+                            : 14.9,
+                        decoration: const BoxDecoration(
+                          color: Color(0xffcc8f3d),
+                          borderRadius: BorderRadius.all(Radius.circular(1.0)),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      MyRegularText(
+                        label: overdueAmountLabel,
+                        fontSize: 11.6,
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                      ),
+                    ],
+                  ),
+                  collection: responseModel.collection!,
+                );
+              }
+            }),
+          )
 
           //    nkMediumSizeBox()
         ],
@@ -319,174 +316,168 @@ class DashBoardMiddleWidget extends StatelessWidget {
             'Order Status',
             style: cardHeadingTextStyle,
           ),
-          Expanded(child: Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
+          Expanded(
+            child: Obx(() {
+              if (dashBoardController.isLoading.value) {
+                return const Center(
+                  child: SpinKitFadingCube(
+                    color: primaryColor,
+                    size: 20.0,
+                  ),
+                );
+              } else if (dashBoardController.errorMessage.isNotEmpty) {
+                log('Error: ${dashBoardController.errorMessage.value}');
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.error_outline, size: 50, color: Colors.red),
+                      SizedBox(height: 10),
+                      Text(
+                        "Our servers are currently down for maintenance. "
+                        "We’re working to resolve the issue as quickly as possible. "
+                        "Please check back soon, and thank you for your understanding.",
+                        textAlign: TextAlign.center,
                       ),
-                    );
-                  } else if (snapshot.hasError) {
-                    log('Snapshot Error orderDeliveryChart ==========${snapshot.error}');
-                    log('Snapshot Data orderDeliveryChart ==========${snapshot.data}');
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.error_outline,
-                              size: 50, color: Colors.red),
-                          SizedBox(height: 10),
-                          Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                              textAlign: TextAlign.center),
-                        ],
-                      ),
-                    );
-                  } else if (snapshot.hasData) {
-                    log('Snapshot Error collectionChart ==========${snapshot.error}');
-                    log('Snapshot Data collectionChart ==========${snapshot.data}');
-                    final categories = snapshot.data!.allCategory;
-                    final categoryPerformance = snapshot.data!.delivery;
-                    if (categoryPerformance == null ||
-                        categoryPerformance.order!.totalOrders!.isEmpty) {
-                      return const Center(child: Text('No data available'));
-                    }
+                    ],
+                  ),
+                );
+              } else if (dashBoardController.dashbordData.value == null) {
+                return const Center(child: Text('No data available'));
+              } else {
+                final categoryPerformance =
+                    dashBoardController.dashbordData.value.delivery;
+                if (categoryPerformance == null ||
+                    categoryPerformance.order!.totalOrders!.isEmpty) {
+                  return const Center(child: Text('No data available'));
+                }
 
-                    return Center(
-                      child: DoughnutDefaultDelivery(
-                        deliveryData: categoryPerformance,
-                        aColor: const Color(0xff142b33),
-                        bColor: const Color(0xff4455dd),
-                        sabik: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xffc38a42),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Out for delivery : \$${categoryPerformance.order!.totalOrders?.last.outForDelivery}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).orientation ==
-                                      Orientation.portrait
-                                  ? (ResponsiveInfo.isMobileDimension(context)
-                                      ? 6.2
-                                      : 8.3)
-                                  : (ResponsiveInfo.isMobileDimension(context)
-                                      ? 7
-                                      : 8.3),
-                            ),
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff33b4a8),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Delivered : \$${categoryPerformance.order?.totalOrders?.last.delivered}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                          ],
+                return Center(
+                  child: DoughnutDefaultDelivery(
+                    deliveryData: categoryPerformance,
+                    aColor: const Color(0xff142b33),
+                    bColor: const Color(0xff4455dd),
+                    sabik: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: ResponsiveInfo.isMobileDimension(context)
+                              ? 11.5
+                              : 11.9,
+                          width: ResponsiveInfo.isMobileDimension(context)
+                              ? 14.9
+                              : 14.9,
+                          decoration: const BoxDecoration(
+                            color: Color(0xffc38a42),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(1.0)),
+                          ),
                         ),
-                        sabik1: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff142b33),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Processing : \$${categoryPerformance.order?.totalOrders?.last.orderProcessing}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).orientation ==
-                                      Orientation.portrait
-                                  ? (ResponsiveInfo.isMobileDimension(context)
-                                      ? 6.2
-                                      : 8.3)
-                                  : (ResponsiveInfo.isMobileDimension(context)
-                                      ? 7
-                                      : 8.3),
-                            ),
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff4455dd),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Packed for delivery : \$${categoryPerformance.order?.totalOrders?.last.packedForDelivery}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                          ],
+                        const SizedBox(width: 2),
+                        MyRegularText(
+                          label:
+                              "Out for delivery : \$${categoryPerformance.order!.totalOrders?.last.outForDelivery}",
+                          fontSize: 11.6,
+                          fontWeight: FontWeight.w600,
+                          color: secondaryTextColor,
                         ),
-                        cColor: const Color(0xffcc8f3d),
-                        dColor: const Color(0xff33b4a8),
-                      ),
-                    );
-                  } else {
-                    return const Center(child: Text('No data available'));
-                  }
-                },
-              );
-            },
-          ))
+                        SizedBox(
+                          width: MediaQuery.of(context).orientation ==
+                                  Orientation.portrait
+                              ? (ResponsiveInfo.isMobileDimension(context)
+                                  ? 6.2
+                                  : 8.3)
+                              : (ResponsiveInfo.isMobileDimension(context)
+                                  ? 7
+                                  : 8.3),
+                        ),
+                        Container(
+                          height: ResponsiveInfo.isMobileDimension(context)
+                              ? 11.5
+                              : 11.9,
+                          width: ResponsiveInfo.isMobileDimension(context)
+                              ? 14.9
+                              : 14.9,
+                          decoration: const BoxDecoration(
+                            color: Color(0xff33b4a8),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(1.0)),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        MyRegularText(
+                          label:
+                              "Delivered : \$${categoryPerformance.order?.totalOrders?.last.delivered}",
+                          fontSize: 11.6,
+                          fontWeight: FontWeight.w600,
+                          color: secondaryTextColor,
+                        ),
+                      ],
+                    ),
+                    sabik1: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: ResponsiveInfo.isMobileDimension(context)
+                              ? 11.5
+                              : 11.9,
+                          width: ResponsiveInfo.isMobileDimension(context)
+                              ? 14.9
+                              : 14.9,
+                          decoration: const BoxDecoration(
+                            color: Color(0xff142b33),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(1.0)),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        MyRegularText(
+                          label:
+                              "Processing : \$${categoryPerformance.order?.totalOrders?.last.orderProcessing}",
+                          fontSize: 11.6,
+                          fontWeight: FontWeight.w600,
+                          color: secondaryTextColor,
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).orientation ==
+                                  Orientation.portrait
+                              ? (ResponsiveInfo.isMobileDimension(context)
+                                  ? 6.2
+                                  : 8.3)
+                              : (ResponsiveInfo.isMobileDimension(context)
+                                  ? 7
+                                  : 8.3),
+                        ),
+                        Container(
+                          height: ResponsiveInfo.isMobileDimension(context)
+                              ? 11.5
+                              : 11.9,
+                          width: ResponsiveInfo.isMobileDimension(context)
+                              ? 14.9
+                              : 14.9,
+                          decoration: const BoxDecoration(
+                            color: Color(0xff4455dd),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(1.0)),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        MyRegularText(
+                          label:
+                              "Packed for delivery : \$${categoryPerformance.order?.totalOrders?.last.packedForDelivery}",
+                          fontSize: 11.6,
+                          fontWeight: FontWeight.w600,
+                          color: secondaryTextColor,
+                        ),
+                      ],
+                    ),
+                    cColor: const Color(0xffcc8f3d),
+                    dColor: const Color(0xff33b4a8),
+                  ),
+                );
+              }
+            }),
+          )
         ],
       ),
     );
@@ -510,207 +501,197 @@ class DashBoardMiddleWidget extends StatelessWidget {
             ),
             nkMediumSizeBox(),
             Expanded(
-              child: Consumer<DashboardProvider>(
-                builder: (context, provider, child) {
-                  return FutureBuilder<ResponseModell>(
-                    future: provider.futureResponseModel,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: SpinKitFadingCube(
-                            color: primaryColor,
-                            size: 20.0,
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        log('Snapshot Error ==========${snapshot.error}');
-                        log('Snapshot Data middleTopLeftComponet ==========${snapshot.data}');
-                        final errorMessage = snapshot.error.toString();
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.error_outline,
-                                  size: 50, color: Colors.red),
-                              Text(
-                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
-                            ],
-                          ),
-                        );
-                      } else if (snapshot.hasData) {
-                        final categories = snapshot.data!.allCategory;
-                        final categoryPerformance =
-                            snapshot.data!.categoryPerformance;
-
-                        return Center(
-                          child: CustomBarChart(
-                            categoryPerformance: categoryPerformance!,
-                            allCategory: categories!,
-                          ),
-                        );
-                      } else {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.info_outline,
-                                  size: 50, color: Colors.grey),
-                              Text('No data available'),
-                            ],
-                          ),
-                        );
-                      }
-                    },
+              child: Obx(() {
+                if (dashBoardController.isLoading.value) {
+                  return const Center(
+                    child: SpinKitFadingCube(
+                      color: primaryColor,
+                      size: 20.0,
+                    ),
                   );
-                },
-              ),
-            )
+                } else if (dashBoardController.errorMessage.isNotEmpty) {
+                  log('Error: ${dashBoardController.errorMessage.value}');
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.error_outline, size: 50, color: Colors.red),
+                        Text(
+                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
+                      ],
+                    ),
+                  );
+                } else if (dashBoardController.dashbordData.value == null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.info_outline, size: 50, color: Colors.grey),
+                        Text('No data available'),
+                      ],
+                    ),
+                  );
+                } else {
+                  final categories =
+                      dashBoardController.dashbordData.value.allCategory;
+                  final categoryPerformance = dashBoardController
+                      .dashbordData.value.categoryPerformance;
+                  return Center(
+                    child: CustomBarChart(
+                      categoryPerformance: categoryPerformance!,
+                      allCategory: categories!,
+                    ),
+                  );
+                }
+              }),
+            ),
           ],
         ));
   }
 
-Widget middleTopRightComponent() {
-  return MyCommnonContainer(
-    color: Colors.white,
-    height: 280,
-    width: double.infinity,
-    isCommonBorder: true,
-    padding: nkRegularPadding(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Revenue',
-          style: cardHeadingTextStyle,
-        ),
-        Expanded(
-          child: Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.error_outline, size: 50, color: Colors.red),
-                          SizedBox(height: 10),
-                          Text(
-                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  } else if (snapshot.hasData) {
-                    final revenueData = snapshot.data!.revenue;
-                    if (revenueData == null) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.info_outline, size: 50, color: Colors.grey),
-                            SizedBox(height: 10),
-                            Text('No data available'),
-                          ],
-                        ),
-                      );
-                    }
-
-                    final bookingRevenueLength =
-                        revenueData.bookingRevenueData != null &&
-                                revenueData.bookingRevenueData!.isNotEmpty
-                            ? revenueData.bookingRevenueData!.last.total ?? 0.0
-                            : 0.0;
-                    log('Booking Revenue : $bookingRevenueLength');
-
-                    final orderRevenueLast =
-                        revenueData.orderRevenueData != null &&
-                                revenueData.orderRevenueData!.isNotEmpty
-                            ? revenueData.orderRevenueData!.last.totalOrderRevenue?.toDouble() ?? 0.0
-                            : 0.0;
-                    log('Order Revenue : $orderRevenueLast');
-
-                    return Center(
-                      child: DoughnutDefault(
-                        categoryData: revenueData,
-                        booking: "Booking : \$${bookingRevenueLength.toStringAsFixed(0)}",
-                        order: "Order : \$${orderRevenueLast.toStringAsFixed(0)}",
-                        aColor: const Color.fromARGB(255, 125, 65, 255),
-                        bColor: const Color(0xff1d3d63),
-                        sabik: SizedBox.shrink(),
-                        sabik1: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff1d3d63),
-                                borderRadius: BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label: 'Booking : \$${bookingRevenueLength.toStringAsFixed(0)}',
-                              color: secondaryTextColor,
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            SizedBox(
-                              width: (MediaQuery.of(context).orientation == Orientation.portrait)
-                                  ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 8.3)
-                                  : (ResponsiveInfo.isMobileDimension(context) ? 7 : 8.3),
-                            ),
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 125, 65, 255),
-                                borderRadius: BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label: 'Order : \$${orderRevenueLast.toStringAsFixed(0)}',
-                              color: secondaryTextColor,
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  } else {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.info_outline, size: 50, color: Colors.grey),
-                          SizedBox(height: 10),
-                          Text('No data available'),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              );
-            },
+  Widget middleTopRightComponent() {
+    return MyCommnonContainer(
+      color: Colors.white,
+      height: 280,
+      width: double.infinity,
+      isCommonBorder: true,
+      padding: nkRegularPadding(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Revenue',
+            style: cardHeadingTextStyle,
           ),
-        ),
-      ],
-    ),
-  );
-}
+          Expanded(
+            child: Obx(() {
+              if (dashBoardController.isLoading.value) {
+                return Center(
+                  child: SpinKitFadingCube(
+                    color: primaryColor,
+                    size: 20.0,
+                  ),
+                );
+              } else if (dashBoardController.errorMessage.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.error_outline, size: 50, color: Colors.red),
+                      SizedBox(height: 10),
+                      Text(
+                        "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              } else if (dashBoardController.dashbordData.value.revenue ==
+                  null) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.info_outline, size: 50, color: Colors.grey),
+                      SizedBox(height: 10),
+                      Text('No data available'),
+                    ],
+                  ),
+                );
+              } else {
+                final bookingRevenueLength = dashBoardController.dashbordData
+                            .value.revenue!.bookingRevenueData?.isNotEmpty ??
+                        false
+                    ? dashBoardController.dashbordData.value.revenue!
+                            .bookingRevenueData!.last.total ??
+                        0.0
+                    : 0.0;
 
+                final orderRevenueLast = dashBoardController.dashbordData.value
+                            .revenue!.orderRevenueData?.isNotEmpty ??
+                        false
+                    ? dashBoardController.dashbordData.value.revenue!
+                            .orderRevenueData!.last.totalOrderRevenue
+                            ?.toDouble() ??
+                        0.0
+                    : 0.0;
+
+                return Center(
+                  child: DoughnutDefault(
+                    categoryData:
+                        dashBoardController.dashbordData.value.revenue!,
+                    booking:
+                        "Booking : \$${bookingRevenueLength.toStringAsFixed(0)}",
+                    order: "Order : \$${orderRevenueLast.toStringAsFixed(0)}",
+                    aColor: const Color.fromARGB(255, 125, 65, 255),
+                    bColor: const Color(0xff1d3d63),
+                    sabik: SizedBox.shrink(),
+                    sabik1: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: ResponsiveInfo.isMobileDimension(context)
+                              ? 11.5
+                              : 11.9,
+                          width: ResponsiveInfo.isMobileDimension(context)
+                              ? 14.9
+                              : 14.9,
+                          decoration: const BoxDecoration(
+                            color: Color(0xff1d3d63),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(1.0)),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        MyRegularText(
+                          label:
+                              'Booking : \$${bookingRevenueLength.toStringAsFixed(0)}',
+                          color: secondaryTextColor,
+                          fontSize: 11.6,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).orientation ==
+                                  Orientation.portrait
+                              ? (ResponsiveInfo.isMobileDimension(context)
+                                  ? 6.2
+                                  : 8.3)
+                              : (ResponsiveInfo.isMobileDimension(context)
+                                  ? 7
+                                  : 8.3),
+                        ),
+                        Container(
+                          height: ResponsiveInfo.isMobileDimension(context)
+                              ? 11.5
+                              : 11.9,
+                          width: ResponsiveInfo.isMobileDimension(context)
+                              ? 14.9
+                              : 14.9,
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 125, 65, 255),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(1.0)),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        MyRegularText(
+                          label:
+                              'Order : \$${orderRevenueLast.toStringAsFixed(0)}',
+                          color: secondaryTextColor,
+                          fontSize: 11.6,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            }),
+          )
+        ],
+      ),
+    );
+  }
 
   Widget sendReply(DashboardProvider provider) {
     double iconSize = 20.0;
@@ -888,7 +869,7 @@ Widget middleTopRightComponent() {
                   headingRowHeight: 40,
                   columnSpacing: 10,
                   dividerThickness: 0.0,
-                  border: TableBorder.all(color: Colors.white,width: 0),
+                  border: TableBorder.all(color: Colors.white, width: 0),
                   columns: const <DataColumn>[
                     DataColumn(
                       label: Expanded(
@@ -1242,40 +1223,34 @@ Widget middleTopRightComponent() {
             ],
           ),
           nkSmallSizeBox(),
-          Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    final topSellingProducts =
-                        snapshot.data!.topSellingProducts ?? [];
-                    return Expanded(
-                        child: topSellingProductList(topSellingProducts));
-                  } else {
-                    return const Center(
-                      child: MyRegularText(
-                        label: "No data available",
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                      ),
-                    );
-                  }
-                },
+          Obx(() {
+            if (dashBoardController.isLoading.value) {
+              return const Center(
+                child: SpinKitFadingCube(
+                  color: primaryColor,
+                  size: 20.0,
+                ),
               );
-            },
-          ),
+            } else if (dashBoardController.errorMessage.isNotEmpty) {
+              return Center(
+                child: Text('Error: ${dashBoardController.errorMessage.value}'),
+              );
+            } else if (dashBoardController
+                .dashbordData.value.topSellingProducts!.isEmpty) {
+              return const Center(
+                child: MyRegularText(
+                  label: "No data available",
+                  color: secondaryTextColor,
+                  align: TextAlign.center,
+                ),
+              );
+            } else {
+              return Expanded(
+                  child: topSellingProductList(dashBoardController
+                          .dashbordData.value.topSellingProducts ??
+                      []));
+            }
+          }),
         ],
       ),
     );
@@ -1366,7 +1341,12 @@ class ChatScreen extends StatelessWidget {
         });
 
         return provider.individualChatMessages == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: SpinKitFadingCube(
+                  color: primaryColor,
+                  size: 20.0,
+                ),
+              )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1598,7 +1578,6 @@ class _CommunicationsDisplayWidgetState
                                     ],
                                   ),
                                 ),
-
                                 onTap: () {
                                   provider.selectChat(chat);
                                   showDialog(
@@ -2003,7 +1982,7 @@ class _CommunicationsDisplayWidgetState
                                                                         shape: BoxShape
                                                                             .circle,
                                                                         color: Color(
-                                                                            0xffe6ecff), 
+                                                                            0xffe6ecff),
                                                                       ),
                                                                       child:
                                                                           const Icon(

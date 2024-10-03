@@ -4,6 +4,8 @@ const String dashBoard = "Dashboard";
 const String customersAndOrders = "Customers & orders";
 const String products = "Products";
 const String pendingPayments = "Pending Payments";
+const String settings = "Settings";
+const String logout = "Logout";
 
 const String calendar = "Calendar";
 const String staff = "Staff";

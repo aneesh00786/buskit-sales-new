@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -32,7 +31,7 @@ class HomeController extends GetxController {
 
   static final GlobalKey<ScaffoldState> homeScaffoldKey =
       GlobalKey<ScaffoldState>();
- final ApiWorker _apiWorker = ApiWorker();
+  final ApiWorker _apiWorker = ApiWorker();
 
   @override
   void onInit() {
@@ -71,6 +70,7 @@ class HomeController extends GetxController {
       );
     }
   }
+
   Route? onGenerateRoute(RouteSettings settings) {
     if (settings.name == AppRoutes.dashboard &&
         sidebarXController.selectedIndex == 0) {
@@ -124,25 +124,7 @@ class HomeController extends GetxController {
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
-    } /*else if (settings.name == AppRoutes.product &&
-        sidebarXController.selectedIndex == 2) {
-      return GetPageRoute(
-        settings: settings,
-        transition: Transition.leftToRightWithFade,
-        page: () => const Placeholder(
-          color: primaryColor,
-        ),
-      );
-    } else if (settings.name == AppRoutes.staff &&
-        sidebarXController.selectedIndex == 6) {
-      return GetPageRoute(
-          transition: Transition.leftToRightWithFade,
-          settings: settings,
-          page: () => const Placeholder(
-                color: errorColor,
-              ),
-          binding: CommonBinding());
-    }*/
+    } 
     return GetPageRoute(
       settings: settings,
       transition: Transition.leftToRightWithFade,
@@ -196,8 +178,8 @@ class HomeController extends GetxController {
     leads,
     calendar,
     todayOrders,
-    "",
-    ""
+    settings,
+    logout
   ].obs;
   List<SidebarXItem> drawSidebarItems() {
     return [
@@ -208,10 +190,8 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
       sideBarComponent(sidebarName[5], SIdeBarIcon.ic_calender),
       sideBarComponent(sidebarName[6], SIdeBarIcon.ic_today_order),
-      // sideBarComponent(sidebarName[7], SIdeBarIcon.ic_none),
-      // sideBarComponent(sidebarName[8], SIdeBarIcon.ic_none),
+      sideBarComponent(sidebarName[7], SIdeBarIcon.ic_setting),
       sideBarComponent(sidebarName[8], SIdeBarIcon.ic_log_out),
-      sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
     ];
   }
 

@@ -141,9 +141,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                 ],
               ),
             );
-
-
-
         },
         extendedTheme: SidebarXTheme(
           width: AppDimensions.instance.width * 0.7,

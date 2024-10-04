@@ -150,7 +150,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: constraints.maxWidth < 700
+                            width: constraints.maxWidth < 800
                                 ? screenWidth * 0.55
                                 : screenWidth * 0.65,
                             child: CustomText(
@@ -164,7 +164,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             fontSize: screenWidth * 0.02,
                           ),
                           Container(
-                            width: constraints.maxWidth < 700
+                            width: constraints.maxWidth < 800
                                 ? screenWidth * 0.55
                                 : screenWidth * 0.65,
                             child: CustomText(

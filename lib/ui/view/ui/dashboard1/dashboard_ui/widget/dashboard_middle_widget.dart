@@ -866,6 +866,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
               child: SingleChildScrollView(
                 child: DataTable(
                   headingRowHeight: 40,
+                  dataRowHeight: 35,
                   columnSpacing: 10,
                   dividerThickness: 0.0,
                   border: TableBorder.all(color: Colors.white, width: 0),

@@ -128,8 +128,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       Hero(
                         tag: 'product_image',
                         child: Container(
-                          height: screenHeight * 0.1,
-                          width: screenHeight * 0.1,
+                          height: screenHeight * 0.12,
+                          width: screenHeight * 0.12,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               fit: BoxFit.cover,
@@ -151,8 +151,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                         children: [
                           Container(
                             width: constraints.maxWidth < 700
-                                ? screenWidth * 0.59
-                                : screenWidth * 0.69,
+                                ? screenWidth * 0.55
+                                : screenWidth * 0.65,
                             child: CustomText(
                               content: widget.product.productName ?? '',
                               fontWeight: FontWeight.bold,
@@ -165,8 +165,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                           ),
                           Container(
                             width: constraints.maxWidth < 700
-                                ? screenWidth * 0.59
-                                : screenWidth * 0.69,
+                                ? screenWidth * 0.55
+                                : screenWidth * 0.65,
                             child: CustomText(
                               content: widget.product.description ?? '',
                               fontWeight: FontWeight.w500,
@@ -482,7 +482,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                         item.variationName ==
                                             detail.variationName &&
                                         item.sellPrice == detail.sellPrice);
-
                                 if (detail.count > 0 &&
                                     !isProductAlreadyInCart) {
                                   final bool isPack =

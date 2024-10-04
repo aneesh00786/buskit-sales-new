@@ -358,10 +358,11 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
         Expanded(
           flex: 3,
           child: fl_chart.PieChart(
+            
             fl_chart.PieChartData(
               startDegreeOffset: 250,
-              sectionsSpace: 0.6,
-              centerSpaceRadius: 43,
+              sectionsSpace: 0.7,
+              centerSpaceRadius: 60,
               sections: [
                 fl_chart.PieChartSectionData(
                   value: totalOrderRevenue,
@@ -631,7 +632,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
             fl_chart.PieChartData(
               startDegreeOffset: 250,
               sectionsSpace: 0.6,
-              centerSpaceRadius: 43,
+              centerSpaceRadius: 60,
               sections: [
                 fl_chart.PieChartSectionData(
                   value: orderProcessingValue,
@@ -1149,7 +1150,7 @@ class NestedPieChartj extends StatelessWidget {
                   fl_chart.PieChartData(
                     startDegreeOffset: 250,
                     sectionsSpace: 0.6,
-                    centerSpaceRadius: 30,
+                    centerSpaceRadius: 45,
                     sections: [
                       fl_chart.PieChartSectionData(
                         value: completedOrdersCount.toDouble(),
@@ -1199,7 +1200,7 @@ class NestedPieChartj extends StatelessWidget {
                       child: fl_chart.PieChart(
                         fl_chart.PieChartData(
                           sectionsSpace: 0.5,
-                          centerSpaceRadius: 30,
+                          centerSpaceRadius: 45,
                           sections: [
                             fl_chart.PieChartSectionData(
                               value: dueAmountCount.toDouble(),

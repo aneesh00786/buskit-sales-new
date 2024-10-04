@@ -418,8 +418,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                               ? '${fullname.substring(0, 6)}...'
                                                               : fullname;
                                                         }
-
-                                                        // Usage
                                                         _selectedCustomerName =
                                                             getFormattedCustomerName(
                                                                 customer
@@ -531,44 +529,6 @@ class _OrderTakingState extends State<OrderTaking>
                                 active: active,
                                 selectedName: _selectedCustomerName,
                               ),
-                              // child: _selectedCustomerName.isNotEmpty
-                              //     ? LiteRollingSwitch(
-                              //         onDoubleTap: () {},
-                              //         onSwipe: () {},
-                              //         value: active,
-                              //         textOn: 'Check-in',
-                              //         textOff: 'Check-out',
-                              //         textOnColor: Colors.white,
-                              //         textOffColor: Colors.white,
-                              //         colorOn: Colors.greenAccent[700]!,
-                              //         colorOff: Colors.redAccent[700]!,
-                              //         width: 120,
-                              //         iconOn: Icons.done,
-                              //         iconOff:
-                              //             Icons.remove_circle_outline,
-                              //         textSize: 12.0,
-                              //         onTap: () {},
-                              //         onChanged: (bool state) {
-                              //           setState(() {
-                              //             active = state;
-                              //           });
-                              // ScaffoldMessenger.of(context)
-                              //     .showSnackBar(
-                              //   SnackBar(
-                              //     backgroundColor: active
-                              //         ? Colors.green
-                              //         : Colors.red,
-                              //     content: Text(active
-                              //         ? 'You are successfully checked-in'
-                              //         : 'You are successfully checked-out'),
-                              //     duration:
-                              //         Duration(seconds: 3),
-                              //   ),
-                              // );
-                              // log('Active value : $active');
-                              //         },
-                              //       )
-                              //     : null,
                             ),
                           ],
                         )

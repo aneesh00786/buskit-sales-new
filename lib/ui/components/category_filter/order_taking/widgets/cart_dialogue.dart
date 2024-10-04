@@ -800,8 +800,8 @@ Container productQuantityManager(CartItem cartItem, String sellPrice,
                 onTap: () {
                   setState(() {
                     if (cartItem.detail.count > 0) {
-                      cartItem.detail.count--; // Decrease count
-                      calulateAmount(cartItems); // Recalculate totals
+                      cartItem.detail.count--; 
+                      calulateAmount(cartItems); 
                     }
                   });
                 },
@@ -832,8 +832,8 @@ Container productQuantityManager(CartItem cartItem, String sellPrice,
             child: InkWell(
               onTap: () {
                 setState(() {
-                  cartItem.detail.count++; // Increase count
-                  calulateAmount(cartItems); // Recalculate totals
+                  cartItem.detail.count++; 
+                  calulateAmount(cartItems); 
                 });
               },
               child: Padding(
@@ -856,24 +856,20 @@ Container productQuantityManager(CartItem cartItem, String sellPrice,
 
 void calulateAmount(List<CartItem> cartItems) {
   total = 0.0;
-  tax = 0.0; // Reset tax at the start
+  tax = 0.0; 
 
   for (var cartItem in cartItems) {
     double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
     if (price != null) {
-      // Calculate total price based on item type (pack or single)
       if (cartItem.isPack == true) {
         cartItem.totalPrice = (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
       } else {
         cartItem.totalPrice = (price * cartItem.detail.count).toInt();
       }
-
       total += cartItem.totalPrice;
-
-      // Calculate tax based on current count
       double? itemTax = double.tryParse(cartItem.detail.tax ?? '');
       if (itemTax != null) {
-        tax += itemTax * cartItem.detail.count; // Accumulate tax for current count
+        tax += itemTax * cartItem.detail.count; 
       }
     }
   }
@@ -899,18 +895,4 @@ void calulateAmount(List<CartItem> cartItems) {
       quantities.removeAt(index);
     });
   }
-
-  // String formatAmountToMatch(String price, int maxIntegerDigits) {
-  //   if (price == null || price.isEmpty) return '0.00';
-  //   final double amount = double.parse(price);
-  //   int integerDigits = amount.floor().toString().length;
-
-  //   int decimalPlaces = maxIntegerDigits - integerDigits;
-
-  //   if (decimalPlaces > 0) {
-  //     return amount.toStringAsFixed(decimalPlaces + 2);
-  //   } else {
-  //     return amount.toStringAsFixed(2);
-  //   }
-  // }
 }

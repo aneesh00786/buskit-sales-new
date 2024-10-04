@@ -349,11 +349,14 @@ class _ProductGridState extends State<ProductGrid> {
                                           const SizedBox(width: 5),
                                           Text(
                                             product.detail!.length > 1
-                                                ? '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)'
-                                                : '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs)',
+                                                ? _getFormattedText(
+                                                    '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)')
+                                                : _getFormattedText(
+                                                    '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs)'),
                                             style: GoogleFonts.poppins(
-                                                fontSize: stockFontSize,
-                                                fontWeight: FontWeight.w600),
+                                              fontSize: stockFontSize,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -369,6 +372,13 @@ class _ProductGridState extends State<ProductGrid> {
         ),
       ],
     );
+  }
+
+  String _getFormattedText(String text) {
+    const int maxLength = 30;
+    return text.length > maxLength
+        ? '${text.substring(0, maxLength)}...'
+        : text;
   }
 
   void _showProductVariantDialog(

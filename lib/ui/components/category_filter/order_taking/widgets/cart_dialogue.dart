@@ -23,7 +23,6 @@ import 'package:lottie/lottie.dart';
 class CartDialogue extends StatefulWidget {
   bool? active;
   CartDialogue({super.key, this.active});
-
   @override
   State<CartDialogue> createState() => _CartDialogueState();
 }
@@ -404,7 +403,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '${double.parse(cartItem.detail.tax??'').toStringAsFixed(2)}',
+                                                                  '${double.parse(cartItem.detail.tax ?? '').toStringAsFixed(2)}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .right,
@@ -778,91 +777,110 @@ class _CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  Container productQuantityManager(CartItem cartItem, String sellPrice,
-      double fontSize, double availableWidth) {
-    double padding = availableWidth > 400 ? 6 : 3;
-    return Container(
-      width: availableWidth > 400 ? 80 : 50,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: const Color.fromARGB(255, 241, 240, 240)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    bottomLeft: Radius.circular(5))),
-            child: Padding(
-              padding: EdgeInsets.all(2),
-              child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (cartItem.detail.count > 0) {
-                        cartItem.detail.count--;
-                        calulateAmount(cartItem);
-                      }
-                    });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(left: padding, right: padding),
-                    child: CustomText(
-                      color: white,
-                      content: '-',
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
-            ),
-          ),
-          CustomText(
-            content: '${cartItem.detail.count.toStringAsFixed(0)}',
-            fontSize: fontSize,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomRight: Radius.circular(5))),
-            child: Padding(
-              padding: EdgeInsets.all(2),
-              child: InkWell(
+Container productQuantityManager(CartItem cartItem, String sellPrice,
+    double fontSize, double availableWidth) {
+  double padding = availableWidth > 400 ? 6 : 3;
+  return Container(
+    width: availableWidth > 400 ? 80 : 50,
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: const Color.fromARGB(255, 241, 240, 240)),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  bottomLeft: Radius.circular(5))),
+          child: Padding(
+            padding: EdgeInsets.all(2),
+            child: InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem.detail.count++;
-                    calulateAmount(cartItem);
+                    if (cartItem.detail.count > 0) {
+                      cartItem.detail.count--; // Decrease count
+                      calulateAmount(cartItems); // Recalculate totals
+                    }
                   });
                 },
                 child: Padding(
                   padding: EdgeInsets.only(left: padding, right: padding),
                   child: CustomText(
                     color: white,
-                    content: '+',
+                    content: '-',
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
                     textAlign: TextAlign.center,
                   ),
+                )),
+          ),
+        ),
+        CustomText(
+          content: '${cartItem.detail.count.toStringAsFixed(0)}',
+          fontSize: fontSize,
+        ),
+        Container(
+          decoration: const BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(5),
+                  bottomRight: Radius.circular(5))),
+          child: Padding(
+            padding: EdgeInsets.all(2),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  cartItem.detail.count++; // Increase count
+                  calulateAmount(cartItems); // Recalculate totals
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.only(left: padding, right: padding),
+                child: CustomText(
+                  color: white,
+                  content: '+',
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
-  calulateAmount(CartItem cartItem) {
+void calulateAmount(List<CartItem> cartItems) {
+  total = 0.0;
+  tax = 0.0; // Reset tax at the start
+
+  for (var cartItem in cartItems) {
     double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
     if (price != null) {
-      cartItem.totalPrice =
-          (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
-      log("Total price for ${cartItem.detail.price}, Pieces: ${cartItem.detail.pieces}: Total Price ${cartItem.totalPrice}");
+      // Calculate total price based on item type (pack or single)
+      if (cartItem.isPack == true) {
+        cartItem.totalPrice = (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+      } else {
+        cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+      }
+
+      total += cartItem.totalPrice;
+
+      // Calculate tax based on current count
+      double? itemTax = double.tryParse(cartItem.detail.tax ?? '');
+      if (itemTax != null) {
+        tax += itemTax * cartItem.detail.count; // Accumulate tax for current count
+      }
     }
   }
+
+  log("Total price for all items: \$${total.toStringAsFixed(2)}");
+  log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
+}
 
   void _clearCartItem(List<CartItem> cartItem) {
     CartDatabaseManager().clearCart(cartItem);

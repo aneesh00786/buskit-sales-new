@@ -24,11 +24,10 @@ import 'dash_models.dart';
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
   final Dio dio = Dio();
-  ApiService() {
+   ApiService() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final jsonString =
-            await SessionManager.getStringValue(SpString.spLogin);
+        final jsonString = await SessionManager.getStringValue(SpString.spLogin);
         if (jsonString.isNotEmpty) {
           Map<String, dynamic> jsonMap = jsonDecode(jsonString);
           String createdToken = jsonMap['createdToken'];
@@ -41,11 +40,10 @@ class ApiService {
         return handler.next(response);
       },
       onError: (DioError error, handler) async {
-        if (error.response?.statusCode == 401 ||
-            error.response?.statusCode == 400) {
-          _handleTokenExpiration();
+        if (error.response?.statusCode == 401 || error.response?.statusCode == 400) {
+           _handleTokenExpiration();
         }
-        return handler.next(error);
+        return handler.next(error); 
       },
     ));
   }
@@ -127,12 +125,11 @@ class ApiService {
           topSellingProducts: topSellingProducts,
           orderCountList: orderCountList,
         );
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
+       } else if (response.statusCode == 400 || response.statusCode == 401) {
         _handleTokenExpiration();
         throw Exception('Session expired');
       } else {
-        throw Exception(
-            'Failed to load data with status code: ${response.statusCode}');
+        throw Exception('Failed to load data with status code: ${response.statusCode}');
       }
     } on DioError catch (e) {
       log('DioError: ${e.response?.statusCode} - ${e.message}');
@@ -146,28 +143,26 @@ class ApiService {
       throw Exception('Failed to fetch data: $e');
     }
   }
-
   void _handleTokenExpiration() async {
-    if (!Get.isDialogOpen!) {
-      await Get.dialog(
-        AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("OK"),
-              onPressed: () async {
-                await SessionHelper().clearAll();
-                Get.offAllNamed(AppRoutes.login);
-              },
-            ),
-          ],
-        ),
-        barrierDismissible: false,
-      );
-    }
+  if (!Get.isDialogOpen!) {
+    await Get.dialog(
+      AlertDialog(
+        title: Text("Session Expired"),
+        content: Text("Your session has expired. Please log in again."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () async {
+              await SessionHelper().clearAll(); 
+              Get.offAllNamed(AppRoutes.login);
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
   }
-
+}
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
     required String startDate,
@@ -1236,9 +1231,9 @@ class DashboardProvider with ChangeNotifier {
   DashboardProvider({required ApiService apiService, required Logger logger})
       : _apiService = apiService,
         _logger = logger {
-    fetchData();
+     fetchData();
     fetchChatData('');
-    fetchOrders();
+     fetchOrders();
     fetchAdminData();
   }
 
@@ -1321,7 +1316,7 @@ class DashboardProvider with ChangeNotifier {
 
         notifyListeners();
 
-        print("Fetching orders for status: $_selectedStatus");
+        print("Fetching orders for status: $_selectedStatus"); 
 
         notifyListeners();
       }
@@ -1649,7 +1644,7 @@ class DashboardProvider with ChangeNotifier {
         case FilterDateEnum.range:
           startDate = _selectedStartDate;
           endDate = _selectedEndDate;
-
+         
           if (startDate.isEmpty || endDate.isEmpty) {
             return;
           }

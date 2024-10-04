@@ -53,9 +53,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final fontSize = constraints.maxWidth/55;
+          final fontSize = constraints.maxWidth / 55;
           final iconSize = constraints.maxWidth / 45;
-          final columnSpacing = screenWidth /40;
+          final columnSpacing = screenWidth / 40;
           return SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -102,62 +102,94 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             ),
                           ),
                         ),
+                        IconButton(
+                          icon: const CircleAvatar(
+                            radius: 15,
+                            child: Icon(
+                              Icons.close_rounded,
+                              color: Colors.black,
+                              size: 14,
+                            ),
+                          ),
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
                       ],
                     ),
                   ],
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                Hero(
-                  tag: 'product_image',
-                  child: Container(
-                    height: screenHeight * 0.1,
-                    width: screenHeight * 0.1,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: widget.product.imageUrl == null 
-                            ? AssetImage('assets/images/otp.png')
-                                as ImageProvider
-                            : NetworkImage('${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}' ?? ''),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.02),
                 Padding(
-                  padding:  EdgeInsets.only(left: screenWidth*0.03,right: screenWidth*0.03),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Row(
                     children: [
-                      CustomText(
-                       content:  widget.product.productName ?? '',
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth * 0.03,
+                      Hero(
+                        tag: 'product_image',
+                        child: Container(
+                          height: screenHeight * 0.1,
+                          width: screenHeight * 0.1,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: widget.product.imageUrl == null
+                                  ? AssetImage('assets/images/otp.png')
+                                      as ImageProvider
+                                  : NetworkImage(
+                                      '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}' ??
+                                          ''),
+                            ),
+                          ),
+                        ),
                       ),
-                      CustomText(content: 'Product ID : ${widget.product.id}',fontSize: screenWidth * 0.02,),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: constraints.maxWidth < 700
+                                ? screenWidth * 0.59
+                                : screenWidth * 0.69,
+                            child: CustomText(
+                              content: widget.product.productName ?? '',
+                              fontWeight: FontWeight.bold,
+                              fontSize: screenWidth * 0.03,
+                            ),
+                          ),
+                          CustomText(
+                            content: 'Product ID : ${widget.product.id}',
+                            fontSize: screenWidth * 0.02,
+                          ),
+                          Container(
+                            width: constraints.maxWidth < 700
+                                ? screenWidth * 0.59
+                                : screenWidth * 0.69,
+                            child: CustomText(
+                              content: widget.product.description ?? '',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                              fontSize: screenWidth * 0.015,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 Container(
                   width: screenWidth * 0.85,
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(color: secondaryColor),
-                  //   borderRadius: BorderRadius.circular(20),
-                  // ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: SizedBox(
-                      width: screenWidth *
-                          0.85, // Ensure the DataTable takes the full width of the container
+                      width: screenWidth * 0.85,
                       child: DataTable(
-                        headingRowHeight: screenHeight *
-                            0.03, // Increased for better readability
-                        dataRowHeight: screenHeight *
-                            0.05, // Increased for better readability
-                        columnSpacing:
-                            columnSpacing, // Use the calculated column spacing
-
+                        headingRowHeight: screenHeight * 0.03,
+                        dataRowHeight: screenHeight * 0.05,
+                        columnSpacing: columnSpacing,
                         headingRowColor:
                             const MaterialStatePropertyAll(secondaryColor),
                         columns: [
@@ -250,12 +282,14 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     fontSize: fontSize)),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: double.parse(detail.sellPrice??'').toStringAsFixed(2),
+                                  content: double.parse(detail.sellPrice ?? '')
+                                      .toStringAsFixed(2),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: double.parse(detail.tax??'').toStringAsFixed(2),
+                                  content: double.parse(detail.tax ?? '')
+                                      .toStringAsFixed(2),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
@@ -265,7 +299,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: '${detail.fullstock?.toStringAsFixed(2)}',
+                                  content:
+                                      '${detail.fullstock?.toStringAsFixed(2)}',
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(
@@ -432,20 +467,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: CustomText(
-                          content: 'Cancel',
-                          color: primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth * 0.02,
-                        ),
-                      ),
-                      SizedBox(
-                        width: screenWidth * 0.05,
-                      ),
                       ElevatedButton(
                           onPressed: () async {
                             if (customerAndOrderController
@@ -458,7 +479,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               for (var detail in widget.detailsCopy) {
                                 bool isProductAlreadyInCart =
                                     detailsFromCart.any((item) =>
-                                        item.variationId == detail.variationId);
+                                        item.variationName ==
+                                            detail.variationName &&
+                                        item.sellPrice == detail.sellPrice);
+
                                 if (detail.count > 0 &&
                                     !isProductAlreadyInCart) {
                                   final bool isPack =

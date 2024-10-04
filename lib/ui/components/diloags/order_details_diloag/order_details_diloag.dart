@@ -130,7 +130,7 @@ class OrderDetailsDiloag extends StatelessWidget {
 
   Widget ordersDetailsWidget() {
     return nkChildWrappedSizeBox(
-      width: AppDimensions.instance!.width,
+      width: AppDimensions.instance.width,
       child: DataTable(
           border: const TableBorder(
               horizontalInside: BorderSide(color: dividerColor),

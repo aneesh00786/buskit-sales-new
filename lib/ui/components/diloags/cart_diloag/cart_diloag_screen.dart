@@ -118,8 +118,8 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
                           withoutBaseUrl: true,
                           imageUrl:
                               "https://i.ibb.co/r5kZLkw/bpnlauwze4-79c04e73-online-video-cutter-com-1-Adobe-Express.gif",
-                          height: AppDimensions.instance!.height * 0.5,
-                          width: AppDimensions.instance!.height * 0.5,
+                          height: AppDimensions.instance.height * 0.5,
+                          width: AppDimensions.instance.height * 0.5,
                         ),
                         MyRegularText(
                           align: TextAlign.center,

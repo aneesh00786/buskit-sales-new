@@ -99,7 +99,6 @@ class DashBoardController extends GetxController {
       isLoading.value = false;
     }
   }
-
   Future<ResponseModell> fetchData() async {
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);

@@ -53,6 +53,7 @@ class _OrderTakingState extends State<OrderTaking>
   String _selectedCustomerImageUrl = '';
   bool active = false;
   int cartItemCount = 0;
+  String _selectedCategory = ''; 
   @override
   void initState() {
     super.initState();
@@ -142,9 +143,7 @@ class _OrderTakingState extends State<OrderTaking>
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
       _showCartDialog();
-
       Future.delayed(Duration(seconds: 1));
-
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -170,7 +169,6 @@ class _OrderTakingState extends State<OrderTaking>
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
-
                       Future.delayed(Duration(milliseconds: 300), () {
                         homeController.sidebarXController.selectIndex(0);
                         homeController.selectedIndex.value = 0;
@@ -340,10 +338,9 @@ class _OrderTakingState extends State<OrderTaking>
                                                 color: Colors.white,
                                                 child: ListTile(
                                                   leading: CircleAvatar(
-                                                    backgroundImage:
-                                                        NetworkImage(
-                                                            '${ApiConstants.imageBaseUrl}${customer.imageUrl}' ??
-                                                                ''),
+                                                    backgroundImage: NetworkImage(
+                                                        '${ApiConstants.imageBaseUrlss}${customer.imageUrl}' ??
+                                                            ''),
                                                   ),
                                                   title: Text(
                                                       customer.fullname ?? ''),
@@ -351,36 +348,89 @@ class _OrderTakingState extends State<OrderTaking>
                                                       customer.customerId ??
                                                           ''),
                                                   onTap: () {
-                                                    customerAndOrderController
-                                                        .setCustomerId(customer
-                                                                .customerId ??
-                                                            '');
-                                                    setState(() {
-                                                      String
-                                                          getFormattedCustomerName(
-                                                              String?
-                                                                  fullname) {
-                                                        if (fullname == null ||
-                                                            fullname.isEmpty) {
-                                                          return '';
+                                                    if (active == true) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            actions: [
+                                                              SizedBox(
+                                                                height: 20,
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        8.0),
+                                                                child: Center(
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .warning_amber_rounded,
+                                                                    color: Colors
+                                                                        .orange,
+                                                                    size: 50,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Center(
+                                                                  child:
+                                                                      CustomText(
+                                                                content:
+                                                                    'Please check out from the current customer',
+                                                                fontSize: 17,
+                                                              )),
+                                                              TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                    setState(
+                                                                        () {
+                                                                      customerSearchController
+                                                                          .clear();
+                                                                    });
+                                                                  },
+                                                                  child: Text(
+                                                                      'Ok'))
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    } else {
+                                                      customerAndOrderController
+                                                          .setCustomerId(customer
+                                                                  .customerId ??
+                                                              '');
+                                                      setState(() {
+                                                        String
+                                                            getFormattedCustomerName(
+                                                                String?
+                                                                    fullname) {
+                                                          if (fullname ==
+                                                                  null ||
+                                                              fullname
+                                                                  .isEmpty) {
+                                                            return '';
+                                                          }
+                                                          return fullname
+                                                                      .length >
+                                                                  6
+                                                              ? '${fullname.substring(0, 6)}...'
+                                                              : fullname;
                                                         }
-                                                        return fullname.length >
-                                                                6
-                                                            ? '${fullname.substring(0, 6)}...'
-                                                            : fullname;
-                                                      }
 
-                                                      // Usage
-                                                      _selectedCustomerName =
-                                                          getFormattedCustomerName(
-                                                              customer
-                                                                  .fullname);
-                                                      _selectedCustomerImageUrl =
-                                                          customer.imageUrl ??
-                                                              '';
-                                                      customerSearchController
-                                                          .clear();
-                                                    });
+                                                        // Usage
+                                                        _selectedCustomerName =
+                                                            getFormattedCustomerName(
+                                                                customer
+                                                                    .fullname);
+                                                        _selectedCustomerImageUrl =
+                                                            customer.imageUrl ??
+                                                                '';
+                                                        customerSearchController
+                                                            .clear();
+                                                      });
+                                                    }
                                                   },
                                                 ),
                                               );
@@ -502,20 +552,20 @@ class _OrderTakingState extends State<OrderTaking>
                               //           setState(() {
                               //             active = state;
                               //           });
-                                        // ScaffoldMessenger.of(context)
-                                        //     .showSnackBar(
-                                        //   SnackBar(
-                                        //     backgroundColor: active
-                                        //         ? Colors.green
-                                        //         : Colors.red,
-                                        //     content: Text(active
-                                        //         ? 'You are successfully checked-in'
-                                        //         : 'You are successfully checked-out'),
-                                        //     duration:
-                                        //         Duration(seconds: 3),
-                                        //   ),
-                                        // );
-                                        // log('Active value : $active');
+                              // ScaffoldMessenger.of(context)
+                              //     .showSnackBar(
+                              //   SnackBar(
+                              //     backgroundColor: active
+                              //         ? Colors.green
+                              //         : Colors.red,
+                              //     content: Text(active
+                              //         ? 'You are successfully checked-in'
+                              //         : 'You are successfully checked-out'),
+                              //     duration:
+                              //         Duration(seconds: 3),
+                              //   ),
+                              // );
+                              // log('Active value : $active');
                               //         },
                               //       )
                               //     : null,
@@ -531,132 +581,120 @@ class _OrderTakingState extends State<OrderTaking>
               ),
             ),
             Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 60),
-                child: Container(
-                  width: 50,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  color: primaryColor.withOpacity(0.2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.menu,
-                          size: 20,
-                          color: primaryColor,
-                        ),
-                        onPressed: _toggleDrawer,
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 60),
+              child: Container(
+                width: 50,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                color: primaryColor.withOpacity(0.2), // Replace with your primaryColor
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    // Menu Icon
+                    IconButton(
+                      icon: const Icon(
+                        Icons.menu,
+                        size: 20,
+                        color: primaryColor, // Replace with your primaryColor
                       ),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: ListView.builder(
-                            itemCount: widget.productsController.categoryData
-                                    .value.data?.length ??
-                                0,
-                            itemBuilder: (context, index) {
-                              List<CategoryData> categories = widget
-                                      .productsController
-                                      .categoryData
-                                      .value
-                                      .data ??
-                                  [];
-                              String categoryName =
-                                  categories[index].categoryName ?? '';
-                              String initial = categoryName.isNotEmpty
-                                  ? categoryName[0]
-                                  : '';
+                      onPressed: _toggleDrawer,
+                    ),
+                    const SizedBox(height: 20),
+                    // Category Initials
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: ListView.builder(
+                          itemCount: widget.productsController.categoryData.value.data?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            List<CategoryData> categories = widget.productsController.categoryData.value.data ?? [];
+                            String categoryName = categories[index].categoryName ?? '';
+                            String initial = categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '';
 
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: IconButton(
-                                  icon: Text(
-                                    initial,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: IconButton(
+                                icon: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  onPressed: () {
-                                    String categoryId = selectedSubCategory(
-                                        categories[index].categoryName ?? '');
-                                    setState(() {
-                                      _selectedOption =
-                                          categories[index].categoryName ?? '';
-                                      _id = categoryId;
-                                    });
-
-                                    log('Category Id: $categoryId');
-                                    _fetchProductsByCategory(categoryId);
-                                  },
                                 ),
-                              );
-                            },
-                          ),
+                                onPressed: () {
+                                  _selectCategory(categoryName);
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            if (_isDrawerOpen)
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: _toggleDrawer,
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
-              ),
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 300),
-              top: 0,
-              bottom: 0,
-              left: _isDrawerOpen ? 0 : -_drawerWidth,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 60),
-                child: Container(
-                  width: _drawerWidth,
-                  color: Colors.white,
-                  child: CategoryList(
-                    productsController: widget.productsController,
-                    categories: widget
-                        .productsController.categoryData.value.data!
-                        .map((entry) {
-                      return CategoryItem(
-                        title: entry.categoryName ?? '',
-                        options: entry.subCategoryItem ?? [],
-                      );
-                    }).toList(),
-                    onOptionSelected: (selectedOption) {
-                      String categoryId = selectedSubCategory(selectedOption);
-                      setState(() {
-                        _selectedOption = selectedOption;
-                        _id = categoryId;
-                      });
+          ),
 
-                      log('Category Id: $categoryId');
-                      _fetchProductsByCategory(categoryId);
-                    },
-                    onDrawerToggle: _toggleDrawer,
-                  ),
+          // Overlay to close drawer when tapping outside
+          if (_isDrawerOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: _toggleDrawer,
+                child: Container(
+                  color: Colors.transparent,
                 ),
               ),
             ),
+
+          // Drawer
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            top: 0,
+            bottom: 0,
+            left: _isDrawerOpen ? 50 : -_drawerWidth,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 60),
+              child: Container(
+                width: _drawerWidth,
+                color: Colors.white,
+                child: CategoryList(
+                  productsController: widget.productsController,
+                  categories: widget.productsController.categoryData.value.data!
+                      .map((entry) {
+                    return CategoryItem(
+                      title: entry.categoryName ?? '',
+                      options: entry.subCategoryItem ?? [],
+                    );
+                  }).toList(),
+                  onOptionSelected: (selectedSubcategoryId) {
+                    String categoryId = selectedSubCategory(selectedSubcategoryId);
+                    log('Selected Subcategory ID: $categoryId');
+                    _fetchProductsByCategory(categoryId);
+                  },
+                  onDrawerToggle: _toggleDrawer,
+                  selectedCategory: _selectedCategory,
+                ),
+              ),
+            ),
+          ),
           ],
         );
       }),
     );
   }
-
+    void _selectCategory(String categoryName) {
+    setState(() {
+      _selectedCategory = categoryName;
+      _isDrawerOpen = true; // Open the drawer
+    });
+    log('Selected Category: $_selectedCategory');
+  }
   String selectedSubCategory(String selectedOption) {
     var selectedCategory = widget.productsController.categoryData.value.data!
         .firstWhere((e) =>
@@ -736,5 +774,3 @@ class CustomSearchBar extends StatelessWidget {
     );
   }
 }
-
-

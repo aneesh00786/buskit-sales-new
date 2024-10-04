@@ -69,7 +69,6 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
   void initState() {
     searchModel.startDate = widget.startDate;
     searchModel.endDate = widget.endDate;
-
     print("Sel date ${searchModel.startDate} ${searchModel.endDate}");
     onUserDetailsGet(widget.userType);
     super.initState();
@@ -88,7 +87,6 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
           element.cart?.forEach((element) {
             customerCartList.add(element);
           });
-          //log("startDate++${searchModel.toString().length}");
         });
         setState(() {
           _customerCartResponce = value;
@@ -102,7 +100,6 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
                   widget.customType ?? widget.orderStatus!.type.toString(),
               salesmanId: userType == UserType.salesman ? widget.userId : null,
               searchModel: searchModel
-              // searchModel: SearchModel(startDate: '2023-10-26', endDate: '2023-10-29'),
               )
           .then((value) {
         setState(() {
@@ -151,7 +148,7 @@ Widget build(BuildContext context) {
                   _buildDataTableHeader(),
                   _customerCartResponce.data != null && _customerCartResponce.data!.isNotEmpty
                       ? SizedBox(
-                          height: AppDimensions.instance.height * 0.5, // Giving height to avoid overflow
+                          height: AppDimensions.instance.height * 0.5,
                           child: orderBottomTableWidget,
                         )
                       : nkChildWrappedSizeBox(),
@@ -164,10 +161,6 @@ Widget build(BuildContext context) {
     ),
   );
 }
-
-
-
-
   Widget _buildDataTableHeader(){
     return SingleChildScrollView(
       child: nkChildWrappedSizeBox(
@@ -216,14 +209,6 @@ Widget build(BuildContext context) {
                 fontWeight: FontWeight.bold),
             dataRowMaxHeight: AppDimensions.instance.height * 0.11,
             columnSpacing: AppDimensions.instance.width * 0.03,
-            /* columns: orderTableColumCategory
-          .map((element) => DataColumn(
-                  label: MyRegularText(
-                label: element,
-                color: buttonTextColor,
-                fontSize: NkFontSize.largeFont(),
-              )))
-          .toList(),*/
             columns: List.generate(
                 orderTableColumCategory.length,
                 (index) => DataColumn(
@@ -259,19 +244,6 @@ Widget build(BuildContext context) {
     }
 
     final cartItem = orderData.cart!.first;
-    //   return [
-    //   if (cart != null) customerDetailsWidget(cart),
-    //   if (cart != null) orderNumberWidget(cart),
-    //   if (cart != null) orderCreatedDateWidget(cart),
-    //   if (cart != null) orderPrice(cart),
-    // Padding(
-    //   padding: const EdgeInsets.only(left: 0.0, right: 40.0),
-    //   child: NkCommonFunction.isPaymentComplete(
-    //       cart?.optionOrderData?.paymentStatus ?? 0).$1,
-    // ),
-    //   if (cart != null) orderStatus(cart),
-    //   if (cart != null) viewOrder(orderData),
-    // ];
     return [
       Row(
         children: [
@@ -385,12 +357,8 @@ Widget build(BuildContext context) {
                 .name,
       ),
     );
-
-/*    return orderController.orderStatus(
-        orderController.orderStatusToString(orderData.orderStatus!));*/
   }
 ///////dropdown/////////changes/////
-
   Widget viewOrder(OptionOrderData orderData) {
     return InkResponse(
         onTap: () {

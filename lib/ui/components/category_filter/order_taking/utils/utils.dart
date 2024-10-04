@@ -27,12 +27,12 @@ class Utils {
   }
   return total;
 }
-  double getTotalTax(List<CartItem> cartItems) {
-    double totalTax = 0.0;
-    for (var cartItem in cartItems) {
-      double tax = double.tryParse(cartItem.detail.tax ?? '0.0') ?? 0.0;
-      totalTax += tax;
-    }
-    return totalTax;
+double getTotalTax(List<CartItem> cartItems) {
+  double totalTax = 0.0;
+  for (var cartItem in cartItems) {
+    double itemTax = double.tryParse(cartItem.detail.tax ?? '0.0') ?? 0.0; // Tax per item
+    totalTax += itemTax * cartItem.detail.count;
   }
+  return totalTax;
+}
 }

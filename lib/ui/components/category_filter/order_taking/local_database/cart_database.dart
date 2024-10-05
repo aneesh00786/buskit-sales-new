@@ -30,10 +30,11 @@ class CartDatabaseManager {
       listener();
     }
   }
-
-void addToCart(Detail detail, String productName, int totalAmount, bool isPack) {
+void addToCart(Detail detail, String productName, int totalAmount, bool isPack) async {
   CartItem? existingCartItem;
+  
   try {
+    // Check if the product with the same variationId exists in the cart
     existingCartItem = _cartBox.values.firstWhere(
       (cartItem) => cartItem.detail.variationId == detail.variationId,
     );
@@ -42,21 +43,38 @@ void addToCart(Detail detail, String productName, int totalAmount, bool isPack) 
   }
 
   if (existingCartItem != null) {
-    existingCartItem.detail.count += detail.count; 
+    // Instead of using detail.count, get the quantity to add (totalAmount / unit price)
+    double currentCount = existingCartItem.detail.count; // existing count from the cart
+    double additionalCount = totalAmount / num.parse(detail.sellPrice??''); // Calculate how many units to add based on the total amount
+    double updatedCount = currentCount + additionalCount;
+
+    // Update the count and total price
+    existingCartItem.detail.count = updatedCount;
     existingCartItem.totalPrice += totalAmount;
-    _cartBox.put(existingCartItem.key, existingCartItem);
+
+    // Update the item in the cart box
+    await _cartBox.put(existingCartItem.key, existingCartItem);
   } else {
+    // Add new item to the cart if not found
     final cartItem = CartItem(
       detail: detail,
       productName: productName,
       totalPrice: totalAmount,
       isPack: isPack,
     );
-    _cartBox.add(cartItem);
+
+    await _cartBox.add(cartItem);
   }
-  
+
   _notifyListeners();
 }
+
+
+void updateCart(CartItem updatedItem) {
+  _cartBox.put(updatedItem.key, updatedItem);
+  _notifyListeners();
+}
+
 
 
   void deleteCartItem(CartItem item) {

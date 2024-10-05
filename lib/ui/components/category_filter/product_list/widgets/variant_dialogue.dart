@@ -41,17 +41,19 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
 
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
-  late double defaultCount; 
+  late double defaultCount;
   @override
   void initState() {
     super.initState();
-   resetQuantities();
+    resetQuantities();
   }
+
   void resetQuantities() {
-  for (var detail in widget.detailsCopy) {
-    detail.count = 0; 
+    for (var detail in widget.detailsCopy) {
+      detail.count = 0;
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -480,83 +482,87 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     children: [
                       ElevatedButton(
                           onPressed: () async {
-  if (customerAndOrderController.customerId.isNotEmpty) {
-    // Fetch all items currently in the cart
-    List<CartItem> cartItems = await CartDatabaseManager().getCartItems();
-    List<Detail> detailsFromCart = cartItems.map((cartItem) => cartItem.detail).toList();
-
-    for (var detail in widget.detailsCopy) {
-      bool isProductAlreadyInCart = detailsFromCart.any((item) =>
-          item.variationName == detail.variationName && item.sellPrice == detail.sellPrice);
-      if (detail.count > 0) {
-        CartItem? existingCartItem;
-        try {
-          existingCartItem = cartItems.firstWhere((cartItem) =>
-              cartItem.detail.variationName == detail.variationName &&
-              cartItem.detail.sellPrice == detail.sellPrice);
-        } catch (e) {
-          existingCartItem = null;
-        }
-        if (existingCartItem != null) {
-          double newCount = existingCartItem.detail.count + detail.count;
-          existingCartItem.detail.count = newCount;
-          existingCartItem.totalPrice += detail.totalPrice!.toInt(); 
-          CartDatabaseManager().updateCart(existingCartItem);
-          log('Updated product count in cart: ${existingCartItem.detail.count}');
-        } else {
-          final bool isPack = detail.saleBy == 'Pack' ? true : false;
-          CartDatabaseManager().addToCart(
-            detail,
-            widget.product.productName ?? '',
-            detail.totalPrice!.toInt(),
-            isPack,
-          );
-          log('Product added to cart with count: ${detail.count}');
-        }
-        widget.onDone();
-      } else {
-        log('Count is 0 or product already exists in the cart.');
-      }
-    }
-    Navigator.pop(context);
-  } else {
-    // Show an alert if customer is not selected
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          actions: [
-            SizedBox(height: 20),
-            Center(
-              child: Icon(
-                Icons.warning_amber_outlined,
-                size: 50,
-                color: Colors.orange,
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: CustomText(
-                content: "Please Select a Customer",
-                fontSize: 18,
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: CustomText(
-                content: "Ok",
-                color: primaryColor,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-},
-
+                            if (customerAndOrderController
+                                .customerId.isNotEmpty) {
+                              List<CartItem> cartItems =
+                                  await CartDatabaseManager().getCartItems();
+                              for (var detail in widget.detailsCopy) {
+                                if (detail.count > 0) {
+                                  CartItem? existingCartItem;
+                                  try {
+                                    existingCartItem = cartItems.firstWhere(
+                                        (cartItem) =>
+                                            cartItem.detail.variationName ==
+                                                detail.variationName &&
+                                            cartItem.detail.sellPrice ==
+                                                detail.sellPrice);
+                                  } catch (e) {
+                                    existingCartItem = null;
+                                  }
+                                  if (existingCartItem != null) {
+                                    double newCount =
+                                        existingCartItem.detail.count +
+                                            detail.count;
+                                    existingCartItem.detail.count = newCount;
+                                    existingCartItem.totalPrice +=
+                                        detail.totalPrice!.toInt();
+                                    CartDatabaseManager()
+                                        .updateCart(existingCartItem);
+                                    log('Updated product count in cart: ${existingCartItem.detail.count}');
+                                  } else {
+                                    final bool isPack =
+                                        detail.saleBy == 'Pack' ? true : false;
+                                    CartDatabaseManager().addToCart(
+                                      detail,
+                                      widget.product.productName ?? '',
+                                      detail.totalPrice!.toInt(),
+                                      isPack,
+                                    );
+                                    log('Product added to cart with count: ${detail.count}');
+                                  }
+                                  widget.onDone();
+                                } else {
+                                  log('Count is 0 or product already exists in the cart.');
+                                }
+                              }
+                              Navigator.pop(context);
+                            } else {
+                              // Show an alert if customer is not selected
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      SizedBox(height: 20),
+                                      Center(
+                                        child: Icon(
+                                          Icons.warning_amber_outlined,
+                                          size: 50,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      SizedBox(height: 20),
+                                      Center(
+                                        child: CustomText(
+                                          content: "Please Select a Customer",
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: CustomText(
+                                          content: "Ok",
+                                          color: primaryColor,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryButtonColor,
                             padding: EdgeInsets.symmetric(
@@ -605,4 +611,3 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     }
   }
 }
-

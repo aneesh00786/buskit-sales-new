@@ -75,7 +75,7 @@ class _OrderTakingState extends State<OrderTaking>
     CartDatabaseManager().addListener(_updateCartCount);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
-        _isDrawerOpen = true; 
+        _isDrawerOpen = true;
       });
       ever(widget.productsController.categoryData, (CategoryModel? value) {
         if (_isDrawerOpen &&
@@ -187,7 +187,7 @@ class _OrderTakingState extends State<OrderTaking>
 
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
-  void handleBackNavigation(BuildContext context) {
+  void handleBackNavigation(BuildContext context,bool toDashBoard) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
       _showCartDialog();
@@ -215,6 +215,7 @@ class _OrderTakingState extends State<OrderTaking>
                 children: [
                   TextButton(
                     onPressed: () {
+                      if (toDashBoard) {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
                       Future.delayed(Duration(milliseconds: 300), () {
@@ -222,9 +223,18 @@ class _OrderTakingState extends State<OrderTaking>
                         homeController.selectedIndex.value = 0;
                         Get.toNamed(AppRoutes.dashboard, id: 2);
                       });
-
                       CartDatabaseManager().cartItems.clear();
                       CartDatabaseManager().clearCart([]);
+                      }else{
+                      Navigator.pop(context);
+                      Navigator.of(context, rootNavigator: true).pop();
+                      CartDatabaseManager().cartItems.clear();
+                      CartDatabaseManager().clearCart([]);
+                      setState(() {
+                        cartItemCount=0;
+                      });
+                      customerSearchController.clear();
+                      }
                     },
                     child: Text('Clear cart'),
                   ),
@@ -268,7 +278,7 @@ class _OrderTakingState extends State<OrderTaking>
               onPressed: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(milliseconds: 300), () {
-                  triggerLeadingIcon();
+                  triggerLeadingIcon(true);
                 });
               },
               child: Text('Ok'),
@@ -279,10 +289,10 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
-  void triggerLeadingIcon() {
+  void triggerLeadingIcon(bool toDashBoard) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
-      handleBackNavigation(context);
+      handleBackNavigation(context,toDashBoard);
     } else {
       homeController.sidebarXController.selectIndex(0);
       homeController.selectedIndex.value = 0;
@@ -305,7 +315,7 @@ class _OrderTakingState extends State<OrderTaking>
         ),
         leading: IconButton(
           onPressed: () {
-            triggerLeadingIcon();
+            triggerLeadingIcon(true);
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -444,6 +454,10 @@ class _OrderTakingState extends State<OrderTaking>
                                                           );
                                                         },
                                                       );
+                                                    } else if (active == false && CartDatabaseManager()
+                                                        .cartItems
+                                                        .isNotEmpty) {
+                                                      triggerLeadingIcon(false);
                                                     } else {
                                                       customerAndOrderController
                                                           .setCustomerId(customer

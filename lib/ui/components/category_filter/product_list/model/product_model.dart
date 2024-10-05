@@ -197,7 +197,7 @@ class Detail {
     this.vStatus,
     this.createdAt,
     this.updatedAt,
-    this.count = 0.0,
+    this.count = 0,
     this.saleBy,
     this.totalPrice,
   });

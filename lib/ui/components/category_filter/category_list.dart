@@ -13,6 +13,7 @@ class CategoryItem {
   final List<SubCategoryItem> options;
   CategoryItem({required this.title, required this.options});
 }
+
 class CategoryList extends StatefulWidget {
   final ProductsController productsController;
   final List<CategoryItem> categories;
@@ -27,7 +28,6 @@ class CategoryList extends StatefulWidget {
     required this.onOptionSelected,
     required this.onDrawerToggle,
     required this.selectedCategory,
-    
   });
 
   @override
@@ -37,13 +37,12 @@ class CategoryList extends StatefulWidget {
 class _CategoryListState extends State<CategoryList> {
   late int _expandedIndex;
   Future<CategoryModel>? _categoryFuture;
-
   @override
   void initState() {
     super.initState();
-    // Find the index of the selected category
     _expandedIndex = widget.selectedCategory.isNotEmpty
-        ? widget.categories.indexWhere((cat) => cat.title == widget.selectedCategory)
+        ? widget.categories
+            .indexWhere((cat) => cat.title == widget.selectedCategory)
         : -1;
     log('The Hive Categoryy List : ${_categoryFuture.toString()}');
     _categoryFuture = widget.productsController.loadDataOfCategories();
@@ -55,7 +54,8 @@ class _CategoryListState extends State<CategoryList> {
     if (oldWidget.selectedCategory != widget.selectedCategory) {
       setState(() {
         _expandedIndex = widget.selectedCategory.isNotEmpty
-            ? widget.categories.indexWhere((cat) => cat.title == widget.selectedCategory)
+            ? widget.categories
+                .indexWhere((cat) => cat.title == widget.selectedCategory)
             : -1;
       });
     }
@@ -125,8 +125,7 @@ class _CategoryListState extends State<CategoryList> {
                             border: Border.all(color: Colors.grey.shade300),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 category.categoryName ?? '',
@@ -194,4 +193,3 @@ class _CategoryListState extends State<CategoryList> {
     });
   }
 }
-

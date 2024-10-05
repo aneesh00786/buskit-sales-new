@@ -53,25 +53,18 @@ class _OrderTakingState extends State<OrderTaking>
   String _selectedCustomerImageUrl = '';
   bool active = false;
   int cartItemCount = 0;
-  String _selectedCategory = ''; 
+  String _selectedCategory = '';
+  int _expandedIndex = -1;
   @override
   void initState() {
     super.initState();
-    //category= widget.productsController.fetchCategoryData();
     fetchAndSetCustomers();
-    _drawerTimer = Timer(const Duration(seconds: 4), () {
-      setState(() {
-        _isDrawerOpen = false;
-      });
-    });
-
     animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     )..addListener(() {
         setState(() {});
       });
-
     animation = Tween<double>(begin: 0.0, end: 20.0).animate(
       CurvedAnimation(
         parent: animationController,
@@ -80,6 +73,27 @@ class _OrderTakingState extends State<OrderTaking>
     );
     cartItemCount = CartDatabaseManager().cartItems.length;
     CartDatabaseManager().addListener(_updateCartCount);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isDrawerOpen = true; 
+      });
+      ever(widget.productsController.categoryData, (CategoryModel? value) {
+        if (_isDrawerOpen &&
+            _expandedIndex == -1 &&
+            value != null &&
+            value.data != null &&
+            value.data!.isNotEmpty) {
+          _selectFirstCategory();
+        }
+      });
+      _drawerTimer = Timer(const Duration(seconds: 4), () {
+        setState(() {
+          _isDrawerOpen = false;
+          _expandedIndex = -1;
+          _selectedCategory = '';
+        });
+      });
+    });
   }
 
   @override
@@ -88,6 +102,28 @@ class _OrderTakingState extends State<OrderTaking>
     animationController.dispose();
     CartDatabaseManager().removeListener(_updateCartCount);
     super.dispose();
+  }
+
+  void _selectFirstCategory() {
+    List<CategoryData> categories =
+        widget.productsController.categoryData.value.data ?? [];
+    if (categories.isNotEmpty) {
+      setState(() {
+        _expandedIndex = 0;
+        _selectedCategory = categories[0].categoryName ?? '';
+      });
+      if (categories[0].subCategoryItem != null &&
+          categories[0].subCategoryItem!.isNotEmpty) {
+        final firstSubCategory =
+            categories[0].subCategoryItem![0].subCategory ?? '';
+        _selectedOption = firstSubCategory;
+        _loadProductsForSubCategory(firstSubCategory);
+      }
+    }
+  }
+
+  void _loadProductsForSubCategory(String subCategory) {
+    widget.productsController.fetchProducts(subCategory);
   }
 
   void _updateCartCount() {
@@ -100,6 +136,18 @@ class _OrderTakingState extends State<OrderTaking>
     setState(() {
       _isDrawerOpen = !_isDrawerOpen;
     });
+    if (_isDrawerOpen) {
+      animationController.forward();
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _selectFirstCategory();
+      });
+    } else {
+      animationController.reverse();
+      setState(() {
+        _selectedCategory = '';
+        _expandedIndex = -1;
+      });
+    }
   }
 
   Future<void> _fetchProductsByCategory(String categoryId) async {
@@ -418,6 +466,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                               ? '${fullname.substring(0, 6)}...'
                                                               : fullname;
                                                         }
+
                                                         _selectedCustomerName =
                                                             getFormattedCustomerName(
                                                                 customer
@@ -535,126 +584,144 @@ class _OrderTakingState extends State<OrderTaking>
                       ],
                     ),
                   )
-                  // :
-                  // Container(),
                 ],
               ),
             ),
             Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 60),
-              child: Container(
-                width: 50,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                color: primaryColor.withOpacity(0.2), // Replace with your primaryColor
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // Menu Icon
-                    IconButton(
-                      icon: const Icon(
-                        Icons.menu,
-                        size: 20,
-                        color: primaryColor, // Replace with your primaryColor
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: Container(
+                  width: 50,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  color: primaryColor.withOpacity(0.2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.menu,
+                          size: 20,
+                          color: primaryColor,
+                        ),
+                        onPressed: _toggleDrawer,
                       ),
-                      onPressed: _toggleDrawer,
-                    ),
-                    const SizedBox(height: 20),
-                    // Category Initials
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: ListView.builder(
-                          itemCount: widget.productsController.categoryData.value.data?.length ?? 0,
-                          itemBuilder: (context, index) {
-                            List<CategoryData> categories = widget.productsController.categoryData.value.data ?? [];
-                            String categoryName = categories[index].categoryName ?? '';
-                            String initial = categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '';
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ListView.builder(
+                            itemCount: widget.productsController.categoryData
+                                    .value.data?.length ??
+                                0,
+                            itemBuilder: (context, index) {
+                              List<CategoryData> categories = widget
+                                      .productsController
+                                      .categoryData
+                                      .value
+                                      .data ??
+                                  [];
+                              String categoryName =
+                                  categories[index].categoryName ?? '';
+                              String initial = categoryName.isNotEmpty
+                                  ? categoryName[0].toUpperCase()
+                                  : '';
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: IconButton(
+                                    icon: Text(
+                                      initial,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      _selectCategory(categoryName);
+                                      CategoryData selectedCategory =
+                                          categories[index];
+                                      if (selectedCategory.subCategoryItem !=
+                                              null &&
+                                          selectedCategory
+                                              .subCategoryItem!.isNotEmpty) {
+                                        String firstSubCategoryId =
+                                            selectedCategory.subCategoryItem!
+                                                    .first.id ??
+                                                '';
 
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: IconButton(
-                                icon: Text(
-                                  initial,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  _selectCategory(categoryName);
-                                },
-                              ),
-                            );
-                          },
+                                        _fetchProductsByCategory(
+                                            firstSubCategoryId);
+                                      }
+                                    }),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-
-          // Overlay to close drawer when tapping outside
-          if (_isDrawerOpen)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _toggleDrawer,
+            if (_isDrawerOpen)
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: _toggleDrawer,
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              top: 0,
+              bottom: 0,
+              left: _isDrawerOpen ? 50 : -_drawerWidth,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 60),
                 child: Container(
-                  color: Colors.transparent,
+                  width: _drawerWidth,
+                  color: Colors.white,
+                  child: CategoryList(
+                    productsController: widget.productsController,
+                    categories: widget
+                        .productsController.categoryData.value.data!
+                        .map((entry) {
+                      return CategoryItem(
+                        title: entry.categoryName ?? '',
+                        options: entry.subCategoryItem ?? [],
+                      );
+                    }).toList(),
+                    onOptionSelected: (selectedSubcategoryId) {
+                      String categoryId =
+                          selectedSubCategory(selectedSubcategoryId);
+                      log('Selected Subcategory ID: $categoryId');
+                      _fetchProductsByCategory(categoryId);
+                    },
+                    onDrawerToggle: _toggleDrawer,
+                    selectedCategory: _selectedCategory,
+                  ),
                 ),
               ),
             ),
-
-          // Drawer
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            top: 0,
-            bottom: 0,
-            left: _isDrawerOpen ? 50 : -_drawerWidth,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 60),
-              child: Container(
-                width: _drawerWidth,
-                color: Colors.white,
-                child: CategoryList(
-                  productsController: widget.productsController,
-                  categories: widget.productsController.categoryData.value.data!
-                      .map((entry) {
-                    return CategoryItem(
-                      title: entry.categoryName ?? '',
-                      options: entry.subCategoryItem ?? [],
-                    );
-                  }).toList(),
-                  onOptionSelected: (selectedSubcategoryId) {
-                    String categoryId = selectedSubCategory(selectedSubcategoryId);
-                    log('Selected Subcategory ID: $categoryId');
-                    _fetchProductsByCategory(categoryId);
-                  },
-                  onDrawerToggle: _toggleDrawer,
-                  selectedCategory: _selectedCategory,
-                ),
-              ),
-            ),
-          ),
           ],
         );
       }),
     );
   }
-    void _selectCategory(String categoryName) {
+
+  void _selectCategory(String categoryName) {
     setState(() {
       _selectedCategory = categoryName;
       _isDrawerOpen = true; // Open the drawer
     });
     log('Selected Category: $_selectedCategory');
   }
+
   String selectedSubCategory(String selectedOption) {
     var selectedCategory = widget.productsController.categoryData.value.data!
         .firstWhere((e) =>

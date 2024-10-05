@@ -31,30 +31,33 @@ class CartDatabaseManager {
     }
   }
 
-  void addToCart(
-      Detail detail, String productName, int totalAmount, bool isPack) {
-    CartItem? existingCartItem;
-
-    try {
-      existingCartItem = _cartBox.values.firstWhere(
-        (cartItem) => cartItem.detail.variationId == detail.variationId,
-      );
-    } catch (e) {
-      existingCartItem = null;
-    }
-    if (existingCartItem != null) {
-      existingCartItem.detail.count = detail.count;
-      _cartBox.put(existingCartItem.key, existingCartItem);
-    } else {
-      final cartItem = CartItem(
-          detail: detail,
-          productName: productName,
-          totalPrice: totalAmount,
-          isPack: isPack);
-      _cartBox.add(cartItem);
-    }
-    _notifyListeners();
+void addToCart(Detail detail, String productName, int totalAmount, bool isPack) {
+  CartItem? existingCartItem;
+  try {
+    existingCartItem = _cartBox.values.firstWhere(
+      (cartItem) => cartItem.detail.variationId == detail.variationId,
+    );
+  } catch (e) {
+    existingCartItem = null;
   }
+
+  if (existingCartItem != null) {
+    existingCartItem.detail.count += detail.count; 
+    existingCartItem.totalPrice += totalAmount;
+    _cartBox.put(existingCartItem.key, existingCartItem);
+  } else {
+    final cartItem = CartItem(
+      detail: detail,
+      productName: productName,
+      totalPrice: totalAmount,
+      isPack: isPack,
+    );
+    _cartBox.add(cartItem);
+  }
+  
+  _notifyListeners();
+}
+
 
   void deleteCartItem(CartItem item) {
     final box = Hive.box<CartItem>('cartBox');

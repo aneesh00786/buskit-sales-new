@@ -42,17 +42,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   @override
-  void initState() {
-    super.initState();
-    resetCounts();
-  }
-  void resetCounts() {
-    for (var detail in widget.detailsCopy) {
-      detail.count = 0;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -125,7 +114,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                           padding: EdgeInsets.zero,
                           onPressed: () {
                             Navigator.pop(context);
-                            resetCounts();
                           },
                         ),
                       ],
@@ -511,7 +499,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   log('Product with ID: ${detail.variationId} is already in the cart');
                                 }
                                 widget.onDone();
-                                resetCounts();
                               }
                               Navigator.pop(context);
                             } else {

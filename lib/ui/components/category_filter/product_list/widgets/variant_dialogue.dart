@@ -41,6 +41,17 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
 
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
+  late double defaultCount; 
+  @override
+  void initState() {
+    super.initState();
+   resetQuantities();
+  }
+  void resetQuantities() {
+  for (var detail in widget.detailsCopy) {
+    detail.count = 0; 
+  }
+}
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -588,3 +599,4 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     }
   }
 }
+

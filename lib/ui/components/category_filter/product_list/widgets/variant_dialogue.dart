@@ -527,7 +527,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               }
                               Navigator.pop(context);
                             } else {
-                              // Show an alert if customer is not selected
                               showDialog(
                                 context: context,
                                 builder: (context) {

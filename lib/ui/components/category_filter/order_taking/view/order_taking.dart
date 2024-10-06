@@ -456,7 +456,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                       );
                                                     } else if (active == false && CartDatabaseManager()
                                                         .cartItems
-                                                        .isNotEmpty) {
+                                                        .isNotEmpty&&customeController.customerId.isNotEmpty) {
                                                       triggerLeadingIcon(false);
                                                     } else {
                                                       customerAndOrderController

@@ -14,7 +14,6 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 class ProductVariantDialogue extends StatefulWidget {
-  final List<Detail> productDetail;
   final int index;
   final ProductModel product;
   final List<ProductModel> productList;
@@ -23,7 +22,6 @@ class ProductVariantDialogue extends StatefulWidget {
 
   ProductVariantDialogue({
     super.key,
-    required this.productDetail,
     required this.index,
     required this.product,
     required this.productList,
@@ -38,20 +36,13 @@ class ProductVariantDialogue extends StatefulWidget {
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   CustomerAndOrderController customerAndOrderController =
       Get.find<CustomerAndOrderController>();
-
+  
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   late double defaultCount;
   @override
   void initState() {
     super.initState();
-    resetQuantities();
-  }
-
-  void resetQuantities() {
-    for (var detail in widget.detailsCopy) {
-      detail.count = 0;
-    }
   }
 
   @override
@@ -389,7 +380,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                               setState(() {
                                                 if (detail.count > 0) {
                                                   detail.count--;
-                                                  calulateAmount(detail);
+                                                  calculateAmount(detail);
                                                 }
                                               });
                                             },
@@ -444,7 +435,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                   );
                                                 } else {
                                                   detail.count++;
-                                                  calulateAmount(detail);
+                                                  calculateAmount(detail);
                                                 }
                                               });
                                             },
@@ -481,49 +472,37 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: () async {
+                          onPressed: (){
                             if (customerAndOrderController
                                 .customerId.isNotEmpty) {
                               List<CartItem> cartItems =
-                                  await CartDatabaseManager().getCartItems();
+                                   CartDatabaseManager().getCartItems();
+                              List<Detail> detailsFromCart = cartItems
+                                  .map((cartItem) => cartItem.detail)
+                                  .toList();
                               for (var detail in widget.detailsCopy) {
-                                if (detail.count > 0) {
-                                  CartItem? existingCartItem;
-                                  try {
-                                    existingCartItem = cartItems.firstWhere(
-                                        (cartItem) =>
-                                            cartItem.detail.variationName ==
-                                                detail.variationName &&
-                                            cartItem.detail.sellPrice ==
-                                                detail.sellPrice);
-                                  } catch (e) {
-                                    existingCartItem = null;
-                                  }
-                                  if (existingCartItem != null) {
-                                    double newCount =
-                                        existingCartItem.detail.count +
-                                            detail.count;
-                                    existingCartItem.detail.count = newCount;
-                                    existingCartItem.totalPrice +=
-                                        detail.totalPrice!.toInt();
-                                    CartDatabaseManager()
-                                        .updateCart(existingCartItem);
-                                    log('Updated product count in cart: ${existingCartItem.detail.count}');
-                                  } else {
-                                    final bool isPack =
-                                        detail.saleBy == 'Pack' ? true : false;
-                                    CartDatabaseManager().addToCart(
+                                bool isProductAlreadyInCart =
+                                    detailsFromCart.any((item) =>
+                                        item.variationName ==
+                                            detail.variationName &&
+                                        item.sellPrice == detail.sellPrice);
+                                if (detail.count > 0 &&
+                                    !isProductAlreadyInCart) {
+                                  final bool isPack =
+                                      detail.saleBy == 'Pack' ? true : false;
+                                  CartDatabaseManager().addToCart(
                                       detail,
                                       widget.product.productName ?? '',
                                       detail.totalPrice!.toInt(),
-                                      isPack,
-                                    );
-                                    log('Product added to cart with count: ${detail.count}');
-                                  }
-                                  widget.onDone();
-                                } else {
-                                  log('Count is 0 or product already exists in the cart.');
+                                      isPack);
+                                  log('Total Price: ${detail.totalPrice}');
+                                  log('Detail log is Pack: ${isPack}');
+                                  log('Product added to cart with ID: ${detail.variationId}');
+                                  log('Pack or Pieces : ${detail.saleBy}');
+                                } else if (isProductAlreadyInCart) {
+                                  log('Product with ID: ${detail.variationId} is already in the cart');
                                 }
+                                widget.onDone();
                               }
                               Navigator.pop(context);
                             } else {
@@ -599,14 +578,14 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     );
   }
 
-  void calulateAmount(Detail detail) {
+  void calculateAmount(Detail detail) {
     double? price = double.tryParse(detail.sellPrice ?? '');
     if (price != null && detail.saleBy == 'Pack') {
       detail.totalPrice = price * detail.pieces! * detail.count;
-      log("Total price for ${detail.price}, Pieces: ${detail.pieces}: Total Price ${detail.totalPrice}");
+      log("Total price for Pack: ${detail.sellPrice}, Pieces: ${detail.pieces}, Total Price: ${detail.totalPrice}");
     } else if (price != null) {
       detail.totalPrice = price * detail.count;
-      log("Total price for ${detail.price}, Total Price: ${detail.totalPrice}");
+      log("Total price for Pieces: ${detail.sellPrice}, Total Price: ${detail.totalPrice}");
     }
   }
 }

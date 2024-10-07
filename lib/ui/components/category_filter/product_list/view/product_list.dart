@@ -392,7 +392,6 @@ class _ProductGridState extends State<ProductGrid> {
       context: context,
       builder: (BuildContext context) {
         return ProductVariantDialogue(
-            productDetail: productDetail,
             index: index,
             product: product,
             productList: productList,

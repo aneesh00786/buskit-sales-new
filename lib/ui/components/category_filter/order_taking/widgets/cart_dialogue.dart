@@ -33,24 +33,52 @@ class _CartDialogueState extends State<CartDialogue> {
   double total = 0.0;
   double tax = 0.0;
   String? _selectedValue;
-  final List<String> _options = ['Sale Order', 'Pre Order', 'Estimate'];
+  final List<String> _options = ['Sale Order',"Quick Sale", 'Pre Order', 'Estimate'];
   ProductsController productsController = Get.find<ProductsController>();
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    cartItems = CartDatabaseManager().cartItems;
-    quantities = List.generate(cartItems.length, (index) => 1);
-    total = Utils().getFinalAmount(cartItems);
-    tax = Utils().getTotalTax(cartItems);
-    if (_options.isNotEmpty) {
-      _selectedValue = _options[0];
-    }
+    _loadCartItems();
   }
 
+  void _loadCartItems() async {
+    try {
+      List<CartItem> storedItems = await CartDatabaseManager().getCartItems();
+      setState(() {
+        cartItems = storedItems;
+        quantities = List.generate(cartItems.length, (index) => 1);
+        total = Utils().getFinalAmount(cartItems);
+        tax = Utils().getTotalTax(cartItems);
+        if (_options.isNotEmpty) {
+          _selectedValue = _options[0];
+        }
+        _isLoading = false;
+      });
+      log('First Count  : ${cartItems.first.detail.count}');
+      log('First variationName : ${cartItems.first.detail.variationName}');
+      log('Last Count : ${cartItems.last.detail.count}');
+      log('Last variationName : ${cartItems.last.detail.variationName}');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load cart items: $e'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
+    if (_isLoading){
+       return Center(child: CircularProgressIndicator());
+    }
     double finalAmount = total + tax;
     productsController.updateFinalAmount(finalAmount);
     String formattedAmount = finalAmount.toStringAsFixed(2);
@@ -560,7 +588,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                       .map((e) => SendCartData(
                                             productId: e.productId ?? '',
                                             variantId: e.variationId ?? '',
-                                            pack: '2',
+                                            pack: e.pieces.toString(),
                                             price: e.price.toString(),
                                             discount: '0',
                                             quantity: e.count.toInt(),
@@ -587,14 +615,10 @@ class _CartDialogueState extends State<CartDialogue> {
                                   await productsController.placeOrder(order);
                                   setState(() {
                                     CartDatabaseManager().cartItems.clear();
-                                    CartDatabaseManager().clearCart(cartItems);
+                                    CartDatabaseManager().clearCart();
                                   });
                                   Navigator.pop(context);
                                 }
-                                // homeController.sidebarXController.selectIndex(0);
-                                // homeController.selectedIndex.value = 0;
-                                // Get.toNamed(AppRoutes.dashboard, id: 2);
-                                // showSaveDraftConfirmationDialog();
                               },
                             ),
                             const SizedBox(width: 30),
@@ -777,114 +801,118 @@ class _CartDialogueState extends State<CartDialogue> {
     );
   }
 
-Container productQuantityManager(CartItem cartItem, String sellPrice,
-    double fontSize, double availableWidth) {
-  double padding = availableWidth > 400 ? 6 : 3;
-  return Container(
-    width: availableWidth > 400 ? 80 : 50,
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: const Color.fromARGB(255, 241, 240, 240)),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          decoration: const BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  bottomLeft: Radius.circular(5))),
-          child: Padding(
-            padding: EdgeInsets.all(2),
-            child: InkWell(
+  Container productQuantityManager(CartItem cartItem, String sellPrice,
+      double fontSize, double availableWidth) {
+    double padding = availableWidth > 400 ? 6 : 3;
+    return Container(
+      width: availableWidth > 400 ? 80 : 50,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: const Color.fromARGB(255, 241, 240, 240)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5))),
+            child: Padding(
+              padding: EdgeInsets.all(2),
+              child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (cartItem.detail.count > 0) {
+                        cartItem.detail.count--;
+                        log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
+                        CartDatabaseManager().updateCart(cartItem);
+                        calulateAmount(cartItems);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: padding, right: padding),
+                    child: CustomText(
+                      color: white,
+                      content: '-',
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                    ),
+                  )),
+            ),
+          ),
+          CustomText(
+            content: '${cartItem.detail.count.toStringAsFixed(0)}',
+            fontSize: fontSize,
+          ),
+          Container(
+            decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(5),
+                    bottomRight: Radius.circular(5))),
+            child: Padding(
+              padding: EdgeInsets.all(2),
+              child: InkWell(
                 onTap: () {
                   setState(() {
-                    if (cartItem.detail.count > 0) {
-                      cartItem.detail.count--; 
-                      calulateAmount(cartItems); 
-                    }
+                    cartItem.detail.count++;
+                    log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
+                    CartDatabaseManager().updateCart(cartItem);
+                    calulateAmount(cartItems);
                   });
                 },
                 child: Padding(
                   padding: EdgeInsets.only(left: padding, right: padding),
                   child: CustomText(
                     color: white,
-                    content: '-',
+                    content: '+',
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
                     textAlign: TextAlign.center,
                   ),
-                )),
-          ),
-        ),
-        CustomText(
-          content: '${cartItem.detail.count.toStringAsFixed(0)}',
-          fontSize: fontSize,
-        ),
-        Container(
-          decoration: const BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(5),
-                  bottomRight: Radius.circular(5))),
-          child: Padding(
-            padding: EdgeInsets.all(2),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  cartItem.detail.count++; 
-                  calulateAmount(cartItems); 
-                });
-              },
-              child: Padding(
-                padding: EdgeInsets.only(left: padding, right: padding),
-                child: CustomText(
-                  color: white,
-                  content: '+',
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-void calulateAmount(List<CartItem> cartItems) {
-  total = 0.0;
-  tax = 0.0; 
-
-  for (var cartItem in cartItems) {
-    double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
-    if (price != null) {
-      if (cartItem.isPack == true) {
-        cartItem.totalPrice = (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
-      } else {
-        cartItem.totalPrice = (price * cartItem.detail.count).toInt();
-      }
-      total += cartItem.totalPrice;
-      double? itemTax = double.tryParse(cartItem.detail.tax ?? '');
-      if (itemTax != null) {
-        tax += itemTax * cartItem.detail.count; 
-      }
-    }
+        ],
+      ),
+    );
   }
 
-  log("Total price for all items: \$${total.toStringAsFixed(2)}");
-  log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
-}
+  void calulateAmount(List<CartItem> cartItems) {
+    total = 0.0;
+    tax = 0.0;
+    for (var cartItem in cartItems) {
+      double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      if (price != null) {
+        if (cartItem.isPack == true) {
+          cartItem.totalPrice =
+              (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+        } else {
+          cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+        }
+        total += cartItem.totalPrice;
+        double? itemTax = double.tryParse(cartItem.detail.tax ?? '');
+        if (itemTax != null) {
+          tax += itemTax * cartItem.detail.count;
+        }
+      }
+    }
+
+    log("Total price for all items: \$${total.toStringAsFixed(2)}");
+    log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
+  }
 
   void _clearCartItem(List<CartItem> cartItem) {
-    CartDatabaseManager().clearCart(cartItem);
+    CartDatabaseManager().clearCart();
     setState(() {
       cartItems.remove(cartItem);
       quantities.remove(cartItem);
     });
-    log('CartItem Cleared');
+    log('CartItem Cleared : $cartItem');
   }
 
   void _deleteItem(int index) {
@@ -894,5 +922,6 @@ void calulateAmount(List<CartItem> cartItems) {
       cartItems.removeAt(index);
       quantities.removeAt(index);
     });
+    log('CartItem deleted : $itemToDelete');
   }
 }

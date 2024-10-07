@@ -28,6 +28,7 @@ dependencies:
   animated_toggle_switch: ^0.8.3
   cached_network_image: ^3.2.3
   calendar_view: ^1.0.3
+  collection: 1.18.0
   connectivity_plus: ^6.0.5
   cupertino_icons: ^1.0.5
   data_table_2: ^2.5.15

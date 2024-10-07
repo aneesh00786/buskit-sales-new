@@ -1,11 +1,16 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/snack_bar_widget.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -55,6 +60,9 @@ class _OrderTakingState extends State<OrderTaking>
   int cartItemCount = 0;
   String _selectedCategory = '';
   int _expandedIndex = -1;
+  bool _showDialog = false; // Flag to manage the dialog visibility
+  String _dialogMessage = '';
+
   @override
   void initState() {
     super.initState();
@@ -102,6 +110,19 @@ class _OrderTakingState extends State<OrderTaking>
     animationController.dispose();
     CartDatabaseManager().removeListener(_updateCartCount);
     super.dispose();
+  }
+
+  void _closeDialog() {
+    setState(() {
+      _showDialog = false;
+    });
+  }
+
+  void _toggleDialog(String message) {
+    setState(() {
+      _showDialog = !_showDialog;
+      _dialogMessage = message;
+    });
   }
 
   void _selectFirstCategory() {
@@ -187,7 +208,7 @@ class _OrderTakingState extends State<OrderTaking>
 
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
-  void handleBackNavigation(BuildContext context,bool toDashBoard) {
+  void handleBackNavigation(BuildContext context, bool toDashBoard) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
       _showCartDialog();
@@ -216,24 +237,24 @@ class _OrderTakingState extends State<OrderTaking>
                   TextButton(
                     onPressed: () {
                       if (toDashBoard) {
-                      Navigator.pop(context);
-                      Navigator.of(context, rootNavigator: true).pop();
-                      Future.delayed(Duration(milliseconds: 300), () {
-                        homeController.sidebarXController.selectIndex(0);
-                        homeController.selectedIndex.value = 0;
-                        Get.toNamed(AppRoutes.dashboard, id: 2);
-                      });
-                      CartDatabaseManager().cartItems.clear();
-                      CartDatabaseManager().clearCart([]);
-                      }else{
-                      Navigator.pop(context);
-                      Navigator.of(context, rootNavigator: true).pop();
-                      CartDatabaseManager().cartItems.clear();
-                      CartDatabaseManager().clearCart([]);
-                      setState(() {
-                        cartItemCount=0;
-                      });
-                      customerSearchController.clear();
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          homeController.sidebarXController.selectIndex(0);
+                          homeController.selectedIndex.value = 0;
+                          Get.toNamed(AppRoutes.dashboard, id: 2);
+                        });
+                        CartDatabaseManager().cartItems.clear();
+                        CartDatabaseManager().clearCart();
+                      } else {
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
+                        CartDatabaseManager().cartItems.clear();
+                        CartDatabaseManager().clearCart();
+                        setState(() {
+                          cartItemCount = 0;
+                        });
+                        customerSearchController.clear();
                       }
                     },
                     child: Text('Clear cart'),
@@ -241,7 +262,6 @@ class _OrderTakingState extends State<OrderTaking>
                   TextButton(
                     onPressed: () async {
                       Navigator.pop(context);
-                      _selectedCustomerName = '';
                     },
                     child: Text('Ok'),
                   ),
@@ -292,7 +312,7 @@ class _OrderTakingState extends State<OrderTaking>
   void triggerLeadingIcon(bool toDashBoard) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
-      handleBackNavigation(context,toDashBoard);
+      handleBackNavigation(context, toDashBoard);
     } else {
       homeController.sidebarXController.selectIndex(0);
       homeController.selectedIndex.value = 0;
@@ -385,104 +405,152 @@ class _OrderTakingState extends State<OrderTaking>
                                   ? filteredCustomers.isEmpty
                                       ? const Center(
                                           child: Text('No customers found.'))
-                                      : SizedBox(
-                                          child: ListView.builder(
-                                            shrinkWrap: true,
-                                            itemCount: filteredCustomers.length,
-                                            itemBuilder: (context, index) {
-                                              CustomerAndOrderData customer =
-                                                  filteredCustomers[index];
-                                              return Container(
-                                                color: Colors.white,
-                                                child: ListTile(
-                                                  leading: CircleAvatar(
-                                                    backgroundImage: NetworkImage(
-                                                        '${ApiConstants.imageBaseUrlss}${customer.imageUrl}' ??
-                                                            ''),
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: filteredCustomers.length,
+                                          itemBuilder: (context, index) {
+                                            CustomerAndOrderData customer =
+                                                filteredCustomers[index];
+                                            return Container(
+                                              color: Colors.white,
+                                              child: ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                    '${ApiConstants.imageBaseUrlss}${customer.imageUrl}',
                                                   ),
-                                                  title: Text(
-                                                      customer.fullname ?? ''),
-                                                  subtitle: Text(
-                                                      customer.customerId ??
-                                                          ''),
-                                                  onTap: () {
-                                                    if (active == true) {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return AlertDialog(
-                                                            actions: [
-                                                              SizedBox(
-                                                                height: 20,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        8.0),
-                                                                child: Center(
-                                                                  child: Icon(
-                                                                    Icons
-                                                                        .warning_amber_rounded,
-                                                                    color: Colors
-                                                                        .orange,
-                                                                    size: 50,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Center(
-                                                                  child:
-                                                                      CustomText(
-                                                                content:
-                                                                    'Please check out from the current customer',
-                                                                fontSize: 17,
-                                                              )),
-                                                              TextButton(
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                    setState(
-                                                                        () {
-                                                                      customerSearchController
-                                                                          .clear();
-                                                                    });
-                                                                  },
-                                                                  child: Text(
-                                                                      'Ok'))
-                                                            ],
-                                                          );
-                                                        },
+                                                ),
+                                                title: Text(
+                                                    customer.fullname ?? ''),
+                                                subtitle: Text(
+                                                    customer.customerId ?? ''),
+                                                onTap: () async {
+                                                  if (active == true) {
+                                                    _showWarningDialog(
+                                                      context,
+                                                      'Please check out from the current customer',
+                                                      Center(
+                                                        child: Icon(
+                                                          Icons
+                                                              .warning_amber_outlined,
+                                                          size: 40,
+                                                          color: Colors.orange,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  } else if (active == false &&
+                                                      CartDatabaseManager()
+                                                          .cartItems
+                                                          .isNotEmpty &&
+                                                      customeController
+                                                          .customerId
+                                                          .isNotEmpty) {
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            seconds: 1), () {
+                                                      if (mounted) {
+                                                        _showWarningDialog(
+                                                          context,
+                                                          'Your order saved as draft.',
+                                                          Center(
+                                                            child: Container(
+                                                                height: 150,
+                                                                width: 150,
+                                                                child: Lottie.asset(
+                                                                    'assets/images/Animation - 1726906882515.json')),
+                                                          ),
+                                                        );
+                                                      }
+                                                    });
+                                                    List<Detail> detail =
+                                                        CartDatabaseManager()
+                                                            .cartItems
+                                                            .map(
+                                                                (e) => e.detail)
+                                                            .toList();
+
+                                                    final productBYData =
+                                                        AddToCartModel(
+                                                      customerId:
+                                                          customeController
+                                                              .customerId.value,
+                                                      salesmanId: SessionHelper
+                                                          .loginSavedData!
+                                                          .salesmanId!,
+                                                      cartId: '',
+                                                      cartList: detail
+                                                          .map((e) =>
+                                                              SendCartData(
+                                                                productId:
+                                                                    e.productId ??
+                                                                        '',
+                                                                variantId:
+                                                                    e.variationId ??
+                                                                        '',
+                                                                pack: e.pieces
+                                                                    .toString(),
+                                                                price: e.price
+                                                                    .toString(),
+                                                                discount: '0',
+                                                                quantity: e
+                                                                    .count
+                                                                    .toInt(),
+                                                              ))
+                                                          .toList(),
+                                                      total: widget
+                                                          .productsController
+                                                          .finalAmount
+                                                          .value
+                                                          .toStringAsFixed(0),
+                                                      discount: '0',
+                                                    );
+
+                                                    CartOrderModel? cartOrder =
+                                                        await ApiWorker()
+                                                            .addToCart(
+                                                                productBYData
+                                                                    .toJson());
+                                                    log('CartId :${cartOrder?.cartId}');
+
+                                                    if (cartOrder != null) {
+                                                      int orderStatus = 4;
+                                                      CartOrderModel order =
+                                                          CartOrderModel(
+                                                        customerId:
+                                                            customeController
+                                                                .customerId
+                                                                .value,
+                                                        salesmanId:
+                                                            SessionHelper
+                                                                .loginSavedData!
+                                                                .salesmanId!,
+                                                        cartId:
+                                                            cartOrder.cartId,
+                                                        orderStatus:
+                                                            orderStatus,
                                                       );
-                                                    } else if (active == false && CartDatabaseManager()
-                                                        .cartItems
-                                                        .isNotEmpty&&customeController.customerId.isNotEmpty) {
-                                                      triggerLeadingIcon(false);
-                                                    } else {
+
+                                                      log('CartId :${cartOrder.cartId}');
+                                                      await widget
+                                                          .productsController
+                                                          .placeOrder(order);
+                                                      setState(() {
+                                                        CartDatabaseManager()
+                                                            .cartItems
+                                                            .clear();
+                                                        CartDatabaseManager()
+                                                            .clearCart();
+                                                      });
+
+                                                      // Show confirmation dialog after a short delay, checking if the widget is mounted
+
                                                       customerAndOrderController
                                                           .setCustomerId(customer
                                                                   .customerId ??
                                                               '');
-                                                      setState(() {
-                                                        String
-                                                            getFormattedCustomerName(
-                                                                String?
-                                                                    fullname) {
-                                                          if (fullname ==
-                                                                  null ||
-                                                              fullname
-                                                                  .isEmpty) {
-                                                            return '';
-                                                          }
-                                                          return fullname
-                                                                      .length >
-                                                                  6
-                                                              ? '${fullname.substring(0, 6)}...'
-                                                              : fullname;
-                                                        }
 
+                                                      setState(() {
                                                         _selectedCustomerName =
-                                                            getFormattedCustomerName(
+                                                            _getFormattedCustomerName(
                                                                 customer
                                                                     .fullname);
                                                         _selectedCustomerImageUrl =
@@ -492,14 +560,42 @@ class _OrderTakingState extends State<OrderTaking>
                                                             .clear();
                                                       });
                                                     }
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                                  } else {
+                                                    // Set customer ID and update UI if active is false and cart is empty
+                                                    customerAndOrderController
+                                                        .setCustomerId(customer
+                                                                .customerId ??
+                                                            '');
+                                                    setState(() {
+                                                      _selectedCustomerName =
+                                                          _getFormattedCustomerName(
+                                                              customer
+                                                                  .fullname);
+                                                      _selectedCustomerImageUrl =
+                                                          customer.imageUrl ??
+                                                              '';
+                                                      customerSearchController
+                                                          .clear();
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                            );
+                                          },
                                         )
                                   : const SizedBox.shrink(),
                         ),
+                        if (_showDialog)
+                          AlertDialog(
+                            title: Text('Warning'),
+                            content: Text(_dialogMessage),
+                            actions: [
+                              TextButton(
+                                onPressed: _closeDialog,
+                                child: Text('OK'),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -764,6 +860,46 @@ class _OrderTakingState extends State<OrderTaking>
       animationController.reverse();
     });
   }
+
+  String _getFormattedCustomerName(String? fullname) {
+    if (fullname == null || fullname.isEmpty) {
+      return '';
+    }
+    return fullname.length > 6 ? '${fullname.substring(0, 6)}...' : fullname;
+  }
+
+// Helper function to show warning dialog
+  void _showWarningDialog(BuildContext context, String message, Widget widget) {
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            actions: [
+              SizedBox(height: 20),
+              Padding(padding: const EdgeInsets.all(8.0), child: widget),
+              Center(
+                child: CustomText(
+                  content: message,
+                  fontSize: 17,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    customerSearchController.clear();
+                    cartItemCount = 0;
+                  });
+                },
+                child: Text('Ok'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 }
 
 class CustomSearchBar extends StatelessWidget {
@@ -812,6 +948,46 @@ class CustomSearchBar extends StatelessWidget {
         ),
         prefixIcon: Icon(icon),
       ),
+    );
+  }
+}
+
+class WarningDialog extends StatelessWidget {
+  final String message;
+  final VoidCallback onOkPressed;
+
+  const WarningDialog({
+    Key? key,
+    required this.message,
+    required this.onOkPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      actions: [
+        SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.orange,
+              size: 50,
+            ),
+          ),
+        ),
+        Center(
+          child: CustomText(
+            content: message,
+            fontSize: 17,
+          ),
+        ),
+        TextButton(
+          onPressed: onOkPressed,
+          child: Text('Ok'),
+        ),
+      ],
     );
   }
 }

@@ -15,10 +15,13 @@ class CartItem extends HiveObject {
 
   @HiveField(3)
   final bool? isPack;
+  @HiveField(4)
 
   CartItem(
       {required this.detail,
       required this.productName,
       required this.totalPrice,
-      this.isPack});
+      this.isPack,
+      
+      });
 }

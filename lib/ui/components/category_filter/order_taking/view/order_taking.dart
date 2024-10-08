@@ -444,10 +444,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                       customeController
                                                           .customerId
                                                           .isNotEmpty) {
-                                                    Future.delayed(
-                                                        const Duration(
-                                                            seconds: 1), () {
-                                                      if (mounted) {
+                                                    if (mounted) {
                                                         _showWarningDialog(
                                                           context,
                                                           'Your order saved as draft.',
@@ -460,7 +457,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                           ),
                                                         );
                                                       }
-                                                    });
                                                     List<Detail> detail =
                                                         CartDatabaseManager()
                                                             .cartItems

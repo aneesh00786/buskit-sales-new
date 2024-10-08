@@ -33,51 +33,46 @@ class _CartDialogueState extends State<CartDialogue> {
   double total = 0.0;
   double tax = 0.0;
   String? _selectedValue;
-  final List<String> _options = ['Sale Order',"Quick Sale", 'Pre Order', 'Estimate'];
+  final List<String> _options = [
+    'Sale Order',
+    "Quick Sale",
+    'Pre Order',
+    'Estimate'
+  ];
   ProductsController productsController = Get.find<ProductsController>();
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
   bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadCartItems();
-  }
+@override
+void initState() {
+  super.initState();
+  _loadCartItems();
+}
 
-  void _loadCartItems() async {
-    try {
-      List<CartItem> storedItems = await CartDatabaseManager().getCartItems();
-      setState(() {
-        cartItems = storedItems;
-        quantities = List.generate(cartItems.length, (index) => 1);
-        total = Utils().getFinalAmount(cartItems);
-        tax = Utils().getTotalTax(cartItems);
-        if (_options.isNotEmpty) {
-          _selectedValue = _options[0];
-        }
-        _isLoading = false;
-      });
-      log('First Count  : ${cartItems.first.detail.count}');
-      log('First variationName : ${cartItems.first.detail.variationName}');
-      log('Last Count : ${cartItems.last.detail.count}');
-      log('Last variationName : ${cartItems.last.detail.variationName}');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load cart items: $e'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-      setState(() {
-        _isLoading = false;
-      });
-    }
+void _loadCartItems() {
+  try {
+    List<CartItem> storedItems =  CartDatabaseManager().getCartItems();
+    setState(() {
+      cartItems = storedItems;
+      quantities = List.generate(cartItems.length, (index) => 1);
+      total = Utils().getFinalAmount(cartItems); 
+      tax = Utils().getTotalTax(cartItems);
+      if (_options.isNotEmpty) {
+        _selectedValue = _options[0];
+      }
+      _isLoading = false;
+    });
+  } catch (e) {
+    return null;
   }
+}
+
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading){
-       return Center(child: CircularProgressIndicator());
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
     }
     double finalAmount = total + tax;
     productsController.updateFinalAmount(finalAmount);

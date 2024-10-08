@@ -19,14 +19,15 @@ class Utils {
     }
     return totalPrice;
   }
-  double getFinalAmount(List<CartItem> cartItems) {
+double getFinalAmount(List<CartItem> cartItems) {
   double total = 0.0;
   for (var cartItem in cartItems) {
-    double? totalPrice = cartItem.detail.totalPrice;
-    total += totalPrice??0.0;
+    double? totalPrice = cartItem.totalPrice.toDouble();
+    total += totalPrice;
   }
   return total;
 }
+
 double getTotalTax(List<CartItem> cartItems) {
   double totalTax = 0.0;
   for (var cartItem in cartItems) {

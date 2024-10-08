@@ -36,13 +36,14 @@ class ProductVariantDialogue extends StatefulWidget {
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   CustomerAndOrderController customerAndOrderController =
       Get.find<CustomerAndOrderController>();
-  
+
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
-  late double defaultCount;
+  late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+    localCounts = List<int>.filled(widget.detailsCopy.length, 0);
   }
 
   @override
@@ -360,9 +361,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 DataCell(
                                   Container(
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                        color:
-                                            Color.fromARGB(255, 240, 239, 239)),
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Color.fromARGB(255, 240, 239, 239),
+                                    ),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -372,15 +373,19 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                           decoration: BoxDecoration(
                                             color: primaryColor,
                                             borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(5),
-                                                bottomLeft: Radius.circular(5)),
+                                              topLeft: Radius.circular(5),
+                                              bottomLeft: Radius.circular(5),
+                                            ),
                                           ),
                                           child: InkWell(
                                             onTap: () {
                                               setState(() {
-                                                if (detail.count > 0) {
-                                                  detail.count--;
-                                                  calculateAmount(detail);
+                                                if (localCounts[i] > 0) {
+                                                  localCounts[
+                                                      i]--;
+                                                  detail.count = localCounts[i].toDouble();
+                                                  calculateAmount(
+                                                      detail);
                                                 }
                                               });
                                             },
@@ -389,35 +394,32 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                   const EdgeInsets.all(2.5),
                                               child: Icon(
                                                 Icons.remove,
-                                                color: white,
+                                                color: Colors.white,
                                                 size: iconSize,
                                               ),
                                             ),
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: screenWidth * 0.01,
-                                        ),
+                                        SizedBox(width: 8),
                                         CustomText(
                                           content:
-                                              '${detail.count.toStringAsFixed(0)}',
+                                              '${localCounts[i].toStringAsFixed(0)}',
                                           fontSize: fontSize,
                                         ),
-                                        SizedBox(
-                                          width: screenWidth * 0.01,
-                                        ),
+                                        SizedBox(width: 8),
                                         Container(
                                           decoration: BoxDecoration(
                                             color: primaryColor,
                                             borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(5),
-                                                bottomRight:
-                                                    Radius.circular(5)),
+                                              topRight: Radius.circular(5),
+                                              bottomRight: Radius.circular(5),
+                                            ),
                                           ),
                                           child: InkWell(
                                             onTap: () {
                                               setState(() {
-                                                detail.saleBy ??= 'Pack';
+                                                detail.saleBy ??=
+                                                    'Pack';
                                                 if (detail.stock == 0) {
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
@@ -434,7 +436,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                     ),
                                                   );
                                                 } else {
-                                                  detail.count++;
+                                                  localCounts[i]++;
+                                                  detail.count = localCounts[i].toDouble();
                                                   calculateAmount(detail);
                                                 }
                                               });
@@ -444,7 +447,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                   const EdgeInsets.all(2.5),
                                               child: Icon(
                                                 Icons.add,
-                                                color: white,
+                                                color: Colors.white,
                                                 size: iconSize,
                                               ),
                                             ),
@@ -472,38 +475,48 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: (){
+                          onPressed: () {
                             if (customerAndOrderController
                                 .customerId.isNotEmpty) {
                               List<CartItem> cartItems =
-                                   CartDatabaseManager().getCartItems();
+                                  CartDatabaseManager().getCartItems();
                               List<Detail> detailsFromCart = cartItems
                                   .map((cartItem) => cartItem.detail)
                                   .toList();
-                              for (var detail in widget.detailsCopy) {
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                Detail detail = widget.detailsCopy[i];
                                 bool isProductAlreadyInCart =
-                                    detailsFromCart.any((item) =>
-                                        item.variationName ==
-                                            detail.variationName &&
-                                        item.sellPrice == detail.sellPrice);
-                                if (detail.count > 0 &&
-                                    !isProductAlreadyInCart) {
-                                  final bool isPack =
-                                      detail.saleBy == 'Pack' ? true : false;
-                                  CartDatabaseManager().addToCart(
+                                    detailsFromCart.any(
+                                  (item) =>
+                                      item.variationName ==
+                                          detail.variationName &&
+                                      item.sellPrice == detail.sellPrice,
+                                );
+                                if (localCounts[i] > 0) {
+                                  if (!isProductAlreadyInCart) {
+                                    final bool isPack = detail.saleBy == 'Pack';
+                                    CartDatabaseManager().addToCart(
                                       detail,
                                       widget.product.productName ?? '',
                                       detail.totalPrice!.toInt(),
-                                      isPack);
-                                  log('Total Price: ${detail.totalPrice}');
-                                  log('Detail log is Pack: ${isPack}');
-                                  log('Product added to cart with ID: ${detail.variationId}');
-                                  log('Pack or Pieces : ${detail.saleBy}');
-                                } else if (isProductAlreadyInCart) {
-                                  log('Product with ID: ${detail.variationId} is already in the cart');
+                                      isPack,
+                                      localCounts[i],
+                                    );
+                                    log('Product added to cart with ID: ${detail.variationId}');
+                                  } else {
+                                    log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
+                                    CartDatabaseManager().updateCartItemCount(
+                                        detail, localCounts[i]);
+                                    
+                                  }
+                                } else {
+                                  log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                 }
-                                widget.onDone();
                               }
+
+                              widget.onDone();
                               Navigator.pop(context);
                             } else {
                               showDialog(
@@ -513,27 +526,22 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     actions: [
                                       SizedBox(height: 20),
                                       Center(
-                                        child: Icon(
-                                          Icons.warning_amber_outlined,
-                                          size: 50,
-                                          color: Colors.orange,
-                                        ),
-                                      ),
+                                          child: Icon(
+                                              Icons.warning_amber_outlined,
+                                              size: 50,
+                                              color: Colors.orange)),
                                       SizedBox(height: 20),
                                       Center(
-                                        child: CustomText(
-                                          content: "Please Select a Customer",
-                                          fontSize: 18,
-                                        ),
-                                      ),
+                                          child: CustomText(
+                                              content:
+                                                  "Please Select a Customer",
+                                              fontSize: 18)),
                                       TextButton(
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
                                         child: CustomText(
-                                          content: "Ok",
-                                          color: primaryColor,
-                                        ),
+                                            content: "Ok", color: primaryColor),
                                       ),
                                     ],
                                   );
@@ -578,14 +586,34 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     );
   }
 
-  void calculateAmount(Detail detail) {
-    double? price = double.tryParse(detail.sellPrice ?? '');
+  void incrementCount(int index) {
+    setState(() {
+      localCounts[index]++;
+    });
+  }
+
+  void decrementCount(int index) {
+    setState(() {
+      if (localCounts[index] > 0) {
+        localCounts[index]--;
+      }
+    });
+  }
+
+void calculateAmount(Detail detail) {
+  double? price = double.tryParse(detail.sellPrice ?? '');
+  if (detail.count != null && detail.count > 0) {
     if (price != null && detail.saleBy == 'Pack') {
       detail.totalPrice = price * detail.pieces! * detail.count;
-      log("Total price for Pack: ${detail.sellPrice}, Pieces: ${detail.pieces}, Total Price: ${detail.totalPrice}");
+      log("Total price for Pack: ${detail.sellPrice}, Pieces: ${detail.pieces}, Count: ${detail.count}, Total Price: ${detail.totalPrice}");
     } else if (price != null) {
       detail.totalPrice = price * detail.count;
-      log("Total price for Pieces: ${detail.sellPrice}, Total Price: ${detail.totalPrice}");
+      log("Total price for Pieces: ${detail.sellPrice}, Count: ${detail.count}, Total Price: ${detail.totalPrice}");
     }
+  } else {
+    detail.totalPrice = 0;
+    log("Count is zero or negative for product: ${detail.variationName}. Total Price set to: ${detail.totalPrice}");
   }
+}
+
 }

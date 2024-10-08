@@ -21,13 +21,14 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       productName: fields[1] as String,
       totalPrice: fields[2] as int,
       isPack: fields[3] as bool?,
+      count: fields[4] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CartItem obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.detail)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       ..writeByte(2)
       ..write(obj.totalPrice)
       ..writeByte(3)
-      ..write(obj.isPack);
+      ..write(obj.isPack)
+      ..writeByte(4)
+      ..write(obj.count);
   }
 
   @override

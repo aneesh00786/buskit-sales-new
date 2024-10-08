@@ -15,13 +15,15 @@ class CartItem extends HiveObject {
 
   @HiveField(3)
   final bool? isPack;
+  
   @HiveField(4)
+  int? count;
 
-  CartItem(
-      {required this.detail,
-      required this.productName,
-      required this.totalPrice,
-      this.isPack,
-      
-      });
+  CartItem({
+    required this.detail,
+    required this.productName,
+    required this.totalPrice,
+    this.isPack,
+    this.count,
+  });
 }

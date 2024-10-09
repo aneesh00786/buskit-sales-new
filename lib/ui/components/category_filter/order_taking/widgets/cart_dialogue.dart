@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:collection/collection.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -44,30 +45,33 @@ class _CartDialogueState extends State<CartDialogue> {
       Get.find<CustomerAndOrderController>();
   bool _isLoading = true;
 
-@override
-void initState() {
-  super.initState();
-  _loadCartItems();
-}
-
-void _loadCartItems() {
-  try {
-    List<CartItem> storedItems =  CartDatabaseManager().getCartItems();
-    setState(() {
-      cartItems = storedItems;
-      quantities = List.generate(cartItems.length, (index) => 1);
-      total = Utils().getFinalAmount(cartItems); 
-      tax = Utils().getTotalTax(cartItems);
-      if (_options.isNotEmpty) {
-        _selectedValue = _options[0];
-      }
-      _isLoading = false;
-    });
-  } catch (e) {
-    return null;
+  @override
+  void initState() {
+    super.initState();
+    _loadCartItems();
   }
-}
 
+  void _loadCartItems() {
+    try {
+      List<CartItem> storedItems = CartDatabaseManager().getCartItems();
+      setState(() {
+        cartItems = storedItems;
+        quantities = List.generate(cartItems.length, (index) => 1);
+        total = Utils().getFinalAmount(cartItems);
+        tax = Utils().getTotalTax(cartItems);
+        if (_options.isNotEmpty) {
+          _selectedValue = _options[0];
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Map<String, List<CartItem>> groupCartItemsByName(List<CartItem> cartItems) {
+    return groupBy(cartItems, (CartItem item) => item.productName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +106,7 @@ void _loadCartItems() {
         width: dialogWidth,
         height: dialogHeight,
         child: LayoutBuilder(builder: (context, constraints) {
+          final groupedCartItems = groupCartItemsByName(cartItems);
           double availableWidth = constraints.maxWidth;
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
@@ -188,8 +193,15 @@ void _loadCartItems() {
                               height: dialogHeight * 0.5,
                               child: SingleChildScrollView(
                                 child: Column(
-                                  children: cartItems.map((cartItem) {
-                                    final index = cartItems.indexOf(cartItem);
+                                  children: cartItems
+                                      .map((cartItem) => cartItem.productName)
+                                      .toSet()
+                                      .toList()
+                                      .map((productName) {
+                                    List<CartItem> groupedItems = cartItems
+                                        .where((item) =>
+                                            item.productName == productName)
+                                        .toList();
                                     return Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 20),
@@ -206,7 +218,7 @@ void _loadCartItems() {
                                                         .spaceBetween,
                                                 children: [
                                                   CustomHeaderContainer(
-                                                    text: cartItem.productName,
+                                                    text: productName,
                                                     fontSize: fontSize,
                                                   ),
                                                   SizedBox(
@@ -221,7 +233,7 @@ void _loadCartItems() {
                                                                 title:
                                                                     CustomText(
                                                                   content:
-                                                                      'Delete ${cartItem.productName}..?',
+                                                                      'Delete ${productName}..?',
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
@@ -259,8 +271,15 @@ void _loadCartItems() {
                                                                       TextButton(
                                                                         onPressed:
                                                                             () {
-                                                                          _deleteItem(
-                                                                              index);
+                                                                          setState(
+                                                                              () {
+                                                                            cartItems.removeWhere((item) =>
+                                                                                item.productName ==
+                                                                                productName);
+                                                                          });
+                                                                          Navigator.pop(
+                                                                              context);
+
                                                                           Navigator.pop(
                                                                               context);
                                                                         },
@@ -349,8 +368,8 @@ void _loadCartItems() {
                                                     align: TextAlign.center,
                                                   )),
                                                 ],
-                                                rows: [
-                                                  DataRow(
+                                                rows:groupedItems.map((groupedItem){
+                                                  return DataRow(
                                                     cells: [
                                                       DataCell(
                                                         Center(
@@ -363,7 +382,7 @@ void _loadCartItems() {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '${cartItem.detail.variationName} ${cartItem.detail.unitType}',
+                                                                  '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -384,7 +403,7 @@ void _loadCartItems() {
                                                                         150),
                                                             child: CustomText(
                                                               content:
-                                                                  '${cartItem.detail.packtype}/ ${cartItem.detail.pieces} Pcs',
+                                                                  '${groupedItem.detail.packtype}/ ${groupedItem.detail.pieces} Pcs',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -405,7 +424,7 @@ void _loadCartItems() {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '\$${double.parse(cartItem.detail.price ?? '0').toStringAsFixed(2)}',
+                                                                  '\$${double.parse(groupedItem.detail.price ?? '0').toStringAsFixed(2)}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .right,
@@ -426,7 +445,7 @@ void _loadCartItems() {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '${double.parse(cartItem.detail.tax ?? '').toStringAsFixed(2)}',
+                                                                  '${double.parse(groupedItem.detail.tax ?? '').toStringAsFixed(2)}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .right,
@@ -446,8 +465,8 @@ void _loadCartItems() {
                                                                     maxWidth:
                                                                         100),
                                                             child: productQuantityManager(
-                                                                cartItem,
-                                                                cartItem
+                                                                groupedItem,
+                                                                groupedItem
                                                                     .totalPrice
                                                                     .toString(),
                                                                 fontSize,
@@ -466,7 +485,7 @@ void _loadCartItems() {
                                                                         100),
                                                             child: CustomText(
                                                               content:
-                                                                  '\$${cartItem.totalPrice.toStringAsFixed(2)}',
+                                                                  '\$${groupedItem.totalPrice.toStringAsFixed(2)}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .right,
@@ -477,8 +496,8 @@ void _loadCartItems() {
                                                         ),
                                                       ),
                                                     ],
-                                                  ),
-                                                ],
+                                                  );
+                                                }).toList()
                                               ))
                                             ],
                                           ),

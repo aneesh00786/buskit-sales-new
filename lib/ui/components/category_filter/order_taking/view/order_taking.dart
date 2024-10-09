@@ -416,7 +416,7 @@ class _OrderTakingState extends State<OrderTaking>
                                               child: ListTile(
                                                 leading: CircleAvatar(
                                                   backgroundImage: NetworkImage(
-                                                    '${ApiConstants.imageBaseUrlss}${customer.imageUrl}',
+                                                    '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
                                                   ),
                                                 ),
                                                 title: Text(

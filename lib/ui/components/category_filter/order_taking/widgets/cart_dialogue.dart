@@ -271,14 +271,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                       TextButton(
                                                                         onPressed:
                                                                             () {
-                                                                          setState(
-                                                                              () {
-                                                                            cartItems.removeWhere((item) =>
-                                                                                item.productName ==
-                                                                                productName);
-                                                                          });
-                                                                          Navigator.pop(
-                                                                              context);
+                                                                          _deleteItem(
+                                                                              productName);
 
                                                                           Navigator.pop(
                                                                               context);
@@ -320,185 +314,197 @@ class _CartDialogueState extends State<CartDialogue> {
                                             children: [
                                               Expanded(
                                                   child: DataTable(
-                                                headingRowHeight: 40,
-                                                dataRowHeight: rowHeight,
-                                                horizontalMargin: 5,
-                                                columnSpacing: columnSpacing,
-                                                columns: [
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                    text: 'Variant',
-                                                    fontSize: fontSize,
-                                                    align: TextAlign.center,
-                                                  )),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                    text: 'Pack',
-                                                    fontSize: fontSize,
-                                                    align: TextAlign.center,
-                                                  )),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                    text: 'Price',
-                                                    fontSize: fontSize,
-                                                    align: TextAlign.center,
-                                                  )),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                    text: 'Tax',
-                                                    fontSize: fontSize,
-                                                    align: TextAlign.center,
-                                                  )),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                    text: 'Quantity',
-                                                    fontSize: fontSize,
-                                                    align: TextAlign.center,
-                                                  )),
-                                                  DataColumn(
-                                                      label:
-                                                          DialogTableHeaderText(
-                                                    text: 'Total',
-                                                    fontSize: fontSize,
-                                                    align: TextAlign.center,
-                                                  )),
-                                                ],
-                                                rows:groupedItems.map((groupedItem){
-                                                  return DataRow(
-                                                    cells: [
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
-                                                            child: CustomText(
-                                                              content:
-                                                                  '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              fontSize:
-                                                                  fontSize,
+                                                      headingRowHeight: 40,
+                                                      dataRowHeight: rowHeight,
+                                                      horizontalMargin: 5,
+                                                      columnSpacing:
+                                                          columnSpacing,
+                                                      columns: [
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: 'Variant',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: 'Pack',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: 'Price',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: 'Tax',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: 'Quantity',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: 'Total',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
+                                                      ],
+                                                      rows: groupedItems
+                                                          .map((groupedItem) {
+                                                        return DataRow(
+                                                          cells: [
+                                                            DataCell(
+                                                              Center(
+                                                                child:
+                                                                    ConstrainedBox(
+                                                                  constraints: BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                                  child:
+                                                                      CustomText(
+                                                                    content:
+                                                                        '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        150),
-                                                            child: CustomText(
-                                                              content:
-                                                                  '${groupedItem.detail.packtype}/ ${groupedItem.detail.pieces} Pcs',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              fontSize:
-                                                                  fontSize,
+                                                            DataCell(
+                                                              Center(
+                                                                child:
+                                                                    ConstrainedBox(
+                                                                  constraints: BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          150),
+                                                                  child:
+                                                                      CustomText(
+                                                                    content:
+                                                                        '${groupedItem.detail.packtype}/ ${groupedItem.detail.pieces} Pcs',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
-                                                            child: CustomText(
-                                                              content:
-                                                                  '\$${double.parse(groupedItem.detail.price ?? '0').toStringAsFixed(2)}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .right,
-                                                              fontSize:
-                                                                  fontSize,
+                                                            DataCell(
+                                                              Center(
+                                                                child:
+                                                                    ConstrainedBox(
+                                                                  constraints: BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                                  child:
+                                                                      CustomText(
+                                                                    content:
+                                                                        '\$${double.parse(groupedItem.detail.price ?? '0').toStringAsFixed(2)}',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .right,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
-                                                            child: CustomText(
-                                                              content:
-                                                                  '${double.parse(groupedItem.detail.tax ?? '').toStringAsFixed(2)}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .right,
-                                                              fontSize:
-                                                                  fontSize,
+                                                            DataCell(
+                                                              Center(
+                                                                child:
+                                                                    ConstrainedBox(
+                                                                  constraints: BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                                  child:
+                                                                      CustomText(
+                                                                    content:
+                                                                        '${double.parse(groupedItem.detail.tax ?? '').toStringAsFixed(2)}',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .right,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
-                                                            child: productQuantityManager(
-                                                                groupedItem,
-                                                                groupedItem
-                                                                    .totalPrice
-                                                                    .toString(),
-                                                                fontSize,
-                                                                availableWidth),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                BoxConstraints(
-                                                                    minWidth:
-                                                                        50,
-                                                                    maxWidth:
-                                                                        100),
-                                                            child: CustomText(
-                                                              content:
-                                                                  '\$${groupedItem.totalPrice.toStringAsFixed(2)}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .right,
-                                                              fontSize:
-                                                                  fontSize,
+                                                            DataCell(
+                                                              Center(
+                                                                child:
+                                                                    ConstrainedBox(
+                                                                  constraints: BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                                  child: productQuantityManager(
+                                                                      groupedItem,
+                                                                      groupedItem
+                                                                          .totalPrice
+                                                                          .toString(),
+                                                                      fontSize,
+                                                                      availableWidth),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                }).toList()
-                                              ))
+                                                            DataCell(
+                                                              Center(
+                                                                child:
+                                                                    ConstrainedBox(
+                                                                  constraints: BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                                  child:
+                                                                      CustomText(
+                                                                    content:
+                                                                        '\$${groupedItem.totalPrice.toStringAsFixed(2)}',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .right,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }).toList()))
                                             ],
                                           ),
                                         ],
@@ -929,14 +935,26 @@ class _CartDialogueState extends State<CartDialogue> {
     log('CartItem Cleared : $cartItem');
   }
 
-  void _deleteItem(int index) {
-    final itemToDelete = cartItems[index];
-    CartDatabaseManager().deleteCartItem(itemToDelete);
+  void _deleteItem(String productName) {
+    final itemsToDelete =
+        cartItems.where((item) => item.productName == productName).toList();
+    for (var item in itemsToDelete) {
+      CartDatabaseManager().deleteCartItem(item);
+    }
     setState(() {
-      cartItems.removeAt(index);
-      quantities.removeAt(index);
+      List<int> indicesToRemove = [];
+      for (int i = 0; i < cartItems.length; i++) {
+        if (cartItems[i].productName == productName) {
+          indicesToRemove.add(i);
+        }
+      }
+      cartItems.removeWhere((item) => item.productName == productName);
+      for (int index in indicesToRemove.reversed) {
+        quantities.removeAt(index);
+      }
       total = Utils().getFinalAmount(cartItems);
     });
-    log('CartItem deleted : $itemToDelete');
+
+    log('Cart items deleted for product: $productName');
   }
 }

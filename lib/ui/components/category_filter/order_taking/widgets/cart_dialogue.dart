@@ -916,6 +916,7 @@ void _loadCartItems() {
     setState(() {
       cartItems.removeAt(index);
       quantities.removeAt(index);
+      total = Utils().getFinalAmount(cartItems);
     });
     log('CartItem deleted : $itemToDelete');
   }

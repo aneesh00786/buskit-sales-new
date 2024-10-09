@@ -750,7 +750,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                         orderStatus = 0;
                                       } else if (_selectedValue == 'Estimate') {
                                         orderStatus = 7;
-                                      } else {
+                                      } else if (_selectedValue == 'Quick Sale'){
+                                        orderStatus = 14;
+                                      }else{
                                         orderStatus = -1;
                                       }
                                       CartOrderModel order = CartOrderModel(

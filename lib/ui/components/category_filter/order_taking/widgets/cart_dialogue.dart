@@ -294,9 +294,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           );
                                                         },
                                                         icon: const Icon(
-                                                          EneftyIcons
-                                                              .trash_outline,
-                                                          size: 20,
+                                                          Icons.delete,
+                                                          size: 30,
                                                           color: Colors.red,
                                                         ),
                                                       ),
@@ -520,16 +519,36 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                   child:
                                                                       IconButton(
                                                                     icon: Icon(
-                                                                      Icons
-                                                                          .close,
+                                                                      EneftyIcons
+                                                                          .trash_outline,
                                                                       color: Colors
                                                                           .red,
                                                                     ),
                                                                     onPressed:
                                                                         () {
-                                                                      _deleteVariant(
-                                                                          groupedItem,
-                                                                          groupedItems);
+                                                                       showDialog(context: context, builder: (context) {
+                                                                         return AlertDialog(
+                                                                            title: CustomText(content :'Delete ${groupedItem.detail.variationName}..?',fontWeight: FontWeight.w700,),
+                                                                            actions: [
+                                                                              Align(
+                                                                                alignment: Alignment.centerLeft,
+                                                                                child: CustomText(content: 'Are you sure you want to delete..?',fontSize: 17,)),
+                                                                              Row(
+                                                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                                                children: [
+                                                                                  TextButton(onPressed: (){
+                                                                                    Navigator.pop(context);
+                                                                                  }, child: Text('No')),
+
+                                                                                  TextButton(onPressed: (){
+                                                                                   _deleteVariant(groupedItem, groupedItems);
+                                                                                   Navigator.pop(context);
+                                                                                  }, child: Text('Yes'))
+                                                                                ],
+                                                                              )
+                                                                            ],
+                                                                         );
+                                                                       },);
                                                                     },
                                                                   ),
                                                                 ),
@@ -864,6 +883,8 @@ class _CartDialogueState extends State<CartDialogue> {
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
       CartDatabaseManager().deleteCartItem(variantToDelete);
+      total = Utils().getFinalAmount(cartItems);
+      tax = Utils().getTotalTax(cartItems);
     });
   }
 
@@ -999,6 +1020,7 @@ class _CartDialogueState extends State<CartDialogue> {
         quantities.removeAt(index);
       }
       total = Utils().getFinalAmount(cartItems);
+      tax = Utils().getTotalTax(cartItems);
     });
 
     log('Cart items deleted for product: $productName');

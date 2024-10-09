@@ -23,7 +23,8 @@ import 'package:lottie/lottie.dart';
 
 class CartDialogue extends StatefulWidget {
   bool? active;
-  CartDialogue({super.key, this.active});
+  int cartItemCount;
+  CartDialogue({super.key, this.active, required this.cartItemCount});
   @override
   State<CartDialogue> createState() => _CartDialogueState();
 }
@@ -368,6 +369,14 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           align:
                                                               TextAlign.center,
                                                         )),
+                                                        DataColumn(
+                                                            label:
+                                                                DialogTableHeaderText(
+                                                          text: '',
+                                                          fontSize: fontSize,
+                                                          align:
+                                                              TextAlign.center,
+                                                        )),
                                                       ],
                                                       rows: groupedItems
                                                           .map((groupedItem) {
@@ -470,13 +479,15 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                           50,
                                                                       maxWidth:
                                                                           100),
-                                                                  child: productQuantityManager(
-                                                                      groupedItem,
-                                                                      groupedItem
-                                                                          .totalPrice
-                                                                          .toString(),
-                                                                      fontSize,
-                                                                      availableWidth),
+                                                                  child:
+                                                                      productQuantityManager(
+                                                                    groupedItem,
+                                                                    groupedItem
+                                                                        .totalPrice
+                                                                        .toString(),
+                                                                    fontSize,
+                                                                    availableWidth,
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
@@ -498,6 +509,28 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                             .right,
                                                                     fontSize:
                                                                         fontSize,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            DataCell(
+                                                              Center(
+                                                                child: SizedBox(
+                                                                  width: 30,
+                                                                  child:
+                                                                      IconButton(
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .close,
+                                                                      color: Colors
+                                                                          .red,
+                                                                    ),
+                                                                    onPressed:
+                                                                        () {
+                                                                      _deleteVariant(
+                                                                          groupedItem,
+                                                                          groupedItems);
+                                                                    },
                                                                   ),
                                                                 ),
                                                               ),
@@ -597,7 +630,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                     .cartItems
                                     .map((e) => e.detail)
                                     .toList();
-
+                                setState(() {
+                                  widget.cartItemCount = 0;
+                                });
                                 final productBYData = AddToCartModel(
                                   customerId:
                                       customeController.customerId.value,
@@ -621,6 +656,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                 CartOrderModel? cartOrder = await ApiWorker()
                                     .addToCart(productBYData.toJson());
                                 log('CartId :${cartOrder?.cartId}');
+
                                 if (cartOrder != null) {
                                   int orderStatus = 4;
                                   CartOrderModel order = CartOrderModel(
@@ -819,6 +855,16 @@ class _CartDialogueState extends State<CartDialogue> {
         }),
       ),
     );
+  }
+
+  void _deleteVariant(CartItem variantToDelete, List<CartItem> groupedItems) {
+    setState(() {
+      groupedItems.remove(variantToDelete);
+      cartItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      CartDatabaseManager().deleteCartItem(variantToDelete);
+    });
   }
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,

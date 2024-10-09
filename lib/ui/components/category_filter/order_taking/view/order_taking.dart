@@ -243,6 +243,7 @@ class _OrderTakingState extends State<OrderTaking>
                           homeController.sidebarXController.selectIndex(0);
                           homeController.selectedIndex.value = 0;
                           Get.toNamed(AppRoutes.dashboard, id: 2);
+                          customeController.customerId.value = '';
                         });
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
@@ -251,6 +252,7 @@ class _OrderTakingState extends State<OrderTaking>
                         Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
+                        customeController.customerId.value = '';
                         setState(() {
                           cartItemCount = 0;
                         });
@@ -317,6 +319,7 @@ class _OrderTakingState extends State<OrderTaking>
       homeController.sidebarXController.selectIndex(0);
       homeController.selectedIndex.value = 0;
       Get.toNamed(AppRoutes.dashboard, id: 2);
+      customeController.customerId.value = '';
     }
   }
 
@@ -445,18 +448,18 @@ class _OrderTakingState extends State<OrderTaking>
                                                           .customerId
                                                           .isNotEmpty) {
                                                     if (mounted) {
-                                                        _showWarningDialog(
-                                                          context,
-                                                          'Your order saved as draft.',
-                                                          Center(
-                                                            child: Container(
-                                                                height: 150,
-                                                                width: 150,
-                                                                child: Lottie.asset(
-                                                                    'assets/images/Animation - 1726906882515.json')),
-                                                          ),
-                                                        );
-                                                      }
+                                                      _showWarningDialog(
+                                                        context,
+                                                        'Your order saved as draft.',
+                                                        Center(
+                                                          child: Container(
+                                                              height: 150,
+                                                              width: 150,
+                                                              child: Lottie.asset(
+                                                                  'assets/images/Animation - 1726906882515.json')),
+                                                        ),
+                                                      );
+                                                    }
                                                     List<Detail> detail =
                                                         CartDatabaseManager()
                                                             .cartItems
@@ -846,6 +849,7 @@ class _OrderTakingState extends State<OrderTaking>
       builder: (BuildContext context) {
         return CartDialogue(
           active: active,
+          cartItemCount: cartItemCount,
         );
       },
     );

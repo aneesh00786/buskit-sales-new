@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -41,6 +43,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
 
   @override
   Widget build(BuildContext context) {
+    log('ImagePath Side : ${widget.userDetails.imagePath}');
     return OrientationBuilder(builder: (context, orientation) {
       return SidebarX(
         controller: widget._controller,

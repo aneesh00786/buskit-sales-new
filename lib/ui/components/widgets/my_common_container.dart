@@ -21,7 +21,7 @@ class MyCommnonContainer extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final Color? inkwellSplashColor;
   final BorderRadiusGeometry? borderRadiusGeometry;
-
+  final List<BoxShadow>? boxShadow;
   const MyCommnonContainer(
       {Key? key,
       this.child,
@@ -40,7 +40,9 @@ class MyCommnonContainer extends StatelessWidget {
       this.inkwellSplashColor,
       this.borderRadiusGeometry,
       this.isCommonBorder = false,
-      this.isShowError = false})
+      this.isShowError = false,
+      this.boxShadow,
+      })
       : super(key: key);
 
   @override
@@ -56,6 +58,7 @@ class MyCommnonContainer extends StatelessWidget {
         color: color ?? theme.colorScheme.primaryContainer,
         shape: boxShape ?? BoxShape.rectangle,
         image: image,
+        boxShadow: boxShadow ?? [],
         border: isCommonBorder || isShowError
             ? Border.all(
                 color: !isShowError ? primaryTextFieldColor : errorColor)

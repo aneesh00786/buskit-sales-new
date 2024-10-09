@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -24,7 +27,10 @@ class CalenderTopWidget extends StatelessWidget {
   }
 
   Widget staffDetailsWidget(LoginData staffData) {
+    log('Calender ImagePath :${staffData.imagePath}');
     return MyCommnonContainer(
+      color: white,
+      border: Border.all(color: black.withOpacity(0.3)),
       padding: nkRegularPadding(),
       child: Row(children: [
         ClipOval(
@@ -41,12 +47,16 @@ class CalenderTopWidget extends StatelessWidget {
             children: [
               MyRegularText(
                 label: staffData.fullname ?? 'No Name',
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
               ),
               MyRegularText(
                 label: staffData.mobileno ?? 'No Mobile',
+                fontSize: 15,
               ),
               MyRegularText(
                 label: staffData.email ?? 'No Email',
+                fontSize: 15,
               ),
             ])
       ]),

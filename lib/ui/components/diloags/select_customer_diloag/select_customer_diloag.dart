@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -21,10 +23,10 @@ class SelectCustomerDiloag extends StatefulWidget {
   @override
   State<SelectCustomerDiloag> createState() => _SelectCustomerDiloagState();
 }
-
 class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
   @override
   Widget build(BuildContext context) {
+    log('CustomerList Length : ${widget.customerlist.length}');
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         margin: AppDimensions.instance!.orientation == Orientation.landscape

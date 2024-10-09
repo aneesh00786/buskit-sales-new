@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/widget/calender_bottom_widget.dart';
@@ -31,6 +32,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
     return OrientationBuilder(builder: (context, ore) {
       return SafeArea(
         child: Scaffold(
+          backgroundColor: white,
           body: Column(
             children: [
               CalenderTopWidget(

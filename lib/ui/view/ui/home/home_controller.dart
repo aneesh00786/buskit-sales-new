@@ -44,6 +44,9 @@ class HomeController extends GetxController {
       await _apiWorker.dashboardData();
     } catch (e) {
       if (e.toString().contains('Session expired')) {
+        await SessionHelper().clearAll();
+        Get.offAllNamed(AppRoutes.login);
+        Future.delayed(Duration(seconds: 1));
         _handleTokenExpiration();
       }
       log('Error fetching dashboard data: $e');
@@ -60,8 +63,7 @@ class HomeController extends GetxController {
             TextButton(
               child: Text("OK"),
               onPressed: () async {
-                await SessionHelper().clearAll();
-                Get.offAllNamed(AppRoutes.login);
+                Get.back();
               },
             ),
           ],

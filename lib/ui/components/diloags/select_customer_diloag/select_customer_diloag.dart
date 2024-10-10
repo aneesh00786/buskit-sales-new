@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -205,12 +206,12 @@ class CustomerMapScreen extends StatefulWidget {
 }
 
 class _CustomerMapScreenState extends State<CustomerMapScreen> {
-
-  
   late GoogleMapController mapController;
   final double defaultLat = 25.022702;
   final double defaultLng = 45.052659;
   bool _locationPermissionGranted=false;
+  String currentLocationText = 'Current location';
+  LatLng? _currentLatLng;
   @override
 void initState() {
   super.initState();
@@ -223,7 +224,7 @@ Future<void> _requestLocationPermission() async {
     setState(() {
       _locationPermissionGranted = true;
     });
-    _setMapMarkers();
+    _getCurrentLocation();
   } else if (status.isDenied) {
     log("Location permission denied. Requesting again.");
     _requestLocationPermission();
@@ -232,6 +233,19 @@ Future<void> _requestLocationPermission() async {
     _showPermissionDeniedDialog();
   }
 }
+  Future<void> _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      _currentLatLng = LatLng(position.latitude, position.longitude);
+      currentLocationText = '${position.latitude}, ${position.longitude}';
+    });
+    mapController.animateCamera(
+      CameraUpdate.newLatLng(_currentLatLng!),
+    );
+    _setMapMarkers();
+  }
 
 void _showPermissionDeniedDialog() {
   showDialog(
@@ -283,7 +297,7 @@ void _showPermissionDeniedDialog() {
                       Expanded(
                         child: TextFormField(
                           decoration: InputDecoration(
-                            hintText: 'Current Location',
+                            hintText: currentLocationText,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -367,6 +381,15 @@ void _showPermissionDeniedDialog() {
 
   Set<Marker> _createMarkers() {
     Set<Marker> markers = {};
+    if (_currentLatLng != null) {
+      markers.add(
+        Marker(
+          markerId: MarkerId('Current Location'),
+          position: _currentLatLng!,
+          infoWindow: InfoWindow(title: 'Current Location'),
+        ),
+      );
+    }
     for (var customer in widget.customerList) {
       double lat = defaultLat;
       double lng = defaultLng;
@@ -385,25 +408,25 @@ void _showPermissionDeniedDialog() {
   }
 
   void _setMapMarkers() {
-    mapController
-        .animateCamera(CameraUpdate.newLatLng(LatLng(defaultLat, defaultLng)));
+    mapController.animateCamera(
+        CameraUpdate.newLatLng(_currentLatLng ?? LatLng(defaultLat, defaultLng)));
   }
   Widget _buildGoogleMap() {
-  return GoogleMap(
-    mapType: MapType.normal, 
-    initialCameraPosition: CameraPosition(
-      target: LatLng(defaultLat, defaultLng),
-      zoom: 10,
-    ),
-    onMapCreated: (GoogleMapController controller) {
-      mapController = controller;
-      if (_locationPermissionGranted) {
-        _setMapMarkers();
-      }
-    },
-    markers: _createMarkers(), 
-  );
-}
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: CameraPosition(
+        target: LatLng(defaultLat, defaultLng),
+        zoom: 10,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        mapController = controller;
+        if (_locationPermissionGranted) {
+          _setMapMarkers();
+        }
+      },
+      markers: _createMarkers(),
+    );
+  }
 }
 
 

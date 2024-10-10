@@ -106,7 +106,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
                           itemCount: widget.customerlist.length),
                     )
                   : SizedBox(),
-              _buildSelectedCustomerList(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 30),
                 child: ElevatedButton.icon(
@@ -132,42 +131,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
       );
     });
   }
-
-  Widget _buildSelectedCustomerList() {
-    List<Customer> selectedCustomers = [];
-    for (int i = 0; i < _checkedList.length; i++) {
-      if (_checkedList[i]) {
-        selectedCustomers.add(widget.customerlist[i]);
-      }
-    }
-
-    return selectedCustomers.isNotEmpty
-        ? Column(
-            children: selectedCustomers.map((customer) {
-              return Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(customer.imageUrl ?? ''),
-                  ),
-                  title: CustomText(content: customer.fullname ?? ''),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomText(content: 'Phone: ${customer.mobileno}'),
-                      CustomText(content: 'Email: ${customer.email}'),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          )
-        : Padding(
-            padding: const EdgeInsets.all(8.0),
-            child:
-                Text('No customers selected', style: TextStyle(fontSize: 16)),
-          );
-  }
-
   void showSelectedCustomerRoute() {
     List<Customer> selectedCustomers = [];
     for (int i = 0; i < _checkedList.length; i++) {

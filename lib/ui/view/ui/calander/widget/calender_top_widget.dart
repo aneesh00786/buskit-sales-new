@@ -22,10 +22,11 @@ class CalenderTopWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [staffDetailsWidget(SessionHelper.loginSavedData??LoginData())],
     );
   }
-  
+
   Widget staffDetailsWidget(LoginData staffData) {
     log('Calender ImagePath :${staffData.imagePath}');
     return MyCommnonContainer(

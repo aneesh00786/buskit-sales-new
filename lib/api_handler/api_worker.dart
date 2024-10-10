@@ -48,8 +48,6 @@ class ApiWorker with ApiConstants {
         .postbycustom(
       ApiConstants.login,
       data: data,
-      
-      
     )
         .onError((DioError error, stackTrace) {
       log(error.toString());
@@ -75,67 +73,67 @@ class ApiWorker with ApiConstants {
   // }
   /// ************************ DASHBOARD SECTION ***************** ///
 
-Future<DashboardResponse> dashboardData() async {
-  final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-  Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  String createdToken = jsonMap['createdToken'];
+  Future<DashboardResponse> dashboardData() async {
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    String createdToken = jsonMap['createdToken'];
 
-  Map<String, dynamic> data = {
-    'salesman_id': salesmanId,
-    'start_date': "2024-09-30",
-    'end_date': "2024-09-01",
-  };
+    Map<String, dynamic> data = {
+      'salesman_id': salesmanId,
+      'start_date': "2024-09-30",
+      'end_date': "2024-09-01",
+    };
 
-  Map<String, dynamic> headers = {
-    'Authorization': 'Bearer $createdToken',
-  };
+    Map<String, dynamic> headers = {
+      'Authorization': 'Bearer $createdToken',
+    };
 
-  log('Created Token: $createdToken');
-  log('Salesman ID: $salesmanId');
+    log('Created Token: $createdToken');
+    log('Salesman ID: $salesmanId');
 
-  try {
-    final response = await dio.postbycustom(
-      ApiConstants.dashboard_list,
-      data: data,
-      options: Options(headers: headers),
-    );
+    try {
+      final response = await dio.postbycustom(
+        ApiConstants.dashboard_list,
+        data: data,
+        options: Options(headers: headers),
+      );
 
-    log('Dashboard API Response: ${response.data}');
-    if (response.data['status_code'] == 400) {
-      _handleTokenExpiration(); 
-      throw Exception('Session expired');
+      log('Dashboard API Response: ${response.data}');
+      if (response.data['status_code'] == 400) {
+        await SessionHelper().clearAll();
+        Get.offAllNamed(AppRoutes.login);
+        Future.delayed(Duration(seconds: 1));
+        _handleTokenExpiration();
+        throw Exception('Session expired');
+      }
+
+      return DashboardResponse.fromJson(response.data);
+    } catch (e) {
+      log('Error fetching dashboard data: $e');
+      rethrow;
     }
-
-    return DashboardResponse.fromJson(response.data);
-  } catch (e) {
-    log('Error fetching dashboard data: $e');
-    rethrow;
   }
-}
 
-void _handleTokenExpiration() async {
-  if (!Get.isDialogOpen!) {
-    await Get.dialog(
-      AlertDialog(
-        title: Text("Session Expired"),
-        content: Text("Your session has expired. Please log in again."),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () async {
-              await SessionHelper().clearAll(); 
-              Get.offAllNamed(AppRoutes.login);
-            },
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
+  void _handleTokenExpiration() async {
+    if (!Get.isDialogOpen!) {
+      await Get.dialog(
+        AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () async {
+                Get.back();
+              },
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
-}
-
-
 
   /// ************************ COMMON SEARCH SECTION ***************** ///
 
@@ -249,41 +247,39 @@ void _handleTokenExpiration() async {
     return response;
   }
 
-Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-  // log("Send DATA: ${FormData.fromMap(sendData).fields}");
-  // log("Send DATA: $sendData");
-  try {
-    final response = await dio.postbycustom(
-      ApiConstants.add_to_cart,
-      data: FormData.fromMap(sendData),
-    ).onError((DioError error, stackTrace) {
-      // log('Dio Error: ${error.response?.data}');
-      return Future.error(DioExceptionHandler.fromDioError(error));
-    });
-    // log('Cart Response Status: ${response.statusCode}');
-    // log('Cart Response: ${response.data}');
+  Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
+    // log("Send DATA: ${FormData.fromMap(sendData).fields}");
+    // log("Send DATA: $sendData");
+    try {
+      final response = await dio
+          .postbycustom(
+        ApiConstants.add_to_cart,
+        data: FormData.fromMap(sendData),
+      )
+          .onError((DioError error, stackTrace) {
+        // log('Dio Error: ${error.response?.data}');
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+      // log('Cart Response Status: ${response.statusCode}');
+      // log('Cart Response: ${response.data}');
 
-    if (response.statusCode == 200) {
-      if (response.data['cart_id'] == null) {
-        // log('Cart ID is null in response data: ${response.data}');
+      if (response.statusCode == 200) {
+        if (response.data['cart_id'] == null) {
+          // log('Cart ID is null in response data: ${response.data}');
+          return null;
+        }
+        final cartOrder = CartOrderModel.fromJson(response.data);
+        // log('Parsed CartOrder: ${cartOrder}');
+        return cartOrder;
+      } else {
+        // log('Unexpected Response: ${response.data}');
         return null;
       }
-      final cartOrder = CartOrderModel.fromJson(response.data);
-      // log('Parsed CartOrder: ${cartOrder}');
-      return cartOrder;
-    } else {
-      // log('Unexpected Response: ${response.data}');
+    } catch (e) {
+      // log('Error on adding to cart: $e');
       return null;
     }
-  } catch (e) {
-    // log('Error on adding to cart: $e');
-    return null;
   }
-}
-
-
-
-
 
   Future<Response> deleteCartItem(String cartId, String variationId) async {
     // log("Send DATA: ${FormData.fromMap({
@@ -300,7 +296,8 @@ Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
     });
     return response;
   }
-    Future<Response> deleteCustomer(Map<String, dynamic> sendData) async {
+
+  Future<Response> deleteCustomer(Map<String, dynamic> sendData) async {
     log("Send DATA: ${FormData.fromMap(sendData).fields}");
     final response = await dio
         .postbycustom(ApiConstants.delete_customer,

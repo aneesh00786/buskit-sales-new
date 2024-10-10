@@ -51,10 +51,10 @@ class AppDimensions extends ChangeNotifier {
   }
 
   void _logDimensions() {
-    log("SCREEN WIDTH: $width");
-    log("SCREEN HEIGHT: $height");
-    log("ORIENTATION: $orientation");
-    log("GRID ITEM COUNT: $gridItemCount");
+    // log("SCREEN WIDTH: $width");
+    // log("SCREEN HEIGHT: $height");
+    // log("ORIENTATION: $orientation");
+    // log("GRID ITEM COUNT: $gridItemCount");
   }
 
   int updateGridCount(BuildContext context) {

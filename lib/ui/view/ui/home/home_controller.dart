@@ -39,39 +39,40 @@ class HomeController extends GetxController {
     fetchDashboardData();
   }
 
-  Future<void> fetchDashboardData() async {
-    try {
-      await _apiWorker.dashboardData();
-    } catch (e) {
-      if (e.toString().contains('Session expired')) {
-        await SessionHelper().clearAll();
-        Get.offAllNamed(AppRoutes.login);
-        Future.delayed(Duration(seconds: 1));
-        _handleTokenExpiration();
-      }
-      log('Error fetching dashboard data: $e');
+Future<void> fetchDashboardData() async {
+  try {
+    await _apiWorker.dashboardData();
+  } catch (e) {
+    if (e.toString().contains('Session expired')) {
+      await SessionHelper().clearAll();
+      Get.offAllNamed(AppRoutes.login); 
+      await Future.delayed(Duration(milliseconds: 500));
+      _handleTokenExpiration();
     }
+    log('Error fetching dashboard data: $e');
   }
+}
 
-  void _handleTokenExpiration() async {
-    if (!Get.isDialogOpen!) {
-      await Get.dialog(
-        AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("OK"),
-              onPressed: () async {
-                Get.back();
-              },
-            ),
-          ],
-        ),
-        barrierDismissible: false,
-      );
-    }
+void _handleTokenExpiration() async {
+  if (!Get.isDialogOpen!) {
+    await Get.dialog(
+      AlertDialog(
+        title: Text("Session Expired"),
+        content: Text("Your session has expired. Please log in again."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () async {
+              Get.back(); 
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
   }
+}
+
 
   Route? onGenerateRoute(RouteSettings settings) {
     if (settings.name == AppRoutes.dashboard &&

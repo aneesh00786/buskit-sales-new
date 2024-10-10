@@ -103,7 +103,7 @@ class ApiWorker with ApiConstants {
       if (response.data['status_code'] == 400) {
         await SessionHelper().clearAll();
         Get.offAllNamed(AppRoutes.login);
-        Future.delayed(Duration(seconds: 1));
+        await Future.delayed(Duration(milliseconds: 500));
         _handleTokenExpiration();
         throw Exception('Session expired');
       }

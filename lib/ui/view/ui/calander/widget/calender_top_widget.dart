@@ -25,7 +25,7 @@ class CalenderTopWidget extends StatelessWidget {
       children: [staffDetailsWidget(SessionHelper.loginSavedData??LoginData())],
     );
   }
-
+  
   Widget staffDetailsWidget(LoginData staffData) {
     log('Calender ImagePath :${staffData.imagePath}');
     return MyCommnonContainer(

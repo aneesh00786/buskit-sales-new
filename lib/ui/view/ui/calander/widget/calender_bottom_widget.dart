@@ -52,15 +52,13 @@ class CalenderBottomWidget extends StatelessWidget {
           boxShadow: isInMonth
               ? [
                   BoxShadow(
-                    color: Colors.black
-                        .withOpacity(0.06),
+                    color: Colors.black.withOpacity(0.06),
                     blurRadius: 20,
                     offset: Offset(3, 3),
                     spreadRadius: 1,
                   )
                 ]
               : [],
-
           color: isToday
               ? primaryColor
               : !isInMonth
@@ -73,24 +71,36 @@ class CalenderBottomWidget extends StatelessWidget {
             print("Events+++ 1235+++  ${event.length}");
             print(
                 "Events>>> +++ ${date} ${data.toString()} ${data.first!.toJson()}");
-
             if (isInMonth) {
               print('in2++ #${data.length}');
               if (data.isNotEmpty) {
                 print('in++');
                 List<Customer> customerlist = [];
                 for (var element in data.first?.salesman ?? []) {
-                  print('in3++ ${element.customer?.length ?? 0}');
+                  print(
+                      'Salesman ID from session: ${SessionHelper.loginSavedData?.salesmanId}');
+                  print('Current salesman ID: ${element.salesmanId}');
+                  print('Customers for this salesman: ${element.customer}');
+
                   if (element.salesmanId ==
                       SessionHelper.loginSavedData?.salesmanId) {
-                    customerlist = element.customer ?? '';
-                    print('in4++ ${customerlist.length}');
+                    customerlist = element.customer ?? [];
+                    print(
+                        'Found matching salesman. Customer list length: ${customerlist.length}');
                   }
                 }
-                Get.dialog(SelectCustomerDiloag(
-                  dateTime: date,
-                  customerlist: customerlist,
-                ));
+
+                // After the loop, log the final customer list length
+                print('Final customer list length: ${customerlist.length}');
+                if (customerlist.isNotEmpty) {
+                  Get.dialog(SelectCustomerDiloag(
+                    dateTime: date,
+                    customerlist: customerlist,
+                  ));
+                  log('Customerlist.Length....${customerlist.length}');
+                } else {
+                  log('No customers available for this salesman.');
+                }
               }
             }
           },
@@ -154,7 +164,7 @@ class CalenderBottomWidget extends StatelessWidget {
       },
       startDay: WeekDays.monday,
       controller: calenderController.eventControllerv1,
-     // borderSize: 1.5,
+      // borderSize: 1.5,
       initialMonth: DateTime.now(),
       maxMonth: DateTime(DateTime.now().year, 12, 31),
       minMonth: DateTime(DateTime.now().year, 1, 1),

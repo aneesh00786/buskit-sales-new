@@ -1,20 +1,21 @@
+import 'dart:async';
 import 'dart:developer';
-
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SelectCustomerDiloag extends StatefulWidget {
   final DateTime dateTime;
-
-  // final List<CustomerDetails> customerDataList;
   final List<Customer> customerlist;
 
   const SelectCustomerDiloag(
@@ -23,16 +24,26 @@ class SelectCustomerDiloag extends StatefulWidget {
   @override
   State<SelectCustomerDiloag> createState() => _SelectCustomerDiloagState();
 }
+
 class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
+  late List<bool> _checkedList;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkedList = List<bool>.filled(widget.customerlist.length, false);
+  }
+
   @override
   Widget build(BuildContext context) {
     log('CustomerList Length : ${widget.customerlist.length}');
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
-        margin: AppDimensions.instance!.orientation == Orientation.landscape
+        color: white,
+        margin: AppDimensions.instance.orientation == Orientation.landscape
             ? nkExtraLargePadding(
-                right: AppDimensions.instance!.width * .28,
-                left: AppDimensions.instance!.width * .28)
+                right: AppDimensions.instance.width * .20,
+                left: AppDimensions.instance.width * .20)
             : nkExtraLargePadding(),
         child: ClipRRect(
           borderRadius:
@@ -42,39 +53,82 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
               DiloagAppBar(
                 title: "Customer Visit For Today",
               ),
+
+              // Existing customer list code
               widget.customerlist.isNotEmpty
                   ? Flexible(
-                      child: ListView.separated(
+                      child: ListView.builder(
                           padding: nkRegularPadding(),
                           itemBuilder: (context, index) {
+                            Customer customer = widget.customerlist[index];
                             return Padding(
                               padding: nkSmallPadding(left: 0, right: 0),
                               child: InkWell(
-                                highlightColor: Colors.transparent,
-                                splashFactory: NoSplash.splashFactory,
-                                onTap: () {
-                                  navigateTo(25.022702, 45.052659);
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    customerDetailsWidget(
-                                        widget.customerlist[index]),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                          separatorBuilder: (context, index) {
-                            return Container(
-                              color: Colors.grey,
-                              height: 0.4,
+                                  highlightColor: Colors.transparent,
+                                  splashFactory: NoSplash.splashFactory,
+                                  child: Card(
+                                    elevation: 10,
+                                    shadowColor: black.withOpacity(0.2),
+                                    color: white,
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                            customer.imageUrl ?? ''),
+                                      ),
+                                      title: CustomText(
+                                        content: customer.fullname ?? '',
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          CustomText(
+                                            content: customer.mobileno ?? '',
+                                          ),
+                                          CustomText(
+                                            content: customer.email ?? '',
+                                          ),
+                                        ],
+                                      ),
+                                      trailing: Checkbox(
+                                        value: _checkedList[index],
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _checkedList[index] =
+                                                value ?? false;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  )),
                             );
                           },
                           itemCount: widget.customerlist.length),
                     )
                   : SizedBox(),
+
+              // New Code: Show the checked customer list beneath the search bar
+              _buildSelectedCustomerList(),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30),
+                child: ElevatedButton.icon(
+                  label: CustomText(
+                    content: 'Show Route',
+                    color: white,
+                  ),
+                  onPressed: () {
+                    showSelectedCustomerRoute();
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(primaryColor),
+                  ),
+                  icon: Icon(
+                    EneftyIcons.location_outline,
+                    color: white,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -82,85 +136,284 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
     });
   }
 
-  static void navigateTo(double lat, double lng) async {
-    const String homeLat = "37.3230";
-    const String homeLng = "-122.0312";
-    const String googleMapslocationUrl =
-        "https://www.google.com/maps/search/?api=1&query=${homeLat},${homeLng}";
-    final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
-    var uri = Uri.parse(encodedURl);
-    await launchUrl(uri);
-    // if (await canLaunchUrl(uri)) {
-    //   await launchUrl(uri);
-    // } else {
-    //   throw 'Could not launch ${uri.toString()}';
-    // }
+  // New Code: Function to build and display the selected customer list
+  Widget _buildSelectedCustomerList() {
+    List<Customer> selectedCustomers = [];
+    for (int i = 0; i < _checkedList.length; i++) {
+      if (_checkedList[i]) {
+        selectedCustomers.add(widget.customerlist[i]);
+      }
+    }
+
+    return selectedCustomers.isNotEmpty
+        ? Column(
+            children: selectedCustomers.map((customer) {
+              return Card(
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(customer.imageUrl ?? ''),
+                  ),
+                  title: CustomText(content: customer.fullname ?? ''),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomText(content: 'Phone: ${customer.mobileno}'),
+                      CustomText(content: 'Email: ${customer.email}'),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          )
+        : Padding(
+            padding: const EdgeInsets.all(8.0),
+            child:
+                Text('No customers selected', style: TextStyle(fontSize: 16)),
+          );
   }
 
-  /*Widget staffDetailsWidget(SalesmanCalenderEvent staffData) {
-    return MyCommnonContainer(
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        ClipOval(
-          child: MyNetworkImage(
-            imageUrl: staffData.imagePath ?? '',
-            height: AppDimensions.instance!.height * 0.06,
-            width: AppDimensions.instance!.height * 0.06,
-          ),
-        ),
-        nkSmallSizeBox(),
-        SizedBox(
-          width: AppDimensions.instance!.height * 0.4,
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MyRegularText(
-                  label: staffData.fullname ?? '',
-                ),
-                MyRegularText(
-                  label: staffData.mobileno ?? '',
-                ),
-                MyRegularText(
-                  label: staffData.email ?? '',
-                ),
-              ]),
-        ),
-        MyRegularText(
-          label: '${staffData.customer?.length ?? 0}',
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        )
-      ]),
-    );
-  }*/
+  void showSelectedCustomerRoute() {
+    List<Customer> selectedCustomers = [];
+    for (int i = 0; i < _checkedList.length; i++) {
+      if (_checkedList[i]) {
+        selectedCustomers.add(widget.customerlist[i]);
+      }
+    }
 
-  Widget customerDetailsWidget(Customer customerData) {
-    return MyCommnonContainer(
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        ClipOval(
-          child: MyNetworkImage(
-            imageUrl: '',
-            // imageUrl: customerData.imageUrl ?? '',
-            height: AppDimensions.instance!.height * 0.06,
-            width: AppDimensions.instance!.height * 0.06,
-          ),
+    if (selectedCustomers.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              CustomerMapScreen(customerList: selectedCustomers),
         ),
-        nkSmallSizeBox(),
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MyRegularText(
-                label: customerData.fullname ?? '',
-              ),
-              MyRegularText(
-                label: customerData.mobileno ?? '',
-              ),
-              MyRegularText(
-                label: customerData.email ?? '',
-              ),
-            ])
-      ]),
-    );
+      );
+    } else {
+      log('No customers selected');
+    }
+  }
+
+  static void navigateTo(
+      double startLat, double startLng, double endLat, double endLng) async {
+    String googleMapsLocationUrl =
+        "https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
+    final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
+    var uri = Uri.parse(encodedURL);
+    await launchUrl(uri);
   }
 }
+
+class CustomerMapScreen extends StatefulWidget {
+  final List<Customer> customerList;
+  const CustomerMapScreen({super.key, required this.customerList});
+
+  @override
+  _CustomerMapScreenState createState() => _CustomerMapScreenState();
+}
+
+class _CustomerMapScreenState extends State<CustomerMapScreen> {
+
+  
+  late GoogleMapController mapController;
+  final double defaultLat = 25.022702;
+  final double defaultLng = 45.052659;
+  bool _locationPermissionGranted=false;
+  @override
+void initState() {
+  super.initState();
+  _requestLocationPermission(); // Add this line
+}
+
+Future<void> _requestLocationPermission() async {
+  final status = await Permission.location.request();
+  if (status.isGranted) {
+    setState(() {
+      _locationPermissionGranted = true;
+    });
+    _setMapMarkers(); // Set markers if permission is granted
+  } else if (status.isDenied) {
+    // Optionally re-request permission if denied
+    log("Location permission denied. Requesting again.");
+    _requestLocationPermission();
+  } else if (status.isPermanentlyDenied) {
+    log("Location permission permanently denied.");
+    // Show a dialog to inform the user to change the permission in settings
+    _showPermissionDeniedDialog();
+  }
+}
+
+void _showPermissionDeniedDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Permission Denied"),
+      content: Text("Location permission is required to access the map."),
+      actions: [
+        TextButton(
+          child: Text("Go to Settings"),
+          onPressed: () {
+            openAppSettings(); // Open app settings
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: Text("Cancel"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: white,
+      ),
+      body: Row(
+        children: [
+          Container(
+            width: 150,
+            color: Colors.white.withOpacity(0.8),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Icon(EneftyIcons.stop_circle_outline),
+                      SizedBox(
+                          width:
+                              8),
+                      Expanded(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Current Location',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10,),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Icon(EneftyIcons.location_outline,color: Colors.red,),
+                      SizedBox(
+                          width:
+                              8),
+                      Expanded(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Last Location',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10,),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Customer List',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: widget.customerList.length,
+                    itemBuilder: (context, index) {
+                      Customer customer = widget.customerList[index];
+                      return Card(
+                        color: white,
+                        elevation: 10,
+                        shadowColor: black.withOpacity(0.2),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage:
+                                NetworkImage(customer.imageUrl ?? ''),
+                          ),
+                          title: Text(customer.fullname ?? ''),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${customer.mobileno ?? ''}'),
+                              Text('${customer.email ?? ''}'),
+                            ],
+                          ),
+                          onTap: () {},
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(child: _buildGoogleMap()),
+        ],
+      ),
+    );
+  }
+  
+
+  Set<Marker> _createMarkers() {
+    Set<Marker> markers = {};
+    for (var customer in widget.customerList) {
+      double lat = defaultLat;
+      double lng = defaultLng;
+      markers.add(
+        Marker(
+          markerId: MarkerId(customer.fullname ?? ''),
+          position: LatLng(lat, lng),
+          infoWindow: InfoWindow(
+            title: customer.fullname,
+            snippet: '${customer.mobileno}\n${customer.email}',
+          ),
+        ),
+      );
+    }
+    return markers;
+  }
+
+  void _setMapMarkers() {
+    mapController
+        .animateCamera(CameraUpdate.newLatLng(LatLng(defaultLat, defaultLng)));
+  }
+  Widget _buildGoogleMap() {
+  return GoogleMap(
+    mapType: MapType.normal, // Set to normal view
+    initialCameraPosition: CameraPosition(
+      target: LatLng(defaultLat, defaultLng),
+      zoom: 10,
+    ),
+    onMapCreated: (GoogleMapController controller) {
+      mapController = controller;
+      if (_locationPermissionGranted) {
+        _setMapMarkers(); // Set markers if permission is granted
+      }
+    },
+    markers: _createMarkers(), // Add your markers here
+  );
+}
+
+}
+
+

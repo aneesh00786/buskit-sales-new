@@ -19,10 +19,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
   @override
   void initState() {
     calenderController.calenderAllEvents();
-    // calenderController.assignToCalenderEvent(
-    //   SessionHelper.loginSavedData!.fullname!,
-    //   SessionHelper.loginSavedData!.salesmanId!,
-    // );
+
     calenderController.loadCalenderEvent_v1;
     super.initState();
   }

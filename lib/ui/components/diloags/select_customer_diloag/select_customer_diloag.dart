@@ -294,7 +294,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
       body: Row(
         children: [
           Container(
-            width: 150,
+            width: 350,
             color: Colors.white.withOpacity(0.8),
             child: Column(
               children: [

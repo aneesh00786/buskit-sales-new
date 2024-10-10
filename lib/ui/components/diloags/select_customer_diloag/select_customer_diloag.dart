@@ -53,8 +53,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
               DiloagAppBar(
                 title: "Customer Visit For Today",
               ),
-
-              // Existing customer list code
               widget.customerlist.isNotEmpty
                   ? Flexible(
                       child: ListView.builder(
@@ -106,10 +104,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
                           itemCount: widget.customerlist.length),
                     )
                   : SizedBox(),
-
-              // New Code: Show the checked customer list beneath the search bar
               _buildSelectedCustomerList(),
-
               Padding(
                 padding: const EdgeInsets.only(bottom: 30),
                 child: ElevatedButton.icon(
@@ -135,8 +130,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
       );
     });
   }
-
-  // New Code: Function to build and display the selected customer list
   Widget _buildSelectedCustomerList() {
     List<Customer> selectedCustomers = [];
     for (int i = 0; i < _checkedList.length; i++) {
@@ -221,7 +214,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   @override
 void initState() {
   super.initState();
-  _requestLocationPermission(); // Add this line
+  _requestLocationPermission();
 }
 
 Future<void> _requestLocationPermission() async {
@@ -230,14 +223,12 @@ Future<void> _requestLocationPermission() async {
     setState(() {
       _locationPermissionGranted = true;
     });
-    _setMapMarkers(); // Set markers if permission is granted
+    _setMapMarkers();
   } else if (status.isDenied) {
-    // Optionally re-request permission if denied
     log("Location permission denied. Requesting again.");
     _requestLocationPermission();
   } else if (status.isPermanentlyDenied) {
     log("Location permission permanently denied.");
-    // Show a dialog to inform the user to change the permission in settings
     _showPermissionDeniedDialog();
   }
 }
@@ -252,7 +243,7 @@ void _showPermissionDeniedDialog() {
         TextButton(
           child: Text("Go to Settings"),
           onPressed: () {
-            openAppSettings(); // Open app settings
+            openAppSettings();
             Navigator.of(context).pop();
           },
         ),
@@ -399,7 +390,7 @@ void _showPermissionDeniedDialog() {
   }
   Widget _buildGoogleMap() {
   return GoogleMap(
-    mapType: MapType.normal, // Set to normal view
+    mapType: MapType.normal, 
     initialCameraPosition: CameraPosition(
       target: LatLng(defaultLat, defaultLng),
       zoom: 10,
@@ -407,13 +398,12 @@ void _showPermissionDeniedDialog() {
     onMapCreated: (GoogleMapController controller) {
       mapController = controller;
       if (_locationPermissionGranted) {
-        _setMapMarkers(); // Set markers if permission is granted
+        _setMapMarkers();
       }
     },
-    markers: _createMarkers(), // Add your markers here
+    markers: _createMarkers(), 
   );
 }
-
 }
 
 

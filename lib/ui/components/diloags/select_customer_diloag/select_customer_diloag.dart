@@ -346,7 +346,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
       body: Row(
         children: [
           Container(
-            width: 150,
+            width: 350,
             color: Colors.white.withOpacity(0.8),
             child: Column(
               children: [
@@ -390,8 +390,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                             ),
                           ),
                           onFieldSubmitted: (value) {
-                            _handleSearchLocation(
-                                value);
+                            _handleSearchLocation(value);
                           },
                         ),
                       ),
@@ -418,26 +417,80 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                     itemCount: widget.customerList.length,
                     itemBuilder: (context, index) {
                       Customer customer = widget.customerList[index];
-                      return Card(
-                        color: white,
-                        elevation: 10,
-                        shadowColor: black.withOpacity(0.2),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(customer.imageUrl ?? ''),
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Color.fromARGB(255, 242, 242, 242)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundImage:
+                                          NetworkImage(customer.imageUrl ?? ''),
+                                    ),
+                                    SizedBox(
+                                      width: 6,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          content: customer.fullname ?? '',
+                                          fontSize: 17,
+                                        ),
+                                        CustomText(content:'${customer.mobileno ?? ''}'),
+                                        CustomText(content:'${customer.email ?? ''}'),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                SizedBox(height: 10,),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ElevatedButton(
+                                    child: CustomText(
+                                      content: 'Navigate',
+                                      color: white,
+                                    ),
+                                    onPressed: () {},
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(Colors.blue),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          title: Text(customer.fullname ?? ''),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('${customer.mobileno ?? ''}'),
-                              Text('${customer.email ?? ''}'),
-                            ],
-                          ),
-                          onTap: () {},
                         ),
                       );
+                      // return Card(
+                      //   color: white,
+                      //   elevation: 10,
+                      //   shadowColor: black.withOpacity(0.2),
+                      //   child: ListTile(
+                      //     leading: CircleAvatar(
+                      //       backgroundImage:
+                      //           NetworkImage(customer.imageUrl ?? ''),
+                      //     ),
+                      //     title: Text(customer.fullname ?? ''),
+                      //     subtitle: Column(
+                      //       crossAxisAlignment: CrossAxisAlignment.start,
+                      //       children: [
+                      //         Text('${customer.mobileno ?? ''}'),
+                      //         Text('${customer.email ?? ''}'),
+                      //       ],
+                      //     ),
+                      //     onTap: () {},
+                      //   ),
+                      // );
                     },
                   ),
                 ),

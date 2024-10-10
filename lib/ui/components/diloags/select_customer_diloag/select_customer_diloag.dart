@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -131,6 +132,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
       );
     });
   }
+
   Widget _buildSelectedCustomerList() {
     List<Customer> selectedCustomers = [];
     for (int i = 0; i < _checkedList.length; i++) {
@@ -209,69 +211,79 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   late GoogleMapController mapController;
   final double defaultLat = 25.022702;
   final double defaultLng = 45.052659;
-  bool _locationPermissionGranted=false;
+  bool _locationPermissionGranted = false;
   String currentLocationText = 'Current location';
   LatLng? _currentLatLng;
   @override
-void initState() {
-  super.initState();
-  _requestLocationPermission();
-}
-
-Future<void> _requestLocationPermission() async {
-  final status = await Permission.location.request();
-  if (status.isGranted) {
-    setState(() {
-      _locationPermissionGranted = true;
-    });
-    _getCurrentLocation();
-  } else if (status.isDenied) {
-    log("Location permission denied. Requesting again.");
+  void initState() {
+    super.initState();
     _requestLocationPermission();
-  } else if (status.isPermanentlyDenied) {
-    log("Location permission permanently denied.");
-    _showPermissionDeniedDialog();
   }
-}
+
+  Future<void> _requestLocationPermission() async {
+    final status = await Permission.location.request();
+    if (status.isGranted) {
+      setState(() {
+        _locationPermissionGranted = true;
+      });
+      _getCurrentLocation();
+    } else if (status.isDenied) {
+      log("Location permission denied. Requesting again.");
+      _requestLocationPermission();
+    } else if (status.isPermanentlyDenied) {
+      log("Location permission permanently denied.");
+      _showPermissionDeniedDialog();
+    }
+  }
+
   Future<void> _getCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
 
-    setState(() {
-      _currentLatLng = LatLng(position.latitude, position.longitude);
-      currentLocationText = '${position.latitude}, ${position.longitude}';
-    });
-    mapController.animateCamera(
-      CameraUpdate.newLatLng(_currentLatLng!),
-    );
-    _setMapMarkers();
+      Placemark place = placemarks[0];
+      String address =
+          "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+
+      setState(() {
+        _currentLatLng = LatLng(position.latitude, position.longitude);
+        currentLocationText = address;
+      });
+      mapController.animateCamera(
+        CameraUpdate.newLatLng(_currentLatLng!),
+      );
+      _setMapMarkers();
+    } catch (e) {
+      log('Error getting current location: $e');
+    }
   }
 
-void _showPermissionDeniedDialog() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("Permission Denied"),
-      content: Text("Location permission is required to access the map."),
-      actions: [
-        TextButton(
-          child: Text("Go to Settings"),
-          onPressed: () {
-            openAppSettings();
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: Text("Cancel"),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
-    ),
-  );
-}
-
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Permission Denied"),
+        content: Text("Location permission is required to access the map."),
+        actions: [
+          TextButton(
+            child: Text("Go to Settings"),
+            onPressed: () {
+              openAppSettings();
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -291,9 +303,7 @@ void _showPermissionDeniedDialog() {
                   child: Row(
                     children: [
                       Icon(EneftyIcons.stop_circle_outline),
-                      SizedBox(
-                          width:
-                              8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: TextFormField(
                           decoration: InputDecoration(
@@ -307,15 +317,18 @@ void _showPermissionDeniedDialog() {
                     ],
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      Icon(EneftyIcons.location_outline,color: Colors.red,),
-                      SizedBox(
-                          width:
-                              8),
+                      Icon(
+                        EneftyIcons.location_outline,
+                        color: Colors.red,
+                      ),
+                      SizedBox(width: 8),
                       Expanded(
                         child: TextFormField(
                           decoration: InputDecoration(
@@ -329,7 +342,9 @@ void _showPermissionDeniedDialog() {
                     ],
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Divider(),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -337,7 +352,8 @@ void _showPermissionDeniedDialog() {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Customer List',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -377,7 +393,6 @@ void _showPermissionDeniedDialog() {
       ),
     );
   }
-  
 
   Set<Marker> _createMarkers() {
     Set<Marker> markers = {};
@@ -408,9 +423,10 @@ void _showPermissionDeniedDialog() {
   }
 
   void _setMapMarkers() {
-    mapController.animateCamera(
-        CameraUpdate.newLatLng(_currentLatLng ?? LatLng(defaultLat, defaultLng)));
+    mapController.animateCamera(CameraUpdate.newLatLng(
+        _currentLatLng ?? LatLng(defaultLat, defaultLng)));
   }
+
   Widget _buildGoogleMap() {
     return GoogleMap(
       mapType: MapType.normal,
@@ -428,5 +444,3 @@ void _showPermissionDeniedDialog() {
     );
   }
 }
-
-

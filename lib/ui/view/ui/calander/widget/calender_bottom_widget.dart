@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CalenderBottomWidget extends StatelessWidget {
-  final CalenderController calenderController;
+  final CalenderMapController calenderController;
 
   const CalenderBottomWidget({super.key, required this.calenderController});
 
@@ -75,7 +75,7 @@ class CalenderBottomWidget extends StatelessWidget {
               print('in2++ #${data.length}');
               if (data.isNotEmpty) {
                 print('in++');
-                List<Customer> customerlist = [];
+                calenderController.customerList.value=[];
                 for (var element in data.first?.salesman ?? []) {
                   print(
                       'Salesman ID from session: ${SessionHelper.loginSavedData?.salesmanId}');
@@ -84,20 +84,21 @@ class CalenderBottomWidget extends StatelessWidget {
 
                   if (element.salesmanId ==
                       SessionHelper.loginSavedData?.salesmanId) {
-                    customerlist = element.customer ?? [];
+                    calenderController.customerList.value = element.customer ?? [];
                     print(
-                        'Found matching salesman. Customer list length: ${customerlist.length}');
+                        'Found matching salesman. Customer list length: ${calenderController.customerList.length}');
                   }
                 }
 
                 // After the loop, log the final customer list length
-                print('Final customer list length: ${customerlist.length}');
-                if (customerlist.isNotEmpty) {
+                print('Final customer list length: ${calenderController.customerList.length}');
+                if (calenderController.customerList.isNotEmpty) {
                   Get.dialog(SelectCustomerDiloag(
                     dateTime: date,
-                    customerlist: customerlist,
+                    customerlist: calenderController.customerList,
+                    calenderMapController: calenderController,
                   ));
-                  log('Customerlist.Length....${customerlist.length}');
+                  log('Customerlist.Length....${calenderController.customerList.length}');
                 } else {
                   log('No customers available for this salesman.');
                 }

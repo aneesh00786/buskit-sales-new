@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -10,21 +11,235 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/cal
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
 
-class CalenderController extends GetxController {
+class CalenderMapController extends GetxController {
   final ApiWorker _apiWorker = Get.find();
-
   Rx<StaffData> selectedStaff = StaffData().obs;
-
   EventController<SalesManVisitEvents> eventController =
       EventController<SalesManVisitEvents>();
-
   EventController<SalesmanEvents> eventControllerv1 =
       EventController<SalesmanEvents>();
-  List<CustomerDetails> customerDetails = [];
+  final RxBool locationPermissionGranted = false.obs;
+  final Rx<LatLng?> currentLatLng = Rxn<LatLng>();
+  final Rx<LatLng?> searchedLatLng = Rxn<LatLng>();
+  final RxString currentLocationText = 'Current location'.obs;
+  final Set<Polyline> polylines = <Polyline>{}.obs;
+   GoogleMapController? mapController = null;
+  final customerList = <Customer>[].obs;
+  final String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
+  final double defaultLat = 25.022702;
+  final double defaultLng = 45.052659;
+  var suggestions = <Map<String, dynamic>>[].obs;
+   @override
+  void onInit() {
+    super.onInit();
+    requestLocationPermission();
+  }
 
-  ///KRUSHANT add calender for DATEWISE DATA
+  Future<void> requestLocationPermission() async {
+    final status = await Permission.location.request();
+    if (status.isGranted) {
+      locationPermissionGranted.value = true;
+      getCurrentLocation();
+    } else if (status.isPermanentlyDenied) {
+      showPermissionDeniedDialog();
+    }
+  }
+
+  Future<void> getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude, position.longitude,
+      );
+      Placemark place = placemarks[0];
+      String address = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+
+      currentLatLng.value = LatLng(position.latitude, position.longitude);
+      currentLocationText.value = address;
+
+      if (mapController != null) {
+        mapController!.animateCamera(
+          CameraUpdate.newLatLng(currentLatLng.value!),
+        );
+      }
+    } catch (e) {
+      log('Error getting current location: $e');
+    }
+  }
+Future<void> handleSearchLocation(String query) async {
+  if (query.isEmpty) {
+    suggestions.clear();
+    return;
+  }
+  log('Search Query: $query');
+  try {
+    final response = await http.get(
+      Uri.parse(
+        "https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=$query&key=$kGoogleApiKey",
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data['predictions'] is List) {
+        suggestions.value = List<Map<String, dynamic>>.from(data['predictions']);
+        log('Suggestions fetched: ${suggestions.length}');
+      } else {
+        log('Unexpected format for predictions: ${data['predictions']}');
+      }
+    } else {
+      log('Failed to load places: ${response.statusCode}');
+    }
+  } catch (e) {
+    log('Error occurred: $e');
+  }
+}
+
+Future<void> fetchPlaceDetails(String placeId) async {
+  try {
+    final response = await http.get(
+      Uri.parse(
+        "https://maps.gomaps.pro/maps/api/place/details/json?place_id=$placeId&key=$kGoogleApiKey"
+      ),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data['result'] != null) {
+        final place = data['result'];
+        final lat = place['geometry']['location']['lat'];
+        final lng = place['geometry']['location']['lng'];
+        final String name = place['name'];
+        searchedLatLng.value = LatLng(lat, lng);
+        createMarkers();
+        log('Place details fetched: $name at ($lat, $lng)');
+      }
+    } else {
+      log('Failed to fetch place details: ${response.statusCode}');
+    }
+  } catch (e) {
+    log('Error fetching place details: $e');
+  }
+}
+
+
+
+void selectSuggestion(Map<String, dynamic> suggestion) async {
+  log('Selected suggestion: ${suggestion['description']}');
+
+  final placeId = suggestion['place_id'];
+  try {
+    final response = await http.get(
+      Uri.parse(
+        "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$kGoogleApiKey"
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final location = data['result']['geometry']['location'];
+      final lat = location['lat'];
+      final lng = location['lng'];
+      searchedLatLng.value = LatLng(lat, lng);
+      suggestions.clear();
+      createMarkers();
+      
+      log('Location marked: $lat, $lng');
+    } else {
+      print('Failed to load place details: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error occurred while fetching place details: $e');
+  }
+}
+
+Set<Marker> createMarkers() {
+  Set<Marker> markers = {};
+  if (currentLatLng.value != null) {
+    markers.add(
+      Marker(
+        markerId: MarkerId('Current Location'),
+        position: currentLatLng.value!,
+        infoWindow: InfoWindow(title: 'Current Location'),
+      ),
+    );
+  }
+  if (searchedLatLng.value != null) {
+    markers.add(
+      Marker(
+        markerId: MarkerId('Searched Location'), 
+        position: searchedLatLng.value!,
+        infoWindow: InfoWindow(title: 'Searched Location'),
+      ),
+    );
+  }
+  for (var customer in customerList) {
+    markers.add(
+      Marker(
+        markerId: MarkerId(customer.fullname ?? ''),
+        position: LatLng(defaultLat, defaultLng),
+        infoWindow: InfoWindow(
+          title: customer.fullname,
+          snippet: '${customer.mobileno}\n${customer.email}',
+        ),
+      ),
+    );
+  }
+
+  return markers;
+}
+
+  Widget buildGoogleMap() {
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: CameraPosition(
+        target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
+        zoom: 10,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        mapController = controller;
+        if (locationPermissionGranted.value) {
+          getCurrentLocation();
+        }
+      },
+      markers: createMarkers(),
+      polylines: polylines,
+    );
+  }
+
+  void showPermissionDeniedDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Text("Permission Denied"),
+        content: Text("Location permission is required to access the map."),
+        actions: [
+          TextButton(
+            child: Text("Go to Settings"),
+            onPressed: () {
+              openAppSettings();
+              Get.back();
+            },
+          ),
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () {
+              Get.back();
+            },
+          ),
+        ],
+      ),
+    );
+  }
   loadCalenderEvent_v1(List<SalesmanEvents> events) {
     if (eventControllerv1.events.isNotEmpty) {
       for (var element in eventControllerv1.events) {
@@ -102,4 +317,6 @@ class CalenderController extends GetxController {
     }
     return customerDataList;
   }
+
+
 }

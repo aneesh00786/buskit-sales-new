@@ -13,7 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:flutter/material.dart';
 
 class CalenderTopWidget extends StatelessWidget {
-  final CalenderController calenderController;
+  final CalenderMapController calenderController;
   const CalenderTopWidget({
     super.key,
     required this.calenderController,

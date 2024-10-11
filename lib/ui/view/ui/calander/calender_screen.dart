@@ -14,7 +14,7 @@ class CalenderScreen extends StatefulWidget {
 }
 
 class _CalenderScreenState extends State<CalenderScreen> {
-  CalenderController calenderController = Get.put(CalenderController());
+  CalenderMapController calenderController = Get.put(CalenderMapController());
 
   @override
   void initState() {

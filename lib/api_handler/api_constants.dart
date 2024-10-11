@@ -64,7 +64,8 @@ mixin class ApiConstants {
 
   /// PENDING  PAYMENT API
   static const String fetch_pending_payments = "fetch_pending_payments";
-
   // DUMMY IMAGE URL
   static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
+  //googlemap api key
+  static const String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
 }

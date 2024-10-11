@@ -184,7 +184,7 @@ class CustomerMapScreen extends StatelessWidget {
       body: Row(
         children: [
           Container(
-            width: 350,
+            width: 250,
             color: Colors.white.withOpacity(0.8),
             child: Column(children: [
               Padding(
@@ -225,7 +225,7 @@ class CustomerMapScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onChanged: (value) {
+                        onFieldSubmitted: (value) {
                           _mapController.handleSearchLocation(value);
                         },
                       ),
@@ -234,7 +234,6 @@ class CustomerMapScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              // Suggestions List
               _buildSuggestionsList(),
               Divider(),
               Padding(

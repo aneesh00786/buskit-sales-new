@@ -134,6 +134,9 @@ class ApiService {
     } on DioError catch (e) {
       log('DioError: ${e.response?.statusCode} - ${e.message}');
       if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
+        await SessionHelper().clearAll();
+        Get.offAllNamed(AppRoutes.login);
+        await Future.delayed(Duration(milliseconds: 500));
         _handleTokenExpiration();
         throw Exception('Session expired');
       }

@@ -145,7 +145,6 @@ class CalenderMapController extends GetxController {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         log('Fetched Place Details: $data');
-
         if (data['result'] != null && data['result']['geometry'] != null) {
           final place = data['result'];
           final lat = place['geometry']['location']['lat'];

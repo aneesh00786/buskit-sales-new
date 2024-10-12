@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/select_customer_diloag.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
@@ -30,36 +32,36 @@ class CalenderMapController extends GetxController {
   final Rx<LatLng?> currentLatLng = Rxn<LatLng>();
   final Rx<LatLng?> searchedLatLng = Rxn<LatLng>();
   final RxString currentLocationText = 'Current location'.obs;
-  final Set<Polyline> polylines = <Polyline>{}.obs;
   GoogleMapController? mapController = null;
   final customerList = <Customer>[].obs;
   RxList<Customer> selectedCustomers = <Customer>[].obs;
-  final String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
+  // final String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
   final double defaultLat = 25.022702;
   final double defaultLng = 45.052659;
   late final DateTime dateTime;
   RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
-  
+  RxSet<Polyline> polylines = <Polyline>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
     requestLocationPermission();
-    
   }
+
   void initializeCheckedList(int length) {
     checkedList.value = List<bool>.filled(length, false);
   }
-    void toggleCustomerSelection(int index, bool value) {
+
+  void toggleCustomerSelection(int index, bool value) {
     checkedList[index] = value;
     if (value) {
-      selectedCustomers.addIf(!selectedCustomers.contains(customerList[index]), customerList[index]);
+      selectedCustomers.addIf(!selectedCustomers.contains(customerList[index]),
+          customerList[index]);
     } else {
       selectedCustomers.remove(customerList[index]);
     }
   }
-
-  // To handle the selection and transition to the map screen
   void showSelectedCustomerRoute(BuildContext context) {
     if (selectedCustomers.isNotEmpty) {
       Get.to(() => CustomerMapScreen());
@@ -113,7 +115,7 @@ class CalenderMapController extends GetxController {
     try {
       final response = await http.get(
         Uri.parse(
-          "https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=$query&key=$kGoogleApiKey",
+          "${ApiConstants.mapBaseUrl}${ApiConstants.mapSearchUrl}$query&key=${ApiConstants.kGoogleApiKey}",
         ),
       );
       if (response.statusCode == 200) {
@@ -134,43 +136,43 @@ class CalenderMapController extends GetxController {
     }
   }
 
-Future<void> fetchPlaceDetails(String placeId) async {
-  try {
-    final response = await http.get(
-      Uri.parse(
-        "https://maps.gomaps.pro/maps/api/place/details/json?place_id=$placeId&key=$kGoogleApiKey"
-      ),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      log('Fetched Place Details: $data');
+  Future<void> fetchPlaceDetails(String placeId) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            "${ApiConstants.mapBaseUrl}${ApiConstants.mapPlaceDetailsUrl}$placeId&key=${ApiConstants.kGoogleApiKey}"),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        log('Fetched Place Details: $data');
 
-      if (data['result'] != null && data['result']['geometry'] != null) {
-        final place = data['result'];
-        final lat = place['geometry']['location']['lat'];
-        final lng = place['geometry']['location']['lng'];
-        final String name = place['name'];
-        searchedLatLng.value = LatLng(lat, lng);
-        log('Lat $lat Long $lng');
-        createMarkers();
-        log('Place details fetched: $name at ($lat, $lng)');
+        if (data['result'] != null && data['result']['geometry'] != null) {
+          final place = data['result'];
+          final lat = place['geometry']['location']['lat'];
+          final lng = place['geometry']['location']['lng'];
+          final String name = place['name'];
+          searchedLatLng.value = LatLng(lat, lng);
+          log('Lat $lat Long $lng');
+          createMarkers();
+          log('Place details fetched: $name at ($lat, $lng)');
+        } else {
+          log('No result or geometry found in response: $data');
+        }
       } else {
-        log('No result or geometry found in response: $data');
+        log('Failed to fetch place details: ${response.statusCode}');
       }
-    } else {
-      log('Failed to fetch place details: ${response.statusCode}');
+    } catch (e) {
+      log('Error fetching place details: $e');
     }
-  } catch (e) {
-    log('Error fetching place details: $e');
   }
-}
+
   void selectSuggestion(Map<String, dynamic> suggestion) async {
     log('Selected suggestion: ${suggestion['description']}');
     final placeId = suggestion['place_id'];
     try {
       final response = await http.get(
         Uri.parse(
-            "https://maps.gomaps.pro/maps/api/place/details/json?place_id=$placeId&key=$kGoogleApiKey"),
+            "${ApiConstants.mapBaseUrl}${ApiConstants.mapPlaceDetailsUrl}$placeId&key=${ApiConstants.kGoogleApiKey}"),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -189,70 +191,75 @@ Future<void> fetchPlaceDetails(String placeId) async {
       log('Error occurred while fetching place details: $e');
     }
   }
+
   Future<void> getDirections() async {
-  if (currentLatLng.value == null || searchedLatLng.value == null) return;
-  final origin = "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
-  final destination = "${searchedLatLng.value!.latitude},${searchedLatLng.value!.longitude}";
-  try {
-    final response = await http.get(
-      Uri.parse(
-        "https://maps.gomaps.pro/maps/api/directions/json?destination=$destination&origin=$origin&key=$kGoogleApiKey"
+    if (currentLatLng.value == null || searchedLatLng.value == null) return;
+    final origin =
+        "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
+    final destination =
+        "${searchedLatLng.value!.latitude},${searchedLatLng.value!.longitude}";
+    try {
+      final response = await http.get(
+        Uri.parse(
+            "${ApiConstants.mapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&key=${ApiConstants.kGoogleApiKey}"),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['routes'].isNotEmpty) {
+          final points = data['routes'][0]['overview_polyline']['points'];
+          List<LatLng> polylineCoordinates = decodePolyline(points);
+          addPolyline(polylineCoordinates);
+        } else {
+          log('No routes found');
+        }
+      } else {
+        log('Failed to load directions: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error occurred while fetching directions: $e');
+    }
+  }
+
+  List<LatLng> decodePolyline(String poly) {
+    List<LatLng> polyline = [];
+    var index = 0, len = poly.length;
+    int lat = 0, lng = 0;
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = poly.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+      shift = 0;
+      result = 0;
+      do {
+        b = poly.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      LatLng p = LatLng((lat / 1E5), (lng / 1E5));
+      polyline.add(p);
+    }
+    return polyline;
+  }
+
+  void addPolyline(List<LatLng> coordinates) {
+    polylines.clear();
+    polylines.add(
+      Polyline(
+        polylineId: PolylineId('route'),
+        points: coordinates,
+        color: Colors.blue,
+        width: 5,
       ),
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['routes'].isNotEmpty) {
-        final points = data['routes'][0]['overview_polyline']['points'];
-        List<LatLng> polylineCoordinates = decodePolyline(points);
-        addPolyline(polylineCoordinates);
-      } else {
-        log('No routes found');
-      }
-    } else {
-      log('Failed to load directions: ${response.statusCode}');
-    }
-  } catch (e) {
-    log('Error occurred while fetching directions: $e');
   }
-}
-List<LatLng> decodePolyline(String poly) {
-  List<LatLng> polyline = [];
-  var index = 0, len = poly.length;
-  int lat = 0, lng = 0;
-  while (index < len) {
-    int b, shift = 0, result = 0;
-    do {
-      b = poly.codeUnitAt(index++) - 63;
-      result |= (b & 0x1f) << shift;
-      shift += 5;
-    } while (b >= 0x20);
-    int dlat = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
-    lat += dlat;
-    shift = 0;
-    result = 0;
-    do {
-      b = poly.codeUnitAt(index++) - 63;
-      result |= (b & 0x1f) << shift;
-      shift += 5;
-    } while (b >= 0x20);
-    int dlng = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
-    lng += dlng;
-
-    LatLng p = LatLng((lat / 1E5), (lng / 1E5));
-    polyline.add(p);
-  }
-  return polyline;
-}
-
-
-void addPolyline(List<LatLng> coordinates) {
-  polylines.add(Polyline(
-    polylineId: PolylineId('route'),
-    points: coordinates,
-    color: Colors.blue,
-    width: 5,
-  ));
-}
 
   Set<Marker> createMarkers() {
     Set<Marker> markers = {};
@@ -294,7 +301,7 @@ void addPolyline(List<LatLng> coordinates) {
   }
 
   Widget buildGoogleMap() {
-     return GoogleMap(
+    return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
         target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
@@ -307,7 +314,7 @@ void addPolyline(List<LatLng> coordinates) {
         }
       },
       markers: createMarkers(),
-      polylines: polylines,
+      polylines: Set<Polyline>.of(polylines),
     );
   }
 

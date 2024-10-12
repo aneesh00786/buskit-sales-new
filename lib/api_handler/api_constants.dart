@@ -66,6 +66,12 @@ mixin class ApiConstants {
   static const String fetch_pending_payments = "fetch_pending_payments";
   // DUMMY IMAGE URL
   static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
-  //googlemap api key
+  // GOOGLE MAP API KEY
   static const String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
+  // GOOGLE MAP API'S
+  static const String mapBaseUrl = "https://maps.gomaps.pro/maps/api/";
+  static const String mapSearchUrl = "place/queryautocomplete/json?input=";
+  static const String mapPlaceDetailsUrl = "place/details/json?place_id=";
+  static const String mapDestinationUrl = "directions/json?destination=";
+  
 }

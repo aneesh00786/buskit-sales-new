@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
@@ -12,43 +10,24 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/cal
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SelectCustomerDiloag extends StatefulWidget {
+class SelectCustomerDiloag extends StatelessWidget {
   final DateTime dateTime;
-  final List<Customer> customerlist;
+  final List<Customer> customerList;
   final CalenderMapController calenderMapController;
 
-  const SelectCustomerDiloag(
-      {super.key,
-      required this.customerlist,
-      required this.dateTime,
-      required this.calenderMapController});
-
-  @override
-  State<SelectCustomerDiloag> createState() => _SelectCustomerDiloagState();
-}
-
-class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
-  late List<bool> _checkedList;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkedList = List<bool>.filled(widget.customerlist.length, false);
-  }
+  SelectCustomerDiloag({
+    super.key,
+    required this.customerList,
+    required this.dateTime,
+    required this.calenderMapController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    log('CustomerList Length : ${widget.customerlist.length}');
+    calenderMapController.initializeCheckedList(customerList.length);
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,
@@ -62,77 +41,68 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
               BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
           child: Column(
             children: [
-              DiloagAppBar(
-                title: "Customer Visit For Today",
-              ),
-              widget.customerlist.isNotEmpty
+              DiloagAppBar(title: "Customer Visit For Today"),
+              customerList.isNotEmpty
                   ? Flexible(
                       child: ListView.builder(
-                          padding: nkRegularPadding(),
-                          itemBuilder: (context, index) {
-                            Customer customer = widget.customerlist[index];
-                            return Padding(
-                              padding: nkSmallPadding(left: 0, right: 0),
-                              child: InkWell(
-                                  highlightColor: Colors.transparent,
-                                  splashFactory: NoSplash.splashFactory,
-                                  child: Card(
-                                    elevation: 10,
-                                    shadowColor: black.withOpacity(0.2),
-                                    color: white,
-                                    child: ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            customer.imageUrl ?? ''),
-                                      ),
-                                      title: CustomText(
-                                        content: customer.fullname ?? '',
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          CustomText(
-                                            content: customer.mobileno ?? '',
-                                          ),
-                                          CustomText(
-                                            content: customer.email ?? '',
-                                          ),
-                                        ],
-                                      ),
-                                      trailing: Checkbox(
-                                        value: _checkedList[index],
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _checkedList[index] =
-                                                value ?? false;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  )),
-                            );
-                          },
-                          itemCount: widget.customerlist.length),
+                        padding: nkRegularPadding(),
+                        itemCount: customerList.length,
+                        itemBuilder: (context, index) {
+                          Customer customer = customerList[index];
+                          return Padding(
+                            padding: nkSmallPadding(left: 0, right: 0),
+                            child: InkWell(
+                              highlightColor: Colors.transparent,
+                              splashFactory: NoSplash.splashFactory,
+                              child: Card(
+                                elevation: 10,
+                                shadowColor: black.withOpacity(0.2),
+                                color: white,
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(customer.imageUrl ?? ''),
+                                  ),
+                                  title: CustomText(
+                                      content: customer.fullname ?? ''),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomText(
+                                          content: customer.mobileno ?? ''),
+                                      CustomText(content: customer.email ?? ''),
+                                    ],
+                                  ),
+                                  trailing: Obx(() {
+                                    return Checkbox(
+                                      value: calenderMapController
+                                          .checkedList[index],
+                                      onChanged: (value) {
+                                        calenderMapController
+                                            .toggleCustomerSelection(
+                                                index, value ?? false);
+                                      },
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     )
                   : SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 30),
                 child: ElevatedButton.icon(
-                  label: CustomText(
-                    content: 'Show Route',
-                    color: white,
-                  ),
+                  label: CustomText(content: 'Show Route', color: white),
                   onPressed: () {
-                    showSelectedCustomerRoute();
+                    calenderMapController.showSelectedCustomerRoute(context);
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(primaryColor),
-                  ),
-                  icon: Icon(
-                    EneftyIcons.location_outline,
-                    color: white,
-                  ),
+                      backgroundColor: MaterialStateProperty.all(primaryColor)),
+                  icon: Icon(EneftyIcons.location_outline, color: white),
                 ),
               ),
             ],
@@ -141,40 +111,10 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> {
       );
     });
   }
-
-  void showSelectedCustomerRoute() {
-    List<Customer> selectedCustomers = [];
-    for (int i = 0; i < _checkedList.length; i++) {
-      if (_checkedList[i]) {
-        selectedCustomers.add(widget.customerlist[i]);
-      }
-    }
-
-    if (selectedCustomers.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CustomerMapScreen(),
-        ),
-      );
-    } else {
-      log('No customers selected');
-    }
-  }
-
-  static void navigateTo(
-      double startLat, double startLng, double endLat, double endLng) async {
-    String googleMapsLocationUrl =
-        "https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
-    final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
-    var uri = Uri.parse(encodedURL);
-    await launchUrl(uri);
-  }
 }
 
 class CustomerMapScreen extends StatelessWidget {
   final CalenderMapController _mapController = Get.put(CalenderMapController());
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,7 +124,7 @@ class CustomerMapScreen extends StatelessWidget {
       body: Row(
         children: [
           Container(
-            width: 250,
+            width: 350,
             color: Colors.white.withOpacity(0.8),
             child: Column(children: [
               Padding(
@@ -247,11 +187,11 @@ class CustomerMapScreen extends StatelessWidget {
                 ),
               ),
               Expanded(child: Obx(() {
-                log('Customer List Length: ${_mapController.customerList.length}');
+                log('Customer List Length: ${_mapController.selectedCustomers.length}');
                 return ListView.builder(
-                  itemCount: _mapController.customerList.length,
+                  itemCount: _mapController.selectedCustomers.length,
                   itemBuilder: (context, index) {
-                    Customer customer = _mapController.customerList[index];
+                    Customer customer = _mapController.selectedCustomers[index];
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
@@ -272,9 +212,11 @@ class CustomerMapScreen extends StatelessWidget {
                                   ),
                                   SizedBox(width: 6),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(customer.fullname ?? '', style: TextStyle(fontSize: 17)),
+                                      Text(customer.fullname ?? '',
+                                          style: TextStyle(fontSize: 17)),
                                       Text(customer.mobileno ?? ''),
                                       Text(customer.email ?? ''),
                                     ],
@@ -290,10 +232,12 @@ class CustomerMapScreen extends StatelessWidget {
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   onPressed: () {
-                                    //_mapController.navigateToCustomer(customer);
+                                    navigateTo(25.022702, 45.052659, 24.774265,
+                                        46.738586);
                                   },
                                   style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(Colors.blue),
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.blue),
                                   ),
                                 ),
                               ),
@@ -313,28 +257,35 @@ class CustomerMapScreen extends StatelessWidget {
     );
   }
 
-Widget _buildSuggestionsList() {
-  return Obx(() {
-    if (_mapController.suggestions.isEmpty) {
-      return SizedBox.shrink();
-    }
-    return Container(
-      height: 300,
-      child: ListView.builder(
-        itemCount: _mapController.suggestions.length,
-        itemBuilder: (context, index) {
-          final suggestion = _mapController.suggestions[index];
-          return ListTile(
-            title: Text(suggestion['description']),
-            onTap: () {
-              _mapController.selectSuggestion(suggestion);
-            },
-          );
-        },
-      ),
-    );
-  });
-}
+  static void navigateTo(
+      double startLat, double startLng, double endLat, double endLng) async {
+    String googleMapsLocationUrl =
+        "https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
+    final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
+    var uri = Uri.parse(encodedURL);
+    await launchUrl(uri);
+  }
 
+  Widget _buildSuggestionsList() {
+    return Obx(() {
+      if (_mapController.suggestions.isEmpty) {
+        return SizedBox.shrink();
+      }
+      return Container(
+        height: 300,
+        child: ListView.builder(
+          itemCount: _mapController.suggestions.length,
+          itemBuilder: (context, index) {
+            final suggestion = _mapController.suggestions[index];
+            return ListTile(
+              title: Text(suggestion['description']),
+              onTap: () {
+                _mapController.selectSuggestion(suggestion);
+              },
+            );
+          },
+        ),
+      );
+    });
+  }
 }
-

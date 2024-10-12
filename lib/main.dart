@@ -28,7 +28,6 @@ void main() async {
   Hive.registerAdapter(CategoryModelAdapter());
   Hive.registerAdapter(CategoryDataAdapter());
   Hive.registerAdapter(SubCategoryItemAdapter());
-  //await Hive.openBox('products');
   await Hive.openBox<CartItem>('cartBox');
   DatabaseHelper.database;
   SystemChrome.setPreferredOrientations([

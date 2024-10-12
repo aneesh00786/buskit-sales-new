@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/select_customer_diloag.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
@@ -32,14 +33,39 @@ class CalenderMapController extends GetxController {
   final Set<Polyline> polylines = <Polyline>{}.obs;
   GoogleMapController? mapController = null;
   final customerList = <Customer>[].obs;
+  RxList<Customer> selectedCustomers = <Customer>[].obs;
   final String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
   final double defaultLat = 25.022702;
   final double defaultLng = 45.052659;
+  late final DateTime dateTime;
+  RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
+  
   @override
   void onInit() {
     super.onInit();
     requestLocationPermission();
+    
+  }
+  void initializeCheckedList(int length) {
+    checkedList.value = List<bool>.filled(length, false);
+  }
+    void toggleCustomerSelection(int index, bool value) {
+    checkedList[index] = value;
+    if (value) {
+      selectedCustomers.addIf(!selectedCustomers.contains(customerList[index]), customerList[index]);
+    } else {
+      selectedCustomers.remove(customerList[index]);
+    }
+  }
+
+  // To handle the selection and transition to the map screen
+  void showSelectedCustomerRoute(BuildContext context) {
+    if (selectedCustomers.isNotEmpty) {
+      Get.to(() => CustomerMapScreen());
+    } else {
+      log('No customers selected');
+    }
   }
 
   Future<void> requestLocationPermission() async {
@@ -90,7 +116,6 @@ class CalenderMapController extends GetxController {
           "https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=$query&key=$kGoogleApiKey",
         ),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -156,7 +181,6 @@ Future<void> fetchPlaceDetails(String placeId) async {
         suggestions.clear();
         createMarkers();
         getDirections();
-
         log('Location marked: $lat, $lng');
       } else {
         log('Failed to load place details: ${response.statusCode}');
@@ -204,7 +228,6 @@ List<LatLng> decodePolyline(String poly) {
     } while (b >= 0x20);
     int dlat = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
     lat += dlat;
-
     shift = 0;
     result = 0;
     do {
@@ -251,7 +274,6 @@ void addPolyline(List<LatLng> coordinates) {
         ),
       );
     }
-
     // // Add markers for customers
     // for (var customer in customerList) {
     //   // Assuming each customer has latitude and longitude properties
@@ -268,12 +290,11 @@ void addPolyline(List<LatLng> coordinates) {
     //     );
     //   }
     // }
-
     return markers;
   }
 
   Widget buildGoogleMap() {
-    return GoogleMap(
+     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
         target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
@@ -325,12 +346,12 @@ void addPolyline(List<LatLng> coordinates) {
     var eventData = List<CalendarEventData<SalesmanEvents>>.generate(
         events.length,
         (index) => CalendarEventData<SalesmanEvents>(
-              title: events![index].totalEvent.toString(),
+              title: events[index].totalEvent.toString(),
               date: NKDateUtils.formatStringUTCDateTime(
-                  events![index].start ?? DateTime.now().toString()),
-              endDate: NKDateUtils.formatStringUTCDateTime(events![index].end!),
+                  events[index].start ?? DateTime.now().toString()),
+              endDate: NKDateUtils.formatStringUTCDateTime(events[index].end!),
               event: events[index],
-              description: events![index].totalEvent!.toString(),
+              description: events[index].totalEvent!.toString(),
               // color: getColor(events[index].type!).$1,
               color: Colors.grey,
               descriptionStyle: Get.theme.textTheme.bodyMedium?.copyWith(

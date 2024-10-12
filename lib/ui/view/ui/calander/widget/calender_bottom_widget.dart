@@ -10,7 +10,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_dil
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
@@ -89,13 +88,11 @@ class CalenderBottomWidget extends StatelessWidget {
                         'Found matching salesman. Customer list length: ${calenderController.customerList.length}');
                   }
                 }
-
-                // After the loop, log the final customer list length
                 print('Final customer list length: ${calenderController.customerList.length}');
                 if (calenderController.customerList.isNotEmpty) {
                   Get.dialog(SelectCustomerDiloag(
                     dateTime: date,
-                    customerlist: calenderController.customerList,
+                    customerList: calenderController.customerList,
                     calenderMapController: calenderController,
                   ));
                   log('Customerlist.Length....${calenderController.customerList.length}');

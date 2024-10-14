@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/dialogue_heading_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_totalamount_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_cart_button.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_header_container.dart';
@@ -107,7 +108,6 @@ class _CartDialogueState extends State<CartDialogue> {
         width: dialogWidth,
         height: dialogHeight,
         child: LayoutBuilder(builder: (context, constraints) {
-          final groupedCartItems = groupCartItemsByName(cartItems);
           double availableWidth = constraints.maxWidth;
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
@@ -115,63 +115,10 @@ class _CartDialogueState extends State<CartDialogue> {
           double rowHeight = availableHeight / 10;
           return Column(
             children: [
-              Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 50),
-                    child: Container(
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(100),
-                          bottomRight: Radius.circular(100),
-                        ),
-                      ),
-                      width: double.infinity,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: height * 0.01, horizontal: height * 0.04),
-                        decoration: const BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(30),
-                          ),
-                        ),
-                        child: Center(
-                          child: CustomText(
-                            content: 'My Cart',
-                            fontSize: width > 1200 ? 24 : 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: fontFamilyName,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const CircleAvatar(
-                          radius: 15,
-                          child: Icon(
-                            Icons.close_rounded,
-                            color: Colors.black,
-                            size: 14,
-                          ),
-                        ),
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+              DialogueHedingWidget(
+                height: height,
+                width: width,
+                title: 'My Cart',
               ),
               const SizedBox(height: 40),
               Expanded(
@@ -526,29 +473,44 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                     ),
                                                                     onPressed:
                                                                         () {
-                                                                       showDialog(context: context, builder: (context) {
-                                                                         return AlertDialog(
-                                                                            title: CustomText(content :'Delete ${groupedItem.detail.variationName}..?',fontWeight: FontWeight.w700,),
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (context) {
+                                                                          return AlertDialog(
+                                                                            title:
+                                                                                CustomText(
+                                                                              content: 'Delete ${groupedItem.detail.variationName}..?',
+                                                                              fontWeight: FontWeight.w700,
+                                                                            ),
                                                                             actions: [
                                                                               Align(
-                                                                                alignment: Alignment.centerLeft,
-                                                                                child: CustomText(content: 'Are you sure you want to delete..?',fontSize: 17,)),
+                                                                                  alignment: Alignment.centerLeft,
+                                                                                  child: CustomText(
+                                                                                    content: 'Are you sure you want to delete..?',
+                                                                                    fontSize: 17,
+                                                                                  )),
                                                                               Row(
                                                                                 mainAxisAlignment: MainAxisAlignment.end,
                                                                                 children: [
-                                                                                  TextButton(onPressed: (){
-                                                                                    Navigator.pop(context);
-                                                                                  }, child: Text('No')),
-
-                                                                                  TextButton(onPressed: (){
-                                                                                   _deleteVariant(groupedItem, groupedItems);
-                                                                                   Navigator.pop(context);
-                                                                                  }, child: Text('Yes'))
+                                                                                  TextButton(
+                                                                                      onPressed: () {
+                                                                                        Navigator.pop(context);
+                                                                                      },
+                                                                                      child: Text('No')),
+                                                                                  TextButton(
+                                                                                      onPressed: () {
+                                                                                        _deleteVariant(groupedItem, groupedItems);
+                                                                                        Navigator.pop(context);
+                                                                                      },
+                                                                                      child: Text('Yes'))
                                                                                 ],
                                                                               )
                                                                             ],
-                                                                         );
-                                                                       },);
+                                                                          );
+                                                                        },
+                                                                      );
                                                                     },
                                                                   ),
                                                                 ),
@@ -717,7 +679,6 @@ class _CartDialogueState extends State<CartDialogue> {
                                     await Future.delayed(Duration(seconds: 2));
                                     List<Detail> detail =
                                         cartItems.map((e) => e.detail).toList();
-
                                     final productBYData = AddToCartModel(
                                       customerId:
                                           customeController.customerId.value,
@@ -750,9 +711,10 @@ class _CartDialogueState extends State<CartDialogue> {
                                         orderStatus = 0;
                                       } else if (_selectedValue == 'Estimate') {
                                         orderStatus = 7;
-                                      } else if (_selectedValue == 'Quick Sale'){
+                                      } else if (_selectedValue ==
+                                          'Quick Sale') {
                                         orderStatus = 14;
-                                      }else{
+                                      } else {
                                         orderStatus = -1;
                                       }
                                       CartOrderModel order = CartOrderModel(

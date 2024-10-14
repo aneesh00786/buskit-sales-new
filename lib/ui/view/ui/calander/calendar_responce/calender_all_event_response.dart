@@ -1,245 +1,162 @@
-class AllCalenderEvent {
-  final int? statusCode;
-  final bool? status;
-  final String? message;
-  final List<CalenderData>? data;
+class CalenderDatas {
+  int? statusCode;
+  bool? status;
+  String? message;
+  List<EventData>? data;
 
-  AllCalenderEvent({
-    this.statusCode,
-    this.status,
-    this.message,
-    this.data,
-  });
+  CalenderDatas({this.statusCode, this.status, this.message, this.data});
 
-  AllCalenderEvent.fromJson(Map<String, dynamic> json)
-      : statusCode = json['status_code'] as int?,
-        status = json['status'] as bool?,
-        message = json['message'] as String?,
-        data = (json['data'] as List?)
-            ?.map(
-                (dynamic e) => CalenderData.fromJson(e as Map<String, dynamic>))
-            .toList();
+  CalenderDatas.fromJson(Map<String, dynamic> json) {
+    statusCode = json['status_code'];
+    status = json['status'];
+    message = json['message'];
+    if (json['data'] != null) {
+      data = <EventData>[];
+      json['data'].forEach((v) {
+        data!.add(new EventData.fromJson(v));
+      });
+    }
+  }
 
-  Map<String, dynamic> toJson() => {
-        'status_code': statusCode,
-        'status': status,
-        'message': message,
-        'data': data?.map((e) => e.toJson()).toList()
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status_code'] = this.statusCode;
+    data['status'] = this.status;
+    data['message'] = this.message;
+    if (this.data != null) {
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
 }
 
-class CalenderData {
-  final int? id;
-  final String? salesmanId;
-  final String? fullname;
-  final String? mobileno;
-  final String? email;
-  final String? password;
-  final String? town;
-  final String? state;
-  final int? zipcode;
-  final String? address;
-  final String? idimagePath;
-  final String? imagePath;
-  final String? createAt;
-  final String? token;
-  final List<SalesmanEvents>? events;
-  final dynamic schedule;
-  final dynamic creditPoint;
-  final dynamic cancelEventReason;
+class EventData {
+  int? id;
+  String? eventId;
+  String? customerId;
+  String? salesmanId;
+  String? title;
+  String? start;
+  String? end;
+  int? type;
+  Null? checkIn;
+  String? checkInLongitude;
+  String? checkInLatitude;
+  Null? checkOut;
+  String? checkOutLatitude;
+  int? checkOutLongitude;
+  Null? eventCancel;
+  int? status;
+  String? createdAt;
+  String? updatedAt;
+  String? businessName;
+  String? imageUrl;
+  String? email;
+  String? mobileNo;
+  String? address;
+  String? latitude;
+  String? longitude;
 
-  CalenderData({
-    this.id,
-    this.salesmanId,
-    this.fullname,
-    this.mobileno,
-    this.email,
-    this.password,
-    this.town,
-    this.state,
-    this.zipcode,
-    this.address,
-    this.idimagePath,
-    this.imagePath,
-    this.createAt,
-    this.token,
-    this.events,
-    this.schedule,
-    this.creditPoint,
-    this.cancelEventReason,
-  });
 
-  CalenderData.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
-        salesmanId = json['salesman_id'] as String?,
-        fullname = json['fullname'] as String?,
-        mobileno = json['mobileno'] as String?,
-        email = json['email'] as String?,
-        password = json['password'] as String?,
-        town = json['town'] as String?,
-        state = json['state'] as String?,
-        zipcode = json['zipcode'] as int?,
-        address = json['address'] as String?,
-        idimagePath = json['idimage_path'] as String?,
-        imagePath = json['image_path'] as String?,
-        createAt = json['create_at'] as String?,
-        token = json['token'] as String?,
-        events = (json['events'] as List?)
-            ?.map((dynamic e) =>
-                SalesmanEvents.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        schedule = json['schedule'],
-        creditPoint = json['credit_point'],
-        cancelEventReason = json['cancel_event_reason'];
+  EventData(
+      {this.id,
+      this.eventId,
+      this.customerId,
+      this.salesmanId,
+      this.title,
+      this.start,
+      this.end,
+      this.type,
+      this.checkIn,
+      this.checkInLongitude,
+      this.checkInLatitude,
+      this.checkOut,
+      this.checkOutLatitude,
+      this.checkOutLongitude,
+      this.eventCancel,
+      this.status,
+      this.createdAt,
+      this.updatedAt,
+      this.businessName,
+      this.imageUrl,
+      this.email,
+      this.mobileNo,
+      this.address,
+      this.latitude,
+      this.longitude
+      
+      });
+EventData.fromJson(Map<String, dynamic> json) {
+    
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'salesman_id': salesmanId,
-        'fullname': fullname,
-        'mobileno': mobileno,
-        'email': email,
-        'password': password,
-        'town': town,
-        'state': state,
-        'zipcode': zipcode,
-        'address': address,
-        'idimage_path': idimagePath,
-        'image_path': imagePath,
-        'create_at': createAt,
-        'token': token,
-        'events': events?.map((e) => e.toJson()).toList(),
-        'schedule': schedule,
-        'credit_point': creditPoint,
-        'cancel_event_reason': cancelEventReason
-      };
+  id = json['id'];
+  eventId = json['event_id'];
+  customerId = json['customer_id'];
+  salesmanId = json['salesman_id'];
+  title = json['title'];
+  start = json['start'];
+  end = json['end'];
+  type = json['type'] is bool ? (json['type'] == true ? 1 : 0) : json['type'];
+  checkIn = json['check_in'];
+  checkInLongitude = json['check_in_longitude'];
+  checkInLatitude = json['check_in_latitude'];
+  checkOut = json['check_out'];
+  checkOutLatitude = json['check_out_latitude'];
+  checkOutLongitude = json['check_out_longitude'] is bool 
+      ? (json['check_out_longitude'] == true ? 1 : 0) 
+      : json['check_out_longitude'];
+
+  eventCancel = json['event_cancel'];
+  status = json['status'] is bool ? (json['status'] == true ? 1 : 0) : json['status'];
+  createdAt = json['created_at'];
+  updatedAt = json['updated_at'];
+  businessName = json['business_name'];
+  imageUrl = json['image_url'];
+  email = json["email"];
+  mobileNo = json["mobileno"];
+  address = json["address"];
+  latitude = json["latitude"];
+  longitude =json["longitude"];
 }
+            //  "business_name": "3232",
+            // "image_url": "customer/1695958640804.png",
+            // "email": "aneesh@jrboonsolutions.com",
+            // "mobileno": "09633757951",
+            // "address": "Wellington Parade, East Melbourne VIC 3002",
+            // "latitude": "-37.81365100",
+            // "longitude": "144.98355800"
 
-class SalesmanEvents {
-  final int? totalEvent;
-  final String? start;
-  final String? salesmanId;
-  final String? customerId;
-  final String? end;
-  final List<Salesman>? salesman;
 
-  SalesmanEvents({
-    this.totalEvent,
-    this.start,
-    this.salesmanId,
-    this.customerId,
-    this.end,
-    this.salesman,
-  });
-
-  SalesmanEvents.fromJson(Map<String, dynamic> json)
-      : totalEvent = json['total_event'] as int?,
-        start = json['start'] as String?,
-        salesmanId = json['salesman_id'] as String?,
-        customerId = json['customer_id'] as String?,
-        end = json['end'] as String?,
-        salesman = (json['salesman'] as List?)
-            ?.map((dynamic e) => Salesman.fromJson(e as Map<String, dynamic>))
-            .toList();
-
-  Map<String, dynamic> toJson() => {
-        'total_event': totalEvent,
-        'start': start,
-        'salesman_id': salesmanId,
-        'customer_id': customerId,
-        'end': end,
-        'salesman': salesman?.map((e) => e.toJson()).toList()
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['event_id'] = this.eventId;
+    data['customer_id'] = this.customerId;
+    data['salesman_id'] = this.salesmanId;
+    data['title'] = this.title;
+    data['start'] = this.start;
+    data['end'] = this.end;
+    data['type'] = this.type;
+    data['check_in'] = this.checkIn;
+    data['check_in_longitude'] = this.checkInLongitude;
+    data['check_in_latitude'] = this.checkInLatitude;
+    data['check_out'] = this.checkOut;
+    data['check_out_latitude'] = this.checkOutLatitude;
+    data['check_out_longitude'] = this.checkOutLongitude;
+    data['event_cancel'] = this.eventCancel;
+    data['status'] = this.status;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    data['business_name'] = this.businessName;
+    data['image_url'] = this.imageUrl;
+    data['email'] = this.email;
+    data['mobileno'] = this.mobileNo;
+    data['address'] = this.address;
+    data['latitude'] = this.latitude;
+    data['longitude'] = this.longitude;
+    return data;
+  }
 }
-
-class Salesman {
-  final int? id;
-  final String? salesmanId;
-  final String? fullname;
-  final String? mobileno;
-  final String? email;
-  final String? password;
-  final String? town;
-  final String? state;
-  final int? zipcode;
-  final String? address;
-  final String? idimagePath;
-  final String? imagePath;
-  final String? createAt;
-  final String? token;
-  final dynamic events;
-  final dynamic schedule;
-  final dynamic creditPoint;
-  final dynamic cancelEventReason;
-  final List<Customer>? customer;
-
-  Salesman({
-    this.id,
-    this.salesmanId,
-    this.fullname,
-    this.mobileno,
-    this.email,
-    this.password,
-    this.town,
-    this.state,
-    this.zipcode,
-    this.address,
-    this.idimagePath,
-    this.imagePath,
-    this.createAt,
-    this.token,
-    this.events,
-    this.schedule,
-    this.creditPoint,
-    this.cancelEventReason,
-    this.customer,
-  });
-
-  Salesman.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
-        salesmanId = json['salesman_id'] as String?,
-        fullname = json['fullname'] as String?,
-        mobileno = json['mobileno'] as String?,
-        email = json['email'] as String?,
-        password = json['password'] as String?,
-        town = json['town'] as String?,
-        state = json['state'] as String?,
-        zipcode = json['zipcode'] as int?,
-        address = json['address'] as String?,
-        idimagePath = json['idimage_path'] as String?,
-        imagePath = json['image_path'] as String?,
-        createAt = json['create_at'] as String?,
-        token = json['token'] as String?,
-        events = json['events'],
-        schedule = json['schedule'],
-        creditPoint = json['credit_point'],
-        cancelEventReason = json['cancel_event_reason'],
-        customer = (json['customer'] as List?)
-            ?.map((dynamic e) => Customer.fromJson(e as Map<String, dynamic>))
-            .toList();
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'salesman_id': salesmanId,
-        'fullname': fullname,
-        'mobileno': mobileno,
-        'email': email,
-        'password': password,
-        'town': town,
-        'state': state,
-        'zipcode': zipcode,
-        'address': address,
-        'idimage_path': idimagePath,
-        'image_path': imagePath,
-        'create_at': createAt,
-        'token': token,
-        'events': events,
-        'schedule': schedule,
-        'credit_point': creditPoint,
-        'cancel_event_reason': cancelEventReason,
-        'customer': customer?.map((e) => e.toJson()).toList()
-      };
-}
-
 class Customer {
   final int? id;
   final String? customerId;
@@ -262,6 +179,8 @@ class Customer {
   final String? discount;
   final int? eventType;
   final String? eventDays;
+  String? latitude;
+  String? longitude;
 
   Customer({
     this.id,
@@ -285,6 +204,8 @@ class Customer {
     this.discount,
     this.eventType,
     this.eventDays,
+    this.latitude,
+    this.longitude,
   });
 
   Customer.fromJson(Map<String, dynamic> json)
@@ -308,7 +229,9 @@ class Customer {
         salesmanName = json['salesman_name'] as String?,
         discount = json['discount'] as String?,
         eventType = json['event_type'] as int?,
-        eventDays = json['event_days'] as String?;
+        eventDays = json['event_days'] as String?,
+        latitude = json['latitude'] as String?,
+        longitude = json['longitude'] as String?;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -331,6 +254,8 @@ class Customer {
         'salesman_name': salesmanName,
         'discount': discount,
         'event_type': eventType,
-        'event_days': eventDays
+        'event_days': eventDays,
+        'latitude': latitude,
+        'longitude': longitude,
       };
 }

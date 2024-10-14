@@ -108,7 +108,7 @@ class CustomerMapScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(customer.fullname ?? '',
+                                      Text(customer.businessName ?? '',
                                           style: TextStyle(fontSize: 17)),
                                       Text(customer.mobileno ?? ''),
                                       Text(customer.email ?? ''),

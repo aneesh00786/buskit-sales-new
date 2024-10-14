@@ -554,18 +554,20 @@ class ApiWorker with ApiConstants {
   }
 
   /// ******************** CALENDAR SECTION ******************/
-  Future<AllCalenderEvent> getCalendarEvents(
-      Map<String, dynamic> sendData) async {
-    final response = await dio
-        .postbycustom(ApiConstants.fetch_on_salesman,
-            data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return AllCalenderEvent.fromJson(response.data);
+Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
+  final response = await dio.postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
+      .onError((DioError error, stackTrace) {
+    log(error.toString());
+    return Future.error(throw DioExceptionHandler.fromDioError(error));
+  });
+  if (response.data is Map<String, dynamic> && response.data['data'] is List) {
+    List<dynamic> eventsJson = response.data['data'];
+    return eventsJson.map((event) => EventData.fromJson(event as Map<String, dynamic>)).toList();
+  } else {
+    log('Unexpected response format: ${response.data}');
+    return [];
   }
-
+}
   Future<TodayTasksResponse> getTodaySchedule(
       Map<String, dynamic> sendData) async {
     final response = await dio

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,19 +16,19 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SelectCustomerDiloag extends StatelessWidget {
   final DateTime dateTime;
-  final List<Customer> customerList;
   final CalenderMapController calenderMapController;
+  final List<CalendarEventData<EventData>> eventData;
 
   SelectCustomerDiloag({
     super.key,
-    required this.customerList,
     required this.dateTime,
     required this.calenderMapController,
+    required this.eventData,
   });
 
   @override
   Widget build(BuildContext context) {
-    calenderMapController.initializeCheckedList(customerList.length);
+    calenderMapController.initializeCheckedList(eventData.length);
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,
@@ -42,13 +43,14 @@ class SelectCustomerDiloag extends StatelessWidget {
           child: Column(
             children: [
               DiloagAppBar(title: "Customer Visit For Today"),
-              customerList.isNotEmpty
+              eventData.isNotEmpty
                   ? Flexible(
                       child: ListView.builder(
                         padding: nkRegularPadding(),
-                        itemCount: customerList.length,
+                        itemCount: eventData.length,
                         itemBuilder: (context, index) {
-                          Customer customer = customerList[index];
+                          CalendarEventData<EventData> customerEvent = eventData[index];
+                          
                           return Padding(
                             padding: nkSmallPadding(left: 0, right: 0),
                             child: InkWell(
@@ -60,28 +62,25 @@ class SelectCustomerDiloag extends StatelessWidget {
                                 color: white,
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundImage:
-                                        NetworkImage(customer.imageUrl ?? ''),
+                                    backgroundImage: NetworkImage(
+                                      customerEvent.event?.imageUrl ?? ''
+                                    ),
                                   ),
                                   title: CustomText(
-                                      content: customer.fullname ?? ''),
+                                    content: customerEvent.event?.businessName ?? '',
+                                  ),
                                   subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      CustomText(
-                                          content: customer.mobileno ?? ''),
-                                      CustomText(content: customer.email ?? ''),
+                                      CustomText(content: customerEvent.event?.address ?? ''),
+                                      CustomText(content: customerEvent.event?.email ?? ''),
                                     ],
                                   ),
                                   trailing: Obx(() {
                                     return Checkbox(
-                                      value: calenderMapController
-                                          .checkedList[index],
+                                      value: calenderMapController.checkedList[index],
                                       onChanged: (value) {
-                                        calenderMapController
-                                            .toggleCustomerSelection(
-                                                index, value ?? false);
+                                        calenderMapController.toggleCustomerSelection(index, value ?? false,eventData);
                                       },
                                     );
                                   }),
@@ -101,7 +100,8 @@ class SelectCustomerDiloag extends StatelessWidget {
                     calenderMapController.showSelectedCustomerRoute(context);
                   },
                   style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(primaryColor)),
+                    backgroundColor: MaterialStateProperty.all(primaryColor),
+                  ),
                   icon: Icon(EneftyIcons.location_outline, color: white),
                 ),
               ),
@@ -112,5 +112,6 @@ class SelectCustomerDiloag extends StatelessWidget {
     });
   }
 }
+
 
 

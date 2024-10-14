@@ -39,6 +39,9 @@ mixin class ApiConstants {
   static const String addEvent = "add_events";
   static const String customeTotalSale = "customer_total_sale";
   static const String fetchOrderCount = "fetch_order_count";
+  static const String fetch_salesman_of_customer = "fetch_salesman_of_customer";
+  static const String get_event = "get_event";
+  
 
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";

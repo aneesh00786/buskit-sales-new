@@ -26,8 +26,8 @@ class CalenderMapController extends GetxController {
   Rx<StaffData> selectedStaff = StaffData().obs;
   EventController<SalesManVisitEvents> eventController =
       EventController<SalesManVisitEvents>();
-  EventController<SalesmanEvents> eventControllerv1 =
-      EventController<SalesmanEvents>();
+  EventController<EventData> eventControllerv1 =
+      EventController<EventData>();
   final RxBool locationPermissionGranted = false.obs;
   final Rx<LatLng?> currentLatLng = Rxn<LatLng>();
   final Rx<LatLng?> searchedLatLng = Rxn<LatLng>();
@@ -35,6 +35,7 @@ class CalenderMapController extends GetxController {
   GoogleMapController? mapController = null;
   final customerList = <Customer>[].obs;
   RxList<Customer> selectedCustomers = <Customer>[].obs;
+  final RxList<CalendarEventData<EventData>> eventData = <CalendarEventData<EventData>>[].obs;
   // final String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
   final double defaultLat = 25.022702;
   final double defaultLng = 45.052659;
@@ -53,15 +54,23 @@ class CalenderMapController extends GetxController {
     checkedList.value = List<bool>.filled(length, false);
   }
 
-  void toggleCustomerSelection(int index, bool value) {
+  void toggleCustomerSelection(int index, bool value, List<CalendarEventData<EventData>> eventData) {
     checkedList[index] = value;
+    final CalendarEventData<EventData> event = eventData[index];
+    Customer customer = Customer(
+      businessName: event.event?.businessName ?? '',  
+      address: event.event?.address ?? '',
+      email: event.event?.email ?? '',
+      imageUrl: event.event?.imageUrl ?? '',
+    );
     if (value) {
-      selectedCustomers.addIf(!selectedCustomers.contains(customerList[index]),
-          customerList[index]);
+      selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
     } else {
-      selectedCustomers.remove(customerList[index]);
+      selectedCustomers.remove(customer);
     }
   }
+
+
   void showSelectedCustomerRoute(BuildContext context) {
     if (selectedCustomers.isNotEmpty) {
       Get.to(() => CustomerMapScreen());
@@ -79,32 +88,59 @@ class CalenderMapController extends GetxController {
       showPermissionDeniedDialog();
     }
   }
+Future<void> getCurrentLocation() async {
+  try {
+    // Use the provided latitude and longitude
+    double latitude = -37.841270;
+    double longitude = 144.976930;
 
-  Future<void> getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
+    List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+
+    if (placemarks.isNotEmpty) {
       Placemark place = placemarks[0];
-      String address =
-          "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-
-      currentLatLng.value = LatLng(position.latitude, position.longitude);
+      String address = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+      currentLatLng.value = LatLng(latitude, longitude);
       currentLocationText.value = address;
-
-      if (mapController != null) {
+            if (mapController != null) {
         mapController!.animateCamera(
           CameraUpdate.newLatLng(currentLatLng.value!),
         );
       }
-    } catch (e) {
-      log('Error getting current location: $e');
+      print('Address: $address');
+    } else {
+      print('No address found for the provided coordinates.');
     }
+  } catch (e) {
+    print('Error getting location: $e');
   }
+}
+
+
+  // Future<void> getCurrentLocation() async {
+  //   try {
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
+  //     List<Placemark> placemarks = await placemarkFromCoordinates(
+  //       position.latitude,
+  //       position.longitude,
+  //     );
+  //     Placemark place = placemarks[0];
+  //     String address =
+  //         "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+
+      // currentLatLng.value = LatLng(position.latitude, position.longitude);
+  //     currentLocationText.value = address;
+
+      // if (mapController != null) {
+      //   mapController!.animateCamera(
+      //     CameraUpdate.newLatLng(currentLatLng.value!),
+      //   );
+      // }
+  //   } catch (e) {
+  //     log('Error getting current location: $e');
+  //   }
+  // }
 
   Future<void> handleSearchLocation(String query) async {
     if (query.isEmpty) {
@@ -341,38 +377,30 @@ class CalenderMapController extends GetxController {
     );
   }
 
-  loadCalenderEvent_v1(List<SalesmanEvents> events) {
-    if (eventControllerv1.events.isNotEmpty) {
-      for (var element in eventControllerv1.events) {
-        eventControllerv1.remove(element);
-      }
-    }
-    print("eventlength ${events.length}");
-
-    var eventData = List<CalendarEventData<SalesmanEvents>>.generate(
-        events.length,
-        (index) => CalendarEventData<SalesmanEvents>(
-              title: events[index].totalEvent.toString(),
-              date: NKDateUtils.formatStringUTCDateTime(
-                  events[index].start ?? DateTime.now().toString()),
-              endDate: NKDateUtils.formatStringUTCDateTime(events[index].end!),
-              event: events[index],
-              description: events[index].totalEvent!.toString(),
-              // color: getColor(events[index].type!).$1,
-              color: Colors.grey,
-              descriptionStyle: Get.theme.textTheme.bodyMedium?.copyWith(
-                // color: getColor(events[index].type!).$2,
-                color: getColor(3).$2,
-              ),
-              startTime: DateTime.now().copyWith(hour: 10, minute: 0),
-              endTime: DateTime.now().copyWith(hour: 24, minute: 0),
-            ));
-    log("Events+++${events.length}");
-    //log("EVENT DATEEEEEE ${eventData.map((e) => e.event?.toJson()).toList()}");
-    eventControllerv1.addAll(eventData);
-    log("Events+++ 123+++  ${eventControllerv1.events.length}");
-    refresh();
+void loadCalenderEvent_v1(List<EventData> events) {
+  if (eventControllerv1.events.isNotEmpty) {
+    eventControllerv1.removeAll(eventControllerv1.events);
   }
+
+  // Create a list of CalendarEventData from the list of EventData
+  var eventData = List<CalendarEventData<EventData>>.generate(
+    events.length,
+    (index) => CalendarEventData<EventData>(
+      title: events[index].title ?? "No Title",
+      date: DateTime.parse(events[index].start ?? DateTime.now().toString()),
+      endDate: DateTime.parse(events[index].end ?? DateTime.now().toString()),
+      event: events[index],  // Pass the EventData object as event
+      description: events[index].title ?? "No Description",
+      color: getColor(events[index].type ?? 3).$1,  // Assuming color is based on event type
+    ),
+  );
+
+  // Add the newly created events to the calendar controller
+  eventControllerv1.addAll(eventData);
+  log("Events loaded: ${eventData.length}");
+  refresh();  // Refresh the UI if necessary
+}
+
 
   (Color componetColor, Color textColor) getColor(int type) {
     switch (type) {
@@ -389,23 +417,22 @@ class CalenderMapController extends GetxController {
     }
   }
 
-  List<SalesmanEvents> DataList = [];
-
-  Future<void> calenderAllEvents() async {
+Future<void> fetchCalenderEvents() async {
     var salesmanId = await SessionHelper.loginSavedData?.salesmanId;
     var sendData = {
-      "salesman_id": salesmanId,
-      "start_date": "",
-      "end_date": ""
+        "salesman_id": salesmanId,
+        "start_date": "",
+        "end_date": ""
     };
-    _apiWorker.getCalendarEvents(sendData).then((value) {
-      DataList = value.data!.first.events!;
-      log("calenderAllEvents ${DataList.length}");
-      loadCalenderEvent_v1(DataList);
-      // loadCalenderEvent_v1(value);
-    });
-    log("salesManId ${salesmanId.toString()}");
-  }
+    List<EventData> response = await _apiWorker.getCalendarEvents(sendData);
+    if (response != null) {
+        loadCalenderEvent_v1(response);
+    } else {
+        log('No data received from the API.');
+    }
+}
+
+
 
   List<CustomerDetails> splitEventToCustomerData(
       List<SalesManVisitEvents> events) {

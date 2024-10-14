@@ -1,8 +1,4 @@
 import 'dart:developer';
-
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -28,24 +24,36 @@ class CalenderBottomWidget extends StatelessWidget {
     );
   }
 
-  Widget calenderWidget() {
-    //return Container();
-    return MonthView(
-      cellAspectRatio:
-          AppDimensions.instance.orientation == Orientation.landscape
-              ? 2.0
-              : 0.78,
-      headerStyle: HeaderStyle(
-          decoration: BoxDecoration(
-            color: primaryColor.withOpacity(0.4),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          headerTextStyle: TextStyle(
-              color: black, fontSize: 20, fontWeight: FontWeight.w700)),
-      pageTransitionCurve: Curves.easeInOutCubicEmphasized,
-      borderColor: white,
-      cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) {
-        return MyCommnonContainer(
+Widget calenderWidget() {
+  return MonthView(
+    cellAspectRatio: AppDimensions.instance.orientation == Orientation.landscape ? 2.0 : 0.78,
+    headerStyle: HeaderStyle(
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      headerTextStyle: TextStyle(
+        color: black,
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    pageTransitionCurve: Curves.easeInOutCubicEmphasized,
+    borderColor: white,
+    cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) {
+      int eventCount = event.length; 
+      return GestureDetector(
+        onTap: () {
+          if (event.isNotEmpty) {
+             Get.dialog(SelectCustomerDiloag(
+                    dateTime: date,
+                    calenderMapController: calenderController,
+                    eventData: event,
+                  ));
+            log('Date : $date');
+          }
+        },
+        child: MyCommnonContainer(
           borderRadiusGeometry: BorderRadius.circular(15),
           border: Border.all(color: black.withOpacity(0.1)),
           boxShadow: isInMonth
@@ -63,45 +71,6 @@ class CalenderBottomWidget extends StatelessWidget {
               : !isInMonth
                   ? secondaryTextColor.withOpacity(0.08)
                   : white,
-          borderRadius: 0,
-          onTap: () {
-            var data = event.map((e) => e.event).toList();
-            print("Events+++ 1234+++ ${date} ${data.length}");
-            print("Events+++ 1235+++  ${event.length}");
-            print(
-                "Events>>> +++ ${date} ${data.toString()} ${data.first!.toJson()}");
-            if (isInMonth) {
-              print('in2++ #${data.length}');
-              if (data.isNotEmpty) {
-                print('in++');
-                calenderController.customerList.value=[];
-                for (var element in data.first?.salesman ?? []) {
-                  print(
-                      'Salesman ID from session: ${SessionHelper.loginSavedData?.salesmanId}');
-                  print('Current salesman ID: ${element.salesmanId}');
-                  print('Customers for this salesman: ${element.customer}');
-
-                  if (element.salesmanId ==
-                      SessionHelper.loginSavedData?.salesmanId) {
-                    calenderController.customerList.value = element.customer ?? [];
-                    print(
-                        'Found matching salesman. Customer list length: ${calenderController.customerList.length}');
-                  }
-                }
-                print('Final customer list length: ${calenderController.customerList.length}');
-                if (calenderController.customerList.isNotEmpty) {
-                  Get.dialog(SelectCustomerDiloag(
-                    dateTime: date,
-                    customerList: calenderController.customerList,
-                    calenderMapController: calenderController,
-                  ));
-                  log('Customerlist.Length....${calenderController.customerList.length}');
-                } else {
-                  log('No customers available for this salesman.');
-                }
-              }
-            }
-          },
           padding: nkRegularPadding(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -117,55 +86,30 @@ class CalenderBottomWidget extends StatelessWidget {
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
-              isToday
-                  ? CustomText(
-                      content: 'Today',
-                      color: white,
-                      fontSize: 15,
-                    )
-                  : Container(),
-              nkSmallSizeBox(),
-              Flexible(
-                child: NkWidgetExceptionHandel(
-                  data: calenderController.eventControllerv1.events.isNotEmpty,
-                  isShowRetrySection: false,
-                  child: Wrap(
-                    spacing: 5,
-                    children: event
-                        .map((e) => ClipOval(
-                            child: nkChildWrappedSizeBox(
-                                width: 20,
-                                height: 20,
-                                child: ColoredBox(
-                                  color: calenderController
-                                      /* .getColor(e.event!.type!)
-                                      .$1*/
-                                      .getColor(2)
-                                      .$1
-                                      .withOpacity(!isInMonth ? 0.2 : 1),
-                                  child: MyRegularText(
-                                    color: Colors.white,
-                                    label: "${e.event?.totalEvent}",
-                                  ),
-                                  //  "${data.isEmpty ? "0" : data.first.totalEvent}"),
-                                ))))
-                        .toList(),
+
+              if (eventCount > 0) 
+                CircleAvatar(
+                  radius: 10,
+                  backgroundColor: Colors.blue,
+                  child: MyRegularText(
+                    label: eventCount.toString(), 
+                    color: Colors.white, 
+                    fontSize: 16, 
                   ),
                 ),
-              ),
             ],
           ),
-        );
-      },
-      headerStringBuilder: (date, {secondaryDate}) {
-        return NKDateUtils.formatMonth(date);
-      },
-      startDay: WeekDays.monday,
-      controller: calenderController.eventControllerv1,
-      // borderSize: 1.5,
-      initialMonth: DateTime.now(),
-      maxMonth: DateTime(DateTime.now().year, 12, 31),
-      minMonth: DateTime(DateTime.now().year, 1, 1),
-    );
-  }
+        ),
+      );
+    },
+    headerStringBuilder: (date, {secondaryDate}) {
+      return NKDateUtils.formatMonth(date);
+    },
+    startDay: WeekDays.monday,
+    controller: calenderController.eventControllerv1,
+    initialMonth: DateTime.now(),
+    maxMonth: DateTime(DateTime.now().year, 12, 31),
+    minMonth: DateTime(DateTime.now().year, 1, 1),
+  );
+}
 }

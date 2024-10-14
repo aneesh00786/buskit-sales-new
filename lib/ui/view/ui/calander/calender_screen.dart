@@ -18,7 +18,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   @override
   void initState() {
-    calenderController.calenderAllEvents();
+    calenderController.fetchCalenderEvents();
     calenderController.loadCalenderEvent_v1;
     super.initState();
   }

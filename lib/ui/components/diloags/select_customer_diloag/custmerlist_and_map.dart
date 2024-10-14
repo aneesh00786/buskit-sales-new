@@ -1,5 +1,8 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/cal
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerMapScreen extends StatelessWidget {
+  
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
   Widget build(BuildContext context) {
@@ -90,8 +94,16 @@ class CustomerMapScreen extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: Color.fromARGB(255, 242, 242, 242),
+                          color: white,
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 20,
+                              offset: Offset(0, 6),
+                              color: black.withOpacity(0.1)
+                            ),
+                          ]
                         ),
+                        
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -101,16 +113,19 @@ class CustomerMapScreen extends StatelessWidget {
                                   CircleAvatar(
                                     radius: 30,
                                     backgroundImage:
-                                        NetworkImage(customer.imageUrl ?? ''),
+                                        NetworkImage('${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
                                   ),
                                   SizedBox(width: 6),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(customer.businessName ?? '',
-                                          style: TextStyle(fontSize: 17)),
-                                      Text(customer.mobileno ?? ''),
+                                      CustomText(content:customer.businessName ?? '',fontWeight: FontWeight.w700,fontSize: 17,),
+                                          
+                                      Text(customer.mobileno ?? '',),
+                                      SizedBox(
+                                        width:250,
+                                        child: Text(customer.address ?? '',overflow: TextOverflow.ellipsis,)),
                                       Text(customer.email ?? ''),
                                     ],
                                   ),
@@ -144,7 +159,7 @@ class CustomerMapScreen extends StatelessWidget {
               }))
             ]),
           ),
-          Expanded(child: Obx(() => _mapController.buildGoogleMap(),)),
+          Expanded(child: Obx(() =>  _mapController.buildGoogleMap(),)),
         ],
       ),
     );

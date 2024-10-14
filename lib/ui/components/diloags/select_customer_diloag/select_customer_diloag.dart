@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -50,7 +51,7 @@ class SelectCustomerDiloag extends StatelessWidget {
                         itemCount: eventData.length,
                         itemBuilder: (context, index) {
                           CalendarEventData<EventData> customerEvent = eventData[index];
-                          
+                          log('${customerEvent.event?.imageUrl}');
                           return Padding(
                             padding: nkSmallPadding(left: 0, right: 0),
                             child: InkWell(
@@ -63,16 +64,18 @@ class SelectCustomerDiloag extends StatelessWidget {
                                 child: ListTile(
                                   leading: CircleAvatar(
                                     backgroundImage: NetworkImage(
-                                      customerEvent.event?.imageUrl ?? ''
+                                      '${ApiConstants.imageBaseUrl}${customerEvent.event?.imageUrl ?? ''}'
                                     ),
                                   ),
                                   title: CustomText(
                                     content: customerEvent.event?.businessName ?? '',
+                                    fontWeight: FontWeight.w700,
                                   ),
                                   subtitle: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       CustomText(content: customerEvent.event?.address ?? ''),
+                                      CustomText(content: customerEvent.event?.mobileNo ?? ''),
                                       CustomText(content: customerEvent.event?.email ?? ''),
                                     ],
                                   ),

@@ -158,103 +158,39 @@ EventData.fromJson(Map<String, dynamic> json) {
   }
 }
 class Customer {
-  final int? id;
-  final String? customerId;
-  final dynamic cartId;
-  final String? fullname;
   final String? mobileno;
   final String? email;
-  final String? town;
-  final String? state;
-  final int? zipcode;
   final String? address;
   final String? businessName;
-  final String? businessNo;
-  final String? remark;
   final String? imageUrl;
-  final String? salesmanId;
-  final int? status;
-  final String? createAt;
-  final String? salesmanName;
-  final String? discount;
-  final int? eventType;
-  final String? eventDays;
   String? latitude;
   String? longitude;
 
   Customer({
-    this.id,
-    this.customerId,
-    this.cartId,
-    this.fullname,
     this.mobileno,
     this.email,
-    this.town,
-    this.state,
-    this.zipcode,
     this.address,
     this.businessName,
-    this.businessNo,
-    this.remark,
     this.imageUrl,
-    this.salesmanId,
-    this.status,
-    this.createAt,
-    this.salesmanName,
-    this.discount,
-    this.eventType,
-    this.eventDays,
     this.latitude,
     this.longitude,
   });
 
   Customer.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as int?,
-        customerId = json['customer_id'] as String?,
-        cartId = json['cart_id'],
-        fullname = json['fullname'] as String?,
-        mobileno = json['mobileno'] as String?,
+      : mobileno = json['mobileno'] as String?,
         email = json['email'] as String?,
-        town = json['town'] as String?,
-        state = json['state'] as String?,
-        zipcode = json['zipcode'] as int?,
         address = json['address'] as String?,
         businessName = json['business_name'] as String?,
-        businessNo = json['business_no'] as String?,
-        remark = json['remark'] as String?,
         imageUrl = json['image_url'] as String?,
-        salesmanId = json['salesman_id'] as String?,
-        status = json['status'] as int?,
-        createAt = json['create_at'] as String?,
-        salesmanName = json['salesman_name'] as String?,
-        discount = json['discount'] as String?,
-        eventType = json['event_type'] as int?,
-        eventDays = json['event_days'] as String?,
         latitude = json['latitude'] as String?,
         longitude = json['longitude'] as String?;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'customer_id': customerId,
-        'cart_id': cartId,
-        'fullname': fullname,
         'mobileno': mobileno,
         'email': email,
-        'town': town,
-        'state': state,
-        'zipcode': zipcode,
         'address': address,
         'business_name': businessName,
-        'business_no': businessNo,
-        'remark': remark,
         'image_url': imageUrl,
-        'salesman_id': salesmanId,
-        'status': status,
-        'create_at': createAt,
-        'salesman_name': salesmanName,
-        'discount': discount,
-        'event_type': eventType,
-        'event_days': eventDays,
         'latitude': latitude,
         'longitude': longitude,
       };

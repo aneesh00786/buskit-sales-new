@@ -178,7 +178,7 @@ class CalenderMapController extends GetxController {
     try {
       final response = await http.get(
         Uri.parse(
-          "https://maps.gomaps.pro/maps/api/distancematrix/json?destinations=$destinations&origins=$origin&key=YOUR_API_KEY",
+          "${ApiConstants.mapBaseUrl}${ApiConstants.distanceMatrix}?destinations=$destinations&origins=$origin&key=${ApiConstants.kGoogleApiKey}",
         ),
       );
 

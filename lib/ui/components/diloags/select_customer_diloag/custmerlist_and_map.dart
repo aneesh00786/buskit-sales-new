@@ -130,14 +130,14 @@ class CustomerMapScreen extends StatelessWidget {
                                       children: [
                                         Icon(EneftyIcons.routing_outline,color: primaryColor,),
                                         SizedBox(width: 5,),
-                                        Text(customer.distance ?? '...'),
+                                        CustomText(content:customer.distance ?? '...',fontWeight: FontWeight.w500,),
                                       ],
                                     ),
                                 Row(
                                   children: [
                                     Icon(EneftyIcons.clock_2_outline,color: Colors.red,),
                                     SizedBox(width: 5,),
-                                    Text(customer.duration ?? '...'),
+                                    CustomText(content:customer.duration ?? '...',fontWeight: FontWeight.w500),
                                   ],
                                 ),
                                   ],

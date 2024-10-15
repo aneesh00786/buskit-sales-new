@@ -73,6 +73,7 @@ mixin class ApiConstants {
   static const String kGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
   // GOOGLE MAP API'S
   static const String mapBaseUrl = "https://maps.gomaps.pro/maps/api/";
+  static const String gmapBaseUrl = "https://www.google.com/maps/";
   static const String mapSearchUrl = "place/queryautocomplete/json?input=";
   static const String mapPlaceDetailsUrl = "place/details/json?place_id=";
   static const String mapDestinationUrl = "directions/json?destination=";

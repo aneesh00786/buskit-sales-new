@@ -10,17 +10,31 @@ import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class CustomerMapScreen extends StatelessWidget {
+class CustomerMapScreen extends StatefulWidget {
+  @override
+  State<CustomerMapScreen> createState() => _CustomerMapScreenState();
+
+  static void navigateTo(
+      double startLat, double startLng, double endLat, double endLng) async {
+    String googleMapsLocationUrl =
+        "${ApiConstants.gmapBaseUrl}dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
+    final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
+    var uri = Uri.parse(encodedURL);
+    await launchUrl(uri);
+  }
+}
+
+class _CustomerMapScreenState extends State<CustomerMapScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _mapController.fetchDistanceAndTime();
+  }
+
   final CalenderMapController _mapController = Get.put(CalenderMapController());
+
   @override
   Widget build(BuildContext context) {
-      if (!_mapController.hasFetchedData) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _mapController.fetchDistanceAndTime();
-      _mapController.sortCustomersByDistance();
-      _mapController.hasFetchedData = true; 
-    });
-  }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -173,17 +187,14 @@ class CustomerMapScreen extends StatelessWidget {
                                       Colors.blue.withOpacity(0.1))),
                               hoverColor: Colors.blue.withOpacity(0.4),
                               onPressed: () {
-                                final currentLatLng = _mapController
-                                    .currentLatLng
-                                    .value;
+                                final currentLatLng =
+                                    _mapController.currentLatLng.value;
                                 if (currentLatLng != null) {
-                                  navigateTo(
+                                  CustomerMapScreen.navigateTo(
                                     currentLatLng.latitude,
                                     currentLatLng.longitude,
-                                    double.parse(customer
-                                        .latitude!),
-                                    double.parse(
-                                        customer.longitude!),
+                                    double.parse(customer.latitude!),
+                                    double.parse(customer.longitude!),
                                   );
                                 }
                               },
@@ -206,15 +217,6 @@ class CustomerMapScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  static void navigateTo(
-      double startLat, double startLng, double endLat, double endLng) async {
-    String googleMapsLocationUrl =
-        "https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
-    final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
-    var uri = Uri.parse(encodedURL);
-    await launchUrl(uri);
   }
 
   Widget _buildSuggestionsList() {

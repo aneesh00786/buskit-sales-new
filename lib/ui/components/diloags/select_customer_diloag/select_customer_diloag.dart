@@ -35,7 +35,6 @@ class SelectCustomerDiloag extends StatelessWidget {
     bool isToday = dateTime.year == now.year &&
         dateTime.month == now.month &&
         dateTime.day == now.day;
-
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,

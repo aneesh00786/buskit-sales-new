@@ -46,7 +46,6 @@ class CalenderMapController extends GetxController {
   void onInit() {
     super.onInit();
     requestLocationPermission();
-    fetchDistanceAndTime();
   }
 
   void initializeCheckedList(
@@ -219,20 +218,20 @@ class CalenderMapController extends GetxController {
     }
   }
 
-  void sortCustomersByDistance() {
-    selectedCustomers.sort((a, b) {
-      final distanceA = _parseDistance(a.distance);
-      final distanceB = _parseDistance(b.distance);
-      return distanceA.compareTo(distanceB);
-    });
-  }
+void sortCustomersByDistance() {
+  selectedCustomers.sort((a, b) {
+    final distanceA = _parseDistance(a.distance);
+    final distanceB = _parseDistance(b.distance);
+    return distanceA.compareTo(distanceB);
+  });
+}
 
-  double _parseDistance(String? distance) {
-    if (distance == null) return 0.0;
-    final parts = distance.split(' ');
-    final value = double.tryParse(parts[0]) ?? 0.0;
-    return value;
-  }
+double _parseDistance(String? distance) {
+  if (distance == null) return 0.0;
+  final parts = distance.split(' ');
+  final value = double.tryParse(parts[0]) ?? 0.0;
+  return value; 
+}
 
   Future<void> handleSearchLocation(String query) async {
     if (query.isEmpty) {

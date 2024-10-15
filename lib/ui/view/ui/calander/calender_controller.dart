@@ -184,11 +184,11 @@ class CalenderMapController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        log('API Response Distance: $data'); // Log the entire response
+        log('API Response Distance: $data'); 
 
         if (data['rows'].isNotEmpty) {
           final elements = data['rows'][0]['elements'];
-          log('Elements length for row 0: ${elements.length}'); // Log number of elements
+          log('Elements length for row 0: ${elements.length}'); 
 
           for (int i = 0; i < elements.length; i++) {
             if (i >= selectedCustomers.length) break;

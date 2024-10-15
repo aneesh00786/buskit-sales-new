@@ -27,14 +27,12 @@ import 'package:dio/src/response.dart' as res;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-// import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 import 'product_ui/product_responce/product_responce_temp.dart';
 
 class InitialSubcategoryInfo {
   final String id;
   final String name;
-
   InitialSubcategoryInfo({required this.id, required this.name});
 }
 
@@ -46,14 +44,10 @@ class ProductsController extends GetxController {
   RxList<ProductList> productListBackup = <ProductList>[].obs;
   RxList<ProductList> productList = <ProductList>[].obs;
   Rx<ProductResponceTemp> productListTemp = ProductResponceTemp().obs;
-/*  RxList<ProductBuyData> cartAddedList = <ProductBuyData>[].obs;*/
-
   final GlobalKey<TooltipState> tooltipkey = GlobalKey<TooltipState>();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   /// SINGLE [customerAndOrderData] CUSTOMER DATA
   Rx<CustomerAndOrderData> customerAndOrderData = CustomerAndOrderData().obs;
-
   CrossFadeState crossFadeState = CrossFadeState.showFirst;
 
   /// SEARCH CUSTOMER
@@ -65,10 +59,8 @@ class ProductsController extends GetxController {
     "Price",
     "Stock",
   ].obs;
-
   RxString selectedSubCategoryId = "".obs;
   RxString selectedCategoryId = "".obs;
-
   RxInt selectedSubCategoryIndex = 0.obs;
   RxInt selectedCategoryIndex = 0.obs;
   RxList<ProductModel> products = <ProductModel>[].obs;

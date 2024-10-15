@@ -28,11 +28,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   @override
   void initState() {
     super.initState();
-    _mapController.fetchDistanceAndTime();
+   _mapController.fetchDistanceAndTime();
   }
-
   final CalenderMapController _mapController = Get.put(CalenderMapController());
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -29,8 +29,13 @@ class SelectCustomerDiloag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    calenderMapController.initializeCheckedList(eventData.length,eventData);
+    calenderMapController.initializeCheckedList(eventData.length, eventData);
     String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    DateTime now = DateTime.now();
+    bool isToday = dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day;
+
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,
@@ -44,14 +49,17 @@ class SelectCustomerDiloag extends StatelessWidget {
               BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
           child: Column(
             children: [
-             dateTime==DateTime.now()? DiloagAppBar(title: "Customer Visit For Today"):DiloagAppBar(title: "Customer Visit For $formattedDate"),
+              isToday
+                  ? DiloagAppBar(title: "Customer Visit For Today")
+                  : DiloagAppBar(title: "Customer Visit For $formattedDate"),
               eventData.isNotEmpty
                   ? Flexible(
                       child: ListView.builder(
                         padding: nkRegularPadding(),
                         itemCount: eventData.length,
                         itemBuilder: (context, index) {
-                          CalendarEventData<EventData> customerEvent = eventData[index];
+                          CalendarEventData<EventData> customerEvent =
+                              eventData[index];
                           log('${customerEvent.event?.imageUrl}');
                           return Padding(
                             padding: nkSmallPadding(left: 0, right: 0),
@@ -65,26 +73,38 @@ class SelectCustomerDiloag extends StatelessWidget {
                                 child: ListTile(
                                   leading: CircleAvatar(
                                     backgroundImage: NetworkImage(
-                                      '${ApiConstants.imageBaseUrl}${customerEvent.event?.imageUrl ?? ''}'
-                                    ),
+                                        '${ApiConstants.imageBaseUrl}${customerEvent.event?.imageUrl ?? ''}'),
                                   ),
                                   title: CustomText(
-                                    content: customerEvent.event?.businessName ?? '',
+                                    content:
+                                        customerEvent.event?.businessName ?? '',
                                     fontWeight: FontWeight.w700,
                                   ),
                                   subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      CustomText(content: customerEvent.event?.address ?? ''),
-                                      CustomText(content: customerEvent.event?.mobileNo ?? ''),
-                                      CustomText(content: customerEvent.event?.email ?? ''),
+                                      CustomText(
+                                          content:
+                                              customerEvent.event?.address ??
+                                                  ''),
+                                      CustomText(
+                                          content:
+                                              customerEvent.event?.mobileNo ??
+                                                  ''),
+                                      CustomText(
+                                          content:
+                                              customerEvent.event?.email ?? ''),
                                     ],
                                   ),
                                   trailing: Obx(() {
                                     return Checkbox(
-                                      value: calenderMapController.checkedList[index],
+                                      value: calenderMapController
+                                          .checkedList[index],
                                       onChanged: (value) {
-                                        calenderMapController.toggleCustomerSelection(index, value ?? false,eventData);
+                                        calenderMapController
+                                            .toggleCustomerSelection(index,
+                                                value ?? false, eventData);
                                       },
                                     );
                                   }),
@@ -116,6 +136,3 @@ class SelectCustomerDiloag extends StatelessWidget {
     });
   }
 }
-
-
-

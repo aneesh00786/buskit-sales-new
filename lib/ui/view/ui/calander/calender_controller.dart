@@ -47,8 +47,23 @@ class CalenderMapController extends GetxController {
     requestLocationPermission();
   }
 
-void initializeCheckedList(int length) {
+void initializeCheckedList(int length, List<CalendarEventData<EventData>> eventData) {
   checkedList.value = List<bool>.filled(length, true).toList();
+  for (int i = 0; i < eventData.length; i++) {
+    if (checkedList[i]) {
+      final event = eventData[i];
+      Customer customer = Customer(
+        businessName: event.event?.businessName ?? '',
+        address: event.event?.address ?? '',
+        email: event.event?.email ?? '',
+        imageUrl: event.event?.imageUrl ?? '',
+        latitude: event.event?.latitude ?? '',
+        longitude: event.event?.longitude ?? '',
+        mobileno: event.event?.mobileNo ?? '',
+      );
+      selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
+    }
+  }
 }
 
 
@@ -57,28 +72,28 @@ void initializeCheckedList(int length) {
     checkedList.clear();
   }
 
-  void toggleCustomerSelection(
-    int index, bool value, List<CalendarEventData<EventData>> eventData) {
-    checkedList[index] = value;
-    final CalendarEventData<EventData> event = eventData[index];
-    Customer customer = Customer(
-      businessName: event.event?.businessName ?? '',
-      address: event.event?.address ?? '',
-      email: event.event?.email ?? '',
-      imageUrl: event.event?.imageUrl ?? '',
-      latitude: event.event?.latitude??'',
-      longitude: event.event?.longitude??'',
-      mobileno: event.event?.mobileNo??''
-    );
-    if (value) {
-      selectedCustomers.add(customer);
-      log(
-        'Lat in Toggle :${event.event?.latitude},${event.event?.longitude}',
-      );
-    } else {
-      selectedCustomers.remove(customer);
-    }
+void toggleCustomerSelection(
+  int index, bool value, List<CalendarEventData<EventData>> eventData) {
+  checkedList[index] = value;
+  final CalendarEventData<EventData> event = eventData[index];
+  Customer customer = Customer(
+    businessName: event.event?.businessName ?? '',
+    address: event.event?.address ?? '',
+    email: event.event?.email ?? '',
+    imageUrl: event.event?.imageUrl ?? '',
+    latitude: event.event?.latitude ?? '',
+    longitude: event.event?.longitude ?? '',
+    mobileno: event.event?.mobileNo ?? ''
+  );
+
+  if (value) {
+    selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
+    log('Customer Added: ${customer.businessName}');
+  } else {
+    selectedCustomers.remove(customer);
+    log('Customer Removed: ${customer.businessName}');
   }
+}
 
   void showSelectedCustomerRoute(
       BuildContext context) {

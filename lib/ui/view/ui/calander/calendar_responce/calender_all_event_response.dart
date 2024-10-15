@@ -194,4 +194,20 @@ class Customer {
         'latitude': latitude,
         'longitude': longitude,
       };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Customer &&
+        other.mobileno == mobileno &&
+        other.email == email &&
+        other.latitude == latitude &&
+        other.longitude == longitude;
+  }
+
+  @override
+  int get hashCode =>
+      mobileno.hashCode ^ email.hashCode ^ latitude.hashCode ^ longitude.hashCode;
 }
+

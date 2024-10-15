@@ -13,7 +13,6 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SelectCustomerDiloag extends StatelessWidget {
   final DateTime dateTime;
@@ -29,7 +28,7 @@ class SelectCustomerDiloag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    calenderMapController.initializeCheckedList(eventData.length);
+    calenderMapController.initializeCheckedList(eventData.length,eventData);
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,

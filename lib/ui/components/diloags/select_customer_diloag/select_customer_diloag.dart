@@ -13,6 +13,7 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class SelectCustomerDiloag extends StatelessWidget {
   final DateTime dateTime;
@@ -29,6 +30,7 @@ class SelectCustomerDiloag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     calenderMapController.initializeCheckedList(eventData.length,eventData);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,
@@ -42,7 +44,7 @@ class SelectCustomerDiloag extends StatelessWidget {
               BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
           child: Column(
             children: [
-              DiloagAppBar(title: "Customer Visit For Today"),
+             dateTime==DateTime.now()? DiloagAppBar(title: "Customer Visit For Today"):DiloagAppBar(title: "Customer Visit For $formattedDate"),
               eventData.isNotEmpty
                   ? Flexible(
                       child: ListView.builder(

@@ -47,56 +47,55 @@ class CalenderMapController extends GetxController {
     requestLocationPermission();
   }
 
-void initializeCheckedList(int length, List<CalendarEventData<EventData>> eventData) {
-  checkedList.value = List<bool>.filled(length, true).toList();
-  for (int i = 0; i < eventData.length; i++) {
-    if (checkedList[i]) {
-      final event = eventData[i];
-      Customer customer = Customer(
-        businessName: event.event?.businessName ?? '',
-        address: event.event?.address ?? '',
-        email: event.event?.email ?? '',
-        imageUrl: event.event?.imageUrl ?? '',
-        latitude: event.event?.latitude ?? '',
-        longitude: event.event?.longitude ?? '',
-        mobileno: event.event?.mobileNo ?? '',
-      );
-      selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
+  void initializeCheckedList(
+      int length, List<CalendarEventData<EventData>> eventData) {
+    checkedList.value = List<bool>.filled(length, true).toList();
+    for (int i = 0; i < eventData.length; i++) {
+      if (checkedList[i]) {
+        final event = eventData[i];
+        Customer customer = Customer(
+          businessName: event.event?.businessName ?? '',
+          address: event.event?.address ?? '',
+          email: event.event?.email ?? '',
+          imageUrl: event.event?.imageUrl ?? '',
+          latitude: event.event?.latitude ?? '',
+          longitude: event.event?.longitude ?? '',
+          mobileno: event.event?.mobileNo ?? '',
+        );
+        selectedCustomers.addIf(
+            !selectedCustomers.contains(customer), customer);
+      }
     }
   }
-}
-
 
   void clearSelections() {
     selectedCustomers.clear();
     checkedList.clear();
   }
 
-void toggleCustomerSelection(
-  int index, bool value, List<CalendarEventData<EventData>> eventData) {
-  checkedList[index] = value;
-  final CalendarEventData<EventData> event = eventData[index];
-  Customer customer = Customer(
-    businessName: event.event?.businessName ?? '',
-    address: event.event?.address ?? '',
-    email: event.event?.email ?? '',
-    imageUrl: event.event?.imageUrl ?? '',
-    latitude: event.event?.latitude ?? '',
-    longitude: event.event?.longitude ?? '',
-    mobileno: event.event?.mobileNo ?? ''
-  );
+  void toggleCustomerSelection(
+      int index, bool value, List<CalendarEventData<EventData>> eventData) {
+    checkedList[index] = value;
+    final CalendarEventData<EventData> event = eventData[index];
+    Customer customer = Customer(
+        businessName: event.event?.businessName ?? '',
+        address: event.event?.address ?? '',
+        email: event.event?.email ?? '',
+        imageUrl: event.event?.imageUrl ?? '',
+        latitude: event.event?.latitude ?? '',
+        longitude: event.event?.longitude ?? '',
+        mobileno: event.event?.mobileNo ?? '');
 
-  if (value) {
-    selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
-    log('Customer Added: ${customer.businessName}');
-  } else {
-    selectedCustomers.remove(customer);
-    log('Customer Removed: ${customer.businessName}');
+    if (value) {
+      selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
+      log('Customer Added: ${customer.businessName}');
+    } else {
+      selectedCustomers.remove(customer);
+      log('Customer Removed: ${customer.businessName}');
+    }
   }
-}
 
-  void showSelectedCustomerRoute(
-      BuildContext context) {
+  void showSelectedCustomerRoute(BuildContext context) {
     if (selectedCustomers.isNotEmpty) {
       Get.to(() => CustomerMapScreen());
     } else {
@@ -165,6 +164,58 @@ void toggleCustomerSelection(
   //     log('Error getting current location: $e');
   //   }
   // }
+  Future<void> fetchDistanceAndTime() async {
+    if (currentLatLng.value == null || selectedCustomers.isEmpty) return;
+
+    final origin =
+        "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
+    final destinations = selectedCustomers
+        .where((customer) =>
+            customer.latitude != null && customer.longitude != null)
+        .map((customer) => "${customer.latitude},${customer.longitude}")
+        .join('|');
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          "https://maps.gomaps.pro/maps/api/distancematrix/json?destinations=$destinations&origins=$origin&key=YOUR_API_KEY",
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        log('API Response Distance: $data'); // Log the entire response
+
+        if (data['rows'].isNotEmpty) {
+          final elements = data['rows'][0]['elements'];
+          log('Elements length for row 0: ${elements.length}'); // Log number of elements
+
+          for (int i = 0; i < elements.length; i++) {
+            if (i >= selectedCustomers.length) break;
+
+            final element = elements[i];
+            if (element['status'] == 'OK') {
+              final distance = element['distance']['text'];
+              final duration = element['duration']['text'];
+              selectedCustomers[i].distance = distance;
+              selectedCustomers[i].duration = duration;
+
+              log('Customer: ${selectedCustomers[i].businessName}, Distance: $distance, Duration: $duration');
+            } else {
+              log('Distance data unavailable for Customer: ${selectedCustomers[i].businessName}');
+            }
+          }
+          selectedCustomers.refresh();
+        } else {
+          log('No distance data found');
+        }
+      } else {
+        log('Failed to fetch distance: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error fetching distance and time: $e');
+    }
+  }
 
   Future<void> handleSearchLocation(String query) async {
     if (query.isEmpty) {
@@ -251,37 +302,38 @@ void toggleCustomerSelection(
     }
   }
 
-Future<void> getDirections() async {
-  if (currentLatLng.value == null || searchedLatLng.value == null) return;
-  final origin =
-      "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
-  final destination =
-      "${searchedLatLng.value!.latitude},${searchedLatLng.value!.longitude}";
-  String waypoints = selectedCustomers.where((customer) =>
-      customer.latitude != null && customer.longitude != null).map((customer) =>
-      "${customer.latitude},${customer.longitude}").join('|');
-  try {
-    final response = await http.get(
-      Uri.parse(
-          "${ApiConstants.mapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['routes'].isNotEmpty) {
-        final points = data['routes'][0]['overview_polyline']['points'];
-        List<LatLng> polylineCoordinates = decodePolyline(points);
-        addPolyline(polylineCoordinates);
+  Future<void> getDirections() async {
+    if (currentLatLng.value == null || searchedLatLng.value == null) return;
+    final origin =
+        "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
+    final destination =
+        "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
+    String waypoints = selectedCustomers
+        .where((customer) =>
+            customer.latitude != null && customer.longitude != null)
+        .map((customer) => "${customer.latitude},${customer.longitude}")
+        .join('|');
+    try {
+      final response = await http.get(
+        Uri.parse(
+            "${ApiConstants.mapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['routes'].isNotEmpty) {
+          final points = data['routes'][0]['overview_polyline']['points'];
+          List<LatLng> polylineCoordinates = decodePolyline(points);
+          addPolyline(polylineCoordinates);
+        } else {
+          log('No routes found');
+        }
       } else {
-        log('No routes found');
+        log('Failed to load directions: ${response.statusCode}');
       }
-    } else {
-      log('Failed to load directions: ${response.statusCode}');
+    } catch (e) {
+      log('Error occurred while fetching directions: $e');
     }
-  } catch (e) {
-    log('Error occurred while fetching directions: $e');
   }
-}
-
 
   List<LatLng> decodePolyline(String poly) {
     List<LatLng> polyline = [];

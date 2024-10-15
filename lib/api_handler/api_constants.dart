@@ -76,5 +76,6 @@ mixin class ApiConstants {
   static const String mapSearchUrl = "place/queryautocomplete/json?input=";
   static const String mapPlaceDetailsUrl = "place/details/json?place_id=";
   static const String mapDestinationUrl = "directions/json?destination=";
+  static const String distanceMatrix = "distancematrix/json";
   
 }

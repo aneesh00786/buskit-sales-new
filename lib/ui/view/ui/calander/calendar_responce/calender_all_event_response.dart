@@ -165,6 +165,8 @@ class Customer {
   final String? imageUrl;
   String? latitude;
   String? longitude;
+  String? distance;
+  String? duration;
 
   Customer({
     this.mobileno,
@@ -174,6 +176,8 @@ class Customer {
     this.imageUrl,
     this.latitude,
     this.longitude,
+    this.distance,
+    this.duration,
   });
 
   Customer.fromJson(Map<String, dynamic> json)
@@ -183,7 +187,9 @@ class Customer {
         businessName = json['business_name'] as String?,
         imageUrl = json['image_url'] as String?,
         latitude = json['latitude'] as String?,
-        longitude = json['longitude'] as String?;
+        longitude = json['longitude'] as String?,
+        distance = json['distance'] as String?, 
+        duration = json['duration'] as String?;
 
   Map<String, dynamic> toJson() => {
         'mobileno': mobileno,
@@ -193,12 +199,13 @@ class Customer {
         'image_url': imageUrl,
         'latitude': latitude,
         'longitude': longitude,
+        'distance': distance,
+        'duration': duration,
       };
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
     return other is Customer &&
         other.mobileno == mobileno &&
         other.email == email &&

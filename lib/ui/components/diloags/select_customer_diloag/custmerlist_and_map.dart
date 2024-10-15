@@ -4,16 +4,17 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerMapScreen extends StatelessWidget {
-  
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
   Widget build(BuildContext context) {
+    _mapController.fetchDistanceAndTime();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -21,7 +22,7 @@ class CustomerMapScreen extends StatelessWidget {
       body: Row(
         children: [
           Container(
-            width: 350,
+            width: 400,
             color: Colors.white.withOpacity(0.8),
             child: Column(children: [
               Padding(
@@ -62,6 +63,9 @@ class CustomerMapScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
+                        controller: TextEditingController(
+                          text: _mapController.currentLocationText.value
+                        ),
                         onFieldSubmitted: (value) {
                           _mapController.handleSearchLocation(value);
                         },
@@ -90,66 +94,81 @@ class CustomerMapScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     Customer customer = _mapController.selectedCustomers[index];
                     return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
+                      padding: const EdgeInsets.all(5.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: Card(
                           color: white,
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 20,
-                              offset: Offset(0, 6),
-                              color: black.withOpacity(0.1)
+                          elevation: 10,
+                          shadowColor: black.withOpacity(0.2),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: NetworkImage(
+                                  '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
                             ),
-                          ]
-                        ),
-                        
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 30,
-                                    backgroundImage:
-                                        NetworkImage('${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
-                                  ),
-                                  SizedBox(width: 6),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(content:customer.businessName ?? '',fontWeight: FontWeight.w700,fontSize: 17,),
-                                          
-                                      Text(customer.mobileno ?? '',),
-                                      SizedBox(
-                                        width:250,
-                                        child: Text(customer.address ?? '',overflow: TextOverflow.ellipsis,)),
-                                      Text(customer.email ?? ''),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton(
-                                  child: Text(
-                                    'Navigate',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  onPressed: () {
-                                    navigateTo(25.022702, 45.052659, 24.774265,
-                                        46.738586);
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all(Colors.blue),
-                                  ),
+                            title: CustomText(
+                              content: customer.businessName ?? '',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 17,
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  customer.mobileno ?? '',
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  customer.address ?? '',
+                                ),
+                                Text(customer.email ?? ''),
+                                SizedBox(height: 15,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(EneftyIcons.routing_outline,color: primaryColor,),
+                                        SizedBox(width: 5,),
+                                        Text(customer.distance ?? '...'),
+                                      ],
+                                    ),
+                                Row(
+                                  children: [
+                                    Icon(EneftyIcons.clock_2_outline,color: Colors.red,),
+                                    SizedBox(width: 5,),
+                                    Text(customer.duration ?? '...'),
+                                  ],
+                                ),
+                                  ],
+                                )
+                              ],
+                            ),
+                            trailing:IconButton(
+                              style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.blue.withOpacity(0.1))),
+                              hoverColor: Colors.blue.withOpacity(0.4),
+                              onPressed: (){
+                              navigateTo(25.022702, 45.052659, 24.774265,
+                                      46.738586);
+                            }, icon: Icon(EneftyIcons.route_square_outline,color: Colors.blue,))
+                            
+                            //  SizedBox(
+                            //   width: 40,
+                            //   child: ElevatedButton(
+                            //     child: Text(
+                            //       'Navigate',
+                            //       style: TextStyle(color: Colors.white),
+                            //     ),
+                            //     onPressed: () {
+                            //       navigateTo(25.022702, 45.052659, 24.774265,
+                            //           46.738586);
+                            //     },
+                            //     style: ButtonStyle(
+                            //       backgroundColor:
+                            //           MaterialStateProperty.all(Colors.blue),
+                            //     ),
+                            //   ),
+                            // ),
                           ),
                         ),
                       ),
@@ -159,7 +178,10 @@ class CustomerMapScreen extends StatelessWidget {
               }))
             ]),
           ),
-          Expanded(child: Obx(() =>  _mapController.buildGoogleMap(),)),
+          Expanded(
+              child: Obx(
+            () => _mapController.buildGoogleMap(),
+          )),
         ],
       ),
     );

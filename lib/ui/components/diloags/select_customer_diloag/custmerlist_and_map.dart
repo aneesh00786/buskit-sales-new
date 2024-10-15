@@ -14,7 +14,13 @@ class CustomerMapScreen extends StatelessWidget {
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
   Widget build(BuildContext context) {
-    _mapController.fetchDistanceAndTime();
+      if (!_mapController.hasFetchedData) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mapController.fetchDistanceAndTime();
+      _mapController.sortCustomersByDistance();
+      _mapController.hasFetchedData = true; 
+    });
+  }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -64,8 +70,7 @@ class CustomerMapScreen extends StatelessWidget {
                           ),
                         ),
                         controller: TextEditingController(
-                          text: _mapController.currentLocationText.value
-                        ),
+                            text: _mapController.currentLocationText.value),
                         onFieldSubmitted: (value) {
                           _mapController.handleSearchLocation(value);
                         },
@@ -122,53 +127,69 @@ class CustomerMapScreen extends StatelessWidget {
                                   customer.address ?? '',
                                 ),
                                 Text(customer.email ?? ''),
-                                SizedBox(height: 15,),
+                                SizedBox(
+                                  height: 15,
+                                ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(EneftyIcons.routing_outline,color: primaryColor,),
-                                        SizedBox(width: 5,),
-                                        CustomText(content:customer.distance ?? '...',fontWeight: FontWeight.w500,),
+                                        Icon(
+                                          EneftyIcons.routing_outline,
+                                          color: primaryColor,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        CustomText(
+                                          content: customer.distance ?? '...',
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ],
                                     ),
-                                Row(
-                                  children: [
-                                    Icon(EneftyIcons.clock_2_outline,color: Colors.red,),
-                                    SizedBox(width: 5,),
-                                    CustomText(content:customer.duration ?? '...',fontWeight: FontWeight.w500),
-                                  ],
-                                ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          EneftyIcons.clock_2_outline,
+                                          color: Colors.red,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        CustomText(
+                                            content: customer.duration ?? '...',
+                                            fontWeight: FontWeight.w500),
+                                      ],
+                                    ),
                                   ],
                                 )
                               ],
                             ),
-                            trailing:IconButton(
-                              style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.blue.withOpacity(0.1))),
+                            trailing: IconButton(
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStatePropertyAll(
+                                      Colors.blue.withOpacity(0.1))),
                               hoverColor: Colors.blue.withOpacity(0.4),
-                              onPressed: (){
-                              navigateTo(25.022702, 45.052659, 24.774265,
-                                      46.738586);
-                            }, icon: Icon(EneftyIcons.route_square_outline,color: Colors.blue,))
-                            
-                            //  SizedBox(
-                            //   width: 40,
-                            //   child: ElevatedButton(
-                            //     child: Text(
-                            //       'Navigate',
-                            //       style: TextStyle(color: Colors.white),
-                            //     ),
-                            //     onPressed: () {
-                            //       navigateTo(25.022702, 45.052659, 24.774265,
-                            //           46.738586);
-                            //     },
-                            //     style: ButtonStyle(
-                            //       backgroundColor:
-                            //           MaterialStateProperty.all(Colors.blue),
-                            //     ),
-                            //   ),
-                            // ),
+                              onPressed: () {
+                                final currentLatLng = _mapController
+                                    .currentLatLng
+                                    .value;
+                                if (currentLatLng != null) {
+                                  navigateTo(
+                                    currentLatLng.latitude,
+                                    currentLatLng.longitude,
+                                    double.parse(customer
+                                        .latitude!),
+                                    double.parse(
+                                        customer.longitude!),
+                                  );
+                                }
+                              },
+                              icon: Icon(EneftyIcons.route_square_outline,
+                                  color: Colors.blue),
+                            ),
                           ),
                         ),
                       ),

@@ -21,6 +21,7 @@ import 'package:http/http.dart' as http;
 
 class CalenderMapController extends GetxController {
   final ApiWorker _apiWorker = Get.find();
+  bool hasFetchedData = false;
   Rx<StaffData> selectedStaff = StaffData().obs;
   EventController<SalesManVisitEvents> eventController =
       EventController<SalesManVisitEvents>();
@@ -45,6 +46,7 @@ class CalenderMapController extends GetxController {
   void onInit() {
     super.onInit();
     requestLocationPermission();
+    fetchDistanceAndTime();
   }
 
   void initializeCheckedList(
@@ -184,11 +186,11 @@ class CalenderMapController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        log('API Response Distance: $data'); 
+        log('API Response Distance: $data');
 
         if (data['rows'].isNotEmpty) {
           final elements = data['rows'][0]['elements'];
-          log('Elements length for row 0: ${elements.length}'); 
+          log('Elements length for row 0: ${elements.length}');
 
           for (int i = 0; i < elements.length; i++) {
             if (i >= selectedCustomers.length) break;
@@ -199,12 +201,12 @@ class CalenderMapController extends GetxController {
               final duration = element['duration']['text'];
               selectedCustomers[i].distance = distance;
               selectedCustomers[i].duration = duration;
-
               log('Customer: ${selectedCustomers[i].businessName}, Distance: $distance, Duration: $duration');
             } else {
               log('Distance data unavailable for Customer: ${selectedCustomers[i].businessName}');
             }
           }
+          sortCustomersByDistance();
           selectedCustomers.refresh();
         } else {
           log('No distance data found');
@@ -215,6 +217,21 @@ class CalenderMapController extends GetxController {
     } catch (e) {
       log('Error fetching distance and time: $e');
     }
+  }
+
+  void sortCustomersByDistance() {
+    selectedCustomers.sort((a, b) {
+      final distanceA = _parseDistance(a.distance);
+      final distanceB = _parseDistance(b.distance);
+      return distanceA.compareTo(distanceB);
+    });
+  }
+
+  double _parseDistance(String? distance) {
+    if (distance == null) return 0.0;
+    final parts = distance.split(' ');
+    final value = double.tryParse(parts[0]) ?? 0.0;
+    return value;
   }
 
   Future<void> handleSearchLocation(String query) async {

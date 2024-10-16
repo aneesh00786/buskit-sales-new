@@ -73,7 +73,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on, color: Colors.red),
+                    Icon(EneftyIcons.location_outline, color: Colors.red),
                     SizedBox(width: 8),
                     Expanded(
                       child: TextFormField(
@@ -134,13 +134,35 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  customer.address ?? '',
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on,size: 13,color: Colors.red,),
+                                    SizedBox(width: 5,),
+                                    SizedBox(
+                                      width: 240,
+                                      child: Text(
+                                        customer.address ?? '',
+                                        overflow: TextOverflow.fade,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  customer.mobileno ?? '',
+                                Row(
+                                  children: [
+                                    Icon(Icons.call,size: 13,),
+                                    SizedBox(width: 5,),
+                                    Text(
+                                      customer.mobileno ?? '',
+                                    ),
+                                  ],
                                 ),
-                                Text(customer.email ?? ''),
+                                Row(
+                                  children: [
+                                    Icon(Icons.email_outlined,size: 13,),
+                                    SizedBox(width: 5,),
+                                    Text(customer.email ?? ''),
+                                  ],
+                                ),
                                 SizedBox(
                                   height: 10,
                                 ),

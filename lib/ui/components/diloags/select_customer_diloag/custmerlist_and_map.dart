@@ -28,7 +28,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   @override
   void initState() {
     super.initState();
-   _mapController.fetchDistanceAndTime();
+    _mapController.fetchDistanceAndTime();
   }
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
@@ -83,9 +83,17 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                         ),
                         controller: TextEditingController(
                             text: _mapController.currentLocationText.value),
-                        onFieldSubmitted: (value) {
-                          _mapController.handleSearchLocation(value);
-                        },
+                        // onEditingComplete: () async {
+                        //   await _mapController.handleSearchLocation(
+                        //       _mapController
+                        //           .currentLocationText.value);
+                        //   await _mapController
+                        //       .getDirections();
+                        //   _mapController.createMarkers();
+                        // },
+                        // onFieldSubmitted: (value) {
+                        //   _mapController.handleSearchLocation(value);
+                        // },
                       ),
                     ),
                   ],
@@ -133,14 +141,14 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  customer.mobileno ?? '',
+                                  customer.address ?? '',
                                 ),
                                 Text(
-                                  customer.address ?? '',
+                                  customer.mobileno ?? '',
                                 ),
                                 Text(customer.email ?? ''),
                                 SizedBox(
-                                  height: 15,
+                                  height: 10,
                                 ),
                                 Row(
                                   mainAxisAlignment:
@@ -175,29 +183,31 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                             fontWeight: FontWeight.w500),
                                       ],
                                     ),
+                                    IconButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStatePropertyAll(Colors.blue
+                                                  .withOpacity(0.1))),
+                                      hoverColor: Colors.blue.withOpacity(0.4),
+                                      onPressed: () {
+                                        final currentLatLng =
+                                            _mapController.currentLatLng.value;
+                                        if (currentLatLng != null) {
+                                          CustomerMapScreen.navigateTo(
+                                            currentLatLng.latitude,
+                                            currentLatLng.longitude,
+                                            double.parse(customer.latitude!),
+                                            double.parse(customer.longitude!),
+                                          );
+                                        }
+                                      },
+                                      icon: Icon(
+                                          EneftyIcons.route_square_outline,
+                                          color: Colors.blue),
+                                    ),
                                   ],
                                 )
                               ],
-                            ),
-                            trailing: IconButton(
-                              style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                      Colors.blue.withOpacity(0.1))),
-                              hoverColor: Colors.blue.withOpacity(0.4),
-                              onPressed: () {
-                                final currentLatLng =
-                                    _mapController.currentLatLng.value;
-                                if (currentLatLng != null) {
-                                  CustomerMapScreen.navigateTo(
-                                    currentLatLng.latitude,
-                                    currentLatLng.longitude,
-                                    double.parse(customer.latitude!),
-                                    double.parse(customer.longitude!),
-                                  );
-                                }
-                              },
-                              icon: Icon(EneftyIcons.route_square_outline,
-                                  color: Colors.blue),
                             ),
                           ),
                         ),

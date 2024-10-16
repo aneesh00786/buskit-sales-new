@@ -2,19 +2,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AccesLocation {
-  // static Type get instance => AccesLocation;
-//  static AccesLocation get initializer => AccesLocation.locationInitializer();
 
   LatLng? currentLocation;
-
-  /* AccesLocation.locationInitializer() {
-    if (locationPermission == false) {
-      locationPermissionREQ();
-      return;
-    }
-    _getCurrentLocation();
-  }*/
-
   Future<void> _getCurrentLocation() async {
     if (await locationPermission) {
       try {

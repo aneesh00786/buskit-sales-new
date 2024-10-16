@@ -112,6 +112,7 @@ class CalenderMapController extends GetxController {
     } else if (status.isPermanentlyDenied) {
       showPermissionDeniedDialog();
     }
+    
   }
 
   Future<void> getCurrentLocation() async {
@@ -441,12 +442,18 @@ double _parseDistance(String? distance) {
         target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
         zoom: 10,
       ),
-      onMapCreated: (GoogleMapController controller) {
-        mapController = controller;
-        if (locationPermissionGranted.value) {
-          getCurrentLocation();
-        }
-      },
+onMapCreated: (GoogleMapController controller) async {
+  mapController = controller;
+  if (locationPermissionGranted.value) {
+    await getCurrentLocation();
+    if (currentLocationText.value.isNotEmpty) {
+      await handleSearchLocation(currentLocationText.value);
+      // await getDirections();  
+      // createMarkers();        
+    }
+  }
+},
+
       markers: createMarkers(),
       polylines: Set<Polyline>.of(polylines),
     );

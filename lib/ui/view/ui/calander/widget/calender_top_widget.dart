@@ -31,7 +31,6 @@ class CalenderTopWidget extends StatelessWidget {
     log('Calender ImagePath :${staffData.imagePath}');
     return MyCommnonContainer(
       color: white,
-      border: Border.all(color: black.withOpacity(0.3)),
       padding: nkRegularPadding(),
       child: Row(children: [
         ClipOval(

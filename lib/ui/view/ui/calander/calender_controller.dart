@@ -319,38 +319,44 @@ double _parseDistance(String? distance) {
     }
   }
 
-  Future<void> getDirections() async {
-    if (currentLatLng.value == null || searchedLatLng.value == null) return;
-    final origin =
-        "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
-    final destination =
-        "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
-    String waypoints = selectedCustomers
-        .where((customer) =>
-            customer.latitude != null && customer.longitude != null)
-        .map((customer) => "${customer.latitude},${customer.longitude}")
-        .join('|');
-    try {
-      final response = await http.get(
-        Uri.parse(
-            "${ApiConstants.mapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['routes'].isNotEmpty) {
-          final points = data['routes'][0]['overview_polyline']['points'];
-          List<LatLng> polylineCoordinates = decodePolyline(points);
-          addPolyline(polylineCoordinates);
-        } else {
-          log('No routes found');
-        }
+Future<void> getDirections() async {
+  if (currentLatLng.value == null || selectedCustomers.isEmpty) return;
+
+  // Origin and destination both as current location
+  final origin = "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
+  final destination = origin;
+
+  // Use customer locations as waypoints
+  String waypoints = selectedCustomers
+      .where((customer) =>
+          customer.latitude != null && customer.longitude != null)
+      .map((customer) => "${customer.latitude},${customer.longitude}")
+      .join('|');
+
+  try {
+    final response = await http.get(
+      Uri.parse(
+          "${ApiConstants.mapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['routes'].isNotEmpty) {
+        final points = data['routes'][0]['overview_polyline']['points'];
+        List<LatLng> polylineCoordinates = decodePolyline(points);
+        addPolyline(polylineCoordinates);
+        createMarkers();
       } else {
-        log('Failed to load directions: ${response.statusCode}');
+        log('No routes found');
       }
-    } catch (e) {
-      log('Error occurred while fetching directions: $e');
+    } else {
+      log('Failed to load directions: ${response.statusCode}');
     }
+  } catch (e) {
+    log('Error occurred while fetching directions: $e');
   }
+}
+
 
   List<LatLng> decodePolyline(String poly) {
     List<LatLng> polyline = [];
@@ -442,18 +448,12 @@ double _parseDistance(String? distance) {
         target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
         zoom: 10,
       ),
-onMapCreated: (GoogleMapController controller) async {
-  mapController = controller;
-  if (locationPermissionGranted.value) {
-    await getCurrentLocation();
-    if (currentLocationText.value.isNotEmpty) {
-      await handleSearchLocation(currentLocationText.value);
-      // await getDirections();  
-      // createMarkers();        
-    }
-  }
-},
-
+      onMapCreated: (GoogleMapController controller) {
+        mapController = controller;
+        if (locationPermissionGranted.value) {
+          getCurrentLocation();
+        }
+      },
       markers: createMarkers(),
       polylines: Set<Polyline>.of(polylines),
     );

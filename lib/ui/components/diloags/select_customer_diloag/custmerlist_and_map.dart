@@ -29,7 +29,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   void initState() {
     super.initState();
     _mapController.fetchDistanceAndTime();
+    _mapController.getDirections(); 
   }
+
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
   Widget build(BuildContext context) {
@@ -83,14 +85,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                         ),
                         controller: TextEditingController(
                             text: _mapController.currentLocationText.value),
-                        // onEditingComplete: () async {
-                        //   await _mapController.handleSearchLocation(
-                        //       _mapController
-                        //           .currentLocationText.value);
-                        //   await _mapController
-                        //       .getDirections();
-                        //   _mapController.createMarkers();
-                        // },
+                        onEditingComplete: () {
+                           _mapController.handleSearchLocation(_mapController.currentLocationText.value);
+                          
+                        },
                         // onFieldSubmitted: (value) {
                         //   _mapController.handleSearchLocation(value);
                         // },

@@ -320,13 +320,11 @@ double _parseDistance(String? distance) {
   }
 
 Future<void> getDirections() async {
-  if (currentLatLng.value == null || selectedCustomers.isEmpty) return;
-
-  // Origin and destination both as current location
+  if (currentLatLng.value == null) return;
   final origin = "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
-  final destination = origin;
-
-  // Use customer locations as waypoints
+  final destination = searchedLatLng.value != null
+      ? "${searchedLatLng.value!.latitude},${searchedLatLng.value!.longitude}"
+      : origin;
   String waypoints = selectedCustomers
       .where((customer) =>
           customer.latitude != null && customer.longitude != null)
@@ -356,6 +354,7 @@ Future<void> getDirections() async {
     log('Error occurred while fetching directions: $e');
   }
 }
+
 
 
   List<LatLng> decodePolyline(String poly) {

@@ -85,13 +85,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                         ),
                         controller: TextEditingController(
                             text: _mapController.currentLocationText.value),
-                        onEditingComplete: () {
-                           _mapController.handleSearchLocation(_mapController.currentLocationText.value);
-                          
+                        onFieldSubmitted: (value) {
+                          _mapController.handleSearchLocation(value);
                         },
-                        // onFieldSubmitted: (value) {
-                        //   _mapController.handleSearchLocation(value);
-                        // },
                       ),
                     ),
                   ],

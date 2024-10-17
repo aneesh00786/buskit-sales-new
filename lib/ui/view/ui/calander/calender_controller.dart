@@ -180,7 +180,7 @@ class CalenderMapController extends GetxController {
     try {
       final response = await http.get(
         Uri.parse(
-          "${ApiConstants.mapBaseUrl}${ApiConstants.distanceMatrix}?destinations=$destinations&origins=$origin&key=${ApiConstants.kGoogleApiKey}",
+          "${ApiConstants.mapBaseUrl}${ApiConstants.distanceMatrix}?destinations=$destinations&origins=$origin&key=${ApiConstants.gGoogleApiKey}",
         ),
       );
 
@@ -243,7 +243,7 @@ double _parseDistance(String? distance) {
     try {
       final response = await http.get(
         Uri.parse(
-          "${ApiConstants.mapBaseUrl}${ApiConstants.mapSearchUrl}$query&key=${ApiConstants.kGoogleApiKey}",
+          "${ApiConstants.gmapBaseUrl}${ApiConstants.mapSearchUrl}$query&key=${ApiConstants.kGoogleApiKey}",
         ),
       );
       if (response.statusCode == 200) {
@@ -268,7 +268,7 @@ double _parseDistance(String? distance) {
     try {
       final response = await http.get(
         Uri.parse(
-            "${ApiConstants.mapBaseUrl}${ApiConstants.mapPlaceDetailsUrl}$placeId&key=${ApiConstants.kGoogleApiKey}"),
+            "${ApiConstants.gmapBaseUrl}${ApiConstants.mapPlaceDetailsUrl}$placeId&key=${ApiConstants.kGoogleApiKey}"),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -299,7 +299,7 @@ double _parseDistance(String? distance) {
     try {
       final response = await http.get(
         Uri.parse(
-            "${ApiConstants.mapBaseUrl}${ApiConstants.mapPlaceDetailsUrl}$placeId&key=${ApiConstants.kGoogleApiKey}"),
+            "${ApiConstants.gmapBaseUrl}${ApiConstants.mapPlaceDetailsUrl}$placeId&key=${ApiConstants.kGoogleApiKey}"),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -334,7 +334,7 @@ Future<void> getDirections() async {
   try {
     final response = await http.get(
       Uri.parse(
-          "${ApiConstants.mapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
+          "${ApiConstants.gmapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
     );
 
     if (response.statusCode == 200) {

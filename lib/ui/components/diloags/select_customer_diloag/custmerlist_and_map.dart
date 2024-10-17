@@ -8,6 +8,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerMapScreen extends StatefulWidget {
@@ -29,7 +30,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   void initState() {
     super.initState();
     _mapController.fetchDistanceAndTime();
-    _mapController.getDirections(); 
   }
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
@@ -235,9 +235,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
             ]),
           ),
           Expanded(
-              child: Obx(
+              child:
+              // BasicMapDemo()
+              Obx(
             () => _mapController.buildGoogleMap(),
-          )),
+          )
+          ),
         ],
       ),
     );
@@ -264,5 +267,38 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
         ),
       );
     });
+  }
+}
+class BasicMapDemo extends StatefulWidget {
+  @override
+  _BasicMapDemoState createState() => _BasicMapDemoState();
+}
+
+class _BasicMapDemoState extends State<BasicMapDemo> {
+  late GoogleMapController mapController;
+
+  final LatLng _sydney = LatLng(-33.862, 151.21);
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: _sydney,
+          zoom: 13.0,
+        ),
+        markers: {
+          Marker(
+            markerId: MarkerId('sydney'),
+            position: _sydney,
+          ),
+        },
+      ),
+    );
   }
 }

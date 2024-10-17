@@ -367,7 +367,7 @@ void addPolyline(List<LatLng> coordinates) {
       polylineId: PolylineId('route'),
       points: coordinates,
       color: Colors.blue,
-      width: 5,
+      width: 6,
     ),
   );
 }

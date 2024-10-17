@@ -26,12 +26,15 @@ class CustomerMapScreen extends StatefulWidget {
 }
 
 class _CustomerMapScreenState extends State<CustomerMapScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _mapController.fetchDistanceAndTime();
-    _mapController.getDirections();
-  }
+@override
+void initState() {
+  super.initState();
+  _mapController.suggestions.clear();
+  _mapController.fetchDistanceAndTime();
+  _mapController.searchedLatLng.value=null;
+  _mapController.getDirections();
+}
+
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
@@ -85,7 +88,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                           ),
                         ),
                         controller: TextEditingController(
-                            text: _mapController.currentLocationText.value),
+                            text: _mapController.selectedCustomers.last.address),
                         onFieldSubmitted: (value) {
                           _mapController.handleSearchLocation(value);
                         },

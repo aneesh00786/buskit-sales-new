@@ -320,11 +320,12 @@ double _parseDistance(String? distance) {
   }
 
 Future<void> getDirections() async {
+  var lastCustomer = selectedCustomers.last;
   if (currentLatLng.value == null) return;
   final origin = "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
   final destination = searchedLatLng.value != null
       ? "${searchedLatLng.value!.latitude},${searchedLatLng.value!.longitude}"
-      : origin;
+      : "${lastCustomer.latitude},${lastCustomer.longitude}";
   String waypoints = selectedCustomers
       .where((customer) =>
           customer.latitude != null && customer.longitude != null)

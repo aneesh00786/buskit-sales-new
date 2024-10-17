@@ -18,7 +18,7 @@ class CustomerMapScreen extends StatefulWidget {
   static void navigateTo(
       double startLat, double startLng, double endLat, double endLng) async {
     String googleMapsLocationUrl =
-        "${ApiConstants.gmapBaseUrl}dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
+        "${ApiConstants.navmapBaseUrl}dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
     final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
     var uri = Uri.parse(encodedURL);
     await launchUrl(uri);

@@ -56,21 +56,6 @@ class ApiWorker with ApiConstants {
     return LoginResponce.fromJson(response.data);
   }
 
-  // Future<StaffResponce> getSingleSaleManData(String salesmanId) async {
-  //   Map<String, dynamic> data = {
-  //     'salesman_id': salesmanId,
-  //   };
-  //   final response = await dio
-  //       .postbycustom(
-  //     ApiConstants.fetch_on_salesman,
-  //     data: data,
-  //   )
-  //       .onError((DioError error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return StaffResponce.fromJson(response.data);
-  // }
   /// ************************ DASHBOARD SECTION ***************** ///
 
   Future<DashboardResponse> dashboardData() async {
@@ -167,39 +152,12 @@ class ApiWorker with ApiConstants {
           "salesman_id": salesmanId,
         }),
       );
-      // log("Response status of Customer Fetching: ${response.statusCode}");
-      // log("Response data: ${response.data}");
       return CustomerAndOrderResponce.fromJson(response.data);
     } catch (error) {
-      // log("Error fetching customer data: $error");
       return Future.error('Failed to fetch customer data: $error');
     }
   }
-/*  Future<CustomerAndOrderResponce> getCustomer({String? salesManId,
-    SearchModel? searchData,
-    String? customerId,
-    PaginationModel? paginationModel,
-  }) async {
-    print("salesManId>>>>>${salesManId}");
-    print("data post ++ ++${salesManId} : ${customerId ?? ''} : ${searchModel?.startDate} : ${searchModel?.endDate} : ${paginationModel?.limit.toString()} : ${paginationModel?.currentPage.toString()}");
 
-    final response = await dio
-        .postbycustom(ApiConstants.fetchcustomer,
-        data: FormData.fromMap({
-          "salesman_id": salesManId,
-          "customer_name": searchData?.searchText??'',
-          "start_date": searchData?.startDate ?? '',
-          "end_date": searchData?.endDate ?? '',
-          "page": paginationModel?.currentPage,
-          "limit": paginationModel?.limit,
-        }))
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-
-    return CustomerAndOrderResponce.fromJson(response.data);
-  }*/
 
   Future<CustomerDashboardResponse> getCustomerDashboard(
     String customerId,

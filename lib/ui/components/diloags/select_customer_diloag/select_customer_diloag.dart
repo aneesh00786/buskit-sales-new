@@ -29,6 +29,7 @@ class SelectCustomerDiloag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    calenderMapController.getCurrentLocation();
     calenderMapController.initializeCheckedList(eventData.length, eventData);
     String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
     DateTime now = DateTime.now();

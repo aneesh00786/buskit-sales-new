@@ -334,7 +334,7 @@ Future<void> getDirections() async {
   try {
     final response = await http.get(
       Uri.parse(
-          "${ApiConstants.gmapBaseUrl}${ApiConstants.mapDestinationUrl}$destination&origin=$origin&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
+          "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
     );
 
     if (response.statusCode == 200) {
@@ -343,7 +343,8 @@ Future<void> getDirections() async {
         final points = data['routes'][0]['overview_polyline']['points'];
         List<LatLng> polylineCoordinates = decodePolyline(points);
         addPolyline(polylineCoordinates);
-        createMarkers();
+        createMarkers();  
+        log('Points :${points}');
       } else {
         log('No routes found');
       }
@@ -355,48 +356,46 @@ Future<void> getDirections() async {
   }
 }
 
+List<LatLng> decodePolyline(String poly) {
+  List<LatLng> polyline = [];
+  var index = 0, len = poly.length;
+  int lat = 0, lng = 0;
+  while (index < len) {
+    int b, shift = 0, result = 0;
+    do {
+      b = poly.codeUnitAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    int dlat = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+    shift = 0;
+    result = 0;
+    do {
+      b = poly.codeUnitAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    int dlng = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
 
-
-  List<LatLng> decodePolyline(String poly) {
-    List<LatLng> polyline = [];
-    var index = 0, len = poly.length;
-    int lat = 0, lng = 0;
-    while (index < len) {
-      int b, shift = 0, result = 0;
-      do {
-        b = poly.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-      shift = 0;
-      result = 0;
-      do {
-        b = poly.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = ((result & 1) == 1 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      LatLng p = LatLng((lat / 1E5), (lng / 1E5));
-      polyline.add(p);
-    }
-    return polyline;
+    LatLng p = LatLng((lat / 1E5), (lng / 1E5));
+    polyline.add(p);
   }
+  return polyline;
+}
 
-  void addPolyline(List<LatLng> coordinates) {
-    polylines.clear();
-    polylines.add(
-      Polyline(
-        polylineId: PolylineId('route'),
-        points: coordinates,
-        color: Colors.blue,
-        width: 5,
-      ),
-    );
-  }
+void addPolyline(List<LatLng> coordinates) {
+  polylines.clear();
+  polylines.add(
+    Polyline(
+      polylineId: PolylineId('route'),
+      points: coordinates,
+      color: Colors.blue,
+      width: 5,
+    ),
+  );
+}
 
   Set<Marker> createMarkers() {
     Set<Marker> markers = {};
@@ -445,7 +444,7 @@ Future<void> getDirections() async {
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
         target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
-        zoom: 10,
+        zoom: 13,
       ),
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;

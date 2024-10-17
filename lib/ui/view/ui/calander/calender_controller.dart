@@ -140,32 +140,6 @@ class CalenderMapController extends GetxController {
       print('Error getting location: $e');
     }
   }
-
-  // Future<void> getCurrentLocation() async {
-  //   try {
-  //     Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high,
-  //     );
-  //     List<Placemark> placemarks = await placemarkFromCoordinates(
-  //       position.latitude,
-  //       position.longitude,
-  //     );
-  //     Placemark place = placemarks[0];
-  //     String address =
-  //         "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-
-  // currentLatLng.value = LatLng(position.latitude, position.longitude);
-  //     currentLocationText.value = address;
-
-  // if (mapController != null) {
-  //   mapController!.animateCamera(
-  //     CameraUpdate.newLatLng(currentLatLng.value!),
-  //   );
-  // }
-  //   } catch (e) {
-  //     log('Error getting current location: $e');
-  //   }
-  // }
   Future<void> fetchDistanceAndTime() async {
     if (currentLatLng.value == null || selectedCustomers.isEmpty) return;
 
@@ -243,7 +217,7 @@ double _parseDistance(String? distance) {
     try {
       final response = await http.get(
         Uri.parse(
-          "${ApiConstants.gmapBaseUrl}${ApiConstants.mapSearchUrl}$query&key=${ApiConstants.kGoogleApiKey}",
+          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=${ApiConstants.kGoogleApiKey}",
         ),
       );
       if (response.statusCode == 200) {
@@ -312,7 +286,7 @@ double _parseDistance(String? distance) {
         getDirections();
         log('Location marked: $lat, $lng');
       } else {
-        log('Failed to load place details: ${response.statusCode}');
+        log('Failed to load place details: ${response.statusCode},${response.body}');
       }
     } catch (e) {
       log('Error occurred while fetching place details: $e');

@@ -33,6 +33,7 @@ void initState() {
   _mapController.fetchDistanceAndTime();
   _mapController.searchedLatLng.value=null;
   _mapController.getDirections();
+  _mapController.selectedCustomers.refresh();
 }
 
 

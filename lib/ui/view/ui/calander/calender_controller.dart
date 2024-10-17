@@ -24,7 +24,7 @@ class CalenderMapController extends GetxController {
   bool hasFetchedData = false;
   Rx<StaffData> selectedStaff = StaffData().obs;
   EventController<SalesManVisitEvents> eventController =
-      EventController<SalesManVisitEvents>();
+  EventController<SalesManVisitEvents>();
   EventController<EventData> eventControllerv1 = EventController<EventData>();
   final RxBool locationPermissionGranted = false.obs;
   final Rx<LatLng?> currentLatLng = Rxn<LatLng>();
@@ -86,7 +86,6 @@ class CalenderMapController extends GetxController {
         latitude: event.event?.latitude ?? '',
         longitude: event.event?.longitude ?? '',
         mobileno: event.event?.mobileNo ?? '');
-
     if (value) {
       selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
       log('Customer Added: ${customer.businessName}');
@@ -115,6 +114,31 @@ class CalenderMapController extends GetxController {
     
   }
 
+  // Future<void> getCurrentLocation() async {
+  //   try {
+  //     double latitude = -37.841270;
+  //     double longitude = 144.976930;
+  //     List<Placemark> placemarks =
+  //         await placemarkFromCoordinates(latitude, longitude);
+  //     if (placemarks.isNotEmpty) {
+  //       Placemark place = placemarks[0];
+  //       String address =
+  //           "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+  //       currentLatLng.value = LatLng(latitude, longitude);
+  //       currentLocationText.value = address;
+  //       if (mapController != null) {
+  //         mapController!.animateCamera(
+  //           CameraUpdate.newLatLng(currentLatLng.value!),
+  //         );
+  //       }
+  //       print('Address: $address');
+  //     } else {
+  //       print('No address found for the provided coordinates.');
+  //     }
+  //   } catch (e) {
+  //     print('Error getting location: $e');
+  //   }
+  // }
 Future<void> getCurrentLocation() async {
   try {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -131,7 +155,6 @@ Future<void> getCurrentLocation() async {
       String address = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
       currentLatLng.value = LatLng(latitude, longitude);
       currentLocationText.value = address;
-
       if (mapController != null) {
         mapController!.animateCamera(
           CameraUpdate.newLatLng(currentLatLng.value!),
@@ -139,7 +162,7 @@ Future<void> getCurrentLocation() async {
       }
       log('Address: $address');
     } else {
-      print('No address found for the provided coordinates.');
+      log('No address found for the provided coordinates.');
     }
   } catch (e) {
     print('Error getting location: $e');
@@ -159,7 +182,7 @@ Future<void> getCurrentLocation() async {
     try {
       final response = await http.get(
         Uri.parse(
-          "${ApiConstants.mapBaseUrl}${ApiConstants.distanceMatrix}?destinations=$destinations&origins=$origin&key=${ApiConstants.gGoogleApiKey}",
+          "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$origin&destinations=$destinations&key=${ApiConstants.kGoogleApiKey}",
         ),
       );
 

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -24,6 +25,74 @@ class CustomerMapScreen extends StatefulWidget {
     await launchUrl(uri);
   }
 }
+
+
+
+void navigateToo(double startLat, double startLng, double endLat, double endLng) async {
+  if (Platform.isAndroid) {
+    final Uri googleMapsUrl = Uri.parse(
+        'https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch Google Maps on Android';
+    }
+  } else if (Platform.isIOS) {
+    final Uri googleMapsUrl = Uri.parse(
+        'comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving');
+    final Uri appleMapsUrl = Uri.parse(
+        'https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat,$endLng&dirflg=d');
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+    } else if (await canLaunchUrl(appleMapsUrl)) {
+      await launchUrl(appleMapsUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch any map application on iOS';
+    }
+  }
+}
+
+
+
+
+
+void chooseMapApp(BuildContext context, double startLat, double startLng, double endLat, double endLng) async {
+  bool googleMapsAvailable = await canLaunch("comgooglemaps://");
+  bool appleMapsAvailable = await canLaunch("maps://");
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Choose Map App'),
+        content: Text('Select the app you would like to use for navigation:'),
+        actions: [
+          if (googleMapsAvailable)
+            TextButton(
+              child: Text('Google Maps'),
+              onPressed: () {
+                String googleMapsUrl =
+                    "comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving";
+                launch(googleMapsUrl);
+                Navigator.of(context).pop();
+              },
+            ),
+          if (appleMapsAvailable)
+            TextButton(
+              child: Text('Apple Maps'),
+              onPressed: () {
+                String appleMapsUrl =
+                    "https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat&dirflg=d";
+                launch(appleMapsUrl);
+                Navigator.of(context).pop();
+              },
+            ),
+        ],
+      );
+    },
+  );
+}
+
 
 class _CustomerMapScreenState extends State<CustomerMapScreen> {
 @override
@@ -216,7 +285,8 @@ void initState() {
                                         final currentLatLng =
                                             _mapController.currentLatLng.value;
                                         if (currentLatLng != null) {
-                                          CustomerMapScreen.navigateTo(
+                                         // chooseMapApp(context,currentLatLng.latitude,currentLatLng.longitude,double.parse(customer.latitude!),double.parse(customer.longitude!));
+                                         navigateToo(
                                             currentLatLng.latitude,
                                             currentLatLng.longitude,
                                             double.parse(customer.latitude!),

@@ -33,6 +33,7 @@ class CalenderMapController extends GetxController {
   GoogleMapController? mapController = null;
   final customerList = <Customer>[].obs;
   RxList<Customer> selectedCustomers = <Customer>[].obs;
+  var sortedCustomer = ''.obs;
   final RxList<CalendarEventData<EventData>> eventData =
       <CalendarEventData<EventData>>[].obs;
   final double defaultLat = 25.022702;
@@ -114,60 +115,60 @@ class CalenderMapController extends GetxController {
     
   }
 
-  // Future<void> getCurrentLocation() async {
-  //   try {
-  //     double latitude = -37.841270;
-  //     double longitude = 144.976930;
-  //     List<Placemark> placemarks =
-  //         await placemarkFromCoordinates(latitude, longitude);
-  //     if (placemarks.isNotEmpty) {
-  //       Placemark place = placemarks[0];
-  //       String address =
-  //           "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-  //       currentLatLng.value = LatLng(latitude, longitude);
-  //       currentLocationText.value = address;
-  //       if (mapController != null) {
-  //         mapController!.animateCamera(
-  //           CameraUpdate.newLatLng(currentLatLng.value!),
-  //         );
-  //       }
-  //       print('Address: $address');
-  //     } else {
-  //       print('No address found for the provided coordinates.');
-  //     }
-  //   } catch (e) {
-  //     print('Error getting location: $e');
-  //   }
-  // }
-Future<void> getCurrentLocation() async {
-  try {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      print('Location services are disabled.');
-      return;
-    }
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    double latitude = position.latitude;
-    double longitude = position.longitude;
-    List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-    if (placemarks.isNotEmpty) {
-      Placemark place = placemarks[0];
-      String address = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-      currentLatLng.value = LatLng(latitude, longitude);
-      currentLocationText.value = address;
-      if (mapController != null) {
-        mapController!.animateCamera(
-          CameraUpdate.newLatLng(currentLatLng.value!),
-        );
+  Future<void> getCurrentLocation() async {
+    try {
+      double latitude = -37.841270;
+      double longitude = 144.976930;
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        String address =
+            "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+        currentLatLng.value = LatLng(latitude, longitude);
+        currentLocationText.value = address;
+        if (mapController != null) {
+          mapController!.animateCamera(
+            CameraUpdate.newLatLng(currentLatLng.value!),
+          );
+        }
+        print('Address: $address');
+      } else {
+        print('No address found for the provided coordinates.');
       }
-      log('Address: $address');
-    } else {
-      log('No address found for the provided coordinates.');
+    } catch (e) {
+      print('Error getting location: $e');
     }
-  } catch (e) {
-    print('Error getting location: $e');
   }
-}
+// Future<void> getCurrentLocation() async {
+//   try {
+//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//     if (!serviceEnabled) {
+//       print('Location services are disabled.');
+//       return;
+//     }
+//     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+//     double latitude = position.latitude;
+//     double longitude = position.longitude;
+//     List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+//     if (placemarks.isNotEmpty) {
+//       Placemark place = placemarks[0];
+//       String address = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+//       currentLatLng.value = LatLng(latitude, longitude);
+//       currentLocationText.value = address;
+//       if (mapController != null) {
+//         mapController!.animateCamera(
+//           CameraUpdate.newLatLng(currentLatLng.value!),
+//         );
+//       }
+//       log('Address: $address');
+//     } else {
+//       log('No address found for the provided coordinates.');
+//     }
+//   } catch (e) {
+//     print('Error getting location: $e');
+//   }
+// }
   Future<void> fetchDistanceAndTime() async {
     if (currentLatLng.value == null || selectedCustomers.isEmpty) return;
 
@@ -210,6 +211,7 @@ Future<void> getCurrentLocation() async {
           }
           sortCustomersByDistance();
           selectedCustomers.refresh();
+         
         } else {
           log('No distance data found');
         }
@@ -227,6 +229,7 @@ void sortCustomersByDistance() {
     final distanceB = _parseDistance(b.distance);
     return distanceA.compareTo(distanceB);
   });
+  sortedCustomer.value = selectedCustomers.last.address??'';
 }
 
 double _parseDistance(String? distance) {

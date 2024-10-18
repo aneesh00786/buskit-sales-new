@@ -30,16 +30,15 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
 void initState() {
   super.initState();
   _mapController.suggestions.clear();
-  _mapController.fetchDistanceAndTime();
   _mapController.searchedLatLng.value=null;
   _mapController.getDirections();
-  _mapController.selectedCustomers.refresh();
 }
 
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -81,18 +80,21 @@ void initState() {
                     Icon(EneftyIcons.location_outline, color: Colors.red),
                     SizedBox(width: 8),
                     Expanded(
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Search Location',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      child: Obx(
+                       ()=>
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Search Location',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
+                          controller: TextEditingController(
+                            text: _mapController.sortedCustomer.value),
+                          onFieldSubmitted: (value) {
+                            _mapController.handleSearchLocation(value);
+                          },
                         ),
-                        controller: TextEditingController(
-                            text: _mapController.selectedCustomers.last.address),
-                        onFieldSubmitted: (value) {
-                          _mapController.handleSearchLocation(value);
-                        },
                       ),
                     ),
                   ],

@@ -121,6 +121,7 @@ class SelectCustomerDiloag extends StatelessWidget {
                   label: CustomText(content: 'Show Route', color: white),
                   onPressed: () {
                     calenderMapController.showSelectedCustomerRoute(context);
+                     calenderMapController.fetchDistanceAndTime();
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(primaryColor),

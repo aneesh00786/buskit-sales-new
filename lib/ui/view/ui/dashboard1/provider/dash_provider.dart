@@ -171,12 +171,14 @@ class ApiService {
     required String startDate,
     required String endDate,
   }) async {
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchCategoryPerformance}');
     final requestBody = {
       'catId': catId,
       'startdate': startDate,
       'enddate': endDate,
       'targetType': '1',
+      'salesman_id':salesmanId
     };
 
     try {
@@ -191,6 +193,7 @@ class ApiService {
 
       print('fetchDashboardCategoruPerformenceData ${response.statusCode}');
       print('fetchDashboardCategoruPerformenceData Body: ${response.body}');
+      log('Salesman ID :$salesmanId');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -356,10 +359,9 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        // Request successful
         print('Admin message posted successfully');
       } else {
-        // Request failed
+
         throw Exception('Failed to post admin message: ${response.statusCode}');
       }
     } catch (e) {
@@ -376,7 +378,7 @@ class ApiService {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
     String orderStatusString = '';
     if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString(); // Convert int to String
+      orderStatusString = orderStatus.type.toString(); 
     }
 
     final requestBody = {

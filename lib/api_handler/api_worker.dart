@@ -640,11 +640,12 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
       PaginationModel? paginationModel,
       SearchModel? searchModel,
       required String orderType}) async {
+        final salesmanIds = SessionHelper.loginSavedData!.salesmanId!;
     final response = await dio
         .postbycustom(
       ApiConstants.fetch_all_order,
       data: FormData.fromMap({
-        "salesman_id": salesmanId ?? '',
+        "salesman_id": salesmanIds,
         "customer_id": customerId ?? '',
         "order_type": orderType,
         "limit": paginationModel?.limit.toString() ??
@@ -661,6 +662,7 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
+    log('Request body Fetch all Data :$salesmanId');
     return OptionOrderResponce.fromJson(response.data);
   }
 

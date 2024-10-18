@@ -705,7 +705,7 @@ class RecentOrder {
   final int paymentType;
   final int creditPeriod;
   final int receivedAmount;
-  final String? receivedAmountDate; // This can remain nullable
+  final String? receivedAmountDate;
   final String orderId;
   final String orderCreatAt;
   final int orderTotal;

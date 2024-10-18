@@ -640,7 +640,7 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
       PaginationModel? paginationModel,
       SearchModel? searchModel,
       required String orderType}) async {
-        final salesmanIds = SessionHelper.loginSavedData!.salesmanId!;
+      final salesmanIds = SessionHelper.loginSavedData!.salesmanId!;
     final response = await dio
         .postbycustom(
       ApiConstants.fetch_all_order,

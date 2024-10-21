@@ -97,6 +97,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
     _mapController.suggestions.clear();
     _mapController.searchedLatLng.value = null;
     _mapController.getDirections();
+    _mapController.getCurrentLocation();
   }
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
@@ -289,54 +290,53 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Obx(() {
-                                          final currentLatLng = _mapController
-                                              .currentLatLng.value;
+                                          
+                                          if (_mapController.currentLatLng.value == null) {
+                                            return CircularProgressIndicator(); 
+                                          }
+
+                                          
+                                          double currentLatitude =
+                                             _mapController.currentLatLng.value!.latitude;
+                                          double currentLongitude =
+                                             _mapController. currentLatLng.value!.longitude;
                                           final customerLatLng = LatLng(
                                             double.parse(customer.latitude!),
                                             double.parse(customer.longitude!),
                                           );
-
-                                          if (currentLatLng != null) {
-                                            double distanceInMeters =
+                                          double distanceInMeters =
                                               Geolocator.distanceBetween(
-                                              currentLatLng.latitude,
-                                              currentLatLng.longitude,
-                                              customerLatLng.latitude,
-                                              customerLatLng.longitude,
+                                            currentLatitude,
+                                            currentLongitude,
+                                            customerLatLng.latitude,
+                                            customerLatLng.longitude,
+                                          );
+                                          if (distanceInMeters <= 20) {
+                                            return ElevatedButton(
+                                              onPressed: () {
+                                                
+                                                print('Customer reached!');
+                                              },
+                                              child: Text('Reached'),
                                             );
-                                            if (distanceInMeters <= 20) {
-                                              return ElevatedButton(
-                                                onPressed: () {},
-                                                child: Text('Reached'),
-                                              );
-                                            }
                                           }
 
+                                          
                                           return IconButton(
-                                            style: ButtonStyle(
-                                              backgroundColor:
-                                                  WidgetStatePropertyAll(
-                                                Colors.blue.withOpacity(0.1),
-                                              ),
-                                            ),
-                                            hoverColor:
-                                                Colors.blue.withOpacity(0.4),
-                                            onPressed: () {
-                                              if (currentLatLng != null) {
-                                                navigateToo(
-                                                  currentLatLng.latitude,
-                                                  currentLatLng.longitude,
-                                                  double.parse(
-                                                      customer.latitude!),
-                                                  double.parse(
-                                                      customer.longitude!),
-                                                );
-                                              }
-                                            },
                                             icon: Icon(
                                               EneftyIcons.route_square_outline,
                                               color: Colors.blue,
                                             ),
+                                            onPressed: () {
+                                              navigateToo(
+                                                currentLatitude,
+                                                currentLongitude,
+                                                double.parse(
+                                                    customer.latitude!),
+                                                double.parse(
+                                                    customer.longitude!),
+                                              );
+                                            },
                                           );
                                         }),
                                       ],

@@ -485,8 +485,17 @@ class _OrderTakingState extends State<OrderTaking>
                                                                 variantId:
                                                                     e.variationId ??
                                                                         '',
-                                                                pack: e.pieces
-                                                                    .toString(),
+                                                                pack: e.saleBy ==
+                                                                        'Pack'
+                                                                    ? e.pieces
+                                                                        .toString()
+                                                                    : e.count
+                                                                        .toString(),
+                                                                packType:
+                                                                    e.saleBy ==
+                                                                            'Pack'
+                                                                        ? 'Pack'
+                                                                        : 'Pcs',
                                                                 price: e.price
                                                                     .toString(),
                                                                 discount: '0',

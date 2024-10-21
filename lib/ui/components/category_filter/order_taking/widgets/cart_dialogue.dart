@@ -624,7 +624,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                       .map((e) => SendCartData(
                                             productId: e.productId ?? '',
                                             variantId: e.variationId ?? '',
-                                            pack: e.pieces.toString(),
+                                            pack:e.saleBy=='Pack'? e.pieces.toString():e.count.toString(),
+                                            packType: e.saleBy=='Pack'?'Pack':'Pcs',
                                             price: e.price.toString(),
                                             discount: '0',
                                             quantity: e.count.toInt(),
@@ -637,6 +638,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                 CartOrderModel? cartOrder = await ApiWorker()
                                     .addToCart(productBYData.toJson());
                                 log('CartId :${cartOrder?.cartId}');
+                                log('Pack or pcs :${productBYData.cartList.first.pack}');
+                                log('Pack or pcs :${productBYData.cartList.first.packType}');
+       
 
                                 if (cartOrder != null) {
                                   int orderStatus = 4;
@@ -653,6 +657,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                   setState(() {
                                     CartDatabaseManager().cartItems.clear();
                                     CartDatabaseManager().clearCart();
+                                    widget.cartItemCount=0;
                                   });
                                   Navigator.pop(context);
                                 }
@@ -689,8 +694,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                           .map((e) => SendCartData(
                                                 productId: e.productId ?? '',
                                                 variantId: e.variationId ?? '',
-                                                pack: '2',
+                                                pack: e.saleBy=='Pack'?e.pieces.toString():e.count.toString(),
                                                 price: e.price.toString(),
+                                                packType: e.saleBy=='Pack'?'Pack':'Pcs',
                                                 discount: '0',
                                                 quantity: e.count.toInt(),
                                               ))

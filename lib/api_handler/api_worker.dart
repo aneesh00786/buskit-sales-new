@@ -206,8 +206,8 @@ class ApiWorker with ApiConstants {
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-    // log("Send DATA: ${FormData.fromMap(sendData).fields}");
-    // log("Send DATA: $sendData");
+    log("Send DATA: ${sendData.entries.first.value}");
+    log("Send DATA: $sendData");
     try {
       final response = await dio
           .postbycustom(

@@ -81,12 +81,13 @@ class ProductDetailsDialog extends Dialog {
                     .map((e) => SendCartData(
                         productId: e.productId!,
                         variantId: e.variationId!,
-                        pack: '2',
+                        pack: e.packtype == 'Pack'
+                            ? e.pieces.toString()
+                            : e.quntity.toString(),
+                        packType: e.packtype == 'Pack' ? 'Pack' : 'Pcs',
                         price: e.price.toString(),
                         discount: '0',
-                        quantity: e.quntity!.toInt()
-                        )
-                        )
+                        quantity: e.quntity!.toInt()))
                     .toList(),
                 total: data
                     .map((e) => e.price!)

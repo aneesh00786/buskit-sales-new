@@ -31,6 +31,7 @@ class SendCartData {
   String productId;
   String variantId;
   String pack;
+  String packType;
   String price;
   String discount;
   int quantity;
@@ -39,6 +40,7 @@ class SendCartData {
     required this.productId,
     required this.variantId,
     required this.pack,
+    required this.packType,
     required this.price,
     required this.discount,
     required this.quantity,
@@ -49,6 +51,7 @@ class SendCartData {
       'product_id': productId,
       'Varient': variantId, 
       'Pack': pack,
+      'packType': packType,
       'price': price,
       'discount': discount,
       'quantity': quantity,

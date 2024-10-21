@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,9 +27,8 @@ class CustomerMapScreen extends StatefulWidget {
   }
 }
 
-
-
-void navigateToo(double startLat, double startLng, double endLat, double endLng) async {
+void navigateToo(
+    double startLat, double startLng, double endLat, double endLng) async {
   if (Platform.isAndroid) {
     final Uri googleMapsUrl = Uri.parse(
         'https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
@@ -52,11 +52,8 @@ void navigateToo(double startLat, double startLng, double endLat, double endLng)
   }
 }
 
-
-
-
-
-void chooseMapApp(BuildContext context, double startLat, double startLng, double endLat, double endLng) async {
+void chooseMapApp(BuildContext context, double startLat, double startLng,
+    double endLat, double endLng) async {
   bool googleMapsAvailable = await canLaunch("comgooglemaps://");
   bool appleMapsAvailable = await canLaunch("maps://");
 
@@ -93,21 +90,18 @@ void chooseMapApp(BuildContext context, double startLat, double startLng, double
   );
 }
 
-
 class _CustomerMapScreenState extends State<CustomerMapScreen> {
-@override
-void initState() {
-  super.initState();
-  _mapController.suggestions.clear();
-  _mapController.searchedLatLng.value=null;
-  _mapController.getDirections();
-}
-
+  @override
+  void initState() {
+    super.initState();
+    _mapController.suggestions.clear();
+    _mapController.searchedLatLng.value = null;
+    _mapController.getDirections();
+  }
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -150,8 +144,7 @@ void initState() {
                     SizedBox(width: 8),
                     Expanded(
                       child: Obx(
-                       ()=>
-                        TextFormField(
+                        () => TextFormField(
                           decoration: InputDecoration(
                             hintText: 'Search Location',
                             border: OutlineInputBorder(
@@ -159,7 +152,7 @@ void initState() {
                             ),
                           ),
                           controller: TextEditingController(
-                            text: _mapController.sortedCustomer.value),
+                              text: _mapController.sortedCustomer.value),
                           onFieldSubmitted: (value) {
                             _mapController.handleSearchLocation(value);
                           },
@@ -212,8 +205,14 @@ void initState() {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.location_on,size: 13,color: Colors.red,),
-                                    SizedBox(width: 5,),
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 13,
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
                                     SizedBox(
                                       width: 240,
                                       child: Text(
@@ -225,8 +224,13 @@ void initState() {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(Icons.call,size: 13,),
-                                    SizedBox(width: 5,),
+                                    Icon(
+                                      Icons.call,
+                                      size: 13,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
                                     Text(
                                       customer.mobileno ?? '',
                                     ),
@@ -234,8 +238,13 @@ void initState() {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(Icons.email_outlined,size: 13,),
-                                    SizedBox(width: 5,),
+                                    Icon(
+                                      Icons.email_outlined,
+                                      size: 13,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
                                     Text(customer.email ?? ''),
                                   ],
                                 ),
@@ -275,28 +284,62 @@ void initState() {
                                             fontWeight: FontWeight.w500),
                                       ],
                                     ),
-                                    IconButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              WidgetStatePropertyAll(Colors.blue
-                                                  .withOpacity(0.1))),
-                                      hoverColor: Colors.blue.withOpacity(0.4),
-                                      onPressed: () {
-                                        final currentLatLng =
-                                            _mapController.currentLatLng.value;
-                                        if (currentLatLng != null) {
-                                         // chooseMapApp(context,currentLatLng.latitude,currentLatLng.longitude,double.parse(customer.latitude!),double.parse(customer.longitude!));
-                                         navigateToo(
-                                            currentLatLng.latitude,
-                                            currentLatLng.longitude,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Obx(() {
+                                          final currentLatLng = _mapController
+                                              .currentLatLng.value;
+                                          final customerLatLng = LatLng(
                                             double.parse(customer.latitude!),
                                             double.parse(customer.longitude!),
                                           );
-                                        }
-                                      },
-                                      icon: Icon(
-                                          EneftyIcons.route_square_outline,
-                                          color: Colors.blue),
+
+                                          if (currentLatLng != null) {
+                                            double distanceInMeters =
+                                              Geolocator.distanceBetween(
+                                              currentLatLng.latitude,
+                                              currentLatLng.longitude,
+                                              customerLatLng.latitude,
+                                              customerLatLng.longitude,
+                                            );
+                                            if (distanceInMeters <= 20) {
+                                              return ElevatedButton(
+                                                onPressed: () {},
+                                                child: Text('Reached'),
+                                              );
+                                            }
+                                          }
+
+                                          return IconButton(
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  WidgetStatePropertyAll(
+                                                Colors.blue.withOpacity(0.1),
+                                              ),
+                                            ),
+                                            hoverColor:
+                                                Colors.blue.withOpacity(0.4),
+                                            onPressed: () {
+                                              if (currentLatLng != null) {
+                                                navigateToo(
+                                                  currentLatLng.latitude,
+                                                  currentLatLng.longitude,
+                                                  double.parse(
+                                                      customer.latitude!),
+                                                  double.parse(
+                                                      customer.longitude!),
+                                                );
+                                              }
+                                            },
+                                            icon: Icon(
+                                              EneftyIcons.route_square_outline,
+                                              color: Colors.blue,
+                                            ),
+                                          );
+                                        }),
+                                      ],
                                     ),
                                   ],
                                 )
@@ -313,11 +356,10 @@ void initState() {
           ),
           Expanded(
               child:
-              // BasicMapDemo()
-              Obx(
+                  // BasicMapDemo()
+                  Obx(
             () => _mapController.buildGoogleMap(),
-          )
-          ),
+          )),
         ],
       ),
     );

@@ -74,7 +74,6 @@ class AppRoutes {
           transition: Transition.rightToLeft,
           page: () => CustomerDachScreen(
             cusId: '',
-            year: '',
           ),
           binding: CommonBinding(),
         ),

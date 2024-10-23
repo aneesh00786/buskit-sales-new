@@ -118,13 +118,6 @@ EventData.fromJson(Map<String, dynamic> json) {
   latitude = json["latitude"];
   longitude =json["longitude"];
 }
-            //  "business_name": "3232",
-            // "image_url": "customer/1695958640804.png",
-            // "email": "aneesh@jrboonsolutions.com",
-            // "mobileno": "09633757951",
-            // "address": "Wellington Parade, East Melbourne VIC 3002",
-            // "latitude": "-37.81365100",
-            // "longitude": "144.98355800"
 
 
   Map<String, dynamic> toJson() {

@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.da
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,54 +31,19 @@ class ProductMiddelWidget extends StatelessWidget {
        return SizedBox(
           height: 1200,
           width: availableWidth,
-          child: OrderTaking(
-            productsController: productsController,
-          ));
+          child: 
+         Obx(() {
+            return productsController.isReached.value
+                ? CustomerDachScreen(
+                    cusId: 'CUST01',
+                  )
+                : OrderTaking(
+                    productsController: productsController,
+                  );
+          }),
+          );
       },
     );
-    // return Container(
-
-    //     child: Row(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //     children: [
-    //       Expanded(
-    //         child: Obx (() {
-    //         return CategoryFilterWidget(
-    //           onRetryPressed: () {
-    //             productsController.loadDataOfCategory;
-    //           },
-    //           categoryData: productsController.categoryData.value.data,
-    //           onSelected: (category, subCategory) {
-    //             if (productsController.categoryData.value.data != null) {
-    //               log("SUB CATEGORY ${productsController.categoryData.value.data![category!].subCategoryItem![subCategory!].id!}");
-    //               productsController.selectedSubCategoryId.value =
-    //               productsController.categoryData.value.data![category]
-    //                   .subCategoryItem![subCategory].id!;
-    //               log("SUB CATEGORY ${productsController.selectedSubCategoryId.value}");
-    //               productsController.selectedCategoryId.value =
-    //               productsController.categoryData.value.data![category].id!;
-    //               productsController.selectedSubCategoryIndex.value = subCategory;
-    //               productsController.selectedCategoryIndex.value = category;
-    //               productsController.productList.value = productsController
-    //                   .categoryData
-    //                   .value
-    //                   .data![category]
-    //                   .subCategoryItem![subCategory]
-    //                   .productList ??
-    //                   [];
-    //             }
-    //             log("$category $subCategory");
-    //           },
-    //         );
-    //       }),flex: 1)
-
-    //       ,
-    //       nkMediumSizeBox(),
-    //       Expanded(child: ProductGrid(optionName: ,),flex: 3,),
-    //     ],
-    //   ),
-    // );
   }
 
   // Widget productListWidget(List<ProductList> productData) {

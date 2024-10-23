@@ -60,7 +60,7 @@ class _OrderTakingState extends State<OrderTaking>
   int cartItemCount = 0;
   String _selectedCategory = '';
   int _expandedIndex = -1;
-  bool _showDialog = false; // Flag to manage the dialog visibility
+  bool _showDialog = false;
   String _dialogMessage = '';
 
   @override

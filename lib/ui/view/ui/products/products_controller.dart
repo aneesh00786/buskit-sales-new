@@ -49,6 +49,7 @@ class ProductsController extends GetxController {
   /// SINGLE [customerAndOrderData] CUSTOMER DATA
   Rx<CustomerAndOrderData> customerAndOrderData = CustomerAndOrderData().obs;
   CrossFadeState crossFadeState = CrossFadeState.showFirst;
+  RxBool isReached = false.obs;
 
   /// SEARCH CUSTOMER
   RxList<SearchData> searchData = <SearchData>[].obs;
@@ -71,7 +72,9 @@ class ProductsController extends GetxController {
     fetchCategoryData();
     super.onInit();
   }
- 
+  void onReached(bool reached) {
+    isReached.value = reached; 
+  }
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
     isLoading.value = true;
     List<ProductModel> fetchedProducts = await ApiWorker().getTempProduct(subCatId);

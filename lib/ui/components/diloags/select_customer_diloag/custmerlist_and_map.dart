@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,15 +19,6 @@ import 'package:url_launcher/url_launcher.dart';
 class CustomerMapScreen extends StatefulWidget {
   @override
   State<CustomerMapScreen> createState() => _CustomerMapScreenState();
-
-  static void navigateTo(
-      double startLat, double startLng, double endLat, double endLng) async {
-    String googleMapsLocationUrl =
-        "${ApiConstants.navmapBaseUrl}dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving";
-    final String encodedURL = Uri.encodeFull(googleMapsLocationUrl);
-    var uri = Uri.parse(encodedURL);
-    await launchUrl(uri);
-  }
 }
 
 void navigateToo(
@@ -101,6 +95,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
   }
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
+  final HomeController homeController = Get.put(HomeController());
+  final ProductsController productsController = Get.find<ProductsController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -290,16 +287,18 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Obx(() {
-                                          
-                                          if (_mapController.currentLatLng.value == null) {
-                                            return CircularProgressIndicator(); 
+                                          if (_mapController
+                                                  .currentLatLng.value ==
+                                              null) {
+                                            return CircularProgressIndicator();
                                           }
 
-                                          
                                           double currentLatitude =
-                                             _mapController.currentLatLng.value!.latitude;
+                                              _mapController.currentLatLng
+                                                  .value!.latitude;
                                           double currentLongitude =
-                                             _mapController. currentLatLng.value!.longitude;
+                                              _mapController.currentLatLng
+                                                  .value!.longitude;
                                           final customerLatLng = LatLng(
                                             double.parse(customer.latitude!),
                                             double.parse(customer.longitude!),
@@ -314,14 +313,30 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                           if (distanceInMeters <= 20) {
                                             return ElevatedButton(
                                               onPressed: () {
-                                                
-                                                print('Customer reached!');
+                                                productsController.onReached(true);
+                                                log('${productsController.isReached.value}');
+                                                Navigator.pop(context);
+                                                Navigator.of(context,
+                                                        rootNavigator: true)
+                                                    .pop();
+                                                Future.delayed(
+                                                    Duration(milliseconds: 300),
+                                                    () {
+                                                  homeController
+                                                      .sidebarXController
+                                                      .selectIndex(2);
+                                                  homeController
+                                                      .selectedIndex.value = 2;
+                                                  Get.toNamed(
+                                                    AppRoutes.product,
+                                                    id: 2,
+                                                  );
+                                                });
                                               },
                                               child: Text('Reached'),
                                             );
                                           }
 
-                                          
                                           return IconButton(
                                             icon: Icon(
                                               EneftyIcons.route_square_outline,

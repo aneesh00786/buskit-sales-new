@@ -48,7 +48,6 @@ class OptionWidgetCustomerDash extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(
       builder: (context, provider, child) {
-        // Fetch data once the widget is built
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (provider.countFuture == null) {
             provider.fetchCustomerDashboardCountData(customerId);
@@ -163,6 +162,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
 
     return Flexible(
       child: MyCommnonContainer(
+        color:white,
         onTap: optionData.onTap,
         margin: nkSymmetricPadding(
           vertical: 0,

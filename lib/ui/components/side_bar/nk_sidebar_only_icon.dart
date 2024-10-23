@@ -96,7 +96,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         },
         child: Padding(
           padding: EdgeInsets.zero,
-          //  nkSymmetricPadding(vertical: 0),
           child: Icon(
             sideBarData.icon!,
             size: 24,

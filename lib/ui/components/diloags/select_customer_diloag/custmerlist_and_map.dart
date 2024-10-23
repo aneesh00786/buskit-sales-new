@@ -96,7 +96,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
 
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   final HomeController homeController = Get.put(HomeController());
-  final ProductsController productsController = Get.find<ProductsController>();
+  final ProductsController productsController = Get.put(ProductsController());
 
   @override
   Widget build(BuildContext context) {

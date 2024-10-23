@@ -33,7 +33,7 @@ class ProductMiddelWidget extends StatelessWidget {
           width: availableWidth,
           child: 
          Obx(() {
-            return productsController.isReached.value
+            return productsController.isReached.value==true
                 ? CustomerDachScreen(
                     cusId: 'CUST01',
                   )

@@ -619,8 +619,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                   widget.cartItemCount = 0;
                                 });
                                 final productBYData = AddToCartModel(
-                                  customerId:
-                                      customeController.customerId.value,
+                                  customerId:customeController
+                                              .customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
                                   salesmanId:
                                       SessionHelper.loginSavedData!.salesmanId!,
                                   cartId: '',

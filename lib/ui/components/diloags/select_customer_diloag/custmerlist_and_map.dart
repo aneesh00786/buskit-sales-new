@@ -316,8 +316,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                             return ElevatedButton(
                                               onPressed: () {
                                                 productsController
-                                                    .onReached(true);
-                                                productsController
                                                         .selectedCustomerName
                                                         .value =
                                                     customer.businessName ?? '';
@@ -351,6 +349,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                                   Get.toNamed(AppRoutes.product,
                                                       id: 2);
                                                 });
+                                                productsController
+                                                    .onReached(true);
                                               },
                                               child: Text('Reached'),
                                             );

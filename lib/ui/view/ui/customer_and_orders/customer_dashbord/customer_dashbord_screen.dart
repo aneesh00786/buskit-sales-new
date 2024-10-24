@@ -1,6 +1,9 @@
+import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
@@ -18,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/editabledatacell_new.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -42,6 +46,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   int selectedYear = 2024;
   late TabController _tabController;
   ProductsController productsController = Get.find<ProductsController>();
+  HomeController homeController = Get.put(HomeController());
 
   @override
   void initState() {
@@ -74,7 +79,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   @override
   Widget build(BuildContext context) {
     final DashBoardController dashBoardController = DashBoardController();
-
+    log('${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}');
     String? startDate;
     String? endDate;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -92,7 +97,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () {
-                Navigator.pop(context);
+                homeController.sidebarXController.selectIndex(0);
+                homeController.selectedIndex.value = 0;
+                Get.toNamed(AppRoutes.dashboard, id: 2);
+                productsController.selectedCustomerName.value='';
+                productsController.selectedCustomerImageUrl.value='';
+                productsController.selectedCustomerId.value='';
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -118,6 +128,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
                       productsController: productsController,
+                      isReached: true,
                     ),
                   ),
                 );
@@ -125,21 +136,43 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(4.0),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
               ),
               child: const Text(
                 'Order Taking',
-                style: TextStyle(
-                    color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
             ),
-            UpdateCustomer(widget: widget),
+            Obx(() => Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(productsController
+                                .selectedCustomerImageUrl.isEmpty
+                            ? ''
+                            : '${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}'),
+                        backgroundColor:
+                            productsController.selectedCustomerImageUrl.isEmpty
+                                ? Colors.blueGrey
+                                : Color.fromARGB(123, 194, 192, 192),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      CustomText(
+                        content: productsController.selectedCustomerName.value,
+                      ),
+                    ],
+                  ),
+                ))
+            //UpdateCustomer(widget: widget),
           ],
         ),
         body: Consumer<CustomersProvider>(
           builder: (context, provider, child) {
+            log('Customer Dach :${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}');
             return FutureBuilder<ApiResponseModel>(
               future: provider.customersDashFuture,
               builder: (context, snapshot) {
@@ -160,7 +193,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId: widget.cusId,
+                          customerId:
+                              productsController.selectedCategoryId.value,
                           customType: "",
                           customOrderStatusType: OrderStatus.preOrder,
                           userType: UserType.customer,
@@ -242,7 +276,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         child: Padding(
       padding: const EdgeInsets.all(1.0),
       child: MyCommnonContainer(
-        color:white,
+        color: white,
         height: 280,
         width: double.infinity,
         isCommonBorder: true,
@@ -260,7 +294,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             context,
                             MaterialPageRoute(
                                 builder: (_) => DashboardScreen(
-                                      cus: widget.cusId,
+                                      cus: productsController
+                                          .selectedSubCategoryId.value,
                                       y: '2024',
                                     )));
                       },
@@ -361,7 +396,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
       child: MyCommnonContainer(
-        color:white,
+        color: white,
         height: 280,
         isCommonBorder: true,
         child: Column(
@@ -1129,7 +1164,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     .data.totalSale.paymentRemaining.totalAmount;
 
                 return MyCommnonContainer(
-                  color:white,
+                  color: white,
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: double.infinity,
                   padding: nkRegularPadding(),
@@ -1273,7 +1308,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     .data.totalSale.paymentRemaining.totalAmount;
 
                 return MyCommnonContainer(
-                  color:white,
+                  color: white,
                   height: 280,
                   width: double.infinity,
                   isCommonBorder: true,
@@ -1384,7 +1419,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     .data.totalSale.paymentRemaining.totalAmount;
 
                 return MyCommnonContainer(
-                  color:white,
+                  color: white,
                   height: double.infinity,
                   width: double.infinity,
                   isCommonBorder: false,
@@ -1474,7 +1509,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
     return MyCommnonContainer(
-      color:white,
+      color: white,
       height: 280,
       isCommonBorder: true,
       margin: EdgeInsets.zero,
@@ -1494,12 +1529,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               builder: (context, constraints) {
                 // double availableWidth = constraints.maxWidth;
                 // double availableHeight = constraints.maxHeight;
-        
+
                 double fontSize = 11;
-        
+
                 frequentProductLists
                     .sort((a, b) => b.quantity.compareTo(a.quantity));
-        
+
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -1958,14 +1993,13 @@ class UpdateCustomer extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Dialog(
                               insetPadding: EdgeInsets.zero,
-                              backgroundColor:
-                                  Colors.grey[200], // Grey background color
+                              backgroundColor: Colors.grey[200],
                               shape: const RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10.0)),
-                                side: BorderSide.none, // Remove outline
+                                side: BorderSide.none,
                               ),
-                              elevation: 24.0, // Shadow elevation
+                              elevation: 24.0,
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2026,7 +2060,6 @@ class UpdateCustomer extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 16.0),
-                                  // First row - Full Name
                                   Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: Container(
@@ -2050,7 +2083,6 @@ class UpdateCustomer extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 12.0),
-                                  // Second row - Mobile Number and Email
                                   Row(
                                     children: [
                                       Expanded(
@@ -2109,7 +2141,6 @@ class UpdateCustomer extends StatelessWidget {
                                     ],
                                   ),
                                   const SizedBox(height: 12.0),
-                                  // Third row - State and Zip Code
                                   Row(
                                     children: [
                                       Expanded(
@@ -2591,209 +2622,6 @@ class UpdateCustomer extends StatelessWidget {
   }
 }
 
-// class CircularProgressBar extends StatefulWidget {
-//   final double progress;
-//   final double strokeWidth;
-//   final Color backgroundColor;
-//   final Color progressColor;
-//   final String amount;
-//   final dynamic payment;
-//   final dynamic pending;
-//   final List<int> years;
-
-//   const CircularProgressBar({
-//     super.key,
-//     required this.progress,
-//     this.strokeWidth = 10.0,
-//     this.backgroundColor = Colors.grey,
-//     this.progressColor = Colors.green,
-//     required this.amount,
-//     required this.payment,
-//     required this.pending,
-//     required this.years,
-//   });
-
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _CircularProgressBarState createState() => _CircularProgressBarState();
-// }
-
-// class _CircularProgressBarState extends State<CircularProgressBar> {
-//   // late int selectedYear;
-
-//   // @override
-//   // void initState() {
-//   //   super.initState();
-//   //   selectedYear =
-//   //       widget.years.isNotEmpty ? widget.years.first : DateTime.now().year;
-//   // }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         CustomPaint(
-//           size: Size(
-//               100,
-//               (MediaQuery.of(context).orientation == Orientation.portrait)
-//                   ? (ResponsiveInfo.isMobileDimension(context) ? 100 : 120)
-//                   : (ResponsiveInfo.isMobileDimension(context) ? 100 : 120)),
-//           painter: CircularProgressBarPainter(
-//             progress: widget.progress,
-//             strokeWidth: widget.strokeWidth,
-//             backgroundColor: widget.backgroundColor,
-//             progressColor: widget.progressColor,
-//             amount: widget.amount,
-//             context: context,
-//           ),
-//         ),
-//         const SizedBox(
-//           height: 4,
-//         ),
-//         Row(
-//           children: [
-//             Row(
-//               children: [
-//                 Container(
-//                   height: (MediaQuery.of(context).orientation ==
-//                           Orientation.portrait)
-//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
-//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
-//                   width: (MediaQuery.of(context).orientation ==
-//                           Orientation.portrait)
-//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
-//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
-//                   decoration: const BoxDecoration(
-//                     color: Colors.green,
-//                     borderRadius: BorderRadius.all(Radius.circular(3.0)),
-//                   ),
-//                 ),
-//                 const SizedBox(
-//                   width: 2,
-//                 ),
-//                 MyRegularText(
-//                     label: "Payment : ${widget.payment}",
-//                     fontWeight: NkGeneralSize.nkBoldFontWeight(),
-//                     color: primaryTextColor)
-//               ],
-//             ),
-//             SizedBox(
-//               width:
-//                   (MediaQuery.of(context).orientation == Orientation.portrait)
-//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 7)
-//                       : (ResponsiveInfo.isMobileDimension(context) ? 7 : 7),
-//             ),
-//             Row(
-//               children: [
-//                 Container(
-//                   height: (MediaQuery.of(context).orientation ==
-//                           Orientation.portrait)
-//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
-//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
-//                   width: (MediaQuery.of(context).orientation ==
-//                           Orientation.portrait)
-//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
-//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
-//                   decoration: const BoxDecoration(
-//                     color: Colors.red,
-//                     borderRadius: BorderRadius.all(Radius.circular(3.0)),
-//                   ),
-//                 ),
-//                 const SizedBox(
-//                   width: 2,
-//                 ),
-//                 MyRegularText(
-//                     label: "Pending : ${widget.pending}",
-//                     fontWeight: NkGeneralSize.nkBoldFontWeight(),
-//                     color: primaryTextColor)
-//               ],
-//             )
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class CircularProgressBarPainter extends CustomPainter {
-//   final double progress;
-//   final double strokeWidth;
-//   final Color backgroundColor;
-//   final Color progressColor;
-//   final String amount;
-//   final BuildContext context;
-
-//   CircularProgressBarPainter({
-//     required this.progress,
-//     required this.strokeWidth,
-//     required this.backgroundColor,
-//     required this.progressColor,
-//     required this.amount,
-//     required this.context,
-//   });
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final center = Offset(size.width / 2, size.height / 2);
-//     final radius = min(size.width / 2, size.height / 2) - strokeWidth / 2;
-
-//     final backgroundPaint = Paint()
-//       ..color = backgroundColor
-//       ..style = PaintingStyle.stroke
-//       ..strokeWidth = strokeWidth;
-
-//     final progressPaint = Paint()
-//       ..color = progressColor
-//       ..style = PaintingStyle.stroke
-//       ..strokeWidth = strokeWidth
-//       ..strokeCap = StrokeCap.round;
-
-//     canvas.drawCircle(center, radius, backgroundPaint);
-
-//     final progressAngle = 2 * pi * (progress / 100);
-//     canvas.drawArc(
-//       Rect.fromCircle(center: center, radius: radius),
-//       -pi / 2,
-//       progressAngle,
-//       false,
-//       progressPaint,
-//     );
-
-//     // Render amount text
-//     final textStyle = TextStyle(
-//       color: Colors.black,
-//       fontWeight: FontWeight.bold,
-//       fontSize: (MediaQuery.of(context).orientation == Orientation.portrait)
-//           ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
-//           : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
-//     );
-//     final textSpan = TextSpan(
-//       text: amount,
-//       style: textStyle,
-//     );
-//     final textPainter = TextPainter(
-//       text: textSpan,
-//       textAlign: TextAlign.center,
-//       textDirection: TextDirection.LTR,
-//     );
-//     textPainter.layout();
-//     textPainter.paint(
-//       canvas,
-//       Offset(center.dx - textPainter.width / 2,
-//           center.dy - textPainter.height / 2),
-//     );
-//   }
-
-//   @override
-//   bool shouldRepaint(CircularProgressBarPainter oldDelegate) {
-//     return oldDelegate.progress != progress ||
-//         oldDelegate.progressColor != progressColor ||
-//         oldDelegate.backgroundColor != backgroundColor ||
-//         oldDelegate.strokeWidth != strokeWidth ||
-//         oldDelegate.amount != amount;
-//   }
-// }
-
 class DashboardScreen extends StatelessWidget {
   final String cus;
   final dynamic y;
@@ -2822,15 +2650,10 @@ class DashboardScreen extends StatelessWidget {
                 return ListView(
                   children: [
                     Text(data.fullCategory.length.toString()),
-                    // Display Category Performance
                     _buildCategoryPerformance(data.categoryPerformance),
-                    // Display Recent Orders
                     _buildRecentOrders(data.recentOrders),
-                    // Display Frequent Product Lists
                     _buildFrequentProductLists(data.frequentProductLists),
-                    // Display Year List
                     _buildYearList(data.yearList),
-                    // Display Full Category
                     _buildFullCategory(data.fullCategory),
                   ],
                 );

@@ -157,6 +157,7 @@ class ApiWorker with ApiConstants {
       return Future.error('Failed to fetch customer data: $error');
     }
   }
+  
 
 
   Future<CustomerDashboardResponse> getCustomerDashboard(
@@ -194,7 +195,6 @@ class ApiWorker with ApiConstants {
   }
 
   Future<Response> buyProduct(Map<String, dynamic> sendData) async {
-    // log("Send DATA: ${FormData.fromMap(sendData).fields}");
     final response = await dio
         .postbycustom(ApiConstants.place_order,
             data: FormData.fromMap(sendData))
@@ -206,8 +206,6 @@ class ApiWorker with ApiConstants {
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${sendData.entries.first.value}");
-    log("Send DATA: $sendData");
     try {
       final response = await dio
           .postbycustom(
@@ -215,35 +213,24 @@ class ApiWorker with ApiConstants {
         data: FormData.fromMap(sendData),
       )
           .onError((DioError error, stackTrace) {
-        // log('Dio Error: ${error.response?.data}');
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
-      // log('Cart Response Status: ${response.statusCode}');
-      // log('Cart Response: ${response.data}');
 
       if (response.statusCode == 200) {
         if (response.data['cart_id'] == null) {
-          // log('Cart ID is null in response data: ${response.data}');
           return null;
         }
         final cartOrder = CartOrderModel.fromJson(response.data);
-        // log('Parsed CartOrder: ${cartOrder}');
         return cartOrder;
       } else {
-        // log('Unexpected Response: ${response.data}');
         return null;
       }
     } catch (e) {
-      // log('Error on adding to cart: $e');
       return null;
     }
   }
 
   Future<Response> deleteCartItem(String cartId, String variationId) async {
-    // log("Send DATA: ${FormData.fromMap({
-    //       "cart_id": cartId,
-    //       "variation_id": variationId
-    //     }).fields}");
     final response = await dio
         .postbycustom(ApiConstants.cart_delete,
             data: FormData.fromMap(

@@ -25,7 +25,12 @@ import 'package:lottie/lottie.dart';
 class CartDialogue extends StatefulWidget {
   bool? active;
   int cartItemCount;
-  CartDialogue({super.key, this.active, required this.cartItemCount});
+  ProductsController productsController;
+  CartDialogue(
+      {super.key,
+      this.active,
+      required this.cartItemCount,
+      required this.productsController});
   @override
   State<CartDialogue> createState() => _CartDialogueState();
 }
@@ -42,7 +47,6 @@ class _CartDialogueState extends State<CartDialogue> {
     'Pre Order',
     'Estimate'
   ];
-  ProductsController productsController = Get.find<ProductsController>();
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
   bool _isLoading = true;
@@ -81,7 +85,7 @@ class _CartDialogueState extends State<CartDialogue> {
       return Center(child: CircularProgressIndicator());
     }
     double finalAmount = total + tax;
-    productsController.updateFinalAmount(finalAmount);
+    widget.productsController.updateFinalAmount(finalAmount);
     String formattedAmount = finalAmount.toStringAsFixed(2);
     final Size screenSize = MediaQuery.of(context).size;
     final double width = screenSize.width;
@@ -622,16 +626,23 @@ class _CartDialogueState extends State<CartDialogue> {
                                   cartId: '',
                                   cartList: detail
                                       .map((e) => SendCartData(
-                                            productId: e.productId ?? '',
+                                            productId: e.productId ??
+                                                widget.productsController
+                                                    .selectedCustomerId.value,
                                             variantId: e.variationId ?? '',
-                                            pack:e.saleBy=='Pack'? e.pieces.toString():e.count.toString(),
-                                            packType: e.saleBy=='Pack'?'Pack':'Pcs',
+                                            pack: e.saleBy == 'Pack'
+                                                ? e.pieces.toString()
+                                                : e.count.toString(),
+                                            packType: e.saleBy == 'Pack'
+                                                ? 'Pack'
+                                                : 'Pcs',
                                             price: e.price.toString(),
                                             discount: '0',
                                             quantity: e.count.toInt(),
                                           ))
                                       .toList(),
-                                  total: productsController.finalAmount.value
+                                  total: widget
+                                      .productsController.finalAmount.value
                                       .toStringAsFixed(0),
                                   discount: '0',
                                 );
@@ -640,24 +651,27 @@ class _CartDialogueState extends State<CartDialogue> {
                                 log('CartId :${cartOrder?.cartId}');
                                 log('Pack or pcs :${productBYData.cartList.first.pack}');
                                 log('Pack or pcs :${productBYData.cartList.first.packType}');
-       
 
                                 if (cartOrder != null) {
                                   int orderStatus = 4;
                                   CartOrderModel order = CartOrderModel(
-                                    customerId:
-                                        customeController.customerId.value,
+                                    customerId:customeController
+                                              .customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
                                     salesmanId: SessionHelper
                                         .loginSavedData!.salesmanId!,
                                     cartId: cartOrder.cartId,
                                     orderStatus: orderStatus,
                                   );
                                   log('CartId :${cartOrder.cartId}');
-                                  await productsController.placeOrder(order);
+                                  await widget.productsController
+                                      .placeOrder(order);
                                   setState(() {
                                     CartDatabaseManager().cartItems.clear();
                                     CartDatabaseManager().clearCart();
-                                    widget.cartItemCount=0;
+                                    widget.cartItemCount = 0;
                                   });
                                   Navigator.pop(context);
                                 }
@@ -670,8 +684,10 @@ class _CartDialogueState extends State<CartDialogue> {
                               onTap: () async {
                                 if (widget.active == true) {
                                   if (cartItems.isNotEmpty &&
-                                      customeController
-                                          .customerId.value.isNotEmpty) {
+                                          customeController
+                                              .customerId.value.isNotEmpty ||
+                                      widget.productsController
+                                          .selectedCustomerId.isNotEmpty) {
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
@@ -685,8 +701,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                     List<Detail> detail =
                                         cartItems.map((e) => e.detail).toList();
                                     final productBYData = AddToCartModel(
-                                      customerId:
-                                          customeController.customerId.value,
+                                      customerId: customeController
+                                              .customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
                                       salesmanId: SessionHelper
                                           .loginSavedData!.salesmanId!,
                                       cartId: '',
@@ -694,9 +713,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                           .map((e) => SendCartData(
                                                 productId: e.productId ?? '',
                                                 variantId: e.variationId ?? '',
-                                                pack: e.saleBy=='Pack'?e.pieces.toString():e.count.toString(),
+                                                pack: e.saleBy == 'Pack'
+                                                    ? e.pieces.toString()
+                                                    : e.count.toString(),
                                                 price: e.price.toString(),
-                                                packType: e.saleBy=='Pack'?'Pack':'Pcs',
+                                                packType: e.saleBy == 'Pack'
+                                                    ? 'Pack'
+                                                    : 'Pcs',
                                                 discount: '0',
                                                 quantity: e.count.toInt(),
                                               ))
@@ -725,7 +748,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                       }
                                       CartOrderModel order = CartOrderModel(
                                         customerId:
-                                            customeController.customerId.value,
+                                            customeController
+                                              .customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
                                         salesmanId: SessionHelper
                                             .loginSavedData!.salesmanId!,
                                         cartId: cartOrder.cartId,
@@ -733,7 +760,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                       );
 
                                       log('CartId :${cartOrder.cartId}');
-                                      await productsController
+                                      await widget.productsController
                                           .placeOrder(order);
                                       _clearCartItem(cartItems);
                                     }
@@ -771,7 +798,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                       },
                                     );
                                   } else if (customeController
-                                      .customerId.value.isEmpty) {
+                                          .customerId.value.isEmpty ||
+                                      widget.productsController
+                                          .selectedCustomerId.value.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         backgroundColor: Colors.red,

@@ -830,16 +830,10 @@ class ApiService {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         print("Response Data: ${jsonResponse['data']}");
-
-        // Parse payment_completed
         PaymentCompleted paymentCompleted = PaymentCompleted.fromJson(
             jsonResponse['data']['total_sale']['payment_completed']);
-
-        // Parse payment_remaning
         PaymentRemaining paymentRemaining = PaymentRemaining.fromJson(
             jsonResponse['data']['total_sale']['payment_remaning']);
-
-        // Parse discount_data
         List<DiscountData> discountData = [];
         if (jsonResponse['data']['discount_data'] != null) {
           discountData = (jsonResponse['data']['discount_data'] as List)

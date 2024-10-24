@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/snack_bar_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue.dart';
@@ -11,7 +10,6 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +28,9 @@ import '../../product_list/view/product_list.dart';
 
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
+  final bool? isReached;
 
-  OrderTaking({super.key, required this.productsController});
+  OrderTaking({super.key, required this.productsController, this.isReached});
 
   @override
   _OrderTakingState createState() => _OrderTakingState();
@@ -54,8 +53,7 @@ class _OrderTakingState extends State<OrderTaking>
   bool isLoading = true;
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
-  String _selectedCustomerName = '';
-  String _selectedCustomerImageUrl = '';
+
   bool active = false;
   int cartItemCount = 0;
   String _selectedCategory = '';
@@ -198,7 +196,9 @@ class _OrderTakingState extends State<OrderTaking>
 
   void filterCustomers(String query) {
     List<CustomerAndOrderData> results = allCustomers.where((customer) {
-      return customer.fullname?.toLowerCase().contains(query.toLowerCase()) ??
+      return customer.businessName
+              ?.toLowerCase()
+              .contains(query.toLowerCase()) ??
           false;
     }).toList();
     setState(() {
@@ -208,7 +208,10 @@ class _OrderTakingState extends State<OrderTaking>
 
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
-  void handleBackNavigation(BuildContext context, bool toDashBoard) {
+  void handleBackNavigation(
+    BuildContext context,
+    bool toDashBoard,
+  ) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
       _showCartDialog();
@@ -312,9 +315,14 @@ class _OrderTakingState extends State<OrderTaking>
   }
 
   void triggerLeadingIcon(bool toDashBoard) {
-    if (CartDatabaseManager().cartItems.isNotEmpty &&
+    if (widget.isReached == true) {
+      Navigator.pop(context);
+    } else if (CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
-      handleBackNavigation(context, toDashBoard);
+      handleBackNavigation(
+        context,
+        toDashBoard,
+      );
     } else {
       homeController.sidebarXController.selectIndex(0);
       homeController.selectedIndex.value = 0;
@@ -380,149 +388,104 @@ class _OrderTakingState extends State<OrderTaking>
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: _selectedCustomerName.isEmpty ? 45 : 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.43,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomSearchBar(
-                          text: "Search customer...",
-                          controller: customerSearchController,
-                          onChange: (value) {
-                            filterCustomers(value);
-                          },
-                          icon: EneftyIcons.profile_outline,
-                        ),
-                        Expanded(
-                          child: isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : customerSearchController.text.isNotEmpty
-                                  ? filteredCustomers.isEmpty
-                                      ? const Center(
-                                          child: Text('No customers found.'))
-                                      : ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: filteredCustomers.length,
-                                          itemBuilder: (context, index) {
-                                            CustomerAndOrderData customer =
-                                                filteredCustomers[index];
-                                            return Container(
-                                              color: Colors.white,
-                                              child: ListTile(
-                                                leading: CircleAvatar(
-                                                  backgroundImage: NetworkImage(
-                                                    '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+            Obx(
+              () => Padding(
+                padding: EdgeInsets.only(
+                  left: widget.productsController.selectedCustomerName.isEmpty
+                      ? 45
+                      : 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.43,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomSearchBar(
+                            text: "Search customer...",
+                            controller: customerSearchController,
+                            onChange: (value) {
+                              filterCustomers(value);
+                            },
+                            icon: EneftyIcons.profile_outline,
+                          ),
+                          Expanded(
+                            child: isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : customerSearchController.text.isNotEmpty
+                                    ? filteredCustomers.isEmpty
+                                        ? const Center(
+                                            child: Text('No customers found.'))
+                                        : ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: filteredCustomers.length,
+                                            itemBuilder: (context, index) {
+                                              CustomerAndOrderData customer =
+                                                  filteredCustomers[index];
+                                              return Container(
+                                                color: Colors.white,
+                                                child: ListTile(
+                                                  leading: CircleAvatar(
+                                                    backgroundImage:
+                                                        NetworkImage(
+                                                      '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                                    ),
                                                   ),
-                                                ),
-                                                title: Text(
-                                                    customer.fullname ?? ''),
-                                                subtitle: Text(
-                                                    customer.customerId ?? ''),
-                                                onTap: () async {
-                                                  if (active == true) {
-                                                    _showWarningDialog(
-                                                      context,
-                                                      'Please check out from the current customer',
-                                                      Center(
-                                                        child: Icon(
-                                                          Icons
-                                                              .warning_amber_outlined,
-                                                          size: 40,
-                                                          color: Colors.orange,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  } else if (active == false &&
-                                                      CartDatabaseManager()
-                                                          .cartItems
-                                                          .isNotEmpty &&
-                                                      customeController
-                                                          .customerId
-                                                          .isNotEmpty) {
-                                                    if (mounted) {
+                                                  title: Text(
+                                                      customer.businessName ??
+                                                          ''),
+                                                  subtitle: Text(
+                                                      customer.customerId ??
+                                                          ''),
+                                                  onTap: () async {
+                                                    if (active == true) {
                                                       _showWarningDialog(
                                                         context,
-                                                        'Your order saved as draft.',
+                                                        'Please check out from the current customer',
                                                         Center(
-                                                          child: Container(
-                                                              height: 150,
-                                                              width: 150,
-                                                              child: Lottie.asset(
-                                                                  'assets/images/Animation - 1726906882515.json')),
+                                                          child: Icon(
+                                                            Icons
+                                                                .warning_amber_outlined,
+                                                            size: 40,
+                                                            color:
+                                                                Colors.orange,
+                                                          ),
                                                         ),
                                                       );
-                                                    }
-                                                    List<Detail> detail =
+                                                    } else if (active ==
+                                                            false &&
                                                         CartDatabaseManager()
                                                             .cartItems
-                                                            .map(
-                                                                (e) => e.detail)
-                                                            .toList();
+                                                            .isNotEmpty &&
+                                                        customeController
+                                                            .customerId
+                                                            .isNotEmpty) {
+                                                      if (mounted) {
+                                                        _showWarningDialog(
+                                                          context,
+                                                          'Your order saved as draft.',
+                                                          Center(
+                                                            child: Container(
+                                                                height: 150,
+                                                                width: 150,
+                                                                child: Lottie.asset(
+                                                                    'assets/images/Animation - 1726906882515.json')),
+                                                          ),
+                                                        );
+                                                      }
+                                                      List<Detail> detail =
+                                                          CartDatabaseManager()
+                                                              .cartItems
+                                                              .map((e) =>
+                                                                  e.detail)
+                                                              .toList();
 
-                                                    final productBYData =
-                                                        AddToCartModel(
-                                                      customerId:
-                                                          customeController
-                                                              .customerId.value,
-                                                      salesmanId: SessionHelper
-                                                          .loginSavedData!
-                                                          .salesmanId!,
-                                                      cartId: '',
-                                                      cartList: detail
-                                                          .map((e) =>
-                                                              SendCartData(
-                                                                productId:
-                                                                    e.productId ??
-                                                                        '',
-                                                                variantId:
-                                                                    e.variationId ??
-                                                                        '',
-                                                                pack: e.saleBy ==
-                                                                        'Pack'
-                                                                    ? e.pieces
-                                                                        .toString()
-                                                                    : e.count
-                                                                        .toString(),
-                                                                packType:
-                                                                    e.saleBy ==
-                                                                            'Pack'
-                                                                        ? 'Pack'
-                                                                        : 'Pcs',
-                                                                price: e.price
-                                                                    .toString(),
-                                                                discount: '0',
-                                                                quantity: e
-                                                                    .count
-                                                                    .toInt(),
-                                                              ))
-                                                          .toList(),
-                                                      total: widget
-                                                          .productsController
-                                                          .finalAmount
-                                                          .value
-                                                          .toStringAsFixed(0),
-                                                      discount: '0',
-                                                    );
-
-                                                    CartOrderModel? cartOrder =
-                                                        await ApiWorker()
-                                                            .addToCart(
-                                                                productBYData
-                                                                    .toJson());
-                                                    log('CartId :${cartOrder?.cartId}');
-
-                                                    if (cartOrder != null) {
-                                                      int orderStatus = 4;
-                                                      CartOrderModel order =
-                                                          CartOrderModel(
+                                                      final productBYData =
+                                                          AddToCartModel(
                                                         customerId:
                                                             customeController
                                                                 .customerId
@@ -531,178 +494,264 @@ class _OrderTakingState extends State<OrderTaking>
                                                             SessionHelper
                                                                 .loginSavedData!
                                                                 .salesmanId!,
-                                                        cartId:
-                                                            cartOrder.cartId,
-                                                        orderStatus:
-                                                            orderStatus,
+                                                        cartId: '',
+                                                        cartList: detail
+                                                            .map((e) =>
+                                                                SendCartData(
+                                                                  productId:
+                                                                      e.productId ??
+                                                                          '',
+                                                                  variantId:
+                                                                      e.variationId ??
+                                                                          '',
+                                                                  pack: e.saleBy ==
+                                                                          'Pack'
+                                                                      ? e.pieces
+                                                                          .toString()
+                                                                      : e.count
+                                                                          .toString(),
+                                                                  packType: e.saleBy ==
+                                                                          'Pack'
+                                                                      ? 'Pack'
+                                                                      : 'Pcs',
+                                                                  price: e.price
+                                                                      .toString(),
+                                                                  discount: '0',
+                                                                  quantity: e
+                                                                      .count
+                                                                      .toInt(),
+                                                                ))
+                                                            .toList(),
+                                                        total: widget
+                                                            .productsController
+                                                            .finalAmount
+                                                            .value
+                                                            .toStringAsFixed(0),
+                                                        discount: '0',
                                                       );
 
-                                                      log('CartId :${cartOrder.cartId}');
-                                                      await widget
-                                                          .productsController
-                                                          .placeOrder(order);
-                                                      setState(() {
-                                                        CartDatabaseManager()
-                                                            .cartItems
+                                                      CartOrderModel?
+                                                          cartOrder =
+                                                          await ApiWorker()
+                                                              .addToCart(
+                                                                  productBYData
+                                                                      .toJson());
+                                                      log('CartId :${cartOrder?.cartId}');
+
+                                                      if (cartOrder != null) {
+                                                        int orderStatus = 4;
+                                                        CartOrderModel order =
+                                                            CartOrderModel(
+                                                          customerId:
+                                                              customeController
+                                                                  .customerId
+                                                                  .value,
+                                                          salesmanId:
+                                                              SessionHelper
+                                                                  .loginSavedData!
+                                                                  .salesmanId!,
+                                                          cartId:
+                                                              cartOrder.cartId,
+                                                          orderStatus:
+                                                              orderStatus,
+                                                        );
+
+                                                        log('CartId :${cartOrder.cartId}');
+                                                        await widget
+                                                            .productsController
+                                                            .placeOrder(order);
+                                                        setState(() {
+                                                          CartDatabaseManager()
+                                                              .cartItems
+                                                              .clear();
+                                                          CartDatabaseManager()
+                                                              .clearCart();
+                                                        });
+                                                        customerAndOrderController
+                                                            .setCustomerId(customer
+                                                                    .customerId ??
+                                                                '');
+
+                                                        widget
+                                                                .productsController
+                                                                .selectedCustomerName
+                                                                .value =
+                                                            widget
+                                                                .productsController
+                                                                .getFormattedCustomerName(
+                                                                    customer
+                                                                        .businessName);
+                                                        widget
+                                                            .productsController
+                                                            .selectedCustomerId
+                                                            .value = customer
+                                                                .customerId ??
+                                                            '';
+                                                        widget
+                                                            .productsController
+                                                            .selectedCustomerImageUrl
+                                                            .value = customer
+                                                                .imageUrl ??
+                                                            '';
+                                                        customerSearchController
                                                             .clear();
-                                                        CartDatabaseManager()
-                                                            .clearCart();
-                                                      });
 
-                                                      // Show confirmation dialog after a short delay, checking if the widget is mounted
-
+                                                        log('Selected Customer Name :${widget.productsController.selectedCustomerName.value}');
+                                                      }
+                                                    } else {
                                                       customerAndOrderController
                                                           .setCustomerId(customer
                                                                   .customerId ??
                                                               '');
 
-                                                      setState(() {
-                                                        _selectedCustomerName =
-                                                            _getFormattedCustomerName(
-                                                                customer
-                                                                    .fullname);
-                                                        _selectedCustomerImageUrl =
-                                                            customer.imageUrl ??
-                                                                '';
-                                                        customerSearchController
-                                                            .clear();
-                                                      });
-                                                    }
-                                                  } else {
-                                                    // Set customer ID and update UI if active is false and cart is empty
-                                                    customerAndOrderController
-                                                        .setCustomerId(customer
-                                                                .customerId ??
-                                                            '');
-                                                    setState(() {
-                                                      _selectedCustomerName =
-                                                          _getFormattedCustomerName(
-                                                              customer
-                                                                  .fullname);
-                                                      _selectedCustomerImageUrl =
-                                                          customer.imageUrl ??
-                                                              '';
+                                                      widget
+                                                              .productsController
+                                                              .selectedCustomerName
+                                                              .value =
+                                                          widget
+                                                              .productsController
+                                                              .getFormattedCustomerName(
+                                                                  customer
+                                                                      .businessName);
+                                                      widget
+                                                          .productsController
+                                                          .selectedCustomerImageUrl
+                                                          .value = customer
+                                                              .imageUrl ??
+                                                          '';
+                                                      widget
+                                                          .productsController
+                                                          .selectedCustomerId
+                                                          .value = customer
+                                                              .customerId ??
+                                                          '';
                                                       customerSearchController
                                                           .clear();
-                                                    });
-                                                  }
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        )
-                                  : const SizedBox.shrink(),
-                        ),
-                        if (_showDialog)
-                          AlertDialog(
-                            title: Text('Warning'),
-                            content: Text(_dialogMessage),
-                            actions: [
-                              TextButton(
-                                onPressed: _closeDialog,
-                                child: Text('OK'),
-                              ),
-                            ],
+                                                    }
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                          )
+                                    : const SizedBox.shrink(),
                           ),
-                      ],
+                          if (_showDialog)
+                            AlertDialog(
+                              title: Text('Warning'),
+                              content: Text(_dialogMessage),
+                              actions: [
+                                TextButton(
+                                  onPressed: _closeDialog,
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  // _selectedCustomerName.isNotEmpty
-                  //     ?
-                  IntrinsicWidth(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Hero(
-                          tag: 'product_image',
-                          child: AnimatedBuilder(
-                            animation: animationController,
-                            builder: (context, child) {
-                              return Transform.translate(
-                                offset: Offset(0, animation.value),
-                                child: child,
-                              );
-                            },
-                            child: IconButton(
-                              onPressed: () {
-                                _showCartDialog();
+                    IntrinsicWidth(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Hero(
+                            tag: 'product_image',
+                            child: AnimatedBuilder(
+                              animation: animationController,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, animation.value),
+                                  child: child,
+                                );
                               },
-                              icon: Stack(
-                                children: [
-                                  const Icon(
-                                    Icons.shopping_cart_outlined,
-                                    size: 30,
-                                  ),
-                                  if (cartItemCount > 0)
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 16,
-                                          minHeight: 16,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '${cartItemCount}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showCartDialog();
+                                },
+                                icon: Stack(
+                                  children: [
+                                    const Icon(
+                                      Icons.shopping_cart_outlined,
+                                      size: 30,
+                                    ),
+                                    if (cartItemCount > 0)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${cartItemCount}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IntrinsicWidth(
-                              child: ListTile(
-                                  title: Text(_selectedCustomerName.isEmpty
-                                      ? ''
-                                      : _selectedCustomerName),
-                                  leading: _selectedCustomerName.isEmpty
-                                      ? null
-                                      : CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                              _selectedCustomerImageUrl.isEmpty
-                                                  ? ''
-                                                  : '${ApiConstants.imageBaseUrl}/$_selectedCustomerImageUrl'),
-                                          backgroundColor:
-                                              _selectedCustomerImageUrl.isEmpty
-                                                  ? Colors.blueGrey
-                                                  : Color.fromARGB(
-                                                      123, 194, 192, 192),
-                                        )),
-                            ),
-                            SizedBox(
-                              height: 40,
-                              child: CustomSwitch(
-                                initialValue: active,
-                                onChanged: (value) {
-                                  active = value;
-                                },
-                                active: active,
-                                selectedName: _selectedCustomerName,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IntrinsicWidth(
+                                child: ListTile(
+                                    title: Text(widget.productsController
+                                            .selectedCustomerName.isEmpty
+                                        ? ''
+                                        : widget.productsController
+                                            .selectedCustomerName.value),
+                                    leading: widget.productsController
+                                            .selectedCustomerName.isEmpty
+                                        ? null
+                                        : CircleAvatar(
+                                            backgroundImage: NetworkImage(widget
+                                                    .productsController
+                                                    .selectedCustomerImageUrl
+                                                    .isEmpty
+                                                ? ''
+                                                : '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}'),
+                                            backgroundColor: widget
+                                                    .productsController
+                                                    .selectedCustomerImageUrl
+                                                    .isEmpty
+                                                ? Colors.blueGrey
+                                                : Color.fromARGB(
+                                                    123, 194, 192, 192),
+                                          )),
                               ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  )
-                ],
+                              SizedBox(
+                                height: 40,
+                                child: CustomSwitch(
+                                  initialValue: active,
+                                  onChanged: (value) {
+                                    active = value;
+                                  },
+                                  active: active,
+                                  selectedName: widget.productsController
+                                      .selectedCustomerName.value,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
             Positioned(
@@ -859,6 +908,8 @@ class _OrderTakingState extends State<OrderTaking>
         return CartDialogue(
           active: active,
           cartItemCount: cartItemCount,
+          productsController: widget.productsController,
+
         );
       },
     );
@@ -868,13 +919,6 @@ class _OrderTakingState extends State<OrderTaking>
     animationController.forward().then((_) {
       animationController.reverse();
     });
-  }
-
-  String _getFormattedCustomerName(String? fullname) {
-    if (fullname == null || fullname.isEmpty) {
-      return '';
-    }
-    return fullname.length > 6 ? '${fullname.substring(0, 6)}...' : fullname;
   }
 
 // Helper function to show warning dialog

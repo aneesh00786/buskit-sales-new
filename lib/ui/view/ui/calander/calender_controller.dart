@@ -13,7 +13,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/cal
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -56,6 +55,7 @@ class CalenderMapController extends GetxController {
       if (checkedList[i]) {
         final event = eventData[i];
         Customer customer = Customer(
+          customerId:event.event?.customerId??'',
           businessName: event.event?.businessName ?? '',
           address: event.event?.address ?? '',
           email: event.event?.email ?? '',
@@ -80,6 +80,7 @@ class CalenderMapController extends GetxController {
     checkedList[index] = value;
     final CalendarEventData<EventData> event = eventData[index];
     Customer customer = Customer(
+        customerId:event.event?.customerId??'',
         businessName: event.event?.businessName ?? '',
         address: event.event?.address ?? '',
         email: event.event?.email ?? '',
@@ -116,8 +117,8 @@ class CalenderMapController extends GetxController {
 
   Future<void> getCurrentLocation() async {
     try {
-      double latitude = -37.81422900;
-      double longitude = 144.94280200;
+      double latitude = -37.81996700;
+      double longitude = 144.98344900;
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {

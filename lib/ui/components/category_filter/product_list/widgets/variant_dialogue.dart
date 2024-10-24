@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +20,7 @@ class ProductVariantDialogue extends StatefulWidget {
   final List<ProductModel> productList;
   final VoidCallback onDone;
   final List<Detail> detailsCopy;
+  final productController;
 
   ProductVariantDialogue({
     super.key,
@@ -27,6 +29,7 @@ class ProductVariantDialogue extends StatefulWidget {
     required this.productList,
     required this.onDone,
     required this.detailsCopy,
+    required this.productController,
   });
 
   @override
@@ -381,11 +384,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             onTap: () {
                                               setState(() {
                                                 if (localCounts[i] > 0) {
-                                                  localCounts[
-                                                      i]--;
-                                                  detail.count = localCounts[i].toDouble();
-                                                  calculateAmount(
-                                                      detail);
+                                                  localCounts[i]--;
+                                                  detail.count =
+                                                      localCounts[i].toDouble();
+                                                  calculateAmount(detail);
                                                 }
                                               });
                                             },
@@ -418,8 +420,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                           child: InkWell(
                                             onTap: () {
                                               setState(() {
-                                                detail.saleBy ??=
-                                                    'Pack';
+                                                detail.saleBy ??= 'Pack';
                                                 if (detail.stock == 0) {
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
@@ -437,7 +438,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                   );
                                                 } else {
                                                   localCounts[i]++;
-                                                  detail.count = localCounts[i].toDouble();
+                                                  detail.count =
+                                                      localCounts[i].toDouble();
                                                   calculateAmount(detail);
                                                 }
                                               });
@@ -476,8 +478,17 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     children: [
                       ElevatedButton(
                           onPressed: () {
-                            if (customerAndOrderController
-                                .customerId.isNotEmpty) {
+                            log('Customer ID: ${customerAndOrderController.customerId.value}');
+                            log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
+                            log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+                            if ((customerAndOrderController.customerId.value !=
+                                        null &&
+                                    customerAndOrderController
+                                        .customerId.value.isNotEmpty) ||
+                                (widget.productController.selectedCustomerName.value !=
+                                        null &&
+                                   widget.productController.selectedCustomerName.value
+                                        .isNotEmpty)) {
                               List<CartItem> cartItems =
                                   CartDatabaseManager().getCartItems();
                               List<Detail> detailsFromCart = cartItems
@@ -509,7 +520,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
                                     CartDatabaseManager().updateCartItemCount(
                                         detail, localCounts[i]);
-                                    
                                   }
                                 } else {
                                   log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
@@ -600,20 +610,19 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     });
   }
 
-void calculateAmount(Detail detail) {
-  double? price = double.tryParse(detail.sellPrice ?? '');
-  if (detail.count != null && detail.count > 0) {
-    if (price != null && detail.saleBy == 'Pack') {
-      detail.totalPrice = price * detail.pieces! * detail.count;
-      log("Total price for Pack: ${detail.sellPrice}, Pieces: ${detail.pieces}, Count: ${detail.count}, Total Price: ${detail.totalPrice}");
-    } else if (price != null) {
-      detail.totalPrice = price * detail.count;
-      log("Total price for Pieces: ${detail.sellPrice}, Count: ${detail.count}, Total Price: ${detail.totalPrice}");
+  void calculateAmount(Detail detail) {
+    double? price = double.tryParse(detail.sellPrice ?? '');
+    if (detail.count != null && detail.count > 0) {
+      if (price != null && detail.saleBy == 'Pack') {
+        detail.totalPrice = price * detail.pieces! * detail.count;
+        log("Total price for Pack: ${detail.sellPrice}, Pieces: ${detail.pieces}, Count: ${detail.count}, Total Price: ${detail.totalPrice}");
+      } else if (price != null) {
+        detail.totalPrice = price * detail.count;
+        log("Total price for Pieces: ${detail.sellPrice}, Count: ${detail.count}, Total Price: ${detail.totalPrice}");
+      }
+    } else {
+      detail.totalPrice = 0;
+      log("Count is zero or negative for product: ${detail.variationName}. Total Price set to: ${detail.totalPrice}");
     }
-  } else {
-    detail.totalPrice = 0;
-    log("Count is zero or negative for product: ${detail.variationName}. Total Price set to: ${detail.totalPrice}");
   }
-}
-
 }

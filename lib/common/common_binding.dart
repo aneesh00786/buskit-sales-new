@@ -11,6 +11,7 @@ class CommonBinding extends Bindings {
     Get.lazyPut(()=>  HomeController());
     Get.lazyPut(()=> ApiWorker());
     Get.lazyPut(()=>  CustomerAndOrderController());
+    Get.lazyPut<ProductsController>(() => ProductsController(), fenix: true);
     Get.lazyPut(()=>  ProductsController());
     Get.lazyPut(()=> DatabaseHelper.database);
   }

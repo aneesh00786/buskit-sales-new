@@ -396,7 +396,9 @@ class _ProductGridState extends State<ProductGrid> {
             product: product,
             productList: productList,
             onDone: onDone,
-            detailsCopy: detailsCopy);
+            detailsCopy: detailsCopy,
+            productController: widget.productsController,
+            );
       },
     );
   }

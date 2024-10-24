@@ -30,7 +30,7 @@ class CustomersProvider with ChangeNotifier {
   })  : _apiService = apiService,
         _logger = logger {
     fetchCustomerData();
-    fetchCustomerData();
+    //fetchCustomerData();
     fetchcustomersDash();
   }
 
@@ -39,7 +39,7 @@ class CustomersProvider with ChangeNotifier {
   Future<CustomerResponseModelxx>? _customersFuture;
 
   FilterDateEnum _selectedFilter = FilterDateEnum.thisMonth;
-   String _selectedStartDate = '';
+  String _selectedStartDate = '';
   String _selectedEndDate = '';
 
   int _currentPage = 1;
@@ -91,39 +91,10 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
-
-  // Future<void> fetchchartCategoryPerformmenc( dynamic customerId ,dynamic catId,dynamic selectedYearCategory) async {
-  //   try {
-
-  //       // Debouncing network requests
-  //       _productResponse = Future.delayed(Duration(milliseconds: 300), () {
-  //         return _apiService.fetchCustomerDashboardCartData(
-  //           customerId: customerId,
-  //           catId: catId,
-  //           selectedYearCategory: selectedYearCategory
-
-  //         );
-  //       });
-
-  //       notifyListeners();
-
-  //       print("Fetching orders for status: $_selectedStatus"); // Debug print
-
-  //       // You might want to await _orderResponse here if needed
-
-  //       notifyListeners();
-  //     }
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
-
-  // Add a setter for currentPage
   set currentPage(int newPage) {
     if (newPage != _currentPage) {
       _currentPage = newPage;
-      notifyListeners(); // Notify listeners about the change
+      notifyListeners(); 
     }
   }
 
@@ -150,9 +121,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-
       _customersDashFuture = _apiService.fetchCustomerDashboardData();
-
       notifyListeners();
     } catch (e, stackTrace) {
       _isLoading = false;
@@ -163,7 +132,6 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomerDashboardCountData(String customerId) async {
     try {
-      // Update _countFuture with the result of fetchOrderCount
       _countFuture = _apiService.fetchOrderCount(customerId);
       notifyListeners();
     } catch (e, stackTrace) {
@@ -174,20 +142,14 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<OrderResponse>? _orderResponse;
-
   Future<OrderResponse>? get orderResponse => _orderResponse;
-
   Future<CustomerResponse>? _customerResponse;
-
   Future<CustomerResponse>? get customerResponse => _customerResponse;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-
   File? get imageFile => _imageFile;
-
   Future<void> pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       _imageFile = File(pickedFile.path);
       notifyListeners();

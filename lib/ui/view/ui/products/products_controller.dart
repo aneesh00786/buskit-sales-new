@@ -38,7 +38,7 @@ class InitialSubcategoryInfo {
 
 class ProductsController extends GetxController {
   final ApiWorker _apiWorker = Get.find();
-   var optionName = ''.obs;
+  var optionName = ''.obs;
   TextEditingController searchCustomerController = TextEditingController();
   Rx<CategoryModel> categoryData = CategoryModel().obs;
   RxList<ProductList> productListBackup = <ProductList>[].obs;
@@ -46,10 +46,11 @@ class ProductsController extends GetxController {
   Rx<ProductResponceTemp> productListTemp = ProductResponceTemp().obs;
   final GlobalKey<TooltipState> tooltipkey = GlobalKey<TooltipState>();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   /// SINGLE [customerAndOrderData] CUSTOMER DATA
   Rx<CustomerAndOrderData> customerAndOrderData = CustomerAndOrderData().obs;
   CrossFadeState crossFadeState = CrossFadeState.showFirst;
-  RxBool isReached = false.obs;
+  
 
   /// SEARCH CUSTOMER
   RxList<SearchData> searchData = <SearchData>[].obs;
@@ -62,27 +63,49 @@ class ProductsController extends GetxController {
   ].obs;
   RxString selectedSubCategoryId = "".obs;
   RxString selectedCategoryId = "".obs;
+  RxBool isReached = false.obs;
   RxInt selectedSubCategoryIndex = 0.obs;
   RxInt selectedCategoryIndex = 0.obs;
   RxList<ProductModel> products = <ProductModel>[].obs;
   RxBool isLoading = false.obs;
+  RxString selectedCustomerName = "".obs;
+  RxString selectedCustomerImageUrl = "".obs;
+  RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
   @override
   onInit() {
-    fetchCategoryData();
     super.onInit();
+    fetchCategoryData();
+    
   }
-  void onReached(bool reached) {
-    isReached.value = reached; 
+
+bool onReached(bool reached) {
+  log('onReached called with value: $reached');
+  isReached.value = reached;
+  log('isReached updated to: ${isReached.value}');
+  return isReached.value;
+}
+
+  String getFormattedCustomerName(String? fullname) {
+    if (fullname == null || fullname.isEmpty) {
+      return '';
+    }
+    selectedCustomerName.value = fullname;
+    return selectedCustomerName.value.length > 6
+        ? '${selectedCustomerName.value.substring(0, 6)}...'
+        : selectedCustomerName.value;
   }
+
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
     isLoading.value = true;
-    List<ProductModel> fetchedProducts = await ApiWorker().getTempProduct(subCatId);
+    List<ProductModel> fetchedProducts =
+        await ApiWorker().getTempProduct(subCatId);
     products.value = fetchedProducts;
     isLoading.value = false;
     log('Final Products Length: ${products.length}');
     return fetchedProducts;
   }
+
   void updateFinalAmount(double amount) {
     finalAmount.value = amount;
   }
@@ -107,6 +130,7 @@ class ProductsController extends GetxController {
       throw Exception('No data available');
     }
   }
+
   SubCategoryItem? getInitialSubCategoryIdAndName() {
     try {
       if (categoryData.value.data != null &&
@@ -125,32 +149,36 @@ class ProductsController extends GetxController {
       return null;
     }
   }
-Future<void> storeCategoryData(CategoryModel categoryModel) async {
-  final box = await Hive.openBox('categoriesBox');
-  await box.put('categoryData', categoryModel.toJson());
-}
-Future<CategoryModel?> retrieveCategoryData() async {
-  final box = await Hive.openBox('categoriesBox');
-  final jsonString = box.get('categoryData');
-  if (jsonString != null) {
-    return CategoryModel.fromJson(jsonString);
+
+  Future<void> storeCategoryData(CategoryModel categoryModel) async {
+    final box = await Hive.openBox('categoriesBox');
+    await box.put('categoryData', categoryModel.toJson());
   }
-  return null;
-}
-Future<CategoryModel> loadDataOfCategories() async {
-  try {
-    final categoryModel = await _apiWorker.getCategory(); 
-    await storeCategoryData(categoryModel);
-    return categoryModel;
-  } catch (e) {
-    log('Error fetching data from API: $e');
-    final categoryModel = await retrieveCategoryData();
-    if (categoryModel != null) {
-      return categoryModel;
+
+  Future<CategoryModel?> retrieveCategoryData() async {
+    final box = await Hive.openBox('categoriesBox');
+    final jsonString = box.get('categoryData');
+    if (jsonString != null) {
+      return CategoryModel.fromJson(jsonString);
     }
-    throw Exception('No category data available');
+    return null;
   }
-}
+
+  Future<CategoryModel> loadDataOfCategories() async {
+    try {
+      final categoryModel = await _apiWorker.getCategory();
+      await storeCategoryData(categoryModel);
+      return categoryModel;
+    } catch (e) {
+      log('Error fetching data from API: $e');
+      final categoryModel = await retrieveCategoryData();
+      if (categoryModel != null) {
+        return categoryModel;
+      }
+      throw Exception('No category data available');
+    }
+  }
+
   Future<Set<CategoryModel>> get loadDataOfCategory async => {
         categoryData.value = await _apiWorker.getCategory(),
       };
@@ -267,23 +295,25 @@ Future<CategoryModel> loadDataOfCategories() async {
     }
     return null;
   }
-Future<void> placeOrder(CartOrderModel cartOrder) async {
-  try {
-    log('the adding item :${cartOrder.cartId},${cartOrder.customerId},${cartOrder.salesmanId},${cartOrder.orderStatus}');
-    final response = await Dio().post(
-      "http://16.50.232.153:3000/place_order", 
-      data: cartOrder.toJson(),
-    );
-    log('${response.statusCode}');
-    if (response.statusCode == 200) {
-      log('Order placed successfully: ${response.data}');
-    } else {
-      log('Failed to place order: ${response.data}');
+
+  Future<void> placeOrder(CartOrderModel cartOrder) async {
+    try {
+      log('the adding item :${cartOrder.cartId},${cartOrder.customerId},${cartOrder.salesmanId},${cartOrder.orderStatus}');
+      final response = await Dio().post(
+        "http://16.50.232.153:3000/place_order",
+        data: cartOrder.toJson(),
+      );
+      log('${response.statusCode}');
+      if (response.statusCode == 200) {
+        log('Order placed successfully: ${response.data}');
+      } else {
+        log('Failed to place order: ${response.data}');
+      }
+    } catch (e) {
+      log('Error placing order: $e');
     }
-  } catch (e) {
-    log('Error placing order: $e');
   }
-}
+
   // purchasePruduct(CartOrderModel cartOrder) async {
   //   await _apiWorker
   //       .buyProduct(cartOrder.toJson())
@@ -398,30 +428,30 @@ Future<void> placeOrder(CartOrderModel cartOrder) async {
   //   return productList;
   // }
 
-  addTOServerCart( AddToCartModel data) async {
-     await _apiWorker.addToCart(data.toJson());
+  addTOServerCart(AddToCartModel data) async {
+    await _apiWorker.addToCart(data.toJson());
     //  .then((value) async {
-      // if (value?.statusCode == 200) {
-      //  // await productsController.loadSelectedCustomer(customerID);
-      //     log('Data added Success');
-      //   // log("Past Changed List ${productList.length}");
-      //   // log("Past Bakup Changed List ${productListBackup.length}");
-      //   // updateProductList(productsController.productListBackup);
-      //   // log("Current Changed List ${productList.length}");
-      //   // log("Current Bakup Changed List ${productListBackup.length}");
+    // if (value?.statusCode == 200) {
+    //  // await productsController.loadSelectedCustomer(customerID);
+    //     log('Data added Success');
+    //   // log("Past Changed List ${productList.length}");
+    //   // log("Past Bakup Changed List ${productListBackup.length}");
+    //   // updateProductList(productsController.productListBackup);
+    //   // log("Current Changed List ${productList.length}");
+    //   // log("Current Bakup Changed List ${productListBackup.length}");
 
-      //   //productsController.btnController.success();
-      //   //  NkCommonFunction.showSuccessSnakBar(res.data["message"] ?? "Success");
+    //   //productsController.btnController.success();
+    //   //  NkCommonFunction.showSuccessSnakBar(res.data["message"] ?? "Success");
 
-      //   // if (isChatDiloagShow) {
-      //   //   Get.dialog(CartDiloagScreen(productsController: productsController))
-      //   //       .then((value) async {
-      //   //     //await productsController.loadSelectedCustomer(customerID);
-      //   //   });
-      //   // } else {
-      //   //   Get.back();
-      //   // }
-      // }
+    //   // if (isChatDiloagShow) {
+    //   //   Get.dialog(CartDiloagScreen(productsController: productsController))
+    //   //       .then((value) async {
+    //   //     //await productsController.loadSelectedCustomer(customerID);
+    //   //   });
+    //   // } else {
+    //   //   Get.back();
+    //   // }
+    // }
     // }).catchError((error) {
     //   log("Response ${error}");
     // });
@@ -437,10 +467,10 @@ Future<void> placeOrder(CartOrderModel cartOrder) async {
       AddToCartModel savedData, ProductsController productsController) async {
     log("SubCategory with match  ${productsController.selectedSubCategoryId.value}");
     return await addTOServerCart(
-        //customerAndOrderData.value.customerId!, 
-        savedData, 
-        //productsController
-        );
+      //customerAndOrderData.value.customerId!,
+      savedData,
+      //productsController
+    );
   }
 
   Future<CustomerAndOrderData> loadSelectedCustomer(String customerId) async {

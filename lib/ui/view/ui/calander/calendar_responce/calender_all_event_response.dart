@@ -151,6 +151,7 @@ EventData.fromJson(Map<String, dynamic> json) {
   }
 }
 class Customer {
+  String? customerId;
   final String? mobileno;
   final String? email;
   final String? address;
@@ -162,6 +163,7 @@ class Customer {
   String? duration;
 
   Customer({
+    this.customerId,
     this.mobileno,
     this.email,
     this.address,
@@ -174,7 +176,8 @@ class Customer {
   });
 
   Customer.fromJson(Map<String, dynamic> json)
-      : mobileno = json['mobileno'] as String?,
+      : customerId = json['customer_id'] as String?,
+        mobileno = json['mobileno'] as String?,
         email = json['email'] as String?,
         address = json['address'] as String?,
         businessName = json['business_name'] as String?,
@@ -185,6 +188,7 @@ class Customer {
         duration = json['duration'] as String?;
 
   Map<String, dynamic> toJson() => {
+        'customer_id':customerId,
         'mobileno': mobileno,
         'email': email,
         'address': address,

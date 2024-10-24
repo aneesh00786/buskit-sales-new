@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/selected_customer_database.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -303,6 +304,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                             double.parse(customer.latitude!),
                                             double.parse(customer.longitude!),
                                           );
+
                                           double distanceInMeters =
                                               Geolocator.distanceBetween(
                                             currentLatitude,
@@ -313,12 +315,31 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                           if (distanceInMeters <= 20) {
                                             return ElevatedButton(
                                               onPressed: () {
-                                                productsController.onReached(true);
-                                                log('${productsController.isReached.value}');
+                                                productsController
+                                                    .onReached(true);
+                                                productsController
+                                                        .selectedCustomerName
+                                                        .value =
+                                                    customer.businessName ?? '';
+                                                productsController
+                                                    .selectedCustomerImageUrl
+                                                    .value = customer
+                                                        .imageUrl ??
+                                                    '';
+                                                productsController
+                                                        .selectedCustomerId
+                                                        .value =
+                                                    customer.customerId ?? '';
+
+                                                log('CustomerId from Controller :${productsController.selectedCustomerId.value}');
+                                                log('CustomerName from Controller :${productsController.selectedCustomerName.value}');
+                                                log('CustomerImageURL from Controller :${productsController.selectedCustomerImageUrl.value}');
+
                                                 Navigator.pop(context);
                                                 Navigator.of(context,
                                                         rootNavigator: true)
                                                     .pop();
+
                                                 Future.delayed(
                                                     Duration(milliseconds: 300),
                                                     () {
@@ -327,10 +348,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                                       .selectIndex(2);
                                                   homeController
                                                       .selectedIndex.value = 2;
-                                                  Get.toNamed(
-                                                    AppRoutes.product,
-                                                    id: 2,
-                                                  );
+                                                  Get.toNamed(AppRoutes.product,
+                                                      id: 2);
                                                 });
                                               },
                                               child: Text('Reached'),
@@ -339,9 +358,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
 
                                           return IconButton(
                                             icon: Icon(
-                                              EneftyIcons.route_square_outline,
-                                              color: Colors.blue,
-                                            ),
+                                                EneftyIcons
+                                                    .route_square_outline,
+                                                color: Colors.blue),
                                             onPressed: () {
                                               navigateToo(
                                                 currentLatitude,
@@ -353,7 +372,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                               );
                                             },
                                           );
-                                        }),
+                                        })
                                       ],
                                     ),
                                   ],
@@ -370,9 +389,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
             ]),
           ),
           Expanded(
-              child:
-                  // BasicMapDemo()
-                  Obx(
+              child: Obx(
             () => _mapController.buildGoogleMap(),
           )),
         ],

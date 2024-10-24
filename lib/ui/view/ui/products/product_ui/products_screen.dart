@@ -17,62 +17,49 @@ class ProductScreen extends StatefulWidget {
 }
 
 class _ProductScreenState extends State<ProductScreen> {
-  ProductsController productsController = Get.put(ProductsController());
+  // Fetching the existing ProductsController and HomeController instances using Get.find
+  ProductsController productsController = Get.find<ProductsController>();
   HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
-    productsController.loadDataOfCategory.whenComplete(() {
-      //productsController.loadDataOfProduct();
-    });
-
     super.initState();
+    productsController.loadDataOfCategory.whenComplete(() {
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return OrientationBuilder(builder: (context, orientation) {
-      return Scaffold(
-        // appBar: AppBar(
-        //   backgroundColor: Colors.white,
-        //   actions: [],
-        //   leading: InkWell(
-        //       onTap: () {
-        //         homeController.sidebarXController.selectIndex(0);
-        //         homeController.selectedIndex.value = 0;
-        //         Get.toNamed(AppRoutes.dashboard,
-        //             id: 2); 
-        //       },
-        //       child: Icon(Icons.arrow_back)),
-        // ),
-        body: GetBuilder<ProductsController>(
-            init: productsController,
-            dispose: (state) {
-              state.controller?.customerAndOrderData.value =
-                  CustomerAndOrderData();
-            },
-            autoRemove: true,
-            builder: (productsController) {
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        return Scaffold(
+          body: Obx(() {
+            if (productsController.customerAndOrderData.value.customerId != null) {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    ProductTopWidget(productsController: productsController),
-                    //nkLargeSizeBox(),
-                    productsController.customerAndOrderData.value.customerId !=
-                            null
-                        ? CustomerOrderDetailMiddelWidget(
-                            key: const Key("CustomerOrderDetailMiddelWidget"),
-                            productsController: productsController,
-                          )
-                        : ProductMiddelWidget(
-                            productsController: productsController,
-                          ),
+                    CustomerOrderDetailMiddelWidget(
+                      key: const Key("CustomerOrderDetailMiddelWidget"),
+                      productsController: productsController,
+                    ),
                   ],
                 ),
-                scrollDirection: Axis.vertical,
               );
-            }),
-      );
-    });
+            } else {
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                   
+                    ProductMiddelWidget(
+                      productsController: productsController,
+                    ),
+                  ],
+                ),
+              );
+            }
+          }),
+        );
+      },
+    );
   }
 }

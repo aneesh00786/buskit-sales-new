@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/view/product_list.dart';
@@ -13,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,7 +23,7 @@ import 'package:get/get.dart';
 class ProductMiddelWidget extends StatelessWidget {
   final ProductsController productsController;
 
-  const ProductMiddelWidget({Key? key, required this.productsController})
+  ProductMiddelWidget({Key? key, required this.productsController})
       : super(key: key);
 
   @override
@@ -28,23 +31,22 @@ class ProductMiddelWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-       return SizedBox(
+
+        return SizedBox(
           height: 1200,
           width: availableWidth,
-          child: 
-         Obx(() {
-            return productsController.isReached.value==true
-                ? CustomerDachScreen(
-                    cusId: 'CUST01',
-                  )
-                : OrderTaking(
-                    productsController: productsController,
-                  );
+          child: Obx(() {
+            log('isReached state: ${productsController.isReached.value}');  
+            return productsController.isReached.value
+                ? CustomerDachScreen(cusId: productsController.selectedCustomerId.value)
+                : OrderTaking(productsController: productsController);
           }),
-          );
+        );
       },
     );
   }
+
+
 
   // Widget productListWidget(List<ProductList> productData) {
   //   return Obx(() {
@@ -96,8 +98,6 @@ class ProductMiddelWidget extends StatelessWidget {
             maxlines: 1,
             fontWeight: NkGeneralSize.nkBoldFontWeight(),
           ),
-
-          /*productButton(data)*/
         ],
       ),
     );
@@ -107,7 +107,7 @@ class ProductMiddelWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
                 NkGeneralSize.nkCommonBorderRadius(borderRadius: 8))),
-        height: AppDimensions.instance!.height * 0.02,
+        height: AppDimensions.instance.height * 0.02,
         fontSize: NkFontSize.smallFont(),
         buttonText: addToCart,
         onPressed: () {

@@ -35,7 +35,6 @@ class _ProductGridState extends State<ProductGrid> {
   void initState() {
     super.initState();
     _checkInternetConnection();
-    //_fetchInitialProducts();
     log('Option name : ${widget.optionName}');
   }
 

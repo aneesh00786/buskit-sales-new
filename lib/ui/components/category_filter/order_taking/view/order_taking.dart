@@ -400,7 +400,7 @@ class _OrderTakingState extends State<OrderTaking>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.43,
+                      width: MediaQuery.of(context).size.width * 0.40,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -650,106 +650,107 @@ class _OrderTakingState extends State<OrderTaking>
                       ),
                     ),
                     IntrinsicWidth(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Hero(
-                            tag: 'product_image',
-                            child: AnimatedBuilder(
-                              animation: animationController,
-                              builder: (context, child) {
-                                return Transform.translate(
-                                  offset: Offset(0, animation.value),
-                                  child: child,
-                                );
+                        child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Hero(
+                          tag: 'product_image',
+                          child: AnimatedBuilder(
+                            animation: animationController,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, animation.value),
+                                child: child,
+                              );
+                            },
+                            child: IconButton(
+                              onPressed: () {
+                                _showCartDialog();
                               },
-                              child: IconButton(
-                                onPressed: () {
-                                  _showCartDialog();
-                                },
-                                icon: Stack(
-                                  children: [
-                                    const Icon(
-                                      Icons.shopping_cart_outlined,
-                                      size: 30,
-                                    ),
-                                    if (cartItemCount > 0)
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${cartItemCount}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                              icon: Stack(
+                                children: [
+                                  const Icon(
+                                    Icons.shopping_cart_outlined,
+                                    size: 30,
+                                  ),
+                                  if (cartItemCount > 0)
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${cartItemCount}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
                                       ),
-                                  ],
-                                ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IntrinsicWidth(
-                                child: ListTile(
-                                    title: Text(widget.productsController
-                                            .selectedCustomerName.isEmpty
-                                        ? ''
-                                        : widget.productsController
-                                            .selectedCustomerName.value),
-                                    leading: widget.productsController
-                                            .selectedCustomerName.isEmpty
-                                        ? null
-                                        : CircleAvatar(
-                                            backgroundImage: NetworkImage(widget
-                                                    .productsController
-                                                    .selectedCustomerImageUrl
-                                                    .isEmpty
-                                                ? ''
-                                                : '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}'),
-                                            backgroundColor: widget
-                                                    .productsController
-                                                    .selectedCustomerImageUrl
-                                                    .isEmpty
-                                                ? Colors.blueGrey
-                                                : Color.fromARGB(
-                                                    123, 194, 192, 192),
-                                          )),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IntrinsicWidth(
+                              child: ListTile(
+                                  title: Text(widget.productsController
+                                          .selectedCustomerName.isEmpty
+                                      ? ''
+                                      : widget.productsController
+                                          .getFormattedCustomerName(widget
+                                              .productsController
+                                              .selectedCustomerName
+                                              .value)),
+                                  leading: widget.productsController
+                                          .selectedCustomerName.isEmpty
+                                      ? null
+                                      : CircleAvatar(
+                                          backgroundImage: NetworkImage(widget
+                                                  .productsController
+                                                  .selectedCustomerImageUrl
+                                                  .isEmpty
+                                              ? ''
+                                              : '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}'),
+                                          backgroundColor: widget
+                                                  .productsController
+                                                  .selectedCustomerImageUrl
+                                                  .isEmpty
+                                              ? Colors.blueGrey
+                                              : Color.fromARGB(
+                                                  123, 194, 192, 192),
+                                        )),
+                            ),
+                            IntrinsicWidth(
+                              child: CustomSwitch(
+                                initialValue: active,
+                                onChanged: (value) {
+                                  active = value;
+                                },
+                                active: active,
+                                selectedName: widget.productsController
+                                    .selectedCustomerName.value,
                               ),
-                              SizedBox(
-                                height: 40,
-                                child: CustomSwitch(
-                                  initialValue: active,
-                                  onChanged: (value) {
-                                    active = value;
-                                  },
-                                  active: active,
-                                  selectedName: widget.productsController
-                                      .selectedCustomerName.value,
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    )
+                            ),
+                          ],
+                        )
+                      ],
+                    ))
                   ],
                 ),
               ),
@@ -909,7 +910,6 @@ class _OrderTakingState extends State<OrderTaking>
           active: active,
           cartItemCount: cartItemCount,
           productsController: widget.productsController,
-
         );
       },
     );
@@ -920,6 +920,7 @@ class _OrderTakingState extends State<OrderTaking>
       animationController.reverse();
     });
   }
+
   void _showWarningDialog(BuildContext context, String message, Widget widget) {
     if (mounted) {
       showDialog(

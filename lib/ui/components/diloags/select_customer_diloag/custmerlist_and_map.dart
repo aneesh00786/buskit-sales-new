@@ -4,14 +4,12 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/selected_customer_database.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -47,57 +45,84 @@ void navigateToo(
   }
 }
 
-void chooseMapApp(BuildContext context, double startLat, double startLng,
-    double endLat, double endLng) async {
-  bool googleMapsAvailable = await canLaunch("comgooglemaps://");
-  bool appleMapsAvailable = await canLaunch("maps://");
+class _CustomerMapScreenState extends State<CustomerMapScreen>
+    with WidgetsBindingObserver {
+  final CalenderMapController _mapController = Get.put(CalenderMapController());
+  final HomeController homeController = Get.put(HomeController());
+  final ProductsController productsController = Get.put(ProductsController());
+  bool navigatedToMap = false;
+  Customer? selectedCustomer;
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Choose Map App'),
-        content: Text('Select the app you would like to use for navigation:'),
-        actions: [
-          if (googleMapsAvailable)
-            TextButton(
-              child: Text('Google Maps'),
-              onPressed: () {
-                String googleMapsUrl =
-                    "comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving";
-                launch(googleMapsUrl);
-                Navigator.of(context).pop();
-              },
-            ),
-          if (appleMapsAvailable)
-            TextButton(
-              child: Text('Apple Maps'),
-              onPressed: () {
-                String appleMapsUrl =
-                    "https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat&dirflg=d";
-                launch(appleMapsUrl);
-                Navigator.of(context).pop();
-              },
-            ),
-        ],
-      );
-    },
-  );
-}
-
-class _CustomerMapScreenState extends State<CustomerMapScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _mapController.suggestions.clear();
     _mapController.searchedLatLng.value = null;
     _mapController.getDirections();
     _mapController.getCurrentLocation();
   }
 
-  final CalenderMapController _mapController = Get.put(CalenderMapController());
-  final HomeController homeController = Get.put(HomeController());
-  final ProductsController productsController = Get.put(ProductsController());
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && navigatedToMap) {
+      navigatedToMap = false;
+      if (selectedCustomer != null) {
+        _showReturnDialog(selectedCustomer!);
+      }
+    }
+  }
+
+  void _showReturnDialog(Customer customer) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(
+                    '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
+              ),
+              SizedBox(width:8),
+              Text("${customer.businessName ?? ''}"),
+            ],
+          ),
+          content: CustomText(content:'Reached on customer Location..',fontSize: 17,),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  homeController.sidebarXController.selectIndex(2);
+                  homeController.selectedIndex.value = 2;
+                  Get.toNamed(AppRoutes.product, id: 2);
+                  productsController.selectedCustomerName.value =
+                      customer.businessName ?? '';
+                  productsController.selectedCustomerImageUrl.value =
+                      customer.imageUrl ?? '';
+                  productsController.selectedCustomerId.value =
+                      customer.customerId ?? '';
+                });
+                productsController.onReached(true);
+                Navigator.of(context).pop();
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -305,63 +330,20 @@ class _CustomerMapScreenState extends State<CustomerMapScreen> {
                                             double.parse(customer.longitude!),
                                           );
 
-                                          double distanceInMeters =
-                                              Geolocator.distanceBetween(
-                                            currentLatitude,
-                                            currentLongitude,
-                                            customerLatLng.latitude,
-                                            customerLatLng.longitude,
-                                          );
-                                          if (distanceInMeters <= 20) {
-                                            return ElevatedButton(
-                                              onPressed: () {
-                                                productsController
-                                                        .selectedCustomerName
-                                                        .value =
-                                                    customer.businessName ?? '';
-                                                productsController
-                                                    .selectedCustomerImageUrl
-                                                    .value = customer
-                                                        .imageUrl ??
-                                                    '';
-                                                productsController
-                                                        .selectedCustomerId
-                                                        .value =
-                                                    customer.customerId ?? '';
-
-                                                log('CustomerId from Controller :${productsController.selectedCustomerId.value}');
-                                                log('CustomerName from Controller :${productsController.selectedCustomerName.value}');
-                                                log('CustomerImageURL from Controller :${productsController.selectedCustomerImageUrl.value}');
-
-                                                Navigator.pop(context);
-                                                Navigator.of(context,
-                                                        rootNavigator: true)
-                                                    .pop();
-
-                                                Future.delayed(
-                                                    Duration(milliseconds: 300),
-                                                    () {
-                                                  homeController
-                                                      .sidebarXController
-                                                      .selectIndex(2);
-                                                  homeController
-                                                      .selectedIndex.value = 2;
-                                                  Get.toNamed(AppRoutes.product,
-                                                      id: 2);
-                                                });
-                                                productsController
-                                                    .onReached(true);
-                                              },
-                                              child: Text('Reached'),
-                                            );
-                                          }
-
+                                          // double distanceInMeters =
+                                          //     Geolocator.distanceBetween(
+                                          //   currentLatitude,
+                                          //   currentLongitude,
+                                          //   customerLatLng.latitude,
+                                          //   customerLatLng.longitude,
+                                          // );
                                           return IconButton(
-                                            icon: Icon(
-                                                EneftyIcons
-                                                    .route_square_outline,
-                                                color: Colors.blue),
+                                            highlightColor:
+                                                Colors.blue.withOpacity(0.2),
+                                            icon: Icon(Icons.near_me_outlined),
                                             onPressed: () {
+                                              selectedCustomer = customer;
+                                              navigatedToMap = true;
                                               navigateToo(
                                                 currentLatitude,
                                                 currentLongitude,

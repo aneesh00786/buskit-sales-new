@@ -100,9 +100,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 homeController.sidebarXController.selectIndex(0);
                 homeController.selectedIndex.value = 0;
                 Get.toNamed(AppRoutes.dashboard, id: 2);
-                productsController.selectedCustomerName.value='';
-                productsController.selectedCustomerImageUrl.value='';
-                productsController.selectedCustomerId.value='';
+                productsController.selectedCustomerName.value = '';
+                productsController.selectedCustomerImageUrl.value = '';
+                productsController.selectedCustomerId.value = '';
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -170,102 +170,83 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             //UpdateCustomer(widget: widget),
           ],
         ),
-        body: Consumer<CustomersProvider>(
-          builder: (context, provider, child) {
-            log('Customer Dach :${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}');
-            return FutureBuilder<ApiResponseModel>(
-              future: provider.customersDashFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData) {
-                  return const Center(child: Text('No data available'));
-                } else {
-                  final responseModel = snapshot.data!;
-                  final frequentProductLists =
-                      responseModel.data.frequentProductLists;
-                  final recentOrders = responseModel.data.recentOrders;
+        body: Consumer<CustomersProvider>(builder: (context, provider, child) {
+          log('Customer Dach :${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}');
+          return FutureBuilder<ApiResponseModel>(
+            future: provider.customersDashFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData) {
+                return const Center(child: Text('No data available'));
+              } else {
+                final responseModel = snapshot.data!;
+                final frequentProductLists =
+                    responseModel.data.frequentProductLists;
+                final recentOrders = responseModel.data.recentOrders;
 
-                  return Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Column(
-                      children: [
-                        OptionWidgetCustomerDash(
-                          customerId:
-                              productsController.selectedCategoryId.value,
-                          customType: "",
-                          customOrderStatusType: OrderStatus.preOrder,
-                          userType: UserType.customer,
-                          userId: "",
-                          startDate: startDate,
-                          endDate: endDate,
-                        ),
-                        const SizedBox(height: 5.7),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: screenWidth < 600
-                                ? Column(
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Column(
+                    children: [
+                      OptionWidgetCustomerDash(
+                        customerId: productsController.selectedCategoryId.value,
+                        customType: "",
+                        customOrderStatusType: OrderStatus.preOrder,
+                        userType: UserType.customer,
+                        userId: "",
+                        startDate: startDate,
+                        endDate: endDate,
+                      ),
+                      const SizedBox(height: 5.7),
+                      SingleChildScrollView(
+                        child: screenWidth < 600
+                            ? Column(
+                                children: [
+                                  Category(context),
+                                  const SizedBox(height: 2),
+                                  OrdersPayments(context,
+                                      recentOrders), 
+                                  const SizedBox(height: 2),
+                                  TotalSalse(context), 
+                                  const SizedBox(height: 2),
+                                  Frequently(context,
+                                      frequentProductLists), 
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Row(
                                     children: [
+                                      Expanded(child: Category(context)),
+                                      const SizedBox(width: 2),
                                       Expanded(
-                                        child: Category(context),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Expanded(
-                                        child: OrdersPayments(
-                                            context, recentOrders),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Expanded(
-                                        child: TotalSalse(context),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Expanded(
-                                        child: Frequently(
-                                            context, frequentProductLists),
-                                      ),
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Category(context),
-                                          ),
-                                          const SizedBox(width: 2),
-                                          Expanded(
-                                            child: OrdersPayments(
-                                                context, recentOrders),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TabTab(context),
-                                          ),
-                                          const SizedBox(width: 2),
-                                          Expanded(
-                                            child: Frequently(
-                                                context, frequentProductLists),
-                                          ),
-                                        ],
-                                      ),
+                                          child: OrdersPayments(
+                                              context, recentOrders)),
                                     ],
                                   ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            );
-          },
-        ),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      Expanded(child: TabTab(context)),
+                                      const SizedBox(width: 2),
+                                      Expanded(
+                                          child: Frequently(
+                                              context, frequentProductLists)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          );
+        }),
       ),
     );
   }
@@ -391,7 +372,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     ));
   }
 
-  // ignore: non_constant_identifier_names
   Expanded OrdersPayments(
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
@@ -416,8 +396,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: ElevatedButton(
                       onPressed: () {
                         List<RecentOrder> selectedOrders = [];
-
-                        // Collect selected orders
                         for (var order in recentOrders) {
                           if (context
                               .read<CustomersProvider>()
@@ -425,8 +403,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             selectedOrders.add(order);
                           }
                         }
-
-                        // Show the appropriate dialog or toast based on the selection
                         if (selectedOrders.isNotEmpty) {
                           _paymentCollectionDialog(context, selectedOrders);
                         } else {
@@ -681,8 +657,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
 
     overlay.insert(overlayEntry);
-
-    // Automatically remove the toast after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });
@@ -692,20 +666,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       BuildContext context, List<RecentOrder> selectedOrders) {
     List<int?> _newOrderTotal =
         selectedOrders.map((order) => order.orderTotal).toList();
-
-    // List<int?> _newOrderTotal = [];
-
-    // // Populate _newOrderTotal with orderTotal values
-    // for (var order in selectedOrders) {
-    //   _newOrderTotal[selectedOrders.indexOf(order)] = order.orderTotal;
-    // }
-
-    // Function to calculate the total balance amount from _newOrderTotal
     double calculateTotalBalanceAmount() {
       return _newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
     }
-
-    // Calculate the initial total balance amount
     double totalBalanceAmount = calculateTotalBalanceAmount();
 
     final balanceAmountController = TextEditingController(
@@ -2706,7 +2669,6 @@ class DashboardScreen extends StatelessWidget {
               // Text(item.count.first.reason.toString()),
             ],
           ),
-          // Display other fields
         );
       }).toList(),
     );
@@ -2841,7 +2803,6 @@ class CustomerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(
       builder: (context, provider, child) {
-        // Ensure data fetching happens only once
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (provider.countFuture == null) {
             provider.fetchCustomerDashboardCountData('CUSTO3');
@@ -2918,7 +2879,6 @@ class CustomerDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(
       builder: (context, provider, child) {
-        // Ensure data fetching happens only once
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (provider.customerResponse == null) {
             provider.fetchCustomersDataDash('CUSTO3');
@@ -2938,7 +2898,7 @@ class CustomerDetailScreen extends StatelessWidget {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
                 final customer = snapshot
-                    .data?.data.first; // Assuming there is only one customer
+                    .data?.data.first; 
                 return customer != null
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -2956,7 +2916,7 @@ class CustomerDetailScreen extends StatelessWidget {
                             Text('Address: ${customer.address}'),
                             const SizedBox(height: 8),
                             Text('Discount: ${customer.discount}'),
-                            // Add more fields as needed
+                       
                           ],
                         ),
                       )

@@ -884,7 +884,7 @@ class _OrderTakingState extends State<OrderTaking>
   void _selectCategory(String categoryName) {
     setState(() {
       _selectedCategory = categoryName;
-      _isDrawerOpen = true; // Open the drawer
+      _isDrawerOpen = true;
     });
     log('Selected Category: $_selectedCategory');
   }
@@ -920,8 +920,6 @@ class _OrderTakingState extends State<OrderTaking>
       animationController.reverse();
     });
   }
-
-// Helper function to show warning dialog
   void _showWarningDialog(BuildContext context, String message, Widget widget) {
     if (mounted) {
       showDialog(

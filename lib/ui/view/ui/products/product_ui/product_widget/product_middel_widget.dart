@@ -31,7 +31,6 @@ class ProductMiddelWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-
         return SizedBox(
           height: 1200,
           width: availableWidth,
@@ -45,39 +44,6 @@ class ProductMiddelWidget extends StatelessWidget {
       },
     );
   }
-
-
-
-  // Widget productListWidget(List<ProductList> productData) {
-  //   return Obx(() {
-  //     return NkWidgetExceptionHandel(
-  //       data: productData,
-  //       isShowRetrySection: false,
-  //       onRetryPressed: () {
-  //         //productsController.loadDataOfProduct();
-  //       },
-  //       replaceWidget: productsController.emptyProductWidget(),
-  //       child: GridView.builder(
-  //           shrinkWrap: true,
-  //           physics: NkGeneralSize.commonPysics(),
-  //           itemCount: productData.length,
-  //           cacheExtent: 300,
-  //           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-  //             // crossAxisCount:
-  //             //     AppDimensions.updateGridCount(Get.context!).gridItemCount,
-  //             crossAxisCount: 3,
-  //             mainAxisExtent: AppDimensions.instance.height * 0.26,
-  //             crossAxisSpacing: AppDimensions.instance.width * 0.012,
-  //             mainAxisSpacing: AppDimensions.instance.width * 0.018,
-  //           ),
-  //           itemBuilder: (context, index) {
-  //             var data = productData[index];
-  //             return productComponent(data);
-  //           }),
-  //     );
-  //   });
-  // }
-
   Widget productComponent(ProductList data) {
     return MyCommnonContainer(
       isCommonBorder: true,

@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -97,12 +98,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () {
-                homeController.sidebarXController.selectIndex(0);
-                homeController.selectedIndex.value = 0;
-                Get.toNamed(AppRoutes.dashboard, id: 2);
                 productsController.selectedCustomerName.value = '';
                 productsController.selectedCustomerImageUrl.value = '';
                 productsController.selectedCustomerId.value = '';
+                Get.to(() => CustomerMapScreen());
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -207,13 +206,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 children: [
                                   Category(context),
                                   const SizedBox(height: 2),
-                                  OrdersPayments(context,
-                                      recentOrders), 
+                                  OrdersPayments(context, recentOrders),
                                   const SizedBox(height: 2),
-                                  TotalSalse(context), 
+                                  TotalSalse(context),
                                   const SizedBox(height: 2),
-                                  Frequently(context,
-                                      frequentProductLists), 
+                                  Frequently(context, frequentProductLists),
                                 ],
                               )
                             : Column(
@@ -669,6 +666,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     double calculateTotalBalanceAmount() {
       return _newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
     }
+
     double totalBalanceAmount = calculateTotalBalanceAmount();
 
     final balanceAmountController = TextEditingController(
@@ -2897,8 +2895,7 @@ class CustomerDetailScreen extends StatelessWidget {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
-                final customer = snapshot
-                    .data?.data.first; 
+                final customer = snapshot.data?.data.first;
                 return customer != null
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -2916,7 +2913,6 @@ class CustomerDetailScreen extends StatelessWidget {
                             Text('Address: ${customer.address}'),
                             const SizedBox(height: 8),
                             Text('Discount: ${customer.discount}'),
-                       
                           ],
                         ),
                       )

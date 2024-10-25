@@ -100,7 +100,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+               Navigator.of(context).pop();
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   homeController.sidebarXController.selectIndex(2);
                   homeController.selectedIndex.value = 2;
@@ -113,7 +113,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       customer.customerId ?? '';
                 });
                 productsController.onReached(true);
-                Navigator.of(context).pop();
                 Navigator.of(context, rootNavigator: true).pop();
               },
               child: Text("OK"),

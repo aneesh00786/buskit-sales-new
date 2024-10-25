@@ -115,7 +115,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 productsController.onReached(true);
                 Navigator.of(context, rootNavigator: true).pop();
               },
-              child: Text("OK"),
+              child: Text("Go to Customer"),
             ),
           ],
         );

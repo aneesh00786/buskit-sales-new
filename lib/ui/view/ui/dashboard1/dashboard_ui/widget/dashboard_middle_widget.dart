@@ -2069,6 +2069,11 @@ class _CommunicationsDisplayWidgetState
                                                                   'No chats selected or message is empty')),
                                                         );
                                                       }
+                                                      Navigator.pop(context);
+                                                      Navigator.of(context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
                                                     },
                                                     style: ButtonStyle(
                                                       backgroundColor:

@@ -272,7 +272,7 @@ class ApiService {
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
     final requestBody = {
-      "salesman_id": salesmanId,
+      "salesman_id": '',
     };
 
     try {
@@ -1702,17 +1702,18 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  Future<SalesmenResponse> fetchChatData(String salesmanId) async {
-    try {
-      final chatData = await _apiService.fetchChatData(salesmanId);
-      _salesmenResponse = Future.value(chatData);
-      notifyListeners();
-      return chatData;
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);
-      throw Exception('Failed to fetch chat data: $e');
-    }
+Future<SalesmenResponse> fetchChatData(String salesmanId) async {
+  try {
+    Future<SalesmenResponse> chatData =  _apiService.fetchChatData(salesmanId);
+    _salesmenResponse = chatData as Future<SalesmenResponse>?;
+    notifyListeners();
+    return chatData;  // Return the fetched data
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);
+    throw Exception('Failed to fetch chat data: $e');
   }
+}
+
 
   // Future<MessagesResponse> fetch_individual_chat(String chatId) async {
   //   try {

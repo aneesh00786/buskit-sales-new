@@ -86,7 +86,7 @@ void _handleTokenExpiration() async {
       return GetPageRoute(
           settings: settings,
           transition: Transition.leftToRightWithFade,
-          page: () => const CustomerAndOrdersScreen(),
+          page: () =>  tableee(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.product &&
         sidebarXController.selectedIndex == 2) {

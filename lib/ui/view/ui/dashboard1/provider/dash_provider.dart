@@ -47,6 +47,36 @@ class ApiService {
       },
     ));
   }
+    Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
+      int specifiedYear, String startDate, String endDate) async {
+    var companyId = 1;
+    final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
+
+    final requestBody = {
+      "company_id": companyId,
+      "customer_id": customerId,
+      "end_date": endDate,
+      "start_date": startDate,
+      "year": specifiedYear,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        return CustomerRevenueResponse.fromJson(responseData);
+      } else {
+        throw Exception('Failed to load customer revenue data');
+      }
+    } catch (e) {
+      throw Exception('Error fetching customer revenue data: $e');
+    }
+  }
   Future<ResponseModell> fetchDashboardData(
       {String? salesmanId,
       String? startDate,
@@ -628,14 +658,14 @@ class ApiService {
     required String customerName,
     required String startDate,
     required String endDate,
-    required String limit,
-    required String page,
+    required int limit,
+    required int page,
     required String valueFromDw,
   }) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
     final requestBody = {
       "salesman_id": salesmanId,
-      "customer_name": customerName,
+      "business_name": customerName,
       "start_date": startDate,
       "end_date": endDate,
       "limit": limit,
@@ -644,7 +674,7 @@ class ApiService {
     };
 
     try {
-      print('API URL: $url');
+      log('API URL: $url');
       print('Request Body: $requestBody');
 
       final response = await http.post(
@@ -653,20 +683,24 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print('fetchCustomer : ${response.statusCode}');
+      log('fetchCustomer : ${response.statusCode}');
       print('fetchCustomer Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
 
         var dataList = jsonResponse['data'] as List?;
+        var orderTotalList = jsonResponse['orderTotal'] as List?;
         List<CustomerModelxx> customers = [];
         List<OrderTotalxx> orderTotal = [];
         if (dataList != null) {
           customers =
               dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+          orderTotal = orderTotalList!
+              .map((json) => OrderTotalxx.fromJson(json))
+              .toList();
         }
-
+        log('Customer List Length : ${customers.length}');
         return CustomerResponseModelxx(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -687,7 +721,7 @@ class ApiService {
 
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
-    final String daysJson = jsonEncode(daysList); // Convert to JSON string
+    final String daysJson = jsonEncode(daysList);
     final url = Uri.parse('$_baseUrl${ApiConstants.addEvent}');
     final body = jsonEncode({
       'customer_id': customerId,
@@ -719,13 +753,109 @@ class ApiService {
     }
   }
 
-  Future<ApiResponseModel> fetchCustomerDashboardDataa(
-      String customerId, int specifiedYear) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
+  // Future<ApiResponseModel> fetchCustomerDashboardDataa(
+  //     String customerId, int specifiedYear, String startDate, String endDate) async {
+  //   final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
+
+  //   final requestBody = {
+  //     "customer_id": customerId,
+  //     "specifiedYear": specifiedYear,
+  //   };
+
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(requestBody),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = json.decode(response.body);
+  //       // Print all the responses
+  //       print("Response Data:");
+  //       print(
+  //           "Category Performance: ${jsonResponse['data']['category_performance']}");
+  //       print("Recent Orders: ${jsonResponse['data']['recent_orders']}");
+  //       print(
+  //           "Frequent Product Lists: ${jsonResponse['data']['frequantliy_product_lists']}");
+  //       print("Year List: ${jsonResponse['data']['year_list']}");
+  //       print("Full Category: ${jsonResponse['data']['fullCategotry']}");
+  //       // Parse category_performance
+  //       List<CategoryPerformancez> categoryPerformance = [];
+  //       if (jsonResponse['data']['category_performance'] != null) {
+  //         categoryPerformance =
+  //             (jsonResponse['data']['category_performance'] as List)
+  //                 .map((json) => CategoryPerformancez.fromJson(json))
+  //                 .toList();
+  //       }
+
+  //       // Parse allCategory
+  //       List<FullCategory> allCategory = [];
+  //       if (jsonResponse['data']['fullCategotry'] != null) {
+  //         allCategory = (jsonResponse['data']['fullCategotry'] as List)
+  //             .map((json) => FullCategory.fromJson(json))
+  //             .toList();
+  //       }
+  //       print(
+  //           "sabik ca ca ca caca cc acacac  ,${jsonResponse['data']['fullCategotry']}");
+
+  //       // Parse recentOrders
+  //       List<RecentOrder> recentOrders = [];
+  //       if (jsonResponse['data']['recent_orders'] != null) {
+  //         recentOrders = (jsonResponse['data']['recent_orders'] as List)
+  //             .map((json) => RecentOrder.fromJson(json))
+  //             .toList();
+  //       }
+
+  //       // Parse frequentProductLists
+  //       List<FrequantliyProductList> frequentProductLists = [];
+  //       if (jsonResponse['data']['frequantliy_product_lists'] != null) {
+  //         frequentProductLists =
+  //             (jsonResponse['data']['frequantliy_product_lists'] as List)
+  //                 .map((json) => FrequantliyProductList.fromJson(json))
+  //                 .toList();
+  //       }
+
+  //       // Parse yearList
+  //       List<YearList> yearList = [];
+  //       if (jsonResponse['data']['year_list'] != null) {
+  //         yearList = (jsonResponse['data']['year_list'] as List)
+  //             .map((json) => YearList.fromJson(json))
+  //             .toList();
+  //       }
+
+  //       return ApiResponseModel(
+  //         statusCode: jsonResponse['status_code'] ?? 0,
+  //         status: jsonResponse['status'] ?? false,
+  //         message: jsonResponse['message'] ?? '',
+  //         data: Data(
+  //           categoryPerformance: categoryPerformance,
+  //           recentOrders: recentOrders,
+  //           frequentProductLists: frequentProductLists,
+  //           yearList: yearList,
+  //           fullCategory: allCategory,
+  //         ),
+  //       );
+  //     } else {
+  //       throw Exception(
+  //           'Failed to fetch customer dashboard data - ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Failed to fetch customer dashboard data: $e');
+  //   }
+  // }
+
+  Future<ApiResponseModel> fetchCustomerDashboardDataa(String customerId,
+      int specifiedYear, String startDate, String endDate) async {
+    var companyId = 1;
+    final url = Uri.parse('${ApiConstants.baseUrl1}/customer_dashboard_list');
 
     final requestBody = {
+      "company_id": companyId,
       "customer_id": customerId,
+      "end_date": endDate,
       "specifiedYear": specifiedYear,
+      "start_date": startDate,
     };
 
     try {
@@ -963,10 +1093,10 @@ class ApiService {
         );
       } else {
         throw Exception(
-            'Failed to fetch customer data - ${response.statusCode}');
+            'Failed to fetch customer data from fetchOneCustomer- ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch customer data: $e');
+      throw Exception('Failed to fetch customer data fetchOneCustomer exception: $e');
     }
   }
 
@@ -1232,7 +1362,8 @@ class DashboardProvider with ChangeNotifier {
         _logger = logger {
      fetchData();
     fetchChatData('');
-     fetchOrders();
+    // come back
+    //  fetchOrders();
     fetchAdminData();
   }
 
@@ -1463,74 +1594,75 @@ class DashboardProvider with ChangeNotifier {
   }
 
   OrderStatus _selectedStatus = OrderStatus.cancelled;
+  // come back
+  // Future<void> fetchOrders() async {
+  //   try {
+  //     final now = DateTime.now();
+  //     String startDate;
+  //     String endDate;
+  //     for (OrderStatus status in OrderStatus.values) {
+  //       _selectedStatus = status;
 
-  Future<void> fetchOrders() async {
-    try {
-      final now = DateTime.now();
-      String startDate;
-      String endDate;
-      for (OrderStatus status in OrderStatus.values) {
-        _selectedStatus = status;
+  //       switch (_selectedFilter) {
+  //         case FilterDateEnum.thisMonth:
+  //           startDate = DateTime(now.year, now.month, 1)
+  //               .toIso8601String()
+  //               .substring(0, 10);
+  //           endDate = DateTime(now.year, now.month + 1, 0)
+  //               .toIso8601String()
+  //               .substring(0, 10);
+  //           break;
+  //         case FilterDateEnum.today:
+  //           startDate = DateTime(now.year, now.month, now.day)
+  //               .toIso8601String()
+  //               .substring(0, 10);
+  //           endDate = startDate;
+  //           break;
+  //         case FilterDateEnum.thisWeek:
+  //           final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+  //           startDate = startOfWeek.toIso8601String().substring(0, 10);
+  //           endDate = now.toIso8601String().substring(0, 10);
+  //           break;
+  //         case FilterDateEnum.thisYear:
+  //           startDate =
+  //               DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+  //           endDate =
+  //               DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+  //           break;
+  //         case FilterDateEnum.range:
+  //           startDate = _selectedStartDate;
+  //           endDate = _selectedEndDate;
+  //           break;
+  //       }
 
-        switch (_selectedFilter) {
-          case FilterDateEnum.thisMonth:
-            startDate = DateTime(now.year, now.month, 1)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = DateTime(now.year, now.month + 1, 0)
-                .toIso8601String()
-                .substring(0, 10);
-            break;
-          case FilterDateEnum.today:
-            startDate = DateTime(now.year, now.month, now.day)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = startDate;
-            break;
-          case FilterDateEnum.thisWeek:
-            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-            startDate = startOfWeek.toIso8601String().substring(0, 10);
-            endDate = now.toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.thisYear:
-            startDate =
-                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-            endDate =
-                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.range:
-            startDate = _selectedStartDate;
-            endDate = _selectedEndDate;
-            break;
-        }
+  //       if (_selectedFilter == FilterDateEnum.range &&
+  //           (startDate.isEmpty || endDate.isEmpty)) {
+  //         throw Exception('Select both start and end dates');
+  //       }
 
-        if (_selectedFilter == FilterDateEnum.range &&
-            (startDate.isEmpty || endDate.isEmpty)) {
-          throw Exception('Select both start and end dates');
-        }
+  //       // Debouncing network requests
+  //       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
+  //         return _apiService.fetchAllOrders(
+  //           startDate: startDate,
+  //           endDate: endDate,
+  //           orderStatus: _selectedStatus, // Pass current status
+  //         );
+  //       });
 
-        // Debouncing network requests
-        _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
-          return _apiService.fetchAllOrders(
-            startDate: startDate,
-            endDate: endDate,
-            orderStatus: _selectedStatus, // Pass current status
-          );
-        });
+  //       notifyListeners();
 
-        notifyListeners();
+  //       print("Fetching orders for status: $_selectedStatus"); // Debug print
 
-        print("Fetching orders for status: $_selectedStatus"); // Debug print
+  //       // You might want to await _orderResponse here if needed
 
-        // You might want to await _orderResponse here if needed
+  //       notifyListeners();
+  //     }
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
-        notifyListeners();
-      }
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-      rethrow;
-    }
-  }
   // Future<void> selectDate(BuildContext context, bool isStartDate) async {
   //   final DateTime? pickedDate = await showDatePicker(
   //     context: context,
@@ -1597,7 +1729,8 @@ class DashboardProvider with ChangeNotifier {
       }
       if (_selectedFilter != FilterDateEnum.range) {
         fetchData();
-        fetchOrders();
+        // come back
+        // fetchOrders();
       }
 
       notifyListeners();

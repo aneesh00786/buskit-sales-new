@@ -31,6 +31,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../common/pagination_model.dart';
 import '../ui/view/ui/auth/auth_model/login_responce.dart';
+import '../ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart';
+
 
 class ApiWorker with ApiConstants {
   late DioClient dio;
@@ -154,11 +156,27 @@ class ApiWorker with ApiConstants {
       );
       return CustomerAndOrderResponce.fromJson(response.data);
     } catch (error) {
-      return Future.error('Failed to fetch customer data: $error');
+      return Future.error('Failed to fetch customer data From API Worker: $error');
     }
   }
   
-
+  
+  Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
+    final response = await dio
+        .getbycustom(
+      ApiConstants.recent_order_count,
+      options: Options(
+        headers: {
+          "Content-Type": "application/json",
+        },
+      ),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return RecentOrderCountResponse.fromJson(response.data);
+  }
 
   Future<CustomerDashboardResponse> getCustomerDashboard(
     String customerId,

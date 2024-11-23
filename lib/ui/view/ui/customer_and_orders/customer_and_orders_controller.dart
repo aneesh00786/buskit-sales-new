@@ -106,11 +106,17 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
         return "Select Visit Type";
     }
   }
-
+    var searchText = ''.obs;
+  var selectedYear = '2023'.obs;
+  var years = ['2023'].obs;
   int updateVisitType(int type) {
     refresh();
     return type;
   }
+    void updateSelectedYear(String value) {
+    selectedYear.value = value;
+  }
+
 
   CustomerAndOrderData updateSingleCustomerData(CustomerAndOrderData data) {
     refresh();

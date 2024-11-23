@@ -16,7 +16,6 @@ class SessionHelper {
     return _instance;
   }
 
-  // Todo:Difficulty Level
 
   Future<void> setLoginData(LoginData loginResponce) async {
     await SessionManager.setStringValue(

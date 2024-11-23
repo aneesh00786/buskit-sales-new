@@ -23,7 +23,7 @@ environment:
 
 dependencies:
   add_to_cart_animation: ^2.0.4
-  address_search_field: ^5.0.3
+  # address_search_field: ^4.0.1
   animated_custom_dropdown: ^3.1.1
   animated_toggle_switch: ^0.8.3
   cached_network_image: ^3.2.3
@@ -33,7 +33,7 @@ dependencies:
   cupertino_icons: ^1.0.5
   data_table_2: ^2.5.15
   device_preview: ^1.1.0
-  dio: 4.0.6
+  dio: ^5.7.0
   enefty_icons: ^1.0.7
   file_picker: ^8.1.2
   fl_chart: ^0.69.0

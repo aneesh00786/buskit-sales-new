@@ -34,9 +34,23 @@ import 'package:provider/provider.dart';
 
 class CustomerDachScreen extends StatefulWidget {
   final String cusId;
-  final dynamic year;
+  final dynamic? year;
+  final String cusName;
+  final String cusImage;
+  final dynamic? startDate;
+  final dynamic? endDate;
+  final bool? isFromCalendar;
 
-  const CustomerDachScreen({super.key, required this.cusId, this.year});
+  const CustomerDachScreen({
+    super.key,
+    required this.cusId,
+    required this.cusName,
+    required this.cusImage,
+    this.year,
+    this.startDate,
+    this.endDate,
+    this.isFromCalendar,
+  });
 
   @override
   State<CustomerDachScreen> createState() => _CustomerDachScreenState();
@@ -54,7 +68,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardData(widget.cusId, selectedYear);
+          .fetchCustomerDashboardData(
+              widget.cusId, selectedYear, widget.startDate, widget.endDate);
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardDataSalseData(widget.cusId, selectedYear);
       Provider.of<CustomersProvider>(context, listen: false)
@@ -98,10 +113,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () {
-                productsController.selectedCustomerName.value = '';
-                productsController.selectedCustomerImageUrl.value = '';
-                productsController.selectedCustomerId.value = '';
-                Get.to(() => CustomerMapScreen());
+                if (widget.isFromCalendar??true) {
+                  homeController.sidebarXController.selectIndex(5);
+                  homeController.selectedIndex.value = 5;
+                  Get.toNamed(AppRoutes.calender, id: 2);
+                } else {
+                 Navigator.pop(context);
+                }
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -308,7 +326,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                                    widget.cusId, selectedYear);
+                                    widget.cusId,
+                                    selectedYear,
+                                    widget.startDate,
+                                    widget.endDate);
                           });
                         },
                         items: provider.yearList

@@ -101,7 +101,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.delivered);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.delivered, customerId);
+                OrderStatus.delivered, customerId,'');
           },
         ),
         OptionData(
@@ -113,7 +113,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.estimates);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.estimates, customerId);
+                OrderStatus.estimates, customerId,7);
           },
         ),
         OptionData(
@@ -124,7 +124,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
 
-            provider.fetchOrdersForCustomDash(OrderStatus.preOrder, customerId);
+            provider.fetchOrdersForCustomDash(OrderStatus.preOrder, customerId,0);
           },
         ),
         OptionData(
@@ -135,7 +135,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.draft);
 
-            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId);
+            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId,4);
           },
         ),
         OptionData(
@@ -147,7 +147,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.cancelled, customerId);
+                OrderStatus.cancelled, customerId,3);
           },
         ),
       ];

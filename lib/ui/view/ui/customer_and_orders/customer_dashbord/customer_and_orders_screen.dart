@@ -1,8 +1,10 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_and_orders_controller.dart';
@@ -18,6 +20,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../theme/custom_fonts.dart';
+import '../widgets/notification_widget.dart';
 
 class tableee extends StatelessWidget {
   @override
@@ -280,7 +285,7 @@ class tableee extends StatelessWidget {
                             addCustomer(context),
                             const SizedBox(width: 5),
                             // addLeads(context),
-                            AddLeadsBt(),
+                            // const AddLeadsBt(),
                           ],
                         ),
                       ),
@@ -290,6 +295,7 @@ class tableee extends StatelessWidget {
               },
             ),
           ),
+          NotificationWidget(),
           const UpdateAminBt(),
         ],
       );
@@ -364,38 +370,7 @@ class tableee extends StatelessWidget {
                                             fontSize: 17.5,
                                           ),
                                         ),
-                                        CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          child: SizedBox(
-                                            width: 25.8,
-                                            height: 25.8,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(3.5),
-                                                child: IconButton(
-                                                  icon: const Icon(
-                                                    Icons.close,
-                                                    color: Colors.red,
-                                                    size: 16,
-                                                  ),
-                                                  padding: EdgeInsets.zero,
-                                                  constraints:
-                                                      const BoxConstraints(),
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        )
+                                        dialogCloseButton(context, red)
                                       ],
                                     ),
                                   ),
@@ -656,130 +631,105 @@ class tableee extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 12.0),
                                   // Fifth row - Image Picker
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(4.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4.0),
-                                                      border: Border.all(
-                                                          color: Colors.grey),
-                                                    ),
-                                                    child: TextField(
-                                                      controller:
-                                                          remarkController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        contentPadding:
-                                                            EdgeInsets
-                                                                .symmetric(
-                                                          horizontal: 12.0,
-                                                          vertical: 16.0,
-                                                        ),
-                                                        labelText: 'Remark',
-                                                        prefixIcon:
-                                                            Icon(Icons.phone),
-                                                        border:
-                                                            InputBorder.none,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: GestureDetector(
-                                                onTap: provider.pickImage,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4.0),
-                                                    border: Border.all(
-                                                        color: Colors.grey),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 12.0,
-                                                      vertical: 16.0,
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Column(
-                                                          children: [
-                                                            const Icon(
-                                                                Icons.image,
-                                                                color: Colors
-                                                                    .grey),
-                                                            const SizedBox(
-                                                                height: 12.0),
-                                                            Text(
-                                                              provider.imageFile ==
-                                                                      null
-                                                                  ? 'Pick an image from gallery'
-                                                                  : 'Image selected',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      700]),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12.0),
-                                      if (provider.imageFile != null) ...[
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4.0),
                                           child: Container(
-                                            height: 100.0,
-                                            width: double.infinity,
                                             decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(4.0),
                                               border: Border.all(
                                                   color: Colors.grey),
                                             ),
-                                            child: kIsWeb
-                                                ? Image.network(
-                                                    provider.imageFile!.path,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Image.file(
-                                                    File(provider
-                                                        .imageFile!.path),
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                            child: TextField(
+                                              controller: remarkController,
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                  horizontal: 12.0,
+                                                  vertical: 16.0,
+                                                ),
+                                                labelText: 'Remark',
+                                                prefixIcon: Icon(Icons.phone),
+                                                border: InputBorder.none,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ],
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: GestureDetector(
+                                            onTap: provider.pickImage,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(4.0),
+                                                border: Border.all(
+                                                    color: Colors.grey),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 12.0,
+                                                  vertical: 16.0,
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        const Icon(Icons.image,
+                                                            color: Colors.grey),
+                                                        const SizedBox(
+                                                            height: 12.0),
+                                                        Text(
+                                                          provider.imageFile ==
+                                                                  null
+                                                              ? 'Pick an image from gallery'
+                                                              : 'Image selected',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[700]),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
+                                  const SizedBox(height: 12.0),
+                                  if (provider.imageFile != null) ...[
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height: 100.0,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                        ),
+                                        child: kIsWeb
+                                            ? Image.network(
+                                                provider.imageFile!.path,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Image.file(
+                                                File(provider.imageFile!.path),
+                                                fit: BoxFit.cover,
+                                              ),
+                                      ),
+                                    ),
+                                  ],
 
                                   const SizedBox(height: 16.0),
                                   Padding(
@@ -852,574 +802,6 @@ class tableee extends StatelessWidget {
           });
     });
   }
-
-  // Consumer<CustomersProvider> addLeads(BuildContext context) {
-  //   bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
-  //   return Consumer<CustomersProvider>(builder: (context, provider, child) {
-  //     return FutureBuilder<CustomerResponse>(
-  //         future: provider.customerResponse,
-  //         builder: (context, snapshot) {
-  //           final customer = snapshot.data?.data.first;
-
-  //           TextEditingController nameController = TextEditingController();
-  //           TextEditingController phoneController = TextEditingController();
-  //           TextEditingController emailController = TextEditingController();
-  //           TextEditingController townController = TextEditingController();
-  //           TextEditingController stateController = TextEditingController();
-  //           TextEditingController zipcodeController = TextEditingController();
-  //           TextEditingController addressController = TextEditingController();
-
-  //           TextEditingController bsNameController = TextEditingController();
-  //           TextEditingController bsNumController = TextEditingController();
-
-  //           TextEditingController remarkController = TextEditingController();
-
-  //           return SizedBox(
-  //             height: isSmallScreen ? 29 : 38,
-  //             width: isSmallScreen ? 87 : 100,
-  //             child: CustomButton(
-  //                 onPressed: () {
-  //                   showDialog(
-  //                     context: context,
-  //                     builder: (BuildContext context) {
-  //                       return SizedBox(
-  //                         height: 300,
-  //                         child: SingleChildScrollView(
-  //                           child: Padding(
-  //                             padding: const EdgeInsets.all(8.0),
-  //                             child: Dialog(
-  //                               insetPadding: EdgeInsets.zero,
-  //                               backgroundColor:
-  //                                   Colors.grey[200], // Grey background color
-  //                               shape: const RoundedRectangleBorder(
-  //                                 borderRadius:
-  //                                     BorderRadius.all(Radius.circular(10.0)),
-  //                                 side: BorderSide.none, // Remove outline
-  //                               ),
-  //                               elevation: 24.0, // Shadow elevation
-  //                               child: Column(
-  //                                 mainAxisSize: MainAxisSize.min,
-  //                                 crossAxisAlignment:
-  //                                     CrossAxisAlignment.stretch,
-  //                                 children: [
-  //                                   Container(
-  //                                     padding: const EdgeInsets.all(4.8),
-  //                                     decoration: const BoxDecoration(
-  //                                       color: primaryColor,
-  //                                       borderRadius: BorderRadius.only(
-  //                                         topLeft: Radius.circular(10),
-  //                                         topRight: Radius.circular(10),
-  //                                       ),
-  //                                     ),
-  //                                     child: Row(
-  //                                       mainAxisAlignment:
-  //                                           MainAxisAlignment.spaceBetween,
-  //                                       children: [
-  //                                         const Text(
-  //                                           'Add Lead',
-  //                                           style: TextStyle(
-  //                                             color: Colors.white,
-  //                                             fontSize: 17.5,
-  //                                           ),
-  //                                         ),
-  //                                         CircleAvatar(
-  //                                           backgroundColor: Colors.transparent,
-  //                                           child: SizedBox(
-  //                                             width: 25.8,
-  //                                             height: 25.8,
-  //                                             child: Container(
-  //                                               decoration: BoxDecoration(
-  //                                                 shape: BoxShape.circle,
-  //                                                 border: Border.all(
-  //                                                   color: Colors.red,
-  //                                                 ),
-  //                                               ),
-  //                                               child: Padding(
-  //                                                 padding:
-  //                                                     const EdgeInsets.all(3.5),
-  //                                                 child: IconButton(
-  //                                                   icon: const Icon(
-  //                                                     Icons.close,
-  //                                                     color: Colors.red,
-  //                                                     size: 16,
-  //                                                   ),
-  //                                                   padding: EdgeInsets.zero,
-  //                                                   constraints:
-  //                                                       const BoxConstraints(),
-  //                                                   onPressed: () =>
-  //                                                       Navigator.of(context)
-  //                                                           .pop(),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         )
-  //                                       ],
-  //                                     ),
-  //                                   ),
-  //                                   const SizedBox(height: 16.0),
-  //                                   // First row - Full Name
-  //                                   Padding(
-  //                                     padding: const EdgeInsets.all(4.0),
-  //                                     child: Container(
-  //                                       decoration: BoxDecoration(
-  //                                         borderRadius:
-  //                                             BorderRadius.circular(4.0),
-  //                                         border:
-  //                                             Border.all(color: Colors.grey),
-  //                                       ),
-  //                                       child: TextField(
-  //                                         controller: nameController,
-  //                                         decoration: const InputDecoration(
-  //                                           contentPadding:
-  //                                               EdgeInsets.symmetric(
-  //                                             horizontal: 12.0,
-  //                                             vertical: 16.0,
-  //                                           ),
-  //                                           labelText: 'Full Name',
-  //                                           prefixIcon: Icon(Icons.person),
-  //                                           border: InputBorder.none,
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   const SizedBox(height: 12.0),
-  //                                   // Second row - Mobile Number and Email
-  //                                   Row(
-  //                                     children: [
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: phoneController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'Mobile Number',
-  //                                                 prefixIcon: Icon(Icons.phone),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       const SizedBox(width: 8.0),
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: emailController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'Email',
-  //                                                 prefixIcon: Icon(Icons.email),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                   const SizedBox(height: 12.0),
-  //                                   // Third row - State and Zip Code
-  //                                   Row(
-  //                                     children: [
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: townController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'Town',
-  //                                                 prefixIcon:
-  //                                                     Icon(Icons.location_city),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       const SizedBox(width: 8.0),
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: stateController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'State',
-  //                                                 prefixIcon:
-  //                                                     Icon(Icons.location_city),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       const SizedBox(width: 8.0),
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: zipcodeController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'Zip Code',
-  //                                                 prefixIcon: Icon(Icons.map),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                   const SizedBox(height: 12.0),
-  //                                   // Fourth row - Address
-  //                                   Padding(
-  //                                     padding: const EdgeInsets.all(4.0),
-  //                                     child: Container(
-  //                                       decoration: BoxDecoration(
-  //                                         borderRadius:
-  //                                             BorderRadius.circular(4.0),
-  //                                         border:
-  //                                             Border.all(color: Colors.grey),
-  //                                       ),
-  //                                       child: TextField(
-  //                                         controller: addressController,
-  //                                         decoration: const InputDecoration(
-  //                                           contentPadding:
-  //                                               EdgeInsets.symmetric(
-  //                                             horizontal: 12.0,
-  //                                             vertical: 16.0,
-  //                                           ),
-  //                                           labelText: 'Address',
-  //                                           prefixIcon: Icon(Icons.home),
-  //                                           border: InputBorder.none,
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   const SizedBox(height: 12.0),
-  //                                   // Second row - Mobile Number and Email
-  //                                   Row(
-  //                                     children: [
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: bsNameController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'Busniness Name',
-  //                                                 prefixIcon: Icon(Icons.phone),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       const SizedBox(width: 8.0),
-  //                                       Expanded(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(4.0),
-  //                                           child: Container(
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: TextField(
-  //                                               controller: bsNumController,
-  //                                               decoration:
-  //                                                   const InputDecoration(
-  //                                                 contentPadding:
-  //                                                     EdgeInsets.symmetric(
-  //                                                   horizontal: 12.0,
-  //                                                   vertical: 16.0,
-  //                                                 ),
-  //                                                 labelText: 'Business Contact',
-  //                                                 prefixIcon: Icon(
-  //                                                     Icons.phone_callback),
-  //                                                 border: InputBorder.none,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                   const SizedBox(height: 12.0),
-  //                                   // Fifth row - Image Picker
-  //                                   Column(
-  //                                     crossAxisAlignment:
-  //                                         CrossAxisAlignment.start,
-  //                                     children: [
-  //                                       Row(
-  //                                         children: [
-  //                                           Expanded(
-  //                                             child: Padding(
-  //                                               padding:
-  //                                                   const EdgeInsets.all(4.0),
-  //                                               child: Expanded(
-  //                                                 child: Padding(
-  //                                                   padding:
-  //                                                       const EdgeInsets.all(
-  //                                                           4.0),
-  //                                                   child: Container(
-  //                                                     decoration: BoxDecoration(
-  //                                                       borderRadius:
-  //                                                           BorderRadius
-  //                                                               .circular(4.0),
-  //                                                       border: Border.all(
-  //                                                           color: Colors.grey),
-  //                                                     ),
-  //                                                     child: TextField(
-  //                                                       controller:
-  //                                                           remarkController,
-  //                                                       decoration:
-  //                                                           const InputDecoration(
-  //                                                         contentPadding:
-  //                                                             EdgeInsets
-  //                                                                 .symmetric(
-  //                                                           horizontal: 12.0,
-  //                                                           vertical: 16.0,
-  //                                                         ),
-  //                                                         labelText: 'Remark',
-  //                                                         prefixIcon:
-  //                                                             Icon(Icons.phone),
-  //                                                         border:
-  //                                                             InputBorder.none,
-  //                                                       ),
-  //                                                     ),
-  //                                                   ),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                           Expanded(
-  //                                             child: Padding(
-  //                                               padding:
-  //                                                   const EdgeInsets.all(4.0),
-  //                                               child: GestureDetector(
-  //                                                 onTap: provider.pickImage,
-  //                                                 child: Container(
-  //                                                   decoration: BoxDecoration(
-  //                                                     borderRadius:
-  //                                                         BorderRadius.circular(
-  //                                                             4.0),
-  //                                                     border: Border.all(
-  //                                                         color: Colors.grey),
-  //                                                   ),
-  //                                                   child: Padding(
-  //                                                     padding: const EdgeInsets
-  //                                                         .symmetric(
-  //                                                       horizontal: 12.0,
-  //                                                       vertical: 16.0,
-  //                                                     ),
-  //                                                     child: Row(
-  //                                                       children: [
-  //                                                         Column(
-  //                                                           children: [
-  //                                                             const Icon(
-  //                                                                 Icons.image,
-  //                                                                 color: Colors
-  //                                                                     .grey),
-  //                                                             const SizedBox(
-  //                                                                 height: 12.0),
-  //                                                             Text(
-  //                                                               provider.imageFile ==
-  //                                                                       null
-  //                                                                   ? 'Pick an image from gallery'
-  //                                                                   : 'Image selected',
-  //                                                               style: TextStyle(
-  //                                                                   color: Colors
-  //                                                                           .grey[
-  //                                                                       700]),
-  //                                                             ),
-  //                                                           ],
-  //                                                         ),
-  //                                                       ],
-  //                                                     ),
-  //                                                   ),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       const SizedBox(height: 12.0),
-  //                                       if (provider.imageFile != null) ...[
-  //                                         Padding(
-  //                                           padding: const EdgeInsets.all(8.0),
-  //                                           child: Container(
-  //                                             height: 100.0,
-  //                                             width: double.infinity,
-  //                                             decoration: BoxDecoration(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4.0),
-  //                                               border: Border.all(
-  //                                                   color: Colors.grey),
-  //                                             ),
-  //                                             child: kIsWeb
-  //                                                 ? Image.network(
-  //                                                     provider.imageFile!.path,
-  //                                                     fit: BoxFit.cover,
-  //                                                   )
-  //                                                 : Image.file(
-  //                                                     File(provider
-  //                                                         .imageFile!.path),
-  //                                                     fit: BoxFit.cover,
-  //                                                   ),
-  //                                           ),
-  //                                         ),
-  //                                       ],
-  //                                     ],
-  //                                   ),
-
-  //                                   const SizedBox(height: 16.0),
-  //                                   Padding(
-  //                                     padding: const EdgeInsets.all(8.0),
-  //                                     child: Row(
-  //                                       mainAxisAlignment:
-  //                                           MainAxisAlignment.center,
-  //                                       children: [
-  //                                         ElevatedButton(
-  //                                           onPressed: () async {
-  //                                             final updatedAdmin =
-  //                                                 CustomerDashMo(
-  //                                               fullname: nameController.text,
-  //                                               mobileno: phoneController.text,
-  //                                               email: emailController.text,
-  //                                               town: townController.text,
-  //                                               state: stateController.text,
-  //                                               zipcode: int.parse(
-  //                                                   zipcodeController.text),
-  //                                               address: addressController.text,
-  //                                               businessName:
-  //                                                   bsNameController.text,
-  //                                               businessNo: bsNumController
-  //                                                   .text, // Provide default or empty values if not applicable
-  //                                             );
-
-  //                                             try {
-  //                                               await provider.addLead(
-  //                                                   admin: updatedAdmin,
-  //                                                   salsmanId: customer!
-  //                                                       .salesmanId
-  //                                                       .toString());
-  //                                               Navigator.of(context)
-  //                                                   .pop(); // Close the dialog
-  //                                             } catch (error) {
-  //                                               // Handle error (e.g., show a message to the user)
-  //                                             }
-  //                                           },
-  //                                           style: ElevatedButton.styleFrom(
-  //                                             backgroundColor:
-  //                                                 primaryColor, // Background color
-  //                                             shape: RoundedRectangleBorder(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(
-  //                                                       4.0), // Border radius
-  //                                             ),
-  //                                           ),
-  //                                           child: const Text(
-  //                                             'Add Lead',
-  //                                             style: TextStyle(
-  //                                                 color: Colors.white),
-  //                                           ),
-  //                                         )
-  //                                       ],
-  //                                     ),
-  //                                   ),
-  //                                 ],
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       );
-  //                     },
-  //                   );
-  //                 },
-  //                 text: "Lead"),
-  //           );
-  //         });
-  //   });
-  // }
 }
 
 class AddLeadsBt extends StatelessWidget {
@@ -1520,7 +902,7 @@ class AddLeadsBt extends StatelessWidget {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.all(15),
+                              padding: const EdgeInsets.all(15),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 color: Colors.white,
@@ -3005,7 +2387,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
 
   @override
   Widget build(BuildContext context) {
-    double totalTableWidth = 100 + 220 + 100 + 100 + 100 + 100 + 140;
+    double totalTableWidth = 100 + 260 + 100 + 100 + 100 + 100 + 140 + 100;
     double fixedRowHeight = 80.0; // Fixed height for all rows
 
     return SingleChildScrollView(
@@ -3070,6 +2452,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             ...List.generate(
                               provider.filteredCustomers.length,
                               (index) {
+                                log('Filtered Customer Length ${provider.filteredCustomers.length}');
                                 var customer =
                                     provider.filteredCustomers[index];
                                 return Container(
@@ -3114,6 +2497,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 behavior:
                                                     HitTestBehavior.opaque,
                                                 onTap: () {
+                                                  provider
+                                                      .setCurrentMonthDates();
+
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
@@ -3121,7 +2507,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           CustomerDachScreen(
                                                         cusId:
                                                             customer.customerId,
+                                                        cusName:
+                                                            customer.fullname,
+                                                        cusImage:
+                                                            customer.imageUrl,
                                                         year: 2024,
+                                                        startDate: provider
+                                                            .selectedStartDate,
+                                                        endDate: provider
+                                                            .selectedEndDate,
                                                       ),
                                                     ),
                                                   );
@@ -3129,7 +2523,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   provider
                                                       .fetchCustomerDashboardData(
                                                           customer.customerId,
-                                                          2024);
+                                                          2024,
+                                                          provider
+                                                              .selectedStartDate,
+                                                          provider
+                                                              .selectedEndDate);
+                                                  provider
+                                                      .fetchCustomerDashboardRevenueData(
+                                                          customer.customerId,
+                                                          2024,
+                                                          provider
+                                                              .selectedStartDate,
+                                                          provider
+                                                              .selectedEndDate);
                                                   provider
                                                       .fetchCustomerDashboardCountData(
                                                           customer.customerId);
@@ -3202,11 +2608,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Container(
-                                        width: 3 *
-                                            62.0, // Only 3 pages will be displayed at a time
+                                        width: 3 * 62.0,
                                         decoration: BoxDecoration(
-                                          color:
-                                              primaryColor, // Background color
+                                          color: primaryColor,
                                           borderRadius:
                                               BorderRadius.circular(3.0),
                                         ),
@@ -3329,7 +2733,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     Container(
                                       color: Colors.grey[200],
                                       // height: 58,
-                                      child: Column(
+                                      child: const Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
@@ -3453,7 +2857,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      220,
+                                      260,
                                     ),
                                     _buildTableHeader(
                                       const Text(
@@ -3523,7 +2927,21 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      120,
+                                      140,
+                                    ),
+                                    _buildTableHeader(
+                                      const Center(
+                                        child: Text(
+                                          'SE',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Poppins_Regular',
+                                          ),
+                                        ),
+                                      ),
+                                      100,
                                     ),
                                   ],
                                 ),
@@ -3532,7 +2950,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                               Container(
                                 child: ListView.builder(
                                   shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemCount: provider.filteredCustomers.length,
                                   itemBuilder: (context, index) {
                                     var customer =
@@ -3548,7 +2966,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           _buildTableCell(
                                             Center(
                                               child: Text(
-                                                '\$0',
+                                                formatAmount('0'),
                                                 style: TextStyle(fontSize: 12),
                                               ),
                                             ),
@@ -3563,47 +2981,133 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     MainAxisAlignment
                                                         .spaceAround,
                                                 children: [
-                                                  Center(
-                                                    child: InkWell(
-                                                      onTap: () {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer.orderData,
-                                                            customer);
-                                                      },
-                                                      child: _buildDataCell(
-                                                        customer.sales
-                                                                ?.toString() ??
-                                                            '0',
-                                                        '\$${customer.totalSales?.toString() ?? '0'}',
-                                                        Colors.blue,
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Center(
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          if (customer.totalSales ==
+                                                                  0 ||
+                                                              customer.totalSales ==
+                                                                  null) {
+                                                            // Show a SnackBar if sales is 0 or null
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                    'No Record Found.'),
+                                                                duration:
+                                                                    Duration(
+                                                                        seconds:
+                                                                            3),
+                                                              ),
+                                                            );
+                                                          } else {
+                                                            // If sales are greater than 0, show the order data dialog
+                                                            _showOrderDataDialog(
+                                                                context,
+                                                                customer
+                                                                    .orderData,
+                                                                customer);
+                                                          }
+                                                        },
+                                                        child: _buildDataCell(
+                                                          customer.sales
+                                                                  ?.toString() ??
+                                                              '0',
+                                                          '${customer.totalSales?.toString() ?? '0'}',
+                                                          Colors.blue,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 5),
-                                                  Center(
-                                                    child: _buildDataCell(
-                                                      customer.delivery
-                                                              ?.toString() ??
-                                                          '0',
-                                                      '\$${customer.salesPrice?.toString() ?? '0'}',
-                                                      Colors.green,
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Center(
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          if (customer.delivery ==
+                                                                  0 ||
+                                                              customer.delivery ==
+                                                                  null) {
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                    'No Record Found.'),
+                                                                duration:
+                                                                    Duration(
+                                                                        seconds:
+                                                                            3),
+                                                              ),
+                                                            );
+                                                          } else {
+                                                            _showOrderDataDialog(
+                                                                context,
+                                                                customer
+                                                                    .orderData,
+                                                                customer);
+                                                          }
+                                                        },
+                                                        child: _buildDataCell(
+                                                          customer.delivery
+                                                                  ?.toString() ??
+                                                              '0',
+                                                          '${customer.salesPrice?.toString() ?? '0'}',
+                                                          Colors.green,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 5),
-                                                  Center(
-                                                    child: _buildDataCell(
-                                                      customer.payment
-                                                              ?.toString() ??
-                                                          '0',
-                                                      '\$${customer.paymentPrice?.toString() ?? '0'}',
-                                                      Colors.orange,
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Center(
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          if (customer.payment ==
+                                                                  0 ||
+                                                              customer.payment ==
+                                                                  null) {
+                                                            // Show a SnackBar if payment is 0 or null
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                    'No Record Found.'),
+                                                                duration:
+                                                                    Duration(
+                                                                        seconds:
+                                                                            3),
+                                                              ),
+                                                            );
+                                                          } else {
+                                                            // Continue to show the order data dialog if payment is valid
+                                                            _showOrderDataDialog(
+                                                                context,
+                                                                customer
+                                                                    .orderData,
+                                                                customer);
+                                                          }
+                                                        },
+                                                        child: _buildDataCell(
+                                                          customer.payment
+                                                                  ?.toString() ??
+                                                              '0',
+                                                          '${customer.paymentPrice?.toString() ?? '0'}',
+                                                          Colors.orange,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            220,
+                                            260,
                                           ),
                                           _buildTableCell(
                                             Padding(
@@ -3627,9 +3131,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   const EdgeInsets.all(4.0),
                                               child: Center(
                                                 child: _buildDataCell(
-                                                  customer.preOrder
-                                                          ?.toString() ??
-                                                      '0',
+                                                  customer.preOrder.toString(),
                                                   '\$${customer.preOrderPrice?.toString() ?? '0'}',
                                                   Colors.grey,
                                                 ),
@@ -3643,9 +3145,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   const EdgeInsets.all(4.0),
                                               child: Center(
                                                 child: _buildDataCell(
-                                                  customer.drafts?.toString() ??
-                                                      '0',
-                                                  '\$${customer.orderData?.draft?.isNotEmpty == true ? customer.orderData.draft.fold(0.0, (a, b) => a + b.orderTotal).toString() : '0'}',
+                                                  customer.drafts.toString(),
+                                                  customer.orderData.draft
+                                                      .takeLast(customer.drafts)
+                                                      .fold(
+                                                          0.0,
+                                                          (a, b) =>
+                                                              a + b.orderTotal)
+                                                      .toString(),
                                                   Colors.red,
                                                 ),
                                               ),
@@ -3687,6 +3194,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ),
                                             140,
                                           ),
+                                          _buildTableCell(
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(4.0),
+                                              child: Center(
+                                                  child: Text(
+                                                      customer.salesmanName)),
+                                            ),
+                                            100,
+                                          ),
                                         ],
                                       ),
                                     );
@@ -3702,7 +3219,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     _buildTableCell(
                                       Center(
                                         child: Text(
-                                          '\$0',
+                                          formatAmount(0), // to be changed
                                           style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16),
@@ -3717,46 +3234,61 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
                                           children: [
-                                            Center(
-                                              child: Text(
-                                                '\$3309.00',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
+                                            Expanded(
+                                              flex: 2,
+                                              child: Center(
+                                                child: Text(
+                                                  formatAmount(provider
+                                                      .orderTotalList[0].sales),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                             SizedBox(width: 5),
-                                            Center(
-                                              child: Text(
-                                                '\$0',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
+                                            Expanded(
+                                              flex: 2,
+                                              child: Center(
+                                                child: Text(
+                                                  formatAmount(provider
+                                                      .orderTotalList[1]
+                                                      .delivery),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                             SizedBox(width: 5),
-                                            Center(
-                                              child: Text(
-                                                '\$0',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
+                                            Expanded(
+                                              flex: 2,
+                                              child: Center(
+                                                child: Text(
+                                                  formatAmount(provider
+                                                      .orderTotalList[2]
+                                                      .payment),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      220,
+                                      260,
                                     ),
                                     _buildTableCell(
                                       Padding(
                                         padding: EdgeInsets.all(4.0),
                                         child: Center(
                                           child: Text(
-                                            '\$0.00',
+                                            formatAmount(provider
+                                                .orderTotalList[3].estimate),
                                             style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16,
@@ -3771,7 +3303,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         padding: EdgeInsets.all(4.0),
                                         child: Center(
                                           child: Text(
-                                            '\$0.00',
+                                            formatAmount(provider
+                                                .orderTotalList[4].preOrder),
                                             style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16,
@@ -3786,7 +3319,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         padding: EdgeInsets.all(4.0),
                                         child: Center(
                                           child: Text(
-                                            '\$0.00',
+                                            formatAmount(provider
+                                                .orderTotalList[5].draft),
                                             style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16,
@@ -3801,7 +3335,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         padding: EdgeInsets.all(4.0),
                                         child: Center(
                                           child: Text(
-                                            '\$600',
+                                            formatAmount(provider
+                                                .orderTotalList[6].cancelled),
                                             style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16,
@@ -3812,7 +3347,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       100,
                                     ),
                                     _buildTableCell(
-                                      Padding(
+                                      const Padding(
                                         padding: EdgeInsets.all(4.0),
                                         child: Text(
                                           '',
@@ -3895,7 +3430,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         ),
         const SizedBox(width: 4),
         Text(
-          amount,
+          formatAmount(amount),
           style: const TextStyle(fontSize: 12),
         ),
       ],
@@ -3916,7 +3451,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             child: LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
               double availableWidth = constraints.maxWidth;
-              double fontSize = availableWidth / 50.6;
+              // double fontSize = availableWidth / 50.6;
+              double fontSize = 14;
               double padding = availableWidth / 100;
               double fixedIconSize = 13.0; // Fixed icon size
 
@@ -3964,6 +3500,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                       ),
                       DataColumn(
                         label: MyRegularText(
+                          label: 'Created By',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
                           label: 'Order Price',
                           style: TextStyle(
                             color: Colors.white,
@@ -3990,31 +3535,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                         ),
                       ),
                       DataColumn(
-                        label: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: SizedBox(
-                            width: 26.2,
-                            height: 26.2,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.red,
-                                  size: 10,
-                                ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ),
-                          ),
-                        ),
+                        label: dialogCloseButton(context, red),
                       ),
                     ],
                     rows: orderData.totalSales.map((order) {
@@ -4084,7 +3605,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                           ),
                           DataCell(
                             Text(
-                              '\$${order.orderTotal.toStringAsFixed(2)}',
+                              '${order.fullname!.nkStringCapitalizeFirstCaracter} ${order.lastname!.nkStringCapitalizeFirstCaracter}',
+                              style: TextStyle(fontSize: fontSize),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              formatAmount(order.orderTotal),
                               style: TextStyle(fontSize: fontSize),
                             ),
                           ),
@@ -4128,4 +3655,29 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       },
     );
   }
+
+  String formatAmount(dynamic value) {
+    // Convert the dynamic value to double
+    double amount;
+
+    if (value is String) {
+      amount = double.tryParse(value) ?? 0.0;
+    } else if (value is int) {
+      amount = value.toDouble();
+    } else if (value is double) {
+      amount = value;
+    } else {
+      throw ArgumentError('Unsupported value type');
+    }
+
+    // Format the amount to two decimal places
+    String formattedAmount = amount.toStringAsFixed(2);
+
+    // Return with the $ symbol
+    return '\$ ' + formattedAmount;
+  }
+}
+
+extension TakeLastExtension<E> on List<E> {
+  List<E> takeLast(int n) => skip(length - n).toList();
 }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -5,9 +6,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:win32/win32.dart';
 
 import '../csord_model/customers_orders_model.dart';
 
@@ -30,7 +31,7 @@ class CustomersProvider with ChangeNotifier {
   })  : _apiService = apiService,
         _logger = logger {
     fetchCustomerData();
-    //fetchCustomerData();
+    fetchCustomerData();
     fetchcustomersDash();
   }
 
@@ -41,6 +42,17 @@ class CustomersProvider with ChangeNotifier {
   FilterDateEnum _selectedFilter = FilterDateEnum.thisMonth;
   String _selectedStartDate = '';
   String _selectedEndDate = '';
+
+  void setCurrentMonthDates() {
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    final dateFormat = DateFormat('yyyy-MM-dd'); // Change format if needed
+
+    _selectedStartDate = dateFormat.format(firstDayOfMonth);
+    _selectedEndDate = dateFormat.format(lastDayOfMonth);
+  }
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -59,8 +71,13 @@ class CustomersProvider with ChangeNotifier {
 
   Future<CustomerTotalSaleResponse>? _customerTotalSaleResponseFuture;
 
+  Future<CustomerRevenueResponse>? _customerRevenueResponseFuture;
+
   Future<CustomerTotalSaleResponse>? get customerTotalSaleResponseFuture =>
       _customerTotalSaleResponseFuture;
+
+  Future<CustomerRevenueResponse>? get customerRevenueResponseFuture =>
+      _customerRevenueResponseFuture;
 
   Future<ApiResponsees>? _countFuture;
 
@@ -68,6 +85,9 @@ class CustomersProvider with ChangeNotifier {
 
   List<CustomerModelxx> _customers = [];
   List<CustomerModelxx> _filteredCustomers = [];
+  List<OrderTotalxx> _orderTotalList = [];
+
+  List<OrderTotalxx> get orderTotalList => _orderTotalList;
 
   List<CustomerModelxx> get filteredCustomers => _filteredCustomers;
   int get currentPage => _currentPage;
@@ -91,10 +111,12 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  // Add a setter for currentPage
   set currentPage(int newPage) {
     if (newPage != _currentPage) {
       _currentPage = newPage;
-      notifyListeners(); 
+      notifyListeners(); // Notify listeners about the change
     }
   }
 
@@ -117,11 +139,18 @@ class CustomersProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setOrderTotal(List<OrderTotalxx> orderTotals) {
+    _orderTotalList = orderTotals;
+    notifyListeners();
+  }
+
   Future<void> fetchcustomersDash() async {
     try {
       _isLoading = true;
       notifyListeners();
+
       _customersDashFuture = _apiService.fetchCustomerDashboardData();
+
       notifyListeners();
     } catch (e, stackTrace) {
       _isLoading = false;
@@ -132,6 +161,7 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomerDashboardCountData(String customerId) async {
     try {
+      // Update _countFuture with the result of fetchOrderCount
       _countFuture = _apiService.fetchOrderCount(customerId);
       notifyListeners();
     } catch (e, stackTrace) {
@@ -142,14 +172,20 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<OrderResponse>? _orderResponse;
+
   Future<OrderResponse>? get orderResponse => _orderResponse;
+
   Future<CustomerResponse>? _customerResponse;
+
   Future<CustomerResponse>? get customerResponse => _customerResponse;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+
   File? get imageFile => _imageFile;
+
   Future<void> pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       _imageFile = File(pickedFile.path);
       notifyListeners();
@@ -220,7 +256,9 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId) async {
+  Future<void> fetchOrdersForCustomDash(
+      OrderStatus s, String custId, dynamic orderType) async {
+    // this is for customer dashboard
     try {
       final now = DateTime.now();
       String startDate;
@@ -262,6 +300,8 @@ class CustomersProvider with ChangeNotifier {
           (startDate.isEmpty || endDate.isEmpty)) {
         throw Exception('Select both start and end dates');
       }
+
+      // Debouncing network requests
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
@@ -299,11 +339,25 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchCustomerDashboardData(
-      String customerId, int specifiedYear) async {
+  Future<void> fetchCustomerDashboardRevenueData(String customerId,
+      int specifiedYear, String startDate, String endDate) async {
+    try {
+      _customerRevenueResponseFuture = _apiService.fetchCustomerRevenueData(
+          customerId, specifiedYear, startDate, endDate);
+      notifyListeners();
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching customer dashboard data',
+          error: e, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> fetchCustomerDashboardData(String customerId, int specifiedYear,
+      String startDate, String endDate) async {
     try {
       _customersDashFuture = _apiService
-          .fetchCustomerDashboardDataa(customerId, specifiedYear)
+          .fetchCustomerDashboardDataa(
+              customerId, specifiedYear, startDate, endDate)
           .then((response) {
         _yearList = response.data.yearList;
         notifyListeners();
@@ -340,39 +394,6 @@ class CustomersProvider with ChangeNotifier {
   bool isOrderSelected(RecentOrder order) {
     return _selectedOrders.contains(order);
   }
-
-  // Future<void> fetchAllCustomers() async {
-  //   try {
-  //     _isLoading = true;
-  //     notifyListeners();
-
-  //     _customersFuture = _apiService.fetchCustomer(
-  //       salesmanId: '',
-  //       customerName: '',
-  //       startDate: '',
-  //       endDate: '',
-  //       limit: '10',
-  //       page: page.toString(),
-  //       valueFromDw: '',
-  //     );
-
-  //     _customersFuture!.then((value) {
-  //       setCustomers(value.data, value.pagination.totalPages);
-  //       _isLoading = false;
-  //       notifyListeners();
-  //     }).catchError((error) {
-  //       _isLoading = false;
-  //       _errorMessage = 'Failed to fetch customer data: $error';
-  //       notifyListeners();
-  //     });
-
-  //     notifyListeners();
-  //   } catch (e, stackTrace) {
-  //     _isLoading = false;
-  //     _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
 
   Future<void> fetchCustomerData({int page = 1}) async {
     // print('cutomer data fetch');
@@ -430,13 +451,17 @@ class CustomersProvider with ChangeNotifier {
           customerName: '',
           startDate: '',
           endDate: '',
-          limit: '10',
-          page: page.toString(),
+          limit: 10,
+          page: page,
           valueFromDw: _selectedFilter.name,
         );
 
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
+          log('Datas :${value.data.length}');
+          log('Limit :${value.pagination.totalPages}');
+          setOrderTotal(value.orderTotal);
+          log('OrderTotal Value :${value.orderTotal.length}');
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {
@@ -444,7 +469,7 @@ class CustomersProvider with ChangeNotifier {
           _errorMessage = 'Failed to fetch customer data: $error';
           notifyListeners();
         });
-
+        
         notifyListeners();
       } catch (e, stackTrace) {
         _isLoading = false;
@@ -487,8 +512,9 @@ class CustomersProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
   void onFilterChanged(FilterDateEnum? selectedFilter) {
-    print('dropdown changed');
+    print('dropdown changed $selectedFilter');
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
 
@@ -503,26 +529,47 @@ class CustomersProvider with ChangeNotifier {
         fetchCustomerData();
       }
 
+      final now = DateTime.now();
+
+      switch (_selectedFilter) {
+        case FilterDateEnum.thisMonth:
+          _selectedStartDate = DateTime(now.year, now.month, 1)
+              .toIso8601String()
+              .substring(0, 10);
+          _selectedEndDate = DateTime(now.year, now.month + 1, 0)
+              .toIso8601String()
+              .substring(0, 10);
+          break;
+        case FilterDateEnum.today:
+          _selectedStartDate = DateTime(now.year, now.month, now.day)
+              .toIso8601String()
+              .substring(0, 10);
+          _selectedEndDate = _selectedStartDate;
+          break;
+        case FilterDateEnum.thisWeek:
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          _selectedStartDate = startOfWeek.toIso8601String().substring(0, 10);
+          _selectedEndDate = now.toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.thisYear:
+          _selectedStartDate =
+              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+          _selectedEndDate =
+              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.range:
+          _selectedStartDate = _selectedStartDate;
+          _selectedEndDate = _selectedEndDate;
+          // Check if start and end dates are both set before fetching
+          if (_selectedStartDate.isEmpty || _selectedEndDate.isEmpty) {
+            return; // Exit if either date is not set
+          }
+          break;
+      }
+
       notifyListeners();
     }
   }
-  // void onFilterChanged(FilterDateEnum? selectedFilter) {
-  //   if (selectedFilter != null) {
-  //     _selectedFilter = selectedFilter;
-
-  //     // Reset dates if not in range
-  //     if (_selectedFilter != FilterDateEnum.range) {
-  //       _selectedStartDate = _selectedStartDate;
-  //       _selectedEndDate = _selectedEndDate;
-  //     }
-
-  //     // Fetch data only if the filter is not a range
-  //     if (_selectedFilter != FilterDateEnum.range) {
-  //       fetchCustomerData();
-  //       notifyListeners();
-  //     }
-  //   }
-  // }
 
   void goToNextPage() {
     if (_currentPage < _totalPages) {

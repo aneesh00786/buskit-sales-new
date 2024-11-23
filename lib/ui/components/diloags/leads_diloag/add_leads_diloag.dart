@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:address_search_field/address_search_field.dart';
+// import 'package:address_search_field/address_search_field.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -193,21 +193,8 @@ class _AddLeadsDiloagState extends State<AddLeadsDiloag> {
                           child: formFiled(address,
                               widget.leadsController.addressTextController,
                               textInputType: TextInputType.streetAddress,
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.location_on_rounded),
-                                color: primaryIconColor,
-                                onPressed: () {
-                                  Get.dialog(AddressSearchDialog(
-                                    geoMethods: GeoMethods(
-                                        googleApiKey: NkCommonFunction.gMapKey,
-                                        language:
-                                            Localizations.localeOf(context)
-                                                .languageCode),
-                                  ));
-                                },
-                              ),
                               prefixIcon:
-                                  filedIcon(Assets.iconsIcAddLeadsAddress)),
+                                  filedIcon(Assets.iconsIcView)),
                         ),
                         nkSmallSizeBox(),
                         Flexible(

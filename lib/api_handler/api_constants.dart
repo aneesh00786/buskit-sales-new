@@ -1,6 +1,7 @@
 mixin class ApiConstants {
 
   static const String baseUrl = "http://16.50.232.153:3000/";
+  static const String baseUrl1 = "http://16.50.232.153:3000";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
   /// Login APi END Point
@@ -80,5 +81,6 @@ mixin class ApiConstants {
   static const String mapPlaceDetailsUrl = "place/details/json?place_id=";
   static const String mapDestinationUrl = "directions/json?destination=";
   static const String distanceMatrix = "distancematrix/json";
+  static const String recent_order_count = "recent_order_count";
   
 }

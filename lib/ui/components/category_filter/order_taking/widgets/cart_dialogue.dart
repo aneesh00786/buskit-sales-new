@@ -611,6 +611,15 @@ class _CartDialogueState extends State<CartDialogue> {
                               text: 'Save as Draft',
                               size: width > 1200 ? 14 : 10,
                               onTap: () async {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  },
+                                );
                                 List<Detail> detail = CartDatabaseManager()
                                     .cartItems
                                     .map((e) => e.detail)
@@ -619,8 +628,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                   widget.cartItemCount = 0;
                                 });
                                 final productBYData = AddToCartModel(
-                                  customerId:customeController
-                                              .customerId.isNotEmpty
+                                  customerId:
+                                      customeController.customerId.isNotEmpty
                                           ? customeController.customerId.value
                                           : widget.productsController
                                               .selectedCustomerId.value,
@@ -658,11 +667,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                 if (cartOrder != null) {
                                   int orderStatus = 4;
                                   CartOrderModel order = CartOrderModel(
-                                    customerId:customeController
-                                              .customerId.isNotEmpty
-                                          ? customeController.customerId.value
-                                          : widget.productsController
-                                              .selectedCustomerId.value,
+                                    customerId:
+                                        customeController.customerId.isNotEmpty
+                                            ? customeController.customerId.value
+                                            : widget.productsController
+                                                .selectedCustomerId.value,
                                     salesmanId: SessionHelper
                                         .loginSavedData!.salesmanId!,
                                     cartId: cartOrder.cartId,
@@ -750,12 +759,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                         orderStatus = -1;
                                       }
                                       CartOrderModel order = CartOrderModel(
-                                        customerId:
-                                            customeController
-                                              .customerId.isNotEmpty
-                                          ? customeController.customerId.value
-                                          : widget.productsController
-                                              .selectedCustomerId.value,
+                                        customerId: customeController
+                                                .customerId.isNotEmpty
+                                            ? customeController.customerId.value
+                                            : widget.productsController
+                                                .selectedCustomerId.value,
                                         salesmanId: SessionHelper
                                             .loginSavedData!.salesmanId!,
                                         cartId: cartOrder.cartId,

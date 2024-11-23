@@ -8,7 +8,7 @@ const Color white = Colors.white;
 const Color black = Colors.black;
 /// BACK GROUND COLOR
 const Color backgroundColor = Color(0xffFFFFFF);
-
+const Color red = Color.fromARGB(255, 255, 0, 0);
 /// TEXT COLOR
 const Color primaryTextColor = Color(0xFF222529);
 const Color secondaryTextColor = Color.fromARGB(255, 52, 54, 55);

@@ -55,7 +55,7 @@ class AppRoutes {
         ),
         GetPage(
           name: customersAndOrders,
-          page: () => const CustomerAndOrdersScreen(),
+          page: () =>  tableee(),
           binding: CommonBinding(),
         ),
         GetPage(
@@ -74,6 +74,9 @@ class AppRoutes {
           transition: Transition.rightToLeft,
           page: () => CustomerDachScreen(
             cusId: '',
+            cusImage: '',
+            cusName: '',
+            
           ),
           binding: CommonBinding(),
         ),

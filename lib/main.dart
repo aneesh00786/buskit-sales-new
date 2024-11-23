@@ -46,6 +46,7 @@ void main() async {
   ));
 
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
+  
       Get.lazyPut<HomeController>(() => HomeController());
   if (SessionHelper.loginSavedData != null) {
     runApp(MyApp(initialRout: AppRoutes.home));

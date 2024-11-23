@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:dio/dio.dart';
@@ -10,10 +9,8 @@ class DioClient with ApiConstants {
       : _dio = Dio(
           BaseOptions(
               baseUrl: ApiConstants.baseUrl,
-              connectTimeout: 30000,
-              receiveTimeout: 30000,
-              /*   connectTimeout: const Duration(seconds: 3),
-              receiveTimeout: const Duration(seconds: 1),*/
+              connectTimeout: const Duration(seconds: 3),
+              receiveTimeout: const Duration(seconds: 1),
               responseType: ResponseType.json),
         )..interceptors.addAll([
             AuthorizationInterceptor(),
@@ -85,71 +82,58 @@ class DioExceptionHandler implements Exception {
   late String errorMessage;
   late String type;
 
-  DioExceptionHandler.fromDioError(DioError dioError,
+  DioExceptionHandler.fromDioError(DioException dioError,
       {bool showErrorSnakBar = true}) {
-    Logger().wtf('Error: ${dioError.type}, Message: ${dioError.message}');
+    print('Error: ${dioError.type}, Message: ${dioError.message}');
+
     switch (dioError.type) {
-      case DioErrorType.cancel:
-        errorMessage = dioError.response?.data['message'];
-        print("1++${errorMessage}");
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
+      case DioExceptionType.cancel:
+        errorMessage =
+            dioError.response?.data['message'] ?? 'Request was cancelled.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
-      case DioErrorType.other:
-        errorMessage = dioError.message ?? 'No Internet Connection';
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
-        break;
-      case DioErrorType.receiveTimeout:
-        errorMessage = dioError.response?.data['message'];
-        print("2++${errorMessage}");
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
-        break;
-      case DioErrorType.sendTimeout:
-        errorMessage = dioError.response?.data['message'];
-        print("3++${errorMessage}");
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
-        break;
-      case DioErrorType.response:
-        errorMessage = dioError.response?.data['message'];
-        print("4++${errorMessage}");
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
-        break;
-      /*case DioErrorType.badResponse:
-        errorMessage = dioError.response?.data['message'];
 
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
+      case DioExceptionType.connectionTimeout:
+        errorMessage = 'Connection timed out.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
-      case DioErrorType.badCertificate:
-        errorMessage = dioError.response?.data['message'];
 
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
+      case DioExceptionType.receiveTimeout:
+        errorMessage = 'Receive timeout occurred.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
-      case DioErrorType.connectionError:
-        errorMessage = 'Unexpected error occurred.';
 
-        break;*/
+      case DioExceptionType.sendTimeout:
+        errorMessage = 'Send timeout occurred.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
+        break;
+
+      case DioExceptionType.badResponse:
+        // Handles HTTP status errors
+        errorMessage = dioError.response?.data['message'] ??
+            'Received invalid status code: ${dioError.response?.statusCode}.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
+        break;
+
+      case DioExceptionType.connectionError:
+        errorMessage = 'Failed to connect to the server.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
+        break;
+
+      case DioExceptionType.badCertificate:
+        errorMessage = 'Bad SSL Certificate.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
+        break;
+
       default:
-        errorMessage = 'Something went wrong';
-        showErrorSnakBar
-            ? NkCommonFunction.showErrorSnakBar(errorMessage)
-            : null;
-
+        errorMessage = 'An unexpected error occurred.';
+        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
     }
   }
+  @override
+  String toString() => errorMessage;
+}
 
 /*
   String _handleStatusCode(int? statusCode) {
@@ -177,10 +161,6 @@ class DioExceptionHandler implements Exception {
     }
   }
 */
-
-  @override
-  String toString() => errorMessage;
-}
 
 class AuthorizationInterceptor extends Interceptor {
   @override
@@ -220,14 +200,14 @@ class LoggerInterceptor extends Interceptor {
     logger.e('${options.method} request => $requestPath'); // Debug log
     logger.d('Error: ${err.error}, Message: ${err.message}'); // Error log
     // Error log
-    return ;
+    return;
     //super.onError(err, handler);
   }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final requestPath = '${options.baseUrl}${options.path}';
-    logger.i('${options.method} request => $requestPath'); 
+    logger.i('${options.method} request => $requestPath');
     return super.onRequest(options, handler);
   }
 

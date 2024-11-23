@@ -40,4 +40,5 @@ class Assets {
   static const String iconsIcImagePic = 'assets/icons/ic_image_pic.svg';
   static const String iconsIcLoginLogo = 'assets/icons/ic_login_logo.svg';
   static const String iconsIcView = 'assets/icons/ic_view.svg';
+  //static const String iconsIcAddStaffAddress = 'assets/icons/ic_add_staff_address.svg';
 }

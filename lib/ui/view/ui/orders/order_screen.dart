@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrderScreen extends StatefulWidget {
-  const OrderScreen({super.key});
+  final int passIndex;
+  const OrderScreen({super.key, this.passIndex = 0});
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
@@ -14,11 +15,13 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   OrderController orderController = Get.put(OrderController());
-
+  int selectedTabIndex = 0;
   @override
   void initState() {
-    orderController.loadOrderData;
     super.initState();
+    orderController.loadOrderData;
+    selectedTabIndex = widget.passIndex;
+   // orderController.loadOrderData(selectedIndex: selectedTabIndex);
   }
 
   @override
@@ -26,8 +29,7 @@ class _OrderScreenState extends State<OrderScreen> {
     return OrientationBuilder(builder: (context, ore) {
       return Scaffold(
         body: SafeArea(
-          child:
-          Column(
+          child: Column(
             children: [
               OrderTopWidget(
                 orderController: orderController,

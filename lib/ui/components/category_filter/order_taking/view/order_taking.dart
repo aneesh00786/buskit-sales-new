@@ -60,6 +60,9 @@ class _OrderTakingState extends State<OrderTaking>
   int _expandedIndex = -1;
   bool _showDialog = false;
   String _dialogMessage = '';
+  var searchText = ''.obs;
+  var selectedYear = '2023'.obs;
+  var years = ['2023'].obs;
 
   @override
   void initState() {

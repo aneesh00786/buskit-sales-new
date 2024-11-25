@@ -29,8 +29,11 @@ import '../../product_list/view/product_list.dart';
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
-
-  OrderTaking({super.key, required this.productsController, this.isReached});
+  final bool? isFromCalender;
+  final String? cusName;
+  final String cusImage;
+  final String? cusId;
+  OrderTaking({super.key, required this.productsController, this.isReached, this.isFromCalender,this.cusName, required this.cusImage,this.cusId});
 
   @override
   _OrderTakingState createState() => _OrderTakingState();
@@ -710,7 +713,7 @@ class _OrderTakingState extends State<OrderTaking>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IntrinsicWidth(
+                          widget.isFromCalender!?  IntrinsicWidth(
                               child: ListTile(
                                   title: Text(widget.productsController
                                           .selectedCustomerName.isEmpty
@@ -738,6 +741,43 @@ class _OrderTakingState extends State<OrderTaking>
                                               : Color.fromARGB(
                                                   123, 194, 192, 192),
                                         )),
+                            ):IntrinsicWidth(
+                              child: ListTile(
+                                  title: Text(widget.cusName!.isEmpty
+                                      ? ''
+                                      : widget.productsController
+                                          .getFormattedCustomerName(widget.cusName
+                                              )),
+                                  leading:widget.isFromCalender!? widget.productsController
+                                          .selectedCustomerName.isEmpty
+                                      ? null
+                                      : CircleAvatar(
+                                          backgroundImage: NetworkImage(widget
+                                                  .productsController
+                                                  .selectedCustomerImageUrl
+                                                  .isEmpty
+                                              ? ''
+                                              : '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}'),
+                                          backgroundColor: widget
+                                                  .productsController
+                                                  .selectedCustomerImageUrl
+                                                  .isEmpty
+                                              ? Colors.blueGrey
+                                              : Color.fromARGB(
+                                                  123, 194, 192, 192),
+                                        ):CircleAvatar(
+                                          backgroundImage: NetworkImage(widget.cusImage.isEmpty
+                                              ? ''
+                                              : '${ApiConstants.imageBaseUrl}/${widget.cusImage}'),
+                                          backgroundColor: widget
+                                                  .cusImage
+                                                  .isEmpty
+                                              ? Colors.blueGrey
+                                              : Color.fromARGB(
+                                                  123, 194, 192, 192),
+                                        )
+                                        
+                                        ),
                             ),
                             IntrinsicWidth(
                               child: CustomSwitch(

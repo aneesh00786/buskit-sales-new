@@ -76,6 +76,7 @@ class AppRoutes {
             cusId: '',
             cusImage: '',
             cusName: '',
+            isFromCalendar: false,
             
           ),
           binding: CommonBinding(),

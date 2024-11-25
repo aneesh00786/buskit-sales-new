@@ -2516,6 +2516,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             .selectedStartDate,
                                                         endDate: provider
                                                             .selectedEndDate,
+                                                        isFromCalendar: false,
                                                       ),
                                                     ),
                                                   );

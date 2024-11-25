@@ -34,12 +34,12 @@ import 'package:provider/provider.dart';
 
 class CustomerDachScreen extends StatefulWidget {
   final String cusId;
-  final dynamic? year;
+  final dynamic year;
   final String cusName;
   final String cusImage;
-  final dynamic? startDate;
-  final dynamic? endDate;
-  final bool? isFromCalendar;
+  final dynamic startDate;
+  final dynamic endDate;
+  final bool isFromCalendar;
 
   const CustomerDachScreen({
     super.key,
@@ -49,7 +49,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.year,
     this.startDate,
     this.endDate,
-    this.isFromCalendar,
+    required this.isFromCalendar,
   });
 
   @override
@@ -84,6 +84,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             .setSelectedIndex(_tabController.index);
       }
     });
+    log('${ApiConstants.imageBaseUrl}${widget.cusImage}');
   }
 
   @override
@@ -95,7 +96,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   @override
   Widget build(BuildContext context) {
     final DashBoardController dashBoardController = DashBoardController();
-    log('${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}');
     String? startDate;
     String? endDate;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -146,6 +146,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     builder: (context) => OrderTaking(
                       productsController: productsController,
                       isReached: true,
+                      cusImage: widget.cusImage,
+                      cusName: widget.cusName,
+                      isFromCalender: widget.isFromCalendar,
+                      cusId: widget.cusId
                     ),
                   ),
                 );
@@ -162,16 +166,24 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ),
             ),
             Obx(() => Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  padding:  EdgeInsets.only(left: 10, right: 10),
                   child: Row(
                     children: [
-                      CircleAvatar(
+                    widget.isFromCalendar??false?  CircleAvatar(
                         backgroundImage: NetworkImage(productsController
                                 .selectedCustomerImageUrl.isEmpty
                             ? ''
                             : '${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}'),
                         backgroundColor:
                             productsController.selectedCustomerImageUrl.isEmpty
+                                ? Colors.blueGrey
+                                : Color.fromARGB(123, 194, 192, 192),
+                      ):CircleAvatar(
+                        backgroundImage: NetworkImage(widget.cusImage.isEmpty
+                            ? ''
+                            : '${ApiConstants.imageBaseUrl}${widget.cusImage}'),
+                        backgroundColor:
+                            widget.cusImage.isEmpty
                                 ? Colors.blueGrey
                                 : Color.fromARGB(123, 194, 192, 192),
                       ),

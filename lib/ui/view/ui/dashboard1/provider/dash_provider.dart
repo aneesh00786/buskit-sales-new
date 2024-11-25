@@ -613,8 +613,6 @@ class ApiService {
 
     try {
       var request = http.MultipartRequest('POST', url);
-
-      // Add fields to the multipart request
       request.fields['adminName'] = model.name;
       request.fields['emailAdmin'] = model.email;
       request.fields['mobilenoAdmin'] = model.phoneNo;

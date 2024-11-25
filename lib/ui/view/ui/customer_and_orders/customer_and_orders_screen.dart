@@ -321,481 +321,477 @@ class tableee extends StatelessWidget {
 
             TextEditingController remarkController = TextEditingController();
 
-            return SizedBox(
-              height: isSmallScreen ? 29 : 38,
-              width: isSmallScreen ? 87 : 100,
-              child: CustomButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return SizedBox(
-                        height: 300,
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Dialog(
-                              insetPadding: EdgeInsets.zero,
-                              backgroundColor:
-                                  Colors.grey[200], // Grey background color
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                side: BorderSide.none, // Remove outline
-                              ),
-                              elevation: 24.0, // Shadow elevation
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4.8),
-                                    decoration: const BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        topRight: Radius.circular(10),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text(
-                                          'Add Customer',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 17.5,
-                                          ),
-                                        ),
-                                        dialogCloseButton(context, red)
-                                      ],
+            return CustomButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SizedBox(
+                      height: 300,
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Dialog(
+                            insetPadding: EdgeInsets.zero,
+                            backgroundColor:
+                                Colors.grey[200], // Grey background color
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                              side: BorderSide.none, // Remove outline
+                            ),
+                            elevation: 24.0, // Shadow elevation
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4.8),
+                                  decoration: const BoxDecoration(
+                                    color: primaryColor,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
                                     ),
                                   ),
-                                  const SizedBox(height: 16.0),
-                                  // First row - Full Name
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(4.0),
-                                        border: Border.all(color: Colors.grey),
-                                      ),
-                                      child: TextField(
-                                        controller: nameController,
-                                        decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12.0,
-                                            vertical: 16.0,
-                                          ),
-                                          labelText: 'Full Name',
-                                          prefixIcon: Icon(Icons.person),
-                                          border: InputBorder.none,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Add Customer',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 17.5,
                                         ),
+                                      ),
+                                      dialogCloseButton(context, red)
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16.0),
+                                // First row - Full Name
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(4.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    child: TextField(
+                                      controller: nameController,
+                                      decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 12.0,
+                                          vertical: 16.0,
+                                        ),
+                                        labelText: 'Full Name',
+                                        prefixIcon: Icon(Icons.person),
+                                        border: InputBorder.none,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 12.0),
-                                  // Second row - Mobile Number and Email
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: phoneController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Mobile Number',
-                                                prefixIcon: Icon(Icons.phone),
-                                                border: InputBorder.none,
+                                ),
+                                const SizedBox(height: 12.0),
+                                // Second row - Mobile Number and Email
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: phoneController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
                                               ),
+                                              labelText: 'Mobile Number',
+                                              prefixIcon: Icon(Icons.phone),
+                                              border: InputBorder.none,
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: emailController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Email',
-                                                prefixIcon: Icon(Icons.email),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12.0),
-                                  // Third row - State and Zip Code
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: townController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Town',
-                                                prefixIcon:
-                                                    Icon(Icons.location_city),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: stateController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'State',
-                                                prefixIcon:
-                                                    Icon(Icons.location_city),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: zipcodeController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Zip Code',
-                                                prefixIcon: Icon(Icons.map),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12.0),
-                                  // Fourth row - Address
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(4.0),
-                                        border: Border.all(color: Colors.grey),
-                                      ),
-                                      child: TextField(
-                                        controller: addressController,
-                                        decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12.0,
-                                            vertical: 16.0,
-                                          ),
-                                          labelText: 'Address',
-                                          prefixIcon: Icon(Icons.home),
-                                          border: InputBorder.none,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 12.0),
-                                  // Second row - Mobile Number and Email
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: bsNameController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Busniness Name',
-                                                prefixIcon: Icon(Icons.phone),
-                                                border: InputBorder.none,
+                                    const SizedBox(width: 8.0),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: emailController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
                                               ),
+                                              labelText: 'Email',
+                                              prefixIcon: Icon(Icons.email),
+                                              border: InputBorder.none,
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: bsNumController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Business Contact',
-                                                prefixIcon:
-                                                    Icon(Icons.phone_callback),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12.0),
-                                  // Fifth row - Image Picker
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: remarkController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Remark',
-                                                prefixIcon: Icon(Icons.phone),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: GestureDetector(
-                                            onTap: provider.pickImage,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(4.0),
-                                                border: Border.all(
-                                                    color: Colors.grey),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Column(
-                                                      children: [
-                                                        const Icon(Icons.image,
-                                                            color: Colors.grey),
-                                                        const SizedBox(
-                                                            height: 12.0),
-                                                        Text(
-                                                          provider.imageFile ==
-                                                                  null
-                                                              ? 'Pick an image from gallery'
-                                                              : 'Image selected',
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .grey[700]),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12.0),
-                                  if (provider.imageFile != null) ...[
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        height: 100.0,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
-                                          border:
-                                              Border.all(color: Colors.grey),
-                                        ),
-                                        child: kIsWeb
-                                            ? Image.network(
-                                                provider.imageFile!.path,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : Image.file(
-                                                File(provider.imageFile!.path),
-                                                fit: BoxFit.cover,
-                                              ),
                                       ),
                                     ),
                                   ],
-
-                                  const SizedBox(height: 16.0),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            final updatedAdmin = CustomerDashMo(
-                                              // cartId:
-                                              //     widget.cusId, // Provide default or empty values if not applicable
-                                              fullname: nameController.text,
-                                              mobileno: phoneController.text,
-                                              email: emailController.text,
-                                              town: townController.text,
-                                              state: stateController.text,
-                                              zipcode: int.parse(
-                                                  zipcodeController.text),
-                                              address: addressController.text,
-                                              businessName:
-                                                  bsNameController.text,
-                                              businessNo: bsNumController
-                                                  .text, // Provide default or empty values if not applicable
-                                            );
-
-                                            try {
-                                              await provider.addCustomer(
-                                                  admin: updatedAdmin,
-                                                  salsmanId: customer!
-                                                      .salesmanId
-                                                      .toString());
-                                              Navigator.of(context)
-                                                  .pop(); // Close the dialog
-                                            } catch (error) {
-                                              // Handle error (e.g., show a message to the user)
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                primaryColor, // Background color
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      4.0), // Border radius
+                                ),
+                                const SizedBox(height: 12.0),
+                                // Third row - State and Zip Code
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: townController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              labelText: 'Town',
+                                              prefixIcon:
+                                                  Icon(Icons.location_city),
+                                              border: InputBorder.none,
                                             ),
                                           ),
-                                          child: const Text(
-                                            'Add Customer',
-                                            style:
-                                                TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
                                           ),
-                                        )
-                                      ],
+                                          child: TextField(
+                                            controller: stateController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              labelText: 'State',
+                                              prefixIcon:
+                                                  Icon(Icons.location_city),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: zipcodeController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              labelText: 'Zip Code',
+                                              prefixIcon: Icon(Icons.map),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12.0),
+                                // Fourth row - Address
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(4.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    child: TextField(
+                                      controller: addressController,
+                                      decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 12.0,
+                                          vertical: 16.0,
+                                        ),
+                                        labelText: 'Address',
+                                        prefixIcon: Icon(Icons.home),
+                                        border: InputBorder.none,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12.0),
+                                // Second row - Mobile Number and Email
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: bsNameController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              labelText: 'Busniness Name',
+                                              prefixIcon: Icon(Icons.phone),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: bsNumController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              labelText: 'Business Contact',
+                                              prefixIcon:
+                                                  Icon(Icons.phone_callback),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12.0),
+                                // Fifth row - Image Picker
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: Colors.grey),
+                                          ),
+                                          child: TextField(
+                                            controller: remarkController,
+                                            decoration: const InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              labelText: 'Remark',
+                                              prefixIcon: Icon(Icons.phone),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: GestureDetector(
+                                          onTap: provider.pickImage,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4.0),
+                                              border: Border.all(
+                                                  color: Colors.grey),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 16.0,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                      const Icon(Icons.image,
+                                                          color: Colors.grey),
+                                                      const SizedBox(
+                                                          height: 12.0),
+                                                      Text(
+                                                        provider.imageFile ==
+                                                                null
+                                                            ? 'Pick an image from gallery'
+                                                            : 'Image selected',
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .grey[700]),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12.0),
+                                if (provider.imageFile != null) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      height: 100.0,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                        border:
+                                            Border.all(color: Colors.grey),
+                                      ),
+                                      child: kIsWeb
+                                          ? Image.network(
+                                              provider.imageFile!.path,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.file(
+                                              File(provider.imageFile!.path),
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
                                   ),
                                 ],
-                              ),
+            
+                                const SizedBox(height: 16.0),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          final updatedAdmin = CustomerDashMo(
+                                            // cartId:
+                                            //     widget.cusId, // Provide default or empty values if not applicable
+                                            fullname: nameController.text,
+                                            mobileno: phoneController.text,
+                                            email: emailController.text,
+                                            town: townController.text,
+                                            state: stateController.text,
+                                            zipcode: int.parse(
+                                                zipcodeController.text),
+                                            address: addressController.text,
+                                            businessName:
+                                                bsNameController.text,
+                                            businessNo: bsNumController
+                                                .text, // Provide default or empty values if not applicable
+                                          );
+            
+                                          try {
+                                            await provider.addCustomer(
+                                                admin: updatedAdmin,
+                                                salsmanId: customer!
+                                                    .salesmanId
+                                                    .toString());
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                          } catch (error) {
+                                            // Handle error (e.g., show a message to the user)
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              primaryColor, // Background color
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(
+                                                    4.0), // Border radius
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Add Customer',
+                                          style:
+                                              TextStyle(color: Colors.white),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      );
-                    },
-                  );
-                },
-                text: 'Customer',
-              ),
+                      ),
+                    );
+                  },
+                );
+              },
+              text: 'Customer',
             );
           });
     });
@@ -1989,11 +1985,10 @@ class CustomButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.blue),
-          borderRadius: BorderRadius.circular(4.0), // Border radius
+          borderRadius: BorderRadius.circular(4.0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          // mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               text,
@@ -2064,7 +2059,7 @@ extension EventTypeExtension on EventType {
       case 5:
         return EventType.daily;
       default:
-        return EventType.weekly; // Default to weekly if unknown
+        return EventType.weekly;
     }
   }
 }
@@ -2073,9 +2068,9 @@ class EventTypeDropdown extends StatefulWidget {
   final EventType initialValue;
   final Function(EventType) onChanged;
   final List<String> defaultEventDays;
-  final String customerId; // Add customer ID parameter
-  final int eventStatus; // Add event status parameter
-  final CustomersProvider provider; // Add provider parameter
+  final String customerId;
+  final int eventStatus;
+  final CustomersProvider provider;
 
   const EventTypeDropdown({
     super.key,
@@ -2115,7 +2110,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
             // ? (ResponsiveInfo.isMobileDimension(context) ? 55 : 55)
             // : (ResponsiveInfo.isMobileDimension(context) ? 55 : 55),
             height: 38,
-            width: 80,
+            width: 90,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 2),
               child: DropdownButton<EventType>(
@@ -2128,10 +2123,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                       widget.onChanged(newValue);
 
                       if (newValue == EventType.monthly) {
-                        // Show date picker for monthly
                         _selectDate(context);
                       } else {
-                        // Show days of week popup for other even t - type
                         showDaysOfWeekPopup(context, widget.defaultEventDays,
                             widget.customerId, newValue.value, widget.provider);
                       }
@@ -2386,9 +2379,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
 
   @override
   Widget build(BuildContext context) {
-    double totalTableWidth = 100 + 260 + 100 + 100 + 100 + 100 + 140 + 100;
-    double fixedRowHeight = 80.0; // Fixed height for all rows
-
+    double totalTableWidth = 110 + 320 + 110 + 110 + 110 + 110 + 140 + 110;
+    double fixedRowHeight = 80.0;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Consumer<CustomersProvider>(builder: (context, provider, _) {
@@ -2670,9 +2662,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       child: Container(
                                                         height: 40,
                                                         width: 25,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(4),
+                                                        // padding:
+                                                        //     const EdgeInsets
+                                                        //         .all(4),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: provider
@@ -2735,7 +2727,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Text('    Total  ',
+                                          Text('Total',
                                               style: TextStyle(
                                                   fontSize: 17,
                                                   fontWeight: FontWeight.w700)),
@@ -2855,7 +2847,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      260,
+                                      290,
                                     ),
                                     _buildTableHeader(
                                       const Text(
@@ -2869,7 +2861,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      100,
+                                      110,
                                     ),
                                     _buildTableHeader(
                                       const Text(
@@ -2883,7 +2875,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      100,
+                                      110,
                                     ),
                                     _buildTableHeader(
                                       const Text(
@@ -2897,7 +2889,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      100,
+                                      110,
                                     ),
                                     _buildTableHeader(
                                       const Text(
@@ -2911,7 +2903,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      100,
+                                      110,
                                     ),
                                     _buildTableHeader(
                                       const Text(
@@ -2944,7 +2936,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   ],
                                 ),
                               ),
-                              // Data rows generation
                               Container(
                                 child: ListView.builder(
                                   shrinkWrap: true,
@@ -2968,196 +2959,174 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 style: TextStyle(fontSize: 12),
                                               ),
                                             ),
-                                            100,
+                                            110,
                                           ),
                                           _buildTableCell(
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Center(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          if (customer.totalSales ==
-                                                                  0 ||
-                                                              customer.totalSales ==
-                                                                  null) {
-                                                            // Show a SnackBar if sales is 0 or null
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                    'No Record Found.'),
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            // If sales are greater than 0, show the order data dialog
-                                                            _showOrderDataDialog(
-                                                                context,
-                                                                customer
-                                                                    .orderData,
-                                                                customer);
-                                                          }
-                                                        },
-                                                        child: _buildDataCell(
-                                                          customer.sales
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          '${customer.totalSales?.toString() ?? '0'}',
-                                                          Colors.blue,
-                                                        ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceAround,
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Center(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (customer.totalSales ==
+                                                                0 ||
+                                                            customer.totalSales ==
+                                                                null) {
+                                                          ScaffoldMessenger
+                                                                  .of(context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'No Record Found.'),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          3),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          _showOrderDataDialog(
+                                                              context,
+                                                              customer
+                                                                  .orderData,
+                                                              customer);
+                                                        }
+                                                      },
+                                                      child: _buildDataCell(
+                                                        customer.sales
+                                                                ?.toString() ??
+                                                            '0',
+                                                        '${customer.totalSales?.toString() ?? '0'}',
+                                                        Colors.blue,
                                                       ),
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 5),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Center(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          if (customer.delivery ==
-                                                                  0 ||
-                                                              customer.delivery ==
-                                                                  null) {
-                                                            // Show a SnackBar if delivery is 0 or null
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                    'No Record Found.'),
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            // Continue to show the order data dialog if delivery is valid
-                                                            _showOrderDataDialog(
-                                                                context,
-                                                                customer
-                                                                    .orderData,
-                                                                customer);
-                                                          }
-                                                        },
-                                                        child: _buildDataCell(
-                                                          customer.delivery
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          '${customer.salesPrice?.toString() ?? '0'}',
-                                                          Colors.green,
-                                                        ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Center(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (customer.delivery ==
+                                                                0 ||
+                                                            customer.delivery ==
+                                                                null) {
+                                                          ScaffoldMessenger
+                                                                  .of(context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'No Record Found.'),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          3),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          _showOrderDataDialog(
+                                                              context,
+                                                              customer
+                                                                  .orderData,
+                                                              customer);
+                                                        }
+                                                      },
+                                                      child: _buildDataCell(
+                                                        customer.delivery
+                                                                ?.toString() ??
+                                                            '0',
+                                                        '${customer.salesPrice?.toString() ?? '0'}',
+                                                        Colors.green,
                                                       ),
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 5),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Center(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          if (customer.payment ==
-                                                                  0 ||
-                                                              customer.payment ==
-                                                                  null) {
-                                                            // Show a SnackBar if payment is 0 or null
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                    'No Record Found.'),
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            // Continue to show the order data dialog if payment is valid
-                                                            _showOrderDataDialog(
-                                                                context,
-                                                                customer
-                                                                    .orderData,
-                                                                customer);
-                                                          }
-                                                        },
-                                                        child: _buildDataCell(
-                                                          customer.payment
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          '${customer.paymentPrice?.toString() ?? '0'}',
-                                                          Colors.orange,
-                                                        ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Center(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (customer.payment ==
+                                                                0 ||
+                                                            customer.payment ==
+                                                                null) {
+                                                          ScaffoldMessenger
+                                                                  .of(context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'No Record Found.'),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          3),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          _showOrderDataDialog(
+                                                              context,
+                                                              customer
+                                                                  .orderData,
+                                                              customer);
+                                                        }
+                                                      },
+                                                      child: _buildDataCell(
+                                                        customer.payment
+                                                                ?.toString() ??
+                                                            '0',
+                                                        '${customer.paymentPrice?.toString() ?? '0'}',
+                                                        Colors.orange,
                                                       ),
                                                     ),
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                            260,
+                                            290,
                                           ),
                                           _buildTableCell(
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Center(
-                                                child: _buildDataCell(
-                                                  customer.estimates
-                                                          ?.toString() ??
-                                                      '0',
-                                                  '\$${customer.estimatesPrice?.toString() ?? '0'}',
-                                                  Colors.purple,
-                                                ),
+                                            Center(
+                                              child: _buildDataCell(
+                                                customer.estimates
+                                                        ?.toString() ??
+                                                    '0',
+                                                '\$${customer.estimatesPrice?.toString() ?? '0'}',
+                                                Colors.purple,
                                               ),
                                             ),
-                                            100,
+                                            110,
                                           ),
                                           _buildTableCell(
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Center(
-                                                child: _buildDataCell(
-                                                  customer.preOrder.toString(),
-                                                  '\$${customer.preOrderPrice?.toString() ?? '0'}',
-                                                  Colors.grey,
-                                                ),
+                                            Center(
+                                              child: _buildDataCell(
+                                                customer.preOrder.toString(),
+                                                '\$${customer.preOrderPrice?.toString() ?? '0'}',
+                                                Colors.grey,
                                               ),
                                             ),
-                                            100,
+                                            110,
                                           ),
                                           _buildTableCell(
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Center(
-                                                child: _buildDataCell(
-                                                  customer.drafts.toString(),
-                                                  customer.orderData.draft
-                                                      .takeLast(customer.drafts)
-                                                      .fold(
-                                                          0.0,
-                                                          (a, b) =>
-                                                              a + b.orderTotal)
-                                                      .toString(),
-                                                  Colors.red,
-                                                ),
+                                            Center(
+                                              child: _buildDataCell(
+                                                customer.drafts.toString(),
+                                                customer.orderData.draft
+                                                    .takeLast(customer.drafts)
+                                                    .fold(
+                                                        0.0,
+                                                        (a, b) =>
+                                                            a + b.orderTotal)
+                                                    .toString(),
+                                                Colors.red,
                                               ),
                                             ),
-                                            100,
+                                            110,
                                           ),
                                           _buildTableCell(
                                             Padding(
@@ -3173,7 +3142,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 ),
                                               ),
                                             ),
-                                            100,
+                                            110,
                                           ),
                                           _buildTableCell(
                                             Padding(
@@ -3192,7 +3161,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 provider: provider,
                                               ),
                                             ),
-                                            140,
+                                            170,
                                           ),
                                           _buildTableCell(
                                             Padding(
@@ -3202,7 +3171,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   child: Text(
                                                       customer.salesmanName)),
                                             ),
-                                            100,
+                                            110,
                                           ),
                                         ],
                                       ),
@@ -3228,133 +3197,115 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       100,
                                     ),
                                     _buildTableCell(
-                                      Padding(
-                                        padding: EdgeInsets.all(4.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            Expanded(
-                                              flex: 2,
-                                              child: Center(
-                                                child: Text(
-                                                  formatAmount(provider
-                                                      .orderTotalList[0].sales),
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                  ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: Center(
+                                              child: Text(
+                                                formatAmount(provider
+                                                    .orderTotalList[0].sales),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(width: 5),
-                                            Expanded(
-                                              flex: 2,
-                                              child: Center(
-                                                child: Text(
-                                                  formatAmount(provider
-                                                      .orderTotalList[1]
-                                                      .delivery),
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                  ),
+                                          ),
+                                          SizedBox(width: 5),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Center(
+                                              child: Text(
+                                                formatAmount(provider
+                                                    .orderTotalList[1]
+                                                    .delivery),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(width: 5),
-                                            Expanded(
-                                              flex: 2,
-                                              child: Center(
-                                                child: Text(
-                                                  formatAmount(provider
-                                                      .orderTotalList[2]
-                                                      .payment),
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                  ),
+                                          ),
+                                          SizedBox(width: 5),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Center(
+                                              child: Text(
+                                                formatAmount(provider
+                                                    .orderTotalList[2]
+                                                    .payment),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
                                                 ),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                      260,
-                                    ),
-                                    _buildTableCell(
-                                      Padding(
-                                        padding: EdgeInsets.all(4.0),
-                                        child: Center(
-                                          child: Text(
-                                            formatAmount(provider
-                                                .orderTotalList[3].estimate),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                      100,
+                                      290,
                                     ),
                                     _buildTableCell(
-                                      Padding(
-                                        padding: EdgeInsets.all(4.0),
-                                        child: Center(
-                                          child: Text(
-                                            formatAmount(provider
-                                                .orderTotalList[4].preOrder),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      100,
-                                    ),
-                                    _buildTableCell(
-                                      Padding(
-                                        padding: EdgeInsets.all(4.0),
-                                        child: Center(
-                                          child: Text(
-                                            formatAmount(provider
-                                                .orderTotalList[5].draft),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      100,
-                                    ),
-                                    _buildTableCell(
-                                      Padding(
-                                        padding: EdgeInsets.all(4.0),
-                                        child: Center(
-                                          child: Text(
-                                            formatAmount(provider
-                                                .orderTotalList[6].cancelled),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      100,
-                                    ),
-                                    _buildTableCell(
-                                      const Padding(
-                                        padding: EdgeInsets.all(4.0),
+                                      Center(
                                         child: Text(
-                                          '',
+                                          formatAmount(provider
+                                              .orderTotalList[3].estimate),
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16,
                                           ),
+                                        ),
+                                      ),
+                                      120,
+                                    ),
+                                    _buildTableCell(
+                                      Center(
+                                        child: Text(
+                                          formatAmount(provider
+                                              .orderTotalList[4].preOrder),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      120,
+                                    ),
+                                    _buildTableCell(
+                                      Center(
+                                        child: Text(
+                                          formatAmount(provider
+                                              .orderTotalList[5].draft),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      120,
+                                    ),
+                                    _buildTableCell(
+                                      Center(
+                                        child: Text(
+                                          formatAmount(provider
+                                              .orderTotalList[6].cancelled),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      120,
+                                    ),
+                                    _buildTableCell(
+                                      Text(
+                                        '',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
                                         ),
                                       ),
                                       140,

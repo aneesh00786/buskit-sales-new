@@ -395,8 +395,7 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
-    // print('cutomer data fetch');
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     if (_selectedFilter == FilterDateEnum.thisMonth ||
         _selectedFilter == FilterDateEnum.today ||
         _selectedFilter == FilterDateEnum.thisWeek ||
@@ -436,16 +435,14 @@ class CustomersProvider with ChangeNotifier {
           case FilterDateEnum.range:
             startDate = _selectedStartDate;
             endDate = _selectedEndDate;
-            // Check if start and end dates are both set before fetching
             if (startDate.isEmpty || endDate.isEmpty) {
-              return; // Exit if either date is not set
+              return; 
             }
             break;
         }
 
         _isLoading = true;
         notifyListeners();
-
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: salesmanId,
           customerName: '',
@@ -455,14 +452,10 @@ class CustomersProvider with ChangeNotifier {
           page: page,
           valueFromDw: _selectedFilter.name,
         );
-
+        log('Selecetd Filters : ${_selectedFilter.name}');
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
-          log("Sales man ID : $salesmanId");
-          log('Datas :${value.data.length}');
-          log('Limit :${value.pagination.totalPages}');
           setOrderTotal(value.orderTotal);
-          log('OrderTotal Value :${value.orderTotal.length}');
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {
@@ -470,7 +463,7 @@ class CustomersProvider with ChangeNotifier {
           _errorMessage = 'Failed to fetch customer data: $error';
           notifyListeners();
         });
-        
+
         notifyListeners();
       } catch (e, stackTrace) {
         _isLoading = false;

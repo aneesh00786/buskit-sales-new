@@ -30,10 +30,10 @@ class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
   final bool? isFromCalender;
-  final String? cusName;
+  final String cusName;
   final String cusImage;
   final String? cusId;
-  OrderTaking({super.key, required this.productsController, this.isReached, this.isFromCalender,this.cusName, required this.cusImage,this.cusId});
+  OrderTaking({super.key, required this.productsController, this.isReached, this.isFromCalender,required this.cusName, required this.cusImage,this.cusId});
 
   @override
   _OrderTakingState createState() => _OrderTakingState();
@@ -713,7 +713,7 @@ class _OrderTakingState extends State<OrderTaking>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                          widget.isFromCalender!?  IntrinsicWidth(
+                          widget.isFromCalender??false?  IntrinsicWidth(
                               child: ListTile(
                                   title: Text(widget.productsController
                                           .selectedCustomerName.isEmpty
@@ -743,12 +743,12 @@ class _OrderTakingState extends State<OrderTaking>
                                         )),
                             ):IntrinsicWidth(
                               child: ListTile(
-                                  title: Text(widget.cusName!.isEmpty
+                                  title: Text(widget.cusName.isEmpty
                                       ? ''
                                       : widget.productsController
                                           .getFormattedCustomerName(widget.cusName
                                               )),
-                                  leading:widget.isFromCalender!? widget.productsController
+                                  leading:widget.isFromCalender??false? widget.productsController
                                           .selectedCustomerName.isEmpty
                                       ? null
                                       : CircleAvatar(
@@ -852,6 +852,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       ),
                                     ),
                                     onPressed: () {
+                                      log("CategoryName : $categoryName");
                                       _selectCategory(categoryName);
                                       CategoryData selectedCategory =
                                           categories[index];
@@ -863,7 +864,9 @@ class _OrderTakingState extends State<OrderTaking>
                                             selectedCategory.subCategoryItem!
                                                     .first.id ??
                                                 '';
-
+                                        setState(() {
+                                          _selectedOption = categoryName;
+                                        });
                                         _fetchProductsByCategory(
                                             firstSubCategoryId);
                                       }

@@ -75,7 +75,6 @@ dependencies:
   syncfusion_flutter_charts: ^26.2.13
   url_launcher: ^6.1.14
   webview_flutter: ^4.0.0
-  win32: any
 
 dependency_overrides:
   #DATE TIME

@@ -157,7 +157,7 @@ class _CategoryListState extends State<CategoryList> {
                                 onTap: () {
                                   widget.onOptionSelected(
                                       option.subCategory ?? '');
-                                  widget.onDrawerToggle(); // Close the drawer
+                                  widget.onDrawerToggle(); 
                                   log(option.subCategory ?? '');
                                 },
                                 child: Padding(

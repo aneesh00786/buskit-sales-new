@@ -19,9 +19,9 @@ class NkGetXTheme {
       textTheme: NkGetXFontStyle.textLightTheme,
       primaryTextTheme: NkGetXFontStyle.textLightTheme,
       dataTableTheme: dataTableTheme,
-      scrollbarTheme: scrollbarTheme,
       dividerColor: dividerColor,
-      listTileTheme: ListTileThemeData(contentPadding: nkSymmetricPadding(vertical: 0)),
+      listTileTheme:
+          ListTileThemeData(contentPadding: nkSymmetricPadding(vertical: 0)),
       expansionTileTheme: ExpansionTileThemeData(
           iconColor: primaryColor,
           collapsedBackgroundColor: backgroundColor,
@@ -42,26 +42,31 @@ class NkGetXTheme {
           surface: backgroundColor,
           secondary: secondaryColor,
           brightness: Get.theme.brightness),
-      iconTheme: IconThemeData(color: primaryIconColor, size: NkGeneralSize.nkIconSize()),
+      iconTheme: IconThemeData(
+          color: primaryIconColor, size: NkGeneralSize.nkIconSize()),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: secondaryTextColor,
         selectionColor: cursorColor,
         selectionHandleColor: primaryButtonColor,
       ),
       useMaterial3: true,
-      iconButtonTheme: const IconButtonThemeData(style: ButtonStyle(iconColor: MaterialStatePropertyAll(primaryIconColor))),
-      primaryIconTheme: IconThemeData(color: primaryIconColor, size: NkGeneralSize.nkIconSize()),
+      iconButtonTheme: const IconButtonThemeData(
+          style: ButtonStyle(
+              iconColor: MaterialStatePropertyAll(primaryIconColor))),
+      primaryIconTheme: IconThemeData(
+          color: primaryIconColor, size: NkGeneralSize.nkIconSize()),
       brightness: Brightness.light,
       buttonTheme: ButtonThemeData(
           buttonColor: primaryButtonColor,
           textTheme: ButtonTextTheme.normal,
           padding: nkRegularPadding(),
-          height: Get.height * 0.06,
+         //  height: Get.height * 0.06,
           disabledColor: primaryButtonColor,
           focusColor: primaryButtonColor,
           layoutBehavior: ButtonBarLayoutBehavior.padded,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
+            borderRadius:
+                BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
           )));
 
   static AppBarTheme get appBarTheme => const AppBarTheme(
@@ -78,25 +83,24 @@ class NkGetXTheme {
       centerTitle: true,
       titleTextStyle: TextStyle());
 
-  /// [dataTableTheme] use to Tabale Theme
-  static DataTableThemeData get dataTableTheme => DataTableThemeData(
-        columnSpacing: AppDimensions.instance?.width,
-        //dataRowMaxHeight: height * 0.1,
+  static void get systemChromeStyle =>
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+        statusBarColor: backgroundColor,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: backgroundColor,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ));
 
-        headingTextStyle: Get.textTheme.displayLarge?.copyWith(
+  static DataTableThemeData get dataTableTheme => DataTableThemeData(
+        columnSpacing: AppDimensions.instance!.width * .02,
+        //dataRowMaxHeight: height * 0.1,
+        headingTextStyle: Get.textTheme.displayLarge!.copyWith(
           inherit: false,
           fontWeight: NkGeneralSize.nkBoldFontWeight(),
           fontSize: NkFontSize.largeFont(),
           color: primaryTextColor,
         ),
       );
-
-  static ScrollbarThemeData get scrollbarTheme => ScrollbarThemeData(
-      thumbColor: const MaterialStatePropertyAll(primaryButtonColor),
-      radius: Radius.circular(NkGeneralSize.nkCommonBorderRadius()),
-      thumbVisibility: MaterialStateProperty.all(true),
-      thickness: MaterialStateProperty.all(AppDimensions.instance?.height ),
-      crossAxisMargin: AppDimensions.instance?.width,
-      mainAxisMargin: AppDimensions.instance?.width,
-      minThumbLength: AppDimensions.instance?.width);
 }
+

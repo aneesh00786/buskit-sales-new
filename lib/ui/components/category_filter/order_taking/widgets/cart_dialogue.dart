@@ -41,6 +41,7 @@ class _CartDialogueState extends State<CartDialogue> {
   double total = 0.0;
   double tax = 0.0;
   String? _selectedValue;
+  String? _dropdownValue;
   final List<String> _options = [
     'Sale Order',
     "Quick Sale",
@@ -575,32 +576,100 @@ class _CartDialogueState extends State<CartDialogue> {
                         color2: Colors.green,
                       ),
                       SizedBox(
-                        height: 60,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: _options.map((option) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Radio<String>(
-                                    splashRadius: 20,
-                                    activeColor: Colors.green,
-                                    value: option,
-                                    groupValue: _selectedValue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedValue = value;
-                                      });
-                                    },
+                        height: _selectedValue == "Quick Sale" ? 120 : 60,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: _options.map((option) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Radio<String>(
+                                        splashRadius: 20,
+                                        activeColor: Colors.green,
+                                        value: option,
+                                        groupValue: _selectedValue,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _selectedValue = value;
+                                          });
+                                        },
+                                      ),
+                                      Text(option),
+                                    ],
                                   ),
-                                  Text(option),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                                );
+                              }).toList(),
+                            ),
+                            if (_selectedValue == "Quick Sale")
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 16.0, left: 10, right: 10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 50,
+                                      child: DropdownButton<String>(
+                                        hint: Text("Payment method"),
+                                        value: _dropdownValue,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            _dropdownValue = newValue;
+                                          });
+                                        },
+                                        items: <String>[
+                                          'Cash',
+                                          'UPI',
+                                        ].map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: "Total Amount",
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: "Remark",
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: "Subtotal",
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                          ],
                         ),
                       ),
                       Padding(

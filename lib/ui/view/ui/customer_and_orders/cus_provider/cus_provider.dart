@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -148,9 +149,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-
       _customersDashFuture = _apiService.fetchCustomerDashboardData();
-
       notifyListeners();
     } catch (e, stackTrace) {
       _isLoading = false;
@@ -397,6 +396,7 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomerData({int page = 1}) async {
     // print('cutomer data fetch');
+    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     if (_selectedFilter == FilterDateEnum.thisMonth ||
         _selectedFilter == FilterDateEnum.today ||
         _selectedFilter == FilterDateEnum.thisWeek ||
@@ -447,7 +447,7 @@ class CustomersProvider with ChangeNotifier {
         notifyListeners();
 
         _customersFuture = _apiService.fetchCustomer(
-          salesmanId: '',
+          salesmanId: salesmanId,
           customerName: '',
           startDate: '',
           endDate: '',
@@ -458,6 +458,7 @@ class CustomersProvider with ChangeNotifier {
 
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
+          log("Sales man ID : $salesmanId");
           log('Datas :${value.data.length}');
           log('Limit :${value.pagination.totalPages}');
           setOrderTotal(value.orderTotal);

@@ -2953,10 +2953,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: provider.filteredCustomers.length,
                                   itemBuilder: (context, index) {
-                                    var customer =
+                                   CustomerModelxx customer =
                                         provider.filteredCustomers[index];
-
-                                    return Container(
+                                        if(provider.filteredCustomers.isEmpty){
+                                          return Center(child: Text('No Data Available'));
+                                        }else{
+                                          return Container(
                                       height: fixedRowHeight,
                                       color: index.isEven
                                           ? Colors.grey[50]
@@ -3014,8 +3016,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         },
                                                         child: _buildDataCell(
                                                           customer.sales
-                                                                  ?.toString() ??
-                                                              '0',
+                                                                  .toString() ??
+                                                              '10',
                                                           '${customer.totalSales?.toString() ?? '0'}',
                                                           Colors.blue,
                                                         ),
@@ -3207,6 +3209,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         ],
                                       ),
                                     );
+                                        }
+
+                                    
                                   },
                                 ),
                               ),

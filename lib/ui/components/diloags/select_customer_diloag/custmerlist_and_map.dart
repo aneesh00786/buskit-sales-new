@@ -92,15 +92,18 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 backgroundImage: NetworkImage(
                     '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
               ),
-              SizedBox(width:8),
+              SizedBox(width: 8),
               Text("${customer.businessName ?? ''}"),
             ],
           ),
-          content: CustomText(content:'Reached on customer Location..',fontSize: 17,),
+          content: CustomText(
+            content: 'Reached on customer Location..',
+            fontSize: 17,
+          ),
           actions: [
             TextButton(
               onPressed: () {
-               Navigator.of(context).pop();
+                Navigator.of(context).pop();
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   homeController.sidebarXController.selectIndex(2);
                   homeController.selectedIndex.value = 2;
@@ -128,6 +131,16 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+              homeController.sidebarXController.selectIndex(5);
+              homeController.selectedIndex.value = 5;
+              Get.toNamed(AppRoutes.calender, id: 2);
+            },
+            child: Icon(
+              Icons.arrow_back_ios,
+            )),
       ),
       body: Row(
         children: [
@@ -139,7 +152,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(Icons.my_location,size: 22,),
+                    Icon(
+                      Icons.my_location,
+                      size: 22,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
                       child: TextFormField(
@@ -163,7 +179,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(EneftyIcons.location_outline, color: Colors.red,size: 22,),
+                    Icon(
+                      EneftyIcons.location_outline,
+                      color: Colors.red,
+                      size: 22,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Obx(
@@ -333,7 +353,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                           return IconButton(
                                             highlightColor:
                                                 Colors.blue.withOpacity(0.2),
-                                            icon: Icon(Icons.near_me_outlined,size: 25,),
+                                            icon: Icon(
+                                              Icons.near_me_outlined,
+                                              size: 25,
+                                            ),
                                             onPressed: () {
                                               selectedCustomer = customer;
                                               navigatedToMap = true;

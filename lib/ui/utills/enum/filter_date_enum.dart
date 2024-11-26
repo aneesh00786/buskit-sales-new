@@ -29,9 +29,9 @@ extension FilterDateExtension on FilterDateEnum {
       {DateTime? startDate, DateTime? endDate}) {
     switch (this) {
       case FilterDateEnum.thisYear:
-        return NkCommonFunction.todayDate;
+        return NkCommonFunction.thisYear;
       case FilterDateEnum.today:
-        return NkCommonFunction.yesterdayDate;
+        return NkCommonFunction.todayDate;
       case FilterDateEnum.thisWeek:
         return NkCommonFunction.thisWeekDate;
       case FilterDateEnum.thisMonth:

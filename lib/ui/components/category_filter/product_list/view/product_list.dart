@@ -88,9 +88,7 @@ class _ProductGridState extends State<ProductGrid> {
       });
     } catch (e) {
       log('Error fetching initial products: $e');
-      setState(() {
-        isLoading = false;
-      });
+      isLoading = false;
     }
   }
 
@@ -391,13 +389,13 @@ class _ProductGridState extends State<ProductGrid> {
       context: context,
       builder: (BuildContext context) {
         return ProductVariantDialogue(
-            index: index,
-            product: product,
-            productList: productList,
-            onDone: onDone,
-            detailsCopy: detailsCopy,
-            productController: widget.productsController,
-            );
+          index: index,
+          product: product,
+          productList: productList,
+          onDone: onDone,
+          detailsCopy: detailsCopy,
+          productController: widget.productsController,
+        );
       },
     );
   }

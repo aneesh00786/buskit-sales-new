@@ -113,12 +113,21 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () {
-                if (widget.isFromCalendar??true) {
+                if (widget.isFromCalendar ?? true) {
                   homeController.sidebarXController.selectIndex(5);
                   homeController.selectedIndex.value = 5;
-                  Get.toNamed(AppRoutes.calender, id: 2);
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          CustomerMapScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                    ),
+                  );
                 } else {
-                 Navigator.pop(context);
+                  Navigator.pop(context);
                 }
               },
               child: Container(
@@ -144,13 +153,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                      productsController: productsController,
-                      isReached: true,
-                      cusImage: widget.cusImage,
-                      cusName: widget.cusName,
-                      isFromCalender: widget.isFromCalendar,
-                      cusId: widget.cusId
-                    ),
+                        productsController: productsController,
+                        isReached: true,
+                        cusImage: widget.cusImage,
+                        cusName: widget.cusName,
+                        isFromCalender: widget.isFromCalendar,
+                        cusId: widget.cusId),
                   ),
                 );
               },
@@ -166,27 +174,29 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ),
             ),
             Obx(() => Padding(
-                  padding:  EdgeInsets.only(left: 10, right: 10),
+                  padding: EdgeInsets.only(left: 10, right: 10),
                   child: Row(
                     children: [
-                    widget.isFromCalendar??false?  CircleAvatar(
-                        backgroundImage: NetworkImage(productsController
-                                .selectedCustomerImageUrl.isEmpty
-                            ? ''
-                            : '${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}'),
-                        backgroundColor:
-                            productsController.selectedCustomerImageUrl.isEmpty
-                                ? Colors.blueGrey
-                                : Color.fromARGB(123, 194, 192, 192),
-                      ):CircleAvatar(
-                        backgroundImage: NetworkImage(widget.cusImage.isEmpty
-                            ? ''
-                            : '${ApiConstants.imageBaseUrl}${widget.cusImage}'),
-                        backgroundColor:
-                            widget.cusImage.isEmpty
-                                ? Colors.blueGrey
-                                : Color.fromARGB(123, 194, 192, 192),
-                      ),
+                      widget.isFromCalendar ?? false
+                          ? CircleAvatar(
+                              backgroundImage: NetworkImage(productsController
+                                      .selectedCustomerImageUrl.isEmpty
+                                  ? ''
+                                  : '${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}'),
+                              backgroundColor: productsController
+                                      .selectedCustomerImageUrl.isEmpty
+                                  ? Colors.blueGrey
+                                  : Color.fromARGB(123, 194, 192, 192),
+                            )
+                          : CircleAvatar(
+                              backgroundImage: NetworkImage(widget
+                                      .cusImage.isEmpty
+                                  ? ''
+                                  : '${ApiConstants.imageBaseUrl}${widget.cusImage}'),
+                              backgroundColor: widget.cusImage.isEmpty
+                                  ? Colors.blueGrey
+                                  : Color.fromARGB(123, 194, 192, 192),
+                            ),
                       SizedBox(
                         width: 10,
                       ),

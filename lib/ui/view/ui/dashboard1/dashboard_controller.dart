@@ -145,10 +145,8 @@ class DashBoardController extends GetxController {
       }
       final apiResponse = await _apiService.fetchDashboardData(
         salesmanId: salesmanId,
-        startDate: "2024-10-01",
-        //startDate,
-        endDate: '2024-10-30',
-        //endDate,
+        startDate: startDate,
+        endDate: endDate,
         createdToken: createdToken,
       );
 

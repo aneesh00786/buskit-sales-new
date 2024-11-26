@@ -12,6 +12,8 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -1598,7 +1600,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
 }
 
 class DoughnutDefaultCustomerDash extends StatefulWidget {
-  final CustomerTotalSaleResponse customerData;
+  final CustomerRevenueResponse customerData;
   final dynamic booking;
   final dynamic order;
   final Color aColor;
@@ -1624,21 +1626,25 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
 
 class _DoughnutDefaultCustomerDashState
     extends State<DoughnutDefaultCustomerDash> {
-  late TooltipBehavior _tooltip;
 
   @override
   void initState() {
-    _tooltip = TooltipBehavior(enable: true, format: 'point.x : point.y%');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Check if the lists are empty and set default values if they are
     final paymentCompleted =
-        widget.customerData.data.totalSale.paymentCompleted.totalAmount;
+        widget.customerData.data.revenue.bookingRevenueData?.isNotEmpty == true
+            ? widget.customerData.data.revenue.bookingRevenueData!.last
+                .totalBookingRevenue
+            : 0;
     final paymentRemaining =
-        widget.customerData.data.totalSale.paymentRemaining.totalAmount;
-    final totalRevenue = paymentCompleted + paymentRemaining;
+        widget.customerData.data.revenue.orderRevenueData?.isNotEmpty == true
+            ? widget.customerData.data.revenue.orderRevenueData!.last
+                .totalOrderRevenue
+            : 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1657,13 +1663,13 @@ class _DoughnutDefaultCustomerDashState
                   sections: [
                     fl_chart.PieChartSectionData(
                       value: paymentCompleted.toDouble(),
-                      color: widget.bColor,
+                      color: widget.aColor,
                       radius: 19.6,
                       showTitle: false,
                     ),
                     fl_chart.PieChartSectionData(
                       value: paymentRemaining.toDouble(),
-                      color: widget.aColor,
+                      color: widget.bColor,
                       radius: 19.6,
                       showTitle: false,
                     ),
@@ -1679,33 +1685,33 @@ class _DoughnutDefaultCustomerDashState
                             section.touchedSection!;
                         final isPaymentCompleted = touchedSectionData.value ==
                             paymentCompleted.toDouble();
-                        final title = isPaymentCompleted
-                            ? 'Completed Payments'
-                            : 'Remaining Payments';
+                        final title =
+                            isPaymentCompleted ? 'Bookings' : 'Orders';
                         final orderDetails = isPaymentCompleted
-                            ? widget.customerData.data.totalSale
-                                .paymentCompleted.orderDetails
-                            : widget.customerData.data.totalSale
-                                .paymentRemaining.orderUncompleteDetails;
-                        _showValueDialog(context, orderDetails, title);
+                            ? widget
+                                .customerData.data.revenue.bookingRevenueData
+                            : widget.customerData.data.revenue.orderRevenueData;
+                        if (orderDetails != null && orderDetails.isNotEmpty) {
+                          _showValueDialog(context, orderDetails, title);
+                        }
                       }
                     },
                   ),
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '\$${totalRevenue.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
+              // Column(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Text(
+              //       formatAmount(totalRevenue),
+              //       style: const TextStyle(
+              //         fontSize: 20,
+              //         fontWeight: FontWeight.bold,
+              //         color: Colors.black,
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -1723,7 +1729,7 @@ class _DoughnutDefaultCustomerDashState
   }
 
   void _showValueDialog(
-      BuildContext context, List<OrderDetail> orderDetails, String title) {
+      BuildContext context, List<dynamic> orderDetails, String title) {
     showDialog(
       context: context,
       builder: (context) {
@@ -1757,34 +1763,7 @@ class _DoughnutDefaultCustomerDashState
                       color: Colors.white,
                     ),
                   ),
-                  CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    child: SizedBox(
-                      width: 25.8,
-                      height: 25.8,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.red,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(3.5),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              color: Colors.red,
-                              size: 16,
-                            ),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
+                  dialogCloseButton1(context, red),
                 ],
               ),
             ),
@@ -1792,6 +1771,7 @@ class _DoughnutDefaultCustomerDashState
               child: DataTable(
                 dataRowHeight: 30,
                 headingRowHeight: 40,
+                columnSpacing: 15,
                 columns: const [
                   DataColumn(
                     label: DialogTableHeaderText(
@@ -1817,12 +1797,12 @@ class _DoughnutDefaultCustomerDashState
                       fontSize: 13,
                     ),
                   ),
-                  DataColumn(
-                    label: DialogTableHeaderText(
-                      text: 'Payment Status',
-                      fontSize: 13,
-                    ),
-                  ),
+                  // DataColumn(
+                  //   label: DialogTableHeaderText(
+                  //     text: 'Payment Status',
+                  //     fontSize: 13,
+                  //   ),
+                  // ),
                 ],
                 rows: orderDetails.map((item) {
                   return DataRow(
@@ -1859,7 +1839,7 @@ class _DoughnutDefaultCustomerDashState
                       )),
                       DataCell(Center(
                         child: Text(
-                          '\$${item.orderTotal}',
+                          formatAmount(item.orderTotal),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: secondaryTextColor,
@@ -1867,33 +1847,33 @@ class _DoughnutDefaultCustomerDashState
                           ),
                         ),
                       )),
-                      DataCell(
-                        Center(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: item.paymentStatus == 0
-                                  ? Colors.red
-                                  : Colors.green,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: item.paymentStatus == 0
-                                    ? Colors.red
-                                    : Colors.green,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(1.0),
-                              child: Icon(
-                                item.paymentStatus == 0
-                                    ? Icons.close
-                                    : Icons.done,
-                                color: Colors.white,
-                                size: 13,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // DataCell(
+                      //   Center(
+                      //     child: Container(
+                      //       decoration: BoxDecoration(
+                      //         color: item.paymentStatus == 0
+                      //             ? Colors.red
+                      //             : Colors.green,
+                      //         shape: BoxShape.circle,
+                      //         border: Border.all(
+                      //           color: item.paymentStatus == 0
+                      //               ? Colors.red
+                      //               : Colors.green,
+                      //         ),
+                      //       ),
+                      //       child: Padding(
+                      //         padding: const EdgeInsets.all(1.0),
+                      //         child: Icon(
+                      //           item.paymentStatus == 0
+                      //               ? Icons.close
+                      //               : Icons.done,
+                      //           color: Colors.white,
+                      //           size: 13,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   );
                 }).toList(),

@@ -51,7 +51,7 @@ class ApiService {
       int specifiedYear, String startDate, String endDate) async {
     var companyId = 1;
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
-
+    log('${startDate}, ${endDate}');
     final requestBody = {
       "company_id": companyId,
       "customer_id": customerId,
@@ -96,7 +96,6 @@ class ApiService {
       log('API URL: $url');
       log('Request Body: $requestBody');
       log("Created Token: $createdToken");
-
       final response = await Dio().post(
         url,
         options: Options(
@@ -106,43 +105,33 @@ class ApiService {
         ),
         data: jsonEncode(requestBody),
       );
-
       log("fetchDashboardData Code: ${response.statusCode}");
       log('fetchDashboardData Body: ${response.data['status']}');
-
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
-        //log('Order Count List:++++++++ ${jsonResponse['data']}');
         var allCategoryList = jsonResponse['data']['all_category'] as List;
         List<Category> allCategory =
             allCategoryList.map((json) => Category.fromJson(json)).toList();
-
         var performanceList =
             jsonResponse['data']['category_performance'] as List;
         List<CategoryPerformancee> categoryPerformance = performanceList
             .map((json) => CategoryPerformancee.fromJson(json))
             .toList();
-
         final revenueJson =
             jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
         final Revenuee revenue = Revenuee.fromJson(revenueJson);
-
         var collectionJson = jsonResponse['data']['collection'];
         Collection collection = Collection.fromJson(collectionJson ?? {});
-
         var deliveryJson = jsonResponse['data']['delivery'];
         Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
-
         var topSellingList =
             jsonResponse['data']['top_selling_product'] as List;
         List<TopSellingProductA> topSellingProducts = topSellingList
             .map((json) => TopSellingProductA.fromJson(json))
             .toList();
-
         var orderCountListJson = jsonResponse['data']['order_count_list'];
         OrderCountListt orderCountList =
             OrderCountListt.fromJson(orderCountListJson ?? {});
-
         return ResponseModell(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,

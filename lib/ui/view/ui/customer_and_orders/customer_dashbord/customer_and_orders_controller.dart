@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CustomerAndOrderController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
+  // final ApiWorker _apiWorker = Get.find();
 
   RxString customerId = ''.obs;
 
@@ -80,7 +80,7 @@ class CustomerAndOrderController extends GetxController {
   Future<List<CustomerAndOrderData>> loadCustomer() async {
     try {
       log("Fetching customers...");
-      var response = await _apiWorker.getCustomer();
+      var response = await ApiWorker().getCustomer();
       if (response.custAndOrderdata != null) {
         customerAndOrderList.assignAll(response.custAndOrderdata!);
       } else {
@@ -95,7 +95,7 @@ class CustomerAndOrderController extends GetxController {
 
   Future deleteCustomer(String customerId, int index) async {
     var map = {"id": customerId};
-    var data = await _apiWorker.deleteCustomer(map);
+    var data = await ApiWorker().deleteCustomer(map);
     if (data.statusCode == 200 && data.data["status"] == true) {
       customerAndOrderList.removeAt(index);
     }
@@ -112,7 +112,7 @@ class CustomerAndOrderController extends GetxController {
       "event_status": eventStatus,
       "days_list": jsonEncode(selectedWeekDay ?? [])
     };
-    var data = await _apiWorker.assignVisit(map);
+    var data = await ApiWorker().assignVisit(map);
     if (data.statusCode == 200 && data.data["status"] == true) {
       // NkCommonFunction.showSuccessSnakBar(
       //     customerName.nkStringCapitalizeFirstCaracter);
@@ -122,7 +122,7 @@ class CustomerAndOrderController extends GetxController {
   }
 
   Future<CustomerAndOrderData> loadSelectedCustomer(String customerId) async {
-    var data = await _apiWorker
+    var data = await ApiWorker()
         .getSingleCustomer(customerId)
         .onError((error, stackTrace) {
       return Future.error(error.toString());

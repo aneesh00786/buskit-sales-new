@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
@@ -14,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -32,11 +34,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../utills/extentions/string_extention.dart';
+
 class CustomerDachScreen extends StatefulWidget {
   final String cusId;
-  final dynamic year;
   final String cusName;
   final String cusImage;
+  final dynamic year;
   final dynamic startDate;
   final dynamic endDate;
   final bool isFromCalendar;
@@ -49,7 +53,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.year,
     this.startDate,
     this.endDate,
-    required this.isFromCalendar,
+    this.isFromCalendar = false,
   });
 
   @override
@@ -58,25 +62,38 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
-  int selectedYear = 2024;
+  int selectedYear = 2024; // Initial selected year
   late TabController _tabController;
-  ProductsController productsController = Get.find<ProductsController>();
+  // ProductsController productsController = Get.find<ProductsController>();
+  ProductsController productsController = Get.put(ProductsController());
   HomeController homeController = Get.put(HomeController());
 
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) {
+      // Fetch initial data
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardData(
               widget.cusId, selectedYear, widget.startDate, widget.endDate);
+      Provider.of<CustomersProvider>(context, listen: false)
+          .fetchCustomerDashboardRevenueData(
+              widget.cusId, selectedYear, widget.startDate, widget.endDate);
+
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardDataSalseData(widget.cusId, selectedYear);
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomersDataDash(widget.cusId);
     });
+
+    // Initialize TabController and set default index to 0 (Total Sales)
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
+
+    // Set the initial index in the CustomersProvider
+    //  context.read<CustomersProvider>().setSelectedIndex(0);
+
+    // Listen for changes to the TabController and update the provider
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         context
@@ -84,7 +101,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             .setSelectedIndex(_tabController.index);
       }
     });
-    log('${ApiConstants.imageBaseUrl}${widget.cusImage}');
   }
 
   @override
@@ -95,7 +111,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
-    final DashBoardController dashBoardController = DashBoardController();
     String? startDate;
     String? endDate;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -103,16 +118,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
     return nkMediumSizeBox(
       height: isMobile
-          ? AppDimensions.instance.height * 3
-          : AppDimensions.instance.height * 0.98,
+          ? AppDimensions.instance!.height * 3
+          : AppDimensions.instance!.height * 0.98,
       child: Scaffold(
-        backgroundColor: white,
         appBar: AppBar(
-          backgroundColor: white,
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
-              onTap: () {
+             onTap: () {
                 if (widget.isFromCalendar ?? true) {
                   homeController.sidebarXController.selectIndex(5);
                   homeController.selectedIndex.value = 5;
@@ -153,137 +166,127 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                        productsController: productsController,
-                        isReached: true,
-                        cusImage: widget.cusImage,
-                        cusName: widget.cusName,
-                        isFromCalender: widget.isFromCalendar,
-                        cusId: widget.cusId),
+                      productsController: productsController,
+                      cusId: widget.cusId,
+                      cusName: widget.cusName,
+                      cusImage: widget.cusImage,
+                      isFromCalender: widget.isFromCalendar,
+                      isReached:true
+                      
+                    ),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0),
+                  borderRadius:
+                      BorderRadius.circular(4.0), // Change the box shape
                 ),
               ),
               child: const Text(
                 'Order Taking',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                    color: Colors.white), // Change text color to white
               ),
             ),
-            Obx(() => Padding(
-                  padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Row(
-                    children: [
-                      widget.isFromCalendar ?? false
-                          ? CircleAvatar(
-                              backgroundImage: NetworkImage(productsController
-                                      .selectedCustomerImageUrl.isEmpty
-                                  ? ''
-                                  : '${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}'),
-                              backgroundColor: productsController
-                                      .selectedCustomerImageUrl.isEmpty
-                                  ? Colors.blueGrey
-                                  : Color.fromARGB(123, 194, 192, 192),
-                            )
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(widget
-                                      .cusImage.isEmpty
-                                  ? ''
-                                  : '${ApiConstants.imageBaseUrl}${widget.cusImage}'),
-                              backgroundColor: widget.cusImage.isEmpty
-                                  ? Colors.blueGrey
-                                  : Color.fromARGB(123, 194, 192, 192),
-                            ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      CustomText(
-                        content: productsController.selectedCustomerName.value,
-                      ),
-                    ],
-                  ),
-                ))
-            //UpdateCustomer(widget: widget),
+            UpdateCustomer(widget: widget),
           ],
         ),
-        body: Consumer<CustomersProvider>(builder: (context, provider, child) {
-          log('Customer Dach :${ApiConstants.imageBaseUrl}${productsController.selectedCustomerImageUrl.value}');
-          return FutureBuilder<ApiResponseModel>(
-            future: provider.customersDashFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData) {
-                return const Center(child: Text('No data available'));
-              } else {
-                final responseModel = snapshot.data!;
-                final frequentProductLists =
-                    responseModel.data.frequentProductLists;
-                final recentOrders = responseModel.data.recentOrders;
+        body: Consumer<CustomersProvider>(
+          builder: (context, provider, child) {
+            return FutureBuilder<ApiResponseModel>(
+              future: provider.customersDashFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData) {
+                  return const Center(child: Text('No data available'));
+                } else {
+                  final responseModel = snapshot.data!;
+                  final frequentProductLists =
+                      responseModel.data.frequentProductLists;
+                  final recentOrders = responseModel.data.recentOrders;
 
-                return Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    children: [
-                      OptionWidgetCustomerDash(
-                        customerId: productsController.selectedCategoryId.value,
-                        customType: "",
-                        customOrderStatusType: OrderStatus.preOrder,
-                        userType: UserType.customer,
-                        userId: "",
-                        startDate: startDate,
-                        endDate: endDate,
-                      ),
-                      const SizedBox(height: 5.7),
-                      SingleChildScrollView(
-                        child: screenWidth < 600
-                            ? Column(
-                                children: [
-                                  Category(context),
-                                  const SizedBox(height: 2),
-                                  OrdersPayments(context, recentOrders),
-                                  const SizedBox(height: 2),
-                                  TotalSalse(context),
-                                  const SizedBox(height: 2),
-                                  Frequently(context, frequentProductLists),
-                                ],
-                              )
-                            : Column(
-                                children: [
-                                  Row(
+                  return Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Column(
+                      children: [
+                        OptionWidgetCustomerDash(
+                          customerId: widget.cusId,
+                          customType: "",
+                          customOrderStatusType: OrderStatus.preOrder,
+                          userType: UserType.customer,
+                          userId: "",
+                          startDate: startDate,
+                          endDate: endDate,
+                        ),
+                        const SizedBox(height: 5.7),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: screenWidth < 600
+                                ? Column(
                                     children: [
-                                      Expanded(child: Category(context)),
-                                      const SizedBox(width: 2),
                                       Expanded(
-                                          child: OrdersPayments(
-                                              context, recentOrders)),
+                                        child: Category(context),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Expanded(
+                                        child: OrdersPayments(
+                                            context, recentOrders),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Expanded(
+                                        child: TotalSalse(context),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Expanded(
+                                        child: Frequently(
+                                            context, frequentProductLists),
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Category(context),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Expanded(
+                                            child: OrdersPayments(
+                                                context, recentOrders),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TabTab(context),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Expanded(
+                                            child: Frequently(
+                                                context, frequentProductLists),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Expanded(child: TabTab(context)),
-                                      const SizedBox(width: 2),
-                                      Expanded(
-                                          child: Frequently(
-                                              context, frequentProductLists)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-          );
-        }),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -294,7 +297,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         child: Padding(
       padding: const EdgeInsets.all(1.0),
       child: MyCommnonContainer(
-        color: white,
         height: 280,
         width: double.infinity,
         isCommonBorder: true,
@@ -312,8 +314,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             context,
                             MaterialPageRoute(
                                 builder: (_) => DashboardScreen(
-                                      cus: productsController
-                                          .selectedSubCategoryId.value,
+                                      cus: widget.cusId,
                                       y: '2024',
                                     )));
                       },
@@ -348,6 +349,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
+                                    widget.cusId,
+                                    selectedYear,
+                                    widget.startDate,
+                                    widget.endDate);
+                            Provider.of<CustomersProvider>(context,
+                                    listen: false)
+                                .fetchCustomerDashboardRevenueData(
                                     widget.cusId,
                                     selectedYear,
                                     widget.startDate,
@@ -412,11 +420,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     ));
   }
 
+  // ignore: non_constant_identifier_names
   Expanded OrdersPayments(
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
       child: MyCommnonContainer(
-        color: white,
         height: 280,
         isCommonBorder: true,
         child: Column(
@@ -436,6 +444,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: ElevatedButton(
                       onPressed: () {
                         List<RecentOrder> selectedOrders = [];
+
+                        // Collect selected orders
                         for (var order in recentOrders) {
                           if (context
                               .read<CustomersProvider>()
@@ -443,6 +453,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             selectedOrders.add(order);
                           }
                         }
+
+                        // Show the appropriate dialog or toast based on the selection
                         if (selectedOrders.isNotEmpty) {
                           _paymentCollectionDialog(context, selectedOrders);
                         } else {
@@ -533,12 +545,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Expanded(
                               child: Center(
                                 child: Text(
-                                  "Due Date",
+                                  "Due By",
                                   style: TextStyle(
                                     fontFamily: 'Poppins_Regular',
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11,
                                   ),
+                                  maxLines: 1,
                                 ),
                               ),
                             ),
@@ -578,6 +591,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             getFormattedOrderCreatAt(
                                                 order.orderCreatAt),
+                                            style: TextStyle(
+                                              fontSize: fontSize,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -607,6 +623,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                               child: Text(
                                                 getStatusLabel(
                                                     order.orderStatus),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: fontSize,
@@ -619,7 +637,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Expanded(
                                         child: Center(
                                           child: Text(
-                                            order.orderTotal.toString(),
+                                            formatAmount(order.orderTotal),
+                                            maxLines: 1,
                                             style: TextStyle(
                                               fontSize: fontSize,
                                             ),
@@ -697,6 +716,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
 
     overlay.insert(overlayEntry);
+
+    // Automatically remove the toast after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });
@@ -706,10 +727,20 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       BuildContext context, List<RecentOrder> selectedOrders) {
     List<int?> _newOrderTotal =
         selectedOrders.map((order) => order.orderTotal).toList();
+
+    // List<int?> _newOrderTotal = [];
+
+    // // Populate _newOrderTotal with orderTotal values
+    // for (var order in selectedOrders) {
+    //   _newOrderTotal[selectedOrders.indexOf(order)] = order.orderTotal;
+    // }
+
+    // Function to calculate the total balance amount from _newOrderTotal
     double calculateTotalBalanceAmount() {
       return _newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
     }
 
+    // Calculate the initial total balance amount
     double totalBalanceAmount = calculateTotalBalanceAmount();
 
     final balanceAmountController = TextEditingController(
@@ -750,36 +781,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        child: SizedBox(
-                          width: 25.8,
-                          height: 25.8,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.red,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(3.5),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
+                      dialogCloseButton1(context, red),
                     ],
                   ),
                 ),
@@ -840,7 +842,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       order.orderCreatAt)))),
                               DataCell(Center(child: Text(order.orderId))),
                               DataCell(Center(
-                                  child: Text(order.orderTotal.toString()))),
+                                  child: Text(formatAmount(order.orderTotal)))),
                               DataCell(Center(
                                 child: Container(
                                   decoration: const BoxDecoration(
@@ -1168,7 +1170,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     .data.totalSale.paymentRemaining.totalAmount;
 
                 return MyCommnonContainer(
-                  color: white,
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: double.infinity,
                   padding: nkRegularPadding(),
@@ -1197,36 +1198,49 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               ),
                               child: DataTable(
                                 headingRowColor:
-                                    MaterialStateProperty.all(Colors.grey[200]),
+                                    MaterialStateProperty.all(Colors.grey[100]),
                                 dataRowHeight: 40,
                                 headingRowHeight: 45,
-                                columnSpacing: 1,
+                                columnSpacing: 10,
+                                horizontalMargin: 10,
                                 columns: [
                                   DataColumn(
-                                    label: MyRegularText(
-                                      label: "Category",
-                                      fontWeight:
-                                          NkGeneralSize.nkBoldFontWeight(),
-                                      color: primaryTextColor,
-                                      fontSize: 12,
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Category",
+                                          fontWeight:
+                                              NkGeneralSize.nkBoldFontWeight(),
+                                          color: primaryTextColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   DataColumn(
-                                    label: MyRegularText(
-                                      label: "Order Value",
-                                      fontWeight:
-                                          NkGeneralSize.nkBoldFontWeight(),
-                                      color: primaryTextColor,
-                                      fontSize: 12,
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Order Value",
+                                          fontWeight:
+                                              NkGeneralSize.nkBoldFontWeight(),
+                                          color: primaryTextColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   DataColumn(
-                                    label: MyRegularText(
-                                      label: "Discount(%)",
-                                      fontWeight:
-                                          NkGeneralSize.nkBoldFontWeight(),
-                                      color: primaryTextColor,
-                                      fontSize: 12,
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Discount(%)",
+                                          fontWeight:
+                                              NkGeneralSize.nkBoldFontWeight(),
+                                          color: primaryTextColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -1252,24 +1266,30 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                     ),
                                     cells: [
                                       DataCell(
-                                        MyRegularText(
-                                          label: discountData.category,
-                                          color: textColor,
-                                          fontSize: 12,
+                                        Center(
+                                          child: MyRegularText(
+                                            label: discountData.category,
+                                            color: textColor,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
                                       DataCell(
-                                        MyRegularText(
-                                          label: discountData.value,
-                                          color: textColor,
-                                          fontSize: 12,
+                                        Center(
+                                          child: MyRegularText(
+                                            label: discountData.value,
+                                            color: textColor,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
                                       DataCell(
-                                        MyRegularText(
-                                          label: discountData.discount,
-                                          color: textColor,
-                                          fontSize: 12,
+                                        Center(
+                                          child: MyRegularText(
+                                            label: discountData.discount,
+                                            color: textColor,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1312,7 +1332,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     .data.totalSale.paymentRemaining.totalAmount;
 
                 return MyCommnonContainer(
-                  color: white,
                   height: 280,
                   width: double.infinity,
                   isCommonBorder: true,
@@ -1334,7 +1353,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               tabs: const [
                                 Tab(
                                   child: Text(
-                                    'Total Sales',
+                                    'Revenue',
                                     style: tabTextStyle,
                                   ),
                                 ),
@@ -1386,8 +1405,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           controller: _tabController,
                           children: [
                             TotalSalse(context),
-                            TotalSalseCustomers(
-                                context), // Method for Tab 2 content
+                            TotalSalseCustomers(context),
                           ],
                         ),
                       ),
@@ -1407,8 +1425,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       padding: const EdgeInsets.all(8.0),
       child: Consumer<CustomersProvider>(
         builder: (context, provider, child) {
-          return FutureBuilder<CustomerTotalSaleResponse>(
-            future: provider.customerTotalSaleResponseFuture,
+          return FutureBuilder<CustomerRevenueResponse>(
+            future: provider.customerRevenueResponseFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -1416,14 +1434,24 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
                 final categoryPerformance = snapshot.data!;
-                final discountDataList = categoryPerformance.data.discountData;
+
+                // Check if lists are non-empty, else default to 0
                 final paymentCompleted = categoryPerformance
-                    .data.totalSale.paymentCompleted.totalAmount;
+                            .data.revenue.bookingRevenueData?.isNotEmpty ==
+                        true
+                    ? categoryPerformance.data.revenue.bookingRevenueData!.last
+                            .totalBookingRevenue ??
+                        0
+                    : 0;
                 final remaCompleted = categoryPerformance
-                    .data.totalSale.paymentRemaining.totalAmount;
+                            .data.revenue.orderRevenueData?.isNotEmpty ==
+                        true
+                    ? categoryPerformance.data.revenue.orderRevenueData!.last
+                            .totalOrderRevenue ??
+                        0
+                    : 0;
 
                 return MyCommnonContainer(
-                  color: white,
                   height: double.infinity,
                   width: double.infinity,
                   isCommonBorder: false,
@@ -1438,23 +1466,17 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             customerData: categoryPerformance,
                             booking: "Booking : 3",
                             order: "Order : 3",
-                            aColor: const Color(0xffff0000),
-                            bColor: const Color(0xff008000),
+                            aColor: Colors.blue.shade900,
+                            bColor: Colors.blue,
                             sabik: const SizedBox.shrink(),
                             sabik1: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  height:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 11.5
-                                          : 11.9,
-                                  width:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 14.9
-                                          : 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff008000),
+                                  height: 11.9,
+                                  width: 14.9,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade900,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(1.0)),
                                   ),
@@ -1462,23 +1484,17 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 const SizedBox(width: 4),
                                 MyRegularText(
                                   label:
-                                      'Booking: \$${paymentCompleted.toStringAsFixed(0)}',
+                                      'Booking : ${formatAmount(paymentCompleted)}',
                                   color: secondaryTextColor,
                                   fontSize: 11.6,
                                   fontWeight: FontWeight.w600,
                                 ),
                                 const SizedBox(width: 16),
                                 Container(
-                                  height:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 11.5
-                                          : 11.9,
-                                  width:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 14.9
-                                          : 14.9,
+                                  height: 11.9,
+                                  width: 14.9,
                                   decoration: const BoxDecoration(
-                                    color: Color(0xffff0000),
+                                    color: Colors.blue,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(1.0)),
                                   ),
@@ -1486,7 +1502,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 const SizedBox(width: 4),
                                 MyRegularText(
                                   label:
-                                      'Order: \$${remaCompleted.toStringAsFixed(0)}',
+                                      'Order: ${formatAmount(remaCompleted)}',
                                   color: secondaryTextColor,
                                   fontSize: 11.6,
                                   fontWeight: FontWeight.w600,
@@ -1512,414 +1528,537 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   // ignore: non_constant_identifier_names
   Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
+    frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
+
     return MyCommnonContainer(
-      color: white,
       height: 280,
       isCommonBorder: true,
       margin: EdgeInsets.zero,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: nkRegularPadding(),
-              child: const Text(
-                'Frequently Bought Products',
-                style: cardHeadingTextStyle,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: nkRegularPadding(),
+            child: const Text(
+              'Frequently Bought Products',
+              style: cardHeadingTextStyle,
             ),
-            // nkSmallSizeBox(),
-            LayoutBuilder(
+          ),
+          Expanded(
+            child: LayoutBuilder(
               builder: (context, constraints) {
-                // double availableWidth = constraints.maxWidth;
-                // double availableHeight = constraints.maxHeight;
-
                 double fontSize = 11;
-
-                frequentProductLists
-                    .sort((a, b) => b.quantity.compareTo(a.quantity));
-
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
+                  child: Column(
                     children: [
-                      // Header Row
-                      Expanded(
-                        child: DataTable(
-                          horizontalMargin: 12,
-                          headingRowHeight: 30,
-                          dataRowHeight: 30,
-                          dividerThickness: 0,
-                          border:
-                              TableBorder.all(width: 0, color: Colors.white),
-                          columns: const [
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Product",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Last Purchase",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Times",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Price",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Qty",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          rows: frequentProductLists.map((product) {
-                            return DataRow(
-                              cells: [
-                                DataCell(
-                                  Expanded(
-                                    child: Center(
-                                      child: Flexible(
+                      // Header Table (Fixed Header Row)
+                      SizedBox(
+                        height: 30,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: DataTable(
+                                horizontalMargin: 6,
+                                headingRowHeight: 30,
+                                dataRowHeight: 0,
+                                dividerThickness: 0,
+                                border: TableBorder.all(
+                                    width: 0, color: Colors.white),
+                                columns: const [
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Center(
                                         child: MyRegularText(
-                                          label: product.variationName,
+                                          label: "Product",
+                                          fontWeight: FontWeight.w600,
                                           color: secondaryTextColor,
-                                          fontSize: fontSize,
-                                          maxlines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                          align: TextAlign.center,
+                                          fontSize: 11.3,
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: DateFormat('dd-MM-yyyy')
-                                            .format(product.createdAt),
-                                        color: secondaryTextColor,
-                                        fontSize: fontSize,
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Last Purchase",
+                                          fontWeight: FontWeight.w600,
+                                          color: secondaryTextColor,
+                                          align: TextAlign.center,
+                                          fontSize: 11.3,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Expanded(
-                                    child: Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                contentPadding: EdgeInsets.zero,
-                                                titlePadding: EdgeInsets.zero,
-                                                content: SingleChildScrollView(
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                        height: 45,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10),
-                                                        decoration:
-                                                            const BoxDecoration(
-                                                          color: primaryColor,
-                                                          borderRadius:
-                                                              BorderRadius.only(
-                                                            topLeft:
-                                                                Radius.circular(
-                                                                    10),
-                                                            topRight:
-                                                                Radius.circular(
-                                                                    10),
-                                                          ),
-                                                        ),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              product
-                                                                  .variationName,
-                                                              style:
-                                                                  const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                              ),
-                                                            ),
-                                                            CircleAvatar(
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              child: SizedBox(
-                                                                width: 25.8,
-                                                                height: 25.8,
-                                                                child:
-                                                                    Container(
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    shape: BoxShape
-                                                                        .circle,
-                                                                    border:
-                                                                        Border
-                                                                            .all(
-                                                                      color: Colors
-                                                                          .red,
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      Padding(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .all(
-                                                                            3.5),
-                                                                    child:
-                                                                        IconButton(
-                                                                      icon:
-                                                                          const Icon(
-                                                                        Icons
-                                                                            .close,
-                                                                        color: Colors
-                                                                            .red,
-                                                                        size:
-                                                                            16,
-                                                                      ),
-                                                                      padding:
-                                                                          EdgeInsets
-                                                                              .zero,
-                                                                      constraints:
-                                                                          const BoxConstraints(),
-                                                                      onPressed:
-                                                                          () {
-                                                                        Navigator.of(context)
-                                                                            .pop();
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        child: DataTable(
-                                                          dataRowHeight: 30,
-                                                          headingRowHeight: 40,
-                                                          columnSpacing: 30,
-                                                          columns: const [
-                                                            DataColumn(
-                                                              label: Text(
-                                                                'Price',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13),
-                                                              ),
-                                                            ),
-                                                            DataColumn(
-                                                              label: Text(
-                                                                'Quantity',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13),
-                                                              ),
-                                                            ),
-                                                            DataColumn(
-                                                              label: Text(
-                                                                'Total Price',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13),
-                                                              ),
-                                                            ),
-                                                            DataColumn(
-                                                              label: Text(
-                                                                'Created At',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        13),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                          rows: product
-                                                              .quantityList
-                                                              .map((quantity) {
-                                                            return DataRow(
-                                                              cells: [
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    '\$${product.price.toString()}',
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
-                                                                    ),
-                                                                  ),
-                                                                )),
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    quantity
-                                                                        .quantity
-                                                                        .toString(),
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
-                                                                    ),
-                                                                  ),
-                                                                )),
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    '\$${product.price.toString()}',
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
-                                                                    ),
-                                                                  ),
-                                                                )),
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    DateFormat(
-                                                                            'dd-MM-yyyy')
-                                                                        .format(
-                                                                            quantity.createdAt!)
-                                                                        .toString(),
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
-                                                                    ),
-                                                                  ),
-                                                                )),
-                                                              ],
-                                                            );
-                                                          }).toList(),
-                                                        ),
-                                                      ),
-                                                    ],
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Times",
+                                          fontWeight: FontWeight.w600,
+                                          color: secondaryTextColor,
+                                          align: TextAlign.center,
+                                          fontSize: 11.3,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Price",
+                                          fontWeight: FontWeight.w600,
+                                          color: secondaryTextColor,
+                                          align: TextAlign.center,
+                                          fontSize: 11.3,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: "Qty",
+                                          fontWeight: FontWeight.w600,
+                                          color: secondaryTextColor,
+                                          align: TextAlign.center,
+                                          fontSize: 11.3,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows: frequentProductLists.map((product) {
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text(
+                                          '${product.productName} - ${product.variationName}',
+                                          style: TextStyle(fontSize: fontSize),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            DateFormat('dd-MM-yyyy')
+                                                .format(product.createdAt),
+                                            style:
+                                                TextStyle(fontSize: fontSize),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Center(
+                                          child: InkWell(
+                                            child: Container(
+                                              height: 20,
+                                              width: 20,
+                                              decoration: const BoxDecoration(
+                                                color: Colors.blue,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  product.count.length
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    color: buttonTextColor,
+                                                    fontSize: fontSize,
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Center(
-                                          child: Container(
-                                            height: 20,
-                                            width: 20,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.blue,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                product.quantityList.length
-                                                    .toString(),
-                                                style: TextStyle(
-                                                  color: buttonTextColor,
-                                                  fontSize: fontSize,
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: '\$${product.price}.00',
-                                        color: secondaryTextColor,
-                                        fontSize: fontSize,
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            formatAmount(product.price),
+                                            style:
+                                                TextStyle(fontSize: fontSize),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: product.quantity.toString(),
-                                        color: secondaryTextColor,
-                                        fontSize: fontSize,
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            product.quantity.toString(),
+                                            style:
+                                                TextStyle(fontSize: fontSize),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Content Table (Scrollable)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                minHeight: 100,
+                                maxHeight: constraints.maxHeight),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: DataTable(
+                                    horizontalMargin: 6,
+                                    headingRowHeight: 0,
+                                    dataRowHeight: 35,
+                                    dividerThickness: 0,
+                                    border: TableBorder.all(
+                                        width: 0, color: Colors.white),
+                                    columns: const [
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: "Product",
+                                              fontWeight: FontWeight.w600,
+                                              color: secondaryTextColor,
+                                              align: TextAlign.center,
+                                              fontSize: 11.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: "Last Purchase",
+                                              fontWeight: FontWeight.w600,
+                                              color: secondaryTextColor,
+                                              align: TextAlign.center,
+                                              fontSize: 11.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: "Times",
+                                              fontWeight: FontWeight.w600,
+                                              color: secondaryTextColor,
+                                              align: TextAlign.center,
+                                              fontSize: 11.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: "Price",
+                                              fontWeight: FontWeight.w600,
+                                              color: secondaryTextColor,
+                                              align: TextAlign.center,
+                                              fontSize: 11.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: "Qty",
+                                              fontWeight: FontWeight.w600,
+                                              color: secondaryTextColor,
+                                              align: TextAlign.center,
+                                              fontSize: 11.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: frequentProductLists.map((product) {
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(
+                                            Text(
+                                              '${product.productName} - ${product.variationName}',
+                                              style:
+                                                  TextStyle(fontSize: fontSize),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Center(
+                                              child: Text(
+                                                DateFormat('dd-MM-yyyy')
+                                                    .format(product.createdAt),
+                                                style: TextStyle(
+                                                    fontSize: fontSize),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Center(
+                                              child: InkWell(
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                        contentPadding:
+                                                            EdgeInsets.zero,
+                                                        titlePadding:
+                                                            EdgeInsets.zero,
+                                                        content:
+                                                            SingleChildScrollView(
+                                                          child: Column(
+                                                            children: [
+                                                              Container(
+                                                                height: 45,
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        10),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color:
+                                                                      primaryColor,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .only(
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            10),
+                                                                    topRight: Radius
+                                                                        .circular(
+                                                                            10),
+                                                                  ),
+                                                                ),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Text(
+                                                                      product
+                                                                          .variationName
+                                                                          .toString(),
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontFamily:
+                                                                            'Poppins_Regular',
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                    dialogCloseButton1(
+                                                                        context,
+                                                                        red),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        8.0),
+                                                                child:
+                                                                    DataTable(
+                                                                  dataRowHeight:
+                                                                      30,
+                                                                  headingRowHeight:
+                                                                      35,
+                                                                  columnSpacing:
+                                                                      30,
+                                                                  // horizontalMargin: 0,
+                                                                  columns: const [
+                                                                    DataColumn(
+                                                                      label:
+                                                                          DialogTableHeaderText(
+                                                                        text:
+                                                                            'Price',
+                                                                        fontSize:
+                                                                            13,
+                                                                      ),
+                                                                    ),
+                                                                    DataColumn(
+                                                                      label:
+                                                                          DialogTableHeaderText(
+                                                                        text:
+                                                                            'Quantity',
+                                                                        fontSize:
+                                                                            13,
+                                                                      ),
+                                                                    ),
+                                                                    DataColumn(
+                                                                      label:
+                                                                          DialogTableHeaderText(
+                                                                        text:
+                                                                            'Amount',
+                                                                        fontSize:
+                                                                            13,
+                                                                      ),
+                                                                    ),
+                                                                    DataColumn(
+                                                                      label:
+                                                                          DialogTableHeaderText(
+                                                                        text:
+                                                                            'Created At',
+                                                                        fontSize:
+                                                                            13,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                  rows: product
+                                                                      .quantityList
+                                                                      .map(
+                                                                          (quantity) {
+                                                                    return DataRow(
+                                                                        cells: [
+                                                                          DataCell(
+                                                                              Center(
+                                                                            child:
+                                                                                Text(
+                                                                              // '1',
+                                                                              formatAmount(quantity.price),
+                                                                              textAlign: TextAlign.center,
+                                                                              style: const TextStyle(
+                                                                                color: secondaryTextColor,
+                                                                                fontSize: 13,
+                                                                              ),
+                                                                            ),
+                                                                          )),
+                                                                          DataCell(
+                                                                              Center(
+                                                                            child:
+                                                                                Text(
+                                                                              quantity.quantity.toString(),
+                                                                              textAlign: TextAlign.center,
+                                                                              style: const TextStyle(
+                                                                                color: secondaryTextColor,
+                                                                                fontSize: 13,
+                                                                              ),
+                                                                            ),
+                                                                          )),
+                                                                          DataCell(
+                                                                            Center(
+                                                                              child: Text(
+                                                                                formatAmount(quantity.price),
+                                                                                textAlign: TextAlign.center,
+                                                                                style: const TextStyle(
+                                                                                  color: secondaryTextColor,
+                                                                                  fontSize: 13,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          DataCell(
+                                                                              Center(
+                                                                            child:
+                                                                                Text(
+                                                                              DateFormat('dd-MM-yyyy').format(quantity.createdAt).toString(),
+                                                                              textAlign: TextAlign.center,
+                                                                              style: const TextStyle(
+                                                                                color: secondaryTextColor,
+                                                                                fontSize: 13,
+                                                                              ),
+                                                                            ),
+                                                                          )), // Format this date as needed
+                                                                        ]);
+                                                                  }).toList(),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: Container(
+                                                  height: 20,
+                                                  width: 20,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Colors.blue,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      product.count.length
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                        color: buttonTextColor,
+                                                        fontSize: fontSize,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Center(
+                                              child: Text(
+                                                formatAmount(product.price),
+                                                style: TextStyle(
+                                                    fontSize: fontSize),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Center(
+                                              child: Text(
+                                                product.quantity.toString(),
+                                                style: TextStyle(
+                                                    fontSize: fontSize),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
                                   ),
                                 ),
                               ],
-                            );
-                          }).toList(),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -1927,9 +2066,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 );
               },
             ),
-            nkSmallSizeBox(),
-          ],
-        ),
+          ),
+          nkSmallSizeBox(),
+        ],
       ),
     );
   }
@@ -1997,13 +2136,14 @@ class UpdateCustomer extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Dialog(
                               insetPadding: EdgeInsets.zero,
-                              backgroundColor: Colors.grey[200],
+                              backgroundColor:
+                                  Colors.grey[200], // Grey background color
                               shape: const RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10.0)),
-                                side: BorderSide.none,
+                                side: BorderSide.none, // Remove outline
                               ),
-                              elevation: 24.0,
+                              elevation: 24.0, // Shadow elevation
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2064,6 +2204,7 @@ class UpdateCustomer extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 16.0),
+                                  // First row - Full Name
                                   Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: Container(
@@ -2087,6 +2228,7 @@ class UpdateCustomer extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 12.0),
+                                  // Second row - Mobile Number and Email
                                   Row(
                                     children: [
                                       Expanded(
@@ -2145,6 +2287,7 @@ class UpdateCustomer extends StatelessWidget {
                                     ],
                                   ),
                                   const SizedBox(height: 12.0),
+                                  // Third row - State and Zip Code
                                   Row(
                                     children: [
                                       Expanded(
@@ -2626,6 +2769,209 @@ class UpdateCustomer extends StatelessWidget {
   }
 }
 
+// class CircularProgressBar extends StatefulWidget {
+//   final double progress;
+//   final double strokeWidth;
+//   final Color backgroundColor;
+//   final Color progressColor;
+//   final String amount;
+//   final dynamic payment;
+//   final dynamic pending;
+//   final List<int> years;
+
+//   const CircularProgressBar({
+//     super.key,
+//     required this.progress,
+//     this.strokeWidth = 10.0,
+//     this.backgroundColor = Colors.grey,
+//     this.progressColor = Colors.green,
+//     required this.amount,
+//     required this.payment,
+//     required this.pending,
+//     required this.years,
+//   });
+
+//   @override
+//   // ignore: library_private_types_in_public_api
+//   _CircularProgressBarState createState() => _CircularProgressBarState();
+// }
+
+// class _CircularProgressBarState extends State<CircularProgressBar> {
+//   // late int selectedYear;
+
+//   // @override
+//   // void initState() {
+//   //   super.initState();
+//   //   selectedYear =
+//   //       widget.years.isNotEmpty ? widget.years.first : DateTime.now().year;
+//   // }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         CustomPaint(
+//           size: Size(
+//               100,
+//               (MediaQuery.of(context).orientation == Orientation.portrait)
+//                   ? (ResponsiveInfo.isMobileDimension(context) ? 100 : 120)
+//                   : (ResponsiveInfo.isMobileDimension(context) ? 100 : 120)),
+//           painter: CircularProgressBarPainter(
+//             progress: widget.progress,
+//             strokeWidth: widget.strokeWidth,
+//             backgroundColor: widget.backgroundColor,
+//             progressColor: widget.progressColor,
+//             amount: widget.amount,
+//             context: context,
+//           ),
+//         ),
+//         const SizedBox(
+//           height: 4,
+//         ),
+//         Row(
+//           children: [
+//             Row(
+//               children: [
+//                 Container(
+//                   height: (MediaQuery.of(context).orientation ==
+//                           Orientation.portrait)
+//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
+//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
+//                   width: (MediaQuery.of(context).orientation ==
+//                           Orientation.portrait)
+//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
+//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
+//                   decoration: const BoxDecoration(
+//                     color: Colors.green,
+//                     borderRadius: BorderRadius.all(Radius.circular(3.0)),
+//                   ),
+//                 ),
+//                 const SizedBox(
+//                   width: 2,
+//                 ),
+//                 MyRegularText(
+//                     label: "Payment : ${widget.payment}",
+//                     fontWeight: NkGeneralSize.nkBoldFontWeight(),
+//                     color: primaryTextColor)
+//               ],
+//             ),
+//             SizedBox(
+//               width:
+//                   (MediaQuery.of(context).orientation == Orientation.portrait)
+//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 7)
+//                       : (ResponsiveInfo.isMobileDimension(context) ? 7 : 7),
+//             ),
+//             Row(
+//               children: [
+//                 Container(
+//                   height: (MediaQuery.of(context).orientation ==
+//                           Orientation.portrait)
+//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
+//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
+//                   width: (MediaQuery.of(context).orientation ==
+//                           Orientation.portrait)
+//                       ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
+//                       : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
+//                   decoration: const BoxDecoration(
+//                     color: Colors.red,
+//                     borderRadius: BorderRadius.all(Radius.circular(3.0)),
+//                   ),
+//                 ),
+//                 const SizedBox(
+//                   width: 2,
+//                 ),
+//                 MyRegularText(
+//                     label: "Pending : ${widget.pending}",
+//                     fontWeight: NkGeneralSize.nkBoldFontWeight(),
+//                     color: primaryTextColor)
+//               ],
+//             )
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// class CircularProgressBarPainter extends CustomPainter {
+//   final double progress;
+//   final double strokeWidth;
+//   final Color backgroundColor;
+//   final Color progressColor;
+//   final String amount;
+//   final BuildContext context;
+
+//   CircularProgressBarPainter({
+//     required this.progress,
+//     required this.strokeWidth,
+//     required this.backgroundColor,
+//     required this.progressColor,
+//     required this.amount,
+//     required this.context,
+//   });
+
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final center = Offset(size.width / 2, size.height / 2);
+//     final radius = min(size.width / 2, size.height / 2) - strokeWidth / 2;
+
+//     final backgroundPaint = Paint()
+//       ..color = backgroundColor
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = strokeWidth;
+
+//     final progressPaint = Paint()
+//       ..color = progressColor
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = strokeWidth
+//       ..strokeCap = StrokeCap.round;
+
+//     canvas.drawCircle(center, radius, backgroundPaint);
+
+//     final progressAngle = 2 * pi * (progress / 100);
+//     canvas.drawArc(
+//       Rect.fromCircle(center: center, radius: radius),
+//       -pi / 2,
+//       progressAngle,
+//       false,
+//       progressPaint,
+//     );
+
+//     // Render amount text
+//     final textStyle = TextStyle(
+//       color: Colors.black,
+//       fontWeight: FontWeight.bold,
+//       fontSize: (MediaQuery.of(context).orientation == Orientation.portrait)
+//           ? (ResponsiveInfo.isMobileDimension(context) ? 6.2 : 12)
+//           : (ResponsiveInfo.isMobileDimension(context) ? 17 : 22),
+//     );
+//     final textSpan = TextSpan(
+//       text: amount,
+//       style: textStyle,
+//     );
+//     final textPainter = TextPainter(
+//       text: textSpan,
+//       textAlign: TextAlign.center,
+//       textDirection: TextDirection.LTR,
+//     );
+//     textPainter.layout();
+//     textPainter.paint(
+//       canvas,
+//       Offset(center.dx - textPainter.width / 2,
+//           center.dy - textPainter.height / 2),
+//     );
+//   }
+
+//   @override
+//   bool shouldRepaint(CircularProgressBarPainter oldDelegate) {
+//     return oldDelegate.progress != progress ||
+//         oldDelegate.progressColor != progressColor ||
+//         oldDelegate.backgroundColor != backgroundColor ||
+//         oldDelegate.strokeWidth != strokeWidth ||
+//         oldDelegate.amount != amount;
+//   }
+// }
+
 class DashboardScreen extends StatelessWidget {
   final String cus;
   final dynamic y;
@@ -2654,10 +3000,15 @@ class DashboardScreen extends StatelessWidget {
                 return ListView(
                   children: [
                     Text(data.fullCategory.length.toString()),
+                    // Display Category Performance
                     _buildCategoryPerformance(data.categoryPerformance),
+                    // Display Recent Orders
                     _buildRecentOrders(data.recentOrders),
+                    // Display Frequent Product Lists
                     _buildFrequentProductLists(data.frequentProductLists),
+                    // Display Year List
                     _buildYearList(data.yearList),
+                    // Display Full Category
                     _buildFullCategory(data.fullCategory),
                   ],
                 );
@@ -2710,6 +3061,7 @@ class DashboardScreen extends StatelessWidget {
               // Text(item.count.first.reason.toString()),
             ],
           ),
+          // Display other fields
         );
       }).toList(),
     );
@@ -2844,6 +3196,7 @@ class CustomerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(
       builder: (context, provider, child) {
+        // Ensure data fetching happens only once
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (provider.countFuture == null) {
             provider.fetchCustomerDashboardCountData('CUSTO3');
@@ -2910,63 +3263,67 @@ class CustomerDashboard extends StatelessWidget {
   }
 }
 
-class CustomerDetailScreen extends StatelessWidget {
-  final String customerId;
+// class CustomerDetailScreen extends StatelessWidget {
+//   final String customerId;
 
-  const CustomerDetailScreen({Key? key, required this.customerId})
-      : super(key: key);
+//   const CustomerDetailScreen({Key? key, required this.customerId})
+//       : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<CustomersProvider>(
-      builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.customerResponse == null) {
-            provider.fetchCustomersDataDash('CUSTO3');
-          }
-        });
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer<CustomersProvider>(
+//       builder: (context, provider, child) {
+//         // Ensure data fetching happens only once
+//         WidgetsBinding.instance.addPostFrameCallback((_) {
+//           if (provider.customerResponse == null) {
+//             provider.fetchCustomersDataDash('CUSTO3');
+//           }
+//         });
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Customer Details'),
-          ),
-          body: FutureBuilder<CustomerResponse?>(
-            future: provider.customerResponse,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                final customer = snapshot.data?.data.first;
-                return customer != null
-                    ? Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Full Name: ${customer.fullname}',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text('Email: ${customer.email}'),
-                            const SizedBox(height: 8),
-                            Text('Address: ${customer.address}'),
-                            const SizedBox(height: 8),
-                            Text('Discount: ${customer.discount}'),
-                          ],
-                        ),
-                      )
-                    : const Center(child: Text('No data available'));
-              } else {
-                return const Center(child: Text('No data available'));
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
-}
+//         return Scaffold(
+//           appBar: AppBar(
+//             title: const Text('Customer Details'),
+//           ),
+//           body: FutureBuilder<CustomerResponse?>(
+//             future: provider.customerResponse,
+//             builder: (context, snapshot) {
+//               if (snapshot.connectionState == ConnectionState.waiting) {
+//                 return const Center(child: CircularProgressIndicator());
+//               } else if (snapshot.hasError) {
+//                 return Center(child: Text('Error: ${snapshot.error}'));
+//               } else if (snapshot.hasData) {
+//                 final customer = snapshot
+//                     .data?.data.first; // Assuming there is only one customer
+//                 return customer != null
+//                     ? Padding(
+//                         padding: const EdgeInsets.all(16.0),
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Text(
+//                               'Full Name: ${customer.fullname}',
+//                               style: const TextStyle(
+//                                   fontSize: 18, fontWeight: FontWeight.bold),
+//                             ),
+//                             const SizedBox(height: 8),
+//                             Text('Email: ${customer.email}'),
+//                             const SizedBox(height: 8),
+//                             Text('Address: ${customer.address}'),
+//                             const SizedBox(height: 8),
+//                             Text('Discount: ${customer.discount}'),
+//                             // Add more fields as needed
+//                           ],
+//                         ),
+//                       )
+//                     : const Center(child: Text('No data available'));
+//               } else {
+//                 return const Center(child: Text('No data available'));
+//               }
+//             },
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+

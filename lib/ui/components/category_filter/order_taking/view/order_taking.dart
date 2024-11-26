@@ -51,7 +51,7 @@ class _OrderTakingState extends State<OrderTaking>
   TextEditingController customerSearchController = TextEditingController();
   TextEditingController searchController = TextEditingController();
   CustomerAndOrderController customerAndOrderController =
-      Get.find<CustomerAndOrderController>();
+      Get.put(CustomerAndOrderController());
   HomeController homeController = Get.find<HomeController>();
   bool isLoading = true;
   bool _isDrawerOpen = true;
@@ -133,10 +133,10 @@ class _OrderTakingState extends State<OrderTaking>
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
     if (categories.isNotEmpty) {
-      setState(() {
+    //  setState(() {
         _expandedIndex = 0;
         _selectedCategory = categories[0].categoryName ?? '';
-      });
+     // });
       if (categories[0].subCategoryItem != null &&
           categories[0].subCategoryItem!.isNotEmpty) {
         final firstSubCategory =
@@ -213,7 +213,7 @@ class _OrderTakingState extends State<OrderTaking>
   }
 
   CustomerAndOrderController customeController =
-      Get.find<CustomerAndOrderController>();
+      Get.put(CustomerAndOrderController());
   void handleBackNavigation(
     BuildContext context,
     bool toDashBoard,

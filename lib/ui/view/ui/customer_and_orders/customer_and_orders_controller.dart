@@ -11,7 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:get/get.dart';
 
 class CustomerAndOrderController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
+  // final ApiWorker _apiWorker = Get.find();
    RxString customerId = ''.obs;
 
   RxList<CustomerAndOrderData> customerAndOrderList =
@@ -48,7 +48,7 @@ class CustomerAndOrderController extends GetxController {
 Future<List<CustomerAndOrderData>> loadCustomer() async {
   try {
     log("Fetching customers...");
-    var response = await _apiWorker.getCustomer();
+    var response = await ApiWorker().getCustomer();
     if (response.custAndOrderdata != null) {
       customerAndOrderList.assignAll(response.custAndOrderdata!);
     } else {
@@ -63,7 +63,7 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
 
 
   Future<CustomerAndOrderData> loadSelectedCustomer(String customerId) async {
-    var data = await _apiWorker
+    var data = await ApiWorker()
         .getSingleCustomer(customerId)
         .onError((error, stackTrace) {
       return Future.error(error.toString());
@@ -81,7 +81,7 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
       "event_status": eventStatus,
       "days_list": jsonEncode(selectedWeekDay ?? [])
     };
-    var data = await _apiWorker.assignVisit(map);
+    var data = await ApiWorker().assignVisit(map);
     if (data.statusCode == 200 && data.data["status"] == true) {
       NkCommonFunction.showSuccessSnakBar(
           "${customerName.nkStringCapitalizeFirstCaracter} $customerVisitScheduleSet");

@@ -27,7 +27,7 @@ enum PaymentStatus {
 }
 
 class CustomerDashbordController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
+  //final ApiWorker _apiWorker = Get.find();
   Rx<CustomerAndOrderData> customerAndOrderData = CustomerAndOrderData().obs;
 
   RxInt selectedPaymentCollectIndex = (-1).obs;
@@ -197,7 +197,7 @@ class CustomerDashbordController extends GetxController {
 
   Future<CustomerDashboardResponse> getCustomerDahsboardData(
       String customerId) async {
-    var data = await _apiWorker.getCustomerDashboard(customerId);
+    var data = await ApiWorker().getCustomerDashboard(customerId);
     if (data.statusCode == 200) {
       customerDashboardData.value = data.data??Data();
       getCustomerDahsboardTotalSaleData(customerId,
@@ -209,7 +209,7 @@ class CustomerDashbordController extends GetxController {
 
   Future<CustomerDashboardTotalSaleResponse> getCustomerDahsboardTotalSaleData(
       String customerId, String year) async {
-    var data = await _apiWorker.getCustomerDashboardTotalSale(customerId, year);
+    var data = await ApiWorker().getCustomerDashboardTotalSale(customerId, year);
     if (data.statusCode == 200) {
       customerDashboardTotalSaleData.value = data.data!;
       refresh();
@@ -218,7 +218,7 @@ class CustomerDashbordController extends GetxController {
   }
 
   Future<CustomerCartResponce> getCustomerCartData(String customerId) async {
-    return await _apiWorker.getCustomerCart(customerId: customerId);
+    return await ApiWorker().getCustomerCart(customerId: customerId);
   }
 
   Future setPaymentDetails(

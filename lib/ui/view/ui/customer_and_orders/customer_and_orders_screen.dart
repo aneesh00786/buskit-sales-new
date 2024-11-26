@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-
 import '../../../components/color/colors.dart';
 import '../../../components/widgets/my_regular_text.dart';
 import '../../../theme/custom_fonts.dart';

@@ -37,7 +37,7 @@ class InitialSubcategoryInfo {
 }
 
 class ProductsController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
+   //final ApiWorker _apiWorker = Get.find();
   var optionName = ''.obs;
   TextEditingController searchCustomerController = TextEditingController();
   Rx<CategoryModel> categoryData = CategoryModel().obs;
@@ -90,10 +90,7 @@ bool onReached(bool reached) {
     if (fullname == null || fullname.isEmpty) {
       return '';
     }
-    selectedCustomerName.value = fullname;
-    return selectedCustomerName.value.length > 6
-        ? '${selectedCustomerName.value.substring(0, 6)}...'
-        : selectedCustomerName.value;
+    return fullname.length > 6 ? '${fullname.substring(0, 6)}...' : fullname;
   }
 
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
@@ -119,7 +116,7 @@ bool onReached(bool reached) {
       categoryModel = await retrieveCategoryData();
       log('Retrieved from Hive : ${categoryModel?.data?.length}');
     } else {
-      categoryModel = await _apiWorker.getCategory();
+      categoryModel = await ApiWorker().getCategory();
       await storeCategoryData(categoryModel);
       log('DataStored in Hive : ${categoryModel.data?.length}');
     }
@@ -166,7 +163,7 @@ bool onReached(bool reached) {
 
   Future<CategoryModel> loadDataOfCategories() async {
     try {
-      final categoryModel = await _apiWorker.getCategory();
+      final categoryModel = await ApiWorker().getCategory();
       await storeCategoryData(categoryModel);
       return categoryModel;
     } catch (e) {
@@ -180,7 +177,7 @@ bool onReached(bool reached) {
   }
 
   Future<Set<CategoryModel>> get loadDataOfCategory async => {
-        categoryData.value = await _apiWorker.getCategory(),
+        categoryData.value = await ApiWorker().getCategory(),
       };
 
   /// FUNCTIONS
@@ -277,7 +274,7 @@ bool onReached(bool reached) {
   }*/
 
   Future<CustomerCartData?> getCustomerCartData(String customerId) async {
-    var data = await _apiWorker.getCustomerCart(customerId: customerId);
+    var data = await ApiWorker().getCustomerCart(customerId: customerId);
 
     if (data.data != null && data.data!.isNotEmpty) {
       return data.data!.first;
@@ -288,7 +285,7 @@ bool onReached(bool reached) {
   Future<OrderResponce?> getSingleCustomerOrderHistory(
       String customerId) async {
     var data =
-        await _apiWorker.getSingleCustomerOrderHistory(customerId: customerId);
+        await ApiWorker().getSingleCustomerOrderHistory(customerId: customerId);
 
     if (data.data != null && data.data!.isNotEmpty) {
       return data;
@@ -330,7 +327,7 @@ bool onReached(bool reached) {
   //   Get.back();
   // }
   sendDraftPruduct(BuyProductResponce buyProductResponce) async {
-    await _apiWorker
+    await ApiWorker()
         .saveAsDraftProduct(
             purchaseProductSendData(buyProductResponce, isDraft: true))
         .then((value) {
@@ -352,7 +349,7 @@ bool onReached(bool reached) {
       required String cartId,
       required String price,
       required String reason}) async {
-    await _apiWorker
+    await ApiWorker()
         .setUpdateProductPrice(updateProductPriceMap(
             productId: productId,
             variationId: variationId,
@@ -397,7 +394,7 @@ bool onReached(bool reached) {
 
   Future<res.Response> deleteCartItem(
       String customerId, String cartId, String variationId) async {
-    return await _apiWorker.deleteCartItem(cartId, variationId);
+    return await ApiWorker().deleteCartItem(cartId, variationId);
   }
 
   // Future<List<ProductList>> loadDataOfProduct() async {
@@ -429,7 +426,7 @@ bool onReached(bool reached) {
   // }
 
   addTOServerCart(AddToCartModel data) async {
-    await _apiWorker.addToCart(data.toJson());
+    await ApiWorker().addToCart(data.toJson());
     //  .then((value) async {
     // if (value?.statusCode == 200) {
     //  // await productsController.loadSelectedCustomer(customerID);
@@ -474,7 +471,7 @@ bool onReached(bool reached) {
   }
 
   Future<CustomerAndOrderData> loadSelectedCustomer(String customerId) async {
-    var data = await _apiWorker
+    var data = await ApiWorker()
         .getSingleCustomer(customerId)
         .onError((error, stackTrace) {
       return Future.error(error.toString());
@@ -498,7 +495,7 @@ bool onReached(bool reached) {
 
   Future searchCustomer(String search) async {
     var data =
-        await _apiWorker.searchCustomer(search).onError((error, stackTrace) {
+        await ApiWorker().searchCustomer(search).onError((error, stackTrace) {
       return Future.error(error.toString());
     });
     searchData.assignAll(data.data!);

@@ -38,7 +38,7 @@ class ProductVariantDialogue extends StatefulWidget {
 
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   CustomerAndOrderController customerAndOrderController =
-      Get.find<CustomerAndOrderController>();
+      Get.put(CustomerAndOrderController());
 
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;

@@ -48,8 +48,9 @@ class _CartDialogueState extends State<CartDialogue> {
     'Pre Order',
     'Estimate'
   ];
-  CustomerAndOrderController customeController =
-      Get.find<CustomerAndOrderController>();
+  // CustomerAndOrderController customeController =
+  //     Get.find<CustomerAndOrderController>();
+  CustomerAndOrderController customeController = Get.put(CustomerAndOrderController());
   TextEditingController totalQuickController = TextEditingController();
   bool _isLoading = true;
 
@@ -62,7 +63,7 @@ class _CartDialogueState extends State<CartDialogue> {
   void _loadCartItems() {
     try {
       List<CartItem> storedItems = CartDatabaseManager().getCartItems();
-      setState(() {
+     // setState(() {
         cartItems = storedItems;
         quantities = List.generate(cartItems.length, (index) => 1);
         total = Utils().getFinalAmount(cartItems);
@@ -71,7 +72,7 @@ class _CartDialogueState extends State<CartDialogue> {
           _selectedValue = _options[0];
         }
         _isLoading = false;
-      });
+     // });
     } catch (e) {
       return null;
     }

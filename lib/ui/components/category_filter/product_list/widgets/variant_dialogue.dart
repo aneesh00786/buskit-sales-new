@@ -582,6 +582,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               Icon(
                                 EneftyIcons.shopping_cart_outline,
                                 color: white,
+                                size: screenWidth * 0.02,
                               )
                             ],
                           )),

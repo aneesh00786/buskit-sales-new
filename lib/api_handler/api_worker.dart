@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_responce_temp.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -672,23 +673,69 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   }
 
   /// ******************** PENDING PAYMENT ******************/
-  Future<OrderResponce> getPendingPaymentData(String salesmanId,
-      {SearchModel? searchModel, PaginationModel? paginationModel}) async {
+  // Future<OrderResponce> getPendingPaymentData(String salesmanId,
+  //     {SearchModel? searchModel, PaginationModel? paginationModel}) async {
+  //   final response = await dio
+  //       .postbycustom(
+  //     ApiConstants.fetch_pending_payments,
+  //     data: FormData.fromMap({
+  //       "start_date": searchModel?.startDate ?? '',
+  //       "end_date": searchModel?.endDate ?? '',
+  //       "limit": paginationModel?.limit.toString() ?? '',
+  //       "page": paginationModel?.currentPage.toString() ?? '',
+  //       "salesman_id": "",
+  //     }),
+  //   )
+  //       .onError((DioError error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   return OrderResponce.fromJson(response.data);
+  // }
+  Future<PendingPaymentResponse> getPendingPaymentData({
+    SearchModel? searchModel,
+    PaginationModel? paginationModel,
+    required int chartIndex,
+    String? salesmanId,
+  }) async {
+    final requestData = {
+      "chart_index": chartIndex,
+      "start_date": searchModel?.startDate,
+      "end_date": searchModel?.endDate,
+      "limit": paginationModel?.limit.toString() ?? '',
+      "page": paginationModel?.currentPage.toString() ?? '',
+      "salesman_id": salesmanId,
+    };
+
+    // Print the data being sent
+    print("Sending request with data: $requestData");
+
     final response = await dio
         .postbycustom(
       ApiConstants.fetch_pending_payments,
-      data: FormData.fromMap({
-        "start_date": searchModel?.startDate ?? '',
-        "end_date": searchModel?.endDate ?? '',
-        "limit": paginationModel?.limit.toString() ?? '',
-        "page": paginationModel?.currentPage.toString() ?? '',
-        "salesman_id": "",
-      }),
+      data: FormData.fromMap(requestData),
     )
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-    return OrderResponce.fromJson(response.data);
+
+    return PendingPaymentResponse.fromJson(response.data);
+  }
+
+  Future<IndividualPendingPaymentResponse> getAllPendingPaymentIndividual(
+      {String? customerId}) async {
+    final response = await dio
+        .postbycustom(
+      ApiConstants.get_all_pending_payment_individual,
+      data: FormData.fromMap({
+        "customer_id": customerId,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return IndividualPendingPaymentResponse.fromJson(response.data);
   }
 }

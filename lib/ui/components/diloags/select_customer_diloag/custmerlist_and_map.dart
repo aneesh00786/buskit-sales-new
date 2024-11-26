@@ -139,7 +139,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(Icons.my_location),
+                    Icon(Icons.my_location,size: 22,),
                     SizedBox(width: 8),
                     Expanded(
                       child: TextFormField(
@@ -163,7 +163,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(EneftyIcons.location_outline, color: Colors.red),
+                    Icon(EneftyIcons.location_outline, color: Colors.red,size: 22,),
                     SizedBox(width: 8),
                     Expanded(
                       child: Obx(
@@ -283,6 +283,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                         Icon(
                                           EneftyIcons.routing_outline,
                                           color: primaryColor,
+                                          size: 25,
                                         ),
                                         SizedBox(
                                           width: 5,
@@ -298,6 +299,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                         Icon(
                                           EneftyIcons.clock_2_outline,
                                           color: Colors.red,
+                                          size: 25,
                                         ),
                                         SizedBox(
                                           width: 5,
@@ -328,18 +330,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                             double.parse(customer.latitude!),
                                             double.parse(customer.longitude!),
                                           );
-
-                                          // double distanceInMeters =
-                                          //     Geolocator.distanceBetween(
-                                          //   currentLatitude,
-                                          //   currentLongitude,
-                                          //   customerLatLng.latitude,
-                                          //   customerLatLng.longitude,
-                                          // );
                                           return IconButton(
                                             highlightColor:
                                                 Colors.blue.withOpacity(0.2),
-                                            icon: Icon(Icons.near_me_outlined),
+                                            icon: Icon(Icons.near_me_outlined,size: 25,),
                                             onPressed: () {
                                               selectedCustomer = customer;
                                               navigatedToMap = true;

@@ -127,7 +127,7 @@ class SelectCustomerDiloag extends StatelessWidget {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(primaryColor),
                   ),
-                  icon: Icon(EneftyIcons.location_outline, color: white),
+                  icon: Icon(EneftyIcons.location_outline, color: white,size: 25,),
                 ),
               ),
             ],

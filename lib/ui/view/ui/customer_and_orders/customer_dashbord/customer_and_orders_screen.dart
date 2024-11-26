@@ -24,6 +24,8 @@ import 'package:provider/provider.dart';
 import '../../../../theme/custom_fonts.dart';
 import '../widgets/notification_widget.dart';
 
+
+
 class tableee extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -2346,6 +2348,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   String? startDate;
   String? endDate;
   String dropdownValue = 'Today';
+  
 
   @override
   void initState() {
@@ -2388,8 +2391,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   @override
   Widget build(BuildContext context) {
     double totalTableWidth = 100 + 260 + 100 + 100 + 100 + 100 + 140 + 100;
-    double fixedRowHeight = 80.0; // Fixed height for all rows
-
+    double fixedRowHeight = 80.0;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Consumer<CustomersProvider>(builder: (context, provider, _) {
@@ -2452,7 +2454,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             ...List.generate(
                               provider.filteredCustomers.length,
                               (index) {
-                                log('Filtered Customer Length ${provider.filteredCustomers.length}');
                                 var customer =
                                     provider.filteredCustomers[index];
                                 return Container(
@@ -2509,8 +2510,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             customer.customerId,
                                                         cusName:
                                                             customer.fullname,
-                                                        cusImage:
-                                                            customer.imageUrl,
+                                                        cusImage: customer.imageUrl,
                                                         year: 2024,
                                                         startDate: provider
                                                             .selectedStartDate,
@@ -2954,12 +2954,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: provider.filteredCustomers.length,
                                   itemBuilder: (context, index) {
-                                   CustomerModelxx customer =
+                                    var customer =
                                         provider.filteredCustomers[index];
-                                        if(provider.filteredCustomers.isEmpty){
-                                          return Center(child: Text('No Data Available'));
-                                        }else{
-                                          return Container(
+
+                                    return Container(
                                       height: fixedRowHeight,
                                       color: index.isEven
                                           ? Colors.grey[50]
@@ -3017,8 +3015,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         },
                                                         child: _buildDataCell(
                                                           customer.sales
-                                                                  .toString() ??
-                                                              '10',
+                                                                  ?.toString() ??
+                                                              '0',
                                                           '${customer.totalSales?.toString() ?? '0'}',
                                                           Colors.blue,
                                                         ),
@@ -3035,6 +3033,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   0 ||
                                                               customer.delivery ==
                                                                   null) {
+                                                            // Show a SnackBar if delivery is 0 or null
                                                             ScaffoldMessenger
                                                                     .of(context)
                                                                 .showSnackBar(
@@ -3048,6 +3047,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               ),
                                                             );
                                                           } else {
+                                                            // Continue to show the order data dialog if delivery is valid
                                                             _showOrderDataDialog(
                                                                 context,
                                                                 customer
@@ -3210,9 +3210,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         ],
                                       ),
                                     );
-                                        }
-
-                                    
                                   },
                                 ),
                               ),
@@ -3661,27 +3658,26 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       },
     );
   }
-
   String formatAmount(dynamic value) {
-    // Convert the dynamic value to double
-    double amount;
-
-    if (value is String) {
-      amount = double.tryParse(value) ?? 0.0;
-    } else if (value is int) {
-      amount = value.toDouble();
-    } else if (value is double) {
-      amount = value;
-    } else {
-      throw ArgumentError('Unsupported value type');
-    }
-
-    // Format the amount to two decimal places
-    String formattedAmount = amount.toStringAsFixed(2);
-
-    // Return with the $ symbol
-    return '\$ ' + formattedAmount;
+  // Convert the dynamic value to double
+  double amount;
+  
+  if (value is String) {
+    amount = double.tryParse(value) ?? 0.0;
+  } else if (value is int) {
+    amount = value.toDouble();
+  } else if (value is double) {
+    amount = value;
+  } else {
+    throw ArgumentError('Unsupported value type');
   }
+
+  // Format the amount to two decimal places
+  String formattedAmount = amount.toStringAsFixed(2);
+
+  // Return with the $ symbol
+  return '\$ ' + formattedAmount;
+}
 }
 
 extension TakeLastExtension<E> on List<E> {

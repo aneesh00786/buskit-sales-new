@@ -68,6 +68,8 @@ mixin class ApiConstants {
 
   /// PENDING  PAYMENT API
   static const String fetch_pending_payments = "fetch_pending_payments";
+  static const String get_all_pending_payment_individual = "get_all_pending_payment_individual";
+
   // DUMMY IMAGE URL
   static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
   // GOOGLE MAP API KEY

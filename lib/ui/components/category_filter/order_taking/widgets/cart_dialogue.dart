@@ -50,6 +50,7 @@ class _CartDialogueState extends State<CartDialogue> {
   ];
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
+  TextEditingController totalQuickController = TextEditingController();
   bool _isLoading = true;
 
   @override
@@ -475,6 +476,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                           .trash_outline,
                                                                       color: Colors
                                                                           .red,
+                                                                      size: 25,
                                                                     ),
                                                                     onPressed:
                                                                         () {
@@ -596,6 +598,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                         onChanged: (value) {
                                           setState(() {
                                             _selectedValue = value;
+                                            if (_selectedValue ==
+                                                "Quick Sale") {
+                                              totalQuickController.text =
+                                                  '\$${total.toStringAsFixed(2)}';
+                                            } else {
+                                              totalQuickController.clear();
+                                            }
                                           });
                                         },
                                       ),
@@ -636,9 +645,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                     SizedBox(width: 8),
                                     Expanded(
                                       child: TextFormField(
+                                        controller: totalQuickController,
                                         decoration: InputDecoration(
                                           labelText: "Total Amount",
                                           border: OutlineInputBorder(
+                                            borderSide: BorderSide(color: Colors.black),
                                               borderRadius:
                                                   BorderRadius.circular(10)),
                                         ),
@@ -650,17 +661,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                         decoration: InputDecoration(
                                           labelText: "Remark",
                                           border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Expanded(
-                                      child: TextFormField(
-                                        decoration: InputDecoration(
-                                          labelText: "Subtotal",
-                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(color: Colors.black),
                                               borderRadius:
                                                   BorderRadius.circular(10)),
                                         ),

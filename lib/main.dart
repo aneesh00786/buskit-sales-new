@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -30,6 +31,7 @@ void main() async {
   Hive.registerAdapter(SubCategoryItemAdapter());
   await Hive.openBox<CartItem>('cartBox');
   DatabaseHelper.database;
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -46,8 +48,8 @@ void main() async {
   ));
 
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
-  
-      Get.lazyPut<HomeController>(() => HomeController());
+
+  Get.lazyPut<HomeController>(() => HomeController());
   if (SessionHelper.loginSavedData != null) {
     runApp(MyApp(initialRout: AppRoutes.home));
   } else {
@@ -74,18 +76,30 @@ class _MyAppState extends State<MyApp> {
         connectivityChecker.startMonitoring();
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider(create: (context) => ProductProvider(),),
-            ChangeNotifierProvider(create: (context) => CustomersProvider(apiService: ApiService(),logger: Logger()),),
-            ChangeNotifierProvider(create: (context) => DashboardProvider(apiService: ApiService(),logger: Logger()),),
+            ChangeNotifierProvider(
+              create: (context) => ProductProvider(),
+            ),
+            ChangeNotifierProvider(
+              create: (context) =>
+                  CustomersProvider(apiService: ApiService(), logger: Logger()),
+            ),
+            ChangeNotifierProvider(
+              create: (context) =>
+                  DashboardProvider(apiService: ApiService(), logger: Logger()),
+            ),
           ],
           child: GetMaterialApp(
             navigatorKey: Get.key,
+            theme: NkGetXTheme.lightTheme,
+            darkTheme: NkGetXTheme.lightTheme,
+            highContrastTheme: NkGetXTheme.lightTheme,
+            highContrastDarkTheme: NkGetXTheme.lightTheme,
+            showPerformanceOverlay: false,
             initialBinding: CommonBinding(),
             getPages: AppRoutes.genratedRoutes,
             initialRoute: widget.initialRout,
             themeMode: ThemeMode.system,
             debugShowCheckedModeBanner: false,
-            
           ),
         );
       },

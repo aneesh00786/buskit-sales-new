@@ -21,11 +21,12 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+
+import '../../leads/leads_controller.dart';
+import '../../leads/leads_responce/lead_responce.dart';
 
 class CustomerAndOrdersMiddelWidget extends StatefulWidget {
   final CustomerAndOrderController custAndOrdController;

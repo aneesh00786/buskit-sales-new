@@ -516,7 +516,22 @@ class ApiWorker with ApiConstants {
 
     return LeadResponce.fromJson(response.data);
   }
+  Future<LeadResponce> getLeadsRejectedData(
+      {PaginationModel? paginationModel}) async {
+    final response = await dio
+        .postbycustom(ApiConstants.fetch_leads_reject,
+            data: FormData.fromMap({
+              "page": paginationModel?.currentPage ?? "",
+              "limit": paginationModel?.limit ?? '',
+              "salesman_id": ""
+            }))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
 
+    return LeadResponce.fromJson(response.data);
+  }
   /// ******************** CALENDAR SECTION ******************/
 Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   final response = await dio.postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
@@ -532,6 +547,19 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
     return [];
   }
 }
+  Future<Response> handleLeadStatus(
+      int? customerId, String? statusResponce) async {
+    final response = await dio
+        .postbycustom(ApiConstants.handle_lead,
+            data: FormData.fromMap(
+                {"customer_id": customerId, "status": statusResponce}))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    print(response);
+    return response;
+  }
   Future<TodayTasksResponse> getTodaySchedule(
       Map<String, dynamic> sendData) async {
     final response = await dio

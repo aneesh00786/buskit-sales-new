@@ -31,10 +31,10 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
-        margin: AppDimensions.instance!.orientation == Orientation.landscape
+        margin: AppDimensions.instance.orientation == Orientation.landscape
             ? nkExtraLargePadding(
-                right: AppDimensions.instance!.width * .28,
-                left: AppDimensions.instance!.width * .28)
+                right: AppDimensions.instance.width * .28,
+                left: AppDimensions.instance.width * .28)
             : nkExtraLargePadding(),
         child: ClipRRect(
           borderRadius:

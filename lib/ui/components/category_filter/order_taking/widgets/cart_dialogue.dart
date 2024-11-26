@@ -50,7 +50,8 @@ class _CartDialogueState extends State<CartDialogue> {
   ];
   // CustomerAndOrderController customeController =
   //     Get.find<CustomerAndOrderController>();
-  CustomerAndOrderController customeController = Get.put(CustomerAndOrderController());
+  CustomerAndOrderController customeController =
+      Get.put(CustomerAndOrderController());
   TextEditingController totalQuickController = TextEditingController();
   bool _isLoading = true;
 
@@ -63,16 +64,16 @@ class _CartDialogueState extends State<CartDialogue> {
   void _loadCartItems() {
     try {
       List<CartItem> storedItems = CartDatabaseManager().getCartItems();
-     // setState(() {
-        cartItems = storedItems;
-        quantities = List.generate(cartItems.length, (index) => 1);
-        total = Utils().getFinalAmount(cartItems);
-        tax = Utils().getTotalTax(cartItems);
-        if (_options.isNotEmpty) {
-          _selectedValue = _options[0];
-        }
-        _isLoading = false;
-     // });
+      // setState(() {
+      cartItems = storedItems;
+      quantities = List.generate(cartItems.length, (index) => 1);
+      total = Utils().getFinalAmount(cartItems);
+      tax = Utils().getTotalTax(cartItems);
+      if (_options.isNotEmpty) {
+        _selectedValue = _options[0];
+      }
+      _isLoading = false;
+      // });
     } catch (e) {
       return null;
     }
@@ -633,7 +634,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                         },
                                         items: <String>[
                                           'Cash',
-                                          'UPI',
+                                          'Chaque',
+                                          'Bank Transfer'
                                         ].map<DropdownMenuItem<String>>(
                                             (String value) {
                                           return DropdownMenuItem<String>(
@@ -649,10 +651,30 @@ class _CartDialogueState extends State<CartDialogue> {
                                         controller: totalQuickController,
                                         decoration: InputDecoration(
                                           labelText: "Total Amount",
+                                          labelStyle: TextStyle(
+                                              color: Colors
+                                                  .black),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black,
+                                                width: 1), 
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.blue,
+                                                width: 1), 
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
                                           border: OutlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black),
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
+                                            borderSide: BorderSide(
+                                                color: Colors.black,
+                                                width: 1), 
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -661,10 +683,27 @@ class _CartDialogueState extends State<CartDialogue> {
                                       child: TextFormField(
                                         decoration: InputDecoration(
                                           labelText: "Remark",
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black,
+                                                width: 1), 
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.blue,
+                                                width: 1), 
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
                                           border: OutlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black),
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
+                                            borderSide: BorderSide(
+                                                color: Colors.black,
+                                                width: 1), 
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
                                         ),
                                       ),
                                     ),

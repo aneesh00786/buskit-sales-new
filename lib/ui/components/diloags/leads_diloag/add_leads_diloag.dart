@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 // import 'package:address_search_field/address_search_field.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -335,7 +336,9 @@ class _AddLeadsDiloagState extends State<AddLeadsDiloag> {
               buttonText: add,
               onPressed: () {
                 if (formKey.currentState!.validate() && checkDataEmptyOrNot) {
+                  final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
                   widget.leadsController.addLeads(
+                    assignId: salesmanId,
                     browserPath: photoBrowser!.path,
                   );
                 }

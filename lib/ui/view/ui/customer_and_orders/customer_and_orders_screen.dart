@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,6 @@ import '../../../components/widgets/my_regular_text.dart';
 import '../../../theme/custom_fonts.dart';
 import '../../../utills/enum/filter_date_enum.dart';
 import '../dashboard1/provider/dash_models.dart';
-import '../leads/leads_controller.dart';
 import '../products/staff_controller.dart';
 import 'csord_model/customers_orders_model.dart';
 import 'cus_provider/cus_provider.dart';
@@ -3410,192 +3411,195 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                 scrollDirection: Axis.vertical,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minWidth: availableWidth),
-                  child: DataTable(
-                    // ignore: deprecated_member_use
-                    dataRowHeight: 64,
-                    headingRowColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      return primaryColor; // Set the background color for the headers
-                    }),
-                    columnSpacing:
-                        padding, // Adjust the spacing between columns
-                    columns: [
-                      DataColumn(
-                        label: Text(
-                          'Customer List',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
+                  child: Theme(
+                    data: NkGetXTheme.lightTheme,
+                    child: DataTable(
+                      // ignore: deprecated_member_use
+                      dataRowHeight: 64,
+                      headingRowColor:
+                          MaterialStateProperty.resolveWith<Color>((states) {
+                        return primaryColor; // Set the background color for the headers
+                      }),
+                      columnSpacing:
+                          padding, // Adjust the spacing between columns
+                      columns: [
+                        DataColumn(
+                          label: Text(
+                            'Customer List',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Order Number',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                        DataColumn(
+                          label: MyRegularText(
+                            label: 'Order Number',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Order Created',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                        DataColumn(
+                          label: MyRegularText(
+                            label: 'Order Created',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Created By',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                        DataColumn(
+                          label: MyRegularText(
+                            label: 'Created By',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Order Price',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                        DataColumn(
+                          label: MyRegularText(
+                            label: 'Order Price',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Invoice',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                        DataColumn(
+                          label: MyRegularText(
+                            label: 'Invoice',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Status',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                        DataColumn(
+                          label: MyRegularText(
+                            label: 'Status',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
                           ),
                         ),
-                      ),
-                      DataColumn(
-                        label: dialogCloseButton(context, red),
-                      ),
-                    ],
-                    rows: orderData.totalSales.map((order) {
-                      return DataRow(
-                        cells: [
-                          DataCell(
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: fixedIconSize * 2.6,
-                                  width: fixedIconSize * 2.6,
-                                  child: CircleAvatar(
-                                    backgroundColor: const Color(0xffe6ecff),
-                                    child: Icon(
-                                      Icons.person,
-                                      size: fixedIconSize,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: padding),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      customer != null
-                                          ? customer.fullname
-                                          : 'N/A',
-                                      style: TextStyle(fontSize: fontSize),
-                                    ),
-                                    Text(
-                                      customer != null
-                                          ? customer.mobileno
-                                          : 'N/A',
-                                      style: TextStyle(
-                                        fontSize: fontSize * 0.6,
-                                        color: Colors.black,
+                        DataColumn(
+                          label: dialogCloseButton(context, red),
+                        ),
+                      ],
+                      rows: orderData.totalSales.map((order) {
+                        return DataRow(
+                          cells: [
+                            DataCell(
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: fixedIconSize * 2.6,
+                                    width: fixedIconSize * 2.6,
+                                    child: CircleAvatar(
+                                      backgroundColor: const Color(0xffe6ecff),
+                                      child: Icon(
+                                        Icons.person,
+                                        size: fixedIconSize,
+                                        color: Colors.blue,
                                       ),
                                     ),
-                                    Text(
-                                      customer != null ? customer.email : 'N/A',
-                                      style: TextStyle(
-                                        fontSize: fontSize * 0.6,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              order.orderId,
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              order.orderCreatAt != null
-                                  ? getFormattedOrderCreatAt(
-                                      order.orderCreatAt.toString())
-                                  : 'N/A',
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              '${order.fullname!.nkStringCapitalizeFirstCaracter} ${order.lastname!.nkStringCapitalizeFirstCaracter}',
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              formatAmount(order.orderTotal),
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              '\$${order.orderId}',
-                              style: TextStyle(
-                                  fontSize: fontSize, color: primaryColor),
-                            ),
-                          ),
-                          DataCell(
-                            Padding(
-                              padding: EdgeInsets.all(padding),
-                              child: SizedBox(
-                                height: 31,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xffffdbb8),
-                                    borderRadius: BorderRadius.circular(4.6),
                                   ),
-                                  //                                         child:
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child:
-                                        Text(_getStatusName(order.orderStatus)),
+                                  SizedBox(width: padding),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        customer != null
+                                            ? customer.fullname
+                                            : 'N/A',
+                                        style: TextStyle(fontSize: fontSize),
+                                      ),
+                                      Text(
+                                        customer != null
+                                            ? customer.mobileno
+                                            : 'N/A',
+                                        style: TextStyle(
+                                          fontSize: fontSize * 0.6,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        customer != null ? customer.email : 'N/A',
+                                        style: TextStyle(
+                                          fontSize: fontSize * 0.6,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                order.orderId,
+                                style: TextStyle(fontSize: fontSize),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                order.orderCreatAt != null
+                                    ? getFormattedOrderCreatAt(
+                                        order.orderCreatAt.toString())
+                                    : 'N/A',
+                                style: TextStyle(fontSize: fontSize),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                '${order.fullname!.nkStringCapitalizeFirstCaracter} ${order.lastname!.nkStringCapitalizeFirstCaracter}',
+                                style: TextStyle(fontSize: fontSize),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                formatAmount(order.orderTotal),
+                                style: TextStyle(fontSize: fontSize),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                '\$${order.orderId}',
+                                style: TextStyle(
+                                    fontSize: fontSize, color: primaryColor),
+                              ),
+                            ),
+                            DataCell(
+                              Padding(
+                                padding: EdgeInsets.all(padding),
+                                child: SizedBox(
+                                  height: 31,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xffffdbb8),
+                                      borderRadius: BorderRadius.circular(4.6),
+                                    ),
+                                    //                                         child:
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child:
+                                          Text(_getStatusName(order.orderStatus)),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const DataCell(Text('')),
-                        ],
-                      );
-                    }).toList(),
+                            const DataCell(Text('')),
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               );

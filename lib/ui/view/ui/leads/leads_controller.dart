@@ -12,17 +12,19 @@ import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-//import 'package:rounded_loading_button/rounded_loading_button.dart';
-
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 enum CustomerStatus { newReq, assignedTo, rejected }
 
 class LeadsController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
+  // final ApiWorker _apiWorker = Get.find();
+  RxInt selectedTabIndex = 0.obs; // Track the selected tab index
 
   RxList<LeadCustomerData> leadsCustomerDataList = <LeadCustomerData>[].obs;
 
-  // RoundedLoadingButtonController btnController =
-  //     RoundedLoadingButtonController();
+  RoundedLoadingButtonController btnController =
+      RoundedLoadingButtonController();
+
+  RxInt selectAllocateSalesman = 0.obs;
 
   TextEditingController customerNameTextController = TextEditingController();
   TextEditingController emailTextController = TextEditingController();
@@ -60,29 +62,38 @@ class LeadsController extends GetxController {
     "Status",
   ].obs;
 
-  // addLeads({required String browserPath}) async {
-  //   var mapData = await addStaffMapData(browserPath);
-  //   await _apiWorker.addCustomer(mapData).onError((error, stackTrace) {
-  //     btnController.error();
-  //     btnController.reset();
-  //     return Future.error(error.toString());
-  //   });
-  //   btnController.success();
-  //   Get.back();
-  //   clearAllFileds;
-  //   loadLeadsCustomerData;
-  // }
+  void updateTabIndex(int newIndex) {
+    selectedTabIndex.value = newIndex;
+    // loadOrderData(chartIndex: newIndex);
+  }
 
-  Future addLeads(
-      {required String browserPath, bool isAssigned = false}) async {
-    log('in1++');
-    var mapData = await addStaffMapData(browserPath);
-    await _apiWorker.addCustomer(mapData).onError((error, stackTrace) {
-      // btnController.error();
-      // btnController.reset();
+  Future updateLeads(LeadCustomerData leadData) async {
+    var data = await ApiWorker()
+        .updateCustomer(leadData.toUpdateJson())
+        .onError((error, stackTrace) {
+      btnController.error();
+      btnController.reset();
       return Future.error(error.toString());
     });
-    // btnController.success();
+
+    if (data.statusCode == 200) {
+      btnController.success();
+      Get.back<LeadCustomerData>(result: leadData);
+    }
+  }
+
+  Future addLeads(
+      {required String browserPath,
+      required String assignId,
+      bool isAssigned = false}) async {
+    log('in1++');
+    var mapData = await addStaffMapData(browserPath, assignId, isAssigned);
+    await ApiWorker().addCustomer(mapData).onError((error, stackTrace) {
+      btnController.error();
+      btnController.reset();
+      return Future.error(error.toString());
+    });
+    btnController.success();
 
     if (isAssigned) {
       Get.close(2);
@@ -93,7 +104,26 @@ class LeadsController extends GetxController {
     loadLeadsCustomerData;
   }
 
-  Future<Map<String, dynamic>> addStaffMapData(String browserPath) async {
+  handleLeadsStatus(int customerId, String statusResponce) async {
+    await ApiWorker()
+        .handleLeadStatus(customerId, statusResponce)
+        .onError((error, stackTrace) {
+      btnController.error();
+      btnController.reset();
+      return Future.error(error.toString());
+    });
+    btnController.success();
+    Get.back();
+    loadLeadsCustomerData;
+  }
+
+  Future<Map<String, dynamic>> addStaffMapData(
+      String browserPath, String assignId, bool isAssigned) async {
+    log('in2++');
+    var image = browserPath.isNotEmpty
+        ? await NkCommonFunction.getFormData(browserPath, mapKeyName: '')
+        : '';
+    log('in3++ $image');
     Map<String, dynamic> data = {
       "fullname": customerNameTextController.text.trim(),
       "mobileno": mobileNumberTextController.text.trim(),
@@ -105,38 +135,23 @@ class LeadsController extends GetxController {
       "businessname": businessNameTextEditingController.text.trim(),
       "businesscontact": businessContactTextEditingController.text.trim(),
       "remark": remarkTextController.text.trim(),
-      "cutomerpicture":
-          await NkCommonFunction.getFormData(browserPath, mapKeyName: ''),
-      "salesman_id": SessionHelper.loginSavedData!.salesmanId,
+      "cutomerpicture": image,
+      "salesman_id": '',
       "status_type": 3,
+      "salesman_name": "",
 
       /// is for SalesMan
     };
 
-    log("data: ${data}");
+    log("data: $data");
 
     return data;
   }
 
-  Future updateLeads(LeadCustomerData leadData) async {
-    var data = await _apiWorker
-        .updateCustomer(leadData.toUpdateJson())
-        .onError((error, stackTrace) {
-      // btnController.error();
-      // btnController.reset();
-      return Future.error(error.toString());
-    });
-
-    if (data.statusCode == 200) {
-      // btnController.success();
-      Get.back<LeadCustomerData>(result: leadData);
-    }
-  }
-
   Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
-    var data = await _apiWorker.getLeadsData(
-        SessionHelper.loginSavedData!.salesmanId!,
-        paginationModel: PaginationModel());
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
+    var data =
+        await ApiWorker().getLeadsData(salesmanId,paginationModel:  PaginationModel());
     leadsCustomerDataList.assignAll(data.leadCustomerData!);
     return data.leadCustomerData!;
   }
@@ -156,10 +171,25 @@ class LeadsController extends GetxController {
     }
   }
 
-  Widget leadsCustomerStatus(CustomerStatus status, {String? assignedTo}) {
+  int filterStatus(String status) {
+    switch (status) {
+      case "new":
+        return 1;
+      case "accepted":
+        return 2;
+      case "rejected":
+        return 3;
+
+      default:
+        return 1;
+    }
+  }
+
+  Widget leadsCustomerStatus(CustomerStatus status,
+      {String? assignedTo, Function()? onClick}) {
     switch (status) {
       case CustomerStatus.newReq:
-        return _newReqWidget;
+        return _newReqWidget(onClick);
       case CustomerStatus.assignedTo:
         return _assignedToWidget(assignedTo ?? '');
       case CustomerStatus.rejected:
@@ -167,17 +197,22 @@ class LeadsController extends GetxController {
     }
   }
 
-  Widget get _newReqWidget {
+  Widget _newReqWidget(Function()? onClick) {
     return Container(
-      padding: nkRegularPadding(),
       decoration: BoxDecoration(
         color: primaryColor,
         borderRadius:
             BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
       ),
-      child: const MyRegularText(
-        label: newStatus,
-        color: buttonTextColor,
+      child: InkWell(
+        onTap: onClick,
+        child: Padding(
+          padding: nkRegularPadding(),
+          child: const MyRegularText(
+            label: newStatus,
+            color: buttonTextColor,
+          ),
+        ),
       ),
     );
   }
@@ -198,9 +233,12 @@ class LeadsController extends GetxController {
   }
 
   Widget _assignedToWidget(String assignedTo) {
-    return MyRegularText(
-      label: assignedTo,
-      color: switchColor,
+    return Container(
+      padding: nkRegularPadding(),
+      child: MyRegularText(
+        label: assignedTo,
+        color: switchColor,
+      ),
     );
   }
 }

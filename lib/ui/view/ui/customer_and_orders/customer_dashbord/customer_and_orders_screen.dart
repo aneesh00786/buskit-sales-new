@@ -460,7 +460,7 @@ class tableee extends StatelessWidget {
                                     ],
                                   ),
                                   const SizedBox(height: 12.0),
-                                  // Third row - State and Zip Code
+                                  
                                   Row(
                                     children: [
                                       Expanded(
@@ -2341,7 +2341,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       Get.put(CustomerAndOrderController());
   final StaffController staffController = Get.put(StaffController());
   final LeadsController leadsController = Get.put(LeadsController());
-
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 

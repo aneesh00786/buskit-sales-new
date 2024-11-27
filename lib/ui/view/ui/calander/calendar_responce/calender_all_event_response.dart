@@ -39,7 +39,7 @@ class EventData {
   String? start;
   String? end;
   int? type;
-  Null? checkIn;
+  dynamic? checkIn;
   String? checkInLongitude;
   String? checkInLatitude;
   Null? checkOut;

@@ -15,7 +15,7 @@ import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 enum CustomerStatus { newReq, assignedTo, rejected }
 
 class RejectedLeadsController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
+  //final ApiWorker _apiWorker = Get.find();
   RxInt selectedTabIndex = 0.obs; // Track the selected tab index
 
   RxList<LeadCustomerData> rejectedLeadsDataList = <LeadCustomerData>[].obs;
@@ -78,7 +78,7 @@ class RejectedLeadsController extends GetxController {
   }
 
   Future updateRejectedLead(LeadCustomerData leadData) async {
-    var data = await _apiWorker
+    var data = await ApiWorker()
         .updateCustomer(leadData.toUpdateJson())
         .onError((error, stackTrace) {
       btnController.error();
@@ -115,7 +115,7 @@ class RejectedLeadsController extends GetxController {
   // }
 
   handleRejectedLeadStatus(int customerId, String statusResponse) async {
-    await _apiWorker
+    await ApiWorker()
         .handleLeadStatus(customerId, statusResponse)
         .onError((error, stackTrace) {
       btnController.error();
@@ -157,7 +157,7 @@ class RejectedLeadsController extends GetxController {
   // }
 
   Future<List<LeadCustomerData>> get loadRejectedLeadsData async {
-    var data = await _apiWorker.getLeadsRejectedData(
+    var data = await ApiWorker().getLeadsRejectedData(
         paginationModel: PaginationModel());
     rejectedLeadsDataList.assignAll(data.leadCustomerData!);
     return data.leadCustomerData!;

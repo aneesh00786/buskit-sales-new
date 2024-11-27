@@ -6,16 +6,22 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class SelectCustomerDiloag extends StatelessWidget {
+class SelectCustomerDiloag extends StatefulWidget {
   final DateTime dateTime;
   final CalenderMapController calenderMapController;
   final List<CalendarEventData<EventData>> eventData;
@@ -28,13 +34,36 @@ class SelectCustomerDiloag extends StatelessWidget {
   });
 
   @override
+  State<SelectCustomerDiloag> createState() => _SelectCustomerDiloagState();
+}
+
+class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with WidgetsBindingObserver{
+  bool navigatedToMap = false;
+
+  Customer? selectedCustomer;
+
+  final HomeController homeController = Get.put(HomeController());
+
+  final ProductsController productsController = Get.put(ProductsController());
+    @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    widget.calenderMapController.suggestions.clear();
+    widget.calenderMapController.searchedLatLng.value = null;
+    widget.calenderMapController.getDirections();
+    widget.calenderMapController.getCurrentLocation();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    calenderMapController.initializeCheckedList(eventData.length, eventData);
-    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    widget.calenderMapController.initializeCheckedList(widget.eventData.length, widget.eventData);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(widget.dateTime);
     DateTime now = DateTime.now();
-    bool isToday = dateTime.year == now.year &&
-        dateTime.month == now.month &&
-        dateTime.day == now.day;
+    bool isToday = widget.dateTime.year == now.year &&
+        widget.dateTime.month == now.month &&
+        widget.dateTime.day == now.day;
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
         color: white,
@@ -51,14 +80,14 @@ class SelectCustomerDiloag extends StatelessWidget {
               isToday
                   ? DiloagAppBar(title: "Customer Visit For Today")
                   : DiloagAppBar(title: "Customer Visit For $formattedDate"),
-              eventData.isNotEmpty
+              widget.eventData.isNotEmpty
                   ? Flexible(
                       child: ListView.builder(
                         padding: nkRegularPadding(),
-                        itemCount: eventData.length,
+                        itemCount: widget.eventData.length,
                         itemBuilder: (context, index) {
                           CalendarEventData<EventData> customerEvent =
-                              eventData[index];
+                              widget.eventData[index];
                           log('${customerEvent.event?.imageUrl}');
                           return Padding(
                             padding: nkSmallPadding(left: 0, right: 0),
@@ -96,17 +125,185 @@ class SelectCustomerDiloag extends StatelessWidget {
                                               customerEvent.event?.email ?? ''),
                                     ],
                                   ),
-                                  trailing: Obx(() {
-                                    return Checkbox(
-                                      value: calenderMapController
-                                          .checkedList[index],
-                                      onChanged: (value) {
-                                        calenderMapController
-                                            .toggleCustomerSelection(index,
-                                                value ?? false, eventData);
-                                      },
-                                    );
-                                  }),
+                                  trailing: SizedBox(
+                                    width: 100,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                          child: Obx(() {
+                                            return Checkbox(
+                                              value: 
+                                                  widget.calenderMapController
+                                                  .checkedList[index],
+                                              onChanged: (value) {
+                                                widget.calenderMapController
+                                                    .toggleCustomerSelection(
+                                                        index,
+                                                        value ?? false,
+                                                        widget.eventData);
+                                              },
+                                            );
+                                          }),
+                                        ),
+                                        SizedBox(width: 4),
+                                        SizedBox(
+                                          width: 30,
+                                          child: IconButton(
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              final CalendarEventData<EventData>
+                                                  event =
+                                                  widget.eventData[index];
+                                              Navigator.of(context).pop();
+                                              WidgetsBinding.instance
+                                                  .addPostFrameCallback((_) {
+                                                homeController
+                                                    .sidebarXController
+                                                    .selectIndex(1);
+                                                homeController
+                                                    .selectedIndex.value = 1;
+                                                // Get.toNamed(AppRoutes.customerDashbord, id: 2);
+                                                log('${event.event!.customerId}');
+
+                                                Get.to(
+                                                    CustomerDachScreen(
+                                                      cusId: event
+                                                          .event!.customerId
+                                                          .toString(),
+                                                      cusName: event
+                                                          .event!.businessName
+                                                          .toString(),
+                                                      cusImage: event
+                                                          .event!.imageUrl
+                                                          .toString(),
+                                                      isFromCalendar: true,
+                                                    ),
+                                                    id: 2);
+                                                final now = DateTime.now();
+                                                final startDate = DateTime(
+                                                    now.year,
+                                                    now.month,
+                                                    1); // First day of the month
+                                                final endDate = DateTime(
+                                                    now.year,
+                                                    now.month + 1,
+                                                    0); // Last day of the month
+
+                                                final formattedStartDate =
+                                                    DateFormat('yyyy-MM-dd')
+                                                        .format(startDate);
+                                                final formattedEndDate =
+                                                    DateFormat('yyyy-MM-dd')
+                                                        .format(endDate);
+                                                //
+                                                Provider.of<CustomersProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .fetchCustomerDashboardData(
+                                                        event.event!.customerId
+                                                            .toString(),
+                                                        2024,
+                                                        formattedStartDate,
+                                                        formattedEndDate);
+                                                Provider.of<CustomersProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .fetchCustomerDashboardRevenueData(
+                                                        event.event!.customerId
+                                                            .toString(),
+                                                        2024,
+                                                        formattedStartDate,
+                                                        formattedEndDate);
+                                                Provider.of<CustomersProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .fetchCustomerDashboardDataSalseData(
+                                                        event.event!.customerId
+                                                            .toString(),
+                                                        2024);
+                                                Provider.of<CustomersProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .fetchCustomersDataDash(
+                                                        event.event!.customerId
+                                                            .toString());
+                                                Provider.of<CustomersProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .fetchCustomerDashboardCountData(
+                                                        event.event!.customerId
+                                                            .toString());
+                                              });
+                                              // Navigator.of(context,
+                                              //         rootNavigator: true)
+                                              //     .pop();
+                                            },
+                                            icon: Icon(
+                                              // Icons.arro
+                                              EneftyIcons
+                                                  // .arrow_circle_right_bold,
+                                                  .arrow_square_right_outline,
+                                              color: primaryColor,
+                                              size: 25,
+                                            ),
+                                            highlightColor: white,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        SizedBox(
+                                          width: 30,
+                                          child: Obx(
+                                            () {
+                                              if (widget.calenderMapController
+                                                      .currentLatLng.value ==
+                                                  null) {
+                                                return Container(
+                                                  height: 30,
+                                                  width: 35,
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  child:
+                                                      const CircularProgressIndicator(
+                                                          strokeWidth: 2),
+                                                );
+                                              }
+
+                                              double currentLatitude =
+                                                  widget.calenderMapController.currentLatLng
+                                                      .value!.latitude;
+                                              double currentLongitude =
+                                                  widget.calenderMapController.currentLatLng
+                                                      .value!.longitude;
+
+                                              return IconButton(
+                                                icon: const Icon(
+                                                  Icons.near_me_outlined,
+                                                  size: 25,
+                                                  color: red,
+                                                ),
+                                                onPressed: () {
+                                                  //selectedCustomer = customer;
+                                                  navigatedToMap = true;
+                                                  navigateToo(
+                                                    currentLatitude,
+                                                    currentLongitude,
+                                                    double.parse(
+                                                        selectedCustomer?.latitude??''),
+                                                    double.parse(
+                                                        selectedCustomer?.longitude??''),
+                                                  );
+                                                },
+                                                highlightColor: white,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -120,14 +317,18 @@ class SelectCustomerDiloag extends StatelessWidget {
                 child: ElevatedButton.icon(
                   label: CustomText(content: 'Show Route', color: white),
                   onPressed: () {
-                     Navigator.pop(context);
-                     calenderMapController.showSelectedCustomerRoute(context);
-                     calenderMapController.fetchDistanceAndTime();
+                    Navigator.pop(context);
+                    widget.calenderMapController.showSelectedCustomerRoute(context);
+                    widget.calenderMapController.fetchDistanceAndTime();
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(primaryColor),
                   ),
-                  icon: Icon(EneftyIcons.location_outline, color: white,size: 25,),
+                  icon: Icon(
+                    EneftyIcons.location_outline,
+                    color: white,
+                    size: 25,
+                  ),
                 ),
               ),
             ],

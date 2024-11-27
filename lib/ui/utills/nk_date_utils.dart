@@ -25,6 +25,8 @@ class NKDateUtils {
   static String commonDayFormat(DateTime d) => _commonDayFormat.format(d);
 
   static String commonDayFormat2(DateTime d) => _commonDayFormat2.format(d);
+  static final DateFormat _commonTimeFormat = DateFormat('hh:mm');
+  static String commonTimeFormat(DateTime d) => _commonTimeFormat.format(d);
 
   static const List<String> weekdays = [
     'Monday',

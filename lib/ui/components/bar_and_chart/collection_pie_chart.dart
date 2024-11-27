@@ -16,9 +16,6 @@ class CollectionPieChartState extends State<CollectionPieChart> {
 
   @override
   Widget build(BuildContext context) {
-    bool hasValidData = (widget.collectionData.payment?.percentage ?? 0) > 0 &&
-        (widget.collectionData.order?.percentage ?? 0) > 0;
-
     return AspectRatio(
       aspectRatio: 3.5,
       child: PieChart(
@@ -42,7 +39,7 @@ class CollectionPieChartState extends State<CollectionPieChart> {
           ),
           sectionsSpace: 0,
           centerSpaceRadius: 0,
-          sections: hasValidData ? showingSections() : dummySections(),
+          sections: showingSections(),
         ),
       ),
     );
@@ -52,16 +49,18 @@ class CollectionPieChartState extends State<CollectionPieChart> {
     return List.generate(2, (i) {
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 16.0 : 10.0;
-      final radius = isTouched ? 60.0 : 60.0;
+      final radius = isTouched ? 40.0 : 40.0;
+      //final widgetSize = isTouched ? 55.0 : 40.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
       switch (i) {
         case 1:
           return PieChartSectionData(
-            color: Colors.blue,
-            value: double.parse(
-                "${widget.collectionData.payment?.percentage?.toString() ?? '0.0'}"),
-            title: "${widget.collectionData.payment?.percentage?.toString() ?? '0'}%",
+            color: Color(0xff5581e7),
+            value:23.3,
+            //widget.collectionData.payment?.percentage?.toString() ?? 0,
+            title:
+                "${widget.collectionData.payment?.percentage.toString() ?? 0}%",
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -73,10 +72,10 @@ class CollectionPieChartState extends State<CollectionPieChart> {
           );
         case 0:
           return PieChartSectionData(
-            color: Colors.yellow,
-            value: double.parse(
-                "${widget.collectionData.order?.percentage?.toString() ?? '0.0'}"),
-            title: "${widget.collectionData.order?.percentage?.toString() ?? '0'}%",
+            color: Color(0xff44afd9),
+            value:12.34,
+            title:
+                "${widget.collectionData.order?.percentage.toString() ?? 0}%",
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -87,48 +86,7 @@ class CollectionPieChartState extends State<CollectionPieChart> {
             badgePositionPercentageOffset: .98,
           );
         default:
-          throw Exception('Unexpected index');
-      }
-    });
-  }
-  List<PieChartSectionData> dummySections() {
-    return List.generate(2, (i) {
-      final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 16.0 : 10.0;
-      final radius = isTouched ? 60.0 : 60.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
-
-      switch (i) {
-        case 1:
-          return PieChartSectionData(
-            color: Colors.blue,
-            value: 50.0,
-            title: "50%",
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xffffffff),
-              shadows: shadows,
-            ),
-            badgePositionPercentageOffset: .98,
-          );
-        case 0:
-          return PieChartSectionData(
-            color: Colors.yellow,
-            value: 40.0,
-            title: "50%",
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xffffffff),
-              shadows: shadows,
-            ),
-            badgePositionPercentageOffset: .98,
-          );
-        default:
-          throw Exception('Unexpected index');
+          throw Exception('Oh no');
       }
     });
   }

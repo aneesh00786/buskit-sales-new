@@ -1,24 +1,24 @@
-
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/dashboard_customer_dailog/dashboard_customer_dialog.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/dashboard_quantity_dailog/dashboard_quantity_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../../components/bar_and_chart/revenue_pie_chart.dart';
-import '../../../../components/diloags/dashboard_customer_dailog/dashboard_customer_dialog.dart';
-import '../../../../components/diloags/dashboard_quantity_dailog/dashboard_quantity_dialog.dart';
-import '../../../../utills/nk_date_utils.dart';
 
 class DashBoardMiddleWidget extends StatelessWidget {
   final DashBoardController dashBoardController;
@@ -473,7 +473,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget itemComponet(String title, String subTitle) {
     return nkChildWrappedSizeBox(
-      width: AppDimensions.instance.width * 0.09,
+      width: AppDimensions.instance!.width * 0.09,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

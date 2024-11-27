@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/top_shortcusts_dilo
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -31,6 +32,7 @@ class OptionWidget extends StatelessWidget {
   final OrderStatus? customOrderStatusType;
   final String? startDate;
   final String? endDate;
+  final DashboardProvider? provider;
 
   const OptionWidget({
     super.key,
@@ -47,8 +49,9 @@ class OptionWidget extends StatelessWidget {
     this.endDate,
     this.isVisible = false,
     this.cancelledCount,
+    this.provider,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     return options();
@@ -67,12 +70,13 @@ class OptionWidget extends StatelessWidget {
             count: orderCount.toString(),
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color(0xFFFCDABD),
-            onTap: optionFun?.call(0, OrderStatus.preOrder).$2 ??
+            onTap: optionFun?.call(0, OrderStatus.delivered).$2 ??
                 () {
+                  provider?.fetchOrdersSabik(OrderStatus.delivered);
                   log('startDateasa++++ +++ 111++ ${startDate}');
                   log('startDateasa+1111+++222 +++ ++ ${endDate}');
                   Get.dialog(OrderStatusDiloag(
-                    orderStatus: OrderStatus.preOrder,
+                    orderStatus: OrderStatus.delivered,
                     heading: orders,
                     userType: userType,
                     userId: userId,

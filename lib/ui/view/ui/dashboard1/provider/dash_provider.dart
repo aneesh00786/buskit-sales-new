@@ -387,24 +387,24 @@ class ApiService {
       throw Exception('Failed to post admin message: $e');
     }
   }
-
-  Future<OrderResponse> fetchAllOrders({
+    Future<OrderResponse> fetchAllOrders({
     required String startDate,
     required String endDate,
-    OrderStatus? orderStatus,
+    OrderStatus? orderStatus, // New parameter for filtering by order status
   }) async {
+    final url = Uri.parse('$_baseUrl/fetch_all_order');
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
     String orderStatusString = '';
     if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString(); 
+      orderStatusString = orderStatus.type.toString(); // Convert int to String
     }
+    log('FETCH_ALL_ORDER API called');
 
     final requestBody = {
       "customer_id": '',
-      "salesman_id": salesmanId,
-      "order_type": orderStatusString,
-      "payment_type": "3",
+      "salesman_id": "",
+      "order_type": "",
+      "payment_type": 0,
       "start_date": startDate,
       "end_date": endDate,
       "limit": 10,
@@ -448,6 +448,67 @@ class ApiService {
       throw Exception('Failed to fetch orders: $e');
     }
   }
+
+  // Future<OrderResponse> fetchAllOrders({
+  //   required String startDate,
+  //   required String endDate,
+  //   OrderStatus? orderStatus,
+  // }) async {
+  //   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  //   final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
+  //   String orderStatusString = '';
+  //   if (orderStatus != null) {
+  //     orderStatusString = orderStatus.type.toString(); 
+  //   }
+
+  //   final requestBody = {
+  //     "customer_id": '',
+  //     "salesman_id": salesmanId,
+  //     "order_type": orderStatusString,
+  //     "payment_type": "3",
+  //     "start_date": startDate,
+  //     "end_date": endDate,
+  //     "limit": 10,
+  //     "page": 1,
+  //   };
+
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(requestBody),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = jsonDecode(response.body);
+  //       print('Fetch All Orders Response: $jsonResponse');
+
+  //       Pagination pagination =
+  //           Pagination.fromJson(jsonResponse['pagination'] ?? {});
+  //       List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
+
+  //       List<OrdersDash> orders = [];
+  //       if (orderData != null) {
+  //         orders = orderData
+  //             .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
+  //             .toList();
+  //       }
+
+  //       return OrderResponse(
+  //         statusCode: jsonResponse['status_code'] ?? 0,
+  //         status: jsonResponse['status'] ?? false,
+  //         message: jsonResponse['message'] ?? '',
+  //         data: orders,
+  //         pagination: pagination,
+  //       );
+  //     } else {
+  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Failed to fetch orders: $e');
+  //     throw Exception('Failed to fetch orders: $e');
+  //   }
+  // }
 
   Future<OrderResponse> fetchCustomerDashOrders({
     required String cusId,
@@ -1518,7 +1579,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchOrdersSabik(OrderStatus s) async {
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     try {
       final now = DateTime.now();
       String startDate;
@@ -1564,7 +1624,9 @@ class DashboardProvider with ChangeNotifier {
       // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-            startDate: startDate, endDate: endDate, orderStatus: s);
+            startDate: startDate,
+            endDate: endDate,
+            orderStatus: s);
       });
       print("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
 
@@ -1722,6 +1784,22 @@ class DashboardProvider with ChangeNotifier {
 
       notifyListeners();
     }
+  }
+    void selectAllChats(List<SalesmanChat> chatData) {
+    selectedChats = List.from(chatData); // Select all
+    notifyListeners();
+  }
+
+  void clearAllSelections() {
+    selectedChats.clear(); // Deselect all
+    notifyListeners();
+  }
+
+  Future<void> refreshChatData(String salesmanId) async {
+    // Call the API to refresh the chat data
+    await fetchChatData(
+        salesmanId); // Or any method that fetches the latest chat data
+    notifyListeners(); // Notify listeners to rebuild the UI
   }
 
   Future<void> fetchData() async {

@@ -18,15 +18,20 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import 'provider/dash_models.dart';
+
 class DashBoardController extends GetxController {
+
+    RecentOrderCountData recentOrderCountData = RecentOrderCountData();
+    
   RxList<Map<String, dynamic>> communicationList = [
     {
       "image":
@@ -258,6 +263,8 @@ class DashBoardController extends GetxController {
       Message(text: messageText, isSentByMe: false),
     );
   }
+
+  
 }
 
 class Message {

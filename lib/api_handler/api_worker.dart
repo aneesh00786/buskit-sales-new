@@ -225,6 +225,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
+    log('${sendData}');
     try {
       final response = await dio
           .postbycustom(
@@ -668,35 +669,63 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
 //     return OrderResponce.fromJson(response.data);
 //   }
 
+  // Future<OptionOrderResponce> getAllOrderByStatus(
+  //     {String? customerId,
+  //     String? salesmanId,
+  //     PaginationModel? paginationModel,
+  //     SearchModel? searchModel,
+  //     required String orderType}) async {
+  //     final salesmanIds = SessionHelper.loginSavedData!.salesmanId!;
+  //   final response = await dio
+  //       .postbycustom(
+  //     ApiConstants.fetch_all_order,
+  //     data: FormData.fromMap({
+  //       "salesman_id": salesmanIds,
+  //       "customer_id": customerId ?? '',
+  //       "order_type": orderType,
+  //       "limit": paginationModel?.limit.toString() ??
+  //           PaginationModel().limit.toString(),
+  //       "page": paginationModel?.currentPage.toString() ??
+  //           PaginationModel().currentPage.toString(),
+  //       "start_date": '2024-10-01',
+  //       //searchModel?.startDate ?? ,
+  //       "end_date": "2024-10-30",
+  //       //searchModel?.endDate ?? '',
+  //     }),
+  //   )
+  //       .onError((DioError error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   log('Request body Fetch all Data :$salesmanId');
+  //   return OptionOrderResponce.fromJson(response.data);
+  // }
+
   Future<OptionOrderResponce> getAllOrderByStatus(
       {String? customerId,
       String? salesmanId,
       PaginationModel? paginationModel,
       SearchModel? searchModel,
       required String orderType}) async {
-      final salesmanIds = SessionHelper.loginSavedData!.salesmanId!;
     final response = await dio
         .postbycustom(
       ApiConstants.fetch_all_order,
       data: FormData.fromMap({
-        "salesman_id": salesmanIds,
+        "salesman_id": salesmanId ?? '',
         "customer_id": customerId ?? '',
         "order_type": orderType,
         "limit": paginationModel?.limit.toString() ??
             PaginationModel().limit.toString(),
         "page": paginationModel?.currentPage.toString() ??
             PaginationModel().currentPage.toString(),
-        "start_date": '2024-10-01',
-        //searchModel?.startDate ?? ,
-        "end_date": "2024-10-30",
-        //searchModel?.endDate ?? '',
+        "start_date": searchModel?.startDate ?? '',
+        "end_date": searchModel?.endDate ?? '',
       }),
     )
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-    log('Request body Fetch all Data :$salesmanId');
     return OptionOrderResponce.fromJson(response.data);
   }
 

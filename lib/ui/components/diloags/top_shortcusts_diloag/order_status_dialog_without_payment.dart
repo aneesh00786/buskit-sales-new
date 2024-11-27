@@ -145,7 +145,7 @@ class _OrderStatusDialogWithOutPaymentState
                         ),
                         MyRegularText(
                           align: TextAlign.center,
-                          label: productNotAvailable,
+                          label: "productNotAvailable",
                           fontSize: NkFontSize.largeFont() + 5,
                         )
                       ],

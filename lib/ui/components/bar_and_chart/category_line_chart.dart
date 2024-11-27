@@ -3,6 +3,8 @@ import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 
@@ -587,8 +589,8 @@ class _CustomBarChartState extends State<CustomBarChart> {
         ),
       );
 
-      double target = perf.actualTarget??0.0;
-      double projection = perf.actualProjection??0.0;
+      double target = perf.actualTarget ?? 0.0;
+      double projection = perf.actualProjection ?? 0.0;
       double actual = perf.actualSales ?? 0.0;
 
       return BarChartGroupData(
@@ -626,6 +628,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
       builder: (context) {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
+            // Update the provider to fetch data based on the cid
             provider.fetchchartCategoryPerformmenc(cid);
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -671,35 +674,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                CircleAvatar(
-                                  backgroundColor: Colors.transparent,
-                                  child: SizedBox(
-                                    width: 25.8,
-                                    height: 25.8,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3.5),
-                                        child: IconButton(
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                            size: 16,
-                                          ),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                dialogCloseButton1(context, red)
                               ],
                             ),
                           ),
@@ -708,7 +683,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
                             child: DataTable(
                               headingRowHeight: 40,
                               dataRowHeight: 30,
-                              columnSpacing: 30,
+                              columnSpacing: 40,
+                              headingRowColor: WidgetStatePropertyAll(
+                                  Colors.blueGrey.shade50),
+                              border:
+                                  TableBorder.all(color: Colors.grey, width: 1),
                               columns: const [
                                 DataColumn(
                                   label: DialogTableHeaderText(
@@ -754,7 +733,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                     DataCell(
                                       Center(
                                         child: Text(
-                                          '${s.targetTotal}',
+                                          formatAmount(s.targetTotal),
                                           style: TextStyle(
                                             color: secondaryTextColor,
                                             fontSize: 13,
@@ -767,7 +746,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                     DataCell(
                                       Center(
                                         child: Text(
-                                          '${s.projectionTotal}',
+                                          formatAmount(s.projectionTotal),
                                           style: TextStyle(
                                             color: secondaryTextColor,
                                             fontSize: 13,
@@ -780,13 +759,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                     DataCell(
                                       Center(
                                         child: Text(
-                                          double.parse(s.orderTotal)
-                                              .toStringAsFixed(2),
+                                          formatAmount(s.orderTotal),
                                           style: TextStyle(
                                             color: secondaryTextColor,
                                             fontSize: 13,
-                                            // fontFamily:
-                                            //     'Poppins_Regular',
                                           ),
                                         ),
                                       ),
@@ -812,11 +788,6 @@ class _CustomBarChartState extends State<CustomBarChart> {
   }
 
   Widget getBottomTitles(double value, TitleMeta meta) {
-    final style = TextStyle(
-      color: secondaryTextColor,
-      fontWeight: NkGeneralSize.nkBoldFontWeight(),
-      fontSize: 11,
-    );
     Widget text = Transform.rotate(
       angle: -1.34 / 4,
       child: MyRegularText(
@@ -839,11 +810,6 @@ class _CustomBarChartState extends State<CustomBarChart> {
   }
 
   Widget getLeftTitles(double value, TitleMeta meta) {
-    final style = TextStyle(
-      color: secondaryTextColor,
-      fontWeight: NkGeneralSize.nkBoldFontWeight(),
-      fontSize: 11,
-    );
     return MyRegularText(
       label: value.toInt().toString(),
       // fontWeight: FontWeight.w600,
@@ -858,71 +824,89 @@ class _CustomBarChartState extends State<CustomBarChart> {
     return Column(
       children: [
         Expanded(
-          child: Scrollbar(
-            // thumbVisibility: true, // Show the scrollbar
-            // thickness: 4.0, // Customize the thickness of the scrollbar
-            // radius: const Radius.circular(
-            //     2.0), // Customize the radius of the scrollbar
-            child: SingleChildScrollView(
-              controller: Provider.of<DashboardProvider>(context, listen: false)
-                  .scrollController,
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: barGroups.length * 66.0,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: ScrollbarTheme(
+              data: ScrollbarThemeData(
+                thumbColor: MaterialStateProperty.all(Colors.blue),
+                thickness: MaterialStateProperty.all(5),
+                radius: Radius.circular(8),
+              ),
+              child: Scrollbar(
+                controller:
+                    Provider.of<DashboardProvider>(context, listen: false)
+                        .scrollController,
+                interactive: true,
+                thickness: 5,
+                thumbVisibility: true,
+                trackVisibility: true,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 3.0),
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      barGroups: barGroups,
-                      titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget:
-                                getLeftTitles, // Use custom left titles\
-                            reservedSize: 40,
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: SingleChildScrollView(
+                    controller:
+                        Provider.of<DashboardProvider>(context, listen: false)
+                            .scrollController,
+                    scrollDirection: Axis.horizontal,
+                    physics: ClampingScrollPhysics(),
+                    child: SizedBox(
+                      width: barGroups.length * 66.0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 3.0),
+                        child: BarChart(
+                          BarChartData(
+                            alignment: BarChartAlignment.spaceAround,
+                            barGroups: barGroups,
+                            titlesData: FlTitlesData(
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget:
+                                      getLeftTitles, // Use custom left titles\
+                                  reservedSize: 40,
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: getBottomTitles,
+                                  reservedSize: 40,
+                                ),
+                              ),
+                              topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                            ),
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                color: const Color(0xffe0e0e0),
+                                width: 0.9,
+                              ),
+                            ),
+                            barTouchData: BarTouchData(
+                              touchCallback: (FlTouchEvent event,
+                                  BarTouchResponse? touchResponse) {
+                                if (touchResponse != null &&
+                                    touchResponse.spot != null &&
+                                    event is FlTapUpEvent) {
+                                  final int index =
+                                      touchResponse.spot!.touchedBarGroupIndex;
+                                  CategoryPerformancee perf =
+                                      widget.categoryPerformance.firstWhere(
+                                    (performance) =>
+                                        performance.category ==
+                                        widget.allCategory[index].category,
+                                  );
+                                  _showSalesmanPopup(perf.cid ?? 0,
+                                      widget.allCategory[index].category ?? '');
+                                }
+                              },
+                            ),
                           ),
                         ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: getBottomTitles,
-                            reservedSize: 40,
-                          ),
-                        ),
-                        topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                      ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(
-                          color: const Color(0xffe0e0e0),
-                          width: 0.9,
-                        ),
-                      ),
-                      barTouchData: BarTouchData(
-                        touchCallback: (FlTouchEvent event,
-                            BarTouchResponse? touchResponse) {
-                          if (touchResponse != null &&
-                              touchResponse.spot != null &&
-                              event is FlTapUpEvent) {
-                            final int index =
-                                touchResponse.spot!.touchedBarGroupIndex;
-                            CategoryPerformancee perf =
-                                widget.categoryPerformance.firstWhere(
-                              (performance) =>
-                                  performance.category ==
-                                  widget.allCategory[index].category,
-                            );
-                            _showSalesmanPopup(
-                                perf.cid??0, widget.allCategory[index].category??'');
-                          }
-                        },
                       ),
                     ),
                   ),

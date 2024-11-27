@@ -1132,10 +1132,13 @@ class NestedPieChartj extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int completedOrdersCount = collection.payment?.completedOrders?.length??0;
-    int pendingAmountCount = collection.order?.pendingAmount?.length??0;
-    int dueAmountCount = collection.due?.dueAmount?.length??0;
-    int overdueAmountCount = collection.overdue?.overdueAmount?.length??0;
+    int completedOrdersCount = collection.payment!.completedOrders!
+        .fold(0, (sum, order) => sum + order.orderTotal);
+    int pendingAmountCount =
+        collection.order!.pendingAmount!.last.amount as int;
+    int dueAmountCount = collection.order!.pendingAmount!.last.dueAmount as int;
+    int overdueAmountCount =
+        collection.order!.pendingAmount!.last.overDue as int;
 
     return Center(
       child: Column(
@@ -1148,112 +1151,98 @@ class NestedPieChartj extends StatelessWidget {
               alignment: Alignment.center,
               fit: StackFit.expand,
               children: [
-                fl_chart.PieChart(
-                  fl_chart.PieChartData(
-                    startDegreeOffset: 250,
-                    sectionsSpace: 0.6,
-                    centerSpaceRadius: 45,
-                    sections: [
-                      fl_chart.PieChartSectionData(
-                        value: completedOrdersCount.toDouble(),
-                        color: const Color(0xff4f6c18),
-                        radius: 40,
-                        title: 'Completed',
-                        titleStyle: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                // Outer Pie Chart
+                Positioned.fill(
+                  child: SizedBox(
+                    height: 94,
+                    width: 94,
+                    child: fl_chart.PieChart(
+                      fl_chart.PieChartData(
+                        startDegreeOffset: -90,
+                        sectionsSpace: 1,
+                        centerSpaceRadius: 53,
+                        sections: [
+                          fl_chart.PieChartSectionData(
+                            value: completedOrdersCount.toDouble(),
+                            color: const Color.fromARGB(255, 90, 119, 37),
+                            radius: 20,
+                            title: completedOrdersCount.toString(),
+                            titleStyle: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            showTitle: false,
+                          ),
+                          fl_chart.PieChartSectionData(
+                            value: pendingAmountCount.toDouble(),
+                            color: const Color(0xffa30c13),
+                            radius: 20,
+                            title: pendingAmountCount.toString(),
+                            titleStyle: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            showTitle: false,
+                          ),
+                        ],
+                        pieTouchData: fl_chart.PieTouchData(
+                          touchCallback: (fl_chart.FlTouchEvent event,
+                              fl_chart.PieTouchResponse? response) {
+                            _whichChartToTap(context, collection);
+                          },
                         ),
-                        showTitle: false,
                       ),
-                      fl_chart.PieChartSectionData(
-                        value: pendingAmountCount.toDouble(),
-                        color: const Color(0xffa30c13),
-                        radius: 40,
-                        title: 'Pending',
-                        titleStyle: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        showTitle: false,
-                      ),
-                    ],
-                    pieTouchData: fl_chart.PieTouchData(
-                      touchCallback: (fl_chart.FlTouchEvent event,
-                          fl_chart.PieTouchResponse? response) {
-                        if (event is fl_chart.FlTapUpEvent &&
-                            response != null &&
-                            response.touchedSection != null) {
-                          final section =
-                              response.touchedSection!.touchedSection!;
-                          _showValueDialog(
-                              context, section.title ?? 'Unknown', collection);
-                        }
-                      },
                     ),
                   ),
                 ),
+                // Inner Pie Chart
                 Positioned.fill(
-                  child: Center(
-                    child: SizedBox(
-                      height: 80,
-                      width: 80,
-                      child: fl_chart.PieChart(
-                        fl_chart.PieChartData(
-                          sectionsSpace: 0.5,
-                          centerSpaceRadius: 45,
-                          sections: [
-                            fl_chart.PieChartSectionData(
-                              value: dueAmountCount.toDouble(),
-                              color: const Color(0xffcc8f3d),
-                              radius: 20,
-                              title: 'Due',
-                              titleStyle: const TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              showTitle: false,
+                  child: SizedBox(
+                    height: 80,
+                    width: 80,
+                    child: fl_chart.PieChart(
+                      fl_chart.PieChartData(
+                        startDegreeOffset: -90,
+                        sectionsSpace: 1,
+                        centerSpaceRadius: 30,
+                        sections: [
+                          fl_chart.PieChartSectionData(
+                            value: dueAmountCount.toDouble(),
+                            color: const Color.fromARGB(255, 255, 173, 181),
+                            radius: 20,
+                            title: dueAmountCount.toString(),
+                            titleStyle: const TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
-                            fl_chart.PieChartSectionData(
-                              value: overdueAmountCount.toDouble(),
-                              color: const Color(0xfff4b26a),
-                              radius: 20,
-                              title: 'Overdue',
-                              titleStyle: const TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              showTitle: false,
-                            ),
-                            // fl_chart.PieChartSectionData(
-                            //   value: completedOrdersCount.toDouble(),
-                            //   color: const Color(0xfffcfafa),
-                            //   radius: 22,
-                            //   title: 'Completed',
-                            //   titleStyle: const TextStyle(
-                            //     fontSize: 8,
-                            //     fontWeight: FontWeight.bold,
-                            //     color: Colors.white,
-                            //   ),
-                            //   showTitle: false,
-                            // ),
-                          ],
-                          pieTouchData: fl_chart.PieTouchData(
-                            touchCallback: (fl_chart.FlTouchEvent event,
-                                fl_chart.PieTouchResponse? response) {
-                              if (event is fl_chart.FlTapUpEvent &&
-                                  response != null &&
-                                  response.touchedSection != null) {
-                                final section =
-                                    response.touchedSection!.touchedSection!;
-                                _showValueDialog(context,
-                                    section.title ?? 'Unknown', collection);
-                              }
-                            },
+                            showTitle: false,
                           ),
+                          fl_chart.PieChartSectionData(
+                            value: overdueAmountCount.toDouble(),
+                            color: const Color.fromARGB(255, 255, 101, 132),
+                            radius: 20,
+                            title: overdueAmountCount.toString(),
+                            titleStyle: const TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            showTitle: false,
+                          ),
+                        ],
+                        pieTouchData: fl_chart.PieTouchData(
+                          touchCallback: (fl_chart.FlTouchEvent event,
+                              fl_chart.PieTouchResponse? response) {
+                            if (event is fl_chart.FlTapUpEvent &&
+                                response != null &&
+                                response.touchedSection != null) {
+
+                              _whichChartToTap(context, collection);
+                            }
+                          },
                         ),
                       ),
                     ),
@@ -1270,120 +1259,166 @@ class NestedPieChartj extends StatelessWidget {
       ),
     );
   }
+
+  void _whichChartToTap(BuildContext context, Collection collection) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // _showValueDialog(context, 'Completed', collection);
+                    },
+                    child: Text('Completed')),
+                SizedBox(height: 10),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // _pendingPaymentCollectionDialog(context, collection);
+                    },
+                    child: Text('Pending')),
+                SizedBox(height: 10),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // _pendingPaymentCollectionDialog(context, collection);
+                    },
+                    child: Text('Due')),
+                SizedBox(height: 10),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // _pendingPaymentCollectionDialog(context, collection);
+                    },
+                    child: Text('Overdue')),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-void _showValueDialog(
-    BuildContext context, String title, Collection collection) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        contentPadding: EdgeInsets.zero,
-        titlePadding: EdgeInsets.zero,
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 45,
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: primaryColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                          fontSize: 15,
-                          fontFamily: 'Poppins_Regular',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
-                    ),
-                    CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      child: SizedBox(
-                        width: 25.8,
-                        height: 25.8,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.red,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.5),
-                            child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                }),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              // Display DataTable of data based on the selected section
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: DataTable(
-                  // ignore: deprecated_member_use
-                  dataRowHeight: 35,
-                  headingRowHeight: 40,
-                  columnSpacing: 30,
-                  columns: const [
-                    DataColumn(
-                      label: DialogTableHeaderText(
-                        text: 'Date',
-                        fontSize: 13.5,
-                      ),
-                    ),
-                    DataColumn(
-                      label: DialogTableHeaderText(
-                        text: 'Invoice',
-                        fontSize: 13.5,
-                      ),
-                    ),
-                    DataColumn(
-                      label: DialogTableHeaderText(
-                        text: 'Status',
-                        fontSize: 13.5,
-                      ),
-                    ),
-                    DataColumn(
-                      label: DialogTableHeaderText(
-                        text: 'Amount',
-                        fontSize: 13.5,
-                      ),
-                    ),
-                  ],
-                  rows: _buildDataRows(collection, title),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
+// void _showValueDialog(
+//     BuildContext context, String title, Collection collection) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(10),
+//         ),
+//         contentPadding: EdgeInsets.zero,
+//         titlePadding: EdgeInsets.zero,
+//         content: SingleChildScrollView(
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               Container(
+//                 height: 45,
+//                 padding: const EdgeInsets.all(10),
+//                 decoration: const BoxDecoration(
+//                   color: primaryColor,
+//                   borderRadius: BorderRadius.only(
+//                     topLeft: Radius.circular(10),
+//                     topRight: Radius.circular(10),
+//                   ),
+//                 ),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   children: [
+//                     Text(
+//                       title,
+//                       style: const TextStyle(
+//                           fontSize: 15,
+//                           fontFamily: 'Poppins_Regular',
+//                           fontWeight: FontWeight.w600,
+//                           color: Colors.white),
+//                     ),
+//                     CircleAvatar(
+//                       backgroundColor: Colors.transparent,
+//                       child: SizedBox(
+//                         width: 25.8,
+//                         height: 25.8,
+//                         child: Container(
+//                           decoration: BoxDecoration(
+//                             shape: BoxShape.circle,
+//                             border: Border.all(
+//                               color: Colors.red,
+//                             ),
+//                           ),
+//                           child: Padding(
+//                             padding: const EdgeInsets.all(3.5),
+//                             child: IconButton(
+//                                 icon: const Icon(
+//                                   Icons.close,
+//                                   color: Colors.red,
+//                                   size: 16,
+//                                 ),
+//                                 padding: EdgeInsets.zero,
+//                                 constraints: const BoxConstraints(),
+//                                 onPressed: () {
+//                                   Navigator.of(context).pop();
+//                                 }),
+//                           ),
+//                         ),
+//                       ),
+//                     )
+//                   ],
+//                 ),
+//               ),
+//               // Display DataTable of data based on the selected section
+//               Padding(
+//                 padding: const EdgeInsets.all(8.0),
+//                 child: DataTable(
+//                   // ignore: deprecated_member_use
+//                   dataRowHeight: 35,
+//                   headingRowHeight: 40,
+//                   columnSpacing: 30,
+//                   columns: const [
+//                     DataColumn(
+//                       label: DialogTableHeaderText(
+//                         text: 'Date',
+//                         fontSize: 13.5,
+//                       ),
+//                     ),
+//                     DataColumn(
+//                       label: DialogTableHeaderText(
+//                         text: 'Invoice',
+//                         fontSize: 13.5,
+//                       ),
+//                     ),
+//                     DataColumn(
+//                       label: DialogTableHeaderText(
+//                         text: 'Status',
+//                         fontSize: 13.5,
+//                       ),
+//                     ),
+//                     DataColumn(
+//                       label: DialogTableHeaderText(
+//                         text: 'Amount',
+//                         fontSize: 13.5,
+//                       ),
+//                     ),
+//                   ],
+//                   rows: _buildDataRows(collection, title),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
 
 List<DataRow> _buildDataRows(Collection collection, String title) {
   switch (title) {

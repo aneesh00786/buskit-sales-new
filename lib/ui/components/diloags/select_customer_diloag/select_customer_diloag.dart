@@ -37,7 +37,8 @@ class SelectCustomerDiloag extends StatefulWidget {
   State<SelectCustomerDiloag> createState() => _SelectCustomerDiloagState();
 }
 
-class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with WidgetsBindingObserver{
+class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
+    with WidgetsBindingObserver {
   bool navigatedToMap = false;
 
   Customer? selectedCustomer;
@@ -45,20 +46,21 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
   final HomeController homeController = Get.put(HomeController());
 
   final ProductsController productsController = Get.put(ProductsController());
-    @override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    widget.calenderMapController.suggestions.clear();
-    widget.calenderMapController.searchedLatLng.value = null;
-    widget.calenderMapController.getDirections();
-    widget.calenderMapController.getCurrentLocation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.calenderMapController.suggestions.clear();
+      widget.calenderMapController.searchedLatLng.value = null;
+      widget.calenderMapController.getDirections();
+      widget.calenderMapController.getCurrentLocation();
+    });
   }
-
-
   @override
   Widget build(BuildContext context) {
-    widget.calenderMapController.initializeCheckedList(widget.eventData.length, widget.eventData);
+    widget.calenderMapController
+        .initializeCheckedList(widget.eventData.length, widget.eventData);
     String formattedDate = DateFormat('dd/MM/yyyy').format(widget.dateTime);
     DateTime now = DateTime.now();
     bool isToday = widget.dateTime.year == now.year &&
@@ -135,8 +137,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                                           width: 20,
                                           child: Obx(() {
                                             return Checkbox(
-                                              value: 
-                                                  widget.calenderMapController
+                                              value: widget
+                                                  .calenderMapController
                                                   .checkedList[index],
                                               onChanged: (value) {
                                                 widget.calenderMapController
@@ -165,32 +167,42 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                                                     .selectIndex(1);
                                                 homeController
                                                     .selectedIndex.value = 1;
-                                                // Get.toNamed(AppRoutes.customerDashbord, id: 2);
                                                 log('${event.event!.customerId}');
-
+                                                productsController
+                                                        .selectedCustomerName
+                                                        .value =
+                                                    event.event!.businessName ??
+                                                        '';
+                                                productsController
+                                                        .selectedCustomerId
+                                                        .value =
+                                                    event.event!.customerId ??
+                                                        '';
+                                                productsController
+                                                    .selectedCustomerImageUrl
+                                                    .value = event
+                                                        .event!.imageUrl ??
+                                                    '';
                                                 Get.to(
-                                                    CustomerDachScreen(
-                                                      cusId: event
-                                                          .event!.customerId
-                                                          .toString(),
-                                                      cusName: event
-                                                          .event!.businessName
-                                                          .toString(),
-                                                      cusImage: event
-                                                          .event!.imageUrl
-                                                          .toString(),
-                                                      isFromCalendar: true,
-                                                    ),
+                                                    () => CustomerDachScreen(
+                                                          cusId: event
+                                                              .event!.customerId
+                                                              .toString(),
+                                                          cusName: event.event!
+                                                              .businessName
+                                                              .toString(),
+                                                          cusImage: event
+                                                              .event!.imageUrl
+                                                              .toString(),
+                                                          isDirectDialogue: true,
+
+                                                        ),
                                                     id: 2);
                                                 final now = DateTime.now();
                                                 final startDate = DateTime(
-                                                    now.year,
-                                                    now.month,
-                                                    1); // First day of the month
+                                                    now.year, now.month, 1);
                                                 final endDate = DateTime(
-                                                    now.year,
-                                                    now.month + 1,
-                                                    0); // Last day of the month
+                                                    now.year, now.month + 1, 0);
 
                                                 final formattedStartDate =
                                                     DateFormat('yyyy-MM-dd')
@@ -198,7 +210,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                                                 final formattedEndDate =
                                                     DateFormat('yyyy-MM-dd')
                                                         .format(endDate);
-                                                //
                                                 Provider.of<CustomersProvider>(
                                                         context,
                                                         listen: false)
@@ -237,14 +248,9 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                                                         event.event!.customerId
                                                             .toString());
                                               });
-                                              // Navigator.of(context,
-                                              //         rootNavigator: true)
-                                              //     .pop();
                                             },
                                             icon: Icon(
-                                              // Icons.arro
                                               EneftyIcons
-                                                  // .arrow_circle_right_bold,
                                                   .arrow_square_right_outline,
                                               color: primaryColor,
                                               size: 25,
@@ -271,13 +277,16 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                                                 );
                                               }
 
-                                              double currentLatitude =
-                                                  widget.calenderMapController.currentLatLng
-                                                      .value!.latitude;
-                                              double currentLongitude =
-                                                  widget.calenderMapController.currentLatLng
-                                                      .value!.longitude;
-
+                                              double currentLatitude = widget
+                                                  .calenderMapController
+                                                  .currentLatLng
+                                                  .value!
+                                                  .latitude;
+                                              double currentLongitude = widget
+                                                  .calenderMapController
+                                                  .currentLatLng
+                                                  .value!
+                                                  .longitude;
                                               return IconButton(
                                                 icon: const Icon(
                                                   Icons.near_me_outlined,
@@ -291,9 +300,13 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                                                     currentLatitude,
                                                     currentLongitude,
                                                     double.parse(
-                                                        selectedCustomer?.latitude??''),
+                                                        selectedCustomer
+                                                                ?.latitude ??
+                                                            ''),
                                                     double.parse(
-                                                        selectedCustomer?.longitude??''),
+                                                        selectedCustomer
+                                                                ?.longitude ??
+                                                            ''),
                                                   );
                                                 },
                                                 highlightColor: white,
@@ -318,7 +331,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag> with Widget
                   label: CustomText(content: 'Show Route', color: white),
                   onPressed: () {
                     Navigator.pop(context);
-                    widget.calenderMapController.showSelectedCustomerRoute(context);
+                    widget.calenderMapController
+                        .showSelectedCustomerRoute(context);
                     widget.calenderMapController.fetchDistanceAndTime();
                   },
                   style: ButtonStyle(

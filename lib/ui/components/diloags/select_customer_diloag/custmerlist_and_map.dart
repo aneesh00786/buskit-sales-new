@@ -6,6 +6,8 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -13,9 +15,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerMapScreen extends StatefulWidget {
+  final bool istoGoogleMap;
+  CustomerMapScreen({this.istoGoogleMap = false, Key? key}) : super(key: key);
+
   @override
   State<CustomerMapScreen> createState() => _CustomerMapScreenState();
 }
@@ -57,10 +64,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+  WidgetsBinding.instance.addPostFrameCallback((_) {
     _mapController.suggestions.clear();
     _mapController.searchedLatLng.value = null;
     _mapController.getDirections();
     _mapController.getCurrentLocation();
+  });
   }
 
   @override
@@ -97,26 +106,57 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
             ],
           ),
           content: CustomText(
-            content: 'Reached on customer Location..',
+            content: 'Reached on customer',
             fontSize: 17,
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  homeController.sidebarXController.selectIndex(2);
-                  homeController.selectedIndex.value = 2;
-                  Get.toNamed(AppRoutes.product, id: 2);
+              onPressed: () async {
+                Navigator.pop(context);
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  if (!widget.istoGoogleMap) {
+                    Navigator.pop(context);
+                  }
+
+                  homeController.sidebarXController.selectIndex(1);
+                  homeController.selectedIndex.value = 1;
                   productsController.selectedCustomerName.value =
                       customer.businessName ?? '';
                   productsController.selectedCustomerImageUrl.value =
                       customer.imageUrl ?? '';
                   productsController.selectedCustomerId.value =
                       customer.customerId ?? '';
+                  Get.to(
+                    () => CustomerDachScreen(
+                      cusId: customer.customerId.toString(),
+                      cusName: customer.businessName.toString(),
+                      cusImage: customer.imageUrl.toString(),
+                      isFromCalendar: true,
+                    ),
+                    id: 2,
+                  );
+                  final now = DateTime.now();
+                  final startDate = DateTime(now.year, now.month, 1);
+                  final endDate = DateTime(now.year, now.month + 1, 0);
+                  final formattedStartDate =
+                      DateFormat('yyyy-MM-dd').format(startDate);
+                  final formattedEndDate =
+                      DateFormat('yyyy-MM-dd').format(endDate);
+                  final customerId = customer.customerId.toString();
+                  final customersProvider =
+                      Provider.of<CustomersProvider>(context, listen: false);
+                  await Future.wait([
+                    customersProvider.fetchCustomerDashboardData(
+                        customerId, 2024, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardRevenueData(
+                        customerId, 2024, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardDataSalseData(
+                        customerId, 2024),
+                    customersProvider.fetchCustomersDataDash(customerId),
+                    customersProvider
+                        .fetchCustomerDashboardCountData(customerId),
+                  ]);
                 });
-                productsController.onReached(true);
-                Navigator.of(context, rootNavigator: true).pop();
               },
               child: Text("Go to Customer"),
             ),

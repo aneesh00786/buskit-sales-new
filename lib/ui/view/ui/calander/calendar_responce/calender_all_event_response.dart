@@ -42,10 +42,10 @@ class EventData {
   dynamic? checkIn;
   String? checkInLongitude;
   String? checkInLatitude;
-  Null? checkOut;
+  dynamic? checkOut;
   String? checkOutLatitude;
   int? checkOutLongitude;
-  Null? eventCancel;
+  dynamic? eventCancel;
   int? status;
   String? createdAt;
   String? updatedAt;

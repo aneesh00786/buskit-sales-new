@@ -80,9 +80,7 @@ class ProductsController extends GetxController {
   }
 
 bool onReached(bool reached) {
-  log('onReached called with value: $reached');
   isReached.value = reached;
-  log('isReached updated to: ${isReached.value}');
   return isReached.value;
 }
 

@@ -323,7 +323,8 @@ class _OrderTakingState extends State<OrderTaking>
   void triggerLeadingIcon(bool toDashBoard) {
     if (widget.isReached == true) {
       Navigator.pop(context);
-    } else if (CartDatabaseManager().cartItems.isNotEmpty &&
+    } else if (
+      //CartDatabaseManager().cartItems.isNotEmpty &&
         customeController.customerId.value.isNotEmpty) {
       handleBackNavigation(
         context,
@@ -353,8 +354,10 @@ class _OrderTakingState extends State<OrderTaking>
         leading: IconButton(
           onPressed: () {
             triggerLeadingIcon(true);
+            log('Triggered');
+            log(customeController.customerId.value);
           },
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios),
         ),
       ),
       body: Obx(() {
@@ -713,7 +716,7 @@ class _OrderTakingState extends State<OrderTaking>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                          widget.isFromCalender??false?  IntrinsicWidth(
+                           IntrinsicWidth(
                               child: ListTile(
                                   title: Text(widget.productsController
                                           .selectedCustomerName.isEmpty
@@ -741,43 +744,6 @@ class _OrderTakingState extends State<OrderTaking>
                                               : Color.fromARGB(
                                                   123, 194, 192, 192),
                                         )),
-                            ):IntrinsicWidth(
-                              child: ListTile(
-                                  title: Text(widget.cusName.isEmpty
-                                      ? ''
-                                      : widget.productsController
-                                          .getFormattedCustomerName(widget.cusName
-                                              )),
-                                  leading:widget.isFromCalender??false? widget.productsController
-                                          .selectedCustomerName.isEmpty
-                                      ? null
-                                      : CircleAvatar(
-                                          backgroundImage: NetworkImage(widget
-                                                  .productsController
-                                                  .selectedCustomerImageUrl
-                                                  .isEmpty
-                                              ? ''
-                                              : '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}'),
-                                          backgroundColor: widget
-                                                  .productsController
-                                                  .selectedCustomerImageUrl
-                                                  .isEmpty
-                                              ? Colors.blueGrey
-                                              : Color.fromARGB(
-                                                  123, 194, 192, 192),
-                                        ):CircleAvatar(
-                                          backgroundImage: NetworkImage(widget.cusImage.isEmpty
-                                              ? ''
-                                              : '${ApiConstants.imageBaseUrl}/${widget.cusImage}'),
-                                          backgroundColor: widget
-                                                  .cusImage
-                                                  .isEmpty
-                                              ? Colors.blueGrey
-                                              : Color.fromARGB(
-                                                  123, 194, 192, 192),
-                                        )
-                                        
-                                        ),
                             ),
                             IntrinsicWidth(
                               child: CustomSwitch(

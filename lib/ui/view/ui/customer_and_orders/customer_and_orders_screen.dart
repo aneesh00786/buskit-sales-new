@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -375,8 +376,7 @@ class tableee extends StatelessWidget {
                                   padding: const EdgeInsets.all(4.0),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(4.0),
                                       border: Border.all(color: Colors.grey),
                                     ),
                                     child: TextField(
@@ -404,8 +404,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: phoneController,
@@ -431,8 +431,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: emailController,
@@ -463,8 +463,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: townController,
@@ -491,8 +491,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: stateController,
@@ -519,8 +519,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: zipcodeController,
@@ -546,8 +546,7 @@ class tableee extends StatelessWidget {
                                   padding: const EdgeInsets.all(4.0),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(4.0),
                                       border: Border.all(color: Colors.grey),
                                     ),
                                     child: TextField(
@@ -575,8 +574,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: bsNameController,
@@ -602,8 +601,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: bsNumController,
@@ -635,8 +634,8 @@ class tableee extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
-                                            border: Border.all(
-                                                color: Colors.grey),
+                                            border:
+                                                Border.all(color: Colors.grey),
                                           ),
                                           child: TextField(
                                             controller: remarkController,
@@ -710,8 +709,7 @@ class tableee extends StatelessWidget {
                                       decoration: BoxDecoration(
                                         borderRadius:
                                             BorderRadius.circular(4.0),
-                                        border:
-                                            Border.all(color: Colors.grey),
+                                        border: Border.all(color: Colors.grey),
                                       ),
                                       child: kIsWeb
                                           ? Image.network(
@@ -725,13 +723,12 @@ class tableee extends StatelessWidget {
                                     ),
                                   ),
                                 ],
-            
+
                                 const SizedBox(height: 16.0),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
@@ -746,17 +743,15 @@ class tableee extends StatelessWidget {
                                             zipcode: int.parse(
                                                 zipcodeController.text),
                                             address: addressController.text,
-                                            businessName:
-                                                bsNameController.text,
+                                            businessName: bsNameController.text,
                                             businessNo: bsNumController
                                                 .text, // Provide default or empty values if not applicable
                                           );
-            
+
                                           try {
                                             await provider.addCustomer(
                                                 admin: updatedAdmin,
-                                                salsmanId: customer!
-                                                    .salesmanId
+                                                salsmanId: customer!.salesmanId
                                                     .toString());
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
@@ -768,15 +763,13 @@ class tableee extends StatelessWidget {
                                           backgroundColor:
                                               primaryColor, // Background color
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    4.0), // Border radius
+                                            borderRadius: BorderRadius.circular(
+                                                4.0), // Border radius
                                           ),
                                         ),
                                         child: const Text(
                                           'Add Customer',
-                                          style:
-                                              TextStyle(color: Colors.white),
+                                          style: TextStyle(color: Colors.white),
                                         ),
                                       )
                                     ],
@@ -2330,14 +2323,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       Get.put(CustomerAndOrderController());
   final StaffController staffController = Get.put(StaffController());
   final LeadsController leadsController = Get.put(LeadsController());
-
+  final ProductsController prodController = Get.put(ProductsController());
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 
   String? startDate;
   String? endDate;
   String dropdownValue = 'Today';
-  
 
   @override
   void initState() {
@@ -2489,7 +2481,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 onTap: () {
                                                   provider
                                                       .setCurrentMonthDates();
-
+                                                  prodController
+                                                          .selectedCustomerName
+                                                          .value =
+                                                      customer.fullname;
+                                                  prodController
+                                                          .selectedCustomerId
+                                                          .value =
+                                                      customer.customerId;
+                                                  prodController
+                                                      .selectedCustomerImageUrl
+                                                      .value = customer.imageUrl;
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
@@ -2499,7 +2501,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             customer.customerId,
                                                         cusName:
                                                             customer.fullname,
-                                                        cusImage: customer.imageUrl,
+                                                        cusImage:
+                                                            customer.imageUrl,
                                                         year: 2024,
                                                         startDate: provider
                                                             .selectedStartDate,
@@ -2964,8 +2967,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           _buildTableCell(
                                             Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceAround,
+                                                  MainAxisAlignment.spaceAround,
                                               children: [
                                                 Expanded(
                                                   flex: 2,
@@ -2976,8 +2978,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 0 ||
                                                             customer.totalSales ==
                                                                 null) {
-                                                          ScaffoldMessenger
-                                                                  .of(context)
+                                                          ScaffoldMessenger.of(
+                                                                  context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
@@ -3016,8 +3018,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 0 ||
                                                             customer.delivery ==
                                                                 null) {
-                                                          ScaffoldMessenger
-                                                                  .of(context)
+                                                          ScaffoldMessenger.of(
+                                                                  context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
@@ -3056,8 +3058,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 0 ||
                                                             customer.payment ==
                                                                 null) {
-                                                          ScaffoldMessenger
-                                                                  .of(context)
+                                                          ScaffoldMessenger.of(
+                                                                  context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
@@ -3235,8 +3237,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             child: Center(
                                               child: Text(
                                                 formatAmount(provider
-                                                    .orderTotalList[2]
-                                                    .payment),
+                                                    .orderTotalList[2].payment),
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
@@ -3277,8 +3278,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     _buildTableCell(
                                       Center(
                                         child: Text(
-                                          formatAmount(provider
-                                              .orderTotalList[5].draft),
+                                          formatAmount(
+                                              provider.orderTotalList[5].draft),
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16,
@@ -3512,7 +3513,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   ),
                                   SizedBox(width: padding),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         customer != null
@@ -3530,7 +3532,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         ),
                                       ),
                                       Text(
-                                        customer != null ? customer.email : 'N/A',
+                                        customer != null
+                                            ? customer.email
+                                            : 'N/A',
                                         style: TextStyle(
                                           fontSize: fontSize * 0.6,
                                           color: Colors.black,
@@ -3588,8 +3592,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     //                                         child:
                                     child: Padding(
                                       padding: const EdgeInsets.all(4.0),
-                                      child:
-                                          Text(_getStatusName(order.orderStatus)),
+                                      child: Text(
+                                          _getStatusName(order.orderStatus)),
                                     ),
                                   ),
                                 ),
@@ -3609,26 +3613,27 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       },
     );
   }
+
   String formatAmount(dynamic value) {
-  // Convert the dynamic value to double
-  double amount;
-  
-  if (value is String) {
-    amount = double.tryParse(value) ?? 0.0;
-  } else if (value is int) {
-    amount = value.toDouble();
-  } else if (value is double) {
-    amount = value;
-  } else {
-    throw ArgumentError('Unsupported value type');
+    // Convert the dynamic value to double
+    double amount;
+
+    if (value is String) {
+      amount = double.tryParse(value) ?? 0.0;
+    } else if (value is int) {
+      amount = value.toDouble();
+    } else if (value is double) {
+      amount = value;
+    } else {
+      throw ArgumentError('Unsupported value type');
+    }
+
+    // Format the amount to two decimal places
+    String formattedAmount = amount.toStringAsFixed(2);
+
+    // Return with the $ symbol
+    return '\$ ' + formattedAmount;
   }
-
-  // Format the amount to two decimal places
-  String formattedAmount = amount.toStringAsFixed(2);
-
-  // Return with the $ symbol
-  return '\$ ' + formattedAmount;
-}
 }
 
 extension TakeLastExtension<E> on List<E> {

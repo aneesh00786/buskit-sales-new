@@ -16,9 +16,11 @@ import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_dil
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/custom_toast.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dash_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/editabledatacell_new.dart';
@@ -44,6 +46,7 @@ class CustomerDachScreen extends StatefulWidget {
   final dynamic startDate;
   final dynamic endDate;
   final bool isFromCalendar;
+  final bool isDirectDialogue;
 
   const CustomerDachScreen({
     super.key,
@@ -54,6 +57,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.startDate,
     this.endDate,
     this.isFromCalendar = false,
+    this.isDirectDialogue = false,
   });
 
   @override
@@ -64,9 +68,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
   int selectedYear = 2024; // Initial selected year
   late TabController _tabController;
-  // ProductsController productsController = Get.find<ProductsController>();
   ProductsController productsController = Get.put(ProductsController());
   HomeController homeController = Get.put(HomeController());
+  CustomerAndOrderController customerOrderController = Get.put(CustomerAndOrderController());
 
   @override
   void initState() {
@@ -125,20 +129,26 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
-             onTap: () {
-                if (widget.isFromCalendar ?? true) {
+              onTap: () {
+                if (widget.isFromCalendar) {
                   homeController.sidebarXController.selectIndex(5);
                   homeController.selectedIndex.value = 5;
                   Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
-                          CustomerMapScreen(),
+                          CustomerMapScreen(
+                        istoGoogleMap: true,
+                      ),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
                         return FadeTransition(opacity: animation, child: child);
                       },
                     ),
                   );
+                } else if (widget.isDirectDialogue) {
+                  homeController.sidebarXController.selectIndex(5);
+                  homeController.selectedIndex.value = 5;
+                  Get.toNamed(AppRoutes.calender, id: 2);
                 } else {
                   Navigator.pop(context);
                 }
@@ -162,32 +172,30 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
+                customerOrderController.customerId.value =
+                    widget.cusId;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                      productsController: productsController,
-                      cusId: widget.cusId,
-                      cusName: widget.cusName,
-                      cusImage: widget.cusImage,
-                      isFromCalender: widget.isFromCalendar,
-                      isReached:true
-                      
-                    ),
+                        productsController: productsController,
+                        cusId: widget.cusId,
+                        cusName: widget.cusName,
+                        cusImage: widget.cusImage,
+                        isFromCalender: widget.isFromCalendar,
+                        isReached: true),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(4.0), // Change the box shape
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
               ),
               child: const Text(
                 'Order Taking',
-                style: TextStyle(
-                    color: Colors.white), // Change text color to white
+                style: TextStyle(color: Colors.white),
               ),
             ),
             UpdateCustomer(widget: widget),
@@ -291,7 +299,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
   }
 
-  // ignore: non_constant_identifier_names
   Expanded Category(BuildContext context) {
     return Expanded(
         child: Padding(
@@ -345,7 +352,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         onChanged: (int? newValue) {
                           setState(() {
                             selectedYear = newValue!;
-                            // Fetch data for the selected year
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
@@ -2079,13 +2085,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 }
 
 class UpdateCustomer extends StatelessWidget {
-  const UpdateCustomer({
+  UpdateCustomer({
     super.key,
     required this.widget,
   });
 
   final CustomerDachScreen widget;
-
+  ProductsController productsController = Get.put(ProductsController());
   @override
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(builder: (context, provider, child) {
@@ -2720,10 +2726,12 @@ class UpdateCustomer extends StatelessWidget {
                           CircleAvatar(
                             backgroundColor: const Color(0xffe6ecff),
                             radius: 15,
-                            child: customer.imageUrl != null
+                            child: productsController
+                                        .selectedCustomerImageUrl.value !=
+                                    null
                                 ? CachedNetworkImage(
                                     imageUrl:
-                                        'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
+                                        'http://16.50.232.153:3000/uploads/${productsController.selectedCustomerImageUrl.value}',
                                     placeholder: (context, url) =>
                                         const CircularProgressIndicator(),
                                     errorWidget: (context, url, error) =>
@@ -2749,7 +2757,9 @@ class UpdateCustomer extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               MyRegularText(
-                                  label: customer.businessName, fontSize: 8.8),
+                                  label: productsController
+                                      .selectedCustomerName.value,
+                                  fontSize: 8.8),
                               // SizedBox(
                               //   height: 2.5,
                               // ),

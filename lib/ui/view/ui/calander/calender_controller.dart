@@ -98,7 +98,7 @@ class CalenderMapController extends GetxController {
     }
   }
 
-  void showSelectedCustomerRoute(BuildContext context) {
+  void showSelectedCustomerRoute(BuildContext context, ) {
     if (selectedCustomers.isNotEmpty) {
       Get.to(() => CustomerMapScreen());
     } else {

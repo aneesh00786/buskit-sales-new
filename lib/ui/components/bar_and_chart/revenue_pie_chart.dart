@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_chart;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -1118,186 +1119,744 @@ class ChartData {
   ChartData(this.x, this.y, this.color);
 }
 
+class ChartData2 {
+  final String label;
+  final int value;
+  final Color color;
+
+  ChartData2(this.label, this.value, this.color);
+}
+
+// class NestedPieChartj extends StatelessWidget {
+//   final Widget sabik;
+//   final Widget sabi2;
+//   final Collection collection;
+
+//   const NestedPieChartj({
+//     super.key,
+//     required this.sabik,
+//     required this.sabi2,
+//     required this.collection,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     int completedOrdersCount = collection.payment!.completedOrders!
+//         .fold(0, (sum, order) => sum + order.orderTotal);
+//     int pendingAmountCount =
+//         collection.order!.pendingAmount!.last.amount as int;
+//     int dueAmountCount = collection.order!.pendingAmount!.last.dueAmount as int;
+//     int overdueAmountCount =
+//         collection.order!.pendingAmount!.last.overDue as int;
+
+//     return Center(
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.center,
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         children: [
+//           Expanded(
+//             flex: 3,
+//             child: Stack(
+//               alignment: Alignment.center,
+//               fit: StackFit.expand,
+//               children: [
+//                 // Outer Pie Chart
+//                 Positioned.fill(
+//                   child: SizedBox(
+//                     height: 94,
+//                     width: 94,
+//                     child: fl_chart.PieChart(
+//                       fl_chart.PieChartData(
+//                         startDegreeOffset: -90,
+//                         sectionsSpace: 1,
+//                         centerSpaceRadius: 53,
+//                         sections: [
+//                           fl_chart.PieChartSectionData(
+//                             value: completedOrdersCount.toDouble(),
+//                             color: const Color.fromARGB(255, 90, 119, 37),
+//                             radius: 20,
+//                             title: completedOrdersCount.toString(),
+//                             titleStyle: const TextStyle(
+//                               fontSize: 10,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.white,
+//                             ),
+//                             showTitle: false,
+//                           ),
+//                           fl_chart.PieChartSectionData(
+//                             value: pendingAmountCount.toDouble(),
+//                             color: const Color(0xffa30c13),
+//                             radius: 20,
+//                             title: pendingAmountCount.toString(),
+//                             titleStyle: const TextStyle(
+//                               fontSize: 10,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.black,
+//                             ),
+//                             showTitle: false,
+//                           ),
+//                         ],
+//                         pieTouchData: fl_chart.PieTouchData(
+//                           touchCallback: (fl_chart.FlTouchEvent event,
+//                               fl_chart.PieTouchResponse? response) {
+//                             _whichChartToTap(context, collection);
+//                           },
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//                 // Inner Pie Chart
+//                 Positioned.fill(
+//                   child: SizedBox(
+//                     height: 80,
+//                     width: 80,
+//                     child: fl_chart.PieChart(
+//                       fl_chart.PieChartData(
+//                         startDegreeOffset: -90,
+//                         sectionsSpace: 1,
+//                         centerSpaceRadius: 30,
+//                         sections: [
+//                           fl_chart.PieChartSectionData(
+//                             value: dueAmountCount.toDouble(),
+//                             color: const Color.fromARGB(255, 255, 173, 181),
+//                             radius: 20,
+//                             title: dueAmountCount.toString(),
+//                             titleStyle: const TextStyle(
+//                               fontSize: 8,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.black,
+//                             ),
+//                             showTitle: false,
+//                           ),
+//                           fl_chart.PieChartSectionData(
+//                             value: overdueAmountCount.toDouble(),
+//                             color: const Color.fromARGB(255, 255, 101, 132),
+//                             radius: 20,
+//                             title: overdueAmountCount.toString(),
+//                             titleStyle: const TextStyle(
+//                               fontSize: 8,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.black,
+//                             ),
+//                             showTitle: false,
+//                           ),
+//                         ],
+//                         pieTouchData: fl_chart.PieTouchData(
+//                           touchCallback: (fl_chart.FlTouchEvent event,
+//                               fl_chart.PieTouchResponse? response) {
+//                             if (event is fl_chart.FlTapUpEvent &&
+//                                 response != null &&
+//                                 response.touchedSection != null) {
+
+//                               _whichChartToTap(context, collection);
+//                             }
+//                           },
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           const SizedBox(height: 5.5),
+//           sabik,
+//           const SizedBox(height: 2.7),
+//           sabi2,
+//         ],
+//       ),
+//     );
+//   }
+
+//   void _whichChartToTap(BuildContext context, Collection collection) {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           content: SizedBox(
+//             width: 300,
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               crossAxisAlignment: CrossAxisAlignment.stretch,
+//               children: [
+//                 ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop();
+//                       // _showValueDialog(context, 'Completed', collection);
+//                     },
+//                     child: Text('Completed')),
+//                 SizedBox(height: 10),
+//                 ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop();
+//                       // _pendingPaymentCollectionDialog(context, collection);
+//                     },
+//                     child: Text('Pending')),
+//                 SizedBox(height: 10),
+//                 ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop();
+//                       // _pendingPaymentCollectionDialog(context, collection);
+//                     },
+//                     child: Text('Due')),
+//                 SizedBox(height: 10),
+//                 ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop();
+//                       // _pendingPaymentCollectionDialog(context, collection);
+//                     },
+//                     child: Text('Overdue')),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+
 class NestedPieChartj extends StatelessWidget {
-  final Widget sabik;
-  final Widget sabi2;
+  final int completedOrdersCount;
+  final int pendingAmountCount;
+  final int dueAmountCount;
+  final int overdueAmountCount;
   final Collection collection;
 
-  const NestedPieChartj({
-    super.key,
-    required this.sabik,
-    required this.sabi2,
-    required this.collection,
-  });
+  const  NestedPieChartj(
+      {super.key,
+      required this.completedOrdersCount,
+      required this.pendingAmountCount,
+      required this.dueAmountCount,
+      required this.overdueAmountCount,
+      required this.collection});
 
   @override
   Widget build(BuildContext context) {
-    int completedOrdersCount = collection.payment!.completedOrders!
-        .fold(0, (sum, order) => sum + order.orderTotal);
-    int pendingAmountCount =
-        collection.order!.pendingAmount!.last.amount as int;
-    int dueAmountCount = collection.order!.pendingAmount!.last.dueAmount as int;
-    int overdueAmountCount =
-        collection.order!.pendingAmount!.last.overDue as int;
-
     return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
-              children: [
-                // Outer Pie Chart
-                Positioned.fill(
-                  child: SizedBox(
-                    height: 94,
-                    width: 94,
-                    child: fl_chart.PieChart(
-                      fl_chart.PieChartData(
-                        startDegreeOffset: -90,
-                        sectionsSpace: 1,
-                        centerSpaceRadius: 53,
-                        sections: [
-                          fl_chart.PieChartSectionData(
-                            value: completedOrdersCount.toDouble(),
-                            color: const Color.fromARGB(255, 90, 119, 37),
-                            radius: 20,
-                            title: completedOrdersCount.toString(),
-                            titleStyle: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            showTitle: false,
-                          ),
-                          fl_chart.PieChartSectionData(
-                            value: pendingAmountCount.toDouble(),
-                            color: const Color(0xffa30c13),
-                            radius: 20,
-                            title: pendingAmountCount.toString(),
-                            titleStyle: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            showTitle: false,
-                          ),
-                        ],
-                        pieTouchData: fl_chart.PieTouchData(
-                          touchCallback: (fl_chart.FlTouchEvent event,
-                              fl_chart.PieTouchResponse? response) {
-                            _whichChartToTap(context, collection);
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // Inner Pie Chart
-                Positioned.fill(
-                  child: SizedBox(
-                    height: 80,
-                    width: 80,
-                    child: fl_chart.PieChart(
-                      fl_chart.PieChartData(
-                        startDegreeOffset: -90,
-                        sectionsSpace: 1,
-                        centerSpaceRadius: 30,
-                        sections: [
-                          fl_chart.PieChartSectionData(
-                            value: dueAmountCount.toDouble(),
-                            color: const Color.fromARGB(255, 255, 173, 181),
-                            radius: 20,
-                            title: dueAmountCount.toString(),
-                            titleStyle: const TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            showTitle: false,
-                          ),
-                          fl_chart.PieChartSectionData(
-                            value: overdueAmountCount.toDouble(),
-                            color: const Color.fromARGB(255, 255, 101, 132),
-                            radius: 20,
-                            title: overdueAmountCount.toString(),
-                            titleStyle: const TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            showTitle: false,
-                          ),
-                        ],
-                        pieTouchData: fl_chart.PieTouchData(
-                          touchCallback: (fl_chart.FlTouchEvent event,
-                              fl_chart.PieTouchResponse? response) {
-                            if (event is fl_chart.FlTapUpEvent &&
-                                response != null &&
-                                response.touchedSection != null) {
-
-                              _whichChartToTap(context, collection);
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      child: SfCircularChart(
+        series: <CircularSeries>[
+          // Outer Pie Chart
+          DoughnutSeries<ChartData2, String>(
+            dataSource: [
+              ChartData2(
+                  'Completed', completedOrdersCount, const Color(0xFF5A7725)),
+              ChartData2(
+                  'Pending', pendingAmountCount, const Color(0xFFA30C13)),
+            ],
+            xValueMapper: (ChartData2 data, _) => data.label,
+            yValueMapper: (ChartData2 data, _) => data.value,
+            pointColorMapper: (ChartData2 data, _) => data.color,
+            radius: '90%',
+            innerRadius: '65%',
+            strokeColor: white,
+            strokeWidth: 2,
+            onPointTap: (ChartPointDetails details) {
+              if (details.pointIndex == 0) {
+                _showValueDialog(context, 'Completed', collection);
+              } else if (details.pointIndex == 1) {
+                _pendingPaymentCollectionDialog(context, collection);
+              }
+            },
           ),
-          const SizedBox(height: 5.5),
-          sabik,
-          const SizedBox(height: 2.7),
-          sabi2,
+          // Inner Pie Chart
+          DoughnutSeries<ChartData2, String>(
+            dataSource: [
+              ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
+              ChartData2(
+                  'Overdue', overdueAmountCount, const Color(0xFFFF6584)),
+            ],
+            xValueMapper: (ChartData2 data, _) => data.label,
+            yValueMapper: (ChartData2 data, _) => data.value,
+            pointColorMapper: (ChartData2 data, _) => data.color,
+            radius: '57%',
+            innerRadius: '45%',
+            strokeColor: white,
+            strokeWidth: 0.5,
+            onPointTap: (ChartPointDetails details) {
+              if (details.pointIndex == 0) {
+                _pendingPaymentCollectionDialog(context, collection);
+              } else if (details.pointIndex == 1) {
+                _pendingPaymentCollectionDialog(context, collection);
+              }
+            },
+          ),
         ],
       ),
     );
   }
 
-  void _whichChartToTap(BuildContext context, Collection collection) {
+  void _pendingPaymentCollectionDialog(
+      BuildContext context, Collection collection) {
+    String selectedPaymentMethod = 'Cash';
+    RxInt selectedPaymentMethodInt = 0.obs;
+
+    RxList<bool> selectedItems = List<bool>.generate(
+      collection.order!.pendingAmount!.length,
+      (index) => false,
+    ).obs;
+
+    void updateSelectedItems() {
+      selectedItems.value = List<bool>.generate(
+        collection.order!.pendingAmount!.length,
+        (index) => false,
+      );
+    }
+
+    updateSelectedItems();
+
+    double calculateTotalBalanceAmount() {
+      double total = 0;
+      for (int i = 0; i < selectedItems.length; i++) {
+        if (selectedItems[i]) {
+          final receivable =
+              collection.order!.pendingAmount![i].receivableAmount;
+          if (receivable == null) {
+            total += collection.order!.pendingAmount![i].orderTotal!.toDouble();
+          } else {
+            total += receivable;
+          }
+        }
+      }
+      return total;
+    }
+
+    void processPayments(List<PendingAmount> selectedItems, int enteredAmount) {
+      // Your processing logic for payments, without the controller
+      print("Processing payments with amount: $enteredAmount");
+      for (var item in selectedItems) {
+        print(
+            "Processing item: ${item.orderId} with amount: ${item.orderTotal}");
+        // Add further logic to adjust amounts, mark items as paid, etc.
+      }
+    }
+
+    RxDouble totalBalanceAmount = RxDouble(calculateTotalBalanceAmount());
+
+    final balanceAmountController = TextEditingController(
+      text: totalBalanceAmount.value.toStringAsFixed(2),
+    );
+
+    final receivedAmountController = TextEditingController();
+    final remarksController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: SizedBox(
-            width: 300,
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // _showValueDialog(context, 'Completed', collection);
-                    },
-                    child: Text('Completed')),
-                SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // _pendingPaymentCollectionDialog(context, collection);
-                    },
-                    child: Text('Pending')),
-                SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // _pendingPaymentCollectionDialog(context, collection);
-                    },
-                    child: Text('Due')),
-                SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // _pendingPaymentCollectionDialog(context, collection);
-                    },
-                    child: Text('Overdue')),
+                // Header of the dialog
+                Container(
+                  height: 45,
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Color(0xff008000),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Payment',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      dialogCloseButton1(context, red),
+                    ],
+                  ),
+                ),
+                // First table
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DataTable(
+                          dataRowHeight: 30,
+                          headingRowHeight: 40,
+                          border: TableBorder.all(color: Colors.grey.shade300),
+                          columns: const [
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Date',
+                                fontSize: 13,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Invoice',
+                                fontSize: 13,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Amount',
+                                fontSize: 13,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Status',
+                                fontSize: 13,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Payment',
+                                fontSize: 13,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Receivable',
+                                fontSize: 13,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Select',
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                          rows: collection.order!.pendingAmount!
+                              .asMap()
+                              .entries
+                              .map<DataRow>((entry) {
+                            int index = entry.key;
+                            var payment = entry.value;
+                            return DataRow(cells: [
+                              DataCell(Center(
+                                  child: Text(getFormattedOrderCreatAt(
+                                      payment.orderCreatAt)))),
+                              DataCell(Center(
+                                  child: Text(payment.orderId.toString()))),
+                              DataCell(Center(
+                                  child:
+                                      Text(formatAmount(payment.orderTotal)))),
+                              DataCell(Center(
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff008000),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4.0)),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 5,
+                                    ),
+                                    child: Text(
+                                      getStatusLabel(payment.orderStatus),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )),
+                              DataCell(
+                                Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: payment.paymentStatus == 0
+                                          ? Colors.red
+                                          : Colors.green,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: payment.paymentStatus == 0
+                                            ? Colors.red
+                                            : Colors.green,
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: Icon(
+                                        payment.paymentStatus == 0
+                                            ? Icons.close
+                                            : Icons.done,
+                                        color: Colors.white,
+                                        size: 14.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 3.0),
+                                    child: EditablePendingPaymentCell(
+                                      initialValue:
+                                          payment.orderTotal.toString(),
+                                      index: index,
+                                      orderId: payment.orderId.toString(),
+                                      orderTotal: payment.orderTotal!.toInt(),
+                                      receivable: payment.receivableAmount,
+                                      onValueChanged: (newValue, index) {
+                                        // Handle editable cells if necessary
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Center(child: Obx(() {
+                                  return Checkbox(
+                                    value: selectedItems[index],
+                                    onChanged: (bool? value) {
+                                      // Update selected items list when checkbox is toggled
+                                      selectedItems[index] = value ?? false;
+
+                                      // Recalculate total balance amount
+                                      totalBalanceAmount.value =
+                                          calculateTotalBalanceAmount();
+                                      balanceAmountController.text =
+                                          totalBalanceAmount.value
+                                              .toStringAsFixed(2);
+                                    },
+                                  );
+                                })),
+                              ),
+                            ]);
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // Second table
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DataTable(
+                          dataRowHeight: 35,
+                          headingRowHeight: 30,
+                          columns: const [
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Payment Method',
+                                fontSize: 11,
+                                align: TextAlign.start,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Balance Amount',
+                                fontSize: 11,
+                                align: TextAlign.start,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Received Amount',
+                                fontSize: 11,
+                                align: TextAlign.start,
+                              ),
+                            ),
+                            DataColumn(
+                              label: DialogTableHeaderText(
+                                text: 'Remarks',
+                                fontSize: 11,
+                                align: TextAlign.start,
+                              ),
+                            ),
+                            DataColumn(label: Text('')),
+                          ],
+                          rows: [
+                            DataRow(
+                              cells: [
+                                DataCell(
+                                  DropdownButtonFormField<String>(
+                                    value: selectedPaymentMethod,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.grey.shade300),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                    ),
+                                    dropdownColor: Colors.white,
+                                    items: const [
+                                      DropdownMenuItem(
+                                          value: 'Cash',
+                                          child: Text('Cash')),
+                                      DropdownMenuItem(
+                                          value: 'Cheque',
+                                          child: Text('Cheque')),
+                                      DropdownMenuItem(
+                                          value: 'Bank Transfer',
+                                          child: Text('Bank Transfer')),
+                                    ],
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        selectedPaymentMethod = value;
+                                        // Map the selected value to the corresponding integer
+                                        switch (value) {
+                                          case 'Cash':
+                                            selectedPaymentMethodInt.value = 0;
+                                            break;
+                                          case 'Cheque':
+                                            selectedPaymentMethodInt.value = 1;
+                                            break;
+                                          case 'Bank Transfer':
+                                            selectedPaymentMethodInt.value = 2;
+                                            break;
+                                        }
+                                      }
+                                    },
+                                    hint: const Text('Select'),
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.black),
+                                    icon: const Icon(Icons.arrow_drop_down,
+                                        size: 24.0, color: Colors.black),
+                                    iconSize: 24.0,
+                                  ),
+                                ),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      Text(addCurrencySymbol()),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        child: TextField(
+                                          readOnly: true,
+                                          controller: balanceAmountController,
+                                          decoration: InputDecoration(
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey.shade300),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 8.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      Text(addCurrencySymbol()),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        child: TextField(
+                                          controller: receivedAmountController,
+                                          decoration: InputDecoration(
+                                            hintText: 'Enter Amount',
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey.shade300),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 8.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                DataCell(
+                                  TextField(
+                                    controller: remarksController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Remarks',
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.grey.shade300),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        int enteredAmount = int.tryParse(
+                                                receivedAmountController
+                                                    .text) ??
+                                            0;
+                                        if (enteredAmount > 0) {
+                                          // Gather selected items
+                                          List<PendingAmount>
+                                              selectedItemsList = [];
+                                          for (int i = 0;
+                                              i < selectedItems.length;
+                                              i++) {
+                                            if (selectedItems[i]) {
+                                              selectedItemsList.add(collection
+                                                  .order!.pendingAmount![i]);
+                                            }
+                                          }
+
+                                          processPayments(
+                                              selectedItemsList, enteredAmount);
+
+                                          updateSelectedItems();
+                                        } else {
+                                          print("Please enter a valid amount.");
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shadowColor: Colors.transparent,
+                                        backgroundColor:
+                                            primaryColor.withOpacity(0.2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                      ),
+                                      child: const Text('Submit',
+                                          style: TextStyle(fontSize: 14)),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -1307,118 +1866,118 @@ class NestedPieChartj extends StatelessWidget {
   }
 }
 
-// void _showValueDialog(
-//     BuildContext context, String title, Collection collection) {
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//         contentPadding: EdgeInsets.zero,
-//         titlePadding: EdgeInsets.zero,
-//         content: SingleChildScrollView(
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               Container(
-//                 height: 45,
-//                 padding: const EdgeInsets.all(10),
-//                 decoration: const BoxDecoration(
-//                   color: primaryColor,
-//                   borderRadius: BorderRadius.only(
-//                     topLeft: Radius.circular(10),
-//                     topRight: Radius.circular(10),
-//                   ),
-//                 ),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Text(
-//                       title,
-//                       style: const TextStyle(
-//                           fontSize: 15,
-//                           fontFamily: 'Poppins_Regular',
-//                           fontWeight: FontWeight.w600,
-//                           color: Colors.white),
-//                     ),
-//                     CircleAvatar(
-//                       backgroundColor: Colors.transparent,
-//                       child: SizedBox(
-//                         width: 25.8,
-//                         height: 25.8,
-//                         child: Container(
-//                           decoration: BoxDecoration(
-//                             shape: BoxShape.circle,
-//                             border: Border.all(
-//                               color: Colors.red,
-//                             ),
-//                           ),
-//                           child: Padding(
-//                             padding: const EdgeInsets.all(3.5),
-//                             child: IconButton(
-//                                 icon: const Icon(
-//                                   Icons.close,
-//                                   color: Colors.red,
-//                                   size: 16,
-//                                 ),
-//                                 padding: EdgeInsets.zero,
-//                                 constraints: const BoxConstraints(),
-//                                 onPressed: () {
-//                                   Navigator.of(context).pop();
-//                                 }),
-//                           ),
-//                         ),
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//               ),
-//               // Display DataTable of data based on the selected section
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: DataTable(
-//                   // ignore: deprecated_member_use
-//                   dataRowHeight: 35,
-//                   headingRowHeight: 40,
-//                   columnSpacing: 30,
-//                   columns: const [
-//                     DataColumn(
-//                       label: DialogTableHeaderText(
-//                         text: 'Date',
-//                         fontSize: 13.5,
-//                       ),
-//                     ),
-//                     DataColumn(
-//                       label: DialogTableHeaderText(
-//                         text: 'Invoice',
-//                         fontSize: 13.5,
-//                       ),
-//                     ),
-//                     DataColumn(
-//                       label: DialogTableHeaderText(
-//                         text: 'Status',
-//                         fontSize: 13.5,
-//                       ),
-//                     ),
-//                     DataColumn(
-//                       label: DialogTableHeaderText(
-//                         text: 'Amount',
-//                         fontSize: 13.5,
-//                       ),
-//                     ),
-//                   ],
-//                   rows: _buildDataRows(collection, title),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }
+void _showValueDialog(
+    BuildContext context, String title, Collection collection) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        contentPadding: EdgeInsets.zero,
+        titlePadding: EdgeInsets.zero,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 45,
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white),
+                    ),
+                    CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      child: SizedBox(
+                        width: 25.8,
+                        height: 25.8,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.red,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.5),
+                            child: IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                  size: 16,
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                }),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              // Display DataTable of data based on the selected section
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: DataTable(
+                  // ignore: deprecated_member_use
+                  dataRowHeight: 35,
+                  headingRowHeight: 40,
+                  columnSpacing: 30,
+                  columns: const [
+                    DataColumn(
+                      label: DialogTableHeaderText(
+                        text: 'Date',
+                        fontSize: 13.5,
+                      ),
+                    ),
+                    DataColumn(
+                      label: DialogTableHeaderText(
+                        text: 'Invoice',
+                        fontSize: 13.5,
+                      ),
+                    ),
+                    DataColumn(
+                      label: DialogTableHeaderText(
+                        text: 'Status',
+                        fontSize: 13.5,
+                      ),
+                    ),
+                    DataColumn(
+                      label: DialogTableHeaderText(
+                        text: 'Amount',
+                        fontSize: 13.5,
+                      ),
+                    ),
+                  ],
+                  rows: _buildDataRows(collection, title),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 
 List<DataRow> _buildDataRows(Collection collection, String title) {
   switch (title) {
@@ -1918,5 +2477,22 @@ class _DoughnutDefaultCustomerDashState
         );
       },
     );
+  }
+}
+
+String getStatusLabel(int? orderStatus) {
+  switch (orderStatus) {
+    case 5:
+      return 'Order Processing';
+    case 10:
+      return 'Packed for Delivery';
+    case 1:
+      return 'Out for Delivery';
+    case 2:
+      return 'Delivered';
+    case 0:
+      return 'Pre Order';
+    default:
+      return 'Unknown';
   }
 }

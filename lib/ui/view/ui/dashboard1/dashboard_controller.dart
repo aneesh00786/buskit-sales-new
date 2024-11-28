@@ -264,7 +264,28 @@ class DashBoardController extends GetxController {
     );
   }
 
-  
+  SpecificOrderData? fetchSpecificOrderData = SpecificOrderData();
+
+  RxBool isInvoiceLoading = false.obs;
+  Future<SpecificOrderData> loadSpecificOrderInvoiceData({
+    required String orderId,
+  }) async {
+    fetchSpecificOrderData = null;
+    isInvoiceLoading(true); // Start loading
+    log("Loading Specific Order Invoice Data");
+
+    var data = await ApiWorker().fetchSpecificOrderInvoice(
+      orderId,
+    );
+
+    if (data.data != null) {
+      fetchSpecificOrderData = data.data;
+    }
+
+    isInvoiceLoading(false); // Stop loading
+    log('is Invoice Loading : ${isInvoiceLoading.value}');
+    return fetchSpecificOrderData!;
+  }  
 }
 
 class Message {

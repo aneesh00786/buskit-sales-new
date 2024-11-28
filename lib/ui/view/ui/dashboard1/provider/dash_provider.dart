@@ -392,17 +392,17 @@ class ApiService {
     required String endDate,
     OrderStatus? orderStatus, // New parameter for filtering by order status
   }) async {
-    final url = Uri.parse('$_baseUrl/fetch_all_order');
+    final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     String orderStatusString = '';
     if (orderStatus != null) {
       orderStatusString = orderStatus.type.toString(); // Convert int to String
     }
     log('FETCH_ALL_ORDER API called');
-
+    //check_back
     final requestBody = {
-      "customer_id": '',
-      "salesman_id": "",
+      "customer_id": "",
+      "salesman_id": salesmanId,
       "order_type": "",
       "payment_type": 0,
       "start_date": startDate,

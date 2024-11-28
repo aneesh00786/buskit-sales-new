@@ -11,7 +11,8 @@ class NKDateUtils {
   static final DateFormat _apiDayFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat _commonDayFormat = DateFormat('dd/MM/yyyy');
   static final DateFormat _commonDayFormat2 = DateFormat('dd-MM-yyyy');
-
+  static final DateFormat _commonFullDateTimeFormat = DateFormat('dd/MM/yyyy hh:mm');
+  static String commonFullDateTimeFormat(DateTime d) => _commonFullDateTimeFormat.format(d);
   static String formatMonth(DateTime d) => _monthFormat.format(d);
 
   static String formatDay(DateTime d) => _dayFormat.format(d);

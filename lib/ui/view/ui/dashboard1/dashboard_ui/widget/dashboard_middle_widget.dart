@@ -181,84 +181,134 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     final completedOrdersLabel =
                         'Completed : ${formatAmount(totalCompletedAmount)}';
 
-                    return NestedPieChartj(
-                      sabik: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: 11.9,
-                            width: 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 90, 119, 37),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
+                    // return NestedPieChartj(
+                    //   sabik: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.center,
+                    //     children: [
+                    //       Container(
+                    //         height: 11.9,
+                    //         width: 14.9,
+                    //         decoration: const BoxDecoration(
+                    //           color: Color.fromARGB(255, 90, 119, 37),
+                    //           borderRadius:
+                    //               BorderRadius.all(Radius.circular(1.0)),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(width: 2),
+                    //       MyRegularText(
+                    //         label: completedOrdersLabel,
+                    //         fontSize: 11.6,
+                    //         fontWeight: FontWeight.w600,
+                    //         color: secondaryTextColor,
+                    //       ),
+                    //       const SizedBox(width: 8.3),
+                    //       Container(
+                    //         height: 11.9,
+                    //         width: 14.9,
+                    //         decoration: const BoxDecoration(
+                    //           color: Color(0xffa30c13),
+                    //           borderRadius:
+                    //               BorderRadius.all(Radius.circular(1.0)),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(width: 2),
+                    //       MyRegularText(
+                    //         label: pendingAmountLabel,
+                    //         fontSize: 11.6,
+                    //         fontWeight: FontWeight.w600,
+                    //         color: secondaryTextColor,
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   sabi2: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.center,
+                    //     children: [
+                    //       Container(
+                    //         height: 11.9,
+                    //         width: 14.9,
+                    //         decoration: const BoxDecoration(
+                    //           color: Color.fromARGB(255, 255, 173, 181),
+                    //           borderRadius:
+                    //               BorderRadius.all(Radius.circular(1.0)),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(width: 2),
+                    //       MyRegularText(
+                    //         label: dueAmountLabel,
+                    //         fontSize: 11.6,
+                    //         fontWeight: FontWeight.w600,
+                    //         color: secondaryTextColor,
+                    //       ),
+                    //       const SizedBox(width: 8.3),
+                    //       Container(
+                    //         height: 11.9,
+                    //         width: 14.9,
+                    //         decoration: const BoxDecoration(
+                    //           color: Color.fromARGB(255, 255, 101, 132),
+                    //           borderRadius:
+                    //               BorderRadius.all(Radius.circular(1.0)),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(width: 2),
+                    //       MyRegularText(
+                    //         label: overdueAmountLabel,
+                    //         fontSize: 11.6,
+                    //         fontWeight: FontWeight.w600,
+                    //         color: secondaryTextColor,
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   collection: responseModel.collection!,
+                    // );
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: NestedPieChartj(
+                            completedOrdersCount: responseModel
+                                .collection!.payment!.completedOrders!
+                                .fold(
+                                    0, (sum, order) => sum + order.orderTotal),
+                            pendingAmountCount: responseModel.collection!.order!
+                                .pendingAmount!.last.amount as int,
+                            dueAmountCount: responseModel.collection!.order!
+                                .pendingAmount!.last.dueAmount as int,
+                            overdueAmountCount: responseModel.collection!.order!
+                                .pendingAmount!.last.overDue as int,
+                            collection: responseModel.collection!,
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        // Legend for the chart
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildLegendItem(
+                              const Color.fromARGB(255, 90, 119, 37),
+                              completedOrdersLabel,
                             ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: completedOrdersLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                          const SizedBox(width: 8.3),
-                          Container(
-                            height: 11.9,
-                            width: 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color(0xffa30c13),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
+                            const SizedBox(width: 8.3),
+                            _buildLegendItem(
+                              const Color(0xffa30c13),
+                              pendingAmountLabel,
                             ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: pendingAmountLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                        ],
-                      ),
-                      sabi2: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: 11.9,
-                            width: 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 255, 173, 181),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
+                          ],
+                        ),
+                        const SizedBox(height: 4.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildLegendItem(
+                              const Color.fromARGB(255, 255, 173, 181),
+                              dueAmountLabel,
                             ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: dueAmountLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                          const SizedBox(width: 8.3),
-                          Container(
-                            height: 11.9,
-                            width: 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 255, 101, 132),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
+                            const SizedBox(width: 8.3),
+                            _buildLegendItem(
+                              const Color.fromARGB(255, 255, 101, 132),
+                              overdueAmountLabel,
                             ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label: overdueAmountLabel,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
-                          ),
-                        ],
-                      ),
-                      collection: responseModel.collection!,
+                          ],
+                        ),
+                      ],
                     );
                   }
                 },
@@ -269,6 +319,28 @@ class DashBoardMiddleWidget extends StatelessWidget {
           //    nkMediumSizeBox()
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          height: 11.9,
+          width: 14.9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.all(Radius.circular(1.0)),
+          ),
+        ),
+        const SizedBox(width: 2),
+        MyRegularText(
+          label: label,
+          fontSize: 11.6,
+          fontWeight: FontWeight.w600,
+          color: secondaryTextColor,
+        ),
+      ],
     );
   }
 
@@ -1602,7 +1674,7 @@ class ChatScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
                               color: message.source == 'admin'
-                                  ? Colors.green[200]
+                                  ? Color(0xFFdcf8c6)
                                   : Colors.grey[300],
                               borderRadius: BorderRadius.circular(10),
                             ),

@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_total_sale_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
@@ -121,6 +122,20 @@ class ApiWorker with ApiConstants {
         barrierDismissible: false,
       );
     }
+  }
+
+  Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
+      String orderId) async {
+    final response = await dio
+        .postbycustom(ApiConstants.fetch_specific_order,
+            data: FormData.fromMap({
+              "order_id": orderId,
+            }))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return FetchSpecificOrderInvoice.fromJson(response.data);
   }
 
   /// ************************ COMMON SEARCH SECTION ***************** ///

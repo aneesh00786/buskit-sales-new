@@ -44,6 +44,7 @@ mixin class ApiConstants {
   static const String get_event = "get_event";
   static const String handle_lead = "handle_lead";
   static const String fetch_leads_reject = "fetch_leads_reject";
+  static const String fetch_specific_order = "fetch_specific_order";
   
 
   /// Category Api END Point

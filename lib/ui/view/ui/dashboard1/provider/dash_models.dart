@@ -1107,6 +1107,7 @@ class PendingAmount {
   String? orderCreatAt;
   int? orderTotal;
   int? receivedAmount;
+    dynamic receivableAmount;
   String? receivedAmountDate;
   String? checkDueDate;
   int? checkNumber;
@@ -1133,6 +1134,7 @@ class PendingAmount {
     this.orderCreatAt,
     this.orderTotal,
     this.receivedAmount,
+    this.receivableAmount,
     this.receivedAmountDate,
     this.checkDueDate,
     this.checkNumber,
@@ -1161,6 +1163,7 @@ class PendingAmount {
       orderCreatAt: json['order_creat_at'],
       orderTotal: json['order_total'],
       receivedAmount: json['received_amount'],
+      receivableAmount: json['receivable_amount'],
       receivedAmountDate: json['received_amount_date'],
       checkDueDate: json['check_due_date'],
       checkNumber: json['check_number'],
@@ -1190,6 +1193,7 @@ class PendingAmount {
       'order_creat_at': orderCreatAt,
       'order_total': orderTotal,
       'received_amount': receivedAmount,
+      'receivable_amount': receivableAmount,
       'received_amount_date': receivedAmountDate,
       'check_due_date': checkDueDate,
       'check_number': checkNumber,
@@ -1429,6 +1433,153 @@ class AdminMessageRequest {
   }
 }
 
+// class OrdersDash {
+//   final int id;
+//   final String orderId;
+//   final String customerId;
+//   final String salesmanId;
+//   final int paymentStatus;
+//   final int paymentType;
+//   final String paymentDetail;
+//   final int orderStatus;
+//   final String cartId;
+//   final DateTime orderCreatedAt;
+//   final double orderTotal;
+//   final double receivedAmount;
+//   final DateTime? receivedAmountDate;
+//   final DateTime checkDueDate;
+//   final int checkNumber;
+//   final DateTime? transactionDate;
+//   final String transactionDetails;
+//   final List<Cart> cart;
+//   final List<CustomerDash> customer;
+//   final List<InvoiceDash> invoice;
+//   // final int? receivableAmount;
+
+//   OrdersDash({
+//     required this.id,
+//     required this.orderId,
+//     required this.customerId,
+//     required this.salesmanId,
+//     required this.paymentStatus,
+//     required this.paymentType,
+//     required this.paymentDetail,
+//     required this.orderStatus,
+//     required this.cartId,
+//     required this.orderCreatedAt,
+//     required this.orderTotal,
+//     required this.receivedAmount,
+//     this.receivedAmountDate,
+//     required this.checkDueDate,
+//     required this.checkNumber,
+//     this.transactionDate,
+//     required this.transactionDetails,
+//     required this.cart,
+//     required this.customer,
+//     required this.invoice,
+//     // this.receivableAmount,
+//   });
+//   OrdersDash copyWith({
+//     int? id,
+//     String? orderId,
+//     String? customerId,
+//     String? salesmanId,
+//     int? paymentStatus,
+//     int? paymentType,
+//     String? paymentDetail,
+//     int? orderStatus,
+//     String? cartId,
+//     DateTime? orderCreatedAt,
+//     double? orderTotal,
+//     double? receivedAmount,
+//     DateTime? receivedAmountDate,
+//     DateTime? checkDueDate,
+//     int? checkNumber,
+//     DateTime? transactionDate,
+//     String? transactionDetails,
+//     List<Cart>? cart,
+//     List<CustomerDash>? customer,
+//     List<InvoiceDash>? invoice,
+//     // int? receivableAmount,
+//   }) {
+//     return OrdersDash(
+//       id: id ?? this.id,
+//       orderId: orderId ?? this.orderId,
+//       customerId: customerId ?? this.customerId,
+//       salesmanId: salesmanId ?? this.salesmanId,
+//       paymentStatus: paymentStatus ?? this.paymentStatus,
+//       paymentType: paymentType ?? this.paymentType,
+//       paymentDetail: paymentDetail ?? this.paymentDetail,
+//       orderStatus: orderStatus ?? this.orderStatus,
+//       cartId: cartId ?? this.cartId,
+//       orderCreatedAt: orderCreatedAt ?? this.orderCreatedAt,
+//       orderTotal: orderTotal ?? this.orderTotal,
+//       receivedAmount: receivedAmount ?? this.receivedAmount,
+//       receivedAmountDate: receivedAmountDate ?? this.receivedAmountDate,
+//       checkDueDate: checkDueDate ?? this.checkDueDate,
+//       checkNumber: checkNumber ?? this.checkNumber,
+//       transactionDate: transactionDate ?? this.transactionDate,
+//       transactionDetails: transactionDetails ?? this.transactionDetails,
+//       cart: cart ?? this.cart,
+//       customer: customer ?? this.customer,
+//       invoice: invoice ?? this.invoice,
+//       // receivableAmount: receivableAmount ?? this.receivableAmount,
+//     );
+//   }
+
+//   factory OrdersDash.fromJson(Map<String, dynamic> json) {
+//     return OrdersDash(
+//       id: json['id'] ?? 0,
+//       orderId: json['order_id'] ?? '',
+//       customerId: json['customer_id'] ?? '',
+//       salesmanId: json['salesman_id'] ?? '',
+//       paymentStatus: json['payment_status'] ?? 0,
+//       paymentType: json['payment_type'] ?? 0,
+//       paymentDetail: json['payment_detail'] ?? '',
+//       orderStatus: json['order_status'] ?? 0,
+//       cartId: json['cart_id'] ?? '',
+//       orderCreatedAt: _parseDateTime(json['order_creat_at']),
+//       orderTotal: (json['order_total'] ?? 0.0).toDouble(),
+//       receivedAmount: (json['received_amount'] ?? 0.0).toDouble(),
+//       receivedAmountDate: _parseNullableDateTime(json['received_amount_date']),
+//       checkDueDate: _parseDateTime(json['check_due_date']),
+//       checkNumber: json['check_number'] ?? 0,
+//       transactionDate: _parseNullableDateTime(json['transaction_date']),
+//       transactionDetails: json['transaction_details'] ?? '',
+//       cart: (json['cart'] as List? ?? [])
+//           .map((item) => Cart.fromJson(item))
+//           .toList(),
+//       customer: (json['customer'] as List? ?? [])
+//           .map((item) => CustomerDash.fromJson(item))
+//           .toList(),
+//       invoice: (json['invoice'] as List? ?? [])
+//           .map((item) => InvoiceDash.fromJson(item))
+//           .toList(),
+//       // receivableAmount: json['receivable_amount'] ?? 0,
+//     );
+//   }
+//   static DateTime _parseDateTime(String? dateString) {
+//     try {
+//       if (dateString != null && dateString.isNotEmpty) {
+//         return DateTime.parse(dateString);
+//       }
+//     } catch (e) {
+//       print('Failed to parse date: $dateString, error: $e');
+//     }
+//     return DateTime(1970, 1, 1); // Default fallback date
+//   }
+
+//   static DateTime? _parseNullableDateTime(String? dateString) {
+//     try {
+//       if (dateString != null && dateString.isNotEmpty) {
+//         return DateTime.parse(dateString);
+//       }
+//     } catch (e) {
+//       print('Failed to parse nullable date: $dateString, error: $e');
+//     }
+//     return null; // Default fallback for nullable dates
+//   }
+// }
 class OrdersDash {
   final int id;
   final String orderId;
@@ -1440,17 +1591,19 @@ class OrdersDash {
   final int orderStatus;
   final String cartId;
   final DateTime orderCreatedAt;
-  final double orderTotal;
-  final double receivedAmount;
+  final dynamic orderTotal;
+  final dynamic receivedAmount;
   final DateTime? receivedAmountDate;
+  final DateTime? deliveryDate;
   final DateTime checkDueDate;
   final int checkNumber;
   final DateTime? transactionDate;
   final String transactionDetails;
+  final String fullname;
+  final String lastname;
   final List<Cart> cart;
   final List<CustomerDash> customer;
   final List<InvoiceDash> invoice;
-  // final int? receivableAmount;
 
   OrdersDash({
     required this.id,
@@ -1466,10 +1619,13 @@ class OrdersDash {
     required this.orderTotal,
     required this.receivedAmount,
     this.receivedAmountDate,
+    this.deliveryDate,
     required this.checkDueDate,
     required this.checkNumber,
     this.transactionDate,
     required this.transactionDetails,
+    required this.fullname,
+    required this.lastname,
     required this.cart,
     required this.customer,
     required this.invoice,
@@ -1486,13 +1642,16 @@ class OrdersDash {
     int? orderStatus,
     String? cartId,
     DateTime? orderCreatedAt,
-    double? orderTotal,
-    double? receivedAmount,
+    dynamic orderTotal,
+    dynamic receivedAmount,
     DateTime? receivedAmountDate,
+    DateTime? deliveryDate,
     DateTime? checkDueDate,
     int? checkNumber,
     DateTime? transactionDate,
     String? transactionDetails,
+    String? fullname,
+    String? lastname,
     List<Cart>? cart,
     List<CustomerDash>? customer,
     List<InvoiceDash>? invoice,
@@ -1512,10 +1671,13 @@ class OrdersDash {
       orderTotal: orderTotal ?? this.orderTotal,
       receivedAmount: receivedAmount ?? this.receivedAmount,
       receivedAmountDate: receivedAmountDate ?? this.receivedAmountDate,
+      deliveryDate: deliveryDate ?? this.deliveryDate,
       checkDueDate: checkDueDate ?? this.checkDueDate,
       checkNumber: checkNumber ?? this.checkNumber,
       transactionDate: transactionDate ?? this.transactionDate,
       transactionDetails: transactionDetails ?? this.transactionDetails,
+      fullname: fullname ?? this.fullname,
+      lastname: lastname ?? this.lastname,
       cart: cart ?? this.cart,
       customer: customer ?? this.customer,
       invoice: invoice ?? this.invoice,
@@ -1535,13 +1697,16 @@ class OrdersDash {
       orderStatus: json['order_status'] ?? 0,
       cartId: json['cart_id'] ?? '',
       orderCreatedAt: _parseDateTime(json['order_creat_at']),
-      orderTotal: (json['order_total'] ?? 0.0).toDouble(),
-      receivedAmount: (json['received_amount'] ?? 0.0).toDouble(),
+      orderTotal: json['order_total'] ?? 0,
+      receivedAmount: json['received_amount'] ?? 0,
       receivedAmountDate: _parseNullableDateTime(json['received_amount_date']),
+      deliveryDate: _parseNullableDateTime(json['delivery_datetime']),
       checkDueDate: _parseDateTime(json['check_due_date']),
       checkNumber: json['check_number'] ?? 0,
       transactionDate: _parseNullableDateTime(json['transaction_date']),
       transactionDetails: json['transaction_details'] ?? '',
+      fullname: json['fullname'] ?? '',
+      lastname: json['lastname'] ?? '',
       cart: (json['cart'] as List? ?? [])
           .map((item) => Cart.fromJson(item))
           .toList(),
@@ -1981,4 +2146,365 @@ class AdminResponse {
       'data': data.map((admin) => admin.toJson()).toList(),
     };
   }
+}
+
+class FetchSpecificOrderInvoice {
+  int statusCode;
+  bool status;
+  String message;
+  SpecificOrderData? data;
+
+  FetchSpecificOrderInvoice({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory FetchSpecificOrderInvoice.fromJson(Map<String, dynamic> json) =>
+      FetchSpecificOrderInvoice(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+        data: SpecificOrderData.fromJson(json["data"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "data": data!.toJson(),
+      };
+}
+
+class SpecificOrderData {
+  int? id;
+  String? customerId;
+  String? cartId;
+  String? fullname;
+  String? mobileno;
+  String? email;
+  String? town;
+  String? state;
+  int? zipcode;
+  String? address;
+  String? latitude;
+  String? longitude;
+  String? businessName;
+  String? businessNo;
+  dynamic tfn;
+  dynamic addressCheckbox;
+  dynamic deliveryAddress;
+  dynamic deliveryTown;
+  dynamic deliveryState;
+  int? deliveryZipcode;
+  String? remark;
+  String? imageUrl;
+  String? salesmanId;
+  int? status;
+  DateTime? createAt;
+  String? createdBy;
+  String? salesmanName;
+  String? discount;
+  int? eventType;
+  dynamic eventDays;
+  int? creditPeriod;
+  int? companyId;
+  String? orderId;
+  int? paymentStatus;
+  int? paymentType;
+  dynamic paymentDetail;
+  int? orderStatus;
+  DateTime? orderCreatAt;
+  int? orderTotal;
+  int? receivedAmount;
+  DateTime? checkDueDate;
+  dynamic receivedAmountDate;
+  dynamic checkNumber;
+  dynamic transactionDate;
+  dynamic transactionDetails;
+  dynamic rejectionReason;
+  dynamic rejectedDate;
+  dynamic receivableAmount;
+  DateTime? deliveryDatetime;
+  int? notificationStatus;
+  dynamic orderCreatedStored;
+  List<SpecificOrderCart>? cart;
+  List<Invoice>? invoice;
+
+  SpecificOrderData({
+    this.id,
+    this.customerId,
+    this.cartId,
+    this.fullname,
+    this.mobileno,
+    this.email,
+    this.town,
+    this.state,
+    this.zipcode,
+    this.address,
+    this.latitude,
+    this.longitude,
+    this.businessName,
+    this.businessNo,
+    this.tfn,
+    this.addressCheckbox,
+    this.deliveryAddress,
+    this.deliveryTown,
+    this.deliveryState,
+    this.deliveryZipcode,
+    this.remark,
+    this.imageUrl,
+    this.salesmanId,
+    this.status,
+    this.createAt,
+    this.createdBy,
+    this.salesmanName,
+    this.discount,
+    this.eventType,
+    this.eventDays,
+    this.creditPeriod,
+    this.companyId,
+    this.orderId,
+    this.paymentStatus,
+    this.paymentType,
+    this.paymentDetail,
+    this.orderStatus,
+    this.orderCreatAt,
+    this.orderTotal,
+    this.receivedAmount,
+    this.receivedAmountDate,
+    this.checkDueDate,
+    this.checkNumber,
+    this.transactionDate,
+    this.transactionDetails,
+    this.rejectionReason,
+    this.rejectedDate,
+    this.receivableAmount,
+    this.deliveryDatetime,
+    this.notificationStatus,
+    this.orderCreatedStored,
+    this.cart,
+    this.invoice,
+  });
+
+  factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
+      SpecificOrderData(
+        id: json["id"],
+        customerId: json["customer_id"],
+        cartId: json["cart_id"],
+        fullname: json["fullname"],
+        mobileno: json["mobileno"],
+        email: json["email"],
+        town: json["town"],
+        state: json["state"],
+        zipcode: json["zipcode"],
+        address: json["address"],
+        latitude: json["latitude"],
+        longitude: json["longitude"],
+        businessName: json["business_name"],
+        businessNo: json["business_no"],
+        tfn: json["tfn"],
+        addressCheckbox: json["addressCheckbox"],
+        deliveryAddress: json["delivery_address"],
+        deliveryTown: json["delivery_town"],
+        deliveryState: json["delivery_state"],
+        deliveryZipcode: json["delivery_zipcode"],
+        remark: json["remark"],
+        imageUrl: json["image_url"],
+        salesmanId: json["salesman_id"],
+        status: json["status"],
+        createAt: json["create_at"] != null
+            ? DateTime.parse(json["create_at"])
+            : null,
+        createdBy: json["created_by"],
+        salesmanName: json["salesman_name"],
+        discount: json["discount"],
+        eventType: json["event_type"],
+        eventDays: json["event_days"],
+        creditPeriod: json["credit_period"],
+        companyId: json["company_id"],
+        orderId: json["order_id"],
+        paymentStatus: json["payment_status"],
+        paymentType: json["payment_type"],
+        paymentDetail: json["payment_detail"],
+        orderStatus: json["order_status"],
+        orderCreatAt: json["order_creat_at"] != null
+            ? DateTime.parse(json["order_creat_at"])
+            : null,
+        orderTotal: json["order_total"],
+        receivedAmount: json["received_amount"],
+        receivedAmountDate: json["received_amount_date"] != null
+            ? DateTime.parse(json["received_amount_date"])
+            : null,
+        checkDueDate: json["check_due_date"] != null
+            ? DateTime.parse(json["check_due_date"])
+            : null,
+        checkNumber: json["check_number"],
+        transactionDate: json["transaction_date"] != null
+            ? DateTime.parse(json["transaction_date"])
+            : null,
+        transactionDetails: json["transaction_details"],
+        rejectionReason: json["rejection_reason"],
+        rejectedDate: json["rejected_date"],
+        receivableAmount: json["receivable_amount"],
+        deliveryDatetime: json["delivery_datetime"] != null
+            ? DateTime.parse(json["delivery_datetime"])
+            : null,
+        notificationStatus: json["notification_status"],
+        orderCreatedStored: json["order_created_stored"],
+        cart: json["cart"] != null
+            ? List<SpecificOrderCart>.from(
+                json["cart"].map((x) => SpecificOrderCart.fromJson(x)))
+            : [],
+        invoice: json["invoice"] != null
+            ? List<Invoice>.from(
+                json["invoice"].map((x) => Invoice.fromJson(x)))
+            : [],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "customer_id": customerId,
+        "cart_id": cartId,
+        "fullname": fullname,
+        "mobileno": mobileno,
+        "email": email,
+        "town": town,
+        "state": state,
+        "zipcode": zipcode,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "business_name": businessName,
+        "business_no": businessNo,
+        "tfn": tfn,
+        "addressCheckbox": addressCheckbox,
+        "delivery_address": deliveryAddress,
+        "delivery_town": deliveryTown,
+        "delivery_state": deliveryState,
+        "delivery_zipcode": deliveryZipcode,
+        "remark": remark,
+        "image_url": imageUrl,
+        "salesman_id": salesmanId,
+        "status": status,
+        "create_at": createAt,
+        "created_by": createdBy,
+        "salesman_name": salesmanName,
+        "discount": discount,
+        "event_type": eventType,
+        "event_days": eventDays,
+        "credit_period": creditPeriod,
+        "company_id": companyId,
+        "order_id": orderId,
+        "payment_status": paymentStatus,
+        "payment_type": paymentType,
+        "payment_detail": paymentDetail,
+        "order_status": orderStatus,
+        "order_creat_at": orderCreatAt,
+        "order_total": orderTotal,
+        "received_amount": receivedAmount,
+        "received_amount_date": receivedAmountDate,
+        "check_due_date": checkDueDate,
+        "check_number": checkNumber,
+        "transaction_date": transactionDate,
+        "transaction_details": transactionDetails,
+        "rejection_reason": rejectionReason,
+        "rejected_date": rejectedDate,
+        "receivable_amount": receivableAmount,
+        "delivery_datetime": deliveryDatetime,
+        "notification_status": notificationStatus,
+        "order_created_stored": orderCreatedStored,
+        "cart": List<dynamic>.from(cart!.map((x) => x.toJson())),
+        "invoice": List<dynamic>.from(invoice!.map((x) => x.toJson())),
+      };
+}
+
+class SpecificOrderCart {
+  int? id;
+  String? cartId;
+  String? productId;
+  String? variationId;
+  String? price;
+  dynamic reason;
+  int? quantity;
+  int? pieces;
+  dynamic packType;
+  int? totalPrice;
+  int? status;
+  int? orderPlaceStatus;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  String? variationName;
+  String? productName;
+  int? catId;
+  dynamic taxName;
+  dynamic tax;
+
+  SpecificOrderCart({
+    this.id,
+    this.cartId,
+    this.productId,
+    this.variationId,
+    this.price,
+    this.reason,
+    this.quantity,
+    this.pieces,
+    this.packType,
+    this.totalPrice,
+    this.status,
+    this.orderPlaceStatus,
+    this.createdAt,
+    this.updatedAt,
+    this.variationName,
+    this.productName,
+    this.catId,
+    this.taxName,
+    this.tax,
+  });
+
+  factory SpecificOrderCart.fromJson(Map<String, dynamic> json) =>
+      SpecificOrderCart(
+        id: json["id"],
+        cartId: json["cart_id"],
+        productId: json["product_id"],
+        variationId: json["variation_id"],
+        price: json["price"],
+        reason: json["reason"],
+        quantity: json["quantity"],
+        pieces: json["pieces"],
+        packType: json["packType"],
+        totalPrice: json["total_price"],
+        status: json["status"],
+        orderPlaceStatus: json["order_place_status"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        variationName: json["variation_name"],
+        productName: json["product_name"],
+        catId: json["catId"],
+        taxName: json["tax_name"],
+        tax: json["tax"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "cart_id": cartId,
+        "product_id": productId,
+        "variation_id": variationId,
+        "price": price,
+        "reason": reason,
+        "quantity": quantity,
+        "pieces": pieces,
+        "packType": packType,
+        "total_price": totalPrice,
+        "status": status,
+        "order_place_status": orderPlaceStatus,
+        "created_at": createdAt,
+        "updated_at": updatedAt,
+        "variation_name": variationName,
+        "product_name": productName,
+        "catId": catId,
+        "tax_name": taxName,
+        "tax": tax,
+      };
 }

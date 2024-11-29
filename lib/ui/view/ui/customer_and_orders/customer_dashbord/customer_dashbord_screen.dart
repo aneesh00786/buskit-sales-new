@@ -72,7 +72,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   late TabController _tabController;
   ProductsController productsController = Get.put(ProductsController());
   HomeController homeController = Get.put(HomeController());
-  CustomerAndOrderController customerOrderController = Get.put(CustomerAndOrderController());
+  CustomerAndOrderController customerOrderController =
+      Get.put(CustomerAndOrderController());
 
   @override
   void initState() {
@@ -174,20 +175,19 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                customerOrderController.customerId.value =
-                    widget.cusId;
+                customerOrderController.customerId.value = widget.cusId;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                        productsController: productsController,
-                        cusId: widget.cusId,
-                        cusName: widget.cusName,
-                        cusImage: widget.cusImage,
-                        isFromCalender: widget.isFromCalendar,
-                        isDirectDialogue: widget.isDirectDialogue,
-                        isFromOrder: widget.isFromOrder,
-                        ),
+                      productsController: productsController,
+                      cusId: widget.cusId,
+                      cusName: widget.cusName,
+                      cusImage: widget.cusImage,
+                      isFromCalender: widget.isFromCalendar,
+                      isDirectDialogue: widget.isDirectDialogue,
+                      isFromOrder: widget.isFromOrder,
+                    ),
                   ),
                 );
               },

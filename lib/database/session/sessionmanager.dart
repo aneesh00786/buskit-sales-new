@@ -28,31 +28,22 @@ class SessionManager {
     final loginData = pref.getString(key) ?? "";
     log('Shared Pref 4: ${loginData}');
     return loginData;
-    //return pref.getString(key) ?? "";
   }
-
-  // set bool values in shared pref
   static Future<void> setBoolValue(String key, bool value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     log('Shared Pref 5: ${prefs}');
     prefs.setBool(key, value);
   }
-
-  // get bool values in shared pref
   static Future<bool> getBoolValue(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     log('Shared Pref 6: ${pref}');
     return pref.getBool(key) ?? false;
   }
-
-  // set int values in shared pref
   static Future<void> setIntValue(String key, int value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     log('Shared Pref 7: ${prefs}');
     prefs.setInt(key, value);
   }
-
-  // get int values in shared pref
   static Future<int> getIntValue(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     log('Shared Pref 8: ${pref}');
@@ -72,8 +63,6 @@ class SessionManager {
     log('Shared Pref 10: ${pref}');
     return pref.getDouble(key) ?? 0.0;
   }
-
-  // get long values in shared pref
   static Future<double> getDoubleValueFont(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     log('Shared Pref 11: ${pref}');
@@ -88,7 +77,10 @@ class SessionManager {
 
   static Future<bool> clearData() async {
     final prefs = await SharedPreferences.getInstance();
-    log('Shared Pref 13: ${prefs}');
-    return prefs.clear();
+    log('Shared Pref 13: $prefs');
+    final cleared = await prefs.clear();
+    await SharedPreferences.getInstance();
+    await prefs.reload();
+    return cleared;
   }
 }

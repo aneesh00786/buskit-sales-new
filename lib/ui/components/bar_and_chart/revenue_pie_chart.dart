@@ -3,11 +3,12 @@
 // import 'package:busskit_admin/ui/utills/const_string.dart';
 // import 'package:busskit_admin/ui/utills/extentions/string_extention.dart';
 // import 'package:busskit_admin/ui/view/ui/dashboard/model/dashboard_response.dart';
-import 'dart:math';
 // import 'package:busskit_admin/ui/theme/custom_fonts.dart';
 // import 'package:busskit_admin/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 // import 'package:busskit_admin/ui/view/ui/dashboard1/provider/dash_models.dart';
 // import 'package:busskit_admin/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -21,7 +22,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editab
 import 'package:fl_chart/fl_chart.dart' as fl_chart;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
- 
+
 // import 'package:busskit_admin/measurements/ResponsiveInfo.dart';
 // import 'package:busskit_admin/ui/components/color/colors.dart';
 // import 'package:busskit_admin/ui/components/common_size/nk_general_size.dart';
@@ -361,7 +362,6 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
         Expanded(
           flex: 3,
           child: fl_chart.PieChart(
-            
             fl_chart.PieChartData(
               startDegreeOffset: 250,
               sectionsSpace: 0.7,
@@ -381,12 +381,14 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                 ),
               ],
               pieTouchData: fl_chart.PieTouchData(
-                touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
+                touchCallback:
+                    (FlTouchEvent event, PieTouchResponse? response) {
                   if (event is FlTapUpEvent &&
                       response != null &&
                       response.touchedSection != null) {
                     final section = response.touchedSection!;
-                    final fl_chart.PieTouchedSection touchedSectionData = section;
+                    final fl_chart.PieTouchedSection touchedSectionData =
+                        section;
                     final title = touchedSectionData == totalOrderRevenue
                         ? 'Order Revenue'
                         : 'Booking Revenue';
@@ -423,7 +425,6 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
 //     );
 //   }
 // }
-
 
   void _showValueDialog(
       BuildContext context, Revenuee categoryData, String title) {
@@ -864,7 +865,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                 textAlign: TextAlign.center),
                           )),
                           DataCell(Center(
-                            child: Text(orderDetails.orderId??'',
+                            child: Text(orderDetails.orderId ?? '',
                                 style: const TextStyle(
                                   color: secondaryTextColor,
                                   fontSize: 13,
@@ -872,13 +873,13 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                 textAlign: TextAlign.center),
                           )),
                           DataCell(Center(
-                            child:
-                                Text(_getStatusName(orderDetails.orderStatus??0),
-                                    style: const TextStyle(
-                                      color: secondaryTextColor,
-                                      fontSize: 13,
-                                    ),
-                                    textAlign: TextAlign.center),
+                            child: Text(
+                                _getStatusName(orderDetails.orderStatus ?? 0),
+                                style: const TextStyle(
+                                  color: secondaryTextColor,
+                                  fontSize: 13,
+                                ),
+                                textAlign: TextAlign.center),
                           )),
                           DataCell(Center(
                             child: Text("\$${orderDetails.orderTotal}",
@@ -1323,7 +1324,7 @@ class NestedPieChartj extends StatelessWidget {
   final int overdueAmountCount;
   final Collection collection;
 
-  const  NestedPieChartj(
+  const NestedPieChartj(
       {super.key,
       required this.completedOrdersCount,
       required this.pendingAmountCount,
@@ -1332,11 +1333,19 @@ class NestedPieChartj extends StatelessWidget {
       required this.collection});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
+    if (completedOrdersCount <= 0 &&
+        pendingAmountCount <= 0 &&
+        dueAmountCount <= 0 &&
+        overdueAmountCount <= 0) {
+      return const Center(
+        child: Text('No data to display in the chart'),
+      );
+    }
+
     return Center(
       child: SfCircularChart(
         series: <CircularSeries>[
-          // Outer Pie Chart
           DoughnutSeries<ChartData2, String>(
             dataSource: [
               ChartData2(
@@ -1359,7 +1368,6 @@ class NestedPieChartj extends StatelessWidget {
               }
             },
           ),
-          // Inner Pie Chart
           DoughnutSeries<ChartData2, String>(
             dataSource: [
               ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
@@ -1699,8 +1707,7 @@ class NestedPieChartj extends StatelessWidget {
                                     dropdownColor: Colors.white,
                                     items: const [
                                       DropdownMenuItem(
-                                          value: 'Cash',
-                                          child: Text('Cash')),
+                                          value: 'Cash', child: Text('Cash')),
                                       DropdownMenuItem(
                                           value: 'Cheque',
                                           child: Text('Cheque')),
@@ -1982,8 +1989,8 @@ void _showValueDialog(
 List<DataRow> _buildDataRows(Collection collection, String title) {
   switch (title) {
     case 'Completed':
-      return collection.payment!.completedOrders
-          !.map((completedOrder) => DataRow(
+      return collection.payment!.completedOrders!
+          .map((completedOrder) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -2034,8 +2041,8 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
               ))
           .toList();
     case 'Pending':
-      return collection.order!.pendingAmount
-          !.map((pendingAmount) => DataRow(
+      return collection.order!.pendingAmount!
+          .map((pendingAmount) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -2053,7 +2060,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        pendingAmount.cartId??'',
+                        pendingAmount.cartId ?? '',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -2064,7 +2071,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        pendingAmount.transactionDetails??'',
+                        pendingAmount.transactionDetails ?? '',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -2087,8 +2094,8 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
               ))
           .toList();
     case 'Due':
-      return collection.due!.dueAmount
-          !.map((dueAmount) => DataRow(
+      return collection.due!.dueAmount!
+          .map((dueAmount) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -2138,8 +2145,8 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
               ))
           .toList();
     case 'Overdue':
-      return collection.overdue!.overdueAmount
-          !.map((overdueAmount) => DataRow(
+      return collection.overdue!.overdueAmount!
+          .map((overdueAmount) => DataRow(
                 cells: [
                   DataCell(
                     Center(
@@ -2155,7 +2162,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        overdueAmount.cartId??'',
+                        overdueAmount.cartId ?? '',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -2166,7 +2173,7 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                   DataCell(
                     Center(
                       child: Text(
-                        overdueAmount.transactionDetails??'',
+                        overdueAmount.transactionDetails ?? '',
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 13.5,
@@ -2220,7 +2227,6 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
 
 class _DoughnutDefaultCustomerDashState
     extends State<DoughnutDefaultCustomerDash> {
-
   @override
   void initState() {
     super.initState();

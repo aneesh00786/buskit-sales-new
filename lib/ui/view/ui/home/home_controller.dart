@@ -36,40 +36,39 @@ class HomeController extends GetxController {
     fetchDashboardData();
   }
 
-Future<void> fetchDashboardData() async {
-  try {
-    await _apiWorker.dashboardData();
-  } catch (e) {
-    if (e.toString().contains('Session expired')) {
-      await SessionHelper().clearAll();
-      Get.offAllNamed(AppRoutes.login); 
-      await Future.delayed(Duration(milliseconds: 500));
-      _handleTokenExpiration();
+  Future<void> fetchDashboardData() async {
+    try {
+      await _apiWorker.dashboardData();
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await SessionHelper().clearAll();
+        Get.offAllNamed(AppRoutes.login);
+        await Future.delayed(Duration(milliseconds: 500));
+        _handleTokenExpiration();
+      }
+      log('Error fetching dashboard data: $e');
     }
-    log('Error fetching dashboard data: $e');
   }
-}
 
-void _handleTokenExpiration() async {
-  if (!Get.isDialogOpen!) {
-    await Get.dialog(
-      AlertDialog(
-        title: Text("Session Expired"),
-        content: Text("Your session has expired. Please log in again."),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () async {
-              Get.back(); 
-            },
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
+  void _handleTokenExpiration() async {
+    if (!Get.isDialogOpen!) {
+      await Get.dialog(
+        AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () async {
+                Get.back();
+              },
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
-}
-
 
   Route? onGenerateRoute(RouteSettings settings) {
     if (settings.name == AppRoutes.dashboard &&
@@ -86,7 +85,7 @@ void _handleTokenExpiration() async {
       return GetPageRoute(
           settings: settings,
           transition: Transition.leftToRightWithFade,
-          page: () =>  tableee(),
+          page: () => tableee(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.product &&
         sidebarXController.selectedIndex == 2) {
@@ -124,7 +123,7 @@ void _handleTokenExpiration() async {
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
-    } 
+    }
     return GetPageRoute(
       settings: settings,
       transition: Transition.leftToRightWithFade,
@@ -179,7 +178,7 @@ void _handleTokenExpiration() async {
     calendar,
     todayOrders,
     settings,
-    logout
+    logOut
   ].obs;
   List<SidebarXItem> drawSidebarItems() {
     return [
@@ -201,7 +200,6 @@ void _handleTokenExpiration() async {
       label: barTitle,
       onTap: () {
         homeScaffoldKey.currentState?.closeDrawer();
-
       },
     );
   }

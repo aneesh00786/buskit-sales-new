@@ -2348,9 +2348,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             .jumpTo(_horizontalScrollController.position.maxScrollExtent);
       }
     });
-
     _verticalScrollController.addListener(() {
-      // Disable scrolling at the end
       if (_verticalScrollController.offset <=
           _verticalScrollController.position.minScrollExtent) {
         _verticalScrollController
@@ -2362,14 +2360,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       }
     });
   }
-
   @override
   void dispose() {
     _horizontalScrollController.dispose();
     _verticalScrollController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     double totalTableWidth = 110 + 320 + 110 + 110 + 110 + 110 + 140 + 110;

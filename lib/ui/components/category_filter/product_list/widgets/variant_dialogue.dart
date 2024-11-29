@@ -481,23 +481,33 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             log('Customer ID: ${customerAndOrderController.customerId.value}');
                             log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
                             log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+
                             if ((customerAndOrderController.customerId.value !=
                                         null &&
                                     customerAndOrderController
                                         .customerId.value.isNotEmpty) ||
-                                (widget.productController.selectedCustomerName.value !=
+                                (widget.productController.selectedCustomerName
+                                            .value !=
                                         null &&
-                                   widget.productController.selectedCustomerName.value
+                                    widget
+                                        .productController
+                                        .selectedCustomerName
+                                        .value
                                         .isNotEmpty)) {
                               List<CartItem> cartItems =
                                   CartDatabaseManager().getCartItems();
                               List<Detail> detailsFromCart = cartItems
                                   .map((cartItem) => cartItem.detail)
                                   .toList();
+
+                              bool anyProductProcessed = false;
+
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
                                 Detail detail = widget.detailsCopy[i];
+                                log('Processing detail with variationId: ${detail.variationId}, localCounts[i]: ${localCounts[i]}');
+
                                 bool isProductAlreadyInCart =
                                     detailsFromCart.any(
                                   (item) =>
@@ -505,7 +515,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                           detail.variationName &&
                                       item.sellPrice == detail.sellPrice,
                                 );
+
                                 if (localCounts[i] > 0) {
+                                  anyProductProcessed = true;
                                   if (!isProductAlreadyInCart) {
                                     final bool isPack = detail.saleBy == 'Pack';
                                     CartDatabaseManager().addToCart(
@@ -521,9 +533,39 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     CartDatabaseManager().updateCartItemCount(
                                         detail, localCounts[i]);
                                   }
-                                } else {
-                                  log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                 }
+                              }
+                              if (!anyProductProcessed) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      actions: [
+                                        SizedBox(height: 20),
+                                        Center(
+                                            child: Icon(
+                                                Icons.warning_amber_outlined,
+                                                size: 50,
+                                                color: Colors.blue)),
+                                        SizedBox(height: 20),
+                                        Center(
+                                          child: CustomText(
+                                              content: "Please Add a Product",
+                                              fontSize: 18),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: CustomText(
+                                              content: "Ok",
+                                              color: primaryColor),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                return; // Prevent further execution
                               }
 
                               widget.onDone();
@@ -542,10 +584,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                               color: Colors.orange)),
                                       SizedBox(height: 20),
                                       Center(
-                                          child: CustomText(
-                                              content:
-                                                  "Please Select a Customer",
-                                              fontSize: 18)),
+                                        child: CustomText(
+                                            content: "Please Select a Customer",
+                                            fontSize: 18),
+                                      ),
                                       TextButton(
                                         onPressed: () {
                                           Navigator.pop(context);

@@ -29,11 +29,22 @@ import '../../product_list/view/product_list.dart';
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
-  final bool? isFromCalender;
+  final bool isFromCalender;
   final String cusName;
   final String cusImage;
   final String? cusId;
-  OrderTaking({super.key, required this.productsController, this.isReached, this.isFromCalender,required this.cusName, required this.cusImage,this.cusId});
+  final bool isDirectDialogue;
+  final bool isFromOrder;
+  OrderTaking(
+      {super.key,
+      required this.productsController,
+      this.isReached,
+      this.isFromCalender = false,
+      this.isDirectDialogue = false,
+      this.isFromOrder = false,
+      required this.cusName,
+      required this.cusImage,
+      this.cusId});
 
   @override
   _OrderTakingState createState() => _OrderTakingState();
@@ -56,7 +67,6 @@ class _OrderTakingState extends State<OrderTaking>
   bool isLoading = true;
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
-
   bool active = false;
   int cartItemCount = 0;
   String _selectedCategory = '';
@@ -69,6 +79,7 @@ class _OrderTakingState extends State<OrderTaking>
 
   @override
   void initState() {
+    log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
     super.initState();
     fetchAndSetCustomers();
     animationController = AnimationController(
@@ -133,10 +144,10 @@ class _OrderTakingState extends State<OrderTaking>
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
     if (categories.isNotEmpty) {
-    //  setState(() {
-        _expandedIndex = 0;
-        _selectedCategory = categories[0].categoryName ?? '';
-     // });
+      //  setState(() {
+      _expandedIndex = 0;
+      _selectedCategory = categories[0].categoryName ?? '';
+      // });
       if (categories[0].subCategoryItem != null &&
           categories[0].subCategoryItem!.isNotEmpty) {
         final firstSubCategory =
@@ -212,14 +223,12 @@ class _OrderTakingState extends State<OrderTaking>
     });
   }
 
-  CustomerAndOrderController customeController =
-      Get.put(CustomerAndOrderController());
   void handleBackNavigation(
     BuildContext context,
     bool toDashBoard,
   ) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
-        customeController.customerId.value.isNotEmpty) {
+        customerAndOrderController.customerId.value.isNotEmpty) {
       _showCartDialog();
       Future.delayed(Duration(seconds: 1));
       showDialog(
@@ -252,7 +261,13 @@ class _OrderTakingState extends State<OrderTaking>
                           homeController.sidebarXController.selectIndex(0);
                           homeController.selectedIndex.value = 0;
                           Get.toNamed(AppRoutes.dashboard, id: 2);
-                          customeController.customerId.value = '';
+                          customerAndOrderController.customerId.value = '';
+                          widget.productsController.selectedCustomerName.value =
+                              '';
+                          widget.productsController.selectedCustomerId.value =
+                              '';
+                          widget.productsController.selectedCustomerImageUrl
+                              .value = '';
                         });
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
@@ -261,7 +276,12 @@ class _OrderTakingState extends State<OrderTaking>
                         Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
-                        customeController.customerId.value = '';
+                        customerAndOrderController.customerId.value = '';
+                        widget.productsController.selectedCustomerName.value =
+                            '';
+                        widget.productsController.selectedCustomerId.value = '';
+                        widget.productsController.selectedCustomerImageUrl
+                            .value = '';
                         setState(() {
                           cartItemCount = 0;
                         });
@@ -321,21 +341,37 @@ class _OrderTakingState extends State<OrderTaking>
   }
 
   void triggerLeadingIcon(bool toDashBoard) {
-    if (widget.isReached == true) {
-      Navigator.pop(context);
-    } else if (
-      //CartDatabaseManager().cartItems.isNotEmpty &&
-        customeController.customerId.value.isNotEmpty) {
+    if (CartDatabaseManager().cartItems.isNotEmpty &&
+        customerAndOrderController.customerId.value.isNotEmpty) {
       handleBackNavigation(
         context,
         toDashBoard,
       );
+      customerAndOrderController.customerId.value = '';
+      widget.productsController.selectedCustomerName.value = '';
+      widget.productsController.selectedCustomerId.value = '';
+      widget.productsController.selectedCustomerImageUrl.value = '';
+      log('Condition1');
+    } else if (widget.isFromCalender == true ||
+        widget.isDirectDialogue == true) {
+      Navigator.pop(context);
+      customerAndOrderController.customerId.value = '';
+      widget.productsController.selectedCustomerName.value = '';
+      widget.productsController.selectedCustomerId.value = '';
+      widget.productsController.selectedCustomerImageUrl.value = '';
+      log('Condition2');
     } else {
       homeController.sidebarXController.selectIndex(0);
       homeController.selectedIndex.value = 0;
       Get.toNamed(AppRoutes.dashboard, id: 2);
-      customeController.customerId.value = '';
+      customerAndOrderController.customerId.value = '';
+      widget.productsController.selectedCustomerName.value = '';
+      widget.productsController.selectedCustomerId.value = '';
+      widget.productsController.selectedCustomerImageUrl.value = '';
+      log('Condition3');
     }
+    log('Is Direct :${widget.isDirectDialogue}');
+    log('Is FRom Calender${widget.isFromCalender}');
   }
 
   @override
@@ -353,9 +389,16 @@ class _OrderTakingState extends State<OrderTaking>
         ),
         leading: IconButton(
           onPressed: () {
-            triggerLeadingIcon(true);
+            bool toDash =
+                widget.isDirectDialogue == true || widget.isFromCalender == true || widget.isFromOrder == true
+                    ? false
+                    : true;
+            
+            log('To Dash : ${toDash}');
+            triggerLeadingIcon(toDash);
             log('Triggered');
-            log(customeController.customerId.value);
+            log(customerAndOrderController.customerId.value);
+            log('Is From Order : ${widget.isFromOrder == true}');
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
@@ -470,7 +513,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                         CartDatabaseManager()
                                                             .cartItems
                                                             .isNotEmpty &&
-                                                        customeController
+                                                        customerAndOrderController
                                                             .customerId
                                                             .isNotEmpty) {
                                                       if (mounted) {
@@ -496,7 +539,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                       final productBYData =
                                                           AddToCartModel(
                                                         customerId:
-                                                            customeController
+                                                            customerAndOrderController
                                                                 .customerId
                                                                 .value,
                                                         salesmanId:
@@ -552,7 +595,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                         CartOrderModel order =
                                                             CartOrderModel(
                                                           customerId:
-                                                              customeController
+                                                              customerAndOrderController
                                                                   .customerId
                                                                   .value,
                                                           salesmanId:
@@ -716,7 +759,7 @@ class _OrderTakingState extends State<OrderTaking>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                           IntrinsicWidth(
+                            IntrinsicWidth(
                               child: ListTile(
                                   title: Text(widget.productsController
                                           .selectedCustomerName.isEmpty

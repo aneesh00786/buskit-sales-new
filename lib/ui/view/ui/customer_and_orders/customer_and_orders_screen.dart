@@ -2324,6 +2324,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   final StaffController staffController = Get.put(StaffController());
   final LeadsController leadsController = Get.put(LeadsController());
   final ProductsController prodController = Get.put(ProductsController());
+  final CustomerAndOrderController customerController = Get.put(CustomerAndOrderController());
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 
@@ -2446,7 +2447,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      // Fixed column cell
                                       Container(
                                         width: 220,
                                         padding: const EdgeInsets.all(4.0),
@@ -2479,6 +2479,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 behavior:
                                                     HitTestBehavior.opaque,
                                                 onTap: () {
+                                                  customerAndOrderController
+                                                            .setCustomerId(customer
+                                                                    .customerId ??
+                                                                '');
                                                   provider
                                                       .setCurrentMonthDates();
                                                   prodController
@@ -2508,7 +2512,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             .selectedStartDate,
                                                         endDate: provider
                                                             .selectedEndDate,
-                                                        isFromCalendar: false,
+                                                        isFromOrder: true
+                                                        
                                                       ),
                                                     ),
                                                   );

@@ -38,3 +38,32 @@ class _LoginScreenState extends State<LoginScreen> {
         ));
   }
 }
+// Container(
+          
+//          width: AppDimensions.createInstance(
+//             context, 
+//             BoxConstraints(
+//               maxWidth: AppDimensions.instance.width,
+//               maxHeight: AppDimensions.instance.height,
+//             )
+//           ).width,
+//           height: AppDimensions.createInstance(
+//             context, 
+//             BoxConstraints(
+//               maxWidth: AppDimensions.instance.width,
+//               maxHeight: AppDimensions.instance.height,
+//             )
+//           ).height / 2,
+//           decoration: const BoxDecoration(color: backgroundColor),
+//           child: ValueListenableBuilder(
+//             builder: (BuildContext context, String val, Widget? child) {
+//               return SvgPicture.asset(
+//                 "assets/icons/ic_login_logo.svg",
+//                 width: AppDimensions.instance.width,
+//                 height: AppDimensions.instance.height / 2,
+//                 fit: BoxFit.contain,
+//               );
+//             },
+//             valueListenable: changeNotify,
+//           ),
+//         ),

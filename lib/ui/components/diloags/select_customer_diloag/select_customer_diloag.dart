@@ -57,6 +57,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
       widget.calenderMapController.getCurrentLocation();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     widget.calenderMapController
@@ -194,8 +195,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                           cusImage: event
                                                               .event!.imageUrl
                                                               .toString(),
-                                                          isDirectDialogue: true,
-
+                                                          isDirectDialogue:
+                                                              true,
                                                         ),
                                                     id: 2);
                                                 final now = DateTime.now();

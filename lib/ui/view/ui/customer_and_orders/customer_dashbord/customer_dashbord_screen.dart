@@ -47,6 +47,7 @@ class CustomerDachScreen extends StatefulWidget {
   final dynamic endDate;
   final bool isFromCalendar;
   final bool isDirectDialogue;
+  final bool isFromOrder;
 
   const CustomerDachScreen({
     super.key,
@@ -58,6 +59,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.endDate,
     this.isFromCalendar = false,
     this.isDirectDialogue = false,
+    this.isFromOrder = false,
   });
 
   @override
@@ -183,7 +185,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         cusName: widget.cusName,
                         cusImage: widget.cusImage,
                         isFromCalender: widget.isFromCalendar,
-                        isReached: true),
+                        isDirectDialogue: widget.isDirectDialogue,
+                        isFromOrder: widget.isFromOrder,
+                        ),
                   ),
                 );
               },

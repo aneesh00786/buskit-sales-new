@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -15,33 +16,29 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
   ValueNotifier<String> changeNotify = ValueNotifier(Assets.iconsIcLoginLogo);
   @override
   Widget build(BuildContext context) {
-    return Container(
- width: AppDimensions.createInstance(
-        context, 
-        BoxConstraints(
-          maxWidth: AppDimensions.instance.width,
-          maxHeight: AppDimensions.instance.height,
-        )
-      ).width,
-      height: AppDimensions.createInstance(
-        context, 
-        BoxConstraints(
-          maxWidth: AppDimensions.instance.width,
-          maxHeight: AppDimensions.instance.height,
-        )
-      ).height / 2,
-      decoration: const BoxDecoration(color: backgroundColor),
-      child: ValueListenableBuilder(
-        builder: (BuildContext context, String val, Widget? child) {
-          return SvgPicture.asset(
-            "assets/icons/ic_login_logo.svg",
-            width: AppDimensions.instance.width,
-            height: AppDimensions.instance.height / 2,
-            fit: BoxFit.contain,
-          );
-        },
-        valueListenable: changeNotify,
-      ),
+    return Stack(
+      children: [
+        Container(
+          height: double.infinity,
+          width: double.maxFinite,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [
+              primaryColor.withOpacity(0.7),
+              primaryColor.withOpacity(0.5),
+              primaryColor.withOpacity(0.7),
+            ])
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/images/loginImage 7.png",height: 220,),
+              SizedBox(height: 50,),
+              CustomText(content: 'Welcome!',color: white,fontWeight: FontWeight.w600,fontSize: 50,),
+        CustomText(content: 'Please login to your account to continue..!',color: white,fontWeight: FontWeight.w400,fontSize: 20,)
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

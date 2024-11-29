@@ -353,21 +353,13 @@ class _OrderTakingState extends State<OrderTaking>
       widget.productsController.selectedCustomerImageUrl.value = '';
       log('Condition1');
     } else if (widget.isFromCalender == true ||
-        widget.isDirectDialogue == true) {
+        widget.isDirectDialogue == true||widget.isFromOrder==true) {
       Navigator.pop(context);
-      customerAndOrderController.customerId.value = '';
-      widget.productsController.selectedCustomerName.value = '';
-      widget.productsController.selectedCustomerId.value = '';
-      widget.productsController.selectedCustomerImageUrl.value = '';
       log('Condition2');
     } else {
       homeController.sidebarXController.selectIndex(0);
       homeController.selectedIndex.value = 0;
       Get.toNamed(AppRoutes.dashboard, id: 2);
-      customerAndOrderController.customerId.value = '';
-      widget.productsController.selectedCustomerName.value = '';
-      widget.productsController.selectedCustomerId.value = '';
-      widget.productsController.selectedCustomerImageUrl.value = '';
       log('Condition3');
     }
     log('Is Direct :${widget.isDirectDialogue}');
@@ -389,11 +381,7 @@ class _OrderTakingState extends State<OrderTaking>
         ),
         leading: IconButton(
           onPressed: () {
-            bool toDash =
-                widget.isDirectDialogue == true || widget.isFromCalender == true || widget.isFromOrder == true
-                    ? false
-                    : true;
-            
+            bool toDash = !(widget.isDirectDialogue || widget.isFromCalender || widget.isFromOrder);
             log('To Dash : ${toDash}');
             triggerLeadingIcon(toDash);
             log('Triggered');

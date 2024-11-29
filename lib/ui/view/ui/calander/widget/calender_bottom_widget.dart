@@ -10,12 +10,30 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 
-class CalenderBottomWidget extends StatelessWidget {
+class CalenderBottomWidget extends StatefulWidget {
   final CalenderMapController calenderController;
 
-  const CalenderBottomWidget({super.key, required this.calenderController});
+  CalenderBottomWidget({
+    super.key,
+    required this.calenderController,
+  });
 
+  @override
+  State<CalenderBottomWidget> createState() => _CalenderBottomWidgetState();
+}
+
+class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
+  bool navigatedToMap = false;
+  Customer? selectedCustomer;
+
+  @override
+  void initState() {
+    widget.calenderController.fetchCalenderEvents();
+    widget.calenderController.loadCalenderEvent_v1;
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return MyCommnonContainer(
@@ -48,10 +66,10 @@ class CalenderBottomWidget extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             if (event.isNotEmpty) {
-              calenderController.clearSelections();
+              widget.calenderController.clearSelections();
               Get.dialog(SelectCustomerDiloag(
                 dateTime: date,
-                calenderMapController: calenderController,
+                calenderMapController: widget.calenderController,
                 eventData: event,
               ));
               log('Date : $date');
@@ -109,7 +127,7 @@ class CalenderBottomWidget extends StatelessWidget {
         return NKDateUtils.formatMonth(date);
       },
       startDay: WeekDays.monday,
-      controller: calenderController.eventControllerv1,
+      controller: widget.calenderController.eventControllerv1,
       initialMonth: DateTime.now(),
       maxMonth: DateTime(DateTime.now().year, 12, 31),
       minMonth: DateTime(DateTime.now().year, 1, 1),

@@ -25,13 +25,14 @@ class SelectCustomerDiloag extends StatefulWidget {
   final DateTime dateTime;
   final CalenderMapController calenderMapController;
   final List<CalendarEventData<EventData>> eventData;
+  final bool istoGoogleMap;
 
-  SelectCustomerDiloag({
-    super.key,
-    required this.dateTime,
-    required this.calenderMapController,
-    required this.eventData,
-  });
+  SelectCustomerDiloag(
+      {super.key,
+      required this.dateTime,
+      required this.calenderMapController,
+      required this.eventData,
+      this.istoGoogleMap = false});
 
   @override
   State<SelectCustomerDiloag> createState() => _SelectCustomerDiloagState();
@@ -39,12 +40,7 @@ class SelectCustomerDiloag extends StatefulWidget {
 
 class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
     with WidgetsBindingObserver {
-  bool navigatedToMap = false;
-
-  Customer? selectedCustomer;
-
   final HomeController homeController = Get.put(HomeController());
-
   final ProductsController productsController = Get.put(ProductsController());
   @override
   void initState() {
@@ -56,6 +52,102 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
       widget.calenderMapController.getDirections();
       widget.calenderMapController.getCurrentLocation();
     });
+  }
+
+  bool navigatedToMap = false;
+  Customer? selectedCustomer;
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && navigatedToMap) {
+      navigatedToMap = false;
+      if (selectedCustomer != null) {
+        _showReturnDialog(selectedCustomer!);
+      }
+    }
+  }
+
+  void _showReturnDialog(Customer customer) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(
+                    '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
+              ),
+              SizedBox(width: 8),
+              Text("${customer.businessName ?? ''}"),
+            ],
+          ),
+          content: CustomText(
+            content: 'Reached on customer',
+            fontSize: 17,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  if (!widget.istoGoogleMap) {
+                    Navigator.pop(context);
+                  }
+                  Navigator.pop(context);
+                  homeController.sidebarXController.selectIndex(1);
+                  homeController.selectedIndex.value = 1;
+                  productsController.selectedCustomerName.value =
+                      customer.businessName ?? '';
+                  productsController.selectedCustomerImageUrl.value =
+                      customer.imageUrl ?? '';
+                  productsController.selectedCustomerId.value =
+                      customer.customerId ?? '';
+                  Get.to(
+                    () => CustomerDachScreen(
+                      cusId: customer.customerId.toString(),
+                      cusName: customer.businessName.toString(),
+                      cusImage: customer.imageUrl.toString(),
+                      isDirectDialogue: true,
+                    ),
+                    id: 2,
+                  );
+                  final now = DateTime.now();
+                  final startDate = DateTime(now.year, now.month, 1);
+                  final endDate = DateTime(now.year, now.month + 1, 0);
+                  final formattedStartDate =
+                      DateFormat('yyyy-MM-dd').format(startDate);
+                  final formattedEndDate =
+                      DateFormat('yyyy-MM-dd').format(endDate);
+                  final customerId = customer.customerId.toString();
+                  final customersProvider =
+                      Provider.of<CustomersProvider>(context, listen: false);
+                  await Future.wait([
+                    customersProvider.fetchCustomerDashboardData(
+                        customerId, 2024, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardRevenueData(
+                        customerId, 2024, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardDataSalseData(
+                        customerId, 2024),
+                    customersProvider.fetchCustomersDataDash(customerId),
+                    customersProvider
+                        .fetchCustomerDashboardCountData(customerId),
+                  ]);
+                });
+              },
+              child: Text("Go to Customer"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -295,7 +387,9 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                   color: red,
                                                 ),
                                                 onPressed: () {
-                                                  //selectedCustomer = customer;
+                                                  selectedCustomer = widget
+                                                      .calenderMapController
+                                                      .selectedCustomers[index];
                                                   navigatedToMap = true;
                                                   navigateToo(
                                                     currentLatitude,
@@ -309,6 +403,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                                 ?.longitude ??
                                                             ''),
                                                   );
+                                                  log('Selected Customer : ${selectedCustomer?.businessName}');
                                                 },
                                                 highlightColor: white,
                                               );

@@ -550,7 +550,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                         SizedBox(height: 20),
                                         Center(
                                           child: CustomText(
-                                              content: "Please Add a Product",
+                                              content: "Please add a variant",
                                               fontSize: 18),
                                         ),
                                         TextButton(

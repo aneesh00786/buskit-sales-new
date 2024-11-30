@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -202,6 +203,7 @@ class HomeController extends GetxController {
         onTap: () async {
           await SessionManager.clearData();
           Get.offAllNamed(AppRoutes.login);
+          Provider.of<DashboardProvider>(context,listen:false).resetProvider();
         },
       ),
     ];

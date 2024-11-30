@@ -24,10 +24,11 @@ import 'dash_models.dart';
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
   final Dio dio = Dio();
-   ApiService() {
+  ApiService() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+        final jsonString =
+            await SessionManager.getStringValue(SpString.spLogin);
         if (jsonString.isNotEmpty) {
           Map<String, dynamic> jsonMap = jsonDecode(jsonString);
           String createdToken = jsonMap['createdToken'];
@@ -40,14 +41,15 @@ class ApiService {
         return handler.next(response);
       },
       onError: (DioError error, handler) async {
-        if (error.response?.statusCode == 401 || error.response?.statusCode == 400) {
-           _handleTokenExpiration();
+        if (error.response?.statusCode == 401 ||
+            error.response?.statusCode == 400) {
+          _handleTokenExpiration();
         }
-        return handler.next(error); 
+        return handler.next(error);
       },
     ));
   }
-    Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
+  Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
       int specifiedYear, String startDate, String endDate) async {
     var companyId = 1;
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
@@ -77,6 +79,7 @@ class ApiService {
       throw Exception('Error fetching customer revenue data: $e');
     }
   }
+
   Future<ResponseModell> fetchDashboardData(
       {String? salesmanId,
       String? startDate,
@@ -144,11 +147,12 @@ class ApiService {
           topSellingProducts: topSellingProducts,
           orderCountList: orderCountList,
         );
-       } else if (response.statusCode == 400 || response.statusCode == 401) {
+      } else if (response.statusCode == 400 || response.statusCode == 401) {
         _handleTokenExpiration();
         throw Exception('Session expired');
       } else {
-        throw Exception('Failed to load data with status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load data with status code: ${response.statusCode}');
       }
     } on DioError catch (e) {
       log('DioError: ${e.response?.statusCode} - ${e.message}');
@@ -165,26 +169,28 @@ class ApiService {
       throw Exception('Failed to fetch data: $e');
     }
   }
+
   void _handleTokenExpiration() async {
-  if (!Get.isDialogOpen!) {
-    await Get.dialog(
-      AlertDialog(
-        title: Text("Session Expired"),
-        content: Text("Your session has expired. Please log in again."),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () async {
-              await SessionHelper().clearAll(); 
-              Get.offAllNamed(AppRoutes.login);
-            },
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
+    if (!Get.isDialogOpen!) {
+      await Get.dialog(
+        AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () async {
+                await SessionHelper().clearAll();
+                Get.offAllNamed(AppRoutes.login);
+              },
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
-}
+
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
     required String startDate,
@@ -197,7 +203,7 @@ class ApiService {
       'startdate': startDate,
       'enddate': endDate,
       'targetType': '1',
-      'salesman_id':salesmanId
+      'salesman_id': salesmanId
     };
 
     try {
@@ -380,14 +386,14 @@ class ApiService {
       if (response.statusCode == 200) {
         print('Admin message posted successfully');
       } else {
-
         throw Exception('Failed to post admin message: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to post admin message: $e');
     }
   }
-    Future<OrderResponse> fetchAllOrders({
+
+  Future<OrderResponse> fetchAllOrders({
     required String startDate,
     required String endDate,
     OrderStatus? orderStatus, // New parameter for filtering by order status
@@ -458,7 +464,7 @@ class ApiService {
   //   final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
   //   String orderStatusString = '';
   //   if (orderStatus != null) {
-  //     orderStatusString = orderStatus.type.toString(); 
+  //     orderStatusString = orderStatus.type.toString();
   //   }
 
   //   final requestBody = {
@@ -1144,7 +1150,8 @@ class ApiService {
             'Failed to fetch customer data from fetchOneCustomer- ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch customer data fetchOneCustomer exception: $e');
+      throw Exception(
+          'Failed to fetch customer data fetchOneCustomer exception: $e');
     }
   }
 
@@ -1404,14 +1411,14 @@ class DashboardProvider with ChangeNotifier {
   String _selectedEndDate = '';
   final ApiService _apiService;
   final Logger _logger;
+  bool _dataFetched = false;
+   bool get dataFetched => _dataFetched;
 
   DashboardProvider({required ApiService apiService, required Logger logger})
       : _apiService = apiService,
         _logger = logger {
-     fetchData();
+    fetchData();
     fetchChatData('');
-    // come back
-    //  fetchOrders();
     fetchAdminData();
   }
 
@@ -1435,7 +1442,16 @@ class DashboardProvider with ChangeNotifier {
   Future<ResponseModelCp>? _responseModelCp;
 
   Future<ResponseModelCp>? get responseModelCp => _responseModelCp;
-
+    void resetProvider() {
+    _dataFetched = false;
+    _futureResponseModel = null;
+    _salesmenResponse = null;
+    _individualChatResponse = null;
+    _selectedFilter = FilterDateEnum.thisMonth;
+    _selectedStartDate = '';
+    _selectedEndDate = '';
+    notifyListeners();
+  }
   Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
     try {
       final now = DateTime.now();
@@ -1494,7 +1510,7 @@ class DashboardProvider with ChangeNotifier {
 
         notifyListeners();
 
-        print("Fetching orders for status: $_selectedStatus"); 
+        print("Fetching orders for status: $_selectedStatus");
 
         notifyListeners();
       }
@@ -1624,9 +1640,7 @@ class DashboardProvider with ChangeNotifier {
       // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-            startDate: startDate,
-            endDate: endDate,
-            orderStatus: s);
+            startDate: startDate, endDate: endDate, orderStatus: s);
       });
       print("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
 
@@ -1785,7 +1799,8 @@ class DashboardProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-    void selectAllChats(List<SalesmanChat> chatData) {
+
+  void selectAllChats(List<SalesmanChat> chatData) {
     selectedChats = List.from(chatData); // Select all
     notifyListeners();
   }
@@ -1803,10 +1818,12 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
+    
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     String createdToken = jsonMap['createdToken'];
+    if (_dataFetched) return;
     try {
       final now = DateTime.now();
       String startDate;
@@ -1841,7 +1858,7 @@ class DashboardProvider with ChangeNotifier {
         case FilterDateEnum.range:
           startDate = _selectedStartDate;
           endDate = _selectedEndDate;
-         
+
           if (startDate.isEmpty || endDate.isEmpty) {
             return;
           }
@@ -1900,18 +1917,17 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-Future<SalesmenResponse> fetchChatData(String salesmanId) async {
-  try {
-    Future<SalesmenResponse> chatData =  _apiService.fetchChatData(salesmanId);
-    _salesmenResponse = chatData as Future<SalesmenResponse>?;
-    notifyListeners();
-    return chatData;  // Return the fetched data
-  } catch (e, stackTrace) {
-    _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);
-    throw Exception('Failed to fetch chat data: $e');
+  Future<SalesmenResponse> fetchChatData(String salesmanId) async {
+    try {
+      Future<SalesmenResponse> chatData = _apiService.fetchChatData(salesmanId);
+      _salesmenResponse = chatData as Future<SalesmenResponse>?;
+      notifyListeners();
+      return chatData; // Return the fetched data
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);
+      throw Exception('Failed to fetch chat data: $e');
+    }
   }
-}
-
 
   // Future<MessagesResponse> fetch_individual_chat(String chatId) async {
   //   try {

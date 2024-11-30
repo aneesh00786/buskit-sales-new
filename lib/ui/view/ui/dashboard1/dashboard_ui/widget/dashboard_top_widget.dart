@@ -1,6 +1,7 @@
 
 import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -45,15 +46,21 @@ class DashboardTopWidget extends StatefulWidget {
 class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
-
-  @override
-  void initState() {
-    super.initState();
+  final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+@override
+void initState() {
+  super.initState();
+  final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+  if (!dashboardProvider.dataFetched) {
+    dashboardProvider.resetProvider();
+    dashboardProvider.fetchData();
+    dashboardProvider.fetchChatData(salesmanId);
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<DashboardProvider>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

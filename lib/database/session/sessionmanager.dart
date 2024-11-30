@@ -21,8 +21,6 @@ class SessionManager {
     log('Shared Pref 3: ${pref}');
     return pref.getStringList(key) ?? [];
   }
-
-  // get string values in shared pref
   static Future<String> getStringValue(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     final loginData = pref.getString(key) ?? "";

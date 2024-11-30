@@ -137,8 +137,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
 
                           )
 
-
-
                       ))
 
                 ],

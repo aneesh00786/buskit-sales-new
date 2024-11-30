@@ -155,8 +155,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                         item.productName == productName)
                                     .toList();
                                 return Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: 20),
+                                  padding: const EdgeInsets.only(bottom: 20),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -166,8 +165,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                         children: [
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               CustomHeaderContainer(
                                                 text: productName,
@@ -182,8 +180,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                         context: context,
                                                         builder: (context) {
                                                           return AlertDialog(
-                                                            title:
-                                                                CustomText(
+                                                            title: CustomText(
                                                               content:
                                                                   'Delete ${productName}..?',
                                                               fontWeight:
@@ -192,15 +189,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                                             ),
                                                             actions: [
                                                               Align(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .centerLeft,
+                                                                alignment: Alignment
+                                                                    .centerLeft,
                                                                 child:
                                                                     CustomText(
                                                                   content:
                                                                       'Are you sure you want to delete this item?',
-                                                                  fontSize:
-                                                                      15,
+                                                                  fontSize: 15,
                                                                 ),
                                                               ),
                                                               Row(
@@ -209,9 +204,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         .end,
                                                                 children: [
                                                                   TextButton(
-                                                                    onPressed:
-                                                                        () =>
-                                                                            Navigator.pop(context),
+                                                                    onPressed: () =>
+                                                                        Navigator.pop(
+                                                                            context),
                                                                     child:
                                                                         CustomText(
                                                                       content:
@@ -225,7 +220,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                         () {
                                                                       _deleteItem(
                                                                           productName);
-              
+
                                                                       Navigator.pop(
                                                                           context);
                                                                     },
@@ -268,64 +263,56 @@ class _CartDialogueState extends State<CartDialogue> {
                                                   headingRowHeight: 40,
                                                   dataRowHeight: rowHeight,
                                                   horizontalMargin: 5,
-                                                  columnSpacing:
-                                                      columnSpacing,
+                                                  columnSpacing: columnSpacing,
                                                   columns: [
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: 'Variant',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: 'Pack',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: 'Price',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: 'Tax',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: 'Quantity',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: 'Total',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                     DataColumn(
                                                         label:
                                                             DialogTableHeaderText(
                                                       text: '',
                                                       fontSize: fontSize,
-                                                      align:
-                                                          TextAlign.center,
+                                                      align: TextAlign.center,
                                                     )),
                                                   ],
                                                   rows: groupedItems
@@ -336,13 +323,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child:
                                                                 ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  minWidth:
-                                                                      50,
-                                                                  maxWidth:
-                                                                      100),
-                                                              child:
-                                                                  CustomText(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
                                                                 content:
                                                                     '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
                                                                 textAlign:
@@ -358,13 +345,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child:
                                                                 ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  minWidth:
-                                                                      50,
-                                                                  maxWidth:
-                                                                      150),
-                                                              child:
-                                                                  CustomText(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          150),
+                                                              child: CustomText(
                                                                 content:
                                                                     '${groupedItem.detail.packtype}/ ${groupedItem.detail.pieces} Pcs',
                                                                 textAlign:
@@ -380,13 +367,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child:
                                                                 ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  minWidth:
-                                                                      50,
-                                                                  maxWidth:
-                                                                      100),
-                                                              child:
-                                                                  CustomText(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
                                                                 content:
                                                                     '\$${double.parse(groupedItem.detail.price ?? '0').toStringAsFixed(2)}',
                                                                 textAlign:
@@ -402,13 +389,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child:
                                                                 ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  minWidth:
-                                                                      50,
-                                                                  maxWidth:
-                                                                      100),
-                                                              child:
-                                                                  CustomText(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
                                                                 content:
                                                                     '${double.parse(groupedItem.detail.tax ?? '').toStringAsFixed(2)}',
                                                                 textAlign:
@@ -424,11 +411,12 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child:
                                                                 ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  minWidth:
-                                                                      50,
-                                                                  maxWidth:
-                                                                      100),
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
                                                               child:
                                                                   productQuantityManager(
                                                                 groupedItem,
@@ -445,13 +433,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child:
                                                                 ConstrainedBox(
-                                                              constraints: BoxConstraints(
-                                                                  minWidth:
-                                                                      50,
-                                                                  maxWidth:
-                                                                      100),
-                                                              child:
-                                                                  CustomText(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      minWidth:
+                                                                          50,
+                                                                      maxWidth:
+                                                                          100),
+                                                              child: CustomText(
                                                                 content:
                                                                     '\$${groupedItem.totalPrice.toStringAsFixed(2)}',
                                                                 textAlign:
@@ -467,8 +455,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           Center(
                                                             child: SizedBox(
                                                               width: 30,
-                                                              child:
-                                                                  IconButton(
+                                                              child: IconButton(
                                                                 icon: Icon(
                                                                   EneftyIcons
                                                                       .trash_outline,
@@ -476,8 +463,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                       .red,
                                                                   size: 25,
                                                                 ),
-                                                                onPressed:
-                                                                    () {
+                                                                onPressed: () {
                                                                   showDialog(
                                                                     context:
                                                                         context,
@@ -486,8 +472,10 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                       return AlertDialog(
                                                                         title:
                                                                             CustomText(
-                                                                          content: 'Delete ${groupedItem.detail.variationName}..?',
-                                                                          fontWeight: FontWeight.w700,
+                                                                          content:
+                                                                              'Delete ${groupedItem.detail.variationName}..?',
+                                                                          fontWeight:
+                                                                              FontWeight.w700,
                                                                         ),
                                                                         actions: [
                                                                           Align(
@@ -497,7 +485,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                                 fontSize: 17,
                                                                               )),
                                                                           Row(
-                                                                            mainAxisAlignment: MainAxisAlignment.end,
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.end,
                                                                             children: [
                                                                               TextButton(
                                                                                   onPressed: () {
@@ -577,17 +566,20 @@ class _CartDialogueState extends State<CartDialogue> {
                   ),
                   SizedBox(
                     height: _selectedValue == "Quick Sale"
-                        ? (_dropdownValue == "Cheque"||_dropdownValue == "Bank Transfer" ? 220 : 140)
-                        : 80,
+                        ? 140
+                        : 60,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Radio buttons
+                        
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: _options.map((option) {
+                            totalQuickController.text = '\$${double.parse(formattedAmount)}';
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -600,7 +592,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                       setState(() {
                                         _selectedValue = value!;
                                         _dropdownValue =
-                                            null; // Reset dropdown when selection changes
+                                            null; 
                                         totalQuickController.clear();
                                       });
                                     },
@@ -611,185 +603,203 @@ class _CartDialogueState extends State<CartDialogue> {
                             );
                           }).toList(),
                         ),
-                        // Display fields for "Quick Sale"
                         if (_selectedValue == "Quick Sale")
                           Padding(
                             padding: const EdgeInsets.only(
-                                top: 16.0, left: 40, right: 40),
+                                top: 16.0, left: 30, right: 30),
                             child: Column(
                               children: [
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Dropdown for payment method
-                                    Expanded(
-                                      flex: 2,
-                                      child: Container(
-                                        height: 55,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.black),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                    Container(
+                                      height: 55,
+                                      width:
+                                          130, 
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.black),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+                                        child: DropdownButton<String>(
+                                          hint: const Text("Payment method"),
+                                          value: _dropdownValue,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              _dropdownValue = newValue!;
+                                            });
+                                          },
+                                          items: <String>[
+                                            'Cash',
+                                            'Cheque',
+                                            'Bank Transfer',
+                                          ].map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
                                         ),
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.all(5.0),
-                                          child: DropdownButton<String>(
-                                            elevation: 0,
-                                            hint: const Text(
-                                                "Payment method"),
-                                            value: _dropdownValue,
-                                            isExpanded: true,
-                                            onChanged: (String? newValue) {
-                                              setState(() {
-                                                _dropdownValue = newValue;
-                                              });
-                                            },
-                                            items: <String>[
-                                              'Cash',
-                                              'Cheque',
-                                              'Bank Transfer'
-                                            ].map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                              return DropdownMenuItem<
-                                                  String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 125,
+                                      child: Expanded(
+                                        child: TextFormField(
+                                          controller: totalQuickController,
+                                          decoration: InputDecoration(
+                                            labelText: "Total Amount",
+                                            labelStyle: const TextStyle(
+                                                color: Colors.black),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.blue, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    // Text field for Total Amount
-                                    Expanded(
-                                      flex: 3,
-                                      child: TextFormField(
-                                        controller: totalQuickController,
-                                        decoration: InputDecoration(
-                                          labelText: "Total Amount",
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black,
-                                                width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.blue,
-                                                width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black,
-                                                width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                     const SizedBox(width: 8),
-                                    Expanded(
-                                      child: TextFormField(
-                                        decoration: InputDecoration(
-                                          labelText: "Remark",
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black,
-                                                width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.blue, width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black,
-                                                width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                    if (_dropdownValue == "Cheque" ||
+                                        _dropdownValue == "Bank Transfer")
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 8),
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  _dropdownValue == "Cheque"
+                                                      ? "Cheque Number"
+                                                      : "Transaction Number",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue, width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                   
+                                    if (_dropdownValue == "Cheque" ||
+                                        _dropdownValue == "Bank Transfer")
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right:8),
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText: "Date",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue, width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    
+                                   (_dropdownValue=="Cash"||_dropdownValue == null)? Container(
+                                      width: 200,
+                                      child: Expanded(
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: "Remark",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.blue, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ):Expanded(
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: "Remark",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.blue, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
-                                ),
-                                const SizedBox(height: 8),
-                                // Text field for Remark
-                              ],
-                            ),
-                          ),
-                        // Display additional fields for "Cheque" payment method
-                        if (_selectedValue == "Quick Sale" &&
-                            _dropdownValue == "Cheque"||_dropdownValue == "Bank Transfer")
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 8.0, left: 40, right: 40),
-                            child: Row(
-                              children: [
-                                // Text field for Cheque Number
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText:_dropdownValue=="Cheque"? "Cheque Number":"Transaction Number",
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Colors.black, width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Colors.blue, width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Colors.black, width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                // Text field for Bank Name
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: "Date",
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Colors.black, width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Colors.blue, width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Colors.black, width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
                                 ),
                               ],
                             ),
@@ -802,88 +812,90 @@ class _CartDialogueState extends State<CartDialogue> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                       _selectedValue == "Quick Sale"? CustomCartButton(
-                          text: 'Save as Draft',
-                          size: width > 1200 ? 14 : 10,
-                          onTap: () async {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext context) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              },
-                            );
-                            List<Detail> detail = CartDatabaseManager()
-                                .cartItems
-                                .map((e) => e.detail)
-                                .toList();
-                            setState(() {
-                              widget.cartItemCount = 0;
-                            });
-                            final productBYData = AddToCartModel(
-                              customerId:
-                                  customeController.customerId.isNotEmpty
-                                      ? customeController.customerId.value
-                                      : widget.productsController
-                                          .selectedCustomerId.value,
-                              salesmanId:
-                                  SessionHelper.loginSavedData!.salesmanId!,
-                              cartId: '',
-                              cartList: detail
-                                  .map((e) => SendCartData(
-                                        productId: e.productId ??
-                                            widget.productsController
+                        _selectedValue != "Quick Sale"
+                            ? CustomCartButton(
+                                text: 'Save as Draft',
+                                size: width > 1200 ? 14 : 10,
+                                onTap: () async {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    },
+                                  );
+                                  List<Detail> detail = CartDatabaseManager()
+                                      .cartItems
+                                      .map((e) => e.detail)
+                                      .toList();
+                                  setState(() {
+                                    widget.cartItemCount = 0;
+                                  });
+                                  final productBYData = AddToCartModel(
+                                    customerId:
+                                        customeController.customerId.isNotEmpty
+                                            ? customeController.customerId.value
+                                            : widget.productsController
                                                 .selectedCustomerId.value,
-                                        variantId: e.variationId ?? '',
-                                        pack: e.saleBy == 'Pack'
-                                            ? e.pieces.toString()
-                                            : e.count.toString(),
-                                        packType: e.saleBy == 'Pack'
-                                            ? 'Pack'
-                                            : 'Pcs',
-                                        price: e.price.toString(),
-                                        discount: '0',
-                                        quantity: e.count.toInt(),
-                                      ))
-                                  .toList(),
-                              total: widget
-                                  .productsController.finalAmount.value
-                                  .toStringAsFixed(0),
-                              discount: '0',
-                            );
-                            CartOrderModel? cartOrder = await ApiWorker()
-                                .addToCart(productBYData.toJson());
-                            log('CartId :${cartOrder?.cartId}');
-                            log('Pack or pcs :${productBYData.cartList.first.pack}');
-                            log('Pack or pcs :${productBYData.cartList.first.packType}');
-              
-                            if (cartOrder != null) {
-                              int orderStatus = 4;
-                              CartOrderModel order = CartOrderModel(
-                                customerId:
-                                    customeController.customerId.isNotEmpty
-                                        ? customeController.customerId.value
-                                        : widget.productsController
-                                            .selectedCustomerId.value,
-                                salesmanId: SessionHelper
-                                    .loginSavedData!.salesmanId!,
-                                cartId: cartOrder.cartId,
-                                orderStatus: orderStatus,
-                              );
-                              log('CartId :${cartOrder.cartId}');
-                              await widget.productsController
-                                  .placeOrder(order);
-                              setState(() {
-                                CartDatabaseManager().cartItems.clear();
-                                CartDatabaseManager().clearCart();
-                                widget.cartItemCount = 0;
-                              });
-                              Navigator.pop(context);
-                            }
-                          },
-                        ):Container(),
+                                    salesmanId: SessionHelper
+                                        .loginSavedData!.salesmanId!,
+                                    cartId: '',
+                                    cartList: detail
+                                        .map((e) => SendCartData(
+                                              productId: e.productId ??
+                                                  widget.productsController
+                                                      .selectedCustomerId.value,
+                                              variantId: e.variationId ?? '',
+                                              pack: e.saleBy == 'Pack'
+                                                  ? e.pieces.toString()
+                                                  : e.count.toString(),
+                                              packType: e.saleBy == 'Pack'
+                                                  ? 'Pack'
+                                                  : 'Pcs',
+                                              price: e.price.toString(),
+                                              discount: '0',
+                                              quantity: e.count.toInt(),
+                                            ))
+                                        .toList(),
+                                    total: widget
+                                        .productsController.finalAmount.value
+                                        .toStringAsFixed(0),
+                                    discount: '0',
+                                  );
+                                  CartOrderModel? cartOrder = await ApiWorker()
+                                      .addToCart(productBYData.toJson());
+                                  log('CartId :${cartOrder?.cartId}');
+                                  log('Pack or pcs :${productBYData.cartList.first.pack}');
+                                  log('Pack or pcs :${productBYData.cartList.first.packType}');
+
+                                  if (cartOrder != null) {
+                                    int orderStatus = 4;
+                                    CartOrderModel order = CartOrderModel(
+                                      customerId: customeController
+                                              .customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
+                                      salesmanId: SessionHelper
+                                          .loginSavedData!.salesmanId!,
+                                      cartId: cartOrder.cartId,
+                                      orderStatus: orderStatus,
+                                    );
+                                    log('CartId :${cartOrder.cartId}');
+                                    await widget.productsController
+                                        .placeOrder(order);
+                                    setState(() {
+                                      CartDatabaseManager().cartItems.clear();
+                                      CartDatabaseManager().clearCart();
+                                      widget.cartItemCount = 0;
+                                    });
+                                    Navigator.pop(context);
+                                  }
+                                },
+                              )
+                            : Container(),
                         const SizedBox(width: 30),
                         CustomCartButton(
                           text: 'Save & Send',
@@ -893,8 +905,8 @@ class _CartDialogueState extends State<CartDialogue> {
                               if (cartItems.isNotEmpty &&
                                       customeController
                                           .customerId.value.isNotEmpty ||
-                                  widget.productsController
-                                      .selectedCustomerId.isNotEmpty) {
+                                  widget.productsController.selectedCustomerId
+                                      .isNotEmpty) {
                                 showDialog(
                                   context: context,
                                   barrierDismissible: false,
@@ -908,13 +920,13 @@ class _CartDialogueState extends State<CartDialogue> {
                                 List<Detail> detail =
                                     cartItems.map((e) => e.detail).toList();
                                 final productBYData = AddToCartModel(
-                                  customerId: customeController
-                                          .customerId.isNotEmpty
-                                      ? customeController.customerId.value
-                                      : widget.productsController
-                                          .selectedCustomerId.value,
-                                  salesmanId: SessionHelper
-                                      .loginSavedData!.salesmanId!,
+                                  customerId:
+                                      customeController.customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
+                                  salesmanId:
+                                      SessionHelper.loginSavedData!.salesmanId!,
                                   cartId: '',
                                   cartList: detail
                                       .map((e) => SendCartData(
@@ -934,37 +946,34 @@ class _CartDialogueState extends State<CartDialogue> {
                                   total: finalAmount.toStringAsFixed(0),
                                   discount: '0',
                                 );
-                                CartOrderModel? cartOrder =
-                                    await ApiWorker()
-                                        .addToCart(productBYData.toJson());
+                                CartOrderModel? cartOrder = await ApiWorker()
+                                    .addToCart(productBYData.toJson());
                                 log('CartId :${cartOrder?.cartId}');
                                 if (cartOrder != null) {
                                   int orderStatus;
                                   if (_selectedValue == 'Sale Order') {
                                     orderStatus = 11;
-                                  } else if (_selectedValue ==
-                                      'Pre Order') {
+                                  } else if (_selectedValue == 'Pre Order') {
                                     orderStatus = 0;
                                   } else if (_selectedValue == 'Estimate') {
                                     orderStatus = 7;
-                                  } else if (_selectedValue ==
-                                      'Quick Sale') {
+                                  } else if (_selectedValue == 'Quick Sale') {
                                     orderStatus = 14;
                                   } else {
                                     orderStatus = -1;
                                   }
                                   CartOrderModel order = CartOrderModel(
-                                    customerId: customeController
-                                            .customerId.isNotEmpty
-                                        ? customeController.customerId.value
-                                        : widget.productsController
-                                            .selectedCustomerId.value,
+                                    customerId:
+                                        customeController.customerId.isNotEmpty
+                                            ? customeController.customerId.value
+                                            : widget.productsController
+                                                .selectedCustomerId.value,
                                     salesmanId: SessionHelper
                                         .loginSavedData!.salesmanId!,
                                     cartId: cartOrder.cartId,
                                     orderStatus: orderStatus,
                                   );
-              
+
                                   log('CartId :${cartOrder.cartId}');
                                   await widget.productsController
                                       .placeOrder(order);
@@ -1005,8 +1014,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                 );
                               } else if (customeController
                                       .customerId.value.isEmpty ||
-                                  widget.productsController
-                                      .selectedCustomerId.value.isEmpty) {
+                                  widget.productsController.selectedCustomerId
+                                      .value.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     backgroundColor: Colors.red,

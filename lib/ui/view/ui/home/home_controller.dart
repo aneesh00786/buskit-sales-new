@@ -168,7 +168,6 @@ class HomeController extends GetxController {
       }
     });
   }
-
   RxList<String> sidebarName = [
     dashBoard,
     customersAndOrders,

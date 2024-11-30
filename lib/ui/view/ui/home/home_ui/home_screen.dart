@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: NkSidebarXSideBar(
             key: const Key("drawer"),
             controller: homeController.sidebarXController,
-            itemList: homeController.drawSidebarItems(),
+            itemList: homeController.drawSidebarItems(context),
             userDetails: homeController.userDetails ?? LoginData(),
           ),
         ),
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: NkSideBarOnlyIcon(
                     headerWidget: homeController.upperSideBar(),
-                    itemList: homeController.drawSidebarItems(),
+                    itemList: homeController.drawSidebarItems(context),
                     sidebarXController: homeController.sidebarXController,
                   ),
                 );

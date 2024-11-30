@@ -2,17 +2,22 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../../../../routes/routes.dart';
 import '../orders/order_screen.dart';
@@ -29,6 +34,7 @@ class HomeController extends GetxController {
   static final GlobalKey<ScaffoldState> homeScaffoldKey =
       GlobalKey<ScaffoldState>();
   final ApiWorker _apiWorker = ApiWorker();
+  final ApiService _apiService = ApiService();
 
   @override
   void onInit() {
@@ -38,7 +44,7 @@ class HomeController extends GetxController {
 
   Future<void> fetchDashboardData() async {
     try {
-      await _apiWorker.dashboardData();
+      await _apiService.fetchDashboardData();
     } catch (e) {
       if (e.toString().contains('Session expired')) {
         await SessionHelper().clearAll();
@@ -168,6 +174,7 @@ class HomeController extends GetxController {
       }
     });
   }
+
   RxList<String> sidebarName = [
     dashBoard,
     customersAndOrders,
@@ -179,7 +186,7 @@ class HomeController extends GetxController {
     settings,
     logOut
   ].obs;
-  List<SidebarXItem> drawSidebarItems() {
+  List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
       sideBarComponent(sidebarName[0], SIdeBarIcon.ic_dashboard),
       sideBarComponent(sidebarName[1], SIdeBarIcon.ic_customer_and_orders),
@@ -193,14 +200,27 @@ class HomeController extends GetxController {
     ];
   }
 
-  SidebarXItem sideBarComponent(String barTitle, IconData iconData) {
+  SidebarXItem sideBarComponent(String barTitle, IconData iconData,
+      {BuildContext? context}) {
     return SidebarXItem(
       icon: iconData,
       label: barTitle,
-      onTap: () {
+      onTap: () async {
         homeScaffoldKey.currentState?.closeDrawer();
+        // await Future.delayed(Duration(milliseconds: 500));
+        // QuickAlert.show(
+        //   context: context!,
+        //   type: QuickAlertType.confirm,
+        //   text: 'Do you want to logout',
+        //   confirmBtnText: 'Yes',
+        //   cancelBtnText: 'No',
+        //   confirmBtnColor: primaryColor,
+        //   onConfirmBtnTap: () async {
+        await SessionManager.clearData();
+        Get.offAllNamed(AppRoutes.login);
       },
     );
+    // });
   }
 
   Widget upperSideBar() {

@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:flutter/material.dart';
 
 import 'null_check_oprations.dart';
 import 'sessionmanager.dart';
@@ -16,10 +17,13 @@ class SessionHelper {
     return _instance;
   }
 
+  static final ValueNotifier<bool> isLoggedIn = ValueNotifier(false);
 
-  Future<void> setLoginData(LoginData loginResponce) async {
+  Future<void> setLoginData(LoginData loginResponse) async {
     await SessionManager.setStringValue(
-        SpString.spLogin, jsonEncode(loginResponce.toJson()));
+        SpString.spLogin, jsonEncode(loginResponse.toJson()));
+    loginSavedData = loginResponse;
+    isLoggedIn.value = true;
   }
 
   static LoginData? loginSavedData;
@@ -27,15 +31,20 @@ class SessionHelper {
   Future<LoginData?> getLoginData() async {
     String response = await SessionManager.getStringValue(SpString.spLogin);
     if (CheckNullData.checkNullOrEmptyString(response)) {
+      loginSavedData = null;
+      isLoggedIn.value = false; 
       return null;
     } else {
-      log(response);
-      //String data = json.decode(response);
-      return LoginData.fromJson(jsonDecode(response));
+      loginSavedData = LoginData.fromJson(jsonDecode(response));
+      isLoggedIn.value = true; 
+      return loginSavedData;
     }
   }
-    Future<void> clearAll() async {
+
+  Future<void> clearAll() async {
     await SessionManager.clearData();
     loginSavedData = null;
+    loginSavedData?.salesmanId==null;
+    isLoggedIn.value = false;
   }
 }

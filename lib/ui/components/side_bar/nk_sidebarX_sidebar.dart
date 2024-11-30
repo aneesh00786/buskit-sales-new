@@ -150,32 +150,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
             color: backgroundColor,
           ),
         ),
-        footerDivider: const Divider(),
-        footerBuilder: (context, extended) {
-          return extended
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    buttonWithIcon(
-                      setting,
-                      SIdeBarIcon.ic_setting,
-                    ),
-                    nkSmallSizeBox(),
-                    buttonWithIcon(
-                      logOut,
-                      SIdeBarIcon.ic_log_out,
-                      onPressed: () async {
-                        await SessionManager.clearData();
-                        Get.offAllNamed(AppRoutes.login);
-                      },
-                    ),
-                    nkMediumSizeBox(
-                        height: AppDimensions.instance.height * 0.08),
-                  ],
-                )
-              : const SizedBox();
-        },
         items: widget._itemList,
       );
     });

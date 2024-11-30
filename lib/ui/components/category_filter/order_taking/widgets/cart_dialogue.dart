@@ -572,7 +572,6 @@ class _CartDialogueState extends State<CartDialogue> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: _options.map((option) {

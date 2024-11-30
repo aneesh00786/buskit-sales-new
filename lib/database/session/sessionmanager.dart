@@ -66,13 +66,11 @@ class SessionManager {
     log('Shared Pref 11: ${pref}');
     return pref.getDouble(key) ?? 1.0;
   }
-
   static Future<bool> deleteData(String key) async {
     final prefs = await SharedPreferences.getInstance();
     log('Shared Pref 12: ${prefs}');
     return prefs.remove(key);
   }
-
   static Future<bool> clearData() async {
     final prefs = await SharedPreferences.getInstance();
     log('Shared Pref 13: $prefs');

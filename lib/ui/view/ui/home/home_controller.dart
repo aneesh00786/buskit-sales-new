@@ -196,31 +196,33 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[5], SIdeBarIcon.ic_calender),
       sideBarComponent(sidebarName[6], SIdeBarIcon.ic_today_order),
       sideBarComponent(sidebarName[7], SIdeBarIcon.ic_setting),
-      sideBarComponent(sidebarName[8], SIdeBarIcon.ic_log_out),
+      sideBarComponent(
+        sidebarName[8],
+        SIdeBarIcon.ic_log_out,
+        onTap: () async {
+          await SessionManager.clearData();
+          Get.offAllNamed(AppRoutes.login);
+        },
+      ),
     ];
   }
 
-  SidebarXItem sideBarComponent(String barTitle, IconData iconData,
-      {BuildContext? context}) {
+  SidebarXItem sideBarComponent(
+    String barTitle,
+    IconData iconData, {
+    BuildContext? context,
+    VoidCallback? onTap,
+  }) {
     return SidebarXItem(
       icon: iconData,
       label: barTitle,
       onTap: () async {
         homeScaffoldKey.currentState?.closeDrawer();
-        // await Future.delayed(Duration(milliseconds: 500));
-        // QuickAlert.show(
-        //   context: context!,
-        //   type: QuickAlertType.confirm,
-        //   text: 'Do you want to logout',
-        //   confirmBtnText: 'Yes',
-        //   cancelBtnText: 'No',
-        //   confirmBtnColor: primaryColor,
-        //   onConfirmBtnTap: () async {
-        await SessionManager.clearData();
-        Get.offAllNamed(AppRoutes.login);
+        if (onTap != null) {
+          onTap();
+        }
       },
     );
-    // });
   }
 
   Widget upperSideBar() {

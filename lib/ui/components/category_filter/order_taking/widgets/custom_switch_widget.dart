@@ -132,7 +132,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     isOn
                         ? EneftyIcons.tick_circle_outline
                         : EneftyIcons.close_circle_outline,
-                    color: isOn ? Colors.green : Colors.red,
+                    color: isOn ? Colors.green : Colors.red,size: 30,
                   ),
                 ),
               ),

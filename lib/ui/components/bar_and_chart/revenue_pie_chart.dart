@@ -10,6 +10,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -1128,195 +1129,6 @@ class ChartData2 {
   ChartData2(this.label, this.value, this.color);
 }
 
-// class NestedPieChartj extends StatelessWidget {
-//   final Widget sabik;
-//   final Widget sabi2;
-//   final Collection collection;
-
-//   const NestedPieChartj({
-//     super.key,
-//     required this.sabik,
-//     required this.sabi2,
-//     required this.collection,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     int completedOrdersCount = collection.payment!.completedOrders!
-//         .fold(0, (sum, order) => sum + order.orderTotal);
-//     int pendingAmountCount =
-//         collection.order!.pendingAmount!.last.amount as int;
-//     int dueAmountCount = collection.order!.pendingAmount!.last.dueAmount as int;
-//     int overdueAmountCount =
-//         collection.order!.pendingAmount!.last.overDue as int;
-
-//     return Center(
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.center,
-//         mainAxisAlignment: MainAxisAlignment.start,
-//         children: [
-//           Expanded(
-//             flex: 3,
-//             child: Stack(
-//               alignment: Alignment.center,
-//               fit: StackFit.expand,
-//               children: [
-//                 // Outer Pie Chart
-//                 Positioned.fill(
-//                   child: SizedBox(
-//                     height: 94,
-//                     width: 94,
-//                     child: fl_chart.PieChart(
-//                       fl_chart.PieChartData(
-//                         startDegreeOffset: -90,
-//                         sectionsSpace: 1,
-//                         centerSpaceRadius: 53,
-//                         sections: [
-//                           fl_chart.PieChartSectionData(
-//                             value: completedOrdersCount.toDouble(),
-//                             color: const Color.fromARGB(255, 90, 119, 37),
-//                             radius: 20,
-//                             title: completedOrdersCount.toString(),
-//                             titleStyle: const TextStyle(
-//                               fontSize: 10,
-//                               fontWeight: FontWeight.bold,
-//                               color: Colors.white,
-//                             ),
-//                             showTitle: false,
-//                           ),
-//                           fl_chart.PieChartSectionData(
-//                             value: pendingAmountCount.toDouble(),
-//                             color: const Color(0xffa30c13),
-//                             radius: 20,
-//                             title: pendingAmountCount.toString(),
-//                             titleStyle: const TextStyle(
-//                               fontSize: 10,
-//                               fontWeight: FontWeight.bold,
-//                               color: Colors.black,
-//                             ),
-//                             showTitle: false,
-//                           ),
-//                         ],
-//                         pieTouchData: fl_chart.PieTouchData(
-//                           touchCallback: (fl_chart.FlTouchEvent event,
-//                               fl_chart.PieTouchResponse? response) {
-//                             _whichChartToTap(context, collection);
-//                           },
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//                 // Inner Pie Chart
-//                 Positioned.fill(
-//                   child: SizedBox(
-//                     height: 80,
-//                     width: 80,
-//                     child: fl_chart.PieChart(
-//                       fl_chart.PieChartData(
-//                         startDegreeOffset: -90,
-//                         sectionsSpace: 1,
-//                         centerSpaceRadius: 30,
-//                         sections: [
-//                           fl_chart.PieChartSectionData(
-//                             value: dueAmountCount.toDouble(),
-//                             color: const Color.fromARGB(255, 255, 173, 181),
-//                             radius: 20,
-//                             title: dueAmountCount.toString(),
-//                             titleStyle: const TextStyle(
-//                               fontSize: 8,
-//                               fontWeight: FontWeight.bold,
-//                               color: Colors.black,
-//                             ),
-//                             showTitle: false,
-//                           ),
-//                           fl_chart.PieChartSectionData(
-//                             value: overdueAmountCount.toDouble(),
-//                             color: const Color.fromARGB(255, 255, 101, 132),
-//                             radius: 20,
-//                             title: overdueAmountCount.toString(),
-//                             titleStyle: const TextStyle(
-//                               fontSize: 8,
-//                               fontWeight: FontWeight.bold,
-//                               color: Colors.black,
-//                             ),
-//                             showTitle: false,
-//                           ),
-//                         ],
-//                         pieTouchData: fl_chart.PieTouchData(
-//                           touchCallback: (fl_chart.FlTouchEvent event,
-//                               fl_chart.PieTouchResponse? response) {
-//                             if (event is fl_chart.FlTapUpEvent &&
-//                                 response != null &&
-//                                 response.touchedSection != null) {
-
-//                               _whichChartToTap(context, collection);
-//                             }
-//                           },
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           const SizedBox(height: 5.5),
-//           sabik,
-//           const SizedBox(height: 2.7),
-//           sabi2,
-//         ],
-//       ),
-//     );
-//   }
-
-//   void _whichChartToTap(BuildContext context, Collection collection) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           content: SizedBox(
-//             width: 300,
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               crossAxisAlignment: CrossAxisAlignment.stretch,
-//               children: [
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       Navigator.of(context).pop();
-//                       // _showValueDialog(context, 'Completed', collection);
-//                     },
-//                     child: Text('Completed')),
-//                 SizedBox(height: 10),
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       Navigator.of(context).pop();
-//                       // _pendingPaymentCollectionDialog(context, collection);
-//                     },
-//                     child: Text('Pending')),
-//                 SizedBox(height: 10),
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       Navigator.of(context).pop();
-//                       // _pendingPaymentCollectionDialog(context, collection);
-//                     },
-//                     child: Text('Due')),
-//                 SizedBox(height: 10),
-//                 ElevatedButton(
-//                     onPressed: () {
-//                       Navigator.of(context).pop();
-//                       // _pendingPaymentCollectionDialog(context, collection);
-//                     },
-//                     child: Text('Overdue')),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
-
 class NestedPieChartj extends StatelessWidget {
   final int completedOrdersCount;
   final int pendingAmountCount;
@@ -1333,41 +1145,33 @@ class NestedPieChartj extends StatelessWidget {
       required this.collection});
 
   @override
-  Widget build(BuildContext context) { 
-    if (completedOrdersCount <= 0 &&
-        pendingAmountCount <= 0 &&
-        dueAmountCount <= 0 &&
-        overdueAmountCount <= 0) {
-      return const Center(
-        child: Text('No data to display in the chart'),
-      );
-    }
-
+  Widget build(BuildContext context) {
     return Center(
       child: SfCircularChart(
         series: <CircularSeries>[
-          DoughnutSeries<ChartData2, String>(
-            dataSource: [
-              ChartData2(
-                  'Completed', completedOrdersCount, const Color(0xFF5A7725)),
-              ChartData2(
-                  'Pending', pendingAmountCount, const Color(0xFFA30C13)),
-            ],
-            xValueMapper: (ChartData2 data, _) => data.label,
-            yValueMapper: (ChartData2 data, _) => data.value,
-            pointColorMapper: (ChartData2 data, _) => data.color,
-            radius: '90%',
-            innerRadius: '65%',
-            strokeColor: white,
-            strokeWidth: 2,
-            onPointTap: (ChartPointDetails details) {
-              if (details.pointIndex == 0) {
-                _showValueDialog(context, 'Completed', collection);
-              } else if (details.pointIndex == 1) {
-                _pendingPaymentCollectionDialog(context, collection);
-              }
-            },
-          ),
+
+            DoughnutSeries<ChartData2, String>(
+              dataSource: [
+                ChartData2(
+                    'Completed', completedOrdersCount, const Color(0xFF5A7725)),
+                ChartData2(
+                    'Pending', pendingAmountCount, const Color(0xFFA30C13)),
+              ],
+              xValueMapper: (ChartData2 data, _) => data.label,
+              yValueMapper: (ChartData2 data, _) => data.value,
+              pointColorMapper: (ChartData2 data, _) => data.color,
+              radius: '90%',
+              innerRadius: '65%',
+              strokeColor: white,
+              strokeWidth: 2,
+              onPointTap: (ChartPointDetails details) {
+                if (details.pointIndex == 0) {
+                  _showValueDialog(context, 'Completed', collection);
+                } else if (details.pointIndex == 1) {
+                  _pendingPaymentCollectionDialog(context, collection);
+                }
+              },
+            ),
           DoughnutSeries<ChartData2, String>(
             dataSource: [
               ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),

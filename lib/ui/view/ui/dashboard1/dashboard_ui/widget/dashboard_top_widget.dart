@@ -1,6 +1,7 @@
 
 import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
@@ -1007,7 +1008,7 @@ void initState() {
               ),
             );
           } else {
-            return Center(child: Text('No data available'));
+            return NodataWidget();
           }
         },
       );

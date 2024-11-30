@@ -769,7 +769,7 @@ class ApiService {
       }
     } catch (e) {
       print('Exception occurred: $e');
-      throw Exception('Failed to fetch data: $e');
+      throw Exception(e);
     }
   }
 
@@ -901,7 +901,9 @@ class ApiService {
 
   Future<ApiResponseModel> fetchCustomerDashboardDataa(String customerId,
       int specifiedYear, String startDate, String endDate) async {
-    var companyId = 1;
+          final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      int companyId = jsonMap['company_id'];
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_dashboard_list');
 
     final requestBody = {
@@ -1358,49 +1360,6 @@ class ApiService {
     }
   }
 }
-//  Future<void> updateAdmin({
-//     required AdminData admin,
-//     File? adminProfilePicture,
-//     required String token,
-//   }) async {
-//     final url = Uri.parse('$_baseUrl/update_admin');
-//     final headers = {'Content-Type': 'application/json'};
-//     Map<String, dynamic> requestBody = {
-//       'adminName': admin.name,
-//       'emailAdmin': admin.email,
-//       'mobilenoAdmin': admin.phoneNo,
-//       'townAdmin': admin.town,
-//       'addressAdmin': admin.address,
-//       'zipcodeAdmin': admin.zipcode,
-//       'stateAdmin': admin.state,
-//       'token': token,
-//     };
-
-//     // Handle profile picture if provided
-//     if (adminProfilePicture != null) {
-//       List<int> imageBytes = adminProfilePicture.readAsBytesSync();
-//       String base64Image = base64Encode(imageBytes);
-//       requestBody['adminProfilePicture'] = base64Image;
-//     }
-
-//     try {
-//       final response = await http.post(
-//         url,
-//         headers: headers,
-//         body: jsonEncode(requestBody),
-//       );
-
-//       if (response.statusCode == 200) {
-//         var jsonResponse = jsonDecode(response.body);
-//         // Optionally handle response data if needed
-//       } else {
-//         throw Exception('Failed to update admin');
-//       }
-//     } catch (e) {
-//       throw Exception('Failed to update admin: $e');
-//     }
-//   }
-
 class DashboardProvider with ChangeNotifier {
   Future<ResponseModell>? _futureResponseModel;
   Future<SalesmenResponse>? _salesmenResponse;
@@ -1450,7 +1409,7 @@ class DashboardProvider with ChangeNotifier {
     _selectedFilter = FilterDateEnum.thisMonth;
     _selectedStartDate = '';
     _selectedEndDate = '';
-    notifyListeners();
+
   }
   Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
     try {
@@ -1498,8 +1457,6 @@ class DashboardProvider with ChangeNotifier {
             (startDate.isEmpty || endDate.isEmpty)) {
           throw Exception('Select both start and end dates');
         }
-
-        // Debouncing network requests
         _responseModelCp = Future.delayed(Duration(milliseconds: 300), () {
           return _apiService.fetchDashboardCategoruPerformenceData(
             catId: catId,
@@ -1507,12 +1464,7 @@ class DashboardProvider with ChangeNotifier {
             endDate: endDate,
           );
         });
-
-        notifyListeners();
-
         print("Fetching orders for status: $_selectedStatus");
-
-        notifyListeners();
       }
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
@@ -1921,7 +1873,6 @@ class DashboardProvider with ChangeNotifier {
     try {
       Future<SalesmenResponse> chatData = _apiService.fetchChatData(salesmanId);
       _salesmenResponse = chatData as Future<SalesmenResponse>?;
-      notifyListeners();
       return chatData; // Return the fetched data
     } catch (e, stackTrace) {
       _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);

@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -72,7 +73,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
               final chatData = snapshot.data!.data;
               return options(chatData, context, provider);
             } else {
-              return const Center(child: Text('No data available'));
+              return const NodataWidget();
             }
           },
         );

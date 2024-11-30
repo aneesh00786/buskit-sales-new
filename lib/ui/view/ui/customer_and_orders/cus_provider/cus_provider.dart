@@ -460,7 +460,7 @@ class CustomersProvider with ChangeNotifier {
           notifyListeners();
         }).catchError((error) {
           _isLoading = false;
-          _errorMessage = 'Failed to fetch customer data: $error';
+          _errorMessage = 'Failed to fetch customer data: ${error}';
           notifyListeners();
         });
 

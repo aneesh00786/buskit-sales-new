@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -57,12 +58,14 @@ class PendingPaymentController extends GetxController {
   }
 
   Future<void> loadOrderData({required int chartIndex}) async {
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     print("Loading data for chartIndex: $chartIndex");
     try {
       var data = await _apiWorker.getPendingPaymentData(
         chartIndex: chartIndex,
         searchModel: searchModel,
         paginationModel: PaginationModel(),
+        salesmanId: salesmanId
       );
 
       if (data.data != null) {

@@ -779,8 +779,7 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
       "salesman_id": salesmanId,
     };
 
-    // Print the data being sent
-    print("Sending request with data: $requestData");
+    log("Sending request with data: $requestData");
 
     final response = await dio
         .postbycustom(

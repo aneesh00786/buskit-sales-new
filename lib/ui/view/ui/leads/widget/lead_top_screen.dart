@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -715,7 +716,7 @@ class LeadTopScreen extends StatelessWidget {
               ),
             );
           } else {
-            return Center(child: Text('No data available'));
+            return NodataWidget();
           }
         },
       );

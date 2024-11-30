@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
@@ -215,7 +216,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData) {
-                  return const Center(child: Text('No data available'));
+                  return NodataWidget();
                 } else {
                   final responseModel = snapshot.data!;
                   final frequentProductLists =
@@ -401,8 +402,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               return Center(
                                   child: Text('Error: ${snapshot.error}'));
                             } else if (!snapshot.hasData) {
-                              return const Center(
-                                  child: Text('No data available'));
+                              return const NodataWidget();
                             } else {
                               final responseModel = snapshot.data!;
                               final categoryPerformance =
@@ -1314,7 +1314,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                return const NodataWidget();
               }
             },
           );
@@ -1423,7 +1423,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                return const NodataWidget();
               }
             });
       }),
@@ -1526,7 +1526,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                return const NodataWidget();
               }
             },
           );
@@ -2088,6 +2088,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 }
 
+
+
 class UpdateCustomer extends StatelessWidget {
   UpdateCustomer({
     super.key,
@@ -2107,7 +2109,7 @@ class UpdateCustomer extends StatelessWidget {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData) {
-              return const Center(child: Text('No data available'));
+              return const NodataWidget();
             } else {
               final customer = snapshot.data?.data.first;
               TextEditingController nameController =
@@ -3008,7 +3010,7 @@ class DashboardScreen extends StatelessWidget {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data == null) {
-                return const Center(child: Text('No data available'));
+                return const NodataWidget();
               } else {
                 final data = snapshot.data!.data;
                 return ListView(
@@ -3195,7 +3197,7 @@ class CustomerTotalSalePages extends StatelessWidget {
                   ],
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                return const NodataWidget();
               }
             },
           );
@@ -3268,7 +3270,7 @@ class CustomerDashboard extends StatelessWidget {
                 ),
               );
             } else {
-              return const Center(child: Text('No data available'));
+              return const NodataWidget();
             }
           },
         );

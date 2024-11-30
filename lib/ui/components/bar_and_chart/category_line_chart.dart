@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -776,7 +777,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                       ),
                     );
                   } else {
-                    return Center(child: Text('No data available'));
+                    return NodataWidget();
                   }
                 },
               ),
@@ -1150,7 +1151,7 @@ class _CustomBarChartCustomerDashState
                     ),
                   );
                 } else {
-                  return Center(child: Text('No data available'));
+                  return NodataWidget();
                 }
               },
             );

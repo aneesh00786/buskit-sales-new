@@ -1,4 +1,5 @@
 
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -60,34 +61,19 @@ class OptionWidget extends StatelessWidget {
           future: provider.futureResponseModel,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              // Display a loading spinner while waiting for the data
               return const Center(
                 child: SpinKitFadingCube(
-                  color: primaryColor, // Customize color if needed
-                  size: 20.0, // Adjust size as needed
+                  color: primaryColor, 
+                  size: 20.0,
                 ),
               );
-            } else if (snapshot.hasError) {
-              // Display an error message if there's an error
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 50, color: Colors.red),
-                    SizedBox(height: 10),
-                    Text(
-                        "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                        textAlign: TextAlign.center),
-                  ],
-                ),
-              );
+            } else if (snapshot.hasError||!snapshot.hasData) {
+              return const NodataWidget();
             } else if (snapshot.hasData) {
-              // Extract data and pass it to the options function
               final chatData = snapshot.data!.orderCountList;
               return options(chatData, context, provider);
             } else {
-              // Handle the case where no data is available
-              return const Center(child: Text('No data available'));
+              return const NodataWidget();
             }
           },
         );
@@ -345,8 +331,6 @@ class OptionWidget extends StatelessWidget {
                           );
                         } else {
                           final orders = snapshot.data?.data ?? [];
-
-                          // Filter orders based on selected order status
                           final filteredOrders = orders.where((order) {
                             return order.orderStatus ==
                                 selectedOrderStatus.type;
@@ -356,7 +340,6 @@ class OptionWidget extends StatelessWidget {
                             builder: (BuildContext context,
                                 BoxConstraints constraints) {
                               double availableWidth = constraints.maxWidth;
-                              // double fontSize = (availableWidth / 70).clamp(11, 14);
                               double fontSize = 14.0;
                               double padding = availableWidth / 100;
                               double fixedIconSize = fontSize;
@@ -385,7 +368,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Customer List',
                                               maxLines: 2,
-                                              // textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),
@@ -395,7 +377,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Order Number',
                                               maxLines: 2,
-                                              //  textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),
@@ -405,7 +386,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Order Created',
                                               maxLines: 2,
-                                              //  textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),
@@ -415,7 +395,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Created By',
                                               maxLines: 2,
-                                              //  textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),
@@ -425,7 +404,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Order Price',
                                               maxLines: 2,
-                                              //  textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),
@@ -435,7 +413,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Invoice',
                                               maxLines: 2,
-                                              //  textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),
@@ -454,7 +431,6 @@ class OptionWidget extends StatelessWidget {
                                             child: Text(
                                               'Status',
                                               maxLines: 2,
-                                              //  textAlign: TextAlign.center,
                                             ),
                                           ),
                                         )),

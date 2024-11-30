@@ -1312,8 +1312,6 @@ class AddLeadsBt extends StatelessWidget {
   }
 }
 
-
-
 class CustomButton extends StatelessWidget {
   final String text;
 
@@ -1680,7 +1678,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   final StaffController staffController = Get.put(StaffController());
   final LeadsController leadsController = Get.put(LeadsController());
   final ProductsController prodController = Get.put(ProductsController());
-  final CustomerAndOrderController customerController = Get.put(CustomerAndOrderController());
+  final CustomerAndOrderController customerController =
+      Get.put(CustomerAndOrderController());
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 
@@ -1716,12 +1715,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       }
     });
   }
+
   @override
   void dispose() {
     _horizontalScrollController.dispose();
     _verticalScrollController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     double totalTableWidth = 110 + 320 + 110 + 110 + 110 + 110 + 140 + 110;
@@ -1732,7 +1733,183 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         if (provider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (provider.errorMessage.isNotEmpty) {
-          return Center(child: Text(provider.errorMessage));
+          return SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  color :primaryColor,
+                  child: Row(
+                    children: [
+                      _buildTableHeader(
+                        Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Sales',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins_Regular',
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Obx(() {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 20, top: 20),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    iconSize: 14,
+                                    value:
+                                        customerAndOrderController.selectedYear.value,
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        customerAndOrderController
+                                            .updateSelectedYear(newValue);
+                                      }
+                                    },
+                                    items: customerAndOrderController.years
+                                        .map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Poppins_Regular',
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      );
+                                    }).toList(),
+                                    dropdownColor: Colors.white,
+                                    isExpanded: false,
+                                    underline: Container(),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                        100,
+                      ),
+                      _buildTableHeader(
+                        const Text(
+                          'Sales / Delivery / Payments',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        290,
+                      ),
+                      _buildTableHeader(
+                        const Text(
+                          'Estimates',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        110,
+                      ),
+                      _buildTableHeader(
+                        const Text(
+                          'Pre-Order',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        110,
+                      ),
+                      _buildTableHeader(
+                        const Text(
+                          'Drafts',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        110,
+                      ),
+                      _buildTableHeader(
+                        const Text(
+                          'Cancelled',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        110,
+                      ),
+                      _buildTableHeader(
+                        const Text(
+                          'Visits',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        140,
+                      ),
+                      _buildTableHeader(
+                        const Center(
+                          child: Text(
+                            'SE',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins_Regular',
+                            ),
+                          ),
+                        ),
+                        100,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
         } else if (provider.customersFuture == null) {
           return const Center(child: Text('No data available'));
         } else {
@@ -1832,9 +2009,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     HitTestBehavior.opaque,
                                                 onTap: () {
                                                   customerAndOrderController
-                                                            .setCustomerId(customer
-                                                                    .customerId ??
-                                                                '');
+                                                      .setCustomerId(
+                                                          customer.customerId ??
+                                                              '');
                                                   provider
                                                       .setCurrentMonthDates();
                                                   prodController
@@ -1853,20 +2030,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     MaterialPageRoute(
                                                       builder: (context) =>
                                                           CustomerDachScreen(
-                                                        cusId:
-                                                            customer.customerId,
-                                                        cusName:
-                                                            customer.fullname,
-                                                        cusImage:
-                                                            customer.imageUrl,
-                                                        year: 2024,
-                                                        startDate: provider
-                                                            .selectedStartDate,
-                                                        endDate: provider
-                                                            .selectedEndDate,
-                                                        isFromOrder: true
-                                                        
-                                                      ),
+                                                              cusId: customer
+                                                                  .customerId,
+                                                              cusName: customer
+                                                                  .fullname,
+                                                              cusImage: customer
+                                                                  .imageUrl,
+                                                              year: 2024,
+                                                              startDate: provider
+                                                                  .selectedStartDate,
+                                                              endDate: provider
+                                                                  .selectedEndDate,
+                                                              isFromOrder:
+                                                                  true),
                                                     ),
                                                   );
 

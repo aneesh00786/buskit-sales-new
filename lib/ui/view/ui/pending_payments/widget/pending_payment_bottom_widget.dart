@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -51,7 +52,7 @@ class _PendingPaymentBottomWidgetState
   Widget build(BuildContext context) {
     return Obx(() {
       if (widget.orderController.orderDataList.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: NodataWidget());
       }
 
       return NkWidgetExceptionHandel(

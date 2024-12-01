@@ -198,6 +198,8 @@ class CustomerCart {
     orderId = setOrderId;
     optionOrderData = setOptionOrderData;
   }
+
+  get taxName => null;
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
     json['id'] = id;

@@ -1,671 +1,462 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
-import 'package:busskit_salesexecutive/generated/assets.dart';
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/order_details_diloag/order_details_diloag.dart';
-import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 
-class OrderBottomWidget extends StatelessWidget {
+class OrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
+  final int selectedTabIndex;
 
+  const OrderBottomWidget({
+    super.key,
+    required this.orderController,
+    required this.selectedTabIndex,
+  });
 
+  @override
+  State<OrderBottomWidget> createState() => _OrderBottomWidgetState();
+}
 
-   OrderBottomWidget({super.key, required this.orderController});
+class _OrderBottomWidgetState extends State<OrderBottomWidget> {
+  @override
+  void didUpdateWidget(covariant OrderBottomWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
+      print(
+          "Tab changed: Reloading data for tab index ${widget.selectedTabIndex}");
+      widget.orderController.loadOrderData(selectedIndex: widget.selectedTabIndex);
+      widget.orderController.loadOrderCountData();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  Obx(() {
-      return NkWidgetExceptionHandel(
+    return Obx(
+      () {
+        if (widget.orderController.orderDataList.isEmpty) {
+          // return const Center(child: CircularProgressIndicator());
+          return const Center(child: NodataWidget());
+        }
+
+        return NkWidgetExceptionHandel(
           onRetryPressed: () => {},
-          data: orderController.orderDataList,
-          child: Stack(
-            children: [
-              // _buildDataTableHeader,
-
-              Align(
-                child:     Container(
+          data: widget.orderController.orderDataList,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Container(
                   width: double.infinity,
-                  height:(MediaQuery.of(context).orientation ==
-                      Orientation.portrait)
-                      ? (ResponsiveInfo.isMobileDimension(context)
-                      ? 50
-                      : 65)
-                      : (ResponsiveInfo.isMobileDimension(context)
-                      ? 70
-                      : 80) ,
-                  color: Color(0xff727df5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-
-                      Expanded(child: Padding(
-                        child: Text(
-                          "Customer List",
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                              fontSize: (MediaQuery.of(
-                                  context)
-                                  .orientation ==
-                                  Orientation
-                                      .portrait)
-                                  ? (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 3
-                                  : 6)
-                                  : (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 6
-                                  : 10),
-                              color:
-                              Colors.white,
-                              fontFamily:
-                              'Poppins_Regular',
-                              fontWeight:
-                              FontWeight
-                                  .bold),
-                          maxLines: 2,
-                          overflow: TextOverflow
-                              .ellipsis,
+                  height: 50,
+                  color: primaryColor,
+                  child: const Padding(
+                    padding: EdgeInsets.all(0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Center(
+                            child: Text(
+                              'Customer List',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.all(2),
-                      ),flex: 2,),
-                      Expanded(child: Padding(
-                        child: Text(
-                          "Order Number",
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                              fontSize: (MediaQuery.of(
-                                  context)
-                                  .orientation ==
-                                  Orientation
-                                      .portrait)
-                                  ? (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 3
-                                  : 6)
-                                  : (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 6
-                                  : 10),
-                              color:
-                              Colors.white,
-                              fontFamily:
-                              'Poppins_Regular',
-                              fontWeight:
-                              FontWeight
-                                  .bold),
-                          maxLines: 2,
-                          overflow: TextOverflow
-                              .ellipsis,
+                        SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Text(
+                              'Order Number',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.all(2),
-                      ),flex: 1,),
-                      Expanded(child: Padding(
-                        child: Text(
-                          "Order created",
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                              fontSize: (MediaQuery.of(
-                                  context)
-                                  .orientation ==
-                                  Orientation
-                                      .portrait)
-                                  ? (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 3
-                                  : 6)
-                                  : (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 6
-                                  : 10),
-                              color:
-                              Colors.white,
-                              fontFamily:
-                              'Poppins_Regular',
-                              fontWeight:
-                              FontWeight
-                                  .bold),
-                          maxLines: 2,
-                          overflow: TextOverflow
-                              .ellipsis,
+                        SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Text(
+                              'Order created',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.all(2),
-                      ),flex: 1,),
-                      Expanded(child: Padding(
-                        child: Text(
-                          "Order Price",
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                              fontSize: (MediaQuery.of(
-                                  context)
-                                  .orientation ==
-                                  Orientation
-                                      .portrait)
-                                  ? (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 3
-                                  : 6)
-                                  : (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 6
-                                  : 10),
-                              color:
-                              Colors.white,
-                              fontFamily:
-                              'Poppins_Regular',
-                              fontWeight:
-                              FontWeight
-                                  .bold),
-                          maxLines: 2,
-                          overflow: TextOverflow
-                              .ellipsis,
+                        SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Text(
+                              'Order Price',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.all(2),
-                      ),flex: 1,),
-                      Expanded(child: Padding(
-                        child: Text(
-                          "Status",
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                              fontSize: (MediaQuery.of(
-                                  context)
-                                  .orientation ==
-                                  Orientation
-                                      .portrait)
-                                  ? (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 3
-                                  : 6)
-                                  : (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 6
-                                  : 10),
-                              color:
-                              Colors.white,
-                              fontFamily:
-                              'Poppins_Regular',
-                              fontWeight:
-                              FontWeight
-                                  .bold),
-                          maxLines: 2,
-                          overflow: TextOverflow
-                              .ellipsis,
+                        SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Text(
+                              'Status',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.all(2),
-                      ),flex: 1,),
-                      Expanded(child: Padding(
-                        child: Text(
-                          "",
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                              fontSize: (MediaQuery.of(
-                                  context)
-                                  .orientation ==
-                                  Orientation
-                                      .portrait)
-                                  ? (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 3
-                                  : 6)
-                                  : (ResponsiveInfo
-                                  .isMobileDimension(
-                                  context)
-                                  ? 6
-                                  : 10),
-                              color:
-                              Colors.white,
-                              fontFamily:
-                              'Poppins_Regular',
-                              fontWeight:
-                              FontWeight
-                                  .bold),
-                          maxLines: 2,
-                          overflow: TextOverflow
-                              .ellipsis,
+                        SizedBox(width: 10),
+                        SizedBox(
+                          width: 60,
+                          child: Center(
+                            child: Text(
+                              ' ',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        padding:
-                        EdgeInsets.all(2),
-                      ),flex: 1,),
-
-
-                    ],
+                        SizedBox(width: 10),
+                      ],
+                    ),
                   ),
-                ) ,
-                alignment: FractionalOffset.topCenter,
-              )
-
-
-         ,
-
-Align(
-  alignment: FractionalOffset.topCenter,
-
-  child: Padding(padding: EdgeInsets.fromLTRB(0, (MediaQuery.of(context).orientation ==
-      Orientation.portrait)
-      ? (ResponsiveInfo.isMobileDimension(context)
-      ? 60
-      : 70)
-      : (ResponsiveInfo.isMobileDimension(context)
-      ? 70
-      : 80), 0, 0),
-
-    child: ListView.builder(
-        itemCount: orderController.orderDataList.length,
-        shrinkWrap: true,
-        primary: false,
-
-        itemBuilder: (BuildContext context, int index) {
-
-          OrderData orderData =orderController.orderDataList[index];
-          return Padding(padding: EdgeInsets.all(
-
-              (MediaQuery.of(
-                  context)
-                  .orientation ==
-                  Orientation
-                      .portrait)
-                  ? (ResponsiveInfo
-                  .isMobileDimension(
-                  context)
-                  ? 3
-                  : 6)
-                  : (ResponsiveInfo
-                  .isMobileDimension(
-                  context)
-                  ? 6
-                  : 10)
-
-
-
+                ),
+                if(widget.orderController.orderDataList == null)...[
+                  Text("Record not found"),
+                ],
+                if (widget.orderController.orderDataList != null) ...[
+                  ListView.builder(
+                    itemCount: widget.orderController.orderDataList.length,
+                    shrinkWrap: true,
+                    primary: false,
+                    itemBuilder: (BuildContext context, int index) {
+                      OrderData orderData =
+                          widget.orderController.orderDataList[index];
+                      if (orderData.cart == null || orderData.cart!.isEmpty) {
+                        return Container(
+                          color: index.isEven ? Colors.white : Colors.grey[50],
+                          height: 60,
+                          child: Row(
+                            children: [
+                              Expanded(flex: 2, child: placeholderWidget()),
+                              Expanded(flex: 1, child: placeholderWidget()),
+                              Expanded(flex: 1, child: placeholderWidget()),
+                              Expanded(flex: 1, child: placeholderWidget()),
+                              Expanded(flex: 1, child: placeholderWidget()),
+                              Expanded(flex: 1, child: placeholderWidget()),
+                            ],
+                          ),
+                        );
+                      }
+                      return Container(
+                        color: index.isEven ? Colors.white : Colors.grey[50],
+                        height: 60,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child:
+                                  customerDetailsWidget(orderData.cart!.first),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child: orderNumberWidget(orderData.cart!.first),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child:
+                                  orderCreatedDateWidget(orderData.cart!.first),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child: orderPrice(orderData.cart!.first),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child: orderStatus(orderData.cart!.first),
+                            ),
+                            SizedBox(width: 10),
+                            SizedBox(
+                              width: 60,
+                              child: viewOrder(widget.orderController, orderData)),
+                            SizedBox(width: 10),
+                          ],
+                        ),
+                      );
+                    },
+                  )
+                ],
+              ],
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(child:customerDetailsWidget(orderData.cart!.first,context),flex: 2, )
-              ,
-              Expanded(
-                flex: 1,
-                child: orderNumberWidget(orderData.cart!.first,context),
-              ),
-              Expanded(
-                flex: 1,
-                child: orderCreatedDateWidget(orderData.cart!.first,context),
-              ),
-              Expanded(
-                flex: 1,
-                child: orderPrice(orderData.cart!.first,context),
-              ),
-              Expanded(child: orderStatus(orderData.cart!.first,context),flex: 1)
-
-              ,
-              Expanded(child: viewOrder(orderData,context),flex: 1),
-
-            ],
-          ),
-
-          )
-
-            ;
-        }),
-
-
-  ) ,
-)
-
-
-
-
-
-
-
-
-              // Expanded(child: orderBottomTableWidget)
-            ],
-          ));
-    });
+        );
+      },
+    );
   }
 
-  Widget get _buildDataTableHeader => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: nkChildWrappedSizeBox(
-          width: AppDimensions.instance!.width,
-          child: DataTable(
-              //  columnSpacing: 120.0,
-              headingRowColor:
-                  MaterialStateColor.resolveWith((states) => primaryColor),
-              headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
-                  color: buttonTextColor,
-                  fontSize: NkFontSize.largeFont(),
-                  fontWeight: FontWeight.bold),
-              // dataRowMaxHeight: AppDimensions.instance!.height * 0.11,
-              columns: orderController.orderTableColumCategory
-                  .map((element) => DataColumn(
-                          label: MyRegularText(
-                        label: element,
-                        color: buttonTextColor,
-                        fontSize: NkFontSize.largeFont(),
-                      )))
-                  .toList(),
-              rows: []),
-        ),
-      );
+  Widget placeholderWidget() {
+    return Center(
+      child: MyRegularText(
+        label: 'N/A',
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+      ),
+    );
+  }
 
-  Widget get orderBottomTableWidget => SingleChildScrollView(
-        child: nkChildWrappedSizeBox(
-          width: AppDimensions.instance!.width,
-          child: DataTable(
-              headingRowHeight: 0.0,
-              headingRowColor:
-                  MaterialStateColor.resolveWith((states) => primaryColor),
-              headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
-                  color: buttonTextColor,
-                  fontSize: NkFontSize.largeFont(),
-                  fontWeight: FontWeight.bold),
-              dataRowMaxHeight: 50,
-              columns: orderController.orderTableColumCategory
-                  .map((element) => DataColumn(
-                          label: MyRegularText(
-                        label: element,
-                        color: buttonTextColor,
-                        fontSize: NkFontSize.largeFont(),
-                      )))
-                  .toList(),
-              rows: genratedRows),
-        ),
-      );
+  Widget customerDetailsWidget(CustomerCart orderData) {
+    return Container(
+      child: GestureDetector(
+        onTap: () => {},
+        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          SizedBox(width: 8),
+          SizedBox(
+            width: 30,
+            height: 30,
+            child: ClipOval(
+              child: Image.network(
+                orderData.customerDetails!.imageUrl.toString(),
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          Flexible(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MyRegularText(
+                    label: orderData.customerDetails?.fullname ?? 'Unknown',
+                    maxlines: 2,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  MyRegularText(
+                    label: orderData.customerDetails?.mobileno ?? 'Unknown',
+                    maxlines: 2,
+                    fontSize: 10,
+                  ),
+                  SizedBox(
+                    child: MyRegularText(
+                      align: TextAlign.start,
+                      label: orderData.customerDetails?.email ?? 'Unknown',
+                      maxlines: 2,
+                      fontSize: 10,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ]),
+          )
+        ]),
+      ),
+    );
+  }
 
-  List<DataRow> get genratedRows => orderController.orderDataList
-      .map(
-        (e) => DataRow(
-          cells: List.generate(
-            orderRowsWidget(e).length,
-            (index) => DataCell(
-              orderRowsWidget(e)[index],
+  Widget orderNumberWidget(CustomerCart orderData) {
+    return Center(
+      child: MyRegularText(
+        label: orderData.optionOrderData?.orderId ?? 'N/A',
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+      ),
+    );
+  }
+
+  Widget orderCreatedDateWidget(CustomerCart orderData) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MyRegularText(
+            label: orderData.optionOrderData?.orderCreatAt != null
+                ? NKDateUtils.commonDayFormat2(
+                    NKDateUtils.formatStringUTCDateTime(
+                        orderData.optionOrderData!.orderCreatAt!))
+                : 'N/A',
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
+          ),
+          MyRegularText(
+            label: orderData.optionOrderData?.orderCreatAt != null
+                ? NKDateUtils.commonTimeFormat(
+                    NKDateUtils.formatStringUTCDateTime(
+                        orderData.optionOrderData!.orderCreatAt!))
+                : 'N/A',
+            fontSize: 11,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget orderPrice(CustomerCart orderData) {
+    return Center(
+      child: MyRegularText(
+        label: orderData.optionOrderData?.orderTotal != null
+            ? formatAmount(orderData.optionOrderData!.orderTotal) ??
+                ''
+            : 'N/A',
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+      ),
+    );
+  }
+
+  Widget orderStatus(CustomerCart orderData) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: orderData.optionOrderData?.orderStatus != null
+                // ? OrderHandlingClass.fromType(
+                //         orderData.optionOrderData!.orderStatus!)
+                //     .orderColor
+                ? Color(0xFFFFDBB8)
+                : Colors.grey,
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Center(
+            child: MyRegularText(
+              label: orderData.optionOrderData?.orderStatus != null
+                  ? OrderHandlingClass.fromType(
+                          orderData.optionOrderData!.orderStatus!)
+                      .name
+                  : 'Unknown',
+              fontSize: 11,
+              align: TextAlign.center,
             ),
           ),
         ),
-      )
-      .toList();
-
-  List<Widget> orderRowsWidget(OrderData orderData) => [
-  //   Expanded(child:customerDetailsWidget(orderData.cart!.first),flex: 2, )
-  //       ,
-  //       Expanded(
-  // flex: 1,
-  //         child: orderNumberWidget(orderData.cart!.first),
-  //       ),
-  //       Expanded(
-  //       flex: 1,
-  //         child: orderCreatedDateWidget(orderData.cart!.first),
-  //       ),
-  //       Expanded(
-  //         flex: 1,
-  //         child: orderPrice(orderData.cart!.first),
-  //       ),
-  //   Expanded(child: orderStatus(orderData.cart!.first,co),flex: 1)
-  //
-  //       ,
-  // Expanded(child: viewOrder(orderData),flex: 1),
-      ];
-
-  Widget customerDetailsWidget(CustomerCart orderData,BuildContext context) {
-    return GestureDetector(
-      onTap: () => {},
-      child: Row(children: [
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MyRegularText(
-                label: orderData.customerDetails?.fullname ?? '',
-                fontSize: (MediaQuery.of(
-                    context)
-                    .orientation ==
-                    Orientation
-                        .portrait)
-                    ? (ResponsiveInfo
-                    .isMobileDimension(
-                    context)
-                    ? 3
-                    : 6)
-                    : (ResponsiveInfo
-                    .isMobileDimension(
-                    context)
-                    ? 6
-                    : 10),
-              ),
-              MyRegularText(
-                label: orderData.customerDetails?.mobileno ?? '',
-                fontSize: (MediaQuery.of(
-                    context)
-                    .orientation ==
-                    Orientation
-                        .portrait)
-                    ? (ResponsiveInfo
-                    .isMobileDimension(
-                    context)
-                    ? 3
-                    : 6)
-                    : (ResponsiveInfo
-                    .isMobileDimension(
-                    context)
-                    ? 6
-                    : 10),
-              ),
-              SizedBox(
-
-                child: MyRegularText(
-                  align: TextAlign.start,
-                  label: orderData.customerDetails?.email ?? '',
-                  fontSize: (MediaQuery.of(
-                      context)
-                      .orientation ==
-                      Orientation
-                          .portrait)
-                      ? (ResponsiveInfo
-                      .isMobileDimension(
-                      context)
-                      ? 3
-                      : 6)
-                      : (ResponsiveInfo
-                      .isMobileDimension(
-                      context)
-                      ? 6
-                      : 10),
-                ),
-              ),
-            ])
-      ]),
-    );
-  }
-
-  Widget orderNumberWidget(CustomerCart orderData,BuildContext context) {
-    return MyRegularText(
-        label: orderData.optionOrderData?.orderId ?? '',
-        fontWeight: FontWeight.w600,
-    fontSize: (MediaQuery.of(
-        context)
-        .orientation ==
-        Orientation
-            .portrait)
-        ? (ResponsiveInfo
-        .isMobileDimension(
-        context)
-        ? 3
-        : 6)
-        : (ResponsiveInfo
-        .isMobileDimension(
-        context)
-        ? 6
-        : 10),
-
-    );
-  }
-
-  Widget orderCreatedDateWidget(CustomerCart orderData,BuildContext context) {
-    return MyRegularText(
-        label: NKDateUtils.fullDayFormat(NKDateUtils.formatStringUTCDateTime(
-            orderData.optionOrderData!.orderCreatAt!)),
-        fontSize: (MediaQuery.of(
-            context)
-            .orientation ==
-            Orientation
-                .portrait)
-            ? (ResponsiveInfo
-            .isMobileDimension(
-            context)
-            ? 3
-            : 6)
-            : (ResponsiveInfo
-            .isMobileDimension(
-            context)
-            ? 6
-            : 10),
-
-        fontWeight: FontWeight.w600);
-  }
-
-  Widget orderPrice(CustomerCart orderData,BuildContext context) {
-    return MyRegularText(
-      label: orderData.optionOrderData?.orderTotal
-              .toString()
-              .nkValueWithCurrencySymbol
-              .removeAllWhitespace ??
-          '',
-      fontWeight: FontWeight.w600,
-      fontSize: (MediaQuery.of(
-          context)
-          .orientation ==
-          Orientation
-              .portrait)
-          ? (ResponsiveInfo
-          .isMobileDimension(
-          context)
-          ? 3
-          : 6)
-          : (ResponsiveInfo
-          .isMobileDimension(
-          context)
-          ? 6
-          : 10),
-    );
-  }
-
-  Widget orderStatus(CustomerCart orderData,BuildContext context ) {
-    return Container(
-      padding: nkRegularPadding(),
-      decoration: BoxDecoration(
-        color:
-            OrderHandlingClass.fromType(orderData.optionOrderData!.orderStatus!)
-                .orderColor,
-        borderRadius:
-            BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-      ),
-      child: MyRegularText(
-        label:
-            OrderHandlingClass.fromType(orderData.optionOrderData!.orderStatus!)
-                .name,
-        fontSize:  (MediaQuery.of(
-          context)
-          .orientation ==
-          Orientation
-              .portrait)
-        ? (ResponsiveInfo
-        .isMobileDimension(
-        context)
-        ? 3
-        : 6)
-        : (ResponsiveInfo
-        .isMobileDimension(
-        context)
-        ? 6
-        : 10),
       ),
     );
   }
 
-  Widget viewOrder(OrderData orderData,BuildContext context) {
-    return InkResponse(
-        onTap: () {
-          Get.dialog(OrderDetailsDiloag(
-            orderResponce: OptionOrderData.fromJson(orderData.toJson()),
-          )).then((value) {
-            if (value is bool) {
-              orderController.loadOrderData;
+  Widget viewOrder(OrderController orderController, OrderData orderData) {
+    return Center(
+      child: IconButton(
+        onPressed: () async {
+          Get.dialog(
+            Center(child: CircularProgressIndicator()),
+            barrierDismissible: false,
+          );
+    
+          if (orderController.selectedTabIndex == 0) {
+            try {
+              await orderController.loadSpecificOrderInvoiceData(
+                orderId: orderData.orderId!,
+              );
+    
+              Get.back();
+    
+              if (orderController.orderProcessInvoiceData != null) {
+                Get.dialog(
+                  OrderProcessInvoiceDialog(
+                      specificData: orderController.fetchSpecificOrderData,
+                      selectedTabIndex: orderController.selectedTabIndex.value,
+                      orderController: orderController,
+                      ),
+                  barrierDismissible: true,
+                );
+              } else {
+                throw Exception('No invoice data available');
+              }
+            } catch (e) {
+              Get.back();
+              Get.snackbar('Error', e.toString());
             }
-          });
+          } 
+          else if (orderController.selectedTabIndex == 1) {
+            try {
+              await orderController.loadOrderApprovalInvoiceData(
+                orderId: orderData.orderId!,
+              );
+    
+              Get.back();
+    
+              if (orderController.orderProcessInvoiceData != null) {
+                Get.dialog(
+                  OrderProcessInvoiceDialog(
+                      invoiceData: orderController.orderProcessInvoiceData,
+                      selectedTabIndex: orderController.selectedTabIndex.value,
+                      orderController: orderController,
+                      ),
+                  barrierDismissible: true,
+                );
+              } else {
+                throw Exception('No invoice data available');
+              }
+            } catch (e) {
+              Get.back();
+              Get.snackbar('Error', e.toString());
+            }
+          } 
+          else if (orderController.selectedTabIndex >= 1) {
+            try {
+              await orderController.loadOrderProcessInvoiceData(
+                orderId: orderData.orderId!,
+                orderStatus: orderData.orderStatus!,
+              );
+    
+              Get.back();
+    
+              if (orderController.orderProcessInvoiceData != null) {
+                Get.dialog(
+                  OrderProcessInvoiceDialog(
+                      invoiceData: orderController.orderProcessInvoiceData,
+                      selectedTabIndex: orderController.selectedTabIndex.value,
+                      orderController: orderController,
+                      ),
+                  barrierDismissible: true,
+                );
+              } else {
+                throw Exception('No invoice data available');
+              }
+            } catch (e) {
+              Get.back();
+              Get.snackbar('Error', e.toString());
+            }
+          }
         },
-        child: SvgPicture.asset(Assets.iconsIcView,width:  (MediaQuery.of(
-            context)
-            .orientation ==
-            Orientation
-                .portrait)
-        ? (ResponsiveInfo
-        .isMobileDimension(
-        context)
-        ? 10
-        : 13)
-        : (ResponsiveInfo
-        .isMobileDimension(
-        context)
-        ? 15
-        : 18),
-        height: (MediaQuery.of(
-            context)
-            .orientation ==
-            Orientation
-                .portrait)
-            ? (ResponsiveInfo
-            .isMobileDimension(
-            context)
-            ? 10
-            : 13)
-            : (ResponsiveInfo
-            .isMobileDimension(
-            context)
-            ? 15
-            : 18),
-
-
-        ));
+        icon: Icon(Icons.visibility, size: 16),
+      ),
+    );
   }
 }

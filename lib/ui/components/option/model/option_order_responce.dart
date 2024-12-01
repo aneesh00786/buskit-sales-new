@@ -111,3 +111,37 @@ class OptionOrderData {
     return json;
   }
 }
+class OrderInvoice {
+  final int? id;
+  final String? invoiceId;
+  final String? cartId;
+  final String? orderId;
+  final String? createdAt;
+  final String? updatedAt;
+
+  OrderInvoice({
+    this.id,
+    this.invoiceId,
+    this.cartId,
+    this.orderId,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  OrderInvoice.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        invoiceId = json['invoice_id'] as String?,
+        cartId = json['cart_id'] as String?,
+        orderId = json['order_id'] as String?,
+        createdAt = json['created_at'] as String?,
+        updatedAt = json['updated_at'] as String?;
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'invoice_id': invoiceId,
+        'cart_id': cartId,
+        'order_id': orderId,
+        'created_at': createdAt,
+        'updated_at': updatedAt
+      };
+}

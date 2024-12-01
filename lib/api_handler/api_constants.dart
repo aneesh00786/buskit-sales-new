@@ -87,5 +87,9 @@ mixin class ApiConstants {
   static const String mapDestinationUrl = "directions/json?destination=";
   static const String distanceMatrix = "distancematrix/json";
   static const String recent_order_count = "recent_order_count";
+  static const String orders_count_get = "orders_count_get";
+  static const String get_recent_order = "get_recent_orders";
+  static const String order_process_invoice = "order_process_invoice";
+  static const String waiting_for_approval = "waiting_for_approvel";
   
 }

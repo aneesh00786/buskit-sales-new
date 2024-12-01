@@ -1,0 +1,522 @@
+class OrderProcessInvoiceDialog extends StatefulWidget {
+  OrderProcessInvoiceData? invoiceData;
+  FetchSpecificOrderData? specificData;
+  final int selectedTabIndex;
+  final OrderController orderController;
+  OrderProcessInvoiceDialog({
+    this.invoiceData,
+    this.specificData,
+    required this.selectedTabIndex,
+    required this.orderController,
+  });
+  @override
+  State<OrderProcessInvoiceDialog> createState() => _OrderProcessInvoiceDialogState();}
+class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
+  bool isRejecting = false;
+  TextEditingController rejectionController = TextEditingController();
+  List<TextEditingController> _priceControllers = [];
+  List<TextEditingController> _quantityControllers = [];
+  List<double> _totalPrices = [];
+  bool isChanged = false;
+  List<FetchSpecificOrderData> _updatedOrder = [];
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllers();
+  }
+  void _initializeControllers() {
+    if (widget.specificData != null && widget.specificData!.cart != null) {
+      _priceControllers = List.generate(
+          widget.specificData!.cart!.length,
+          (index) => TextEditingController(
+              text: widget.specificData!.cart![index].price?.toString() ?? '0'));
+      _quantityControllers = List.generate(
+          widget.specificData!.cart!.length,
+          (index) => TextEditingController(
+              text: widget.specificData!.cart![index].quantity?.toString() ??
+                  '1'));
+      _totalPrices = List.generate(
+        widget.specificData!.cart!.length,
+        (index) {
+          double price = double.tryParse(
+                  widget.specificData!.cart![index].price?.toString() ?? '0') ?? 0;
+          int quantity = widget.specificData!.cart![index].quantity ?? 1;
+          return price * quantity;},);
+      for (int i = 0; i < widget.specificData!.cart!.length; i++) {
+        _priceControllers[i].addListener(() => _updateTotalPrice(i));
+        _quantityControllers[i].addListener(() => _updateTotalPrice(i));
+      }}}
+  void _updateTotalPrice(int index) {
+    double price = double.tryParse(_priceControllers[index].text) ?? 0;
+    int quantity = int.tryParse(_quantityControllers[index].text) ?? 1;
+    setState(() {
+      _totalPrices[index] = price * quantity;
+    });}
+  @override
+  void dispose() {
+    rejectionController.dispose();
+    _priceControllers.forEach((controller) => controller.dispose());
+    _quantityControllers.forEach((controller) => controller.dispose());
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    final isSpecificData = widget.selectedTabIndex == 0;
+    final displayData = isSpecificData ? widget.specificData : widget.invoiceData;
+    double totalWidth = MediaQuery.of(context).size.width;
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      backgroundColor: white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Spacer(),
+                dialogCloseButton(context, red),
+              ], ),
+            const SizedBox(height: 16),
+            MyCommnonContainer(
+              isCommonBorder: true,
+              // color: white,
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Invoice Details',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),),
+                  Divider(color: Colors.grey.shade300),
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isSpecificData
+                                ? ("Name :   ${widget.specificData?.fullname}" ??
+                                    'Business Name not available')
+                                : ("Name :   ${widget.invoiceData?.fullname}" ??
+                                    'Business Name not available'),
+                          ),
+                          Text(
+                            isSpecificData
+                                ? ("Email :   ${widget.specificData?.email}" ??
+                                    'Email not available')
+                                : ("Email :   ${widget.invoiceData?.email}" ??
+                                    'Email not available'),
+                          ),
+                          Text(
+                            isSpecificData
+                                ? ("Phone :   ${widget.specificData?.mobileno}" ??
+                                    'Phone not available')
+                                : ("Phone :   ${widget.invoiceData?.mobileNo}" ??
+                                    'Phone not available'),
+                          ),
+                          Text(
+                            isSpecificData
+                                ? ("Salesman :   ${widget.specificData?.salesmanName}" ??
+                                    'Salesman Name not available')
+                                : ("Salesman :   ${widget.invoiceData?.salesmanName}" ??
+                                    'Salesman Name not available'),
+                          ),],),
+                      const Spacer(),
+                      ClipOval(
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          color: Colors.lightBlue[100],
+                          child: const Icon(Icons.person, color: Colors.blue),
+                        ), ),], )],),),
+            const SizedBox(height: 16),
+            // Items list
+            Row(
+              children: [
+                Expanded(
+                  child: DataTable(
+                    dataRowHeight: 40,
+                    headingRowHeight: 40,
+                    horizontalMargin: 20,
+                    headingTextStyle: const TextStyle(
+                      color: black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    columns: [
+                      DataColumn(
+                        label: SizedBox(
+                          width: totalWidth * 0.2,
+                          child: const Text('ITEM NAME'),
+                        ),),
+                      const DataColumn(
+                        label: Expanded(
+                          flex: 2,
+                          child: Text(
+                            'PRICE',
+                            textAlign: TextAlign.center,
+                          ),),),
+                      const DataColumn(
+                        label: Expanded(
+                          flex: 2,
+                          child: Text(
+                            'QTY',
+                            textAlign: TextAlign.center,
+                          ),),),
+                      const DataColumn(
+                        label: Expanded(
+                          flex: 2,
+                          child: Text(
+                            'CREATED AT',
+                            textAlign: TextAlign.center,
+                          ),),),
+                      const DataColumn(
+                        label: Expanded(
+                          flex: 2,
+                          child: Text(
+                            'TOTAL',
+                            textAlign: TextAlign.right,
+                          ),),),],
+                    rows: (isSpecificData
+                            ? widget.specificData?.cart != null &&
+                                widget.specificData!.cart!.isNotEmpty
+                            : widget.invoiceData?.cart != null &&
+                                widget.invoiceData!.cart!.isNotEmpty)
+                        ? List.generate(
+                            isSpecificData
+                                ? widget.specificData!.cart!.length
+                                : widget.invoiceData!.cart!.length,
+                            (index) {
+                              return DataRow(
+                                cells: [
+                                  // Item Name
+                                  DataCell(
+                                    SizedBox(
+                                      width: totalWidth * 0.2,
+                                      child: Text(
+                                        isSpecificData
+                                            ? ('${widget.specificData!.cart![index].productName} - ${widget.specificData!.cart![index].variationName}' ??
+                                                'No description')
+                                            : ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}' ??
+                                                'No description'),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 14),
+                                      ),),),
+                                  // Price
+                                  DataCell(
+                                    Center(
+                                      child: isSpecificData
+                                          ? TextField(
+                                              controller:
+                                                  _priceControllers[index],
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor:
+                                                    Colors.blueGrey.shade100,
+                                                isDense: true,
+                                                contentPadding:
+                                                    const EdgeInsets.all(8),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8),
+                                                  borderSide: BorderSide.none,
+                                                ),),
+                                              textAlign: TextAlign.center,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              onChanged: (value) {
+                                                final originalPrice = widget
+                                                    .specificData!
+                                                    .cart![index]
+                                                    .price;
+                                                if (value !=
+                                                    originalPrice
+                                                        ?.toString()) {
+                                                  setState(() {
+                                                    isChanged = true;});}
+                                                _updateTotalPrice(index);},
+                                              onSubmitted: (value) {
+                                                _updateTotalPrice(index);},)
+                                          : Text(widget.invoiceData
+                                                  ?.cart?[index].price
+                                                  ?.toString() ?? '0'),),),
+                                  // Quantity
+                                  DataCell(
+                                    Center(
+                                      child: isSpecificData
+                                          ? TextField(
+                                              controller:
+                                                  _quantityControllers[index],
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor:
+                                                    Colors.blueGrey.shade100,
+                                                isDense: true,
+                                                contentPadding:
+                                                    const EdgeInsets.all(8),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide.none,),),
+                                              textAlign: TextAlign.center,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              onChanged: (value) {
+                                                final originalQuantity =
+                                                    widget
+                                                        .specificData!
+                                                        .cart![index]
+                                                        .quantity;
+                                                if (value !=
+                                                    originalQuantity
+                                                        ?.toString()) {
+                                                  setState(() {
+                                                    isChanged = true;});}
+                                                _updateTotalPrice(index);},
+                                              onSubmitted: (value) {
+                                                _updateTotalPrice(index);},)
+                                          : Text(widget.invoiceData
+                                                  ?.cart?[index].quantity
+                                                  ?.toString() ??
+                                              '0'),),),
+                                  // Created At
+                                  DataCell(
+                                    Center(
+                                      child: Text(
+                                        isSpecificData
+                                            ? (NKDateUtils.commonDayFormat2(
+                                                NKDateUtils
+                                                    .formatStringUTCDateTime(
+                                                        widget
+                                                            .specificData!
+                                                            .cart![index]
+                                                            .createdAt
+                                                            .toString())))
+                                            : (NKDateUtils.commonDayFormat2(
+                                                NKDateUtils
+                                                    .formatStringUTCDateTime(
+                                                        widget
+                                                            .invoiceData!
+                                                            .cart![index]
+                                                            .createdAt
+                                                            .toString()))),),),),
+                                  // Sub Total
+                                  DataCell(
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        isSpecificData
+                                            ? ('\$${_totalPrices[index]}')
+                                            : ('\$${widget.invoiceData!.cart![index].total}'),
+                                      ),),),],);},)
+                        : [
+                            const DataRow(
+                              cells: [
+                                DataCell(Text('No items available.')),
+                                DataCell(Text('')),
+                                DataCell(Text('')),
+                                DataCell(Text('')),
+                              ],),],),),],),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'Subtotal',
+                        style: TextStyle(
+                          color: black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,),),
+                      const Spacer(),
+                      Text(
+                        '\$${isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0}',),],),
+                  const Row(
+                    children: [
+                      Text(
+                        'Tax Amount',
+                        style: TextStyle(
+                          color: black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Spacer(),
+                      Text('10%'),],),
+                  Divider(color: Colors.grey.shade400),
+                  Row(
+                    children: [
+                      const Text(
+                        'Total',
+                        style: TextStyle(
+                          color: black,
+                          fontSize: 16, ),),
+                      const Spacer(),
+                      Text(
+                        '\$${isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: red,
+                          fontWeight: FontWeight.w600,),),],), ],),),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (widget.selectedTabIndex == 0 && !isRejecting) ...[
+                  CustomButton(
+                    text: 'Accept',
+                    onPressed: () {
+                      widget.orderController.acceptButtonAction(
+                        context: context,
+                        orderId: widget.specificData!.orderId.toString(),
+                      );},),
+                  nkMediumSizeBox(),
+                  CustomButton(
+                    text: 'Reject',
+                    onPressed: () {
+                      setState(() {
+                        isRejecting = true;
+                      });},),
+                  if (isChanged) ...[
+                    nkMediumSizeBox(),
+                    CustomButton(
+                      text: 'Send for Customer Approval',
+                      onPressed: () {
+                        widget.orderController
+                            .sendForCutomerApprovalButtonAction(
+                          context: context,
+                          orderId: widget.specificData!.orderId.toString(),
+                        );},),],],
+                if (widget.selectedTabIndex == 0 && isRejecting) ...[
+                  Expanded(
+                    child: TextField(
+                      controller: rejectionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Rejection Reason',
+                        border: OutlineInputBorder(),
+                      ),),),
+                  nkMediumSizeBox(),
+                  CustomButton(
+                    text: 'Confirm Reject',
+                    onPressed: () {
+                      widget.orderController.rejectButtonAction(
+                        context: context,
+                        orderId: widget.specificData!.orderId.toString(),
+                        reason: rejectionController.text,
+                      );
+                      String rejectionReason = rejectionController.text.trim();
+                      if (rejectionReason.isNotEmpty) {
+                        setState(() {
+                          isRejecting = false;
+                        });}},),],
+                if (widget.selectedTabIndex == 1 && !isRejecting) ...[
+                  CustomButton(
+                    text: 'Accept',
+                    onPressed: () {
+                      widget.orderController.acceptButtonAction(
+                        context: context,
+                        orderId: widget.invoiceData!.orderId.toString(),
+                      );},),
+                  nkMediumSizeBox(),
+                  CustomButton(
+                    text: 'Reject',
+                    onPressed: () {
+                      setState(() {
+                        isRejecting = true;
+                      });},),],
+                if (widget.selectedTabIndex == 1 && isRejecting) ...[
+                  Expanded(
+                    child: TextField(
+                      controller: rejectionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Rejection Reason',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  nkMediumSizeBox(),
+                  CustomButton(
+                    text: 'Confirm Reject',
+                    onPressed: () {
+                      widget.orderController.rejectButtonAction(
+                        context: context,
+                        orderId: widget.invoiceData!.orderId.toString(),
+                        reason: rejectionController.text,
+                      );
+                      String rejectionReason = rejectionController.text.trim();
+                      if (rejectionReason.isNotEmpty) {
+                        setState(() {
+                          isRejecting = false;
+                        });}},),],
+                if (widget.selectedTabIndex == 2 && !isRejecting) ...[
+                  CustomButton(
+                    text: 'Accept',
+                    onPressed: () {
+                      widget.orderController.acceptButtonAction(
+                        context: context,
+                        orderId: widget.invoiceData!.orderId.toString(),
+                      );},),
+                  nkMediumSizeBox(),
+                  CustomButton(
+                    text: 'Reject',
+                    onPressed: () {
+                      setState(() {
+                        isRejecting = true;
+                      });},),],
+                if (widget.selectedTabIndex == 2 && isRejecting) ...[
+                  Expanded(
+                    child: TextField(
+                      controller: rejectionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Rejection Reason',
+                        border: OutlineInputBorder(),
+                      ),),),
+                  nkMediumSizeBox(),
+                  CustomButton(
+                    text: 'Confirm Reject',
+                    onPressed: () {
+                      widget.orderController.rejectButtonAction(
+                        context: context,
+                        orderId: widget.invoiceData!.orderId.toString(),
+                        reason: rejectionController.text,
+                      );
+                      String rejectionReason = rejectionController.text.trim();
+                      if (rejectionReason.isNotEmpty) {
+                        setState(() {
+                          isRejecting = false;
+                        });}},),],
+                if (widget.selectedTabIndex == 3) ...[
+                  CustomButton(
+                    text: 'Packed and Ready',
+                    onPressed: () {
+                      widget.orderController.addToPackedAndReady(
+                        context: context,
+                        orderId: widget.invoiceData!.orderId.toString(),
+                        cartid: widget.invoiceData!.cartId.toString(),
+                      );},),],
+                if (widget.selectedTabIndex == 4) ...[
+                  CustomButton(
+                    text: 'Deliver',
+                    onPressed: () {
+                      widget.orderController.deliverButtonAction(
+                        context: context,
+                        orderId: widget.invoiceData!.orderId.toString(),
+                      );},),],
+                if (widget.selectedTabIndex == 6) ...[
+                  const Text('Rejection Reason : '),
+                  nkMediumSizeBox(),
+                  Text(widget.invoiceData!.rejectionReason.toString()),
+                  nkMediumSizeBox(),
+                  Text(NKDateUtils.commonDayFormat2(
+                      NKDateUtils.formatStringUTCDateTime(
+                          widget.invoiceData!.rejectedDate.toString()))),],],)],),),);}}
+Just read the code, I will give modifications after that, dont generate anything now

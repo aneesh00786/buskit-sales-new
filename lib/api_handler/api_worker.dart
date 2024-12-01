@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_responce_temp.dart';
@@ -34,7 +35,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../common/pagination_model.dart';
 import '../ui/view/ui/auth/auth_model/login_responce.dart';
 import '../ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart';
-
 
 class ApiWorker with ApiConstants {
   late DioClient dio;
@@ -172,11 +172,11 @@ class ApiWorker with ApiConstants {
       );
       return CustomerAndOrderResponce.fromJson(response.data);
     } catch (error) {
-      return Future.error('Failed to fetch customer data From API Worker: $error');
+      return Future.error(
+          'Failed to fetch customer data From API Worker: $error');
     }
   }
-  
-  
+
   Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
     final response = await dio
         .getbycustom(
@@ -409,24 +409,6 @@ class ApiWorker with ApiConstants {
       return category;
     }
   }
-  // Future<CategoryModel> getCategory() async {
-  //   final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-  //   Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  //   int companyId = jsonMap['company_id'];
-  //   log('$companyId');
-  //   final response =
-  //       await dio.getbycustom(ApiConstants.fetchcategories, queryParameters: {
-  //     "company_id": companyId,
-  //   }).onError((DioError error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-
-  //   return CategoryModel.fromJson(response.data);
-  // }
-
-  //
-
   /// ************************ PRODUCT SECTION ***************** ///
   Future<List<ProductModel>> getTempProduct(String subCatId) async {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
@@ -532,6 +514,7 @@ class ApiWorker with ApiConstants {
 
     return LeadResponce.fromJson(response.data);
   }
+
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {
     final response = await dio
@@ -548,21 +531,28 @@ class ApiWorker with ApiConstants {
 
     return LeadResponce.fromJson(response.data);
   }
+
   /// ******************** CALENDAR SECTION ******************/
-Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
-  final response = await dio.postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
-      .onError((DioError error, stackTrace) {
-    log(error.toString());
-    return Future.error(throw DioExceptionHandler.fromDioError(error));
-  });
-  if (response.data is Map<String, dynamic> && response.data['data'] is List) {
-    List<dynamic> eventsJson = response.data['data'];
-    return eventsJson.map((event) => EventData.fromJson(event as Map<String, dynamic>)).toList();
-  } else {
-    log('Unexpected response format: ${response.data}');
-    return [];
+  Future<List<EventData>> getCalendarEvents(
+      Map<String, dynamic> sendData) async {
+    final response = await dio
+        .postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
+        .onError((DioError error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    if (response.data is Map<String, dynamic> &&
+        response.data['data'] is List) {
+      List<dynamic> eventsJson = response.data['data'];
+      return eventsJson
+          .map((event) => EventData.fromJson(event as Map<String, dynamic>))
+          .toList();
+    } else {
+      log('Unexpected response format: ${response.data}');
+      return [];
+    }
   }
-}
+
   Future<Response> handleLeadStatus(
       int? customerId, String? statusResponce) async {
     final response = await dio
@@ -576,6 +566,7 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
     print(response);
     return response;
   }
+
   Future<TodayTasksResponse> getTodaySchedule(
       Map<String, dynamic> sendData) async {
     final response = await dio
@@ -588,20 +579,6 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
     });
     return TodayTasksResponse.fromJson(response.data);
   }
-
-  // Future<AllCalenderEvent> getTodayScheduled(
-  //     Map<String, dynamic> sendData) async {
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.fetch_schedule_customer,
-  //           showErrorSnakBar: false, data: FormData.fromMap(sendData))
-  //       .onError((DioError error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error,
-  //         showErrorSnakBar: false));
-  //   });
-  //   return AllCalenderEvent.fromJson(response.data);
-  // }
-
   Future<Response> updateSchedule(Map<String, dynamic> sendData) async {
     log("Send DATA: ${sendData}");
     final response = await dio
@@ -659,63 +636,6 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
     });
     return OrderResponce.fromJson(response.data);
   }
-////
-//   Future<OrderResponce> getOrdersData(
-//       {String? customerId,
-//       String? salesmanId,
-//       SearchModel? searchModel,
-//       PaginationModel? paginationModel}) async {
-//     final response = await dio
-//         .postbycustom(
-//       ApiConstants.fetch_order,
-//       data: FormData.fromMap({
-//         "salesman_id": salesmanId,
-//         "customer_id": customerId,
-//         "start_date": searchModel?.startDate ?? '',
-//         "end_date": searchModel?.endDate ?? '',
-//         "limit": paginationModel?.limit.toString() ?? '',
-//         "page": paginationModel?.currentPage.toString() ?? ''
-//       }),
-//     )
-//         .onError((DioError error, stackTrace) {
-//       log(error.toString());
-//       return Future.error(throw DioExceptionHandler.fromDioError(error));
-//     });
-//     return OrderResponce.fromJson(response.data);
-//   }
-
-  // Future<OptionOrderResponce> getAllOrderByStatus(
-  //     {String? customerId,
-  //     String? salesmanId,
-  //     PaginationModel? paginationModel,
-  //     SearchModel? searchModel,
-  //     required String orderType}) async {
-  //     final salesmanIds = SessionHelper.loginSavedData!.salesmanId!;
-  //   final response = await dio
-  //       .postbycustom(
-  //     ApiConstants.fetch_all_order,
-  //     data: FormData.fromMap({
-  //       "salesman_id": salesmanIds,
-  //       "customer_id": customerId ?? '',
-  //       "order_type": orderType,
-  //       "limit": paginationModel?.limit.toString() ??
-  //           PaginationModel().limit.toString(),
-  //       "page": paginationModel?.currentPage.toString() ??
-  //           PaginationModel().currentPage.toString(),
-  //       "start_date": '2024-10-01',
-  //       //searchModel?.startDate ?? ,
-  //       "end_date": "2024-10-30",
-  //       //searchModel?.endDate ?? '',
-  //     }),
-  //   )
-  //       .onError((DioError error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   log('Request body Fetch all Data :$salesmanId');
-  //   return OptionOrderResponce.fromJson(response.data);
-  // }
-
   Future<OptionOrderResponce> getAllOrderByStatus(
       {String? customerId,
       String? salesmanId,
@@ -745,25 +665,6 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   }
 
   /// ******************** PENDING PAYMENT ******************/
-  // Future<OrderResponce> getPendingPaymentData(String salesmanId,
-  //     {SearchModel? searchModel, PaginationModel? paginationModel}) async {
-  //   final response = await dio
-  //       .postbycustom(
-  //     ApiConstants.fetch_pending_payments,
-  //     data: FormData.fromMap({
-  //       "start_date": searchModel?.startDate ?? '',
-  //       "end_date": searchModel?.endDate ?? '',
-  //       "limit": paginationModel?.limit.toString() ?? '',
-  //       "page": paginationModel?.currentPage.toString() ?? '',
-  //       "salesman_id": "",
-  //     }),
-  //   )
-  //       .onError((DioError error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return OrderResponce.fromJson(response.data);
-  // }
   Future<PendingPaymentResponse> getPendingPaymentData({
     SearchModel? searchModel,
     PaginationModel? paginationModel,
@@ -808,5 +709,230 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
     return IndividualPendingPaymentResponse.fromJson(response.data);
+  }
+
+  //************************RECENT ORDERS **************/
+  Future<OrderCountResponse> getOrderCountData({
+    SearchModel? searchModel,
+  }) async {
+    print(
+        "startDate++1234++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    int companyId = jsonMap['company_id'];
+    final response = await dio
+        .postbycustom(
+      ApiConstants.orders_count_get,
+      data: FormData.fromMap({
+        "start_date": searchModel?.startDate,
+        "end_date": searchModel?.endDate,
+        "companyId":companyId,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return OrderCountResponse.fromJson(response.data);
+  }
+   Future<OrderResponce> getRecentOrdersData({
+    SearchModel? searchModel,
+    int? order_status,
+  }) async {
+    log(
+        "startDate++1234++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}");
+    final response = await dio
+        .postbycustom(
+      ApiConstants.get_recent_order,
+      data: FormData.fromMap({
+        "order_status": order_status,
+        "start_date": searchModel?.startDate,
+        "end_date": searchModel?.endDate,
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return OrderResponce.fromJson(response.data);
+  }
+    Future<OrderProcessInvoice> getOrderProcessInvoiceData({
+    String? orderId,
+    int? orderStatus,
+  }) async {
+    final response = await dio
+        .postbycustom(
+      ApiConstants.order_process_invoice,
+      data: FormData.fromMap({
+        "order_id": orderId,
+        "order_status": orderStatus,
+        //added
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return OrderProcessInvoice.fromJson(response.data);
+  }
+    Future<FetchSpecificOrder> fetchSpecificOrder({
+    String? orderId,
+  }) async {
+    final response = await dio
+        .postbycustom(
+      ApiConstants.fetch_specific_order,
+      data: FormData.fromMap({
+        "order_id": orderId,
+        //added
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return FetchSpecificOrder.fromJson(response.data);
+  }
+    Future<OrderProcessInvoice> loadWaitingForApproval({
+    String? orderId,
+  }) async {
+    final response = await dio
+        .postbycustom(
+      ApiConstants.waiting_for_approval,
+      data: FormData.fromMap({
+        "order_id": orderId,
+        "updatedOrders": [],
+        //added
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return OrderProcessInvoice.fromJson(response.data);
+  }
+    Future<ButtonAction> orderReject({
+    String? orderId,
+    String? rejectReason,
+  }) async {
+    final response = await dio
+        .postbycustom(
+      'http://16.50.232.153:3000/order_reject',
+      data: FormData.fromMap({
+        "order_id": orderId,
+        "rejection_reason": rejectReason,
+        //added
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return ButtonAction.fromJson(response.data);
+  }
+    Future<ButtonAction> orderAccept({
+    String? orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      final response = await dio
+          .postbycustom(
+        'http://16.50.232.153:3000/order_accept_direct',
+        data: {
+          "order_id": orderId,
+          "updatedOrders": updatedOrders,
+          "companyId": 1,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          },
+        ),
+      )
+          .onError((DioException error, stackTrace) {
+        log(error.toString());
+        return Future.error(throw DioExceptionHandler.fromDioError(error));
+      });
+
+      return ButtonAction.fromJson(response.data);
+    } catch (e) {
+      log('Error accepting order: $e');
+      rethrow;
+    }
+  }
+    Future<Response> sendMail({
+    String? orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      final response = await dio
+          .postbycustom(
+        'http://16.50.232.153:3000/send_mail',
+        data: {
+          "order_id": orderId,
+          "updatedOrders": updatedOrders,
+          //added
+          "companyId": 1,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          },
+        ),
+      )
+          .onError((DioException error, stackTrace) {
+        log(error.toString());
+        return Future.error(throw DioExceptionHandler.fromDioError(error));
+      });
+
+      return response;
+    } catch (e) {
+      log('Error Sending mail : $e');
+      rethrow;
+    }
+  }
+    Future<Response> packedAndReadyAdd({
+    String? cartId,
+    String? orderId,
+  }) async {
+    final response = await dio
+        .postbycustom(
+      "http://16.50.232.153:3000/add_invoice",
+      data: FormData.fromMap({
+        "cart_id": cartId,
+        "order_id": orderId,
+        //added
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+
+    return response;
+  }
+  
+  Future<ButtonAction> orderDeliver({
+    String? orderId,
+  }) async {
+    final response = await dio
+        .postbycustom(
+      'http://16.50.232.153:3000/order_delivered',
+      data: FormData.fromMap({
+        "order_id": orderId,
+        //added
+        "companyId": 1,
+      }),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return ButtonAction.fromJson(response.data);
   }
 }

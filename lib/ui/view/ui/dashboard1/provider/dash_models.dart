@@ -392,6 +392,7 @@ enum SalesmanName { B, N, RP, SALES6 }
 class TopSellingProductA {
   String? variationId;
   String? variationName;
+  String? productName;
   String? price;
   String? quantity;
   String? totalPrice;
@@ -408,6 +409,7 @@ class TopSellingProductA {
     this.createdAt,
     this.customers,
     this.quantityList,
+    this.productName,
   });
 
   factory TopSellingProductA.fromJson(Map<String, dynamic> json) {
@@ -423,6 +425,7 @@ class TopSellingProductA {
       variationId: json['variation_id'],
       variationName: json['variation_name'],
       price: json['price'],
+      productName : json['product_name'],
       quantity: json['quantity'],
       totalPrice: json['total_price'],
       createdAt: DateTime.parse(json['created_at']),
@@ -438,6 +441,7 @@ class TopSellingProductA {
       'price': price,
       'quantity': quantity,
       'total_price': totalPrice,
+      'product_name':productName,
       'created_at': createdAt?.toIso8601String(),
       'customer': customers?.map((customer) => customer.toJson()).toList(),
       'quantityList':
@@ -581,7 +585,7 @@ class QuantityList {
   String? cartId;
   String? productId;
   String? variationId;
-  String? price;
+  dynamic price;
   String? reason;
   int? quantity;
   int? status;
@@ -633,7 +637,7 @@ class QuantityList {
       cartId: json['cart_id'],
       productId: json['product_id'],
       variationId: json['variation_id'],
-      price: json['price'],
+      price: json['vprice'],
       reason: json['reason'],
       quantity: _parseInt(json['quantity']),
       status: _parseInt(json['status']),
@@ -1211,15 +1215,22 @@ class PendingAmount {
 }
 
 String getFormattedOrderCreatAt(dynamic value) {
+  if (value == null || value.toString().isEmpty) {
+    print('Error: Invalid date value');
+    return '';
+  }
+
   try {
-    DateTime parsedDate = DateTime.parse(value);
+    if (value is DateTime) {
+      return DateFormat('dd-MM-yyyy').format(value);
+    }
+    DateTime parsedDate = DateTime.parse(value.toString());
     return DateFormat('dd-MM-yyyy').format(parsedDate);
   } catch (e) {
     print('Error parsing date: $e');
-    return ''; // or handle the error in another way
+    return '';
   }
 }
-
 class SalesmenResponse {
   int statusCode;
   bool status;

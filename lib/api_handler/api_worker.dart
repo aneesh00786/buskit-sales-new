@@ -42,23 +42,37 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
+Future<LoginResponce> loginApi(String email, String password) async {
+  Map<String, dynamic> data = {
+    'email': email,
+    'password': password,
+  };
 
-  Future<LoginResponce> loginApi(String email, String password) async {
-    Map<String, dynamic> data = {
-      'email': email,
-      'password': password,
-    };
-    final response = await dio
-        .postbycustom(
+  try {
+    final response = await dio.postbycustom(
       ApiConstants.login,
       data: data,
-    )
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
+    );
+
+    // Log the request and response
+    log("Request Data: $data");
+    log("Response Data: ${response.data}");
+
+    // Check if the response status indicates failure (422)
+    if (response.statusCode == 422) {
+      // Extract and log the error message
+      final errorMessage = response.data?['message'] ?? 'Invalid credentials';
+      log("Error Message: $errorMessage");
+      throw Exception(errorMessage);
+    }
+
+    // Return the parsed response for success
     return LoginResponce.fromJson(response.data);
+  } on DioError catch (error) {
+    log("DioError: ${error.response?.data}");
+    throw DioExceptionHandler.fromDioError(error);
   }
+}
 
   /// ************************ DASHBOARD SECTION ***************** ///
 

@@ -529,11 +529,12 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                         ),
                       ],
                       rows: categoryData.orderRevenueData!.map((item) {
+                        log('DATE ${item.orderCreatAt}');
                         return DataRow(
                           cells: [
                             DataCell(Center(
                               child: Text(
-                                getFormattedOrderCreatAt(item.createdAt),
+                                getFormattedOrderCreatAt(item.orderCreatAt),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   color: secondaryTextColor,

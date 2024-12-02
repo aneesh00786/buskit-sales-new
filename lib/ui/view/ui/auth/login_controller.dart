@@ -38,31 +38,80 @@ class LoginController extends GetxController {
     }
   }
 
-get loginCall async {
+Future<bool> performLogin() async {
   try {
-    loginResponce = (await Future.wait([_apiWorker.loginApi(
-      emailController.text.removeAllWhitespace, 
-      passwordController.text
-    )])).first;
+    final requestBody = {
+      "email": emailController.text.removeAllWhitespace,
+      "password": passwordController.text,
+    };
+    print("Request Body: $requestBody");
+    loginResponce = (await Future.wait([
+      _apiWorker.loginApi(
+        emailController.text.removeAllWhitespace,
+        passwordController.text,
+      )
+    ])).first;
+    print("Response Body: ${loginResponce?.toJson()}");
 
     if (loginResponce != null) {
+      // Handle status check
+      if (loginResponce?.status == false) {
+        // Show dialog for login failure
+        Get.dialog(
+          AlertDialog(
+            title: const Text('Login Failed'),
+            content: const Text(
+              'Login unsuccessful. Please check your credentials and try again.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Get.back(); // Close the dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return false;
+      }
+
+      // Handle successful login
       loginButtonController.success();
       await SessionHelper().setLoginData(loginResponce!.data!).then((value) {
         SessionHelper.loginSavedData = loginResponce!.data;
-        Get.offAllNamed(AppRoutes.home); // Navigate to home after login
+        Get.offAllNamed(AppRoutes.home);
       });
+      return true;
     }
+
+    // Default return for null response
+    return false;
   } catch (e) {
+    // Handle errors
     loginButtonController.error();
     loginButtonController.reset();
 
     if (e.toString().contains("401")) {
-      handleTokenExpiration(); // Call the token expiration handler
+      handleTokenExpiration();
+    } else if (e.toString().contains("422")) {
+      print("Error 422: Invalid credentials");
+      return false;
     } else {
-      Get.snackbar('Login Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+      print("Login Error: $e");
+      Get.snackbar(
+        'Login Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
+    return false;
   }
 }
+
+
+
+
 
 void handleTokenExpiration() async {
   if (!Get.isDialogOpen!) {

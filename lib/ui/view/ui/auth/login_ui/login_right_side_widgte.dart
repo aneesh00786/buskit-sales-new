@@ -126,7 +126,7 @@ class LoginRightSideWidget extends StatelessWidget {
           ),
           nkMediumSizeBox(),
           nkMediumSizeBox(),
-          getLoginButton
+          getLoginButton(context),
         ],
       ),
     );
@@ -139,21 +139,24 @@ class LoginRightSideWidget extends StatelessWidget {
     );
   }
 
-  Widget get getLoginButton => Center(
-        child: NkLoadingButton(
-          width: AppDimensions.instance.width * 0.32,
-          isRoundedCorner: true,
-          buttonText: singIn,
-          onPressed: () => {
-            if (loginController.formKey.currentState!.validate())
-              {loginController.loginCall}
-            else
-              {
-                loginController.loginButtonController.stop(),
-                loginController.loginButtonController.reset()
-              }
-          },
-          btnController: loginController.loginButtonController,
-        ),
-      );
+Widget getLoginButton(BuildContext context) => Center(
+      child: NkLoadingButton(
+        width: AppDimensions.instance.width * 0.32,
+        isRoundedCorner: true,
+        buttonText: singIn,
+        onPressed: () async {
+          if (loginController.formKey.currentState!.validate()) {
+            await loginController.performLogin();
+          } else {
+            loginController.loginButtonController.stop();
+            loginController.loginButtonController.reset();
+          }
+        },
+        btnController: loginController.loginButtonController,
+      ),
+    );
+
+
+
+
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
@@ -796,11 +798,8 @@ Widget middleTopRightComponet() {
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
         double fontSize = 11;
-
-        // Sort products by quantity
         topSellingProducts
             .sort((a, b) => b.quantity!.compareTo(a.quantity.toString()));
-
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           width: availableWidth,
@@ -894,7 +893,7 @@ Widget middleTopRightComponet() {
                             cells: <DataCell>[
                               DataCell(
                                 Text(
-                                  '${product.variationId} - ${product.variationName}',
+                                  '${product.productName} - ${product.variationName}',
                                   style: TextStyle(fontSize: fontSize),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -902,7 +901,8 @@ Widget middleTopRightComponet() {
                               ),
                               DataCell(
                                 Center(
-                                  child: MyRegularText(
+                                  child:
+                                  MyRegularText(
                                     label: DateFormat('dd-MM-yyyy')
                                         .format(product.createdAt!),
                                     color: secondaryTextColor,
@@ -981,7 +981,7 @@ Widget middleTopRightComponet() {
                               label: Expanded(
                                 child: Center(
                                   child: MyRegularText(
-                                    label: "Product",
+                                    label: "Produc",
                                     fontWeight: FontWeight.w600,
                                     color: secondaryTextColor,
                                     align: TextAlign.center,
@@ -1049,7 +1049,7 @@ Widget middleTopRightComponet() {
                               cells: <DataCell>[
                                 DataCell(
                                   Text(
-                                    '${product.variationId} - ${product.variationName}',
+                                    '${product.productName} - ${product.variationName}',
                                     style: TextStyle(fontSize: fontSize),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -1169,6 +1169,7 @@ Widget middleTopRightComponet() {
                                                         rows: product
                                                             .quantityList!
                                                             .map((quantity) {
+                                                              log('PRICE ${quantity.price}');
                                                           return DataRow(
                                                               cells: [
                                                                 DataCell(Center(

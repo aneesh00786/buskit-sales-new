@@ -24,11 +24,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_responce_temp.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:get/route_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -38,41 +36,69 @@ import '../ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart
 
 class ApiWorker with ApiConstants {
   late DioClient dio;
-
+  Dio dio1 = Dio();
   ApiWorker() {
     dio = DioClient();
   }
-Future<LoginResponce> loginApi(String email, String password) async {
+Future<LoginResponce?> loginApi(String email, String password) async {
   Map<String, dynamic> data = {
     'email': email,
     'password': password,
   };
-
   try {
-    final response = await dio.postbycustom(
-      ApiConstants.login,
+    final response = await dio1.post(
+      '${ApiConstants.baseUrl}${ApiConstants.login}',
       data: data,
     );
-
-    // Log the request and response
     log("Request Data: $data");
     log("Response Data: ${response.data}");
 
-    // Check if the response status indicates failure (422)
-    if (response.statusCode == 422) {
-      // Extract and log the error message
-      final errorMessage = response.data?['message'] ?? 'Invalid credentials';
-      log("Error Message: $errorMessage");
-      throw Exception(errorMessage);
-    }
+    if (response.data != null) {
+      final status = response.data['status'];
+      final message = response.data['message'] ?? 'No message available';
+      final statusCode = response.data['status_code'];
 
-    // Return the parsed response for success
-    return LoginResponce.fromJson(response.data);
-  } on DioError catch (error) {
-    log("DioError: ${error.response?.data}");
-    throw DioExceptionHandler.fromDioError(error);
+      if (status == false) {
+        log("Login Failed: $message");
+        return LoginResponce(
+          status: false,
+          message: message,
+          statusCode: statusCode,
+        );
+      }
+      log("Login Successful: $message");
+      return LoginResponce.fromJson(response.data);
+    } else {
+      log("Error: Invalid response data");
+      return null;
+    }
+  } on DioException catch (error) {
+    log("DioError: ${error.message}");
+    log("DioError Response Data: ${error.response?.data}");
+    log("DioError Status Code: ${error.response?.statusCode}");
+
+    // Extract relevant data from the error response if available
+    final errorData = error.response?.data;
+    final statusCode = error.response?.statusCode;
+    final message = errorData?['message'] ?? error.message;
+
+    return LoginResponce(
+      status: false,
+      message: message,
+      statusCode: statusCode,
+    );
+  } catch (e) {
+    log("General Error: $e");
+    return LoginResponce(
+      status: false,
+      message: 'An unexpected error occurred.',
+      statusCode: null,
+    );
   }
 }
+
+
+
 
   /// ************************ DASHBOARD SECTION ***************** ///
 
@@ -514,12 +540,16 @@ Future<LoginResponce> loginApi(String email, String password) async {
 
   Future<LeadResponce> getLeadsData(String salesManId,
       {PaginationModel? paginationModel}) async {
+      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      int companyId = jsonMap['company_id'];
     final response = await dio
         .postbycustom(ApiConstants.fetch_leads,
             data: FormData.fromMap({
               "page": paginationModel?.currentPage ?? "",
               "limit": paginationModel?.limit ?? '',
-              "salesman_id": salesManId
+              "salesman_id": salesManId,
+              "company_id":companyId,
             }))
         .onError((DioError error, stackTrace) {
       log(error.toString());
@@ -531,12 +561,13 @@ Future<LoginResponce> loginApi(String email, String password) async {
 
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     final response = await dio
         .postbycustom(ApiConstants.fetch_leads_reject,
             data: FormData.fromMap({
               "page": paginationModel?.currentPage ?? "",
               "limit": paginationModel?.limit ?? '',
-              "salesman_id": ""
+              "salesman_id": salesmanId
             }))
         .onError((DioException error, stackTrace) {
       log(error.toString());

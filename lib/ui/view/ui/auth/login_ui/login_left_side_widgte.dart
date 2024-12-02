@@ -55,12 +55,18 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
                 ]
               ),),
               SizedBox(height: 30,),
-             Text("Welcome!",style: GoogleFonts.poppins(color: white, fontSize: 45, fontWeight: FontWeight.bold),),
+             Padding(
+               padding: const EdgeInsets.symmetric(horizontal: 20),
+               child: Text("Welcome!",style: GoogleFonts.poppins(color: white, fontSize: 45, fontWeight: FontWeight.bold),),
+             ),
              Center(
-               child: Text(
-                "Empower Your Sales, Anywhere, Anytime!",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(color: white, fontSize: 20, fontWeight: FontWeight.bold,),),
+               child: Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 20),
+                 child: Text(
+                  "Empower Your Sales, Anywhere, Anytime!",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(color: white, fontSize: 20, fontWeight: FontWeight.bold,),),
+               ),
              ),
         
             ],

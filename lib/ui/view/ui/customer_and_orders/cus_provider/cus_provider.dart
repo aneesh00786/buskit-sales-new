@@ -32,7 +32,6 @@ class CustomersProvider with ChangeNotifier {
   })  : _apiService = apiService,
         _logger = logger {
     fetchCustomerData();
-    fetchCustomerData();
     fetchcustomersDash();
   }
 

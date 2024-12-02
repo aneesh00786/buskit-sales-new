@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -130,14 +131,15 @@ class HomeController extends GetxController {
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
+    }else if (settings.name == AppRoutes.settings &&
+        sidebarXController.selectedIndex == 7) {
+      return GetPageRoute(
+        transition: Transition.leftToRightWithFade,
+        settings: settings,
+        page: () => SettingsScreen(),
+        binding: CommonBinding(),
+      );
     }
-    return GetPageRoute(
-      settings: settings,
-      transition: Transition.leftToRightWithFade,
-      page: () => TempHeadingUi(
-        tabName: sidebarName[sidebarXController.selectedIndex],
-      ),
-    );
   }
 
   changePageRouting() {
@@ -168,6 +170,10 @@ class HomeController extends GetxController {
       } else if (sidebarXController.selectedIndex == 5 &&
           selectedIndex.value != 5) {
         Get.offNamed(AppRoutes.calender, id: 2);
+        selectedIndex.value = sidebarXController.selectedIndex;
+      }else if (sidebarXController.selectedIndex == 7 &&
+          selectedIndex.value != 7) {
+        Get.offAllNamed(AppRoutes.settings, id: 2);
         selectedIndex.value = sidebarXController.selectedIndex;
       }
       if (selectedIndex.value == -2) {

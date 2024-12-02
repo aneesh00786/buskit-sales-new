@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -35,6 +36,7 @@ class AppRoutes {
   static const String mapScreen = "/mapScreen";
 
   static const String unknown = "/unknown";
+  static const String settings = "/settings";
 
   static List<GetPage<dynamic>> get genratedRoutes => [
         GetPage(
@@ -103,6 +105,11 @@ class AppRoutes {
         GetPage(
           name: mapScreen,
           page: () => const MapScreen(),
+          binding: CommonBinding(),
+        ),
+        GetPage(
+          name: settings,
+          page: () =>  SettingsScreen(),
           binding: CommonBinding(),
         ),
       ];

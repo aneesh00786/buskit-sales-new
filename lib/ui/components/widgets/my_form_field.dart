@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class MyFormField extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String labelText;
   final bool isEnable;
   final bool isRequire;
@@ -40,11 +40,13 @@ class MyFormField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextAlign? textAlign;
   final EdgeInsetsGeometry? contentPadding;
+  final String? initialValue;
 
   const MyFormField({
     Key? key,
-    required this.controller,
+     this.controller,
     required this.labelText,
+    this.initialValue,
     this.isEnable = true,
     this.isRequire = false,
     this.isReadOnly = false,
@@ -85,6 +87,7 @@ class MyFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      initialValue: initialValue,
       enabled: isEnable,
       obscureText: obscureText,
       textAlignVertical: textAlignVertical,
@@ -126,6 +129,7 @@ class MyFormField extends StatelessWidget {
               prefixIcon: prefixIconUnderLine,
               borderRadius: borderRadius,
               contentPadding: contentPadding,
+              
               icon: prefixIcon),
       validator: isShowDefaultValidator == true
           ? validator ??

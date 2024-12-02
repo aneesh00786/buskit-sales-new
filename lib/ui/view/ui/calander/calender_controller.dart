@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
@@ -525,10 +527,13 @@ void addPolyline(List<LatLng> coordinates) {
 
   Future<void> fetchCalenderEvents() async {
     var salesmanId = await SessionHelper.loginSavedData?.salesmanId;
+      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      int companyId = jsonMap['company_id'];
     var sendData = {
       "salesman_id": salesmanId,
       "start_date": "",
-      "end_date": ""
+      "end_date": companyId,
     };
     List<EventData> response = await _apiWorker.getCalendarEvents(sendData);
     if (response != null) {

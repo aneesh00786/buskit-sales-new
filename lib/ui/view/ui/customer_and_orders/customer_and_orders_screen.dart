@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
@@ -26,7 +27,18 @@ import 'cus_provider/cus_provider.dart';
 import 'customer_dashbord/customer_dashbord_screen.dart';
 import 'widgets/notification_widget.dart';
 
-class tableee extends StatelessWidget {
+class tableee extends StatefulWidget {
+  @override
+  State<tableee> createState() => _tableeeState();
+}
+
+class _tableeeState extends State<tableee> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Provider.of<CustomersProvider>(context,listen: false).fetchCustomerData();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1735,185 +1747,42 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         if (provider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (provider.errorMessage.isNotEmpty) {
-          return Column(
-            children: [
-              Container(
-                color: primaryColor,
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    _buildTableHeader(
-                      Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Sales',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Poppins_Regular',
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Obx(() {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 20, top: 20),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(2.0),
-                                ),
-                                child: DropdownButton<String>(
-                                  iconSize: 14,
-                                  value: customerAndOrderController
-                                      .selectedYear.value,
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      customerAndOrderController
-                                          .updateSelectedYear(newValue);
-                                    }
-                                  },
-                                  items: customerAndOrderController.years
-                                      .map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(
-                                        value,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    );
-                                  }).toList(),
-                                  dropdownColor: Colors.white,
-                                  isExpanded: false,
-                                  underline: Container(),
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                      MediaQuery.of(context).size.width *
-                          0.12, // Adjust width proportionally
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'Sales / Delivery / Payments',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.2,
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'Estimates',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'Pre-Order',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'Drafts',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'Cancelled',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'Visits',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                    _buildTableHeader(
-                      const Text(
-                        'SE',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      MediaQuery.of(context).size.width * 0.1,
-                    ),
-                  ],
-                ),
+          return Expanded(
+            child: Column(
+                    children: [
+            Container(
+              color: primaryColor, // Background color for the header
+              width: double.infinity,
+              padding: EdgeInsets.all(8.0),
+              child: Table(
+                columnWidths: {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(2),
+                  2: FlexColumnWidth(1),
+                  3: FlexColumnWidth(1),
+                  4: FlexColumnWidth(1),
+                  5: FlexColumnWidth(1),
+                  6: FlexColumnWidth(1),
+                  7: FlexColumnWidth(1),
+                },
+                children: [
+                  TableRow(
+                    children: [
+                      _buildTableHeader1('Sales'),
+                      _buildTableHeader1('Sales / Delivery / Payments'),
+                      _buildTableHeader1('Estimates'),
+                      _buildTableHeader1('Pre-Order'),
+                      _buildTableHeader1('Drafts'),
+                      _buildTableHeader1('Cancelled'),
+                      _buildTableHeader1('Visits'),
+                      _buildTableHeader1('SE'),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.width * 0.5,
-              ),
-              Center(child: NodataWidget())
-            ],
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height*0.45,),
+            Center(child: NodataWidget()),]),
           );
         } else if (provider.customersFuture == null) {
           return const Center(child: Text('No data available'));
@@ -2865,7 +2734,25 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         }
       }),
     );
+    
   }
+    Widget _buildTableHeader1(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins_Regular',
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
 
   Widget _buildTableHeader(Widget child, double width) {
     return Container(
@@ -3172,7 +3059,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     // Return with the $ symbol
     return '\$ ' + formattedAmount;
   }
-}
 
 extension TakeLastExtension<E> on List<E> {
   List<E> takeLast(int n) => skip(length - n).toList();

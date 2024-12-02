@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
@@ -44,73 +47,74 @@ Future<bool> performLogin() async {
       "email": emailController.text.removeAllWhitespace,
       "password": passwordController.text,
     };
-    print("Request Body: $requestBody");
-    loginResponce = (await Future.wait([
-      _apiWorker.loginApi(
-        emailController.text.removeAllWhitespace,
-        passwordController.text,
-      )
-    ])).first;
-    print("Response Body: ${loginResponce?.toJson()}");
+    log("Request Body: $requestBody");
 
-    if (loginResponce != null) {
-      // Handle status check
-      if (loginResponce?.status == false) {
-        // Show dialog for login failure
-        Get.dialog(
-          AlertDialog(
-            title: const Text('Login Failed'),
-            content: const Text(
-              'Login unsuccessful. Please check your credentials and try again.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Get.back(); // Close the dialog
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-        return false;
-      }
+    loginResponce = await _apiWorker.loginApi(
+      emailController.text.removeAllWhitespace,
+      passwordController.text,
+    );
+    log("Response Body: ${loginResponce?.toJson()}");
+    log("StatusCode: ${loginResponce?.statusCode}");
 
-      // Handle successful login
+    if (loginResponce?.statusCode == 200) {
       loginButtonController.success();
       await SessionHelper().setLoginData(loginResponce!.data!).then((value) {
         SessionHelper.loginSavedData = loginResponce!.data;
         Get.offAllNamed(AppRoutes.home);
       });
       return true;
+    } else if (loginResponce?.statusCode == 422||loginResponce?.statusCode == 409) {
+      showErrorDialog('Login Failed', loginResponce?.message ?? 'Email is not registered.');
+    } else if (loginResponce?.statusCode == 401) {
+      showErrorDialog('Login Failed', loginResponce?.message ?? 'Password is wrong.');
+    } else {
+      showErrorDialog('Login Error', 'An unexpected error occurred. Please try again.');
     }
 
-    // Default return for null response
     return false;
+
   } catch (e) {
-    // Handle errors
     loginButtonController.error();
     loginButtonController.reset();
 
-    if (e.toString().contains("401")) {
-      handleTokenExpiration();
-    } else if (e.toString().contains("422")) {
-      print("Error 422: Invalid credentials");
-      return false;
+    if (e is DioException) {
+      log("DioException: ${e.response?.data}");
+      Get.snackbar(
+        'Login Error',
+        e.response?.data['message'] ?? e.message,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } else {
-      print("Login Error: $e");
+      log("Login Error: $e");
       Get.snackbar(
         'Login Error',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
     }
+
     return false;
   }
 }
 
 
-
+/// Utility function to show error dialog
+void showErrorDialog(String title, String message) {
+  Get.dialog(
+    AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Get.back();
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
 
 
 void handleTokenExpiration() async {
@@ -124,7 +128,7 @@ void handleTokenExpiration() async {
             child: Text("OK"),
             onPressed: () async {
               await SessionHelper().clearAll();
-              Get.offAllNamed(AppRoutes.login); // Navigate to login page
+              Get.offAllNamed(AppRoutes.login); 
             },
           ),
         ],

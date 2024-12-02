@@ -45,12 +45,11 @@ class DioClient with ApiConstants {
           onReceiveProgress: onReceiveProgress);
       return response;
     } on DioError catch (err) {
-      final errorMessage = DioExceptionHandler.fromDioError(err,
-              showErrorSnakBar: showErrorSnakBar)
-          .toString();
-      log('Post Requested Path : $path');
-      return Future.error(errorMessage);
+      log('Post Requested Path: $path');
+      log('DioError: ${err.response?.data}');
+      return err.response ?? Future.error("No response from server");
     } catch (e) {
+      log('General Error: $e');
       return Future.error(e);
     }
   }

@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:collection/collection.dart';
@@ -142,7 +143,7 @@ class _CartDialogueState extends State<CartDialogue> {
                           ),
                         )
                       : SizedBox(
-                          height: dialogHeight*0.4,
+                          height: dialogHeight * 0.4,
                           child: SingleChildScrollView(
                             child: Column(
                               children: cartItems
@@ -565,9 +566,7 @@ class _CartDialogueState extends State<CartDialogue> {
                     color2: Colors.green,
                   ),
                   SizedBox(
-                    height: _selectedValue == "Quick Sale"
-                        ? 140
-                        : 60,
+                    height: _selectedValue == "Quick Sale" ? 200 : 60,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -575,7 +574,8 @@ class _CartDialogueState extends State<CartDialogue> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: _options.map((option) {
-                            totalQuickController.text = '\$${double.parse(formattedAmount)}';
+                            totalQuickController.text =
+                                '\$${double.parse(formattedAmount)}';
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8.0),
@@ -590,8 +590,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedValue = value!;
-                                        _dropdownValue =
-                                            null; 
+                                        _dropdownValue = null;
                                         totalQuickController.clear();
                                       });
                                     },
@@ -608,13 +607,14 @@ class _CartDialogueState extends State<CartDialogue> {
                                 top: 16.0, left: 30, right: 30),
                             child: Column(
                               children: [
+                                
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    // Dropdown Button
                                     Container(
                                       height: 55,
-                                      width:
-                                          130, 
+                                      width: 130,
                                       decoration: BoxDecoration(
                                         border: Border.all(color: Colors.black),
                                         borderRadius: BorderRadius.circular(10),
@@ -645,116 +645,77 @@ class _CartDialogueState extends State<CartDialogue> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Container(
-                                      width: 125,
-                                      child: Expanded(
-                                        child: TextFormField(
-                                          controller: totalQuickController,
-                                          decoration: InputDecoration(
-                                            labelText: "Total Amount",
-                                            labelStyle: const TextStyle(
-                                                color: Colors.black),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.blue, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
+
+                                    // Total Amount Field
+                                    SizedBox(
+                                      width: 150,
+                                      child: MyFormField(
+                                        controller: totalQuickController,
+                                        labelText: "Total Amount",
+                                        decoration: InputDecoration(
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.black, width: 1),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.blue, width: 1),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.black, width: 1),
                                           ),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
+
+                                    // Conditional Field in First Row
                                     if (_dropdownValue == "Cheque" ||
                                         _dropdownValue == "Bank Transfer")
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right: 8),
-                                          child: TextFormField(
-                                            decoration: InputDecoration(
-                                              labelText:
-                                                  _dropdownValue == "Cheque"
-                                                      ? "Cheque Number"
-                                                      : "Transaction Number",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.blue, width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                   
-                                    if (_dropdownValue == "Cheque" ||
-                                        _dropdownValue == "Bank Transfer")
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right:8),
-                                          child: TextFormField(
-                                            decoration: InputDecoration(
-                                              labelText: "Date",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.blue, width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    
-                                   (_dropdownValue=="Cash"||_dropdownValue == null)? Container(
-                                      width: 200,
-                                      child: Expanded(
+                                      SizedBox(
+                                        width: 150,
+                                        // child: MyFormField(
+                                          // labelText: _dropdownValue == "Cheque"
+                                          //     ? "Cheque Number"
+                                          //     : "Transaction Number",
+                                        //   labelTextColor: black,
+                                        //   hintColor: black,
+                                        //   fillColor: Colors.blue,
+                                        //   decoration: InputDecoration(
+                                        //     enabledBorder: OutlineInputBorder(
+                                        //       borderSide: const BorderSide(
+                                        //           color: Colors.black,
+                                        //           width: 1),
+                                        //       borderRadius:
+                                        //           BorderRadius.circular(10),
+                                        //     ),
+                                        //     focusedBorder: OutlineInputBorder(
+                                        //       borderSide: const BorderSide(
+                                        //           color: Colors.blue, width: 1),
+                                        //       borderRadius:
+                                        //           BorderRadius.circular(10),
+                                        //     ),
+                                        //     border: OutlineInputBorder(
+                                        //       borderSide: const BorderSide(
+                                        //           color: Colors.black,
+                                        //           width: 1),
+                                        //     ),
+                                        //   ),
+                                        // ),
                                         child: TextFormField(
                                           decoration: InputDecoration(
-                                            labelText: "Remark",
+                                            labelText: _dropdownValue == "Cheque"
+                                              ? "Cheque Number"
+                                              : "Transaction Number",
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
-                                                  color: Colors.black, width: 1),
+                                                  color: Colors.black,
+                                                  width: 1),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -766,20 +727,25 @@ class _CartDialogueState extends State<CartDialogue> {
                                             ),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
-                                                  color: Colors.black, width: 1),
+                                                  color: Colors.black,
+                                                  width: 1),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ):Expanded(
+                                    if (_dropdownValue == "Cash" ||
+                                        _dropdownValue == null)
+                                      SizedBox(
+                                        width: 200,
                                         child: TextFormField(
                                           decoration: InputDecoration(
                                             labelText: "Remark",
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
-                                                  color: Colors.black, width: 1),
+                                                  color: Colors.black,
+                                                  width: 1),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -791,7 +757,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                             ),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
-                                                  color: Colors.black, width: 1),
+                                                  color: Colors.black,
+                                                  width: 1),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -800,6 +767,74 @@ class _CartDialogueState extends State<CartDialogue> {
                                       ),
                                   ],
                                 ),
+
+                                if (_dropdownValue == "Cheque" ||
+                                    _dropdownValue == "Bank Transfer")
+                                  const SizedBox(height: 8),
+                                if (_dropdownValue == "Cheque" ||
+                                    _dropdownValue == "Bank Transfer")
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: "Date",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.blue, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      SizedBox(
+                                        width: 200,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: "Remark",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.blue, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                               ],
                             ),
                           ),
@@ -1235,5 +1270,39 @@ class _CartDialogueState extends State<CartDialogue> {
     });
 
     log('Cart items deleted for product: $productName');
+  }
+}
+
+class CartTextFields extends StatelessWidget {
+  const CartTextFields({
+    super.key,
+    required this.controller,
+    required this.text,
+  });
+
+  final TextEditingController controller;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: text,
+        labelStyle: const TextStyle(color: Colors.black),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.blue, width: 1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        border: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
   }
 }

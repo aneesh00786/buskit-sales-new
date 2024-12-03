@@ -37,7 +37,7 @@ class InitialSubcategoryInfo {
 }
 
 class ProductsController extends GetxController {
-   //final ApiWorker _apiWorker = Get.find();
+  //final ApiWorker _apiWorker = Get.find();
   var optionName = ''.obs;
   TextEditingController searchCustomerController = TextEditingController();
   Rx<CategoryModel> categoryData = CategoryModel().obs;
@@ -50,7 +50,6 @@ class ProductsController extends GetxController {
   /// SINGLE [customerAndOrderData] CUSTOMER DATA
   Rx<CustomerAndOrderData> customerAndOrderData = CustomerAndOrderData().obs;
   CrossFadeState crossFadeState = CrossFadeState.showFirst;
-  
 
   /// SEARCH CUSTOMER
   RxList<SearchData> searchData = <SearchData>[].obs;
@@ -76,19 +75,24 @@ class ProductsController extends GetxController {
   onInit() {
     super.onInit();
     fetchCategoryData();
-    
   }
 
-bool onReached(bool reached) {
-  isReached.value = reached;
-  return isReached.value;
-}
+  bool onReached(bool reached) {
+    isReached.value = reached;
+    return isReached.value;
+  }
+
+  void updateSelectedCustomer(String name, String imageUrl) {
+    selectedCustomerName.value = name;
+    selectedCustomerImageUrl.value = imageUrl;
+    log('Selected Customer Updated: $name, $imageUrl');
+  }
 
   String getFormattedCustomerName(String? fullname) {
     if (fullname == null || fullname.isEmpty) {
       return '';
     }
-    return fullname.length > 6 ? '${fullname.substring(0, 6)}...' : fullname;
+    return fullname.length > 15 ? '${fullname.substring(0, 15)}...' : fullname;
   }
 
   Future<List<ProductModel>> fetchProducts(String subCatId) async {

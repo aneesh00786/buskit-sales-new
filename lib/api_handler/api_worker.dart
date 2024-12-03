@@ -40,70 +40,63 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
-Future<LoginResponce?> loginApi(String email, String password) async {
-  Map<String, dynamic> data = {
-    'email': email,
-    'password': password,
-  };
-  try {
-    final response = await dio1.post(
-      '${ApiConstants.baseUrl}${ApiConstants.login}',
-      data: data,
-    );
-    log("Request Data: $data");
-    log("Response Data: ${response.data}");
-
-    if (response.data != null) {
-      final status = response.data['status'];
-      final message = response.data['message'] ?? 'No message available';
-      final statusCode = response.data['status_code'];
-
-      if (status == false) {
-        log("Login Failed: $message");
-        return LoginResponce(
-          status: false,
-          message: message,
-          statusCode: statusCode,
-        );
+  final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  final companyId = SessionHelper.loginSavedData!.company_id!;
+  Future<LoginResponce?> loginApi(String email, String password) async {
+    Map<String, dynamic> data = {
+      'email': email,
+      'password': password,
+    };
+    try {
+      final response = await dio1.post(
+        '${ApiConstants.baseUrl}${ApiConstants.login}',
+        data: data,
+      );
+      log("Request Data: $data");
+      log("Response Data: ${response.data}");
+      if (response.data != null) {
+        final status = response.data['status'];
+        final message = response.data['message'] ?? 'No message available';
+        final statusCode = response.data['status_code'];
+        if (status == false) {
+          log("Login Failed: $message");
+          return LoginResponce(
+            status: false,
+            message: message,
+            statusCode: statusCode,
+          );
+        }
+        log("Login Successful: $message");
+        return LoginResponce.fromJson(response.data);
+      } else {
+        log("Error: Invalid response data");
+        return null;
       }
-      log("Login Successful: $message");
-      return LoginResponce.fromJson(response.data);
-    } else {
-      log("Error: Invalid response data");
-      return null;
+    } on DioException catch (error) {
+      log("DioError: ${error.message}");
+      log("DioError Response Data: ${error.response?.data}");
+      log("DioError Status Code: ${error.response?.statusCode}");
+      final errorData = error.response?.data;
+      final statusCode = error.response?.statusCode;
+      final message = errorData?['message'] ?? error.message;
+      return LoginResponce(
+        status: false,
+        message: message,
+        statusCode: statusCode,
+      );
+    } catch (e) {
+      log("General Error: $e");
+      return LoginResponce(
+        status: false,
+        message: 'An unexpected error occurred.',
+        statusCode: null,
+      );
     }
-  } on DioException catch (error) {
-    log("DioError: ${error.message}");
-    log("DioError Response Data: ${error.response?.data}");
-    log("DioError Status Code: ${error.response?.statusCode}");
-
-    // Extract relevant data from the error response if available
-    final errorData = error.response?.data;
-    final statusCode = error.response?.statusCode;
-    final message = errorData?['message'] ?? error.message;
-
-    return LoginResponce(
-      status: false,
-      message: message,
-      statusCode: statusCode,
-    );
-  } catch (e) {
-    log("General Error: $e");
-    return LoginResponce(
-      status: false,
-      message: 'An unexpected error occurred.',
-      statusCode: null,
-    );
   }
-}
-
-
-
 
   /// ************************ DASHBOARD SECTION ***************** ///
 
   Future<DashboardResponse> dashboardData() async {
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     String createdToken = jsonMap['createdToken'];
@@ -199,10 +192,6 @@ Future<LoginResponce?> loginApi(String email, String password) async {
   /// ************************ CUSTOMER AND ORDER SECTION ***************** ///
   Future<CustomerAndOrderResponce> getCustomer() async {
     try {
-      final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      int companyId = jsonMap['company_id'];
       final response = await dio.postbycustom(
         ApiConstants.fetchcustomer,
         data: FormData.fromMap({
@@ -210,6 +199,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
           "salesman_id": salesmanId,
         }),
       );
+      log('Company Id === $companyId');
       return CustomerAndOrderResponce.fromJson(response.data);
     } catch (error) {
       return Future.error(
@@ -431,9 +421,6 @@ Future<LoginResponce?> loginApi(String email, String password) async {
         throw Exception('No data available offline');
       }
     } else {
-      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      int companyId = jsonMap['company_id'];
       log('$companyId');
       final response = await dio.getbycustom(ApiConstants.fetchcategories,
           queryParameters: {
@@ -449,11 +436,9 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       return category;
     }
   }
+
   /// ************************ PRODUCT SECTION ***************** ///
   Future<List<ProductModel>> getTempProduct(String subCatId) async {
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    int companyId = jsonMap['company_id'];
     log('Company ID: $companyId');
     final List<ConnectivityResult> connectivityResult =
         await (Connectivity().checkConnectivity());
@@ -540,16 +525,13 @@ Future<LoginResponce?> loginApi(String email, String password) async {
 
   Future<LeadResponce> getLeadsData(String salesManId,
       {PaginationModel? paginationModel}) async {
-      final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      int companyId = jsonMap['company_id'];
     final response = await dio
         .postbycustom(ApiConstants.fetch_leads,
             data: FormData.fromMap({
               "page": paginationModel?.currentPage ?? "",
               "limit": paginationModel?.limit ?? '',
               "salesman_id": salesManId,
-              "company_id":companyId,
+              "company_id": companyId,
             }))
         .onError((DioError error, stackTrace) {
       log(error.toString());
@@ -561,7 +543,6 @@ Future<LoginResponce?> loginApi(String email, String password) async {
 
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     final response = await dio
         .postbycustom(ApiConstants.fetch_leads_reject,
             data: FormData.fromMap({
@@ -624,6 +605,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return TodayTasksResponse.fromJson(response.data);
   }
+
   Future<Response> updateSchedule(Map<String, dynamic> sendData) async {
     log("Send DATA: ${sendData}");
     final response = await dio
@@ -681,6 +663,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return OrderResponce.fromJson(response.data);
   }
+
   Future<OptionOrderResponce> getAllOrderByStatus(
       {String? customerId,
       String? salesmanId,
@@ -762,16 +745,13 @@ Future<LoginResponce?> loginApi(String email, String password) async {
   }) async {
     print(
         "startDate++1234++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    int companyId = jsonMap['company_id'];
     final response = await dio
         .postbycustom(
       ApiConstants.orders_count_get,
       data: FormData.fromMap({
         "start_date": searchModel?.startDate,
         "end_date": searchModel?.endDate,
-        "companyId":companyId,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -780,12 +760,12 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return OrderCountResponse.fromJson(response.data);
   }
-   Future<OrderResponce> getRecentOrdersData({
+
+  Future<OrderResponce> getRecentOrdersData({
     SearchModel? searchModel,
     int? order_status,
   }) async {
-    log(
-        "startDate++1234++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}");
+    log("startDate++1234++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}");
     final response = await dio
         .postbycustom(
       ApiConstants.get_recent_order,
@@ -793,7 +773,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
         "order_status": order_status,
         "start_date": searchModel?.startDate,
         "end_date": searchModel?.endDate,
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -802,7 +782,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return OrderResponce.fromJson(response.data);
   }
-    Future<OrderProcessInvoice> getOrderProcessInvoiceData({
+
+  Future<OrderProcessInvoice> getOrderProcessInvoiceData({
     String? orderId,
     int? orderStatus,
   }) async {
@@ -812,8 +793,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       data: FormData.fromMap({
         "order_id": orderId,
         "order_status": orderStatus,
-        //added
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -822,7 +802,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return OrderProcessInvoice.fromJson(response.data);
   }
-    Future<FetchSpecificOrder> fetchSpecificOrder({
+
+  Future<FetchSpecificOrder> fetchSpecificOrder({
     String? orderId,
   }) async {
     final response = await dio
@@ -830,8 +811,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       ApiConstants.fetch_specific_order,
       data: FormData.fromMap({
         "order_id": orderId,
-        //added
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -840,7 +820,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return FetchSpecificOrder.fromJson(response.data);
   }
-    Future<OrderProcessInvoice> loadWaitingForApproval({
+
+  Future<OrderProcessInvoice> loadWaitingForApproval({
     String? orderId,
   }) async {
     final response = await dio
@@ -849,8 +830,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       data: FormData.fromMap({
         "order_id": orderId,
         "updatedOrders": [],
-        //added
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -859,7 +839,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return OrderProcessInvoice.fromJson(response.data);
   }
-    Future<ButtonAction> orderReject({
+
+  Future<ButtonAction> orderReject({
     String? orderId,
     String? rejectReason,
   }) async {
@@ -870,7 +851,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
         "order_id": orderId,
         "rejection_reason": rejectReason,
         //added
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -879,7 +860,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
     });
     return ButtonAction.fromJson(response.data);
   }
-    Future<ButtonAction> orderAccept({
+
+  Future<ButtonAction> orderAccept({
     String? orderId,
     List<dynamic>? updatedOrders,
   }) async {
@@ -890,7 +872,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
         data: {
           "order_id": orderId,
           "updatedOrders": updatedOrders,
-          "companyId": 1,
+          "companyId": companyId,
         },
         options: Options(
           headers: {
@@ -909,7 +891,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       rethrow;
     }
   }
-    Future<Response> sendMail({
+
+  Future<Response> sendMail({
     String? orderId,
     List<dynamic>? updatedOrders,
   }) async {
@@ -921,7 +904,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
           "order_id": orderId,
           "updatedOrders": updatedOrders,
           //added
-          "companyId": 1,
+          "companyId": companyId,
         },
         options: Options(
           headers: {
@@ -940,7 +923,8 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       rethrow;
     }
   }
-    Future<Response> packedAndReadyAdd({
+
+  Future<Response> packedAndReadyAdd({
     String? cartId,
     String? orderId,
   }) async {
@@ -951,7 +935,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
         "cart_id": cartId,
         "order_id": orderId,
         //added
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -961,7 +945,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
 
     return response;
   }
-  
+
   Future<ButtonAction> orderDeliver({
     String? orderId,
   }) async {
@@ -971,7 +955,7 @@ Future<LoginResponce?> loginApi(String email, String password) async {
       data: FormData.fromMap({
         "order_id": orderId,
         //added
-        "companyId": 1,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {

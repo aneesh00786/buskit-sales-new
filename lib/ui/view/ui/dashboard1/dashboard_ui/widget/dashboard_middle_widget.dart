@@ -1468,7 +1468,6 @@ class ChatScreen extends StatelessWidget {
                         model1.Messages message =
                             provider.individualChatMessages![index];
 
-                        // Determine color based on source
                         Color tileColor = Colors.white;
                         if (message.source == 'admin') {
                           tileColor = const Color(0xffd1e7dd);
@@ -1477,7 +1476,7 @@ class ChatScreen extends StatelessWidget {
                         }
 
                         return Align(
-                          alignment: message.source == 'admin'
+                          alignment: message.source == 'salesman'
                               ? Alignment.centerRight
                               : Alignment.centerLeft,
                           child: Container(
@@ -1485,7 +1484,7 @@ class ChatScreen extends StatelessWidget {
                                 vertical: 5, horizontal: 10),
                             padding: const EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
-                              color: message.source == 'admin'
+                              color: message.source == 'salesman'
                                   ? Color(0xFFdcf8c6)
                                   : Colors.grey[300],
                               borderRadius: BorderRadius.circular(10),
@@ -1535,7 +1534,7 @@ class ChatScreen extends StatelessWidget {
                             });
                           }
 
-                          Navigator.of(context).pop();
+                         // Navigator.of(context).pop();
                         },
                       ),
                     ],

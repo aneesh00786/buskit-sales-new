@@ -64,6 +64,8 @@ class _OrderTakingState extends State<OrderTaking>
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   HomeController homeController = Get.find<HomeController>();
+  // final ProductsController productsController = Get.put(ProductsController());
+
   bool isLoading = true;
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
@@ -353,7 +355,8 @@ class _OrderTakingState extends State<OrderTaking>
       widget.productsController.selectedCustomerImageUrl.value = '';
       log('Condition1');
     } else if (widget.isFromCalender == true ||
-        widget.isDirectDialogue == true||widget.isFromOrder==true) {
+        widget.isDirectDialogue == true ||
+        widget.isFromOrder == true) {
       Navigator.pop(context);
       log('Condition2');
     } else {
@@ -364,6 +367,10 @@ class _OrderTakingState extends State<OrderTaking>
     }
     log('Is Direct :${widget.isDirectDialogue}');
     log('Is FRom Calender${widget.isFromCalender}');
+  }
+
+  void onCustomerSelected(String name, String imageUrl) {
+    widget.productsController.updateSelectedCustomer(name, imageUrl);
   }
 
   @override
@@ -381,7 +388,9 @@ class _OrderTakingState extends State<OrderTaking>
         ),
         leading: IconButton(
           onPressed: () {
-            bool toDash = !(widget.isDirectDialogue || widget.isFromCalender || widget.isFromOrder);
+            bool toDash = !(widget.isDirectDialogue ||
+                widget.isFromCalender ||
+                widget.isFromOrder);
             log('To Dash : ${toDash}');
             triggerLeadingIcon(toDash);
             log('Triggered');
@@ -390,6 +399,39 @@ class _OrderTakingState extends State<OrderTaking>
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
+        actions: [
+          SizedBox(
+            width: 200,
+            child: Obx(() => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Circle Avatar
+                    if (!widget.productsController.selectedCustomerName.isEmpty)
+                      CircleAvatar(
+                        backgroundImage: widget.productsController
+                                .selectedCustomerImageUrl.isEmpty
+                            ? null
+                            : NetworkImage(
+                                '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
+                              ),
+                        backgroundColor: widget.productsController
+                                .selectedCustomerImageUrl.isEmpty
+                            ? Colors.blueGrey
+                            : const Color.fromARGB(123, 194, 192, 192),
+                      ),
+                    const SizedBox(width: 8), // Spacing between avatar and text
+                    // Name Text
+                    Text(
+                      widget.productsController.selectedCustomerName.isEmpty
+                          ? ''
+                          : widget
+                              .productsController.selectedCustomerName.value,
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                )),
+          ),
+        ],
       ),
       body: Obx(() {
         if (widget.productsController.categoryData.value == null) {
@@ -402,9 +444,10 @@ class _OrderTakingState extends State<OrderTaking>
           alignment: Alignment.topCenter,
           children: [
             Column(
+              
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 76),
+                const SizedBox(height: 86),
                 Expanded(
                   child: Stack(
                     children: [
@@ -434,6 +477,7 @@ class _OrderTakingState extends State<OrderTaking>
                   left: widget.productsController.selectedCustomerName.isEmpty
                       ? 45
                       : 0,
+                      top: 10,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -643,22 +687,29 @@ class _OrderTakingState extends State<OrderTaking>
                                                           .setCustomerId(customer
                                                                   .customerId ??
                                                               '');
-
-                                                      widget
-                                                              .productsController
-                                                              .selectedCustomerName
-                                                              .value =
+                                                      onCustomerSelected(
                                                           widget
                                                               .productsController
                                                               .getFormattedCustomerName(
                                                                   customer
-                                                                      .businessName);
-                                                      widget
-                                                          .productsController
-                                                          .selectedCustomerImageUrl
-                                                          .value = customer
-                                                              .imageUrl ??
-                                                          '';
+                                                                      .businessName),
+                                                          customer.imageUrl ??
+                                                              '');
+                                                      // widget
+                                                      //         .productsController
+                                                      //         .selectedCustomerName
+                                                      //         .value =
+                                                      //     widget
+                                                      //         .productsController
+                                                      //         .getFormattedCustomerName(
+                                                      //             customer
+                                                      //                 .businessName);
+                                                      // widget
+                                                      //     .productsController
+                                                      //     .selectedCustomerImageUrl
+                                                      //     .value = customer
+                                                      //         .imageUrl ??
+                                                      //     '';
                                                       widget
                                                           .productsController
                                                           .selectedCustomerId
@@ -691,7 +742,7 @@ class _OrderTakingState extends State<OrderTaking>
                     ),
                     IntrinsicWidth(
                         child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Hero(
                           tag: 'product_image',
@@ -744,50 +795,17 @@ class _OrderTakingState extends State<OrderTaking>
                             ),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IntrinsicWidth(
-                              child: ListTile(
-                                  title: Text(widget.productsController
-                                          .selectedCustomerName.isEmpty
-                                      ? ''
-                                      : widget.productsController
-                                          .getFormattedCustomerName(widget
-                                              .productsController
-                                              .selectedCustomerName
-                                              .value)),
-                                  leading: widget.productsController
-                                          .selectedCustomerName.isEmpty
-                                      ? null
-                                      : CircleAvatar(
-                                          backgroundImage: NetworkImage(widget
-                                                  .productsController
-                                                  .selectedCustomerImageUrl
-                                                  .isEmpty
-                                              ? ''
-                                              : '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}'),
-                                          backgroundColor: widget
-                                                  .productsController
-                                                  .selectedCustomerImageUrl
-                                                  .isEmpty
-                                              ? Colors.blueGrey
-                                              : Color.fromARGB(
-                                                  123, 194, 192, 192),
-                                        )),
-                            ),
-                            IntrinsicWidth(
-                              child: CustomSwitch(
-                                initialValue: active,
-                                onChanged: (value) {
-                                  active = value;
-                                },
-                                active: active,
-                                selectedName: widget.productsController
-                                    .selectedCustomerName.value,
-                              ),
-                            ),
-                          ],
+                        SizedBox(width: 20,),
+                        IntrinsicWidth(
+                          child: CustomSwitch(
+                            initialValue: active,
+                            onChanged: (value) {
+                              active = value;
+                            },
+                            active: active,
+                            selectedName: widget
+                                .productsController.selectedCustomerName.value,
+                          ),
                         )
                       ],
                     ))

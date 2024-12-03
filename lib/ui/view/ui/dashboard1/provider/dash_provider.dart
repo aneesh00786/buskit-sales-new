@@ -51,7 +51,9 @@ class ApiService {
   }
   Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
       int specifiedYear, String startDate, String endDate) async {
-    var companyId = 1;
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    int companyId = jsonMap['company_id'];
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
     log('${startDate}, ${endDate}');
     final requestBody = {
@@ -89,11 +91,13 @@ class ApiService {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     String createdToken = jsonMap['createdToken'];
+    //String companyId = jsonMap['company_id'];
     final url = '$_baseUrl${ApiConstants.dashboard_list}';
     final requestBody = {
       "salesman_id": salesmanId,
       "start_date": startDate,
       "end_date": endDate,
+      //"companyId":companyId,
     };
     try {
       log('API URL: $url');
@@ -332,6 +336,7 @@ class ApiService {
       throw Exception('Failed to fetch chat data: $e');
     }
   }
+
   Future<MessagesResponse> fetch_individual_chat(String chatId) async {
     log('Fetched INdividual Chats');
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchIndividualChat}');
@@ -899,9 +904,9 @@ class ApiService {
 
   Future<ApiResponseModel> fetchCustomerDashboardDataa(String customerId,
       int specifiedYear, String startDate, String endDate) async {
-          final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-      Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      int companyId = jsonMap['company_id'];
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    int companyId = jsonMap['company_id'];
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_dashboard_list');
 
     final requestBody = {
@@ -1358,6 +1363,7 @@ class ApiService {
     }
   }
 }
+
 class DashboardProvider with ChangeNotifier {
   Future<ResponseModell>? _futureResponseModel;
   Future<SalesmenResponse>? _salesmenResponse;
@@ -1369,7 +1375,7 @@ class DashboardProvider with ChangeNotifier {
   final ApiService _apiService;
   final Logger _logger;
   bool _dataFetched = false;
-   bool get dataFetched => _dataFetched;
+  bool get dataFetched => _dataFetched;
 
   DashboardProvider({required ApiService apiService, required Logger logger})
       : _apiService = apiService,
@@ -1399,7 +1405,7 @@ class DashboardProvider with ChangeNotifier {
   Future<ResponseModelCp>? _responseModelCp;
 
   Future<ResponseModelCp>? get responseModelCp => _responseModelCp;
-    void resetProvider() {
+  void resetProvider() {
     _dataFetched = false;
     _futureResponseModel = null;
     _salesmenResponse = null;
@@ -1407,8 +1413,8 @@ class DashboardProvider with ChangeNotifier {
     _selectedFilter = FilterDateEnum.thisMonth;
     _selectedStartDate = '';
     _selectedEndDate = '';
-
   }
+
   Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
     try {
       final now = DateTime.now();
@@ -1768,7 +1774,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
-    
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
@@ -1925,7 +1930,7 @@ class DashboardProvider with ChangeNotifier {
       await _apiService.postAdminMessage(salesmanId: chatId, message: message);
       _individualChatMessages?.add(Messages(
         message: message,
-        source: 'admin',
+        source: 'salesman',
         id: 0,
         chatId: '',
         //salesmanId: 'SALES1',

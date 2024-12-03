@@ -57,6 +57,8 @@ void initState() {
     dashboardProvider.resetProvider();
     dashboardProvider.fetchData();
     dashboardProvider.fetchChatData(salesmanId);
+    final com = SessionHelper.loginSavedData!.company_id!;
+    log('Company id : $com');
   }
 }
 

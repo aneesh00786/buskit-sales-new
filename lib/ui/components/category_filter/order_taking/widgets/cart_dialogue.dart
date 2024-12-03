@@ -142,7 +142,7 @@ class _CartDialogueState extends State<CartDialogue> {
                           ),
                         )
                       : SizedBox(
-                          height: dialogHeight * 0.5,
+                          height: dialogHeight*0.4,
                           child: SingleChildScrollView(
                             child: Column(
                               children: cartItems

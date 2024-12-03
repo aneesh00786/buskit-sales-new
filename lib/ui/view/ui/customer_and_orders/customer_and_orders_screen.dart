@@ -2741,11 +2741,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       padding: const EdgeInsets.all(8.0),
       child: Text(
         text,
+        textAlign:TextAlign.center,
         style: TextStyle(
           fontSize: 12,
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontFamily: 'Poppins_Regular',
         ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,

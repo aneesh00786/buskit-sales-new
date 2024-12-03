@@ -1432,18 +1432,17 @@ Widget middleTopRightComponet() {
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
-  final VoidCallback onBack;
 
-  const ChatScreen({super.key, required this.chatId, required this.onBack});
+
+  const ChatScreen({super.key, required this.chatId,});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, _) {
         if (provider.individualChatMessages == null) {
-          provider.fetch_individual_chat(chatId);
+          provider.fetch_individual_chat('SALES1');
         }
-
         final TextEditingController _messageController =
             TextEditingController();
         final ScrollController _scrollController = ScrollController();
@@ -1526,7 +1525,7 @@ class ChatScreen extends StatelessWidget {
                                     chatId, _messageController.text.trim())
                                 .then((_) {
                               _messageController.clear();
-                              provider.fetchChatData('');
+                              provider.fetchChatData('SALES1');
                               // provider.fetchChatData(chatId);
                               if (_scrollController.hasClients) {
                                 _scrollController.jumpTo(
@@ -1590,205 +1589,7 @@ class _CommunicationsDisplayWidgetState
           ),
           // nkSmallSizeBox(),
           Expanded(
-            child: Padding(
-              padding: nkRegularPadding(top: 10, bottom: 0),
-              child: Consumer<DashboardProvider>(
-                builder: (context, provider, child) {
-                  return FutureBuilder<model1.SalesmenResponse>(
-                    future: provider.salesmenResponse,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
-                        );
-                      } else if (!snapshot.hasData ||
-                          snapshot.data!.data.isEmpty) {
-                        return const Center(
-                          child: Text('No chat data available'),
-                        );
-                      } else {
-                        final chatData =
-                            snapshot.data!.data.expand((list) => list).toList();
-
-                        return ListView.builder(
-                          itemCount: chatData.length,
-                          itemBuilder: (context, index) {
-                            final chat = chatData[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: MyCommnonContainer(
-                                borderRadius: 3.7,
-                                border: Border.all(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    width: 0.4),
-                                // color: const Color(0xffe1e4e6),
-                                child: ListTile(
-                                  leading: Container(
-                                    width: 33,
-                                    height: 30,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:
-                                          Color(0xffe6ecff), // Background color
-                                    ),
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 20.5,
-                                      color: Color(0xff4294ff),
-                                    ),
-                                  ),
-                                  title: Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            MyRegularText(
-                                              label: chat.fullname,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 11.6,
-                                              color: secondaryTextColor,
-                                            ),
-                                            const Spacer(),
-                                            Container(
-                                              width: 9.3,
-                                              height: 9.3,
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    spreadRadius: 1,
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Center(
-                                                child: Text(
-                                                  '',
-                                                  style: TextStyle(
-                                                    fontSize: 1,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            MyRegularText(
-                                              label:
-                                                  '${NKDateUtils.commonDayFormat(NKDateUtils.formatStringUTCDateTime(chat.updatedAt.toString()))}  ${NKDateUtils.commonTimeFormat(NKDateUtils.formatStringUTCDateTime(chat.updatedAt.toString()))}',
-                                              fontWeight: NkGeneralSize
-                                                  .nkGeneralFontWeight(),
-                                              fontSize: 9.2,
-                                            ),
-                                          ],
-                                        ),
-                                        MyRegularText(
-                                          label: chat.message,
-                                          fontSize: 10,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    provider.selectChat(chat);
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          contentPadding: EdgeInsets.zero,
-                                          titlePadding: EdgeInsets.zero,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          content: SizedBox(
-                                            width: 300,
-                                            height: 414,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 8,
-                                                      horizontal: 12),
-                                                  width: double.maxFinite,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                      color: Color(0xFF62a582),
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                              topLeft: Radius
-                                                                  .circular(10),
-                                                              topRight: Radius
-                                                                  .circular(
-                                                                      10))),
-                                                  child: Row(
-                                                    children: [
-                                                      Text(
-                                                        chat.fullname,
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              fontFamilyName,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 13.0,
-                                                          color: white,
-                                                        ),
-                                                      ),
-                                                      Spacer(),
-                                                      dialogCloseButton(
-                                                          context, red)
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 5),
-                                                const Divider(),
-                                                Expanded(
-                                                  child: ChatScreen(
-                                                    chatId: chat.salesmanId,
-                                                    onBack: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      provider
-                                                          .clearSelectedChat();
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      }
-                    },
-                  );
-                },
-              ),
-            ),
+           child: ChatScreen(chatId: "",),
           ),
           nkSmallSizeBox(),
           Row(

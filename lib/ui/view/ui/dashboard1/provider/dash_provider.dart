@@ -297,9 +297,9 @@ class ApiService {
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
     final requestBody = {
-      "salesman_id": '',
+      "salesman_id": salesmanId,
     };
-
+    log('Request Body : ${requestBody}');
     try {
       final response = await http.post(
         url,
@@ -332,14 +332,12 @@ class ApiService {
       throw Exception('Failed to fetch chat data: $e');
     }
   }
-
-  // ignore: non_constant_identifier_names
   Future<MessagesResponse> fetch_individual_chat(String chatId) async {
+    log('Fetched INdividual Chats');
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchIndividualChat}');
     final requestBody = {
       "salesman_id": chatId,
     };
-
     try {
       final response = await http.post(
         url,
@@ -1930,10 +1928,10 @@ class DashboardProvider with ChangeNotifier {
         source: 'admin',
         id: 0,
         chatId: '',
+        //salesmanId: 'SALES1',
         status: 0,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-        // Add other necessary fields
       ));
       notifyListeners();
     } catch (e, stackTrace) {

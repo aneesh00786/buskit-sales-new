@@ -171,7 +171,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               Align(
                   alignment: Alignment.centerLeft,
                   child: CustomText(
-                    content: "Please enter you'r E-mail correctly..",
+                    content: "Enter you'r registered E-mail.",
                     fontSize: 20,
                   )),
               nkMediumSizeBox(),

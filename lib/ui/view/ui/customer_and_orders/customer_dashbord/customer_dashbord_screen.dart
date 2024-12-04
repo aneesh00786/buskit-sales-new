@@ -43,6 +43,9 @@ class CustomerDachScreen extends StatefulWidget {
   final dynamic year;
   final dynamic startDate;
   final dynamic endDate;
+  final String? cusName;
+  final String? cusId;
+  final String? cusImage;
   final bool isFromCalendar;
   final bool isDirectDialogue;
   final bool isFromOrder;
@@ -52,6 +55,9 @@ class CustomerDachScreen extends StatefulWidget {
     this.year,
     this.startDate,
     this.endDate,
+    this.cusId,
+    this.cusName,
+    this.cusImage,
     this.isFromCalendar = false,
     this.isDirectDialogue = false,
     this.isFromOrder = false,
@@ -73,18 +79,26 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   @override
   void initState() {
     super.initState();
+    final customerId = widget.isFromCalendar
+        ? widget.cusId ?? ''
+        : productsController.selectedCustomerId.value;
+    if (widget.isFromCalendar) {
+      productsController.updateSelectedCustomer(
+          name: widget.cusName ?? '',
+          imageUrl: widget.cusImage ?? '',
+          id: widget.cusId ?? '');
+    }
     SchedulerBinding.instance.addPostFrameCallback((_) {
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardData(
-              productsController.selectedCustomerId.value, selectedYear, widget.startDate, widget.endDate);
+              customerId, selectedYear, widget.startDate, widget.endDate);
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardRevenueData(
-              productsController.selectedCustomerId.value, selectedYear, widget.startDate, widget.endDate);
-
+              customerId, selectedYear, widget.startDate, widget.endDate);
       Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardDataSalseData(productsController.selectedCustomerId.value, selectedYear);
+          .fetchCustomerDashboardDataSalseData(customerId, selectedYear);
       Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomersDataDash(productsController.selectedCustomerId.value);
+          .fetchCustomersDataDash(customerId);
     });
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -96,8 +110,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     });
     log('SelectedCustomer Id :${productsController.selectedCustomerId.value}');
-    log('SelectedCustomer Id :${productsController.selectedCustomerName.value}');
-    log('SelectedCustomer Id :${productsController.selectedCustomerImageUrl.value}');
+    log('SelectedCustomer Name :${productsController.selectedCustomerName.value}');
+    log('SelectedCustomer Image :${productsController.selectedCustomerImageUrl.value}');
   }
 
   @override
@@ -108,6 +122,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
+    final customerName = widget.isFromCalendar
+        ? widget.cusName ?? ''
+        : productsController.selectedCustomerName.value;
+    final customerImage = widget.isFromCalendar
+        ? widget.cusImage ?? ''
+        : productsController.selectedCustomerImageUrl.value;
     String? startDate;
     String? endDate;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -165,7 +185,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                customerOrderController.setCustomerId(productsController.selectedCategoryId.value);
+                customerOrderController
+                    .setCustomerId(productsController.selectedCategoryId.value);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -189,7 +210,58 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 style: TextStyle(color: Colors.white),
               ),
             ),
-            UpdateCustomer(widget: widget),
+            SizedBox(
+              width: 110,
+              child: Container(
+                height: 44,
+                width: double.infinity,
+                //  color: const Color(0xffffffff),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      CircleAvatar(
+                          backgroundColor: const Color(0xffe6ecff),
+                          radius: 15,
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                'http://16.50.232.153:3000/uploads/${customerImage}',
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          )
+                          // Placeholder if imagePath is null
+                          ),
+                      const SizedBox(
+                        width: 4.5,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MyRegularText(label: customerName, fontSize: 8.8),
+                          // SizedBox(
+                          //   height: 2.5,
+                          // ),
+                          const MyRegularText(label: "Customer", fontSize: 9),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            //UpdateCustomer(widget: widget),
           ],
         ),
         body: Consumer<CustomersProvider>(
@@ -214,7 +286,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId: productsController.selectedCategoryId.value,
+                          customerId:
+                              productsController.selectedCategoryId.value,
                           customType: "",
                           customOrderStatusType: OrderStatus.preOrder,
                           userType: UserType.customer,
@@ -312,7 +385,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             context,
                             MaterialPageRoute(
                                 builder: (_) => DashboardScreen(
-                                      cus: productsController.selectedCategoryId.value,
+                                      cus: productsController
+                                          .selectedCategoryId.value,
                                       y: '2024',
                                     )));
                       },
@@ -399,7 +473,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: productsController.selectedCategoryId.value,
+                                  customerId: productsController
+                                      .selectedCategoryId.value,
                                   year: selectedYear,
                                 ),
                               );
@@ -1380,7 +1455,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                   Provider.of<CustomersProvider>(context,
                                           listen: false)
                                       .fetchCustomerDashboardDataSalseData(
-                                          productsController.selectedCategoryId.value, selectedYear);
+                                          productsController
+                                              .selectedCategoryId.value,
+                                          selectedYear);
                                 });
                               },
                               items: provider.yearList
@@ -2074,8 +2151,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 }
 
-
-
 class UpdateCustomer extends StatelessWidget {
   UpdateCustomer({
     super.key,
@@ -2123,7 +2198,8 @@ class UpdateCustomer extends StatelessWidget {
 
               return InkWell(
                 onTap: () {
-                  provider.fetchCustomersDataDash(productsController.selectedCategoryId.value);
+                  provider.fetchCustomersDataDash(
+                      productsController.selectedCategoryId.value);
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -2647,7 +2723,8 @@ class UpdateCustomer extends StatelessWidget {
                                         ElevatedButton(
                                           onPressed: () async {
                                             final updatedAdmin = CustomerDashMo(
-                                              customerId: productsController.selectedCategoryId.value,
+                                              customerId: productsController
+                                                  .selectedCategoryId.value,
                                               // cartId:
                                               //     widget.cusId, // Provide default or empty values if not applicable
                                               fullname: nameController.text,
@@ -2667,7 +2744,9 @@ class UpdateCustomer extends StatelessWidget {
                                             try {
                                               await provider.updateCustomerDash(
                                                   admin: updatedAdmin,
-                                                  cusId: productsController.selectedCategoryId.value);
+                                                  cusId: productsController
+                                                      .selectedCategoryId
+                                                      .value);
 
                                               print(
                                                   "this is admin data from this mdoel $updatedAdmin");

@@ -87,7 +87,7 @@ class ProductsController extends GetxController {
     selectedCustomerName.value = name;
     selectedCustomerImageUrl.value = imageUrl;
     selectedCategoryId.value = id;
-    log('Selected Customer Updated: $name, $imageUrl');
+    log('Selected Customer Updated: $name, $imageUrl, $id');
   }
 
   void clearSelectedCustomer() {

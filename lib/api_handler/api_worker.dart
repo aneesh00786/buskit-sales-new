@@ -40,8 +40,8 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
-  final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  final companyId = SessionHelper.loginSavedData!.company_id!;
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
+  final companyId = SessionHelper.loginSavedData?.company_id??0;
   Future<LoginResponce?> loginApi(String email, String password) async {
     Map<String, dynamic> data = {
       'email': email,
@@ -532,7 +532,7 @@ class ApiWorker with ApiConstants {
               "page": paginationModel?.currentPage ?? "",
               "limit": paginationModel?.limit ?? '',
               "salesman_id": salesManId,
-              "company_id": companyId,
+              "companyId": companyId,
             }))
         .onError((DioError error, stackTrace) {
       log(error.toString());
@@ -549,7 +549,8 @@ class ApiWorker with ApiConstants {
             data: FormData.fromMap({
               "page": paginationModel?.currentPage ?? "",
               "limit": paginationModel?.limit ?? '',
-              "salesman_id": salesmanId
+              "salesman_id": salesmanId,
+              "companyId":companyId,
             }))
         .onError((DioException error, stackTrace) {
       log(error.toString());
@@ -707,6 +708,7 @@ class ApiWorker with ApiConstants {
       "limit": paginationModel?.limit.toString() ?? '',
       "page": paginationModel?.currentPage.toString() ?? '',
       "salesman_id": salesmanId,
+      "companyId":companyId,
     };
 
     log("Sending request with data: $requestData");

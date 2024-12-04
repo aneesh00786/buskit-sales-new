@@ -96,6 +96,7 @@ class ApiService {
       "salesman_id": salesmanId,
       "start_date": startDate,
       "end_date": endDate,
+      "companyId":companyId,
       //"companyId":companyId,
     };
     try {
@@ -324,9 +325,7 @@ class ApiService {
           statusCode: json.decode(response.body)['status_code'],
           status: json.decode(response.body)['status'],
           message: json.decode(response.body)['message'],
-          data: [
-            salesmanChats
-          ], // Assuming SalesmenResponse expects List<List<SalesmanChat>>
+          data: [salesmanChats],
         );
       } else {
         throw Exception('Failed to fetch chat data - ${response.statusCode}');
@@ -724,6 +723,7 @@ class ApiService {
       "business_name": customerName,
       "start_date": startDate,
       "end_date": endDate,
+      "companyId":companyId,
       "limit": limit,
       "page": page,
       "valueFromDw": valueFromDw,
@@ -1004,7 +1004,7 @@ class ApiService {
     final requestBody = {
       "customer_id": customerId,
       "year": year,
-      "companyId":companyId, 
+      "companyId": companyId,
     };
     log('CompanyId : $requestBody');
     try {

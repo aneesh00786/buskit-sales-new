@@ -441,7 +441,6 @@ class CustomersProvider with ChangeNotifier {
         }
 
         _isLoading = true;
-        notifyListeners();
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: salesmanId,
           customerName: '',
@@ -462,8 +461,6 @@ class CustomersProvider with ChangeNotifier {
           _errorMessage = 'Failed to fetch customer data: ${error}';
           notifyListeners();
         });
-
-        notifyListeners();
       } catch (e, stackTrace) {
         _isLoading = false;
         _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);

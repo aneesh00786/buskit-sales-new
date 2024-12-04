@@ -119,16 +119,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   }
                   homeController.sidebarXController.selectIndex(1);
                   homeController.selectedIndex.value = 1;
-                  productsController.updateSelectedCustomer(
-                      id: customer.customerId ?? '',
-                      imageUrl: customer.imageUrl ?? '',
-                      name: customer.businessName ?? '');
-                  Get.to(
-                    () => CustomerDachScreen(
-                      isFromCalendar: true,
-                    ),
-                    id: 2,
-                  );
                   final now = DateTime.now();
                   final startDate = DateTime(now.year, now.month, 1);
                   final endDate = DateTime(now.year, now.month + 1, 0);
@@ -136,6 +126,18 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       DateFormat('yyyy-MM-dd').format(startDate);
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
+
+                  Get.to(
+                    () => CustomerDachScreen(
+                      isFromCalendar: true,
+                      startDate: formattedStartDate,
+                      endDate: formattedEndDate,
+                      cusId: customer.customerId,
+                      cusName: customer.businessName,
+                      cusImage: customer.imageUrl,
+                    ),
+                    id: 2,
+                  );
                   final customerId = customer.customerId.toString();
                   final customersProvider =
                       Provider.of<CustomersProvider>(context, listen: false);

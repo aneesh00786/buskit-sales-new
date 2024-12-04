@@ -112,9 +112,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       customer.customerId ?? '';
                   Get.to(
                     () => CustomerDachScreen(
-                      cusId: customer.customerId.toString(),
-                      cusName: customer.businessName.toString(),
-                      cusImage: customer.imageUrl.toString(),
                       isDirectDialogue: true,
                     ),
                     id: 2,
@@ -278,15 +275,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                     '';
                                                 Get.to(
                                                     () => CustomerDachScreen(
-                                                          cusId: event
-                                                              .event!.customerId
-                                                              .toString(),
-                                                          cusName: event.event!
-                                                              .businessName
-                                                              .toString(),
-                                                          cusImage: event
-                                                              .event!.imageUrl
-                                                              .toString(),
                                                           isDirectDialogue:
                                                               true,
                                                         ),

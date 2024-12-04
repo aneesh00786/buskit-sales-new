@@ -231,6 +231,7 @@ class ApiWorker with ApiConstants {
         .postbycustom(ApiConstants.customer_dashboard_list,
             data: FormData.fromMap({
               "customer_id": customerId,
+              "companyId":companyId
             }))
         .onError((DioError error, stackTrace) {
       log(error.toString());

@@ -82,10 +82,19 @@ class ProductsController extends GetxController {
     return isReached.value;
   }
 
-  void updateSelectedCustomer(String name, String imageUrl) {
+  void updateSelectedCustomer(
+      {required String name, required String imageUrl, required String id}) {
     selectedCustomerName.value = name;
     selectedCustomerImageUrl.value = imageUrl;
+    selectedCategoryId.value = id;
     log('Selected Customer Updated: $name, $imageUrl');
+  }
+
+  void clearSelectedCustomer() {
+    selectedCustomerName.value = '';
+    selectedCustomerImageUrl.value = '';
+    selectedCategoryId.value = '';
+    log('Selected Customer Cleared');
   }
 
   String getFormattedCustomerName(String? fullname) {

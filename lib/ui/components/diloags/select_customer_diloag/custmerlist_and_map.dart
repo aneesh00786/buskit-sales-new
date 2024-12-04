@@ -64,12 +64,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    _mapController.suggestions.clear();
-    _mapController.searchedLatLng.value = null;
-    _mapController.getDirections();
-    _mapController.getCurrentLocation();
-  });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mapController.suggestions.clear();
+      _mapController.searchedLatLng.value = null;
+      _mapController.getDirections();
+      _mapController.getCurrentLocation();
+    });
   }
 
   @override
@@ -117,20 +117,14 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   if (!widget.istoGoogleMap) {
                     Navigator.pop(context);
                   }
-
                   homeController.sidebarXController.selectIndex(1);
                   homeController.selectedIndex.value = 1;
-                  productsController.selectedCustomerName.value =
-                      customer.businessName ?? '';
-                  productsController.selectedCustomerImageUrl.value =
-                      customer.imageUrl ?? '';
-                  productsController.selectedCustomerId.value =
-                      customer.customerId ?? '';
+                  productsController.updateSelectedCustomer(
+                      id: customer.customerId ?? '',
+                      imageUrl: customer.imageUrl ?? '',
+                      name: customer.businessName ?? '');
                   Get.to(
                     () => CustomerDachScreen(
-                      cusId: customer.customerId.toString(),
-                      cusName: customer.businessName.toString(),
-                      cusImage: customer.imageUrl.toString(),
                       isFromCalendar: true,
                     ),
                     id: 2,

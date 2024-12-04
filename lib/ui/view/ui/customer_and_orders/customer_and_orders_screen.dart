@@ -58,7 +58,6 @@ class _tableeeState extends State<tableee> {
   Widget calender() {
     return Consumer<DashboardProvider>(builder: (context, provider, child) {
       bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
-
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1904,12 +1903,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     MaterialPageRoute(
                                                       builder: (context) =>
                                                           CustomerDachScreen(
-                                                              cusId: customer
-                                                                  .customerId,
-                                                              cusName: customer
-                                                                  .fullname,
-                                                              cusImage: customer
-                                                                  .imageUrl,
                                                               year: 2024,
                                                               startDate: provider
                                                                   .selectedStartDate,

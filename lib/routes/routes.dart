@@ -52,12 +52,12 @@ class AppRoutes {
         GetPage(
           name: dashboard,
           page: () => DashBoardScreen(
-            homeController: Get.arguments??HomeController(),
+            homeController: Get.arguments ?? HomeController(),
           ),
         ),
         GetPage(
           name: customersAndOrders,
-          page: () =>  tableee(),
+          page: () => tableee(),
           binding: CommonBinding(),
         ),
         GetPage(
@@ -75,11 +75,7 @@ class AppRoutes {
           transitionDuration: NkCommonFunction.longDuration(),
           transition: Transition.rightToLeft,
           page: () => CustomerDachScreen(
-            cusId: '',
-            cusImage: '',
-            cusName: '',
             isFromCalendar: false,
-            
           ),
           binding: CommonBinding(),
         ),
@@ -109,7 +105,7 @@ class AppRoutes {
         ),
         GetPage(
           name: settings,
-          page: () =>  SettingsScreen(),
+          page: () => SettingsScreen(),
           binding: CommonBinding(),
         ),
       ];

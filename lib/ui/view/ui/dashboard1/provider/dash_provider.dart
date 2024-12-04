@@ -51,13 +51,11 @@ class ApiService {
   }
   Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
       int specifiedYear, String startDate, String endDate) async {
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    int companyId = jsonMap['company_id'];
+    final companyId = SessionHelper.loginSavedData?.company_id??0;
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
     log('${startDate}, ${endDate}');
     final requestBody = {
-      "company_id": companyId,
+      "companyId": companyId,
       "customer_id": customerId,
       "end_date": endDate,
       "start_date": startDate,
@@ -926,7 +924,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
-        // Print all the responses
         print("Response Data:");
         print(
             "Category Performance: ${jsonResponse['data']['category_performance']}");
@@ -935,7 +932,6 @@ class ApiService {
             "Frequent Product Lists: ${jsonResponse['data']['frequantliy_product_lists']}");
         print("Year List: ${jsonResponse['data']['year_list']}");
         print("Full Category: ${jsonResponse['data']['fullCategotry']}");
-        // Parse category_performance
         List<CategoryPerformancez> categoryPerformance = [];
         if (jsonResponse['data']['category_performance'] != null) {
           categoryPerformance =
@@ -1053,10 +1049,11 @@ class ApiService {
 
   Future<ApiResponseModel> fetchCustomerDashboardData() async {
     final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
-
+    final id = SessionHelper.loginSavedData?.company_id??0;
     final body = {
       'customer_id': 'CUSTO42',
       'specifiedYear': 2024,
+      'companyId': id
     };
 
     try {

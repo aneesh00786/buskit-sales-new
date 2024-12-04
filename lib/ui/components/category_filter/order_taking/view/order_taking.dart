@@ -30,9 +30,6 @@ class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
   final bool isFromCalender;
-  final String cusName;
-  final String cusImage;
-  final String? cusId;
   final bool isDirectDialogue;
   final bool isFromOrder;
   OrderTaking(
@@ -42,9 +39,7 @@ class OrderTaking extends StatefulWidget {
       this.isFromCalender = false,
       this.isDirectDialogue = false,
       this.isFromOrder = false,
-      required this.cusName,
-      required this.cusImage,
-      this.cusId});
+});
 
   @override
   _OrderTakingState createState() => _OrderTakingState();
@@ -369,10 +364,6 @@ class _OrderTakingState extends State<OrderTaking>
     log('Is FRom Calender${widget.isFromCalender}');
   }
 
-  void onCustomerSelected(String name, String imageUrl) {
-    widget.productsController.updateSelectedCustomer(name, imageUrl);
-  }
-
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -444,7 +435,6 @@ class _OrderTakingState extends State<OrderTaking>
           alignment: Alignment.topCenter,
           children: [
             Column(
-              
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 86),
@@ -477,7 +467,7 @@ class _OrderTakingState extends State<OrderTaking>
                   left: widget.productsController.selectedCustomerName.isEmpty
                       ? 45
                       : 0,
-                      top: 10,
+                  top: 10,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -687,14 +677,17 @@ class _OrderTakingState extends State<OrderTaking>
                                                           .setCustomerId(customer
                                                                   .customerId ??
                                                               '');
-                                                      onCustomerSelected(
-                                                          widget
-                                                              .productsController
-                                                              .getFormattedCustomerName(
-                                                                  customer
-                                                                      .businessName),
-                                                          customer.imageUrl ??
-                                                              '');
+                                                      widget.productsController
+                                                          .updateSelectedCustomer(
+                                                              id: customer
+                                                                      .customerId ??
+                                                                  '',
+                                                              imageUrl: customer
+                                                                      .imageUrl ??
+                                                                  '',
+                                                              name: customer
+                                                                      .businessName ??
+                                                                  '');
                                                       // widget
                                                       //         .productsController
                                                       //         .selectedCustomerName
@@ -795,7 +788,9 @@ class _OrderTakingState extends State<OrderTaking>
                             ),
                           ),
                         ),
-                        SizedBox(width: 20,),
+                        SizedBox(
+                          width: 20,
+                        ),
                         IntrinsicWidth(
                           child: CustomSwitch(
                             initialValue: active,

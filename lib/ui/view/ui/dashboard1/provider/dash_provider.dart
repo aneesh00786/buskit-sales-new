@@ -1004,8 +1004,9 @@ class ApiService {
     final requestBody = {
       "customer_id": customerId,
       "year": year,
+      "companyId":companyId, 
     };
-
+    log('CompanyId : $requestBody');
     try {
       final response = await http.post(
         url,
@@ -1040,6 +1041,7 @@ class ApiService {
           ),
         );
       } else {
+        log(response.body);
         throw Exception(
             'Failed to fetch customer total sale data - ${response.statusCode}');
       }

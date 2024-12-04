@@ -82,7 +82,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               productsController.selectedCustomerId.value, selectedYear, widget.startDate, widget.endDate);
 
       Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardDataSalseData(productsController.selectedCategoryId.value, selectedYear);
+          .fetchCustomerDashboardDataSalseData(productsController.selectedCustomerId.value, selectedYear);
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomersDataDash(productsController.selectedCustomerId.value);
     });

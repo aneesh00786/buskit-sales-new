@@ -24,6 +24,7 @@ import 'dash_models.dart';
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
   final Dio dio = Dio();
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   ApiService() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
@@ -51,7 +52,7 @@ class ApiService {
   }
   Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
       int specifiedYear, String startDate, String endDate) async {
-    final companyId = SessionHelper.loginSavedData?.company_id??0;
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
     log('${startDate}, ${endDate}');
     final requestBody = {
@@ -908,7 +909,7 @@ class ApiService {
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_dashboard_list');
 
     final requestBody = {
-      "company_id": companyId,
+      "companyId": companyId,
       "customer_id": customerId,
       "end_date": endDate,
       "specifiedYear": specifiedYear,
@@ -1049,7 +1050,7 @@ class ApiService {
 
   Future<ApiResponseModel> fetchCustomerDashboardData() async {
     final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
-    final id = SessionHelper.loginSavedData?.company_id??0;
+    final id = SessionHelper.loginSavedData?.company_id ?? 0;
     final body = {
       'customer_id': 'CUSTO42',
       'specifiedYear': 2024,
@@ -1117,9 +1118,8 @@ class ApiService {
 
   Future<CustomerResponse> fetchOneCustomer(String customerId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetch_one_customer}');
-    final requestBody = {
-      "customer_id": customerId,
-    };
+
+    final requestBody = {"customer_id": customerId, "companyId": companyId};
 
     try {
       final response = await http.post(

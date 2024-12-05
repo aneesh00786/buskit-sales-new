@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -44,7 +45,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: white,
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [_buildChangePasswordButton()],
+      ),
       body: SingleChildScrollView(
         physics: NkGeneralSize.commonPysics(),
         padding: nkRegularPadding(),
@@ -58,17 +61,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Flexible(
                     child: idAndImagePicWidget(
                         file: photoId,
-                        imageUrl: salesman?.idimagePath??'',
-                        text: 'Profile Image'
-                        ),
+                        imageUrl: salesman?.idimagePath ?? '',
+                        text: 'Profile Image'),
                   ),
                   nkSmallSizeBox(),
                   Flexible(
                     child: idAndImagePicWidget(
                         file: photoId,
-                        imageUrl: salesman?.imagePath??'',
-                        text: 'Image of ID Card '
-                         ),
+                        imageUrl: salesman?.imagePath ?? '',
+                        text: 'Image of ID Card'),
                   ),
                 ],
               ),
@@ -234,8 +235,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildChangePasswordButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Text(
+                'Change Password',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 10,
+        )
+      ],
+    );
+  }
+
   Widget idAndImagePicWidget(
-      {String? lable,  String? imageUrl,File? file,String? text}) {
+      {String? lable, String? imageUrl, File? file, String? text}) {
     Column imageTextCollumn = Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -251,9 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 TextSpan(
                   text: "$lable ",
                 ),
-           
               ])),
-
         ]);
     return Column(
       children: [
@@ -262,28 +291,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
           border: Border.all(color: Colors.grey),
           padding: nkSymmetricPadding(horizontal: 0),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50,vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 nkSmallSizeBox(),
                 Flexible(
                   child: ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-                    child: imageUrl != null
-                            ? MyNetworkImage(
-                                imageUrl: imageUrl,
-                                height: AppDimensions.instance.height * 0.2,
-                              )
-                            : nkSmallSizeBox(),
-                  ),
+                      borderRadius: BorderRadius.circular(
+                          NkGeneralSize.nkCommonBorderRadius()),
+                      child: text == 'Image of ID Card'
+                          ? Image.asset("assets/images/id_card.jpg")
+                          : Image.asset("assets/images/pro_image.jpg")
+                      // imageUrl != null
+                      //         ? MyNetworkImage(
+                      //             imageUrl: imageUrl,
+                      //             height: AppDimensions.instance.height * 0.2,
+                      //           )
+
+                      ),
                 )
               ],
             ),
           ),
         ),
-        CustomText(content: text,)
+        CustomText(
+          content: text,
+        )
       ],
     );
   }

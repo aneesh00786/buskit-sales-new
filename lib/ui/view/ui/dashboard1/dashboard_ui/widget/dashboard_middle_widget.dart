@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 
@@ -24,6 +25,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_res
     as model;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
     as model1;
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -680,13 +682,13 @@ class DashBoardMiddleWidget extends StatelessWidget {
         nkSmallSizeBox(),
         GestureDetector(
           onTap: () {
-            final message = communicationController.text.trim();
-            if (provider.selectedChat != null && message.isNotEmpty) {
-              provider.postAdminMessage(
-                  provider.selectedChat!.salesmanId, message);
-              communicationController.clear();
-            }
-            print(message);
+            // final message = communicationController.text.trim();
+            // if (provider.selectedChat != null && message.isNotEmpty) {
+            //   provider.postAdminMessage(
+            //       provider.selectedChat!.salesmanId, message);
+            //   communicationController.clear();
+            // }
+            // print(message);
           },
           child: Icon(
             Icons.send,
@@ -1446,34 +1448,46 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late IO.Socket socket;
   TextEditingController _controller = TextEditingController();
-  List<String> messages = [];
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _initSocket();
-    _loadMessages();
+    Future.microtask(() {
+      Provider.of<DashboardProvider>(context, listen: false)
+          .fetch_individual_chat(salesmanId).then((_) {
+            _scrollToBottom();
+      });
+    });
+   
   }
 
   void _initSocket() {
-    socket = IO.io('http://localhost:3000/', <String, dynamic>{
+    socket = IO.io('http://16.50.232.153:3000/', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
 
     socket.connect();
     socket.on('connect', (_) {
-      print('Connected to socket server');
+      log('Connected to socket server');
     });
     socket.on('disconnect', (_) {
-      print('Disconnected from socket server');
+      log('Disconnected from socket server');
     });
-    socket.emit('join_room', 'SALES1');
+    socket.emit('join_room', salesmanId);
+
     socket.on('chat message', (msg) {
-      setState(() {
-        messages.add(msg['message']);
-      });
-      _saveMessages();
+      final newMessage = Messages(
+        message: msg['message'],
+        source: msg['source'],
+        salesman: msg['salesman'],
+      );
+      Provider.of<DashboardProvider>(context, listen: false)
+          .addMessage(newMessage);
+      _scrollToBottom();
     });
   }
 
@@ -1483,39 +1497,23 @@ class _ChatScreenState extends State<ChatScreen> {
     socket.emit('chat message', {
       'message': message,
       'source': 'salesman',
-      'salesman': 'SALES1',
-    });
-
-    setState(() {
-      messages.add(message);
+      'salesman': salesmanId,
     });
     _controller.clear();
-    _saveMessages();
   }
 
-  void _saveMessages() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('messages', messages);
-  }
-
-  void _loadMessages() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      messages = prefs.getStringList('messages') ?? [];
-    });
-  }
-
-  void _clearMessages() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('messages');
-    setState(() {
-      messages.clear();
+  void _scrollToBottom() {
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
     });
   }
 
   @override
   void dispose() {
     socket.disconnect();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -1527,46 +1525,51 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  bool isSent = messages[index].contains('salesman');
-                  return Align(
-                    alignment:
-                        !isSent ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 5),
-                      padding: EdgeInsets.all(10),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSent ? Colors.blue[100] : Colors.green[100],
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft:
-                              isSent ? Radius.circular(0) : Radius.circular(10),
-                          bottomRight:
-                              isSent ? Radius.circular(10) : Radius.circular(0),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: isSent
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            messages[index],
+              child: Consumer<DashboardProvider>(
+                builder: (context, chatProvider, child) {
+                  List<Messages> messages = chatProvider.individualChatMessages??[];
+                  if (messages.isEmpty) {
+                    return Center(child: NodataWidget());
+                  }
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      bool isSentBySalesman = message.source == 'salesman';
+                      return Align(
+                        alignment: isSentBySalesman
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          padding: EdgeInsets.all(10),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSentBySalesman
+                                ? Colors.green[100]
+                                : Colors.grey[100],
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: isSentBySalesman
+                                  ? Radius.circular(10)
+                                  : Radius.zero,
+                              bottomRight: isSentBySalesman
+                                  ? Radius.zero
+                                  : Radius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            message.message,
+                            softWrap: true,
                             style: TextStyle(fontSize: 16),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -1575,9 +1578,7 @@ class _ChatScreenState extends State<ChatScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 InkWell(
-                    onTap: () {
-                      _clearMessages();
-                    },
+                    onTap: () {},
                     child: Icon(
                       EneftyIcons.camera_outline,
                       size: 30,

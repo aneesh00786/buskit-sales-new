@@ -111,8 +111,8 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                 if (eventCount > 0)
                   CircleAvatar(
                     radius: 10,
-                    backgroundColor: (date.isBefore(DateTime.now()) ||
-                                date.isAtSameMomentAs(DateTime.now())) &&
+                    backgroundColor: (date.isBefore(DateTime.now()) &&
+                                !date.isSameDate(DateTime.now())) &&
                             event.any((e) => e.event!.checkIn == null)
                         ? const Color(0xffCCCC00)
                         : Colors.green,
@@ -136,5 +136,11 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
       maxMonth: DateTime(DateTime.now().year, 12, 31),
       minMonth: DateTime(DateTime.now().year, 1, 1),
     );
+  }
+}
+
+extension DateTimeExtension on DateTime {
+  bool isSameDate(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
   }
 }

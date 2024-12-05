@@ -563,6 +563,7 @@ class ApiWorker with ApiConstants {
   /// ******************** CALENDAR SECTION ******************/
   Future<List<EventData>> getCalendarEvents(
       Map<String, dynamic> sendData) async {
+        log('REquest Data :$sendData');
     final response = await dio
         .postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
         .onError((DioError error, stackTrace) {

@@ -533,7 +533,8 @@ void addPolyline(List<LatLng> coordinates) {
     var sendData = {
       "salesman_id": salesmanId,
       "start_date": "",
-      "end_date": companyId,
+      "end_date": "",
+      "companyId":companyId,
     };
     List<EventData> response = await _apiWorker.getCalendarEvents(sendData);
     if (response != null) {

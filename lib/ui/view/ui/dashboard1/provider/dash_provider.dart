@@ -1777,32 +1777,37 @@ class DashboardProvider with ChangeNotifier {
       _individualChatMessages = chatData.data;
       notifyListeners();
     } catch (e, stackTrace) {
-      _logger.e('Error fetching individual chat data',
-          error: e, stackTrace: stackTrace);
+      _logger.e('Error fetching individual chat data', error: e, stackTrace: stackTrace);
       throw Exception('Failed to fetch individual chat data: $e');
     }
   }
 
-  Future<void> postAdminMessage(String chatId, String message) async {
-    try {
-      await _apiService.postAdminMessage(salesmanId: chatId, message: message);
-      _individualChatMessages?.add(Messages(
-        message: message,
-        source: 'salesman',
-        id: 0,
-        chatId: '',
-        //salesmanId: 'SALES1',
-        status: 0,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ));
-      notifyListeners();
-    } catch (e, stackTrace) {
-      _logger.e('Error posting admin message',
-          error: e, stackTrace: stackTrace);
-      throw Exception('Failed to post admin message: $e');
-    }
+  // Update messages with a new message
+  void addMessage(Messages newMessage) {
+    _individualChatMessages?.add(newMessage);
+    notifyListeners();
   }
+
+  // Future<void> postAdminMessage(String chatId, String message) async {
+  //   try {
+  //     await _apiService.postAdminMessage(salesmanId: chatId, message: message);
+  //     _individualChatMessages?.add(Messages(
+  //       message: message,
+  //       source: 'salesman',
+  //       id: 0,
+  //       chatId: '',
+  //       //salesmanId: 'SALES1',
+  //       status: 0,
+  //       createdAt: DateTime.now(),
+  //       updatedAt: DateTime.now(),
+  //     ));
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error posting admin message',
+  //         error: e, stackTrace: stackTrace);
+  //     throw Exception('Failed to post admin message: $e');
+  //   }
+  // }
 
   void selectChat(SalesmanChat chat) {
     selectedChat = chat;

@@ -1359,45 +1359,41 @@ class SalesmanChat {
 }
 
 class Messages {
-  final int id;
-  final String chatId;
-  final String? salesmanId;
-  final String? customerId;
   final String message;
-  final String? imageUrl;
-  final int status;
-  final DateTime createdAt;
-  final DateTime updatedAt;
   final String source;
+  final String salesman;
 
   Messages({
-    required this.id,
-    required this.chatId,
-    this.salesmanId,
-    this.customerId,
     required this.message,
-    this.imageUrl,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
     required this.source,
+    required this.salesman,
   });
 
+  // If you want to access these properties as a map
+  Map<String, dynamic> toMap() {
+    return {
+      'message': message,
+      'source': source,
+      'salesman': salesman,
+    };
+  }
+
+  // Getter methods for easier access
+  String get getMessage => message;
+  String get getSource => source;
+  String get getSalesman => salesman;
+
+  // From JSON to Object constructor
   factory Messages.fromJson(Map<String, dynamic> json) {
     return Messages(
-      id: json['id'],
-      chatId: json['chat_id'],
-      salesmanId: json['salesman_id'],
-      customerId: json['customer_id'],
-      message: json['message'],
-      imageUrl: json['image_url'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      source: json['source'],
+      message: json['message'] ?? '',
+      source: json['source'] ?? '',
+      salesman: json['salesman'] ?? '',
     );
   }
 }
+
+
 
 class MessagesResponse {
   final int statusCode;

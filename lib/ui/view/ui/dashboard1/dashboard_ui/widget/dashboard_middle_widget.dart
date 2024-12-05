@@ -1525,7 +1525,7 @@ class _ChatScreenState extends State<ChatScreen> {
     itemBuilder: (context, index) {
       bool isSent = messages[index].contains('salesman');
       return Align(
-        alignment: isSent ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: !isSent ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
           margin: EdgeInsets.symmetric(vertical: 5), // Space between messages
           padding: EdgeInsets.all(10), // Inner padding for the chat bubble
@@ -1541,8 +1541,8 @@ class _ChatScreenState extends State<ChatScreen> {
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
-              bottomLeft: isSent ? Radius.circular(10) : Radius.circular(0),
-              bottomRight: isSent ? Radius.circular(0) : Radius.circular(10),
+              bottomLeft: isSent ? Radius.circular(0) : Radius.circular(10),
+              bottomRight: isSent ? Radius.circular(10) : Radius.circular(0),
             ),
           ),
           child: Column(

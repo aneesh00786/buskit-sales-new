@@ -7,9 +7,7 @@
     <application
         android:label="buskit_sales"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:usesCleartexttraffuc= "true"
-        >
+        android:icon="@mipmap/ic_launcher">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

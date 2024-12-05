@@ -1457,11 +1457,11 @@ class _ChatScreenState extends State<ChatScreen> {
     _initSocket();
     Future.microtask(() {
       Provider.of<DashboardProvider>(context, listen: false)
-          .fetch_individual_chat(salesmanId).then((_) {
-            _scrollToBottom();
+          .fetch_individual_chat(salesmanId)
+          .then((_) {
+        _scrollToBottom();
       });
     });
-   
   }
 
   void _initSocket() {
@@ -1527,7 +1527,8 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: Consumer<DashboardProvider>(
                 builder: (context, chatProvider, child) {
-                  List<Messages> messages = chatProvider.individualChatMessages??[];
+                  List<Messages> messages =
+                      chatProvider.individualChatMessages ?? [];
                   if (messages.isEmpty) {
                     return Center(child: NodataWidget());
                   }

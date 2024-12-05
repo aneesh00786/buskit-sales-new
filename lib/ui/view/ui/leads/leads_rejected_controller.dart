@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -77,20 +78,23 @@ class RejectedLeadsController extends GetxController {
     // loadRejectedLeadsData();
   }
 
-  Future updateRejectedLead(LeadCustomerData leadData) async {
-    var data = await ApiWorker()
-        .updateCustomer(leadData.toUpdateJson())
-        .onError((error, stackTrace) {
-      btnController.error();
-      btnController.reset();
-      return Future.error(error.toString());
-    });
-
-    if (data.statusCode == 200) {
-      btnController.success();
-      Get.back<LeadCustomerData>(result: leadData);
-    }
+Future updateRejectedLead(LeadCustomerData leadData) async {
+  final companyId = SessionHelper.loginSavedData?.company_id??0;
+  final sendData = leadData.toUpdateJson();
+  sendData['companyId'] = companyId;
+  var data = await ApiWorker()
+      .updateCustomer(sendData)
+      .onError((error, stackTrace) {
+    btnController.error();
+    btnController.reset();
+    return Future.error(error.toString());
+  });
+  if (data.statusCode == 200) {
+    btnController.success();
+    Get.back<LeadCustomerData>(result: leadData);
   }
+}
+
 
   // Future addRejectedLead(
   //     {required String browserPath,

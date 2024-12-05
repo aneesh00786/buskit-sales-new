@@ -325,9 +325,18 @@ class OptionWidget extends StatelessWidget {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const SizedBox.shrink();
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
+                        } else if (snapshot.hasError||!snapshot.hasData) {
+                          return LayoutBuilder(
+                             builder: (BuildContext context,
+                                BoxConstraints constraints) {
+                              double availableWidth = constraints.maxWidth;
+                              double padding = availableWidth / 100;
+                            return Padding(
+                              padding:  EdgeInsets.all(padding),
+                              child: Center(
+                                child: const NodataWidget(),
+                              ),
+                            );}
                           );
                         } else {
                           final orders = snapshot.data?.data ?? [];

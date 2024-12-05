@@ -1023,7 +1023,7 @@ class ApiService {
     required String customerId,
   }) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.update_customer}');
-
+    final companyId = SessionHelper.loginSavedData?.company_id??0;
     try {
       var request = http.MultipartRequest('PATCH', url);
 
@@ -1040,6 +1040,7 @@ class ApiService {
       request.fields['remark'] = model.remark.toString();
       request.fields['oldimage_url'] = 'a';
       request.fields['customer_id'] = customerId;
+      request.fields['companyId'] = companyId.toString();
 
       // Add adminProfilePicture as a file part
       var fileStream = http.ByteStream(adminProfilePicture.openRead());

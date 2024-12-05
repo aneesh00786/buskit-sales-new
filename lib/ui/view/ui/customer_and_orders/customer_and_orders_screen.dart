@@ -37,8 +37,9 @@ class _tableeeState extends State<tableee> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Provider.of<CustomersProvider>(context,listen: false).fetchCustomerData();
+    Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1747,41 +1748,43 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
           return const Center(child: CircularProgressIndicator());
         } else if (provider.errorMessage.isNotEmpty) {
           return Expanded(
-            child: Column(
-                    children: [
-            Container(
-              color: primaryColor, // Background color for the header
-              width: double.infinity,
-              padding: EdgeInsets.all(8.0),
-              child: Table(
-                columnWidths: {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(2),
-                  2: FlexColumnWidth(1),
-                  3: FlexColumnWidth(1),
-                  4: FlexColumnWidth(1),
-                  5: FlexColumnWidth(1),
-                  6: FlexColumnWidth(1),
-                  7: FlexColumnWidth(1),
-                },
-                children: [
-                  TableRow(
-                    children: [
-                      _buildTableHeader1('Sales'),
-                      _buildTableHeader1('Sales / Delivery / Payments'),
-                      _buildTableHeader1('Estimates'),
-                      _buildTableHeader1('Pre-Order'),
-                      _buildTableHeader1('Drafts'),
-                      _buildTableHeader1('Cancelled'),
-                      _buildTableHeader1('Visits'),
-                      _buildTableHeader1('SE'),
-                    ],
-                  ),
-                ],
+            child: Column(children: [
+              Container(
+                color: primaryColor, // Background color for the header
+                width: double.infinity,
+                padding: EdgeInsets.all(8.0),
+                child: Table(
+                  columnWidths: {
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(2),
+                    2: FlexColumnWidth(1),
+                    3: FlexColumnWidth(1),
+                    4: FlexColumnWidth(1),
+                    5: FlexColumnWidth(1),
+                    6: FlexColumnWidth(1),
+                    7: FlexColumnWidth(1),
+                  },
+                  children: [
+                    TableRow(
+                      children: [
+                        _buildTableHeader1('Sales'),
+                        _buildTableHeader1('Sales / Delivery / Payments'),
+                        _buildTableHeader1('Estimates'),
+                        _buildTableHeader1('Pre-Order'),
+                        _buildTableHeader1('Drafts'),
+                        _buildTableHeader1('Cancelled'),
+                        _buildTableHeader1('Visits'),
+                        _buildTableHeader1('SE'),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height*0.45,),
-            Center(child: NodataWidget()),]),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.45,
+              ),
+              Center(child: NodataWidget()),
+            ]),
           );
         } else if (provider.customersFuture == null) {
           return const Center(child: Text('No data available'));
@@ -2030,77 +2033,88 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         : null,
                                               ),
                                             ),
-                                            Expanded(
+                                           provider.filteredCustomers.length>=10? Expanded(
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children:
-                                                    List.generate(3, (index) {
-                                                  // Calculate the visible page range
-                                                  int firstPage = (provider
-                                                              .currentPage -
-                                                          1)
-                                                      .clamp(
-                                                          1,
-                                                          provider.totalPages -
-                                                              2);
-                                                  int visiblePage =
-                                                      firstPage + index;
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: List.generate(
+                                                    provider.totalPages > 0
+                                                        ? 3
+                                                        : 0, 
+                                                    (index) {
+                                                      if (provider.totalPages <=
+                                                          0) {
+                                                        return Container(); 
+                                                      }
+                                                      int firstPage = (provider
+                                                                  .currentPage -
+                                                              1)
+                                                          .clamp(
+                                                              1,
+                                                              provider.totalPages -
+                                                                  2);
+                                                      int visiblePage =
+                                                          firstPage + index;
+                                                      visiblePage =
+                                                          visiblePage.clamp(
+                                                              1,
+                                                              provider
+                                                                  .totalPages);
 
-                                                  return GestureDetector(
-                                                    onTap: visiblePage <=
-                                                            provider.totalPages
-                                                        ? () {
-                                                            provider.currentPage =
-                                                                visiblePage;
-                                                            provider
-                                                                .refreshCurrentPage();
-                                                          }
-                                                        : null,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              2.0),
-                                                      child: Container(
-                                                        height: 40,
-                                                        width: 25,
-                                                        // padding:
-                                                        //     const EdgeInsets
-                                                        //         .all(4),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: provider
-                                                                      .currentPage ==
-                                                                  visiblePage
-                                                              ? Colors.white
-                                                              : Colors
-                                                                  .transparent,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(
-                                                            '$visiblePage',
-                                                            style: TextStyle(
-                                                              fontSize: 13,
+                                                      return GestureDetector(
+                                                        onTap: visiblePage <=
+                                                                provider
+                                                                    .totalPages
+                                                            ? () {
+                                                                provider.currentPage =
+                                                                    visiblePage;
+                                                                provider
+                                                                    .refreshCurrentPage();
+                                                              }
+                                                            : null,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(2.0),
+                                                          child: Container(
+                                                            height: 40,
+                                                            width: 25,
+                                                            decoration:
+                                                                BoxDecoration(
                                                               color: provider
                                                                           .currentPage ==
                                                                       visiblePage
-                                                                  ? primaryColor
+                                                                  ? Colors.white
                                                                   : Colors
-                                                                      .white,
+                                                                      .transparent,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                            ),
+                                                            child: Center(
+                                                              child: Text(
+                                                                '$visiblePage',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: provider
+                                                                              .currentPage ==
+                                                                          visiblePage
+                                                                      ? primaryColor
+                                                                      : Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                              ),
-                                            ),
-                                            Container(
+                                                      );
+                                                    },
+                                                  )),
+                                            ):Container(),
+                                            SizedBox(
                                               height: 40,
                                               width: 40,
                                               child: IconButton(
@@ -2727,14 +2741,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         }
       }),
     );
-    
   }
-    Widget _buildTableHeader1(String text) {
+
+  Widget _buildTableHeader1(String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         text,
-        textAlign:TextAlign.center,
+        textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 12,
           color: Colors.white,
@@ -2747,311 +2761,308 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   }
 }
 
-  Widget _buildTableHeader(Widget child, double width) {
-    return Container(
-      height: 58,
-      width: width,
-      alignment: Alignment.center,
-      color: primaryColor,
-      child: child,
-    );
-  }
+Widget _buildTableHeader(Widget child, double width) {
+  return Container(
+    height: 58,
+    width: width,
+    alignment: Alignment.center,
+    color: primaryColor,
+    child: child,
+  );
+}
 
-  Widget _buildTableCell(Widget child, double width,
-      {EdgeInsetsGeometry padding = const EdgeInsets.all(8.0)}) {
-    // debugPrint("Building table cell with width: $width");
-    return Container(
-      height: 58,
-      width: width,
-      padding: padding,
-      child: child,
-    );
-  }
+Widget _buildTableCell(Widget child, double width,
+    {EdgeInsetsGeometry padding = const EdgeInsets.all(8.0)}) {
+  // debugPrint("Building table cell with width: $width");
+  return Container(
+    height: 58,
+    width: width,
+    padding: padding,
+    child: child,
+  );
+}
 
-  Widget _buildDataCell(String count, String amount, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              count,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+Widget _buildDataCell(String count, String amount, Color color) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            count,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(width: 4),
-        Text(
-          formatAmount(amount),
-          style: const TextStyle(fontSize: 12),
+      ),
+      const SizedBox(width: 4),
+      Text(
+        formatAmount(amount),
+        style: const TextStyle(fontSize: 12),
+      ),
+    ],
+  );
+}
+
+void _showOrderDataDialog(
+    BuildContext context, OrderDataxx orderData, CustomerModelxx customer) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-      ],
-    );
-  }
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+            double availableWidth = constraints.maxWidth;
+            // double fontSize = availableWidth / 50.6;
+            double fontSize = 14;
+            double padding = availableWidth / 100;
+            double fixedIconSize = 13.0; // Fixed icon size
 
-  void _showOrderDataDialog(
-      BuildContext context, OrderDataxx orderData, CustomerModelxx customer) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-              double availableWidth = constraints.maxWidth;
-              // double fontSize = availableWidth / 50.6;
-              double fontSize = 14;
-              double padding = availableWidth / 100;
-              double fixedIconSize = 13.0; // Fixed icon size
-
-              return SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: availableWidth),
-                  child: Theme(
-                    data: NkGetXTheme.lightTheme,
-                    child: DataTable(
-                      // ignore: deprecated_member_use
-                      dataRowHeight: 64,
-                      headingRowColor:
-                          MaterialStateProperty.resolveWith<Color>((states) {
-                        return primaryColor; // Set the background color for the headers
-                      }),
-                      columnSpacing:
-                          padding, // Adjust the spacing between columns
-                      columns: [
-                        DataColumn(
-                          label: Text(
-                            'Customer List',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
-                            ),
+            return SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: availableWidth),
+                child: Theme(
+                  data: NkGetXTheme.lightTheme,
+                  child: DataTable(
+                    // ignore: deprecated_member_use
+                    dataRowHeight: 64,
+                    headingRowColor:
+                        MaterialStateProperty.resolveWith<Color>((states) {
+                      return primaryColor; // Set the background color for the headers
+                    }),
+                    columnSpacing:
+                        padding, // Adjust the spacing between columns
+                    columns: [
+                      DataColumn(
+                        label: Text(
+                          'Customer List',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: MyRegularText(
-                            label: 'Order Number',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
+                          label: 'Order Number',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: MyRegularText(
-                            label: 'Order Created',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
+                          label: 'Order Created',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: MyRegularText(
-                            label: 'Created By',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
+                          label: 'Created By',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: MyRegularText(
-                            label: 'Order Price',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
+                          label: 'Order Price',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: MyRegularText(
-                            label: 'Invoice',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
+                          label: 'Invoice',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: MyRegularText(
-                            label: 'Status',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
+                      ),
+                      DataColumn(
+                        label: MyRegularText(
+                          label: 'Status',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
-                        DataColumn(
-                          label: dialogCloseButton(context, red),
-                        ),
-                      ],
-                      rows: orderData.totalSales.map((order) {
-                        return DataRow(
-                          cells: [
-                            DataCell(
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: fixedIconSize * 2.6,
-                                    width: fixedIconSize * 2.6,
-                                    child: CircleAvatar(
-                                      backgroundColor: const Color(0xffe6ecff),
-                                      child: Icon(
-                                        Icons.person,
-                                        size: fixedIconSize,
-                                        color: Colors.blue,
-                                      ),
+                      ),
+                      DataColumn(
+                        label: dialogCloseButton(context, red),
+                      ),
+                    ],
+                    rows: orderData.totalSales.map((order) {
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: fixedIconSize * 2.6,
+                                  width: fixedIconSize * 2.6,
+                                  child: CircleAvatar(
+                                    backgroundColor: const Color(0xffe6ecff),
+                                    child: Icon(
+                                      Icons.person,
+                                      size: fixedIconSize,
+                                      color: Colors.blue,
                                     ),
                                   ),
-                                  SizedBox(width: padding),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        customer != null
-                                            ? customer.fullname
-                                            : 'N/A',
-                                        style: TextStyle(fontSize: fontSize),
+                                ),
+                                SizedBox(width: padding),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      customer != null
+                                          ? customer.fullname
+                                          : 'N/A',
+                                      style: TextStyle(fontSize: fontSize),
+                                    ),
+                                    Text(
+                                      customer != null
+                                          ? customer.mobileno
+                                          : 'N/A',
+                                      style: TextStyle(
+                                        fontSize: fontSize * 0.6,
+                                        color: Colors.black,
                                       ),
-                                      Text(
-                                        customer != null
-                                            ? customer.mobileno
-                                            : 'N/A',
-                                        style: TextStyle(
-                                          fontSize: fontSize * 0.6,
-                                          color: Colors.black,
-                                        ),
+                                    ),
+                                    Text(
+                                      customer != null ? customer.email : 'N/A',
+                                      style: TextStyle(
+                                        fontSize: fontSize * 0.6,
+                                        color: Colors.black,
                                       ),
-                                      Text(
-                                        customer != null
-                                            ? customer.email
-                                            : 'N/A',
-                                        style: TextStyle(
-                                          fontSize: fontSize * 0.6,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              order.orderId,
+                              style: TextStyle(fontSize: fontSize),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              order.orderCreatAt != null
+                                  ? getFormattedOrderCreatAt(
+                                      order.orderCreatAt.toString())
+                                  : 'N/A',
+                              style: TextStyle(fontSize: fontSize),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              '${order.fullname!.nkStringCapitalizeFirstCaracter} ${order.lastname!.nkStringCapitalizeFirstCaracter}',
+                              style: TextStyle(fontSize: fontSize),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              formatAmount(order.orderTotal),
+                              style: TextStyle(fontSize: fontSize),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              '\$${order.orderId}',
+                              style: TextStyle(
+                                  fontSize: fontSize, color: primaryColor),
+                            ),
+                          ),
+                          DataCell(
+                            Padding(
+                              padding: EdgeInsets.all(padding),
+                              child: SizedBox(
+                                height: 31,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffffdbb8),
+                                    borderRadius: BorderRadius.circular(4.6),
                                   ),
-                                ],
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                order.orderId,
-                                style: TextStyle(fontSize: fontSize),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                order.orderCreatAt != null
-                                    ? getFormattedOrderCreatAt(
-                                        order.orderCreatAt.toString())
-                                    : 'N/A',
-                                style: TextStyle(fontSize: fontSize),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                '${order.fullname!.nkStringCapitalizeFirstCaracter} ${order.lastname!.nkStringCapitalizeFirstCaracter}',
-                                style: TextStyle(fontSize: fontSize),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                formatAmount(order.orderTotal),
-                                style: TextStyle(fontSize: fontSize),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                '\$${order.orderId}',
-                                style: TextStyle(
-                                    fontSize: fontSize, color: primaryColor),
-                              ),
-                            ),
-                            DataCell(
-                              Padding(
-                                padding: EdgeInsets.all(padding),
-                                child: SizedBox(
-                                  height: 31,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xffffdbb8),
-                                      borderRadius: BorderRadius.circular(4.6),
-                                    ),
-                                    //                                         child:
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Text(
-                                          _getStatusName(order.orderStatus)),
-                                    ),
+                                  //                                         child:
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child:
+                                        Text(_getStatusName(order.orderStatus)),
                                   ),
                                 ),
                               ),
                             ),
-                            const DataCell(Text('')),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                          ),
+                          const DataCell(Text('')),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ),
-              );
-            }),
-          ),
-        );
-      },
-    );
+              ),
+            );
+          }),
+        ),
+      );
+    },
+  );
+}
+
+String formatAmount(dynamic value) {
+  // Convert the dynamic value to double
+  double amount;
+
+  if (value is String) {
+    amount = double.tryParse(value) ?? 0.0;
+  } else if (value is int) {
+    amount = value.toDouble();
+  } else if (value is double) {
+    amount = value;
+  } else {
+    throw ArgumentError('Unsupported value type');
   }
 
-  String formatAmount(dynamic value) {
-    // Convert the dynamic value to double
-    double amount;
+  // Format the amount to two decimal places
+  String formattedAmount = amount.toStringAsFixed(2);
 
-    if (value is String) {
-      amount = double.tryParse(value) ?? 0.0;
-    } else if (value is int) {
-      amount = value.toDouble();
-    } else if (value is double) {
-      amount = value;
-    } else {
-      throw ArgumentError('Unsupported value type');
-    }
-
-    // Format the amount to two decimal places
-    String formattedAmount = amount.toStringAsFixed(2);
-
-    // Return with the $ symbol
-    return '\$ ' + formattedAmount;
-  }
+  // Return with the $ symbol
+  return '\$ ' + formattedAmount;
+}
 
 extension TakeLastExtension<E> on List<E> {
   List<E> takeLast(int n) => skip(length - n).toList();

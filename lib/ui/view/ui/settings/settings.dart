@@ -57,15 +57,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Flexible(
+                  Container(
+                    width: 200,
                     child: idAndImagePicWidget(
                         file: photoId,
                         imageUrl: salesman?.idimagePath ?? '',
                         text: 'Profile Image'),
                   ),
                   nkSmallSizeBox(),
-                  Flexible(
+                  nkSmallSizeBox(),
+                  nkSmallSizeBox(),
+                  nkSmallSizeBox(),
+                  Container(
+                    width: 200,
                     child: idAndImagePicWidget(
                         file: photoId,
                         imageUrl: salesman?.imagePath ?? '',
@@ -287,32 +293,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       children: [
         MyCommnonContainer(
-          height: 200,
           border: Border.all(color: Colors.grey),
-          padding: nkSymmetricPadding(horizontal: 0),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                nkSmallSizeBox(),
-                Flexible(
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          NkGeneralSize.nkCommonBorderRadius()),
-                      child: text == 'Image of ID Card'
-                          ? Image.asset("assets/images/id_card.jpg")
-                          : Image.asset("assets/images/pro_image.jpg")
-                      // imageUrl != null
-                      //         ? MyNetworkImage(
-                      //             imageUrl: imageUrl,
-                      //             height: AppDimensions.instance.height * 0.2,
-                      //           )
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
+                child: text == 'Image of ID Card'
+                    ? Image.asset("assets/images/id_card.jpg")
+                    : Image.asset("assets/images/pro_image.jpg")
+                // imageUrl != null
+                //         ? MyNetworkImage(
+                //             imageUrl: imageUrl,
+                //             height: AppDimensions.instance.height * 0.2,
+                //           )
 
-                      ),
-                )
-              ],
-            ),
+                ),
           ),
         ),
         CustomText(

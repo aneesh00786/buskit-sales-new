@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
@@ -94,7 +95,8 @@ class CustomerAndOrderController extends GetxController {
   }
 
   Future deleteCustomer(String customerId, int index) async {
-    var map = {"id": customerId};
+    final companyId = SessionHelper.loginSavedData?.company_id??0;
+    var map = {"id": customerId,"companyId":companyId};
     var data = await ApiWorker().deleteCustomer(map);
     if (data.statusCode == 200 && data.data["status"] == true) {
       customerAndOrderList.removeAt(index);

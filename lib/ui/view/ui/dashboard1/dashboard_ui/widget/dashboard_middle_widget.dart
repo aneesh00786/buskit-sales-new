@@ -1515,32 +1515,64 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Salesman Chat')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  bool isSent = messages[index].contains('salesman');
-                  return ListTile(
-                    title: Text(messages[index]),
-                    subtitle: isSent ? Text('Sent') : Text('Received'),
-                  );
-                },
-              ),
+  child: ListView.builder(
+    itemCount: messages.length,
+    itemBuilder: (context, index) {
+      bool isSent = messages[index].contains('salesman');
+      return Align(
+        alignment: isSent ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 5), // Space between messages
+          padding: EdgeInsets.all(10), // Inner padding for the chat bubble
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.7, // Limit width
+          ),
+          decoration: BoxDecoration(
+            color: isSent ? Colors.blue[100] : Colors.green[100],
+            border: Border.all(
+              color: Colors.grey.shade300,
+              width: 1,
             ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+              bottomLeft: isSent ? Radius.circular(10) : Radius.circular(0),
+              bottomRight: isSent ? Radius.circular(0) : Radius.circular(10),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment:
+                isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              Text(
+                messages[index],
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 InkWell(
-                  onTap: () {
-                    
-                  },
-                  child: Icon(EneftyIcons.camera_outline,size: 30,)),
-                SizedBox(width: 5,),
+                    onTap: () {},
+                    child: Icon(
+                      EneftyIcons.camera_outline,
+                      size: 30,
+                    )),
+                SizedBox(
+                  width: 5,
+                ),
                 Expanded(
                   child: TextField(
                     controller: _controller,

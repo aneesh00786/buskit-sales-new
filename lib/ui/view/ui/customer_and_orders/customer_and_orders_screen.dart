@@ -2003,7 +2003,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(10.0),
-                                      child: Container(
+                                      child:provider.filteredCustomers.length>=10? Container(
                                         width: 3 * 62.0,
                                         decoration: BoxDecoration(
                                           color: primaryColor,
@@ -2033,7 +2033,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         : null,
                                               ),
                                             ),
-                                           provider.filteredCustomers.length>=10? Expanded(
+                                            Expanded(
                                               child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -2113,7 +2113,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       );
                                                     },
                                                   )),
-                                            ):Container(),
+                                            ),
                                             SizedBox(
                                               height: 40,
                                               width: 40,
@@ -2135,7 +2135,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ),
                                           ],
                                         ),
-                                      ),
+                                      ):Container(),
                                     ),
                                     Container(
                                       color: Colors.grey[200],

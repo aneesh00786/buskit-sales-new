@@ -91,7 +91,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
             ],
           ),
           content: CustomText(
-            content: 'Reached on customer',
+            content: 'Reached customer Location ?',
             fontSize: 17,
           ),
           actions: [

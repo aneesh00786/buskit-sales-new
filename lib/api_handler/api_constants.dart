@@ -35,7 +35,6 @@ mixin class ApiConstants {
   static const String fetchAllOrders = "fetch_all_order";
   static const String changeOrderStatus = "change_order_status";
   static const String adminOnPopUp = "admin_on_popup";
-  static const String updateAdmin= "update_admin";
   static const String fetchCustomer = "fetch_customer";
   static const String addEvent = "add_events";
   static const String customeTotalSale = "customer_total_sale";

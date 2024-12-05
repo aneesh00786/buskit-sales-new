@@ -665,7 +665,6 @@ class ApiWorker with ApiConstants {
     });
     return OrderResponce.fromJson(response.data);
   }
-
   Future<OptionOrderResponce> getAllOrderByStatus(
       {String? customerId,
       String? salesmanId,

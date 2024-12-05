@@ -106,7 +106,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
             ],
           ),
           content: CustomText(
-            content: 'Reached on customer',
+            content: 'Reached customer Location ?',
             fontSize: 17,
           ),
           actions: [

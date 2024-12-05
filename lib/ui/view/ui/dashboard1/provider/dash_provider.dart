@@ -397,13 +397,13 @@ class ApiService {
   Future<OrderResponse> fetchAllOrders({
     required String startDate,
     required String endDate,
-    OrderStatus? orderStatus, // New parameter for filtering by order status
+    OrderStatus? orderStatus, 
   }) async {
     final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     String orderStatusString = '';
     if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString(); // Convert int to String
+      orderStatusString = orderStatus.type.toString(); 
     }
     log('FETCH_ALL_ORDER API called');
     //check_back
@@ -416,6 +416,7 @@ class ApiService {
       "end_date": endDate,
       "limit": 10,
       "page": 1,
+      "companyId":companyId,
     };
 
     try {
@@ -660,54 +661,6 @@ class ApiService {
       throw Exception('Failed to fetch admin details: $e');
     }
   }
-
-  Future<void> updateAdminDetails({
-    required AdminData model,
-    required File adminProfilePicture,
-    required String token,
-  }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.updateAdmin}');
-
-    try {
-      var request = http.MultipartRequest('POST', url);
-      request.fields['adminName'] = model.name;
-      request.fields['emailAdmin'] = model.email;
-      request.fields['mobilenoAdmin'] = model.phoneNo;
-      request.fields['townAdmin'] = model.town;
-      request.fields['addressAdmin'] = model.address;
-      request.fields['zipcodeAdmin'] = model.zipcode.toString();
-      request.fields['stateAdmin'] = model.state;
-      request.fields['token'] = token;
-
-      // Add adminProfilePicture as a file part
-      var fileStream = http.ByteStream(adminProfilePicture.openRead());
-      var length = await adminProfilePicture.length();
-      var multipartFile = http.MultipartFile(
-        'adminProfilePicture',
-        fileStream,
-        length,
-        filename: adminProfilePicture.path.split('/').last,
-      );
-      request.files.add(multipartFile);
-
-      // Send the request
-      var response = await http.Response.fromStream(await request.send());
-
-      print('updateAdminDetails : ${response.statusCode}');
-      print('updateAdminDetails Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        print('Admin details updated successfully');
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-        throw Exception('Failed to update admin details');
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw Exception('Failed to update admin details: $e');
-    }
-  }
-
   Future<CustomerResponseModelxx> fetchCustomer({
     required String salesmanId,
     required String customerName,
@@ -796,111 +749,16 @@ class ApiService {
 
       if (response.statusCode == 200) {
         print("this is repose body : : : : :  ${response.body}");
-        // Handle successful response if needed
-        return true; // Event added successfully
+        return true; 
       } else {
-        // Handle error response
         print('Error: ${response.statusCode} ${response.body}');
-        return false; // Event not added
+        return false; 
       }
     } catch (e) {
       print('Exception: $e');
-      return false; // Handle exception
+      return false; 
     }
   }
-
-  // Future<ApiResponseModel> fetchCustomerDashboardDataa(
-  //     String customerId, int specifiedYear, String startDate, String endDate) async {
-  //   final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
-
-  //   final requestBody = {
-  //     "customer_id": customerId,
-  //     "specifiedYear": specifiedYear,
-  //   };
-
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode(requestBody),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = json.decode(response.body);
-  //       // Print all the responses
-  //       print("Response Data:");
-  //       print(
-  //           "Category Performance: ${jsonResponse['data']['category_performance']}");
-  //       print("Recent Orders: ${jsonResponse['data']['recent_orders']}");
-  //       print(
-  //           "Frequent Product Lists: ${jsonResponse['data']['frequantliy_product_lists']}");
-  //       print("Year List: ${jsonResponse['data']['year_list']}");
-  //       print("Full Category: ${jsonResponse['data']['fullCategotry']}");
-  //       // Parse category_performance
-  //       List<CategoryPerformancez> categoryPerformance = [];
-  //       if (jsonResponse['data']['category_performance'] != null) {
-  //         categoryPerformance =
-  //             (jsonResponse['data']['category_performance'] as List)
-  //                 .map((json) => CategoryPerformancez.fromJson(json))
-  //                 .toList();
-  //       }
-
-  //       // Parse allCategory
-  //       List<FullCategory> allCategory = [];
-  //       if (jsonResponse['data']['fullCategotry'] != null) {
-  //         allCategory = (jsonResponse['data']['fullCategotry'] as List)
-  //             .map((json) => FullCategory.fromJson(json))
-  //             .toList();
-  //       }
-  //       print(
-  //           "sabik ca ca ca caca cc acacac  ,${jsonResponse['data']['fullCategotry']}");
-
-  //       // Parse recentOrders
-  //       List<RecentOrder> recentOrders = [];
-  //       if (jsonResponse['data']['recent_orders'] != null) {
-  //         recentOrders = (jsonResponse['data']['recent_orders'] as List)
-  //             .map((json) => RecentOrder.fromJson(json))
-  //             .toList();
-  //       }
-
-  //       // Parse frequentProductLists
-  //       List<FrequantliyProductList> frequentProductLists = [];
-  //       if (jsonResponse['data']['frequantliy_product_lists'] != null) {
-  //         frequentProductLists =
-  //             (jsonResponse['data']['frequantliy_product_lists'] as List)
-  //                 .map((json) => FrequantliyProductList.fromJson(json))
-  //                 .toList();
-  //       }
-
-  //       // Parse yearList
-  //       List<YearList> yearList = [];
-  //       if (jsonResponse['data']['year_list'] != null) {
-  //         yearList = (jsonResponse['data']['year_list'] as List)
-  //             .map((json) => YearList.fromJson(json))
-  //             .toList();
-  //       }
-
-  //       return ApiResponseModel(
-  //         statusCode: jsonResponse['status_code'] ?? 0,
-  //         status: jsonResponse['status'] ?? false,
-  //         message: jsonResponse['message'] ?? '',
-  //         data: Data(
-  //           categoryPerformance: categoryPerformance,
-  //           recentOrders: recentOrders,
-  //           frequentProductLists: frequentProductLists,
-  //           yearList: yearList,
-  //           fullCategory: allCategory,
-  //         ),
-  //       );
-  //     } else {
-  //       throw Exception(
-  //           'Failed to fetch customer dashboard data - ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Failed to fetch customer dashboard data: $e');
-  //   }
-  // }
-
   Future<ApiResponseModel> fetchCustomerDashboardDataa(String customerId,
       int specifiedYear, String startDate, String endDate) async {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
@@ -2037,21 +1895,6 @@ class DashboardProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateAdmin({
-    required AdminData admin,
-  }) async {
-    try {
-      await _apiService
-          .updateAdminDetails(
-              model: admin, adminProfilePicture: imageFile!, token: 'AAAAAAAAA')
-          .then((value) => fetchAdminData())
-          .then((value) => fetchData());
-
-      notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to update admin: $e');
-    }
-  }
 
   final ScrollController _scrollController = ScrollController();
 

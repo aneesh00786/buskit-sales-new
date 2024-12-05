@@ -24,13 +24,16 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_res
     as model;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
     as model1;
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 // ignore: must_be_immutable
 class DashBoardMiddleWidget extends StatelessWidget {
@@ -509,132 +512,135 @@ class DashBoardMiddleWidget extends StatelessWidget {
     );
   }
 
-Widget middleTopRightComponet() {
-  return MyCommnonContainer(
-    height: 280,
-    width: double.infinity,
-    isCommonBorder: true,
-    padding: nkRegularPadding(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Revenue',
-          style: cardHeadingTextStyle,
-        ),
-        Expanded(
-          child: Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<model1.ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
-                      ),
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline,
-                              size: 50, color: Colors.red),
-                          Text(
-                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (!snapshot.hasData || snapshot.data?.revenue == null) {
-                    return const NodataWidget();
-                  }
-
-                  final categoryPerformance = snapshot.data!.revenue;
-
-                  // Check if booking or order revenue data is empty
-                  final bookingRevenueLength = categoryPerformance
-                          ?.bookingRevenueData?.isNotEmpty ?? false
-                      ? categoryPerformance?.bookingRevenueData?.last.total
-                      : 0.0;
-
-                  final orderRevenueLast =
-                      categoryPerformance?.orderRevenueData?.isNotEmpty ?? false
-                          ? categoryPerformance?.orderRevenueData?.last.totalOrderRevenue
-                          : 0.0;
-                  if (bookingRevenueLength == 0.0 && orderRevenueLast == 0.0) {
-                    return const NodataWidget();
-                  }
-
-                  return Center(
-                    child: DoughnutDefault(
-                      categoryData: categoryPerformance!,
-                      booking: "Booking : 3",
-                      order: "Order : 3",
-                      aColor: Colors.blue,
-                      bColor: const Color(0xff1d3d63),
-                      sabik: const SizedBox.shrink(),
-                      sabik1: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: 11.9,
-                            width: 14.9,
-                            decoration: const BoxDecoration(
-                              color: Color(0xff1d3d63),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label:
-                                'Booking : ${formatAmount(bookingRevenueLength)}',
-                            color: secondaryTextColor,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          const SizedBox(
-                            width: 8.3,
-                          ),
-                          Container(
-                            height: 11.9,
-                            width: 14.9,
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          MyRegularText(
-                            label:
-                                'Order : ${formatAmount(orderRevenueLast)}',
-                            color: secondaryTextColor,
-                            fontSize: 11.6,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+  Widget middleTopRightComponet() {
+    return MyCommnonContainer(
+      height: 280,
+      width: double.infinity,
+      isCommonBorder: true,
+      padding: nkRegularPadding(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Revenue',
+            style: cardHeadingTextStyle,
           ),
-        ),
-      ],
-    ),
-  );
-}
+          Expanded(
+            child: Consumer<DashboardProvider>(
+              builder: (context, provider, child) {
+                return FutureBuilder<model1.ResponseModell>(
+                  future: provider.futureResponseModel,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: SpinKitFadingCube(
+                          color: primaryColor,
+                          size: 20.0,
+                        ),
+                      );
+                    }
 
+                    if (snapshot.hasError) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                size: 50, color: Colors.red),
+                            Text(
+                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (!snapshot.hasData || snapshot.data?.revenue == null) {
+                      return const NodataWidget();
+                    }
+
+                    final categoryPerformance = snapshot.data!.revenue;
+
+                    // Check if booking or order revenue data is empty
+                    final bookingRevenueLength = categoryPerformance
+                                ?.bookingRevenueData?.isNotEmpty ??
+                            false
+                        ? categoryPerformance?.bookingRevenueData?.last.total
+                        : 0.0;
+
+                    final orderRevenueLast =
+                        categoryPerformance?.orderRevenueData?.isNotEmpty ??
+                                false
+                            ? categoryPerformance
+                                ?.orderRevenueData?.last.totalOrderRevenue
+                            : 0.0;
+                    if (bookingRevenueLength == 0.0 &&
+                        orderRevenueLast == 0.0) {
+                      return const NodataWidget();
+                    }
+
+                    return Center(
+                      child: DoughnutDefault(
+                        categoryData: categoryPerformance!,
+                        booking: "Booking : 3",
+                        order: "Order : 3",
+                        aColor: Colors.blue,
+                        bColor: const Color(0xff1d3d63),
+                        sabik: const SizedBox.shrink(),
+                        sabik1: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 11.9,
+                              width: 14.9,
+                              decoration: const BoxDecoration(
+                                color: Color(0xff1d3d63),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(1.0)),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            MyRegularText(
+                              label:
+                                  'Booking : ${formatAmount(bookingRevenueLength)}',
+                              color: secondaryTextColor,
+                              fontSize: 11.6,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            const SizedBox(
+                              width: 8.3,
+                            ),
+                            Container(
+                              height: 11.9,
+                              width: 14.9,
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(1.0)),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            MyRegularText(
+                              label:
+                                  'Order : ${formatAmount(orderRevenueLast)}',
+                              color: secondaryTextColor,
+                              fontSize: 11.6,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget sendReply(DashboardProvider provider) {
     double iconSize = 20.0;
@@ -816,9 +822,8 @@ Widget middleTopRightComponet() {
                         dataRowHeight: 0,
                         dividerThickness: 0,
                         headingRowColor: WidgetStateProperty.resolveWith(
-                        (states) => Colors.grey[
-                            100], 
-                      ),
+                          (states) => Colors.grey[100],
+                        ),
                         border: TableBorder.all(width: 0, color: Colors.white),
                         columns: const [
                           DataColumn(
@@ -901,8 +906,7 @@ Widget middleTopRightComponet() {
                               ),
                               DataCell(
                                 Center(
-                                  child:
-                                  MyRegularText(
+                                  child: MyRegularText(
                                     label: DateFormat('dd-MM-yyyy')
                                         .format(product.createdAt!),
                                     color: secondaryTextColor,
@@ -960,260 +964,226 @@ Widget middleTopRightComponet() {
                   ],
                 ),
               ),
-              if(topSellingProducts.isEmpty)
-              Expanded(child: Center(child: NodataWidget()))
+              if (topSellingProducts.isEmpty)
+                Expanded(child: Center(child: NodataWidget()))
               else
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: DataTable(
-                          horizontalMargin: 6,
-                          headingRowHeight: 0,
-                          dataRowHeight: 35,
-                          dividerThickness: 0,
-                          border:
-                              TableBorder.all(width: 0, color: Colors.white),
-                          columns: const [
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Produc",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Last Purchase",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    maxlines: 2,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Times",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Price",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Qty",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          rows: topSellingProducts.map((product) {
-                            return DataRow(
-                              cells: <DataCell>[
-                                DataCell(
-                                  Text(
-                                    '${product.productName} - ${product.variationName}',
-                                    style: TextStyle(fontSize: fontSize),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: DataTable(
+                            horizontalMargin: 6,
+                            headingRowHeight: 0,
+                            dataRowHeight: 35,
+                            dividerThickness: 0,
+                            border:
+                                TableBorder.all(width: 0, color: Colors.white),
+                            columns: const [
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
                                     child: MyRegularText(
-                                      label: DateFormat('dd-MM-yyyy')
-                                          .format(product.createdAt!),
+                                      label: "Produc",
+                                      fontWeight: FontWeight.w600,
                                       color: secondaryTextColor,
-                                      fontSize: fontSize,
+                                      align: TextAlign.center,
+                                      fontSize: 11.3,
                                     ),
                                   ),
                                 ),
-                                DataCell(
-                                  Center(
-                                    child: InkWell(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              contentPadding: EdgeInsets.zero,
-                                              titlePadding: EdgeInsets.zero,
-                                              content: SingleChildScrollView(
-                                                child: Column(
-                                                  children: [
-                                                    Container(
-                                                      height: 45,
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10),
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        color: primaryColor,
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                  10),
-                                                          topRight:
-                                                              Radius.circular(
-                                                                  10),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: "Last Purchase",
+                                      fontWeight: FontWeight.w600,
+                                      color: secondaryTextColor,
+                                      maxlines: 2,
+                                      align: TextAlign.center,
+                                      fontSize: 11.3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: "Times",
+                                      fontWeight: FontWeight.w600,
+                                      color: secondaryTextColor,
+                                      align: TextAlign.center,
+                                      fontSize: 11.3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: "Price",
+                                      fontWeight: FontWeight.w600,
+                                      color: secondaryTextColor,
+                                      align: TextAlign.center,
+                                      fontSize: 11.3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: "Qty",
+                                      fontWeight: FontWeight.w600,
+                                      color: secondaryTextColor,
+                                      align: TextAlign.center,
+                                      fontSize: 11.3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            rows: topSellingProducts.map((product) {
+                              return DataRow(
+                                cells: <DataCell>[
+                                  DataCell(
+                                    Text(
+                                      '${product.productName} - ${product.variationName}',
+                                      style: TextStyle(fontSize: fontSize),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Center(
+                                      child: MyRegularText(
+                                        label: DateFormat('dd-MM-yyyy')
+                                            .format(product.createdAt!),
+                                        color: secondaryTextColor,
+                                        fontSize: fontSize,
+                                      ),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Center(
+                                      child: InkWell(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                contentPadding: EdgeInsets.zero,
+                                                titlePadding: EdgeInsets.zero,
+                                                content: SingleChildScrollView(
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 45,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          color: primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    10),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    10),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              product
+                                                                  .variationName
+                                                                  .toString(),
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 16,
+                                                                fontFamily:
+                                                                    'Poppins_Regular',
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                            ),
+                                                            dialogCloseButton(
+                                                                context, red),
+                                                          ],
                                                         ),
                                                       ),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Text(
-                                                            product
-                                                                .variationName
-                                                                .toString(),
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 16,
-                                                              fontFamily:
-                                                                  'Poppins_Regular',
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: DataTable(
+                                                          dataRowHeight: 30,
+                                                          headingRowHeight: 35,
+                                                          columnSpacing: 30,
+                                                          // horizontalMargin: 0,
+                                                          columns: const [
+                                                            DataColumn(
+                                                              label:
+                                                                  DialogTableHeaderText(
+                                                                text: 'Price',
+                                                                fontSize: 13,
+                                                              ),
                                                             ),
-                                                          ),
-                                                          dialogCloseButton(
-                                                              context, red),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: DataTable(
-                                                        dataRowHeight: 30,
-                                                        headingRowHeight: 35,
-                                                        columnSpacing: 30,
-                                                        // horizontalMargin: 0,
-                                                        columns: const [
-                                                          DataColumn(
-                                                            label:
-                                                                DialogTableHeaderText(
-                                                              text: 'Price',
-                                                              fontSize: 13,
+                                                            DataColumn(
+                                                              label:
+                                                                  DialogTableHeaderText(
+                                                                text:
+                                                                    'Quantity',
+                                                                fontSize: 13,
+                                                              ),
                                                             ),
-                                                          ),
-                                                          DataColumn(
-                                                            label:
-                                                                DialogTableHeaderText(
-                                                              text: 'Quantity',
-                                                              fontSize: 13,
+                                                            DataColumn(
+                                                              label:
+                                                                  DialogTableHeaderText(
+                                                                text: 'Amount',
+                                                                fontSize: 13,
+                                                              ),
                                                             ),
-                                                          ),
-                                                          DataColumn(
-                                                            label:
-                                                                DialogTableHeaderText(
-                                                              text: 'Amount',
-                                                              fontSize: 13,
+                                                            DataColumn(
+                                                              label:
+                                                                  DialogTableHeaderText(
+                                                                text:
+                                                                    'Purchased At',
+                                                                fontSize: 13,
+                                                              ),
                                                             ),
-                                                          ),
-                                                          DataColumn(
-                                                            label:
-                                                                DialogTableHeaderText(
-                                                              text:
-                                                                  'Purchased At',
-                                                              fontSize: 13,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                        rows: product
-                                                            .quantityList!
-                                                            .map((quantity) {
-                                                              log('PRICE ${quantity.price}');
-                                                          return DataRow(
-                                                              cells: [
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    // '1',
-                                                                    formatAmount(
-                                                                        quantity
-                                                                            .price),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
-                                                                    ),
-                                                                  ),
-                                                                )),
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    quantity
-                                                                        .quantity
-                                                                        .toString(),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
-                                                                    ),
-                                                                  ),
-                                                                )),
-                                                                DataCell(
-                                                                  Center(
+                                                          ],
+                                                          rows: product
+                                                              .quantityList!
+                                                              .map((quantity) {
+                                                            log('PRICE ${quantity.price}');
+                                                            return DataRow(
+                                                                cells: [
+                                                                  DataCell(
+                                                                      Center(
                                                                     child: Text(
-                                                                      quantity.price !=
-                                                                              null
-                                                                          ? '${formatAmount(quantity.price)}'
-                                                                          : 'N/A',
+                                                                      // '1',
+                                                                      formatAmount(
+                                                                          quantity
+                                                                              .price),
                                                                       textAlign:
                                                                           TextAlign
                                                                               .center,
@@ -1225,86 +1195,125 @@ Widget middleTopRightComponet() {
                                                                             13,
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                ),
-                                                                DataCell(Center(
-                                                                  child: Text(
-                                                                    DateFormat(
-                                                                            'dd-MM-yyyy')
-                                                                        .format(
-                                                                            quantity.createdAt!)
-                                                                        .toString(),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          secondaryTextColor,
-                                                                      fontSize:
-                                                                          13,
+                                                                  )),
+                                                                  DataCell(
+                                                                      Center(
+                                                                    child: Text(
+                                                                      quantity
+                                                                          .quantity
+                                                                          .toString(),
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        color:
+                                                                            secondaryTextColor,
+                                                                        fontSize:
+                                                                            13,
+                                                                      ),
+                                                                    ),
+                                                                  )),
+                                                                  DataCell(
+                                                                    Center(
+                                                                      child:
+                                                                          Text(
+                                                                        quantity.price !=
+                                                                                null
+                                                                            ? '${formatAmount(quantity.price)}'
+                                                                            : 'N/A',
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          color:
+                                                                              secondaryTextColor,
+                                                                          fontSize:
+                                                                              13,
+                                                                        ),
+                                                                      ),
                                                                     ),
                                                                   ),
-                                                                )), // Format this date as needed
-                                                              ]);
-                                                        }).toList(),
+                                                                  DataCell(
+                                                                      Center(
+                                                                    child: Text(
+                                                                      DateFormat(
+                                                                              'dd-MM-yyyy')
+                                                                          .format(
+                                                                              quantity.createdAt!)
+                                                                          .toString(),
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        color:
+                                                                            secondaryTextColor,
+                                                                        fontSize:
+                                                                            13,
+                                                                      ),
+                                                                    ),
+                                                                  )), // Format this date as needed
+                                                                ]);
+                                                          }).toList(),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: Container(
-                                        height: 20,
-                                        width: 20,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.blue,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: MyRegularText(
-                                            label: product.quantityList!.length
-                                                .toString(),
-                                            color: buttonTextColor,
-                                            align: TextAlign.center,
-                                            fontSize: fontSize,
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 20,
+                                          width: 20,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.blue,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: product
+                                                  .quantityList!.length
+                                                  .toString(),
+                                              color: buttonTextColor,
+                                              align: TextAlign.center,
+                                              fontSize: fontSize,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: MyRegularText(
-                                      label: formatAmount(product.price),
-                                      color: secondaryTextColor,
-                                      fontSize: fontSize,
-                                      maxlines: 1,
+                                  DataCell(
+                                    Center(
+                                      child: MyRegularText(
+                                        label: formatAmount(product.price),
+                                        color: secondaryTextColor,
+                                        fontSize: fontSize,
+                                        maxlines: 1,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: MyRegularText(
-                                      label: "${product.quantity}",
-                                      color: secondaryTextColor,
-                                      fontSize: fontSize,
+                                  DataCell(
+                                    Center(
+                                      child: MyRegularText(
+                                        label: "${product.quantity}",
+                                        color: secondaryTextColor,
+                                        fontSize: fontSize,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
+                                ],
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )
+                    ],
+                  ),
+                )
             ],
           ),
         );
@@ -1430,118 +1439,142 @@ Widget middleTopRightComponet() {
   }
 }
 
-class ChatScreen extends StatelessWidget {
-  final String chatId;
+class ChatScreen extends StatefulWidget {
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
 
+class _ChatScreenState extends State<ChatScreen> {
+  late IO.Socket socket;
+  TextEditingController _controller = TextEditingController();
+  List<String> messages = [];
 
-  const ChatScreen({super.key, required this.chatId,});
+  @override
+  void initState() {
+    super.initState();
+    _initSocket();
+    _loadMessages();
+  }
+
+  void _initSocket() {
+    socket = IO.io('http://localhost:3000/', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+
+    socket.connect();
+    socket.on('connect', (_) {
+      print('Connected to socket server');
+    });
+    socket.on('disconnect', (_) {
+      print('Disconnected from socket server');
+    });
+    socket.emit('join_room', 'SALES1');
+    socket.on('chat message', (msg) {
+      setState(() {
+        messages.add(msg['message']);
+      });
+      _saveMessages();
+    });
+  }
+
+  void _sendMessage() {
+    String message = _controller.text.trim();
+    if (message.isEmpty) return;
+    socket.emit('chat message', {
+      'message': message,
+      'source': 'salesman',
+      'salesman': 'SALES1',
+    });
+
+    setState(() {
+      messages.add(message);
+    });
+    _controller.clear();
+    _saveMessages();
+  }
+
+  void _saveMessages() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('messages', messages);
+  }
+
+  void _loadMessages() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      messages = prefs.getStringList('messages') ?? [];
+    });
+  }
+
+  @override
+  void dispose() {
+    socket.disconnect();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DashboardProvider>(
-      builder: (context, provider, _) {
-        if (provider.individualChatMessages == null) {
-          provider.fetch_individual_chat('SALES1');
-        }
-        final TextEditingController _messageController =
-            TextEditingController();
-        final ScrollController _scrollController = ScrollController();
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_scrollController.hasClients) {
-            _scrollController.jumpTo(
-              _scrollController.position.maxScrollExtent,
-            );
-          }
-        });
-
-        return provider.individualChatMessages == null
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: provider.individualChatMessages!.length,
-                      itemBuilder: (context, index) {
-                        model1.Messages message =
-                            provider.individualChatMessages![index];
-
-                        Color tileColor = Colors.white;
-                        if (message.source == 'admin') {
-                          tileColor = const Color(0xffd1e7dd);
-                        } else if (message.source == 'salesman') {
-                          tileColor = const Color(0xfff1f1f1);
-                        }
-
-                        return Align(
-                          alignment: message.source == 'salesman'
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                              color: message.source == 'salesman'
-                                  ? Color(0xFFdcf8c6)
-                                  : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              message.message,
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                        );
-                      },
+    return Scaffold(
+      appBar: AppBar(title: Text('Salesman Chat')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  bool isSent = messages[index].contains('salesman');
+                  return ListTile(
+                    title: Text(messages[index]),
+                    subtitle: isSent ? Text('Sent') : Text('Received'),
+                  );
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    
+                  },
+                  child: Icon(EneftyIcons.camera_outline,size: 30,)),
+                SizedBox(width: 5,),
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'Type your message here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyFormField(
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            hintText: 'Type a message',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          labelText: 'Type a message',
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.send,
-                          size: 22.5,
-                        ),
-                        onPressed: () {
-                          if (_messageController.text.trim().isNotEmpty) {
-                            provider
-                                .postAdminMessage(
-                                    chatId, _messageController.text.trim())
-                                .then((_) {
-                              _messageController.clear();
-                              provider.fetchChatData('SALES1');
-                              // provider.fetchChatData(chatId);
-                              if (_scrollController.hasClients) {
-                                _scrollController.jumpTo(
-                                  _scrollController.position.maxScrollExtent,
-                                );
-                              }
-                            });
-                          }
-
-                         // Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.send,
+                    size: 25,
                   ),
-                ],
-              );
-      },
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1561,12 +1594,10 @@ class _CommunicationsDisplayWidgetState
     final DashboardProvider provider = Provider.of<DashboardProvider>(context);
 
     return MyCommnonContainer(
-      height: 280,
-      isCommonBorder: true,
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        height: 280,
+        isCommonBorder: true,
+        padding: EdgeInsets.zero,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             width: double.maxFinite,
@@ -1586,304 +1617,10 @@ class _CommunicationsDisplayWidgetState
               ),
             ),
           ),
-          // nkSmallSizeBox(),
           Expanded(
-           child: ChatScreen(chatId: "",),
+            child: ChatScreen(),
           ),
           nkSmallSizeBox(),
-          Row(
-            children: [
-              IconButton(
-                  onPressed: () {
-                    provider.pickImageCommuni();
-                  },
-                  icon: const Icon(
-                    Icons.photo_camera,
-                    size: 20,
-                  )),
-              Expanded(
-                child: SizedBox(
-                  height: 37.6,
-                  child: MyFormField(
-                    controller: _messageController,
-                    labelText: 'Enter message',
-                    enableColor: primaryTextFieldColor,
-                    focusedColor: primaryTextFieldColor,
-                    disabledColor: primaryTextFieldColor,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.send,
-                  size: 20,
-                ),
-                onPressed: () {
-                  if (_messageController.text.isEmpty) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            // contentPadding: EdgeInsets.zero,
-                            // titlePadding: EdgeInsets.zero,
-                            content: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.report_gmailerrorred,
-                                    color: Color(0xffeecd6e),
-                                    size: 22,
-                                  ),
-                                  SizedBox(
-                                    width: 6.1,
-                                  ),
-                                  Text(
-                                    'Please Enter Message to Proceed',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      const Color(0xffeecd6e)),
-                                  shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          4.0), // Adjust the radius value as needed
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  // Handle accept action
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Back',
-                                    style: TextStyle(color: Colors.black)),
-                              ),
-                            ],
-                          );
-                        });
-                  }
-                  if (_messageController.text.isNotEmpty) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          title: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: const BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Salesman List',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    letterSpacing: 0.5,
-                                    fontFamily: 'Poppins_Regular',
-                                  ),
-                                ),
-                                const Spacer(),
-                                dialogCloseButton(context, red),
-                              ],
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.all(15),
-                          titlePadding: EdgeInsets.zero,
-                          content: Consumer<DashboardProvider>(
-                            builder: (context, provider, child) {
-                              return FutureBuilder<model1.SalesmenResponse>(
-                                future: provider.salesmenResponse,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
-                                    );
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data!.data.isEmpty) {
-                                    return const Center(
-                                      child: Text('No chat data available'),
-                                    );
-                                  } else {
-                                    final chatData = snapshot.data!.data
-                                        .expand((list) => list)
-                                        .toList();
-
-                                    // provider.selectAllChats(chatData);
-
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // Select All button
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: TextButton(
-                                            onPressed: () {
-                                              if (provider
-                                                      .selectedChats.length ==
-                                                  chatData.length) {
-                                                provider.clearAllSelections();
-                                              } else {
-                                                provider
-                                                    .selectAllChats(chatData);
-                                              }
-                                            },
-                                            child: Text(
-                                              provider.selectedChats.length ==
-                                                      chatData.length
-                                                  ? 'Deselect All'
-                                                  : 'Select All',
-                                              style: const TextStyle(
-                                                  color: primaryColor),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        SizedBox(
-                                          width: 400,
-                                          height: 400,
-                                          child: ListView.builder(
-                                            itemCount: chatData.length,
-                                            itemBuilder: (context, index) {
-                                              final chat = chatData[index];
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(3.0),
-                                                child: MyCommnonContainer(
-                                                  isCommonBorder: true,
-                                                  color:
-                                                      const Color(0xffffffff),
-                                                  child: ListTile(
-                                                    leading: Container(
-                                                      width: 33,
-                                                      height: 30,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Colors
-                                                            .blueGrey[100],
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.person,
-                                                        size: 20.5,
-                                                        color:
-                                                            Color(0xff4294ff),
-                                                      ),
-                                                    ),
-                                                    title: MyRegularText(
-                                                      label: chat.fullname,
-                                                      fontSize: 14,
-                                                      fontWeight: NkGeneralSize
-                                                          .nkBoldFontWeight(),
-                                                      color: secondaryTextColor,
-                                                    ),
-                                                    trailing: Checkbox(
-                                                      value: provider
-                                                          .selectedChats
-                                                          .contains(chat),
-                                                      onChanged: (bool? value) {
-                                                        provider
-                                                            .toggleChatSelection(
-                                                                chat);
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                final message = _messageController.text.trim();
-                                if (message.isNotEmpty &&
-                                    provider.selectedChats.isNotEmpty) {
-                                  for (var chat in provider.selectedChats) {
-                                    provider.postAdminMessage(
-                                        chat.salesmanId, message);
-                                    // provider.fetchChatData(chat.salesmanId);
-                                    provider.fetchChatData('');
-                                  }
-
-                                  _messageController.clear();
-                                  provider.selectedChats.clear();
-
-                                  setState(() {}); // to refresh the page
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Messages sent to selected chats')),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'No chats selected or message is empty')),
-                                  );
-                                }
-
-                                Navigator.of(context).pop();
-                              },
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(primaryColor),
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                ),
-                              ),
-                              child: const Text('Send',
-                                  style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-          nkSmallSizeBox(),
-        ],
-      ),
-    );
+        ]));
   }
 }

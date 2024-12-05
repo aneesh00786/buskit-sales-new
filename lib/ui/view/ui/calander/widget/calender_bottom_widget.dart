@@ -111,7 +111,11 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                 if (eventCount > 0)
                   CircleAvatar(
                     radius: 10,
-                    backgroundColor: Colors.blue,
+                    backgroundColor: (date.isBefore(DateTime.now()) ||
+                                date.isAtSameMomentAs(DateTime.now())) &&
+                            event.any((e) => e.event!.checkIn == null)
+                        ? const Color(0xffCCCC00)
+                        : Colors.green,
                     child: MyRegularText(
                       label: eventCount.toString(),
                       color: Colors.white,

@@ -3,7 +3,6 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:enefty_icons/enefty_icons.dart';
-import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -11,15 +10,24 @@ import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.d
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 
-class LoginRightSideWidget extends StatelessWidget {
+class LoginRightSideWidget extends StatefulWidget {
   final LoginController loginController;
   LoginRightSideWidget({Key? key, required this.loginController})
       : super(key: key);
 
-  ValueNotifier<String> changeNotify = ValueNotifier(Assets.iconsIcLoginLogo);
+  @override
+  State<LoginRightSideWidget> createState() => _LoginRightSideWidgetState();
+}
 
+class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
+  ValueNotifier<String> changeNotify = ValueNotifier(Assets.iconsIcLoginLogo);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    widget.loginController.loginResponce?.statusCode==null;
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,7 +42,7 @@ class LoginRightSideWidget extends StatelessWidget {
   Widget getFillWidget(BuildContext context) {
     final appDimensions = AppDimensions.instance;
     return Form(
-      key: loginController.formKey,
+      key: widget.loginController.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -52,7 +60,7 @@ class LoginRightSideWidget extends StatelessWidget {
           ),
           nkMediumSizeBox(),
           TextFormField(
-            controller: loginController.emailController,
+            controller: widget.loginController.emailController,
             decoration: InputDecoration(
               focusColor: Colors.blue,
               labelText: 'Email',
@@ -62,11 +70,18 @@ class LoginRightSideWidget extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                borderSide: BorderSide(
+                    color: widget.loginController.loginResponce?.statusCode == 422 ||
+                            widget.loginController.loginResponce?.statusCode == 409
+                        ? Colors.red
+                        : Colors.grey,
+                    width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: primaryButtonColor, width: 1.5),
+                borderSide: BorderSide(color:widget.loginController.loginResponce?.statusCode == 422 ||
+                            widget.loginController.loginResponce?.statusCode == 409
+                        ? Colors.red: primaryButtonColor, width: 1.5),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -83,11 +98,18 @@ class LoginRightSideWidget extends StatelessWidget {
               return null;
             },
           ),
+          widget.loginController.loginResponce?.statusCode == 422 ||
+                  widget.loginController.loginResponce?.statusCode == 409
+              ? Text(
+                  'Incorrect E-mail',
+                  style: TextStyle(color: Colors.red),
+                )
+              : Text(''),
           nkMediumSizeBox(),
           nkMediumSizeBox(),
           TextFormField(
-            controller: loginController.passwordController,
-            obscureText: loginController.isPasswordVisible.value,
+            controller: widget.loginController.passwordController,
+            obscureText: widget.loginController.isPasswordVisible.value,
             decoration: InputDecoration(
               labelText: 'Password',
               prefixIcon: Icon(
@@ -96,19 +118,30 @@ class LoginRightSideWidget extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                borderSide: BorderSide(
+                    color: widget.loginController.loginResponce?.statusCode == 401
+                        ? Colors.red
+                        : Colors.grey,
+                    width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: primaryButtonColor, width: 1.5),
+                borderSide: BorderSide(color: widget.loginController.loginResponce?.statusCode == 401
+                        ? Colors.red: primaryButtonColor, width: 1.5),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: Colors.red, width: 1.5),
               ),
-              suffixIcon: loginController.getIsPasswordVisible,
+              suffixIcon: widget.loginController.getIsPasswordVisible,
             ),
           ),
+          widget.loginController.loginResponce?.statusCode == 401
+              ? Text(
+                  'Incorrect E-mail',
+                  style: TextStyle(color: Colors.red),
+                )
+              : Text(''),
           nkMediumSizeBox(),
           Align(
               alignment: Alignment.centerRight, child: ForgotPasswordScreen()),
@@ -126,24 +159,24 @@ class LoginRightSideWidget extends StatelessWidget {
           isRoundedCorner: true,
           buttonText: singIn,
           onPressed: () async {
-            if (loginController.formKey.currentState!.validate()) {
-              bool success = await loginController.performLogin();
+            widget.loginController.loginResponce==null;
+            if (widget.loginController.formKey.currentState!.validate()) {
+              bool success = await widget.loginController.performLogin();
               if (!success) {
-                loginController.loginButtonController.stop();
-                loginController.loginButtonController.reset();
+                widget.loginController.loginButtonController.stop();
+                widget.loginController.loginButtonController.reset();
               }
             } else {
-              loginController.loginButtonController.stop();
-              loginController.loginButtonController.reset();
+              widget.loginController.loginButtonController.stop();
+              widget.loginController.loginButtonController.reset();
             }
           },
-          btnController: loginController.loginButtonController,
+          btnController: widget.loginController.loginButtonController,
         ),
       );
 }
 
 class ForgotPasswordScreen extends StatelessWidget {
-  // Function to show the bottom sheet
   void showEmailBottomSheet(BuildContext context) {
     final emailController = TextEditingController();
 
@@ -153,11 +186,11 @@ class ForgotPasswordScreen extends StatelessWidget {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
-          left: 16.0,
-          right: 16.0,
-          top: 16.0,
-          bottom: MediaQuery.of(context).viewInsets.bottom, 
-        ),
+            left: 16.0,
+            right: 16.0,
+            top: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -202,15 +235,15 @@ class ForgotPasswordScreen extends StatelessWidget {
                 height: 60,
                 width: 200,
                 decoration: BoxDecoration(
-                  color: Colors.blue, // Button color
-                  borderRadius: BorderRadius.circular(20), // Rounded corners
+                  color: Colors.blue, 
+                  borderRadius: BorderRadius.circular(20), 
                 ),
                 child: TextButton(
                   onPressed: () {
                     String email = emailController.text.trim();
                     if (email.isNotEmpty) {
                       print("Email submitted: $email");
-                      Navigator.pop(context); // Close the bottom sheet
+                      Navigator.pop(context); 
                     } else {
                       print("Email is empty!");
                     }
@@ -218,8 +251,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                   child: const Text(
                     'Submit',
                     style: TextStyle(
-                      color: Colors.white, // Text color
-                      fontSize: 20, // Optional font size
+                      color: Colors.white, 
+                      fontSize: 20, 
                     ),
                   ),
                 ),
@@ -237,7 +270,7 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        showEmailBottomSheet(context); // Show the bottom sheet when tapped
+        showEmailBottomSheet(context); 
       },
       child: const Text(
         'Forgot Password..?',

@@ -64,9 +64,9 @@ Future<bool> performLogin() async {
       });
       return true;
     } else if (loginResponce?.statusCode == 422||loginResponce?.statusCode == 409) {
-      showErrorDialog('Login Failed', loginResponce?.message ?? 'Email is not registered.');
+      return false;
     } else if (loginResponce?.statusCode == 401) {
-      showErrorDialog('Login Failed', loginResponce?.message ?? 'Password is wrong.');
+      return false;
     } else {
       showErrorDialog('Login Error', 'An unexpected error occurred. Please try again.');
     }

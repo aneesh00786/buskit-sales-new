@@ -335,9 +335,7 @@ class OptionWidget extends StatelessWidget {
                                 selectedOrderStatus.type;
                           }).toList();
 
-                          return filteredOrders.isEmpty
-                              ? nodataOrderTableDialogue()
-                              : LayoutBuilder(
+                          return LayoutBuilder(
                                   builder: (BuildContext context,
                                       BoxConstraints constraints) {
                                     double availableWidth =
@@ -876,15 +874,7 @@ class OptionWidget extends StatelessWidget {
                                 selectedOrderStatus.type;
                           }).toList();
 
-                          return filteredOrders.isEmpty
-                              ? nodataDialogueTable(
-                                  head_1: 'Customer List',
-                                  head_2: 'Estimate Number',
-                                  head_3: 'Estimate Created',
-                                  head_4: 'Created By',
-                                  head_5: 'Estimate Price',
-                                  head_6: 'Status')
-                              : LayoutBuilder(
+                          return  LayoutBuilder(
                                   builder: (BuildContext context,
                                       BoxConstraints constraints) {
                                     double availableWidth =
@@ -980,7 +970,19 @@ class OptionWidget extends StatelessWidget {
                                                       ),
                                                     )),
                                                   ],
-                                                  rows: filteredOrders
+                                                  rows:filteredOrders.isEmpty
+                                                ? [
+                                                    const DataRow(cells: [
+                                                      DataCell(Text(
+                                                          'Record Not Found')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                    ])
+                                                  ]: filteredOrders
                                                       .map((order) {
                                                     final customer = order
                                                             .customer.isNotEmpty
@@ -1300,15 +1302,7 @@ class OptionWidget extends StatelessWidget {
                                 selectedOrderStatus.type;
                           }).toList();
 
-                          return filteredOrders.isEmpty
-                              ? nodataDialogueTable(
-                                  head_1: 'Customer List',
-                                  head_2: 'Pre-Order Number',
-                                  head_3: 'Pre-Order Created',
-                                  head_4: 'Created By',
-                                  head_5: 'Pre-Order Price',
-                                  head_6: 'Status')
-                              : LayoutBuilder(
+                          return  LayoutBuilder(
                                   builder: (BuildContext context,
                                       BoxConstraints constraints) {
                                     double availableWidth =
@@ -1730,15 +1724,7 @@ class OptionWidget extends StatelessWidget {
                                 selectedOrderStatus.type;
                           }).toList();
 
-                          return filteredOrders.isEmpty
-                              ? nodataDialogueTable(
-                                  head_1: 'Customer List',
-                                  head_2: 'Draft Number',
-                                  head_3: 'Draft Created',
-                                  head_4: 'Created By',
-                                  head_5: 'Draft Price',
-                                  head_6: 'Status')
-                              : LayoutBuilder(
+                          return LayoutBuilder(
                                   builder: (BuildContext context,
                                       BoxConstraints constraints) {
                                     double availableWidth =
@@ -2153,15 +2139,7 @@ class OptionWidget extends StatelessWidget {
                                 selectedOrderStatus.type;
                           }).toList();
 
-                          return filteredOrders.isEmpty
-                              ? nodataDialogueTable(
-                                  head_1: 'Customer List',
-                                  head_2: 'Cancelled Order Number',
-                                  head_3: 'Cancelled Order Created',
-                                  head_4: 'Created By',
-                                  head_5: 'Cancelled Order Price',
-                                  head_6: 'Status')
-                              : LayoutBuilder(
+                          return  LayoutBuilder(
                                   builder: (BuildContext context,
                                       BoxConstraints constraints) {
                                     double availableWidth =
@@ -2244,7 +2222,19 @@ class OptionWidget extends StatelessWidget {
                                                       '',
                                                     )))),
                                                   ],
-                                                  rows: filteredOrders
+                                                  rows:filteredOrders.isEmpty? [
+                                                    const DataRow(cells: [
+                                                      DataCell(Text(
+                                                          'Record Not Found')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+                                                      DataCell(Text('')),
+
+                                                    ])
+                                                  ]:  filteredOrders
                                                       .map((order) {
                                                     final customer = order
                                                             .customer.isNotEmpty

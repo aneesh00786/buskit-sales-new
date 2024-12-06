@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -305,11 +306,12 @@ class ProductsController extends GetxController {
   }
 
   Future<void> placeOrder(CartOrderModel cartOrder) async {
+    final companyId = SessionHelper.loginSavedData?.company_id??0;
     try {
       log('the adding item :${cartOrder.cartId},${cartOrder.customerId},${cartOrder.salesmanId},${cartOrder.orderStatus}');
       log('Place Order :${cartOrder.toJson()}');
       final response = await Dio().post(
-        "http://16.50.232.153:3000/place_order",
+        "http://16.50.232.153:3000/place_order?companyId=$companyId",
         data: cartOrder.toJson(),
       );
       log('${response.statusCode}');

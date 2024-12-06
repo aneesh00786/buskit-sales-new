@@ -269,16 +269,12 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
       print('fetchCustomerDashboardCartData: ${response.statusCode}');
       print('fetchCustomerDashboardCartData Body: ${response.body}');
-
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-
         print(
             'sabik kavungal ponmala plluippad i. .. .  . .. . . . .. . . . . .   ${jsonResponse['data']}');
-
         var productDetail = jsonResponse['data'] as List;
         List<ProductDetail> allproductDetail =
             productDetail.map((json) => ProductDetail.fromJson(json)).toList();
@@ -315,7 +311,6 @@ class ApiService {
 
         List<SalesmanChat> salesmanChats = [];
         rawData.forEach((chatList) {
-          // Iterate through each JSON object in chatList and create SalesmanChat objects
           chatList.forEach((json) {
             salesmanChats.add(SalesmanChat.fromJson(json));
           });

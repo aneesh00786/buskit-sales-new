@@ -72,8 +72,6 @@ class ProductsController extends GetxController {
   RxString selectedCustomerImageUrl = "".obs;
   RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
-  RxString message = ''.obs;
-  RxString lottie = ''.obs;
   @override
   onInit() {
     super.onInit();
@@ -323,17 +321,11 @@ class ProductsController extends GetxController {
       log('Response status code: ${response.statusCode}');
       if (response.statusCode == 200) {
         log('Order placed successfully: ${response.data}');
-        message.value = 'Your order has been successfully placed.';
-        lottie.value = 'assets/images/Animation - 1726906882515.json';
       } else {
         log('Failed to place order: ${response.data}');
-        message.value = 'There was an error placing your order.';
-        lottie.value = 'assets/images/Warning_animation.json';
       }
     } catch (e) {
       log('Error placing order: $e');
-      message.value = 'An unexpected error occurred. Please try again.';
-      lottie.value = 'assets/images/Warning_animation.json';;
     }
   }
 

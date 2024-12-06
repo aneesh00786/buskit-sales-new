@@ -60,7 +60,6 @@ class _OrderTakingState extends State<OrderTaking>
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   HomeController homeController = Get.find<HomeController>();
-  // final ProductsController productsController = Get.put(ProductsController());
 
   bool isLoading = true;
   bool _isDrawerOpen = true;
@@ -142,10 +141,8 @@ class _OrderTakingState extends State<OrderTaking>
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
     if (categories.isNotEmpty) {
-      //  setState(() {
       _expandedIndex = 0;
       _selectedCategory = categories[0].categoryName ?? '';
-      // });
       if (categories[0].subCategoryItem != null &&
           categories[0].subCategoryItem!.isNotEmpty) {
         final firstSubCategory =

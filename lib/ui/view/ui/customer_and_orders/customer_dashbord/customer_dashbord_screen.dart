@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -79,14 +80,19 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 @override
 void initState() {
   super.initState();
-  _initializeCustomerData();
-  final customerId = customerOrderController.customerId;
-  SchedulerBinding.instance.addPostFrameCallback((_) {
+
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    await _initializeCustomerData();
+    final customerId = customerOrderController.customerId.value;
+    if (customerId.isEmpty) {
+      log('Error: Customer ID is empty, initialization failed.');
+      return;
+    }
     final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
-    customersProvider.fetchCustomerDashboardData(customerId.value, selectedYear, widget.startDate, widget.endDate);
-    customersProvider.fetchCustomerDashboardRevenueData(customerId.value, selectedYear, widget.startDate, widget.endDate);
-    customersProvider.fetchCustomerDashboardDataSalseData(customerId.value, selectedYear);
-    customersProvider.fetchCustomersDataDash(customerId.value);
+    customersProvider.fetchCustomerDashboardData(customerId, selectedYear, widget.startDate, widget.endDate);
+    customersProvider.fetchCustomerDashboardRevenueData(customerId, selectedYear, widget.startDate, widget.endDate);
+    customersProvider.fetchCustomerDashboardDataSalseData(customerId, selectedYear);
+    customersProvider.fetchCustomersDataDash(customerId);
   });
   _tabController = TabController(length: 2, vsync: this);
   _tabController.index = 0;
@@ -96,8 +102,7 @@ void initState() {
     }
   });
 }
-
-  void _initializeCustomerData() {
+Future<void> _initializeCustomerData() async {
   String? customerId;
   if (widget.isFromCalendar) {
     customerId = widget.cusId ?? '';
@@ -109,19 +114,21 @@ void initState() {
   } else {
     customerId = productsController.selectedCustomerId.value;
   }
+  if (customerId == null || customerId.isEmpty) {
+    log('Customer ID is empty, retrying initialization...');
+    await Future.delayed(Duration(milliseconds: 100));
+    return _initializeCustomerData();
+  }
   customerOrderController.setCustomerId(customerId);
   log('Initialized Customer ID: $customerId');
   log('Selected Customer Name: ${productsController.selectedCustomerName.value}');
   log('Selected Customer Image: ${productsController.selectedCustomerImageUrl.value}');
 }
-
-
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final customerName = widget.isFromCalendar

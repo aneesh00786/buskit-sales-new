@@ -76,43 +76,45 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
 
-  @override
-  void initState() {
-    super.initState();
-    final customerId = widget.isFromCalendar
-        ? widget.cusId ?? ''
-        : productsController.selectedCustomerId.value;
-    if (widget.isFromCalendar) {
-      productsController.updateSelectedCustomer(
-          name: widget.cusName ?? '',
-          imageUrl: widget.cusImage ?? '',
-          id: widget.cusId ?? '');
+@override
+void initState() {
+  super.initState();
+  _initializeCustomerData();
+  final customerId = customerOrderController.customerId;
+  SchedulerBinding.instance.addPostFrameCallback((_) {
+    final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
+    customersProvider.fetchCustomerDashboardData(customerId.value, selectedYear, widget.startDate, widget.endDate);
+    customersProvider.fetchCustomerDashboardRevenueData(customerId.value, selectedYear, widget.startDate, widget.endDate);
+    customersProvider.fetchCustomerDashboardDataSalseData(customerId.value, selectedYear);
+    customersProvider.fetchCustomersDataDash(customerId.value);
+  });
+  _tabController = TabController(length: 2, vsync: this);
+  _tabController.index = 0;
+  _tabController.addListener(() {
+    if (_tabController.indexIsChanging) {
+      context.read<CustomersProvider>().setSelectedIndex(_tabController.index);
     }
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardData(
-              customerId, selectedYear, widget.startDate, widget.endDate);
-      Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardRevenueData(
-              customerId, selectedYear, widget.startDate, widget.endDate);
-      Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardDataSalseData(customerId, selectedYear);
-      Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomersDataDash(customerId);
-    });
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.index = 0;
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        context
-            .read<CustomersProvider>()
-            .setSelectedIndex(_tabController.index);
-      }
-    });
-    log('SelectedCustomer Id :${productsController.selectedCustomerId.value}');
-    log('SelectedCustomer Name :${productsController.selectedCustomerName.value}');
-    log('SelectedCustomer Image :${productsController.selectedCustomerImageUrl.value}');
+  });
+}
+
+  void _initializeCustomerData() {
+  String? customerId;
+  if (widget.isFromCalendar) {
+    customerId = widget.cusId ?? '';
+    productsController.updateSelectedCustomer(
+      name: widget.cusName ?? '',
+      imageUrl: widget.cusImage ?? '',
+      id: customerId,
+    );
+  } else {
+    customerId = productsController.selectedCustomerId.value;
   }
+  customerOrderController.setCustomerId(customerId);
+  log('Initialized Customer ID: $customerId');
+  log('Selected Customer Name: ${productsController.selectedCustomerName.value}');
+  log('Selected Customer Image: ${productsController.selectedCustomerImageUrl.value}');
+}
+
 
   @override
   void dispose() {
@@ -271,14 +273,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError||!snapshot.hasData) {
+                } else if (snapshot.hasError) {
                   return Center(child: NodataWidget());
                 }else {
                   final responseModel = snapshot.data!;
                   final frequentProductLists =
                       responseModel.data.frequentProductLists;
                   final recentOrders = responseModel.data.recentOrders;
-
                   return Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Column(

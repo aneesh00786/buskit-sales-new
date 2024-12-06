@@ -382,6 +382,7 @@ class ApiWorker with ApiConstants {
 
   Future<Response> saveAsDraftProduct(Map<String, dynamic> sendData) async {
     log("Send DATA: ${sendData}");
+    sendData['companyId'] = companyId;
     final response = await dio
         .postbycustom(ApiConstants.add_order_draft,
             data: FormData.fromMap(sendData))

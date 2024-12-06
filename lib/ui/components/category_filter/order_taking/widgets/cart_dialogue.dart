@@ -607,7 +607,6 @@ class _CartDialogueState extends State<CartDialogue> {
                                 top: 16.0, left: 30, right: 30),
                             child: Column(
                               children: [
-                                
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -680,9 +679,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                       SizedBox(
                                         width: 150,
                                         // child: MyFormField(
-                                          // labelText: _dropdownValue == "Cheque"
-                                          //     ? "Cheque Number"
-                                          //     : "Transaction Number",
+                                        // labelText: _dropdownValue == "Cheque"
+                                        //     ? "Cheque Number"
+                                        //     : "Transaction Number",
                                         //   labelTextColor: black,
                                         //   hintColor: black,
                                         //   fillColor: Colors.blue,
@@ -709,9 +708,10 @@ class _CartDialogueState extends State<CartDialogue> {
                                         // ),
                                         child: TextFormField(
                                           decoration: InputDecoration(
-                                            labelText: _dropdownValue == "Cheque"
-                                              ? "Cheque Number"
-                                              : "Transaction Number",
+                                            labelText:
+                                                _dropdownValue == "Cheque"
+                                                    ? "Cheque Number"
+                                                    : "Transaction Number",
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                   color: Colors.black,
@@ -767,7 +767,6 @@ class _CartDialogueState extends State<CartDialogue> {
                                       ),
                                   ],
                                 ),
-
                                 if (_dropdownValue == "Cheque" ||
                                     _dropdownValue == "Bank Transfer")
                                   const SizedBox(height: 8),
@@ -1011,41 +1010,41 @@ class _CartDialogueState extends State<CartDialogue> {
                                   log('CartId :${cartOrder.cartId}');
                                   await widget.productsController
                                       .placeOrder(order);
-                                  _clearCartItem(cartItems);
+                                  
                                 }
                                 Navigator.pop(context);
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Center(
-                                        child: Container(
+                                  Get.dialog(
+                                    Obx(() {
+                                      final controller =
+                                          Get.find<ProductsController>();
+                                      return AlertDialog(
+                                        title: Center(
+                                          child: Container(
                                             height: 100,
                                             width: 100,
                                             child: Lottie.asset(
-                                                'assets/images/Animation - 1726906882515.json')),
-                                      ),
-                                      content: CustomText(
-                                        content:
-                                            'Your order has been successfully placed.',
-                                        fontSize: 18,
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop();
-                                            _clearCartItem(cartItems);
-                                          },
-                                          child: Text('OK'),
+                                                controller.lottie.value),
+                                          ),
                                         ),
-                                      ],
-                                    );
-                                  },
-                                );
+                                        content: Text(
+                                          controller.message.value,
+                                          style: TextStyle(fontSize: 18),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Get.back(); 
+                                              _clearCartItem(cartItems);
+                                            },
+                                            child: Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                    barrierDismissible: false,
+                                  );
+                                
                               } else if (customeController
                                       .customerId.value.isEmpty ||
                                   widget.productsController.selectedCustomerId

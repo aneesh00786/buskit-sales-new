@@ -207,36 +207,22 @@ class ApiWorker with ApiConstants {
     }
   }
 
-Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
-  if (companyId <= 0) {
-    log('Invalid companyId: $companyId');
-    return Future.error('Invalid companyId');
-  }
-
-  try {
+  Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
     final response = await dio
-        .postbycustom(
-      ApiConstants.recent_order_count,
-      data: {
-        "companyId": companyId,
-      },
+        .getbycustom(
+      '${ApiConstants.recent_order_count}?companyId=$companyId',
       options: Options(
         headers: {
           "Content-Type": "application/json",
         },
       ),
-    ).onError((DioException error, stackTrace) {
-      log('Error fetching recent order count: $error');
-      return Future.error(DioExceptionHandler.fromDioError(error));
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-
     return RecentOrderCountResponse.fromJson(response.data);
-  } catch (e) {
-    log('Error fetching recent order count: $e');
-    return Future.error(e);
   }
-}
-
 
   Future<CustomerDashboardResponse> getCustomerDashboard(
     String customerId,
@@ -284,19 +270,19 @@ Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
     sendData['companyId'] = companyId;
-    log('Send Data with companyId: $sendData'); 
+    log('Send Data with companyId: $sendData');
 
     try {
       final response = await dio
           .postbycustom(
-        ApiConstants.add_to_cart,
+        '${ApiConstants.add_to_cart}',
         data: FormData.fromMap(sendData),
       )
           .onError((DioError error, stackTrace) {
         log('Error: ${error.response?.data}');
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
-      
+
       if (response.statusCode == 200) {
         if (response.data['cart_id'] == null) {
           log('Cart ID is null in response.');

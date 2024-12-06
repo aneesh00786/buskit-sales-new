@@ -332,12 +332,14 @@ class CartOrderModel {
   String? salesmanId;
   String cartId;
   int? orderStatus;
+  int? companyId;
 
   CartOrderModel({
     this.customerId,
     this.salesmanId,
     required this.cartId,
     this.orderStatus,
+    this.companyId,
   });
   factory CartOrderModel.fromJson(Map<String, dynamic> json) {
     return CartOrderModel(
@@ -345,6 +347,7 @@ class CartOrderModel {
       salesmanId: json['salesman_id'],
       cartId: json['cart_id'],
       orderStatus: json['order_status'],
+      companyId:json['companyId']
     );
   }
   Map<String, dynamic> toJson() {
@@ -353,6 +356,7 @@ class CartOrderModel {
       'salesman_id': salesmanId,
       'cart_id': cartId,
       'order_status': orderStatus,
+      'companyId': companyId,
     };
   }
 }

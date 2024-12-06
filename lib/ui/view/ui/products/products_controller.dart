@@ -72,6 +72,8 @@ class ProductsController extends GetxController {
   RxString selectedCustomerImageUrl = "".obs;
   RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
+  RxString message = ''.obs;
+  RxString lottie = ''.obs;
   @override
   onInit() {
     super.onInit();
@@ -306,22 +308,32 @@ class ProductsController extends GetxController {
   }
 
   Future<void> placeOrder(CartOrderModel cartOrder) async {
-    final companyId = SessionHelper.loginSavedData?.company_id??0;
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    cartOrder.companyId = companyId;
+
     try {
-      log('the adding item :${cartOrder.cartId},${cartOrder.customerId},${cartOrder.salesmanId},${cartOrder.orderStatus}');
-      log('Place Order :${cartOrder.toJson()}');
+      log('Assigned companyId: ${cartOrder.companyId}');
+      log('Place Order Payload: ${cartOrder.toJson()}');
+
       final response = await Dio().post(
-        "http://16.50.232.153:3000/place_order?companyId=$companyId",
+        "http://16.50.232.153:3000/place_order",
         data: cartOrder.toJson(),
       );
-      log('${response.statusCode}');
+
+      log('Response status code: ${response.statusCode}');
       if (response.statusCode == 200) {
         log('Order placed successfully: ${response.data}');
+        message.value = 'Your order has been successfully placed.';
+        lottie.value = 'assets/images/Animation - 1726906882515.json';
       } else {
         log('Failed to place order: ${response.data}');
+        message.value = 'There was an error placing your order.';
+        lottie.value = 'assets/images/Warning_animation.json';
       }
     } catch (e) {
       log('Error placing order: $e');
+      message.value = 'An unexpected error occurred. Please try again.';
+      lottie.value = 'assets/images/Warning_animation.json';;
     }
   }
 

@@ -1,5 +1,7 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
@@ -78,13 +80,14 @@ class LeadTopScreen extends StatelessWidget {
 }
   Widget profiloe() {
     return Consumer<DashboardProvider>(builder: (context, provider, child) {
+      HomeController homeController = Get.put(HomeController());
+      log('Profile pic Path :${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
       return FutureBuilder<AdminResponse>(
         future: provider.adminResponse,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: SpinKitFadingCube(
-                //    type: SpinKitWaveType.center,
                 color: primaryColor, // Customize color if needed
                 size: 20.0, // Adjust size as needed
               ),
@@ -93,7 +96,7 @@ class LeadTopScreen extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final admin = snapshot.data!.data.first;
-            HomeController homeController = Get.put(HomeController());
+            
             TextEditingController nameController =
                 TextEditingController(text: admin.name);
             TextEditingController phoneController =
@@ -126,7 +129,7 @@ class LeadTopScreen extends StatelessWidget {
                         child: admin.imagePath != null
                             ? CachedNetworkImage(
                                 imageUrl:
-                                    '${homeController.userDetails?.imagePath}',
+                                    '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
                                 placeholder: (context, url) =>
                                     CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>

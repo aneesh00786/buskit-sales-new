@@ -207,22 +207,36 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
+Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
+  if (companyId <= 0) {
+    log('Invalid companyId: $companyId');
+    return Future.error('Invalid companyId');
+  }
+
+  try {
     final response = await dio
-        .getbycustom(
-      '${ApiConstants.recent_order_count}?companyId=$companyId',
+        .postbycustom(
+      ApiConstants.recent_order_count,
+      data: {
+        "companyId": companyId,
+      },
       options: Options(
         headers: {
           "Content-Type": "application/json",
         },
       ),
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    ).onError((DioException error, stackTrace) {
+      log('Error fetching recent order count: $error');
+      return Future.error(DioExceptionHandler.fromDioError(error));
     });
+
     return RecentOrderCountResponse.fromJson(response.data);
+  } catch (e) {
+    log('Error fetching recent order count: $e');
+    return Future.error(e);
   }
+}
+
 
   Future<CustomerDashboardResponse> getCustomerDashboard(
     String customerId,

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
@@ -1465,7 +1466,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _initSocket() {
-    socket = IO.io('http://16.50.232.153:3000/', <String, dynamic>{
+    socket = IO.io(ApiConstants.localHost, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });

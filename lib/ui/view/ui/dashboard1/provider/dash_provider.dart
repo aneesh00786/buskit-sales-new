@@ -945,6 +945,7 @@ class ApiService {
       "customer_id": customerId,
       "start_date": '',
       "end_date": '',
+      "companyId":companyId,
     };
 
     try {

@@ -307,6 +307,7 @@ class ProductsController extends GetxController {
   Future<void> placeOrder(CartOrderModel cartOrder) async {
     try {
       log('the adding item :${cartOrder.cartId},${cartOrder.customerId},${cartOrder.salesmanId},${cartOrder.orderStatus}');
+      log('Place Order :${cartOrder.toJson()}');
       final response = await Dio().post(
         "http://16.50.232.153:3000/place_order",
         data: cartOrder.toJson(),

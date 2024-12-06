@@ -138,7 +138,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           ),
           widget.loginController.loginResponce?.statusCode == 401
               ? Text(
-                  'Incorrect E-mail',
+                  'Incorrect Password',
                   style: TextStyle(color: Colors.red),
                 )
               : Text(''),

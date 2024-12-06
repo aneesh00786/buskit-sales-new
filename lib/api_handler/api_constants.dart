@@ -90,5 +90,6 @@ mixin class ApiConstants {
   static const String get_recent_order = "get_recent_orders";
   static const String order_process_invoice = "order_process_invoice";
   static const String waiting_for_approval = "waiting_for_approvel";
+  static const String localHost = 'http://16.50.232.153:3000/';
   
 }

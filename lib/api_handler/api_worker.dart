@@ -40,8 +40,8 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
-  final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
-  final companyId = SessionHelper.loginSavedData?.company_id??0;
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   Future<LoginResponce?> loginApi(String email, String password) async {
     Map<String, dynamic> data = {
       'email': email,
@@ -210,7 +210,7 @@ class ApiWorker with ApiConstants {
   Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
     final response = await dio
         .getbycustom(
-      ApiConstants.recent_order_count,
+      '${ApiConstants.recent_order_count}?companyId=$companyId',
       options: Options(
         headers: {
           "Content-Type": "application/json",
@@ -229,10 +229,8 @@ class ApiWorker with ApiConstants {
   ) async {
     final response = await dio
         .postbycustom(ApiConstants.customer_dashboard_list,
-            data: FormData.fromMap({
-              "customer_id": customerId,
-              "companyId":companyId
-            }))
+            data: FormData.fromMap(
+                {"customer_id": customerId, "companyId": companyId}))
         .onError((DioError error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
@@ -271,7 +269,9 @@ class ApiWorker with ApiConstants {
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-    log('${sendData}');
+    sendData['companyId'] = companyId;
+    log('Send Data with companyId: $sendData'); 
+
     try {
       final response = await dio
           .postbycustom(
@@ -279,19 +279,23 @@ class ApiWorker with ApiConstants {
         data: FormData.fromMap(sendData),
       )
           .onError((DioError error, stackTrace) {
+        log('Error: ${error.response?.data}');
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
-
+      
       if (response.statusCode == 200) {
         if (response.data['cart_id'] == null) {
+          log('Cart ID is null in response.');
           return null;
         }
-        final cartOrder = CartOrderModel.fromJson(response.data);
-        return cartOrder;
+        log('Response Data: ${response.data}');
+        return CartOrderModel.fromJson(response.data);
       } else {
+        log('Unexpected status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
+      log('Exception in addToCart: $e');
       return null;
     }
   }
@@ -324,7 +328,8 @@ class ApiWorker with ApiConstants {
     log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
     final response = await dio
         .postbycustom(ApiConstants.fetch_cart,
-            data: FormData.fromMap({"customer_id": customerId}))
+            data: FormData.fromMap(
+                {"customer_id": customerId, "companyId": companyId}))
         .onError((DioError error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
@@ -337,7 +342,8 @@ class ApiWorker with ApiConstants {
     log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
     final response = await dio
         .postbycustom(ApiConstants.customer_order_history,
-            data: FormData.fromMap({"customer_id": customerId}))
+            data: FormData.fromMap(
+                {"customer_id": customerId, "companyId": companyId}))
         .onError((DioError error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
@@ -397,17 +403,17 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<Response> setPaymentDetails(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${FormData.fromMap(sendData).fields}");
-    final response = await dio
-        .postbycustom(ApiConstants.payment_add_detail,
-            data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
-  }
+  // Future<Response> setPaymentDetails(Map<String, dynamic> sendData) async {
+  //   log("Send DATA: ${FormData.fromMap(sendData).fields}");
+  //   final response = await dio
+  //       .postbycustom(ApiConstants.payment_add_detail,
+  //           data: FormData.fromMap(sendData))
+  //       .onError((DioError error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   return response;
+  // }
 
   /// ************************ CATEGORY SECTION ***************** ///
   Future<CategoryModel> getCategory() async {
@@ -550,7 +556,7 @@ class ApiWorker with ApiConstants {
               "page": paginationModel?.currentPage ?? "",
               "limit": paginationModel?.limit ?? '',
               "salesman_id": salesmanId,
-              "companyId":companyId,
+              "companyId": companyId,
             }))
         .onError((DioException error, stackTrace) {
       log(error.toString());
@@ -563,7 +569,7 @@ class ApiWorker with ApiConstants {
   /// ******************** CALENDAR SECTION ******************/
   Future<List<EventData>> getCalendarEvents(
       Map<String, dynamic> sendData) async {
-        log('REquest Data :$sendData');
+    log('REquest Data :$sendData');
     final response = await dio
         .postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
         .onError((DioError error, stackTrace) {
@@ -666,6 +672,7 @@ class ApiWorker with ApiConstants {
     });
     return OrderResponce.fromJson(response.data);
   }
+
   Future<OptionOrderResponce> getAllOrderByStatus(
       {String? customerId,
       String? salesmanId,
@@ -708,7 +715,7 @@ class ApiWorker with ApiConstants {
       "limit": paginationModel?.limit.toString() ?? '',
       "page": paginationModel?.currentPage.toString() ?? '',
       "salesman_id": salesmanId,
-      "companyId":companyId,
+      "companyId": companyId,
     };
 
     log("Sending request with data: $requestData");
@@ -733,6 +740,7 @@ class ApiWorker with ApiConstants {
       ApiConstants.get_all_pending_payment_individual,
       data: FormData.fromMap({
         "customer_id": customerId,
+        "companyId": companyId,
       }),
     )
         .onError((DioException error, stackTrace) {

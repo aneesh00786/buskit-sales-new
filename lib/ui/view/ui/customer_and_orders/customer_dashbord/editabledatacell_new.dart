@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class EditableDataCell extends StatefulWidget {
 class _EditableDataCellState extends State<EditableDataCell> {
   late TextEditingController _controller;
   bool isChanged = false;
-
+  final companyId = SessionHelper.loginSavedData?.company_id??0;
   @override
   void initState() {
     super.initState();
@@ -47,6 +48,7 @@ class _EditableDataCellState extends State<EditableDataCell> {
       final data = {
         "order_id": widget.orderId,
         "amount": double.tryParse(_controller.text) ?? 0,
+        "companyId": companyId
       };
       final response = await dio.post(
         'http://16.50.232.153:3000/post_receivable_amount',

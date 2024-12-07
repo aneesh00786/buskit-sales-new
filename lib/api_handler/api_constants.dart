@@ -44,6 +44,7 @@ mixin class ApiConstants {
   static const String handle_lead = "handle_lead";
   static const String fetch_leads_reject = "fetch_leads_reject";
   static const String fetch_specific_order = "fetch_specific_order";
+  static const String update_CategorytargetValue = "update_CategorytargetValue";
   
 
   /// Category Api END Point
@@ -57,6 +58,7 @@ mixin class ApiConstants {
   static const String add_customer = "add_customer";
   static const String fetch_leads = "fetch_leads";
   static const String update_customer = "update_customer";
+  static const String fetch_salesmanTarget = "fetch_salesmanTarget";
 
   /// CALENDAR API
   static const String search_salesman = "search_salesman";

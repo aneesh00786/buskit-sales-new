@@ -1377,13 +1377,9 @@ class Messages {
       'salesman': salesman,
     };
   }
-
-  // Getter methods for easier access
   String get getMessage => message;
   String get getSource => source;
   String get getSalesman => salesman;
-
-  // From JSON to Object constructor
   factory Messages.fromJson(Map<String, dynamic> json) {
     return Messages(
       message: json['message'] ?? '',

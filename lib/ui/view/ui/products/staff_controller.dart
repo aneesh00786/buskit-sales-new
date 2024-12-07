@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -59,7 +60,36 @@ class StaffController extends GetxController {
   TextEditingController addressTextController = TextEditingController();
   TextEditingController cityTextController = TextEditingController();
   TextEditingController stateTextController = TextEditingController();
+  RxList<SalesmanTargetData> salesmanTargetList = <SalesmanTargetData>[].obs;
+  RxBool isTargetLoading = false.obs;
+  Future<List<SalesmanTargetData>> loadSalesmanTarget(
+      String salesmanId, String month, String year) async {
+    try {
+      isTargetLoading.value = true;
 
+      var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
+      salesmanTargetList.assignAll(data.data!);
+      return data.data!;
+    } finally {
+      isTargetLoading.value = false; // End loading
+    }
+  }
+  Future<void> updateCategoryTarget(
+    String salesmanId,
+    String month,
+    String year,
+    Map<dynamic, String> categoryData,
+    Map<dynamic, String> weeklyTarget,
+  ) async {
+    try {
+      var data = await ApiWorker().updateCategoryTargetValue(
+          salesmanId, month, year, categoryData, weeklyTarget);
+      print(data.statusMessage);
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
       return IconButton(

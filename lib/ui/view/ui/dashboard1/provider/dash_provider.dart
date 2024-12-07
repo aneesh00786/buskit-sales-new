@@ -258,6 +258,7 @@ class ApiService {
       'customerId': customerId,
       'catId': catId,
       'selected_year_category': selectedYearCategory,
+      'companyId':companyId,
     };
 
     try {

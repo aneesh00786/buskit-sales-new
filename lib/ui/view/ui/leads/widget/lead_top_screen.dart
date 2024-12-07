@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -96,22 +97,6 @@ class LeadTopScreen extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final admin = snapshot.data!.data.first;
-            
-            TextEditingController nameController =
-                TextEditingController(text: admin.name);
-            TextEditingController phoneController =
-                TextEditingController(text: admin.phoneNo);
-            TextEditingController emailController =
-                TextEditingController(text: admin.email);
-            TextEditingController townController =
-                TextEditingController(text: admin.town);
-            TextEditingController stateController =
-                TextEditingController(text: admin.state);
-            TextEditingController zipcodeController =
-                TextEditingController(text: admin.zipcode.toString());
-            TextEditingController addressController =
-                TextEditingController(text: admin.address);
-
             return SizedBox(
               width: 110,
               child: Container(
@@ -123,30 +108,35 @@ class LeadTopScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       const Spacer(),
-                      CircleAvatar(
-                        backgroundColor: const Color(0xffe6ecff),
-                        radius: 15,
-                        child: admin.imagePath != null
-                            ? CachedNetworkImage(
-                                imageUrl:
-                                    '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    Icon(Icons.error),
-                                imageBuilder: (context, imageProvider) =>
-                                    Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: imageProvider,
-                                      fit: BoxFit.cover,
+                      InkWell(
+                        onTap:(){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => PerformanceScreen()));
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: const Color(0xffe6ecff),
+                          radius: 15,
+                          child: admin.imagePath != null
+                              ? CachedNetworkImage(
+                                  imageUrl:
+                                      '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                  imageBuilder: (context, imageProvider) =>
+                                      Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                            : Icon(Icons
-                                .person), // Placeholder if imagePath is null
+                                )
+                              : Icon(Icons
+                                  .person), // Placeholder if imagePath is null
+                        ),
                       ),
                       const SizedBox(
                         width: 4.5,

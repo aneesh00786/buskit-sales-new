@@ -24,6 +24,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,54 @@ class ApiWorker with ApiConstants {
       );
     }
   }
-
+  Future<SalesmanTargetResponse> fetchSalesmanTarget(
+      String salesmanId, String month, String year) async {
+    log(companyId.toString());
+    final response = await dio
+        .getbycustom(
+      ApiConstants.fetch_salesmanTarget,
+      queryParameters: {
+        "salesman_id": salesmanId,
+        "year": year,
+        "month": month,
+        "companyId": companyId,
+      },
+      options: Options(
+        headers: {
+          "Content-Type": "application/json",
+        },
+      ),
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return SalesmanTargetResponse.fromJson(response.data);
+  }
+  Future<Response> updateCategoryTargetValue(
+    String salesmanId,
+    String month,
+    String year,
+    Map<dynamic, String> categoryData,
+    Map<dynamic, String> weeklyTarget,
+  ) async {
+    log(companyId.toString());
+    final response = await dio
+        .postbycustom(ApiConstants.update_CategorytargetValue,
+            data: ({
+              "categories": categoryData,
+              "weekly_target": weeklyTarget,
+              "sales_id": salesmanId,
+              "year": year,
+              "month": month,
+              "companyId": companyId,
+            }))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
   /// ************************ DASHBOARD SECTION ***************** ///
 
   Future<DashboardResponse> dashboardData() async {

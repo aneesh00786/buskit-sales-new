@@ -77,58 +77,67 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    await _initializeCustomerData();
-    final customerId = customerOrderController.customerId.value;
-    if (customerId.isEmpty) {
-      log('Error: Customer ID is empty, initialization failed.');
-      return;
-    }
-    final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
-    customersProvider.fetchCustomerDashboardData(customerId, selectedYear, widget.startDate, widget.endDate);
-    customersProvider.fetchCustomerDashboardRevenueData(customerId, selectedYear, widget.startDate, widget.endDate);
-    customersProvider.fetchCustomerDashboardDataSalseData(customerId, selectedYear);
-    customersProvider.fetchCustomersDataDash(customerId);
-  });
-  _tabController = TabController(length: 2, vsync: this);
-  _tabController.index = 0;
-  _tabController.addListener(() {
-    if (_tabController.indexIsChanging) {
-      context.read<CustomersProvider>().setSelectedIndex(_tabController.index);
-    }
-  });
-}
-Future<void> _initializeCustomerData() async {
-  String? customerId;
-  if (widget.isFromCalendar) {
-    customerId = widget.cusId ?? '';
-    productsController.updateSelectedCustomer(
-      name: widget.cusName ?? '',
-      imageUrl: widget.cusImage ?? '',
-      id: customerId,
-    );
-  } else {
-    customerId = productsController.selectedCustomerId.value;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initializeCustomerData();
+      final customerId = customerOrderController.customerId.value;
+      if (customerId.isEmpty) {
+        log('Error: Customer ID is empty, initialization failed.');
+        return;
+      }
+      final customersProvider =
+          Provider.of<CustomersProvider>(context, listen: false);
+      customersProvider.fetchCustomerDashboardData(
+          customerId, selectedYear, widget.startDate, widget.endDate);
+      customersProvider.fetchCustomerDashboardRevenueData(
+          customerId, selectedYear, widget.startDate, widget.endDate);
+      customersProvider.fetchCustomerDashboardDataSalseData(
+          customerId, selectedYear);
+      customersProvider.fetchCustomersDataDash(customerId);
+    });
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.index = 0;
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        context
+            .read<CustomersProvider>()
+            .setSelectedIndex(_tabController.index);
+      }
+    });
   }
-  if (customerId == null || customerId.isEmpty) {
-    log('Customer ID is empty, retrying initialization...');
-    await Future.delayed(Duration(milliseconds: 100));
-    return _initializeCustomerData();
+
+  Future<void> _initializeCustomerData() async {
+    String? customerId;
+    if (widget.isFromCalendar) {
+      customerId = widget.cusId ?? '';
+      productsController.updateSelectedCustomer(
+        name: widget.cusName ?? '',
+        imageUrl: widget.cusImage ?? '',
+        id: customerId,
+      );
+    } else {
+      customerId = productsController.selectedCustomerId.value;
+    }
+    if (customerId == null || customerId.isEmpty) {
+      log('Customer ID is empty, retrying initialization...');
+      await Future.delayed(Duration(milliseconds: 100));
+      return _initializeCustomerData();
+    }
+    customerOrderController.setCustomerId(customerId);
+    log('Initialized Customer ID: $customerId');
+    log('Selected Customer Name: ${productsController.selectedCustomerName.value}');
+    log('Selected Customer Image: ${productsController.selectedCustomerImageUrl.value}');
   }
-  customerOrderController.setCustomerId(customerId);
-  log('Initialized Customer ID: $customerId');
-  log('Selected Customer Name: ${productsController.selectedCustomerName.value}');
-  log('Selected Customer Image: ${productsController.selectedCustomerImageUrl.value}');
-}
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final customerName = widget.isFromCalendar
@@ -144,8 +153,8 @@ Future<void> _initializeCustomerData() async {
 
     return nkMediumSizeBox(
       height: isMobile
-          ? AppDimensions.instance!.height * 3
-          : AppDimensions.instance!.height * 0.98,
+          ? AppDimensions.instance.height * 3
+          : AppDimensions.instance.height * 0.98,
       child: Scaffold(
         appBar: AppBar(
           leading: Padding(
@@ -282,7 +291,7 @@ Future<void> _initializeCustomerData() async {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: NodataWidget());
-                }else {
+                } else {
                   final responseModel = snapshot.data!;
                   final frequentProductLists =
                       responseModel.data.frequentProductLists;

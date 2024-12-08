@@ -67,7 +67,7 @@ class _OrderTakingState extends State<OrderTaking>
   int cartItemCount = 0;
   String _selectedCategory = '';
   int _expandedIndex = -1;
-  bool _showDialog = false;
+  //bool _showDialog = false;
   String _dialogMessage = '';
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
@@ -122,20 +122,6 @@ class _OrderTakingState extends State<OrderTaking>
     CartDatabaseManager().removeListener(_updateCartCount);
     super.dispose();
   }
-
-  void _closeDialog() {
-    setState(() {
-      _showDialog = false;
-    });
-  }
-
-  void _toggleDialog(String message) {
-    setState(() {
-      _showDialog = !_showDialog;
-      _dialogMessage = message;
-    });
-  }
-
   void _selectFirstCategory() {
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
@@ -691,21 +677,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                               name: customer
                                                                       .businessName ??
                                                                   '');
-                                                      // widget
-                                                      //         .productsController
-                                                      //         .selectedCustomerName
-                                                      //         .value =
-                                                      //     widget
-                                                      //         .productsController
-                                                      //         .getFormattedCustomerName(
-                                                      //             customer
-                                                      //                 .businessName);
-                                                      // widget
-                                                      //     .productsController
-                                                      //     .selectedCustomerImageUrl
-                                                      //     .value = customer
-                                                      //         .imageUrl ??
-                                                      //     '';
                                                       widget
                                                           .productsController
                                                           .selectedCustomerId
@@ -722,13 +693,14 @@ class _OrderTakingState extends State<OrderTaking>
                                           )
                                     : const SizedBox.shrink(),
                           ),
-                          if (_showDialog)
+                          if (widget.productsController.showDialog.value)
                             AlertDialog(
                               title: Text('Warning'),
                               content: Text(_dialogMessage),
                               actions: [
                                 TextButton(
-                                  onPressed: _closeDialog,
+                                  onPressed:
+                                      widget.productsController.closeDialog,
                                   child: Text('OK'),
                                 ),
                               ],
@@ -1000,7 +972,7 @@ class _OrderTakingState extends State<OrderTaking>
                   Navigator.pop(context);
                   setState(() {
                     customerSearchController.clear();
-                    cartItemCount = 0;
+                    //cartItemCount = 0;
                   });
                 },
                 child: Text('Ok'),

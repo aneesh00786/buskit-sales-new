@@ -22,7 +22,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:lottie/lottie.dart';
 import '../../category_list.dart';
 import '../../product_list/view/product_list.dart';

@@ -12,7 +12,9 @@ import 'package:intl/intl.dart';
 class StaffTargetDialog extends StatefulWidget {
   final StaffController staffController;
 
-  StaffTargetDialog({required this.staffController,});
+  StaffTargetDialog({
+    required this.staffController,
+  });
 
   @override
   _StaffTargetDialogState createState() => _StaffTargetDialogState();
@@ -62,7 +64,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       "SALES1",
       selectedMonthName,
       currentYear.toString(),
-    ).then((_) {
+    )
+        .then((_) {
       setState(() {
         _targetControllers = widget.staffController.salesmanTargetList
             .map((data) => TextEditingController(text: data.target.toString()))
@@ -119,7 +122,14 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         });
 
     return Container(
-        color: white,
+        decoration: BoxDecoration(
+          color: white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.grey,
+            width: 0.4,
+          ),
+        ),
         child: Obx(() {
           return widget.staffController.isTargetLoading.value
               ? SizedBox(
@@ -129,150 +139,153 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                   ),
                 )
               : SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    nkSmallSizeBox(),
-                    const SizedBox(height: 15),
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding:
-                          const EdgeInsets.only(top: 8, left: 8, right: 8),
-                      child: Wrap(
-                        spacing: 8.0,
-                        children: List.generate(12, (index) {
-                          final monthName = DateFormat.MMMM()
-                              .format(DateTime(0, index + 1));
-                          final isSelected = _tabController.index == index;
-              
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _tabController.index = index;
-                              });
-                              _loadSalesmanTargetForSelectedTab();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 12.0),
-                              decoration: BoxDecoration(
-                                color: white,
-                                border: isSelected
-                                    ? Border.all(
-                                        color: Colors.grey.shade300)
-                                    : null,
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(5),
-                                    topRight: Radius.circular(5)),
-                              ),
-                              child: Text(
-                                monthName,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.black
-                                      : Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                    if (isWeekly == false) ...[
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-              
-                        child: Table(
-                          border: TableBorder.all(color: Colors.grey),
-                          columnWidths: const {
-                            0: FlexColumnWidth(2),
-                            1: FlexColumnWidth(3),
-                          },
-                          children: [
-                            TableRow(
-                              decoration:
-                                  BoxDecoration(color: Colors.grey[300]),
-                              children: [
-                                _buildTableHeader('Category'),
-                                _buildTableHeader('Target'),
-                              ],
-                            ),
-                            ..._buildCategoryRows(),
-                          ],
-                        ),
-                      ),
-                    ],
-              
-                    if (isWeekly == true) ...[
-                      isDataInitialized
-                          ? Builder(
-                              builder: (context) {
-                                // Get the weeks for the current month
-                                final selectedMonth =
-                                    _tabController.index + 1;
-                                final relevantWeeks = getWeeksForMonth(
-                                    currentYear, selectedMonth);
-              
-                                return Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      0.7,
-                                  padding: const EdgeInsets.only(
-                                      bottom: 8, left: 8, right: 8),
-                                  child: Table(
-                                    border:
-                                        TableBorder.all(color: Colors.grey),
-                                    columnWidths: const {
-                                      0: FixedColumnWidth(150)
-                                    }, // Category column width
-                                    children: [
-                                      // Header row
-                                      TableRow(
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey[300]),
-                                        children: [
-                                          _buildTableHeader('Category'),
-                                          // Dynamically generate the week headers
-                                          ...relevantWeeks.map((week) {
-                                            return _buildTableHeader(
-                                                'Week $week');
-                                          }),
-                                        ],
-                                      ),
-                                      // Data rows
-                                      ..._buildCategoryWeeklyRows(
-                                          relevantWeeks),
-                                    ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      nkSmallSizeBox(),
+                      const SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding:
+                              const EdgeInsets.only(top: 8, left: 8, right: 8),
+                          child: Wrap(
+                            spacing: 8.0,
+                            children: List.generate(12, (index) {
+                              final monthName = DateFormat.MMMM()
+                                  .format(DateTime(0, index + 1));
+                              final isSelected = _tabController.index == index;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _tabController.index = index;
+                                  });
+                                  _loadSalesmanTargetForSelectedTab();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8.0, horizontal: 12.0),
+                                  decoration: BoxDecoration(
+                                    color: white,
+                                    border: isSelected
+                                        ? Border.all(
+                                            color: Colors.grey.shade300)
+                                        : null,
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(5),
+                                        topRight: Radius.circular(5)),
                                   ),
-                                );
-                              },
-                            )
-                          : const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                    ],
-              
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 30),
-                        ),
-                        onPressed: _saveTargets,
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                                  child: Text(
+                                    monthName,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
+                      if (isWeekly == false) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Table(
+                              border: TableBorder.all(color: Colors.grey),
+                              columnWidths: const {
+                                0: FlexColumnWidth(3),
+                                1: FlexColumnWidth(2),
+                              },
+                              children: [
+                                TableRow(
+                                  decoration:
+                                      BoxDecoration(color: Colors.grey[300]),
+                                  children: [
+                                    _buildTableHeader('Category'),
+                                    _buildTableHeader('Target'),
+                                  ],
+                                ),
+                                ..._buildCategoryRows(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (isWeekly == true) ...[
+                        isDataInitialized
+                            ? Builder(
+                                builder: (context) {
+                                  // Get the weeks for the current month
+                                  final selectedMonth =
+                                      _tabController.index + 1;
+                                  final relevantWeeks = getWeeksForMonth(
+                                      currentYear, selectedMonth);
+
+                                  return Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.7,
+                                    padding: const EdgeInsets.only(
+                                        bottom: 8, left: 8, right: 8),
+                                    child: Table(
+                                      border:
+                                          TableBorder.all(color: Colors.grey),
+                                      columnWidths: const {
+                                        0: FixedColumnWidth(150)
+                                      }, // Category column width
+                                      children: [
+                                        // Header row
+                                        TableRow(
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey[300]),
+                                          children: [
+                                            _buildTableHeader('Category'),
+                                            // Dynamically generate the week headers
+                                            ...relevantWeeks.map((week) {
+                                              return _buildTableHeader(
+                                                  'Week $week');
+                                            }),
+                                          ],
+                                        ),
+                                        // Data rows
+                                        ..._buildCategoryWeeklyRows(
+                                            relevantWeeks),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                      ],
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 30),
+                          ),
+                          onPressed: _saveTargets,
+                          child: const Text(
+                            'Save',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
         }));
   }
 
@@ -337,13 +350,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Widget _buildTableHeader(String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
+      child: CustomText(
+        content: text,
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
       ),
     );
   }
@@ -488,7 +499,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Widget _buildTableTextField(int index) {
     return Container(
       height: 50,
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 20),
       child: TextField(
         controller: _targetControllers[index],
         textAlign: TextAlign.center,

@@ -1,7 +1,9 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class NkSideBarOnlyIcon extends StatefulWidget {
@@ -71,7 +73,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         shrinkWrap: true,
         scrollDirection: Axis.vertical,
         itemBuilder: (context, index) {
-          return listComponet(sideBarList[index], index);
+          return listComponent(sideBarList[index], index);
         },
         separatorBuilder: (context, index) {
           return nkMediumSizeBox(height: AppDimensions.instance.height * .020);
@@ -79,31 +81,133 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         itemCount: sideBarList.length);
   }
 
-  Widget listComponet(SidebarXItem sideBarData, int index) {
-    return Container(
-      decoration: BoxDecoration(
+  // Widget listComponet(SidebarXItem sideBarData, int index) {
+  //   final NotificationController notificationController =
+  //       Get.put(NotificationController());
+
+  //   // notificationController.loadNotificationData();
+
+  //   bool isRecentOrders = index == 7;
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //         border: widget.sidebarXController.selectedIndex == index
+  //             ? const BorderDirectional(
+  //                 start: BorderSide(color: primaryColor, width: 3))
+  //             : null),
+  //     child: GestureDetector(
+  //       onTap: () {
+  //         setState(() {
+  //           widget.sidebarXController.selectIndex(index);
+  //           sideBarData.onTap?.call();
+  //           widget.onTap?.call(widget.sidebarXController.selectedIndex);
+  //         });
+  //       },
+  //       child: Padding(
+  //         padding: EdgeInsets.zero,
+  //         child:Stack(
+  //         clipBehavior: Clip.none,
+  //         children: [
+  //           Icon(
+  //             sideBarData.icon!,
+  //             size: 20,
+  //             color: widget.sidebarXController.selectedIndex == index
+  //                 ? Theme.of(context).primaryColor
+  //                 : Colors.grey,
+  //           ),
+  //           if (isRecentOrders)
+  //             Positioned(
+  //               top: -15,
+  //               left: 10,
+  //               child: notificationController.isNotificationLoading.value
+  //                   ? SizedBox.shrink() // Show nothing when loading
+  //                   : notificationController
+  //                               .recentOrderCountData.mainNotification !=
+  //                           null
+  //                       ? CircleAvatar(
+  //                           radius: 10,
+  //                           backgroundColor: Colors.red,
+  //                           child: Text(
+  //                             notificationController.recentOrderCountData
+  //                                     .mainNotification!.recentOrders
+  //                                     ?.toString() ??
+  //                                 '0',
+  //                             style:
+  //                                 TextStyle(fontSize: 10, color: Colors.white),
+  //                           ),
+  //                         )
+  //                       : SizedBox.shrink(), //
+  //             ),
+  //         ],
+  //       ),
+  //       ),
+  //     ),
+  //   );
+  // }
+  Widget listComponent(SidebarXItem sideBarData, int index) {
+    final NotificationController notificationController =
+        Get.put(NotificationController());
+
+    // notificationController.loadNotificationData();
+
+    bool isRecentOrders = index == 7;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          widget.sidebarXController.selectIndex(index);
+          sideBarData.onTap?.call();
+          widget.onTap?.call(widget.sidebarXController.selectedIndex);
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.only(
+            top: 5,
+            bottom: 5,
+            left: widget.sidebarXController.selectedIndex == index ? 12 : 15),
+        decoration: BoxDecoration(
           border: widget.sidebarXController.selectedIndex == index
-              ? const BorderDirectional(
-                  start: BorderSide(color: primaryColor, width: 3))
-              : null),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            widget.sidebarXController.selectIndex(index);
-            sideBarData.onTap?.call();
-            widget.onTap?.call(widget.sidebarXController.selectedIndex);
-          });
-        },
-        child: Padding(
-          padding: EdgeInsets.zero,
-          child: Icon(
-            sideBarData.icon!,
-            size: 24,
-            color: widget.sidebarXController.selectedIndex == index
-                ? primaryColor
-                : Colors.black.withOpacity(0.4),
-          ),
+              ? Border(
+                  left: BorderSide(
+                      color: Theme.of(context).primaryColor, width: 3),
+                )
+              : null,
         ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(
+              sideBarData.icon!,
+              size: 22,
+              color: widget.sidebarXController.selectedIndex == index
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey,
+            ),
+            if (isRecentOrders)
+              Positioned(
+                top: -15,
+                left: 10,
+                child: notificationController.isNotificationLoading.value
+                    ? SizedBox.shrink() // Show nothing when loading
+                    : notificationController
+                                .recentOrderCountData.mainNotification !=
+                            null
+                        ? CircleAvatar(
+                            radius: 10,
+                            backgroundColor: Colors.red,
+                            child: Text(
+                              notificationController.recentOrderCountData
+                                      .mainNotification!.recentOrders
+                                      ?.toString() ??
+                                  '0',
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.white),
+                            ),
+                          )
+                        : SizedBox.shrink(), //
+              ),
+          ],
+        ),
+        // ),
       ),
     );
   }

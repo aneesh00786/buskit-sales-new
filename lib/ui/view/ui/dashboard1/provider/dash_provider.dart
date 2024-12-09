@@ -299,12 +299,12 @@ class ApiService {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
     final requestBody = {
       "salesman_id": salesmanId,
+      "companyId":companyId
     };
     log('Request Body : ${requestBody}');
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
       if (response.statusCode == 200) {

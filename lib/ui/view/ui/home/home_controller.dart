@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
@@ -147,41 +148,50 @@ class HomeController extends GetxController {
     }
   }
 
-changePageRouting() {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
-      Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
-    } else if (sidebarXController.selectedIndex == 1 && selectedIndex.value != 1) {
-      Get.offNamed(AppRoutes.customersAndOrders, id: 2);
-    } else if (sidebarXController.selectedIndex == 2 && selectedIndex.value != 2) {
-      Get.offNamed(AppRoutes.product, id: 2);
-    } else if (sidebarXController.selectedIndex == 3 && selectedIndex.value != 3) {
-      Get.offNamed(AppRoutes.pendingPayment, id: 2);
-    } else if (sidebarXController.selectedIndex == 4 && selectedIndex.value != 4) {
-      Get.offNamed(AppRoutes.leads, id: 2);
-    } else if (sidebarXController.selectedIndex == 5 && selectedIndex.value != 5) {
-      Get.offNamed(AppRoutes.performance, id: 2);
-    } else if (sidebarXController.selectedIndex == 6 && selectedIndex.value != 6) {
-      Get.offNamed(AppRoutes.calender, id: 2);
-    } else if (sidebarXController.selectedIndex == 7 && selectedIndex.value != 7) {
-      Get.offNamed(AppRoutes.ordersScreen, id: 2);
-    } else if (sidebarXController.selectedIndex == 8 && selectedIndex.value != 8) {
-      Get.offNamed(AppRoutes.settings, id: 2);
-    }
-    selectedIndex.value = sidebarXController.selectedIndex;
-  });
-}
+  changePageRouting() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
+        Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
+      } else if (sidebarXController.selectedIndex == 1 &&
+          selectedIndex.value != 1) {
+        Get.offNamed(AppRoutes.customersAndOrders, id: 2);
+      } else if (sidebarXController.selectedIndex == 2 &&
+          selectedIndex.value != 2) {
+        Get.offNamed(AppRoutes.product, id: 2);
+      } else if (sidebarXController.selectedIndex == 3 &&
+          selectedIndex.value != 3) {
+        Get.offNamed(AppRoutes.pendingPayment, id: 2);
+      } else if (sidebarXController.selectedIndex == 4 &&
+          selectedIndex.value != 4) {
+        Get.offNamed(AppRoutes.leads, id: 2);
+      } else if (sidebarXController.selectedIndex == 5 &&
+          selectedIndex.value != 5) {
+        Get.offNamed(AppRoutes.performance, id: 2);
+      } else if (sidebarXController.selectedIndex == 6 &&
+          selectedIndex.value != 6) {
+        Get.offNamed(AppRoutes.calender, id: 2);
+      } else if (sidebarXController.selectedIndex == 7 &&
+          selectedIndex.value != 7) {
+        Get.offNamed(AppRoutes.ordersScreen, id: 2);
+      } else if (sidebarXController.selectedIndex == 8 &&
+          selectedIndex.value != 8) {
+        Get.offNamed(AppRoutes.settings, id: 2);
+      }
+      selectedIndex.value = sidebarXController.selectedIndex;
+    });
+  }
+
   RxList<String> sidebarName = [
     dashBoard,
     customersAndOrders,
     products,
     pendingPayments,
-    leads, 
-    performance, 
-    calendar, 
+    leads,
+    performance,
+    calendar,
     todayOrders,
-    settings, 
-    logOut 
+    settings,
+    logOut
   ].obs;
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
@@ -195,33 +205,116 @@ changePageRouting() {
       sideBarComponent(sidebarName[6], SIdeBarIcon.ic_calender),
       sideBarComponent(sidebarName[7], SIdeBarIcon.ic_today_order),
       sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
-      sideBarComponent(
-        sidebarName[9],
-        SIdeBarIcon.ic_log_out,
-        onTap: () async {
-          await SessionManager.clearData();
-          Get.offAllNamed(AppRoutes.login);
-          Provider.of<DashboardProvider>(context, listen: false)
-              .resetProvider();
-        },
-      ),
+      sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out, context: context
+          // onTap: () async {
+          //   await SessionManager.clearData();
+          //   Get.offAllNamed(AppRoutes.login);
+          //   Provider.of<DashboardProvider>(context, listen: false)
+          //       .resetProvider();
+          // },
+          ),
     ];
   }
+
+  // SidebarXItem sideBarComponent(
+  //   String barTitle,
+  //   IconData iconData, {
+  //   BuildContext? context,
+  //   VoidCallback? onTap,
+  // }) {
+  //   return SidebarXItem(
+  //     icon: iconData,
+  //     label: barTitle,
+  //     onTap: () async {
+  //       homeScaffoldKey.currentState?.closeDrawer();
+  //       if (onTap != null) {
+  //         onTap();
+  //       }
+  //     },
+  //   );
+  // }
 
   SidebarXItem sideBarComponent(
     String barTitle,
     IconData iconData, {
     BuildContext? context,
-    VoidCallback? onTap,
   }) {
+    final NotificationController notificationController =
+        Get.put(NotificationController());
+
+    bool isLogout = (barTitle == logOut);
+    bool isSettings = (barTitle == setting);
+    bool isRecentOrders = (barTitle == orders);
+
     return SidebarXItem(
       icon: iconData,
-      label: barTitle,
       onTap: () async {
         homeScaffoldKey.currentState?.closeDrawer();
-        if (onTap != null) {
-          onTap();
+
+        if (isLogout) {
+          await SessionManager.clearData();
+          Get.offAllNamed(AppRoutes.login);
+          if (context != null) {
+            Provider.of<DashboardProvider>(context, listen: false)
+                .resetProvider();
+          }
+        } else {
+          changePageRouting();
         }
+      },
+      iconBuilder: (context, extended) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 10.0),
+          child: Row(
+            children: [
+              Icon(
+                iconData,
+                size: 20,
+                color: Colors.black.withOpacity(0.4),
+              ),
+              const SizedBox(width: 20),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      barTitle,
+                      style: TextStyle(
+                        color: Colors.black.withOpacity(0.4),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (isRecentOrders)
+                    Positioned(
+                      top: -15,
+                      left: 200,
+                      child: notificationController.isNotificationLoading.value
+                          ? SizedBox.shrink() // Show nothing when loading
+                          : notificationController
+                                      .recentOrderCountData.mainNotification !=
+                                  null
+                              ? CircleAvatar(
+                                  radius: 10,
+                                  backgroundColor: Colors.red,
+                                  child: Text(
+                                    notificationController.recentOrderCountData
+                                            .mainNotification!.recentOrders
+                                            ?.toString() ??
+                                        '0',
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.white),
+                                  ),
+                                )
+                              : SizedBox.shrink(),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
       },
     );
   }

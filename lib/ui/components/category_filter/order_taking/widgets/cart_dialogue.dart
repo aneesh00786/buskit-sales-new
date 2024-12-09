@@ -22,6 +22,7 @@ import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
 class CartDialogue extends StatefulWidget {
@@ -50,12 +51,17 @@ class _CartDialogueState extends State<CartDialogue> {
     'Pre Order',
     'Estimate'
   ];
-  // CustomerAndOrderController customeController =
-  //     Get.find<CustomerAndOrderController>();
   CustomerAndOrderController customeController =
       Get.put(CustomerAndOrderController());
-  TextEditingController totalQuickController = TextEditingController();
+  final TextEditingController totalQuickController = TextEditingController();
+  final TextEditingController chequeOrTransactionNumberController =
+      TextEditingController();
+  final TextEditingController cashRemarkController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
+
   bool _isLoading = true;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -596,7 +602,7 @@ class _CartDialogueState extends State<CartDialogue> {
                     color2: Colors.green,
                   ),
                   SizedBox(
-                    height: _selectedValue == "Quick Sale" ? 200 : 60,
+                    height: _selectedValue == "Quick Sale" ? 250 : 60,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -635,210 +641,62 @@ class _CartDialogueState extends State<CartDialogue> {
                           Padding(
                             padding: const EdgeInsets.only(
                                 top: 16.0, left: 30, right: 30),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Dropdown Button
-                                    Container(
-                                      height: 55,
-                                      width: 130,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.black),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 5.0),
-                                        child: DropdownButton<String>(
-                                          hint: const Text("Payment method"),
-                                          value: _dropdownValue,
-                                          onChanged: (String? newValue) {
-                                            setState(() {
-                                              _dropdownValue = newValue!;
-                                            });
-                                          },
-                                          items: <String>[
-                                            'Cash',
-                                            'Cheque',
-                                            'Bank Transfer',
-                                          ].map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(value),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-
-                                    // Total Amount Field
-                                    SizedBox(
-                                      width: 150,
-                                      child: MyFormField(
-                                        controller: totalQuickController,
-                                        labelText: "Total Amount",
-                                        decoration: InputDecoration(
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black, width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.blue, width: 1),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black, width: 1),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-
-                                    // Conditional Field in First Row
-                                    if (_dropdownValue == "Cheque" ||
-                                        _dropdownValue == "Bank Transfer")
-                                      SizedBox(
-                                        width: 150,
-                                        // child: MyFormField(
-                                        // labelText: _dropdownValue == "Cheque"
-                                        //     ? "Cheque Number"
-                                        //     : "Transaction Number",
-                                        //   labelTextColor: black,
-                                        //   hintColor: black,
-                                        //   fillColor: Colors.blue,
-                                        //   decoration: InputDecoration(
-                                        //     enabledBorder: OutlineInputBorder(
-                                        //       borderSide: const BorderSide(
-                                        //           color: Colors.black,
-                                        //           width: 1),
-                                        //       borderRadius:
-                                        //           BorderRadius.circular(10),
-                                        //     ),
-                                        //     focusedBorder: OutlineInputBorder(
-                                        //       borderSide: const BorderSide(
-                                        //           color: Colors.blue, width: 1),
-                                        //       borderRadius:
-                                        //           BorderRadius.circular(10),
-                                        //     ),
-                                        //     border: OutlineInputBorder(
-                                        //       borderSide: const BorderSide(
-                                        //           color: Colors.black,
-                                        //           width: 1),
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                _dropdownValue == "Cheque"
-                                                    ? "Cheque Number"
-                                                    : "Transaction Number",
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.blue, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    if (_dropdownValue == "Cash" ||
-                                        _dropdownValue == null)
-                                      SizedBox(
-                                        width: 200,
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText: "Remark",
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.blue, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                if (_dropdownValue == "Cheque" ||
-                                    _dropdownValue == "Bank Transfer")
-                                  const SizedBox(height: 8),
-                                if (_dropdownValue == "Cheque" ||
-                                    _dropdownValue == "Bank Transfer")
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                        width: 150,
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText: "Date",
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.blue, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
+                                      Container(
+                                        height: 55,
+                                        width: 130,
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.black),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5.0),
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            hint: const Text("Payment method"),
+                                            value: _dropdownValue,
+                                            onChanged: (String? newValue) {
+                                              setState(() {
+                                                _dropdownValue = newValue!;
+                                              });
+                                            },
+                                            items: <String>[
+                                              'Cash',
+                                              'Cheque',
+                                              'Bank Transfer',
+                                            ].map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please select a payment method';
+                                              }
+                                              return null;
+                                            },
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       SizedBox(
-                                        width: 200,
-                                        child: TextFormField(
+                                        width: 150,
+                                        child: MyFormField(
+                                          controller: totalQuickController,
+                                          labelText: "Total Amount",
                                           decoration: InputDecoration(
-                                            labelText: "Remark",
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                   color: Colors.black,
@@ -856,15 +714,208 @@ class _CartDialogueState extends State<CartDialogue> {
                                               borderSide: const BorderSide(
                                                   color: Colors.black,
                                                   width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
                                             ),
                                           ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please enter the total amount';
+                                            }
+                                            return null;
+                                          },
                                         ),
                                       ),
+                                      const SizedBox(width: 8),
+                                      if (_dropdownValue == "Cheque" ||
+                                          _dropdownValue == "Bank Transfer")
+                                        SizedBox(
+                                          width: 150,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  _dropdownValue == "Cheque"
+                                                      ? "Cheque Number"
+                                                      : "Transaction Number",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please enter the number';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      if (_dropdownValue == "Cash" ||
+                                          _dropdownValue == null)
+                                        SizedBox(
+                                          width: 200,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText: "Remark",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please provide a remark';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
                                     ],
                                   ),
-                              ],
+                                  if (_dropdownValue == "Cheque" ||
+                                      _dropdownValue == "Bank Transfer")
+                                    const SizedBox(height: 8),
+                                  if (_dropdownValue == "Cheque" ||
+                                      _dropdownValue == "Bank Transfer")
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 150,
+                                          child: TextFormField(
+                                            controller: dateController,
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                              labelText: "Date",
+                                              suffixIcon: IconButton(
+                                                icon: const Icon(
+                                                    Icons.calendar_today),
+                                                onPressed: () async {
+                                                  DateTime? pickedDate =
+                                                      await showDatePicker(
+                                                    context: context,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime(2000),
+                                                    lastDate: DateTime(2100),
+                                                  );
+                                                  if (pickedDate != null) {
+                                                    setState(() {
+                                                      dateController
+                                                          .text = DateFormat(
+                                                              'dd/MM/yyyy')
+                                                          .format(pickedDate);
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please select a date';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        SizedBox(
+                                          width: 200,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText: "Remark",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please provide a remark';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                       ],
@@ -956,8 +1007,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                     log('CartId :${cartOrder.cartId}');
                                     await placeOrder(order,
                                         (statusCode, message) {
-                                      Navigator.pop(
-                                          context);
+                                      Navigator.pop(context);
 
                                       if (statusCode == 200) {
                                         _clearCartItem(cartItems);
@@ -995,35 +1045,35 @@ class _CartDialogueState extends State<CartDialogue> {
                                           },
                                         );
                                       } else {
-                                       showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Center(
-                                              child: Container(
-                                                height: 200,
-                                                width: 200,
-                                                child: Lottie.asset(
-                                                    'assets/images/Warning_animation.json'),
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Center(
+                                                child: Container(
+                                                  height: 200,
+                                                  width: 200,
+                                                  child: Lottie.asset(
+                                                      'assets/images/Warning_animation.json'),
+                                                ),
                                               ),
-                                            ),
-                                            content: CustomText(
-                                              content:
-                                                  "Couldn't save the order as draft please try again.",
-                                              fontSize: 18,
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text('OK'),
+                                              content: CustomText(
+                                                content:
+                                                    "Couldn't save the order as draft please try again.",
+                                                fontSize: 18,
                                               ),
-                                            ],
-                                          );
-                                        },
-                                      );
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('OK'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
                                       }
                                     });
                                     setState(() {
@@ -1041,68 +1091,27 @@ class _CartDialogueState extends State<CartDialogue> {
                           size: width > 1200 ? 14 : 10,
                           onTap: () async {
                             if (widget.active == true) {
-                              if (cartItems.isNotEmpty &&
-                                  (customeController
-                                          .customerId.value.isNotEmpty ||
-                                      widget
-                                          .productsController
-                                          .selectedCustomerId
-                                          .value
-                                          .isNotEmpty)) {
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return Center(
-                                        child: CircularProgressIndicator());
-                                  },
-                                );
-                                await Future.delayed(Duration(seconds: 2));
-                                List<Detail> detail =
-                                    cartItems.map((e) => e.detail).toList();
-                                final productBYData = AddToCartModel(
-                                  customerId:
-                                      customeController.customerId.isNotEmpty
-                                          ? customeController.customerId.value
-                                          : widget.productsController
-                                              .selectedCustomerId.value,
-                                  salesmanId:
-                                      SessionHelper.loginSavedData!.salesmanId!,
-                                  cartId: '',
-                                  cartList: detail
-                                      .map((e) => SendCartData(
-                                            productId: e.productId ?? '',
-                                            variantId: e.variationId ?? '',
-                                            pack: e.saleBy == 'Pack'
-                                                ? e.pieces.toString()
-                                                : e.count.toString(),
-                                            price: e.price.toString(),
-                                            packType: e.saleBy == 'Pack'
-                                                ? 'Pack'
-                                                : 'Pcs',
-                                            discount: '0',
-                                            quantity: e.count.toInt(),
-                                          ))
-                                      .toList(),
-                                  total: finalAmount.toStringAsFixed(0),
-                                  discount: '0',
-                                );
-                                CartOrderModel? cartOrder = await ApiWorker()
-                                    .addToCart(productBYData.toJson());
-                                log('CartId :${cartOrder?.cartId}');
-
-                                if (cartOrder != null) {
-                                  int orderStatus = 0;
-                                  if (_selectedValue == 'Sale Order') {
-                                    orderStatus = 11;
-                                  } else if (_selectedValue == 'Pre Order') {
-                                    orderStatus = 0;
-                                  } else if (_selectedValue == 'Estimate') {
-                                    orderStatus = 7;
-                                  } else if (_selectedValue == 'Quick Sale') {
-                                    orderStatus = 14;
-                                  }
-                                  CartOrderModel order = CartOrderModel(
+                              if (_formKey.currentState?.validate() ?? false) {
+                                if (cartItems.isNotEmpty &&
+                                    (customeController
+                                            .customerId.value.isNotEmpty ||
+                                        widget
+                                            .productsController
+                                            .selectedCustomerId
+                                            .value
+                                            .isNotEmpty)) {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    },
+                                  );
+                                  await Future.delayed(Duration(seconds: 2));
+                                  List<Detail> detail =
+                                      cartItems.map((e) => e.detail).toList();
+                                  final productBYData = AddToCartModel(
                                     customerId:
                                         customeController.customerId.isNotEmpty
                                             ? customeController.customerId.value
@@ -1110,104 +1119,145 @@ class _CartDialogueState extends State<CartDialogue> {
                                                 .selectedCustomerId.value,
                                     salesmanId: SessionHelper
                                         .loginSavedData!.salesmanId!,
-                                    cartId: cartOrder.cartId,
-                                    orderStatus: orderStatus,
+                                    cartId: '',
+                                    cartList: detail
+                                        .map((e) => SendCartData(
+                                              productId: e.productId ?? '',
+                                              variantId: e.variationId ?? '',
+                                              pack: e.saleBy == 'Pack'
+                                                  ? e.pieces.toString()
+                                                  : e.count.toString(),
+                                              price: e.price.toString(),
+                                              packType: e.saleBy == 'Pack'
+                                                  ? 'Pack'
+                                                  : 'Pcs',
+                                              discount: '0',
+                                              quantity: e.count.toInt(),
+                                            ))
+                                        .toList(),
+                                    total: finalAmount.toStringAsFixed(0),
+                                    discount: '0',
                                   );
-                                  log('CartId :${cartOrder.cartId}');
-                                  await placeOrder(order,
-                                      (statusCode, message) {
-                                    Navigator.pop(context);
-                                    if (statusCode == 200) {
-                                      _clearCartItem(cartItems);
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Center(
-                                              child: Container(
-                                                height: 100,
-                                                width: 100,
-                                                child: Lottie.asset(
-                                                    'assets/images/Animation - 1726906882515.json'),
-                                              ),
-                                            ),
-                                            content: CustomText(
-                                              content:
-                                                  message,
-                                              fontSize: 18,
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.of(context,
-                                                          rootNavigator: true)
-                                                      .pop();
-                                                  _clearCartItem(cartItems);
-                                                },
-                                                child: Text('OK'),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Center(
-                                              child: Container(
-                                                height: 200,
-                                                width: 200,
-                                                child: Lottie.asset(
-                                                    'assets/images/Warning_animation.json'),
-                                              ),
-                                            ),
-                                            content: CustomText(
-                                              content:
-                                                  message,
-                                              fontSize: 18,
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text('OK'),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
+                                  CartOrderModel? cartOrder = await ApiWorker()
+                                      .addToCart(productBYData.toJson());
+                                  log('CartId :${cartOrder?.cartId}');
+
+                                  if (cartOrder != null) {
+                                    int orderStatus = 0;
+                                    if (_selectedValue == 'Sale Order') {
+                                      orderStatus = 11;
+                                    } else if (_selectedValue == 'Pre Order') {
+                                      orderStatus = 0;
+                                    } else if (_selectedValue == 'Estimate') {
+                                      orderStatus = 7;
+                                    } else if (_selectedValue == 'Quick Sale') {
+                                      orderStatus = 14;
                                     }
-                                  });
-                                }
-                              } else {
-                                // Handle missing customer or empty cart
-                                Navigator.pop(
-                                    context); // Close the loading dialog
-                                if (customeController
-                                        .customerId.value.isEmpty ||
-                                    widget.productsController.selectedCustomerId
-                                        .value.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor: Colors.red,
-                                      content: Text('No Customer Selected'),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
+                                    CartOrderModel order = CartOrderModel(
+                                      customerId: customeController
+                                              .customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value,
+                                      salesmanId: SessionHelper
+                                          .loginSavedData!.salesmanId!,
+                                      cartId: cartOrder.cartId,
+                                      orderStatus: orderStatus,
+                                    );
+                                    log('CartId :${cartOrder.cartId}');
+                                    await placeOrder(order,
+                                        (statusCode, message) {
+                                      Navigator.pop(context);
+                                      if (statusCode == 200) {
+                                        _clearCartItem(cartItems);
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Center(
+                                                child: Container(
+                                                  height: 100,
+                                                  width: 100,
+                                                  child: Lottie.asset(
+                                                      'assets/images/Animation - 1726906882515.json'),
+                                                ),
+                                              ),
+                                              content: CustomText(
+                                                content: message,
+                                                fontSize: 18,
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                    _clearCartItem(cartItems);
+                                                  },
+                                                  child: Text('OK'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Center(
+                                                child: Container(
+                                                  height: 200,
+                                                  width: 200,
+                                                  child: Lottie.asset(
+                                                      'assets/images/Warning_animation.json'),
+                                                ),
+                                              ),
+                                              content: CustomText(
+                                                content: message,
+                                                fontSize: 18,
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('OK'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+                                    });
+                                  }
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor: Colors.red,
-                                      content: Text('Your cart is empty'),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
+                                  // Handle missing customer or empty cart
+                                  Navigator.pop(
+                                      context); // Close the loading dialog
+                                  if (customeController
+                                          .customerId.value.isEmpty ||
+                                      widget.productsController
+                                          .selectedCustomerId.value.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text('No Customer Selected'),
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text('Your cart is empty'),
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
                                 }
                               }
                             } else {

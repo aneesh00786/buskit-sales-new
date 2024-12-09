@@ -16,6 +16,7 @@ class OrdersTabBar extends StatefulWidget {
 
 class _OrdersTabBarState extends State<OrdersTabBar> {
   int _selectedTabIndex = 0;
+  final ScrollController _scrollController = ScrollController();
   final List<String> _tabs = [
     'Latest',
     'Waiting for Approval',
@@ -31,6 +32,13 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     super.initState();
     _selectedTabIndex = widget.passIndex;
     widget.orderController.loadOrderCountData();
+    widget.orderController.updateTabIndex(_selectedTabIndex);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _onBarTapped(int index) {
@@ -67,7 +75,6 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       if (widget.orderController.isLoading.value ||
           widget.orderController.isCountLoading.value) {
         return Center(
-            // child: CircularProgressIndicator(),
             child: Text('LOADING'));
       }
 
@@ -87,12 +94,13 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                 child: Scrollbar(
                   thumbVisibility: true,
                   trackVisibility: true,
+                  controller: _scrollController,
                   child: Column(
                     children: [
                       SizedBox(
                         height: 50,
                         child: ListView.builder(
-                          // padding: EdgeInsets.only(bottom: 20),
+                          controller: _scrollController,
                           physics: ClampingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemCount: _tabs.length,

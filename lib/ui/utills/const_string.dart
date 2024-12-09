@@ -8,7 +8,7 @@ const String settings = "Settings";
 
 const String calendar = "Calendar";
 const String staff = "Staff";
-const String todayOrders = "Today’s Orders";
+const String todayOrders = "Recent Orders";
 const String performance = "Performance & Targets";
 const String topSellingProduct = "Top Selling Products";
 

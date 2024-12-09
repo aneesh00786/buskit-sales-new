@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../home/home_controller.dart';
@@ -35,7 +36,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
           final RenderBox box = context.findRenderObject() as RenderBox;
           final Offset position = box.localToGlobal(Offset.zero);
           final notifi =
-              notificationController.recentOrderCountData.mainNotification!;
+              notificationController.recentOrderCountData.mainNotification??MainNotification();
 
           await showMenu(
             context: context,
@@ -52,7 +53,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       homeController.sidebarXController.selectIndex(7);
                       homeController.selectedIndex.value = 7;
-                      Get.to(() => OrderScreen(passIndex: 1), id: 2);
+                      Get.to(() => OrderScreen(passIndex: 0), id: 2);
                     });
                   },
                   child: SizedBox(
@@ -60,7 +61,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Recent Orders'),
+                        const Text('Latest Orders'),
                         CircleAvatar(
                           radius: 10,
                           backgroundColor: Colors.blue,

@@ -9,6 +9,7 @@ const String settings = "Settings";
 const String calendar = "Calendar";
 const String staff = "Staff";
 const String todayOrders = "Today’s Orders";
+const String performance = "Performance";
 const String topSellingProduct = "Top Selling Products";
 
 /// Login

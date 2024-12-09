@@ -13,17 +13,15 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashbo
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:quickalert/models/quickalert_type.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../../../../routes/routes.dart';
 import '../orders/order_screen.dart';
-import 'home_ui/temp_heading_ui.dart';
 
 class HomeController extends GetxController {
   final sidebarXController =
@@ -116,23 +114,30 @@ class HomeController extends GetxController {
           transition: Transition.leftToRightWithFade,
           page: () => const LeadsScreen(),
           binding: CommonBinding());
-    } else if (settings.name == AppRoutes.calender &&
+    } else if (settings.name == AppRoutes.performance &&
         sidebarXController.selectedIndex == 5) {
+      return GetPageRoute(
+          settings: settings,
+          transition: Transition.leftToRightWithFade,
+          page: () => const PerformanceScreen(),
+          binding: CommonBinding());
+    } else if (settings.name == AppRoutes.calender &&
+        sidebarXController.selectedIndex == 6) {
       return GetPageRoute(
           transition: Transition.leftToRightWithFade,
           settings: settings,
           page: () => const CalenderScreen(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.ordersScreen &&
-        sidebarXController.selectedIndex == 6) {
+        sidebarXController.selectedIndex == 7) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
-    }else if (settings.name == AppRoutes.settings &&
-        sidebarXController.selectedIndex == 7) {
+    } else if (settings.name == AppRoutes.settings &&
+        sidebarXController.selectedIndex == 8) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
@@ -142,57 +147,43 @@ class HomeController extends GetxController {
     }
   }
 
-  changePageRouting() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
-        Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      } else if (sidebarXController.selectedIndex == 2 &&
-          selectedIndex.value != 2) {
-        Get.offNamed(AppRoutes.product, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      } else if (sidebarXController.selectedIndex == 6 &&
-          selectedIndex.value != 6) {
-        Get.offNamed(AppRoutes.ordersScreen, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      } else if (sidebarXController.selectedIndex == 1 &&
-          selectedIndex.value != 1) {
-        Get.offNamed(AppRoutes.customersAndOrders, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      } else if (sidebarXController.selectedIndex == 3 &&
-          selectedIndex.value != 3) {
-        Get.offNamed(AppRoutes.pendingPayment, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      } else if (sidebarXController.selectedIndex == 4 &&
-          selectedIndex.value != 4) {
-        Get.offNamed(AppRoutes.leads, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      } else if (sidebarXController.selectedIndex == 5 &&
-          selectedIndex.value != 5) {
-        Get.offNamed(AppRoutes.calender, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      }else if (sidebarXController.selectedIndex == 7 &&
-          selectedIndex.value != 7) {
-        Get.offAllNamed(AppRoutes.settings, id: 2);
-        selectedIndex.value = sidebarXController.selectedIndex;
-      }
-      if (selectedIndex.value == -2) {
-        selectedIndex.value = -1;
-      }
-    });
-  }
-
+changePageRouting() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
+      Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
+    } else if (sidebarXController.selectedIndex == 1 && selectedIndex.value != 1) {
+      Get.offNamed(AppRoutes.customersAndOrders, id: 2);
+    } else if (sidebarXController.selectedIndex == 2 && selectedIndex.value != 2) {
+      Get.offNamed(AppRoutes.product, id: 2);
+    } else if (sidebarXController.selectedIndex == 3 && selectedIndex.value != 3) {
+      Get.offNamed(AppRoutes.pendingPayment, id: 2);
+    } else if (sidebarXController.selectedIndex == 4 && selectedIndex.value != 4) {
+      Get.offNamed(AppRoutes.leads, id: 2);
+    } else if (sidebarXController.selectedIndex == 5 && selectedIndex.value != 5) {
+      Get.offNamed(AppRoutes.performance, id: 2);
+    } else if (sidebarXController.selectedIndex == 6 && selectedIndex.value != 6) {
+      Get.offNamed(AppRoutes.calender, id: 2);
+    } else if (sidebarXController.selectedIndex == 7 && selectedIndex.value != 7) {
+      Get.offNamed(AppRoutes.ordersScreen, id: 2);
+    } else if (sidebarXController.selectedIndex == 8 && selectedIndex.value != 8) {
+      Get.offNamed(AppRoutes.settings, id: 2);
+    }
+    selectedIndex.value = sidebarXController.selectedIndex;
+  });
+}
   RxList<String> sidebarName = [
     dashBoard,
     customersAndOrders,
     products,
     pendingPayments,
-    leads,
-    calendar,
+    leads, 
+    performance, 
+    calendar, 
     todayOrders,
-    settings,
-    logOut
+    settings, 
+    logOut 
   ].obs;
+
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
       sideBarComponent(sidebarName[0], SIdeBarIcon.ic_dashboard),
@@ -200,16 +191,18 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[2], SIdeBarIcon.ic_products),
       sideBarComponent(sidebarName[3], SIdeBarIcon.ic_pending_payment),
       sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
-      sideBarComponent(sidebarName[5], SIdeBarIcon.ic_calender),
-      sideBarComponent(sidebarName[6], SIdeBarIcon.ic_today_order),
-      sideBarComponent(sidebarName[7], SIdeBarIcon.ic_setting),
+      sideBarComponent(sidebarName[5], Icons.bar_chart),
+      sideBarComponent(sidebarName[6], SIdeBarIcon.ic_calender),
+      sideBarComponent(sidebarName[7], SIdeBarIcon.ic_today_order),
+      sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
       sideBarComponent(
-        sidebarName[8],
+        sidebarName[9],
         SIdeBarIcon.ic_log_out,
         onTap: () async {
           await SessionManager.clearData();
           Get.offAllNamed(AppRoutes.login);
-          Provider.of<DashboardProvider>(context,listen:false).resetProvider();
+          Provider.of<DashboardProvider>(context, listen: false)
+              .resetProvider();
         },
       ),
     ];

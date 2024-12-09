@@ -170,8 +170,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
         leading: InkWell(
             onTap: () {
               Navigator.pop(context);
-              homeController.sidebarXController.selectIndex(5);
-              homeController.selectedIndex.value = 5;
+              homeController.sidebarXController.selectIndex(6);
+              homeController.selectedIndex.value = 6;
               Get.toNamed(AppRoutes.calender, id: 2);
             },
             child: Icon(

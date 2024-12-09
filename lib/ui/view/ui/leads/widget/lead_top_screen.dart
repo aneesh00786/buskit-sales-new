@@ -108,35 +108,30 @@ class LeadTopScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       const Spacer(),
-                      InkWell(
-                        onTap:(){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => PerformanceScreen()));
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: const Color(0xffe6ecff),
-                          radius: 15,
-                          child: admin.imagePath != null
-                              ? CachedNetworkImage(
-                                  imageUrl:
-                                      '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
-                                  placeholder: (context, url) =>
-                                      CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      Icon(Icons.error),
-                                  imageBuilder: (context, imageProvider) =>
-                                      Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.cover,
-                                      ),
+                      CircleAvatar(
+                        backgroundColor: const Color(0xffe6ecff),
+                        radius: 15,
+                        child: admin.imagePath != null
+                            ? CachedNetworkImage(
+                                imageUrl:
+                                    '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                )
-                              : Icon(Icons
-                                  .person), // Placeholder if imagePath is null
-                        ),
+                                ),
+                              )
+                            : Icon(Icons
+                                .person), // Placeholder if imagePath is null
                       ),
                       const SizedBox(
                         width: 4.5,

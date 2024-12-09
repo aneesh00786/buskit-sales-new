@@ -162,8 +162,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             child: GestureDetector(
               onTap: () {
                 if (widget.isFromCalendar) {
-                  homeController.sidebarXController.selectIndex(5);
-                  homeController.selectedIndex.value = 5;
+                  homeController.sidebarXController.selectIndex(6);
+                  homeController.selectedIndex.value = 6;
                   Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
@@ -177,8 +177,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     ),
                   );
                 } else if (widget.isDirectDialogue) {
-                  homeController.sidebarXController.selectIndex(5);
-                  homeController.selectedIndex.value = 5;
+                  homeController.sidebarXController.selectIndex(6);
+                  homeController.selectedIndex.value = 6;
                   Get.toNamed(AppRoutes.calender, id: 2);
                 } else {
                   Navigator.pop(context);

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -252,12 +253,45 @@ class HomeController extends GetxController {
         homeScaffoldKey.currentState?.closeDrawer();
 
         if (isLogout) {
-          await SessionManager.clearData();
-          Get.offAllNamed(AppRoutes.login);
-          if (context != null) {
-            Provider.of<DashboardProvider>(context, listen: false)
-                .resetProvider();
-          }
+          showDialog(
+            context: context!,
+            builder: (context) {
+              return AlertDialog(
+                title: CustomText(content:'Log out..?'),
+                content: CustomText(content:'Are you sure you wanted to log out..?'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: CustomText(content:'cancel')),
+                  ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await SessionManager.clearData();
+                      Get.offAllNamed(AppRoutes.login);
+                      if (context != null) {
+                        Provider.of<DashboardProvider>(context, listen: false)
+                            .resetProvider();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            50), 
+                      ),
+                    ),
+                    child:  CustomText(content:'Confirm',color: white,),
+                  )
+                ],
+              );
+            },
+          );
         } else {
           changePageRouting();
         }

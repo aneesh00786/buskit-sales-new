@@ -257,9 +257,9 @@ class ApiWorker with ApiConstants {
 
   Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
     final response = await dio
-        .getbycustom(
+        .postbycustom(
       '${ApiConstants.recent_order_count}',
-      queryParameters: {"company_id": companyId,"salesman_id":salesmanId},
+      queryParameters: {"companyId": companyId,"salesman_id":salesmanId},
       options: Options(
         headers: {
           "Content-Type": "application/json",

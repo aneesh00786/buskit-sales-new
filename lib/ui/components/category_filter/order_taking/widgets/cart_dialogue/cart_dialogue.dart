@@ -155,7 +155,6 @@ class _CartDialogueState extends State<CartDialogue> {
           double fontSize = availableWidth / 50;
           double columnSpacing = availableWidth / 40;
           double rowHeight = availableHeight / 10;
-
           return SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(

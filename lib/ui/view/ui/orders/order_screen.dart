@@ -26,6 +26,7 @@ class _OrderScreenState extends State<OrderScreen> {
     super.initState();
     selectedTabIndex = widget.passIndex;
     orderController.loadOrderData(selectedIndex: selectedTabIndex);
+    _onTabChanged(widget.passIndex);
   }
 
   void _onTabChanged(int index) {

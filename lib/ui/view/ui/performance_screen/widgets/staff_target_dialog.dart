@@ -503,6 +503,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       child: TextField(
         controller: _targetControllers[index],
         textAlign: TextAlign.center,
+        readOnly: true,
         decoration: InputDecoration(
           fillColor: Colors.blueGrey.shade50,
           filled: true,

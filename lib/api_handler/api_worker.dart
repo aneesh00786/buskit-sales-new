@@ -259,7 +259,7 @@ class ApiWorker with ApiConstants {
     final response = await dio
         .postbycustom(
       '${ApiConstants.recent_order_count}',
-      queryParameters: {"companyId": companyId,"salesman_id":salesmanId},
+      data: {"companyId": companyId,"salesman_id":salesmanId},
       options: Options(
         headers: {
           "Content-Type": "application/json",

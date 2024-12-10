@@ -518,7 +518,7 @@ class OptionWidget extends StatelessWidget {
                                                                       Text(
                                                                         customer !=
                                                                                 null
-                                                                            ? customer.fullName
+                                                                            ? customer.businessName
                                                                             : 'N/A',
                                                                         style: const TextStyle(
                                                                             fontSize:
@@ -1482,7 +1482,7 @@ class OptionWidget extends StatelessWidget {
                                                                                 fontSize * 0.1),
                                                                         Text(
                                                                           customer != null
-                                                                              ? customer.fullName
+                                                                              ? customer.businessName
                                                                               : 'N/A',
                                                                           style:
                                                                               const TextStyle(
@@ -1899,7 +1899,7 @@ class OptionWidget extends StatelessWidget {
                                                                                 fontSize * 0.1),
                                                                         Text(
                                                                           customer != null
-                                                                              ? customer.fullName
+                                                                              ? customer.businessName
                                                                               : 'N/A',
                                                                           style:
                                                                               const TextStyle(

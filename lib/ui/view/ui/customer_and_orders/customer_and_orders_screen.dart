@@ -1893,7 +1893,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   prodController
                                                           .selectedCustomerName
                                                           .value =
-                                                      customer.fullname;
+                                                      customer.businessName;
                                                   prodController
                                                           .selectedCustomerId
                                                           .value =
@@ -1962,7 +1962,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         overflow: TextOverflow
                                                             .ellipsis),
                                                     Text(
-                                                        customer.fullname ??
+                                                        customer.businessName ??
                                                             'Full Name',
                                                         style: const TextStyle(
                                                             fontSize: 11,
@@ -2949,7 +2949,7 @@ void _showOrderDataDialog(
                                   children: [
                                     Text(
                                       customer != null
-                                          ? customer.fullname
+                                          ? customer.businessName
                                           : 'N/A',
                                       style: TextStyle(fontSize: fontSize),
                                     ),

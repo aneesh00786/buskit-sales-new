@@ -430,7 +430,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                                                       height: fontSize * 0.1),
                                                   Text(
                                                     customer != null
-                                                        ? customer.fullName
+                                                        ? customer.businessName
                                                         : 'N/A',
                                                     style: TextStyle(
                                                       fontSize: 11,

@@ -835,6 +835,7 @@ class ApiWorker with ApiConstants {
         "start_date": searchModel?.startDate,
         "end_date": searchModel?.endDate,
         "companyId": companyId,
+        "salesman_id":salesmanId
       }),
     )
         .onError((DioException error, stackTrace) {

@@ -1392,15 +1392,15 @@ class Messages {
 
 
 class MessagesResponse {
-  final int statusCode;
-  final bool status;
-  final String message;
+  final int? statusCode;
+  final bool? status;
+  final String? message;
   final List<Messages> data;
 
   MessagesResponse({
-    required this.statusCode,
-    required this.status,
-    required this.message,
+     this.statusCode,
+     this.status,
+     this.message,
     required this.data,
   });
 

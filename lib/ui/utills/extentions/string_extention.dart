@@ -18,18 +18,27 @@ extension StringExtension on String {
 
 String formatAmount(dynamic value) {
   double amount;
-  if (value is String) {
-    amount = double.tryParse(value) ?? 0.0;
-  } else if (value is int) {
-    amount = value.toDouble();
-  } else if (value is double) {
-    amount = value;
-  } else {
-    throw ArgumentError('Unsupported value type');
+
+  try {
+    if (value == null) {
+      amount = 0.0;
+    } else if (value is String) {
+      amount = double.tryParse(value) ?? 0.0; 
+    } else if (value is int) {
+      amount = value.toDouble(); 
+    } else if (value is double) {
+      amount = value; 
+    } else {
+      throw ArgumentError('Unsupported value type: ${value.runtimeType}');
+    }
+    String formattedAmount = amount.toStringAsFixed(2);
+    return '\$ ' + formattedAmount;
+  } catch (e) {
+    print('Error in formatAmount: $e');
+    rethrow;
   }
-  String formattedAmount = amount.toStringAsFixed(2);
-  return '\$ ' + formattedAmount;
 }
+
 
 String addCurrencySymbol() {
   return '\$';

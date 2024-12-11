@@ -96,7 +96,7 @@ class ApiService {
       "salesman_id": salesmanId,
       "start_date": startDate,
       "end_date": endDate,
-      "companyId":companyId,
+      "companyId": companyId,
       //"companyId":companyId,
     };
     try {
@@ -258,7 +258,7 @@ class ApiService {
       'customerId': customerId,
       'catId': catId,
       'selected_year_category': selectedYearCategory,
-      'companyId':companyId,
+      'companyId': companyId,
     };
 
     try {
@@ -297,10 +297,7 @@ class ApiService {
 
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
-    final requestBody = {
-      "salesman_id": salesmanId,
-      "companyId":companyId
-    };
+    final requestBody = {"salesman_id": salesmanId, "companyId": companyId};
     log('Request Body : ${requestBody}');
     try {
       final response = await http.post(
@@ -331,12 +328,16 @@ class ApiService {
     }
   }
 
-  Future<MessagesResponse> fetch_individual_chat(String chatId) async {
-    log('Fetched INdividual Chats');
+  Future<MessagesResponse> fetch_individual_chat(
+      String chatId, int page) async {
+    log('Fetching Individual Chats for Page $page');
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchIndividualChat}');
     final requestBody = {
       "salesman_id": chatId,
+      "limit": 20,
+      "page": page,
     };
+
     try {
       final response = await http.post(
         url,
@@ -346,6 +347,12 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
+        final serverPage = jsonResponse['current_page'];
+        if (serverPage != page) {
+          log('Mismatch: Requested Page $page, but got $serverPage');
+        }
+
+        log('Page from Response: $serverPage');
 
         var messagesList = jsonResponse['data'] as List;
         List<Messages> messages = messagesList
@@ -393,13 +400,13 @@ class ApiService {
   Future<OrderResponse> fetchAllOrders({
     required String startDate,
     required String endDate,
-    OrderStatus? orderStatus, 
+    OrderStatus? orderStatus,
   }) async {
     final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     String orderStatusString = '';
     if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString(); 
+      orderStatusString = orderStatus.type.toString();
     }
     log('FETCH_ALL_ORDER API called');
     //check_back
@@ -412,7 +419,7 @@ class ApiService {
       "end_date": endDate,
       "limit": 10,
       "page": 1,
-      "companyId":companyId,
+      "companyId": companyId,
     };
 
     try {
@@ -657,6 +664,7 @@ class ApiService {
       throw Exception('Failed to fetch admin details: $e');
     }
   }
+
   Future<CustomerResponseModelxx> fetchCustomer({
     required String salesmanId,
     required String customerName,
@@ -672,7 +680,7 @@ class ApiService {
       "business_name": customerName,
       "start_date": startDate,
       "end_date": endDate,
-      "companyId":companyId,
+      "companyId": companyId,
       "limit": limit,
       "page": page,
       "valueFromDw": valueFromDw,
@@ -745,16 +753,17 @@ class ApiService {
 
       if (response.statusCode == 200) {
         print("this is repose body : : : : :  ${response.body}");
-        return true; 
+        return true;
       } else {
         print('Error: ${response.statusCode} ${response.body}');
-        return false; 
+        return false;
       }
     } catch (e) {
       print('Exception: $e');
-      return false; 
+      return false;
     }
   }
+
   Future<ApiResponseModel> fetchCustomerDashboardDataa(String customerId,
       int specifiedYear, String startDate, String endDate) async {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
@@ -776,7 +785,6 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         print("Response Data:");
@@ -941,7 +949,7 @@ class ApiService {
       "customer_id": customerId,
       "start_date": '',
       "end_date": '',
-      "companyId":companyId,
+      "companyId": companyId,
     };
 
     try {
@@ -1020,7 +1028,7 @@ class ApiService {
     required String customerId,
   }) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.update_customer}');
-    final companyId = SessionHelper.loginSavedData?.company_id??0;
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
       var request = http.MultipartRequest('PATCH', url);
 
@@ -1767,21 +1775,49 @@ class DashboardProvider with ChangeNotifier {
   List<Messages>? get individualChatMessages => _individualChatMessages;
 
   List<SalesmanChat> selectedChats = [];
+  bool _noMoreData = false;
+  bool get noMoreData => _noMoreData;
+  void resetNoMoreData() {
+    _noMoreData = false;
+    notifyListeners();
+  }
 
-  Future<void> fetch_individual_chat(String chatId) async {
+  Future<MessagesResponse> fetch_individual_chat(
+      String chatId, int page) async {
     try {
-      final chatData = await _apiService.fetch_individual_chat(chatId);
-      _individualChatMessages = chatData.data;
+      // If no more data is available and this isn't the first page, return an empty response
+      if (_noMoreData && page > 1) return MessagesResponse(data: []);
+
+      // Fetch data for the current page
+      final chatData = await _apiService.fetch_individual_chat(chatId, page);
+
+      // Check if no data is returned, indicating the end of the list
+      if (chatData.data.isEmpty) {
+        _noMoreData = true;
+      } else {
+        // Append new data to the existing list (initialize if null)
+        _individualChatMessages ??= [];
+        _individualChatMessages?.addAll(chatData.data);
+      }
+
+      // Notify listeners to update the UI
       notifyListeners();
+
+      // Return the fetched data
+      return chatData;
     } catch (e, stackTrace) {
-      _logger.e('Error fetching individual chat data', error: e, stackTrace: stackTrace);
+      // Log the error for debugging
+      _logger.e('Error fetching individual chat data',
+          error: e, stackTrace: stackTrace);
+
+      // Throw an exception with a descriptive message
       throw Exception('Failed to fetch individual chat data: $e');
     }
   }
 
   // Update messages with a new message
-  void addMessage(Messages newMessage) {
-    _individualChatMessages?.add(newMessage);
+  void addMessages(List<Messages> newMessages) {
+    _individualChatMessages?.addAll(newMessages);
     notifyListeners();
   }
 
@@ -1806,11 +1842,11 @@ class DashboardProvider with ChangeNotifier {
   //   }
   // }
 
-  void selectChat(SalesmanChat chat) {
-    selectedChat = chat;
-    fetch_individual_chat(chat.salesmanId);
-    notifyListeners();
-  }
+  // void selectChat(SalesmanChat chat) {
+  //   selectedChat = chat;
+  //   fetch_individual_chat(chat.salesmanId);
+  //   notifyListeners();
+  // }
 
   void clearSelectedChat() {
     selectedChat = null;
@@ -1897,7 +1933,6 @@ class DashboardProvider with ChangeNotifier {
     _imageFile = null;
     notifyListeners();
   }
-
 
   final ScrollController _scrollController = ScrollController();
 

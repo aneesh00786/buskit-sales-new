@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -121,7 +122,12 @@ class _CartDialogueState extends State<CartDialogue> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+              child: SpinKitFadingCube(
+                color: primaryColor,
+                size: 20.0,
+              ),
+            );
     }
     double finalAmount = total + tax;
     widget.productsController.updateFinalAmount(finalAmount);

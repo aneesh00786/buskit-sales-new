@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
@@ -415,10 +416,20 @@ class _OrderTakingState extends State<OrderTaking>
       ),
       body: Obx(() {
         if (widget.productsController.categoryData.value == null) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+              child: SpinKitFadingCube(
+                color: primaryColor,
+                size: 20.0,
+              ),
+            );
         }
         if (widget.productsController.categoryData.value.data == null) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+              child: SpinKitFadingCube(
+                color: primaryColor,
+                size: 20.0,
+              ),
+            );
         }
         return Stack(
           alignment: Alignment.topCenter,
@@ -478,7 +489,8 @@ class _OrderTakingState extends State<OrderTaking>
                           Expanded(
                             child: isLoading
                                 ? const Center(
-                                    child: CircularProgressIndicator())
+                                    child: CircularProgressIndicator()
+                                    )
                                 : customerSearchController.text.isNotEmpty
                                     ? filteredCustomers.isEmpty
                                         ? const Center(

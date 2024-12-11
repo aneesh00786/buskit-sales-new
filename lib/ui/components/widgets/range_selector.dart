@@ -35,15 +35,7 @@ class RangeSelector extends StatefulWidget {
 
 class RangeSelectorState extends State<RangeSelector> {
   DateTime? selectedStartDate, selectedEndDate;
-/*  final List<String> _rangeList = [
-    "Range",
-    "This Month",
-    "This Week",
-    "Today",
-    "This Year"
-  ];*/
   int selectedIndex = 0;
-
   String startDate = "Start Date";
   String endDate = "End Date";
 
@@ -70,8 +62,6 @@ class RangeSelectorState extends State<RangeSelector> {
                   selectedIndex,
                   FilterDateEnum.values[selectedIndex]
                       .selectDateRange(context));
-              // print(
-              //     "date+++++${FilterDateEnum.values[selectedIndex].selectDateRange(context)}");
             }
           },
           items: FilterDateEnum.values
@@ -81,11 +71,13 @@ class RangeSelectorState extends State<RangeSelector> {
                       label: e.name,
                       fontSize: NkFontSize.smallFont(),
                     ),
+                    
                   ))
               .toList(),
           buttonChild: Container(
             padding: nkSymmetricPadding(
-                vertical: AppDimensions.instance!.height * .010),
+                vertical: AppDimensions.instance!.height * .001),
+            
             decoration: decoration,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -110,45 +102,6 @@ class RangeSelectorState extends State<RangeSelector> {
       ],
     );
   }
-
-/*
-  Widget rangeDropDown(
-      {List<String>? rangeList,
-      double? width,
-      void Function(String)? onChanged}) {
-    return Container(
-      width: AppDimensions.instance!.width * 0.12,
-      padding: nkSymmetricPadding(vertical: 0),
-      decoration: decoration,
-      child: MyDropdownField(
-        dropdownItems: FilterDateEnum.values,
-        hint: _rangeList[0],
-        underLineIcon: const SizedBox(),
-        borderRadius:
-            BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-        onChanged: onChanged ??
-            (value) {
-              setState(() {
-                selectedIndex = _rangeList.indexOf(value);
-                widget.onChanged?.call(_rangeList.indexOf(value), value);
-              });
-            },
-      ),
-    );
-  }
-*/
-
-  // Widget goButton() {
-  //   return MyThemeButton(
-  //     buttonText: go,
-  //     onPressed: () {
-  //       widget.onChanged?.call(
-  //           selectedIndex,
-  //           FilterDateEnum.values[selectedIndex].selectDateRange(context,
-  //               endDate: selectedEndDate, startDate: selectedStartDate));
-  //     },
-  //   );
-  // }
 
 
   Widget goButton() {
@@ -244,25 +197,7 @@ class RangeSelectorState extends State<RangeSelector> {
                       endDate: selectedEndDate, startDate: selectedStartDate));
             },
           ),
-
-
-
-
-
-
-
-          // MyThemeButton(
-          //   buttonText: go,
-          //   onPressed: () {
-          //     widget.onChanged?.call(
-          //         selectedIndex,
-          //         FilterDateEnum.values[selectedIndex].selectDateRange(context,
-          //             endDate: selectedEndDate, startDate: selectedStartDate));
-          //   },
-          // ),
-        ))
-
-    ;
+        ));
   }
 
 
@@ -282,10 +217,6 @@ class RangeSelectorState extends State<RangeSelector> {
                 startDate = NKDateUtils.apiDayFormat(value.start);
                 endDate = NKDateUtils.apiDayFormat(value.end);
               });
-              /* widget.onChanged?.call(
-                  selectedIndex,
-                  FilterDateEnum.values[selectedIndex].selectDateRange(context,
-                      endDate: value.end, startDate: value.start));*/
             }
           });
         }),
@@ -299,26 +230,10 @@ class RangeSelectorState extends State<RangeSelector> {
                 startDate = NKDateUtils.apiDayFormat(value.start);
                 endDate = NKDateUtils.apiDayFormat(value.end);
               });
-/*              widget.onChanged?.call(
-                  selectedIndex,
-                  FilterDateEnum.values[selectedIndex].selectDateRange(context,
-                      endDate: value.end, startDate: value.start));*/
             }
           });
         }),
-        /* selectedEndDate != null && selectedStartDate != null
-            ? MyThemeButton(
-                buttonText: go,
-                onPressed: () {
-                  widget.onChanged?.call(
-                      selectedIndex,
-                      FilterDateEnum.values[selectedIndex].selectDateRange(
-                          context,
-                          endDate: selectedEndDate,
-                          startDate: selectedStartDate));
-                },
-              )
-            : const SizedBox()*/
+
       ],
     );
   }
@@ -351,137 +266,16 @@ class RangeSelectorState extends State<RangeSelector> {
       ),
     );
   }
-  //////////
-//   Widget goButton() {
-//     return MyThemeButton(
-//       buttonText: go,
-//       onPressed: () {
-//         widget.onChanged?.call(
-//             selectedIndex,
-//             FilterDateEnum.values[selectedIndex].selectDateRange(context,
-//                 endDate: selectedEndDate, startDate: selectedStartDate));
-//       },
-//     );
-//   }
-//
-//   Widget selectDateRange() {
-//     return Wrap(
-//       direction: Axis.horizontal,
-//       crossAxisAlignment: WrapCrossAlignment.center,
-//       spacing: 10,
-//       children: [
-//         dateRangeComponent(startDate, onTap: () async {
-//           await showDiloagData.then((value) {
-//             if (value != null) {
-//               setState(() {
-//                 selectedStartDate = value.start;
-//                 selectedEndDate = value.end;
-//                 startDate = NKDateUtils.apiDayFormat(value.start);
-//                 endDate = NKDateUtils.apiDayFormat(value.end);
-//               });
-//               /* widget.onChanged?.call(
-//                   selectedIndex,
-//                   FilterDateEnum.values[selectedIndex].selectDateRange(context,
-//                       endDate: value.end, startDate: value.start));*/
-//             }
-//           });
-//         }),
-//         const MyRegularText(label: to),
-//         dateRangeComponent(endDate, onTap: () async {
-//           await showDiloagData.then((value) {
-//             if (value != null) {
-//               setState(() {
-//                 selectedStartDate = value.start;
-//                 selectedEndDate = value.end;
-//                 startDate = NKDateUtils.apiDayFormat(value.start);
-//                 endDate = NKDateUtils.apiDayFormat(value.end);
-//               });
-// /*              widget.onChanged?.call(
-//                   selectedIndex,
-//                   FilterDateEnum.values[selectedIndex].selectDateRange(context,
-//                       endDate: value.end, startDate: value.start));*/
-//             }
-//           });
-//         }),
-//         /* selectedEndDate != null && selectedStartDate != null
-//             ? MyThemeButton(
-//                 buttonText: go,
-//                 onPressed: () {
-//                   widget.onChanged?.call(
-//                       selectedIndex,
-//                       FilterDateEnum.values[selectedIndex].selectDateRange(
-//                           context,
-//                           endDate: selectedEndDate,
-//                           startDate: selectedStartDate));
-//                 },
-//               )
-//             : const SizedBox()*/
-//       ],
-//     );
-//   }
-//
-//   Future<DateTimeRange?> get showDiloagData async {
-//     DateTimeRange data = await Get.dialog(Padding(
-//       padding: nkLargePadding(),
-//       child: ClipRRect(
-//         borderRadius:
-//             BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-//         child: CalenderDateRangePicker(
-//           firstDate: DateTime(1996),
-//           currentDate: DateTime.now(),
-//           lastDate: DateTime.now(),
-//         ),
-//       ),
-//     ));
-//
-//     return data;
-//   }
-//
-//   Widget dateRangeComponent(String label, {void Function()? onTap}) {
-//     return MyCommnonContainer(
-//       padding: nkSymmetricPadding(),
-//       onTap: onTap,
-//       borderRadius: NkGeneralSize.nkCommonBorderRadius(),
-//       color: const Color(0xFFEEF2F7),
-//       child: MyRegularText(
-//         label: label,
-//       ),
-//     );
-//   }
-
-  /*Widget _buildRangeSelector() {
-    return ListView.separated(
-        shrinkWrap: true,
-        physics: NkGeneralSize.commonPysics(),
-        itemBuilder: (context, index) {
-          return selectorWidget(_rangeList[index], index);
-        },
-        separatorBuilder: (context, index) {
-          return const SizedBox(height: 6.0);
-        },
-        itemCount: _rangeList.length);
-  }*/
-
-  /* Widget selectorWidget(String label, int index) {
-    return InkWell(
-        borderRadius:
-            BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-        onTap: () {
-          setState(() {
-            selectedIndex = index;
-            widget.onChanged?.call(index, label);
-          });
-        },
-        child: MyRegularText(
-          label: label,
-          color: selectedIndex == index ? primaryColor : null,
-        ));
-  }*/
-
   Decoration get decoration {
     return BoxDecoration(
-        borderRadius: widget.borderRadius ??
-            BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-        color: widget.color ?? primaryColor.withOpacity(0.4));
+  borderRadius: widget.borderRadius ??
+      BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
+  color:white,
+  border: Border.all(
+    color: Colors.grey, 
+    width: 0.3, 
+  ),
+);
+
   }
 }

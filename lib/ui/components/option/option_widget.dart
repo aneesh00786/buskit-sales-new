@@ -161,44 +161,47 @@ class OptionWidget extends StatelessWidget {
         ),
         padding: nkLargePadding(),
         isCommonBorder: true,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ClipOval(
-              child: ColoredBox(
-                color: optionData.svgBgColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: svgComponent,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8,bottom: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ClipOval(
+                child: ColoredBox(
+                  color: optionData.svgBgColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: svgComponent,
+                  ),
                 ),
               ),
-            ),
-            Flexible(
-              child: Wrap(
-                direction: Axis.vertical,
-                children: [
-                  MyRegularText(
-                    label: optionData.title,
-                    fontSize: (MediaQuery.of(context).orientation ==
-                            Orientation.portrait)
-                        ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
-                        : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
-                    fontWeight: FontWeight.w600,
-                    color: secondaryTextColor,
-                    //maxLines: optionData.title.length,
-                  ),
-                  MyRegularText(
-                    label: _getCountForTitle(optionData.title, orderCountList),
-                    fontSize:
-                        ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
-                    fontWeight: FontWeight.w600,
-                    color: secondaryTextColor,
-                  ),
-                ],
+              Flexible(
+                child: Wrap(
+                  direction: Axis.vertical,
+                  children: [
+                    MyRegularText(
+                      label: optionData.title,
+                      fontSize: (MediaQuery.of(context).orientation ==
+                              Orientation.portrait)
+                          ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
+                          : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
+                      fontWeight: FontWeight.w600,
+                      color: secondaryTextColor,
+                      //maxLines: optionData.title.length,
+                    ),
+                    MyRegularText(
+                      label: _getCountForTitle(optionData.title, orderCountList),
+                      fontSize:
+                          ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
+                      fontWeight: FontWeight.w600,
+                      color: secondaryTextColor,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

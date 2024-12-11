@@ -1521,11 +1521,11 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
               child: Consumer<DashboardProvider>(
                 builder: (context, chatProvider, child) {
                   List<Messages> messages =
@@ -1576,51 +1576,79 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                    onTap: () {},
-                    child: Icon(
-                      EneftyIcons.camera_outline,
-                      size: 30,
-                    )),
-                SizedBox(
-                  width: 5,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 5, left: 5),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: const Color.fromARGB(255, 249, 249, 249),
+                border: Border.all(
+                  color: Colors.grey,
+                  width: 0.3,
                 ),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Type your message here...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                        onTap: () {},
+                        child: Icon(
+                          EneftyIcons.camera_outline,
+                          size: 30,
+                        )),
+                    SizedBox(
+                      width: 5,
                     ),
-                  ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        child: SizedBox(
+                          height: 40,
+                          child: TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: 'Type your message here...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 0.5),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 0.5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: Colors.blue, width: 1.0),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    InkWell(
+                      onTap: () => _sendMessage,
+                      child: Icon(
+                        EneftyIcons.send_3_outline,
+                        size: 25,
+                      ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    size: 25,
-                  ),
-                  onPressed: _sendMessage,
-                ),
-              ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

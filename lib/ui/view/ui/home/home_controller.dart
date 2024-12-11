@@ -206,34 +206,10 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[6], SIdeBarIcon.ic_calender),
       sideBarComponent(sidebarName[7], SIdeBarIcon.ic_today_order),
       sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
-      sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out, context: context
-          // onTap: () async {
-          //   await SessionManager.clearData();
-          //   Get.offAllNamed(AppRoutes.login);
-          //   Provider.of<DashboardProvider>(context, listen: false)
-          //       .resetProvider();
-          // },
-          ),
+      sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out,
+          context: context),
     ];
   }
-
-  // SidebarXItem sideBarComponent(
-  //   String barTitle,
-  //   IconData iconData, {
-  //   BuildContext? context,
-  //   VoidCallback? onTap,
-  // }) {
-  //   return SidebarXItem(
-  //     icon: iconData,
-  //     label: barTitle,
-  //     onTap: () async {
-  //       homeScaffoldKey.currentState?.closeDrawer();
-  //       if (onTap != null) {
-  //         onTap();
-  //       }
-  //     },
-  //   );
-  // }
 
   SidebarXItem sideBarComponent(
     String barTitle,
@@ -257,14 +233,15 @@ class HomeController extends GetxController {
             context: context!,
             builder: (context) {
               return AlertDialog(
-                title: CustomText(content:'Log out..?'),
-                content: CustomText(content:'Are you sure you wanted to log out..?'),
+                title: CustomText(content: 'Log out ?'),
+                content:
+                    CustomText(content: 'Are you sure you want to log out ?'),
                 actions: [
                   TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: CustomText(content:'cancel')),
+                      child: CustomText(content: 'cancel')),
                   ElevatedButton(
                     onPressed: () async {
                       Navigator.pop(context);
@@ -279,14 +256,15 @@ class HomeController extends GetxController {
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24),
+                          vertical: 12, horizontal: 24),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            50), 
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    child:  CustomText(content:'Confirm',color: white,),
+                    child: CustomText(
+                      content: 'Confirm',
+                      color: white,
+                    ),
                   )
                 ],
               );

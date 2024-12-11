@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../home/home_controller.dart';
@@ -199,9 +200,9 @@ class _NotificationWidgetState extends State<NotificationWidget> {
             children: [
               const Center(
                 child: Icon(
-                  Icons.notifications_outlined,
+                  EneftyIcons.notification_outline,
                   size: 30,
-                  color: Colors.black,
+                  color: Colors.grey,
                 ),
               ),
               Positioned(

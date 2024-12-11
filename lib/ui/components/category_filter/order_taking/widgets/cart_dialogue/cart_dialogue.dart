@@ -72,7 +72,6 @@ class _CartDialogueState extends State<CartDialogue> {
   void _loadCartItems() {
     try {
       List<CartItem> storedItems = CartDatabaseManager().getCartItems();
-      // setState(() {
       cartItems = storedItems;
       quantities = List.generate(cartItems.length, (index) => 1);
       total = Utils().getFinalAmount(cartItems);
@@ -81,7 +80,6 @@ class _CartDialogueState extends State<CartDialogue> {
         _selectedValue = _options[0];
       }
       _isLoading = false;
-      // });
     } catch (e) {
       return null;
     }

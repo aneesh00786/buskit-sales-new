@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -49,19 +48,19 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-@override
-void initState() {
-  super.initState();
-  final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-  if (!dashboardProvider.dataFetched) {
-    dashboardProvider.resetProvider();
-    dashboardProvider.fetchData();
-    dashboardProvider.fetchChatData(salesmanId);
-    final com = SessionHelper.loginSavedData!.company_id!;
-    log('Company id : $com');
+  @override
+  void initState() {
+    super.initState();
+    final dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
+    if (!dashboardProvider.dataFetched) {
+      dashboardProvider.resetProvider();
+      dashboardProvider.fetchData();
+      dashboardProvider.fetchChatData(salesmanId);
+      final com = SessionHelper.loginSavedData!.company_id!;
+      log('Company id : $com');
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -121,83 +120,88 @@ void initState() {
                       SizedBox(
                         height: isSmallScreen ? 29 : 38,
                         width: isSmallScreen ? 84 : 104,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.4),
-                                spreadRadius: 1,
-                                blurRadius: 1,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
-                            child: DropdownButton<FilterDateEnum>(
-                              value: provider.selectedFilter,
-                              onChanged: provider.onFilterChanged,
-                              items: [
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisMonth,
-                                  child: Text(
-                                    'This Month',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 9.8,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.today,
-                                  child: Text(
-                                    'Today',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisWeek,
-                                  child: Text(
-                                    'This Week',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisYear,
-                                  child: Text(
-                                    'This Year',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.range,
-                                  child: Text(
-                                    'Range',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 3,
+                                  offset: Offset(0, 3),
                                 ),
                               ],
-                              isExpanded: true,
-                              underline: Container(),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
+                              child: DropdownButton<FilterDateEnum>(
+                                value: provider.selectedFilter,
+                                onChanged: provider.onFilterChanged,
+                                items: [
+                                  DropdownMenuItem(
+                                    value: FilterDateEnum.thisMonth,
+                                    child: Text(
+                                      'This Month',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: isSmallScreen ? 7.7 : 9.8,
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: FilterDateEnum.today,
+                                    child: Text(
+                                      'Today',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: isSmallScreen ? 7.7 : 10.5,
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: FilterDateEnum.thisWeek,
+                                    child: Text(
+                                      'This Week',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: isSmallScreen ? 7.7 : 10.5,
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: FilterDateEnum.thisYear,
+                                    child: Text(
+                                      'This Year',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: isSmallScreen ? 7.7 : 10.5,
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: FilterDateEnum.range,
+                                    child: Text(
+                                      'Range',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: isSmallScreen ? 7.7 : 10.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                isExpanded: true,
+                                borderRadius: BorderRadius.circular(10),
+                                underline: Container(),
+                              ),
                             ),
                           ),
                         ),
@@ -368,6 +372,7 @@ void initState() {
                 .packedAndReadyForDelivery ??
             0);
   }
+
   Widget get orderTrakingButton => MyThemeButton(
         buttonText: orderTaking,
         fontSize: NkFontSize.smallFont() + 4,

@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_tabbar.dart';
@@ -18,6 +19,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   OrderController orderController = Get.put(OrderController());
+   NotificationController notificationController = Get.find<NotificationController>();
 
   int selectedTabIndex = 0;
 
@@ -51,6 +53,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 child: OrdersTabBar(
                   orderController: orderController,
                   passIndex: selectedTabIndex,
+                  notificationController: notificationController,
                 ),
               )
             ],

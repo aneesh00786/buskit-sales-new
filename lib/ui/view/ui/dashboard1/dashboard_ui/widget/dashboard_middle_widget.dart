@@ -1482,22 +1482,12 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       isFetching = true;
     });
-
-    final double oldOffset = _scrollController.offset;
     await Provider.of<DashboardProvider>(context, listen: false)
         .fetch_individual_chat(salesmanId, currentPage);
 
     setState(() {
       isFetching = false;
     });
-
-    // After fetching, maintain the scroll position
-    // Future.delayed(Duration(milliseconds: 100), () {
-    //   if (_scrollController.hasClients) {
-    //     _scrollController
-    //         .jumpTo(_scrollController.position.maxScrollExtent - oldOffset);
-    //   }
-    // });
   }
 
   void _initSocket() {
@@ -1523,7 +1513,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       Provider.of<DashboardProvider>(context, listen: false)
           .addMessages([newMessage]);
-      // _scrollToBottom();
+      _scrollToBottom();
     });
   }
 
@@ -1538,17 +1528,17 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
   }
 
-  void _scrollToBottom() {
-    Future.delayed(Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
+void _scrollToBottom() {
+  Future.delayed(Duration(milliseconds: 100), () {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0.0, 
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  });
+}
 
   @override
   void dispose() {

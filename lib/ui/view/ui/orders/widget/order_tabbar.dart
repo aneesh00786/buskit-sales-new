@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_bottom_widget.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,9 @@ import 'package:get/get.dart';
 class OrdersTabBar extends StatefulWidget {
   final OrderController orderController;
   final int passIndex;
+  final NotificationController notificationController;
 
-  OrdersTabBar({required this.orderController, this.passIndex = 0});
+  OrdersTabBar({required this.orderController, this.passIndex = 0,required this.notificationController});
 
   @override
   _OrdersTabBarState createState() => _OrdersTabBarState();
@@ -17,6 +19,7 @@ class OrdersTabBar extends StatefulWidget {
 class _OrdersTabBarState extends State<OrdersTabBar> {
   int _selectedTabIndex = 0;
   final ScrollController _scrollController = ScrollController();
+  NotificationController notificationController = Get.find<NotificationController>();
   final List<String> _tabs = [
     'Latest',
     'Waiting for Approval',
@@ -46,28 +49,29 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       _selectedTabIndex = index;
     });
   }
-
-  int _getCountForTab(int index) {
+int _getCountForTab(int index) {
     switch (index) {
       case 0:
-        return widget.orderController.receivedCount.value;
+        return notificationController.recentOrderCountData.mainNotification!.recentOrders!.toInt();
       case 1:
-        return widget.orderController.approvalCount.value;
+        return notificationController.recentOrderCountData.mainNotification!.waitingForApproval!.toInt();
       case 2:
-        return widget.orderController.quickSaleCount.value;
+        return notificationController.recentOrderCountData.mainNotification!.quickSale!.toInt();
       case 3:
-        return widget.orderController.processingCount.value;
+        return notificationController.recentOrderCountData.mainNotification!.processingOrders!.toInt();
       case 4:
-        return widget.orderController.packedCount.value;
+        return notificationController.recentOrderCountData.mainNotification!.packedAndReadyForDelivery!.toInt();
       case 5:
-        return widget.orderController.deliveredCount.value;
+        return 0;
       case 6:
-        return widget.orderController.rejectedCount.value;
+        return 0;
 
       default:
         return 0;
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +81,6 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
         return Center(
             child: Text('LOADING'));
       }
-
       return SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(

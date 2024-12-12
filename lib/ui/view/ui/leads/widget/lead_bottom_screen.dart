@@ -19,16 +19,13 @@ import 'package:get/get.dart';
 
 class LeadBottomScreen extends StatelessWidget {
   final LeadsController leadsController;
-
   const LeadBottomScreen({super.key, required this.leadsController});
-
   @override
   Widget build(BuildContext context) {
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
       child: Obx(() {
         return _buildTableLayout(context);
-        
       }),
     );
   }

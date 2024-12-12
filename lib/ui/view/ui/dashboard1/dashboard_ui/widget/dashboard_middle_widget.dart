@@ -1462,17 +1462,14 @@ class _ChatScreenState extends State<ChatScreen> {
     Future.microtask(() {
       Provider.of<DashboardProvider>(context, listen: false)
           .fetch_individual_chat(salesmanId, 1)
-          .then((_) {
-        _scrollToBottom();
-      });
+          .then((_) {});
     });
     _scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
-    // Trigger fetch when scroll is at the bottom
-    if (_scrollController.position.atEdge && _scrollController.position.pixels != 0) {
-      // We are at the bottom, fetch more messages
+    if (_scrollController.position.atEdge &&
+        _scrollController.position.pixels != 0) {
       if (!isFetching && !noMoreData) {
         currentPage++;
         _fetchMoreMessages();
@@ -1526,7 +1523,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       Provider.of<DashboardProvider>(context, listen: false)
           .addMessages([newMessage]);
-      // _scrollToBottom(); // Scroll to bottom when new message arrives
+      // _scrollToBottom();
     });
   }
 
@@ -1570,19 +1567,22 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: Consumer<DashboardProvider>(
                 builder: (context, chatProvider, child) {
-                  List<Messages> messages = chatProvider.individualChatMessages ?? [];
+                  List<Messages> messages =
+                      chatProvider.individualChatMessages ?? [];
                   if (messages.isEmpty) {
                     return Center(child: NodataWidget());
                   }
                   return ListView.builder(
                     controller: _scrollController,
                     itemCount: messages.length + (isFetching ? 1 : 0),
-                    reverse: true, // Reverse the list to show the latest at the bottom
+                    reverse:
+                        true, // Reverse the list to show the latest at the bottom
                     itemBuilder: (context, index) {
                       if (isFetching && index == messages.length) {
                         return CircleAvatar(
                           radius: 20,
-                          backgroundColor: const Color.fromARGB(255, 233, 233, 233),
+                          backgroundColor:
+                              const Color.fromARGB(255, 233, 233, 233),
                           child: Padding(
                             padding: const EdgeInsets.all(6.0),
                             child: Center(

@@ -328,7 +328,7 @@ class ApiService {
     }
   }
 
-  Future<MessagesResponse> fetch_individual_chat(
+  Future<MessagesResponse> fetch_individual_chatApi(
       String chatId, int page) async {
     log('Fetching Individual Chats for Page $page');
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchIndividualChat}');
@@ -1770,83 +1770,53 @@ class DashboardProvider with ChangeNotifier {
   //     throw Exception('Failed to post admin message: $e');
   //   }
   // }
-
-  List<Messages>? _individualChatMessages;
+  List<Messages>? _individualChatMessages = [];
   List<Messages>? get individualChatMessages => _individualChatMessages;
-
-  List<SalesmanChat> selectedChats = [];
   bool _noMoreData = false;
   bool get noMoreData => _noMoreData;
+  List<SalesmanChat> selectedChats = [];
+
   void resetNoMoreData() {
     _noMoreData = false;
     notifyListeners();
   }
 
-  Future<MessagesResponse> fetch_individual_chat(
-      String chatId, int page) async {
-    try {
-      // If no more data is available and this isn't the first page, return an empty response
-      if (_noMoreData && page > 1) return MessagesResponse(data: []);
+Future<MessagesResponse> fetch_individual_chat(String chatId, int page) async {
+  try {
+    if (_noMoreData && page > 1) return MessagesResponse(data: []);
+    final chatData = await _apiService.fetch_individual_chatApi(chatId, page);
 
-      // Fetch data for the current page
-      final chatData = await _apiService.fetch_individual_chat(chatId, page);
-
-      // Check if no data is returned, indicating the end of the list
-      if (chatData.data.isEmpty) {
-        _noMoreData = true;
+    if (chatData.data.isEmpty && page > 1) {
+      _noMoreData = true;
+    } else {
+      _individualChatMessages ??= [];
+      if (page == 1) {
+        _individualChatMessages = [
+          ...chatData.data,
+          ..._individualChatMessages!,
+        ].toSet().toList();
       } else {
-        // Append new data to the existing list (initialize if null)
-        _individualChatMessages ??= [];
-        _individualChatMessages?.addAll(chatData.data);
+        _individualChatMessages!.addAll(chatData.data);
+        _individualChatMessages = _individualChatMessages!.toSet().toList();
       }
-
-      // Notify listeners to update the UI
-      notifyListeners();
-
-      // Return the fetched data
-      return chatData;
-    } catch (e, stackTrace) {
-      // Log the error for debugging
-      _logger.e('Error fetching individual chat data',
-          error: e, stackTrace: stackTrace);
-
-      // Throw an exception with a descriptive message
-      throw Exception('Failed to fetch individual chat data: $e');
     }
-  }
-
-  // Update messages with a new message
-  void addMessages(List<Messages> newMessages) {
-    _individualChatMessages?.addAll(newMessages);
     notifyListeners();
+    return chatData;
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching individual chat data', error: e, stackTrace: stackTrace);
+    throw Exception('Failed to fetch individual chat data: $e');
   }
+}
 
-  // Future<void> postAdminMessage(String chatId, String message) async {
-  //   try {
-  //     await _apiService.postAdminMessage(salesmanId: chatId, message: message);
-  //     _individualChatMessages?.add(Messages(
-  //       message: message,
-  //       source: 'salesman',
-  //       id: 0,
-  //       chatId: '',
-  //       //salesmanId: 'SALES1',
-  //       status: 0,
-  //       createdAt: DateTime.now(),
-  //       updatedAt: DateTime.now(),
-  //     ));
-  //     notifyListeners();
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error posting admin message',
-  //         error: e, stackTrace: stackTrace);
-  //     throw Exception('Failed to post admin message: $e');
-  //   }
-  // }
 
-  // void selectChat(SalesmanChat chat) {
-  //   selectedChat = chat;
-  //   fetch_individual_chat(chat.salesmanId);
-  //   notifyListeners();
-  // }
+void addMessages(List<Messages> newMessages) {
+  _individualChatMessages ??= [];
+  _individualChatMessages = [
+    ...newMessages,
+    ..._individualChatMessages!,
+  ].toSet().toList(); 
+  notifyListeners();
+}
 
   void clearSelectedChat() {
     selectedChat = null;

@@ -1451,21 +1451,60 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController _controller = TextEditingController();
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final ScrollController _scrollController = ScrollController();
-  int currentPage = 1;
   bool isFetching = false;
   bool noMoreData = false;
-  List<Messages> messages = [];
+  int currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _initSocket();
-    _fetchMessages(currentPage);
+    Future.microtask(() {
+      Provider.of<DashboardProvider>(context, listen: false)
+          .fetch_individual_chat(salesmanId, 1)
+          .then((_) {
+        _scrollToBottom();
+      });
+    });
     _scrollController.addListener(_onScroll);
   }
 
+  void _onScroll() {
+    // Trigger fetch when scroll is at the bottom
+    if (_scrollController.position.atEdge && _scrollController.position.pixels != 0) {
+      // We are at the bottom, fetch more messages
+      if (!isFetching && !noMoreData) {
+        currentPage++;
+        _fetchMoreMessages();
+      }
+    }
+  }
+
+  void _fetchMoreMessages() async {
+    if (isFetching) return;
+    setState(() {
+      isFetching = true;
+    });
+
+    final double oldOffset = _scrollController.offset;
+    await Provider.of<DashboardProvider>(context, listen: false)
+        .fetch_individual_chat(salesmanId, currentPage);
+
+    setState(() {
+      isFetching = false;
+    });
+
+    // After fetching, maintain the scroll position
+    // Future.delayed(Duration(milliseconds: 100), () {
+    //   if (_scrollController.hasClients) {
+    //     _scrollController
+    //         .jumpTo(_scrollController.position.maxScrollExtent - oldOffset);
+    //   }
+    // });
+  }
+
   void _initSocket() {
-    socket = IO.io(ApiConstants.localHost, <String, dynamic>{
+    socket = IO.io('${ApiConstants.localHost}', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -1485,78 +1524,10 @@ class _ChatScreenState extends State<ChatScreen> {
         source: msg['source'],
         salesman: msg['salesman'],
       );
-
       Provider.of<DashboardProvider>(context, listen: false)
           .addMessages([newMessage]);
+      // _scrollToBottom(); // Scroll to bottom when new message arrives
     });
-  }
-
-  Future<void> _refreshMessages() async {
-    setState(() {
-      isFetching = true;
-      noMoreData = false;
-      currentPage = 1; // Reset the page to 1
-    });
-
-    try {
-      final chatData =
-          await Provider.of<DashboardProvider>(context, listen: false)
-              .fetch_individual_chat(salesmanId, 1);
-
-      if (chatData.data.isNotEmpty) {
-        setState(() {
-          messages = chatData.data; // Replace with fresh data
-        });
-      }
-    } catch (e) {
-      log('Error refreshing messages: $e');
-    } finally {
-      setState(() {
-        isFetching = false;
-      });
-    }
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 50 &&
-        !isFetching &&
-        !noMoreData) {
-      currentPage++;
-      _fetchMessages(currentPage);
-    }
-  }
-
-  Future<void> _fetchMessages(int page) async {
-    if (isFetching || noMoreData) return;
-
-    setState(() {
-      isFetching = true;
-    });
-
-    try {
-      log('Requesting Page: $page');
-      final chatData =
-          await Provider.of<DashboardProvider>(context, listen: false)
-              .fetch_individual_chat(salesmanId, page);
-
-      if (chatData.data.isEmpty) {
-        setState(() {
-          noMoreData = true;
-        });
-      } else {
-        setState(() {
-          messages.addAll(chatData.data);
-          messages = messages.toSet().toList();
-        });
-      }
-    } catch (e) {
-      log('Error fetching messages: $e');
-    } finally {
-      setState(() {
-        isFetching = false;
-      });
-    }
   }
 
   void _sendMessage() {
@@ -1568,23 +1539,16 @@ class _ChatScreenState extends State<ChatScreen> {
       'salesman': salesmanId,
     });
     _controller.clear();
-    final newMessage = Messages(
-      message: message,
-      source: 'salesman',
-      salesman: salesmanId,
-    );
-
-    setState(() {
-      messages.insert(0, newMessage);
-    });
-    // currentPage = 1;
-    // _scrollToBottom();
   }
 
   void _scrollToBottom() {
     Future.delayed(Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -1599,27 +1563,26 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
               child: Consumer<DashboardProvider>(
                 builder: (context, chatProvider, child) {
-                  messages = chatProvider.individualChatMessages ?? [];
+                  List<Messages> messages = chatProvider.individualChatMessages ?? [];
                   if (messages.isEmpty) {
                     return Center(child: NodataWidget());
                   }
                   return ListView.builder(
                     controller: _scrollController,
                     itemCount: messages.length + (isFetching ? 1 : 0),
-                    reverse: true,
+                    reverse: true, // Reverse the list to show the latest at the bottom
                     itemBuilder: (context, index) {
                       if (isFetching && index == messages.length) {
                         return CircleAvatar(
                           radius: 20,
-                          backgroundColor:
-                              const Color.fromARGB(255, 233, 233, 233),
+                          backgroundColor: const Color.fromARGB(255, 233, 233, 233),
                           child: Padding(
                             padding: const EdgeInsets.all(6.0),
                             child: Center(
@@ -1642,7 +1605,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           margin: EdgeInsets.symmetric(vertical: 5),
                           padding: EdgeInsets.all(10),
                           constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.7,
+                            maxWidth: MediaQuery.of(context).size.width * 0.5,
                           ),
                           decoration: BoxDecoration(
                             color: isSentBySalesman
@@ -1659,8 +1622,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                   : Radius.circular(10),
                             ),
                           ),
-                          child: Text(message.message,
-                              style: TextStyle(fontSize: 16)),
+                          child: Text(
+                            message.message,
+                            softWrap: true,
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       );
                     },
@@ -1668,60 +1634,51 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 5, left: 5),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: const Color.fromARGB(255, 249, 249, 249),
-                border: Border.all(color: Colors.grey, width: 0.3),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10),
-                child: Row(
-                  children: [
-                    InkWell(
-                        onTap: () {},
-                        child: Icon(Icons.camera_alt_outlined, size: 30)),
-                    SizedBox(width: 5),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
-                        child: SizedBox(
-                          height: 40,
-                          child: TextField(
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              hintText: 'Type your message here...',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Colors.grey, width: 0.5)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Colors.grey, width: 0.5)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Colors.blue, width: 1.0)),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    InkWell(
-                        onTap: _sendMessage, child: Icon(Icons.send, size: 25)),
-                  ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                    onTap: () {},
+                    child: Icon(
+                      EneftyIcons.camera_outline,
+                      size: 30,
+                    )),
+                SizedBox(
+                  width: 5,
                 ),
-              ),
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'Type your message here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.send,
+                    size: 25,
+                  ),
+                  onPressed: _sendMessage,
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

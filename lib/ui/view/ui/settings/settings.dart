@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
@@ -43,6 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final salesman = SessionHelper.loginSavedData;
   @override
   Widget build(BuildContext context) {
+    log('Image URL : ${ApiConstants.imageBaseUrlss}${salesman?.imagePath ?? ''}');
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
@@ -63,7 +65,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     width: 200,
                     child: idAndImagePicWidget(
                         file: photoId,
-                        imageUrl: salesman?.idimagePath ?? '',
+                        imageUrl:
+                            '${ApiConstants.imageBaseUrlss}${salesman?.imagePath ?? ''}',
                         text: 'Profile Image'),
                   ),
                   nkSmallSizeBox(),
@@ -74,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     width: 200,
                     child: idAndImagePicWidget(
                         file: photoId,
-                        imageUrl: salesman?.imagePath ?? '',
+                        imageUrl: salesman?.idimagePath ?? '',
                         text: 'Image of ID Card'),
                   ),
                 ],
@@ -143,28 +146,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 prefixIcon: filedIcon(Assets.iconsIcAddLeadsAddress),
               ),
               nkMediumSizeBox(),
-              Row(
-                children: [
-                  Flexible(
-                    child: formFiled(
-                      label: salesman?.address ?? '',
-                      isReadOnly: true,
-                      borderColor: Colors.grey,
-                      textInputType: TextInputType.streetAddress,
-                      prefixIcon: filedIcon(Assets.iconsIcAddLeadsCity),
+              Center(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: formFiled(
+                        label: salesman?.address ?? '',
+                        isReadOnly: true,
+                        borderColor: Colors.grey,
+                        textInputType: TextInputType.streetAddress,
+                        prefixIcon: filedIcon(Assets.iconsIcAddLeadsCity),
+                      ),
                     ),
-                  ),
-                  nkSmallSizeBox(),
-                  Flexible(
-                    child: formFiled(
-                      label: salesman?.state ?? '',
-                      isReadOnly: true,
-                      borderColor: Colors.grey,
-                      textInputType: TextInputType.streetAddress,
-                      prefixIcon: filedIcon(Assets.iconsIcAddLeadsState),
+                    nkSmallSizeBox(),
+                    Flexible(
+                      child: formFiled(
+                        label: salesman?.state ?? '',
+                        isReadOnly: true,
+                        borderColor: Colors.grey,
+                        textInputType: TextInputType.streetAddress,
+                        prefixIcon: filedIcon(Assets.iconsIcAddLeadsState),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               nkMediumSizeBox(),
               nkMediumSizeBox(),
@@ -301,7 +307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
                 child: text == 'Image of ID Card'
                     ? Image.asset("assets/images/id_card.jpg")
-                    : Image.asset("assets/images/pro_image.jpg")
+                    : Image.network(imageUrl ?? '')
                 // imageUrl != null
                 //         ? MyNetworkImage(
                 //             imageUrl: imageUrl,

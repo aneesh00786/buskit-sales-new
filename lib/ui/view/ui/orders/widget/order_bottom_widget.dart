@@ -369,7 +369,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     );
   }
 
-  Widget viewOrder(OrderController orderController, OrderData orderData) {
+Widget viewOrder(OrderController orderController, OrderData orderData) {
     return Center(
       child: IconButton(
         onPressed: () async {
@@ -377,22 +377,22 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             Center(child: CircularProgressIndicator()),
             barrierDismissible: false,
           );
-    
-          if (orderController.selectedTabIndex == 0) {
+
+          if (orderController.selectedTabIndex.value == 0) {
             try {
               await orderController.loadSpecificOrderInvoiceData(
                 orderId: orderData.orderId!,
               );
-    
+
               Get.back();
-    
+
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
-                      specificData: orderController.fetchSpecificOrderData,
-                      selectedTabIndex: orderController.selectedTabIndex.value,
-                      orderController: orderController,
-                      ),
+                    specificData: orderController.fetchSpecificOrderData,
+                    selectedTabIndex: orderController.selectedTabIndex.value,
+                    orderController: orderController,
+                  ),
                   barrierDismissible: true,
                 );
               } else {
@@ -402,22 +402,21 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               Get.back();
               Get.snackbar('Error', e.toString());
             }
-          } 
-          else if (orderController.selectedTabIndex == 1) {
+          } else if (orderController.selectedTabIndex.value == 1) {
             try {
               await orderController.loadOrderApprovalInvoiceData(
                 orderId: orderData.orderId!,
               );
-    
+
               Get.back();
-    
+
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
-                      invoiceData: orderController.orderProcessInvoiceData,
-                      selectedTabIndex: orderController.selectedTabIndex.value,
-                      orderController: orderController,
-                      ),
+                    invoiceData: orderController.orderProcessInvoiceData,
+                    selectedTabIndex: orderController.selectedTabIndex.value,
+                    orderController: orderController,
+                  ),
                   barrierDismissible: true,
                 );
               } else {
@@ -427,23 +426,22 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               Get.back();
               Get.snackbar('Error', e.toString());
             }
-          } 
-          else if (orderController.selectedTabIndex >= 1) {
+          } else if (orderController.selectedTabIndex >= 1) {
             try {
               await orderController.loadOrderProcessInvoiceData(
                 orderId: orderData.orderId!,
                 orderStatus: orderData.orderStatus!,
               );
-    
+
               Get.back();
-    
+
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
-                      invoiceData: orderController.orderProcessInvoiceData,
-                      selectedTabIndex: orderController.selectedTabIndex.value,
-                      orderController: orderController,
-                      ),
+                    invoiceData: orderController.orderProcessInvoiceData,
+                    selectedTabIndex: orderController.selectedTabIndex.value,
+                    orderController: orderController,
+                  ),
                   barrierDismissible: true,
                 );
               } else {

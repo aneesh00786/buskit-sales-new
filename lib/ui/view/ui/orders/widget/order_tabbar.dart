@@ -107,7 +107,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                           itemBuilder: (context, index) {
                             bool isSelected = _selectedTabIndex == index;
                             int count = _getCountForTab(
-                                index); // Get the count for the current tab
+                                index);
                             return GestureDetector(
                               onTap: () {
                                 setState(() {

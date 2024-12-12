@@ -58,22 +58,17 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               text: widget.specificData!.cart![index].quantity?.toString() ??
                   '1'));
 
-      // Initialize total prices
       _totalPrices = List.generate(
         widget.specificData!.cart!.length,
         (index) {
-          // Parse price as a double
           double price = double.tryParse(
                   widget.specificData!.cart![index].price?.toString() ?? '0') ??
               0;
-          // Ensure quantity is an int
           int quantity = widget.specificData!.cart![index].quantity ?? 1;
-          // Return the total
           return price * quantity;
         },
       );
 
-      // Add listeners to update the total in real-time
       for (int i = 0; i < widget.specificData!.cart!.length; i++) {
         _priceControllers[i].addListener(() => _updateTotalPrice(i));
         _quantityControllers[i].addListener(() => _updateTotalPrice(i));
@@ -82,11 +77,9 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
   }
 
   void _updateTotalPrice(int index) {
-    // Get the price and quantity from the controllers
     double price = double.tryParse(_priceControllers[index].text) ?? 0;
     int quantity = int.tryParse(_quantityControllers[index].text) ?? 1;
 
-    // Update the total price for the current item
     setState(() {
       _totalPrices[index] = price * quantity;
     });
@@ -143,31 +136,23 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         children: [
                           Text(
                             isSpecificData
-                                ? ("Name :   ${widget.specificData?.fullname}" ??
-                                    'Business Name not available')
-                                : ("Name :   ${widget.invoiceData?.fullname}" ??
-                                    'Business Name not available'),
+                                ? ("Name :   ${widget.specificData?.fullname}")
+                                : ("Name :   ${widget.invoiceData?.fullname}"),
                           ),
                           Text(
                             isSpecificData
-                                ? ("Email :   ${widget.specificData?.email}" ??
-                                    'Email not available')
-                                : ("Email :   ${widget.invoiceData?.email}" ??
-                                    'Email not available'),
+                                ? ("Email :   ${widget.specificData?.email}")
+                                : ("Email :   ${widget.invoiceData?.email}"),
                           ),
                           Text(
                             isSpecificData
-                                ? ("Phone :   ${widget.specificData?.mobileno}" ??
-                                    'Phone not available')
-                                : ("Phone :   ${widget.invoiceData?.mobileNo}" ??
-                                    'Phone not available'),
+                                ? ("Phone :   ${widget.specificData?.mobileno}")
+                                : ("Phone :   ${widget.invoiceData?.mobileNo}"),
                           ),
                           Text(
                             isSpecificData
-                                ? ("Salesman :   ${widget.specificData?.salesmanName}" ??
-                                    'Salesman Name not available')
-                                : ("Salesman :   ${widget.invoiceData?.salesmanName}" ??
-                                    'Salesman Name not available'),
+                                ? ("Salesman :   ${widget.specificData?.salesmanName}")
+                                : ("Salesman :   ${widget.invoiceData?.salesmanName}"),
                           ),
                         ],
                       ),
@@ -186,7 +171,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            // Items list
             Row(
               children: [
                 Expanded(
@@ -255,7 +239,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             (index) {
                               return DataRow(
                                 cells: [
-                                  // Item Name
                                   DataCell(
                                     SizedBox(
                                       width: totalWidth * 0.2,
@@ -271,13 +254,13 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                       ),
                                     ),
                                   ),
-                                  // Price
                                   DataCell(
                                     Center(
                                       child: isSpecificData
                                           ? TextField(
                                               controller:
                                                   _priceControllers[index],
+                                                  readOnly: true,
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor:
@@ -311,53 +294,57 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                 _updateTotalPrice(index);
                                               },
                                             )
-                                          : Text(widget.invoiceData
+                                          : Text(formatAmount(widget.invoiceData
                                                   ?.cart?[index].price
                                                   ?.toString() ??
-                                              '0'),
+                                              '0')),
                                     ),
                                   ),
                                   // Quantity
                                   DataCell(
                                     Center(
                                       child: isSpecificData
-                                          ? TextField(
-                                              controller:
-                                                  _quantityControllers[index],
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor:
-                                                    Colors.blueGrey.shade100,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(8),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  borderSide: BorderSide.none,
+                                          ? Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: TextField(
+                                                controller:
+                                                    _quantityControllers[index],
+                                                readOnly: true,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor:
+                                                      Colors.blueGrey.shade100,
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      const EdgeInsets.all(8),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                    borderSide: BorderSide.none,
+                                                  ),
                                                 ),
+                                                textAlign: TextAlign.center,
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                onChanged: (value) {
+                                                  final originalQuantity = widget
+                                                      .specificData!
+                                                      .cart![index]
+                                                      .quantity;
+                                                  if (value !=
+                                                      originalQuantity
+                                                          ?.toString()) {
+                                                    setState(() {
+                                                      isChanged = true;
+                                                    });
+                                                  }
+                                                  _updateTotalPrice(index);
+                                                },
+                                                onSubmitted: (value) {
+                                                  _updateTotalPrice(index);
+                                                },
                                               ),
-                                              textAlign: TextAlign.center,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              onChanged: (value) {
-                                                final originalQuantity = widget
-                                                    .specificData!
-                                                    .cart![index]
-                                                    .quantity;
-                                                if (value !=
-                                                    originalQuantity
-                                                        ?.toString()) {
-                                                  setState(() {
-                                                    isChanged = true;
-                                                  });
-                                                }
-                                                _updateTotalPrice(index);
-                                              },
-                                              onSubmitted: (value) {
-                                                _updateTotalPrice(index);
-                                              },
-                                            )
+                                          )
                                           : Text(widget.invoiceData
                                                   ?.cart?[index].quantity
                                                   ?.toString() ??
@@ -395,8 +382,10 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                       child: Text(
                                         isSpecificData
                                             ? formatAmount(_totalPrices[index])
-                                            : formatAmount(widget.invoiceData!
-                                                .cart![index].total),
+                                            : formatAmount((widget.invoiceData!
+                                                    .cart![index].price)??0 *
+                                                (widget.invoiceData!
+                                                    .cart![index].quantity)!),
                                       ),
                                     ),
                                   ),
@@ -435,9 +424,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       ),
                       const Spacer(),
                       Text(
-                        formatAmount(isSpecificData
-                            ? widget.specificData!.orderTotal ?? 0
-                            : widget.invoiceData!.orderTotal ?? 0),
+                        (isSpecificData
+                                    ? widget.specificData!.cart!.first.tax
+                                    : widget.invoiceData!.cart!.first.tax) !=
+                                null
+                            ? formatAmount(
+                                '${(isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) * (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0) / 100}')
+                            : formatAmount(isSpecificData
+                                ? widget.specificData!.orderTotal ?? 0
+                                : widget.invoiceData!.orderTotal ?? 0),
                       ),
                     ],
                   ),
@@ -495,7 +490,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
+           widget.selectedTabIndex==1? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (widget.selectedTabIndex == 0 && !isRejecting) ...[
@@ -771,10 +766,11 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           widget.invoiceData!.rejectedDate.toString()))),
                 ],
               ],
-            )
+            ):Container()
           ],
         ),
       ),
     );
   }
 }
+

@@ -11,6 +11,10 @@ enum OrderStatus {
   processing,
   estimates,
   pending,
+  newOrder,
+  waitApproval,
+  quickSale,
+  rejected,
 }
 
 enum UserType { salesman, customer }
@@ -34,6 +38,14 @@ extension OrderStatusExtension on OrderStatus {
         return "Estimates";
       case OrderStatus.pending:
         return "Pending";
+      case OrderStatus.newOrder:
+        return "New";
+      case OrderStatus.waitApproval:
+        return "Waiting for Approval";
+      case OrderStatus.quickSale:
+        return "Quick Sale";
+      case OrderStatus.rejected:
+        return "Rejected";
     }
   }
 
@@ -55,6 +67,14 @@ extension OrderStatusExtension on OrderStatus {
         return 6;
       case OrderStatus.estimates:
         return 7;
+      case OrderStatus.newOrder:
+        return 11;
+      case OrderStatus.waitApproval:
+        return 12;
+      case OrderStatus.rejected:
+        return 13;
+      case OrderStatus.quickSale:
+        return 14;
     }
   }
 
@@ -76,6 +96,14 @@ extension OrderStatusExtension on OrderStatus {
         return primaryColor;
       case OrderStatus.estimates:
         return primaryColor;
+      case OrderStatus.newOrder:
+        return primaryColor;
+      case OrderStatus.waitApproval:
+        return primaryColor;
+      case OrderStatus.rejected:
+        return primaryColor;
+      case OrderStatus.quickSale:
+        return primaryColor;
     }
   }
 }
@@ -95,8 +123,21 @@ class OrderHandlingClass {
         return OrderStatus.draft;
       case 5:
         return OrderStatus.processing;
+      case 6:
+        return OrderStatus.pending;
+      case 7:
+        return OrderStatus.estimates;
+      case 11:
+        return OrderStatus.newOrder;
+      case 12:
+        return OrderStatus.waitApproval;
+      case 13:
+        return OrderStatus.rejected;
+      case 14:
+        return OrderStatus.quickSale;
       default:
         return OrderStatus.preOrder;
     }
   }
 }
+

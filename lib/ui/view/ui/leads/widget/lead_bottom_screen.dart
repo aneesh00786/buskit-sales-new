@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -26,11 +27,8 @@ class LeadBottomScreen extends StatelessWidget {
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
       child: Obx(() {
-        return NkWidgetExceptionHandel(
-          onRetryPressed: () => leadsController.loadLeadsCustomerData,
-          data: leadsController.leadsCustomerDataList,
-          child: _buildTableLayout(context),
-        );
+        return _buildTableLayout(context);
+        
       }),
     );
   }
@@ -39,6 +37,9 @@ class LeadBottomScreen extends StatelessWidget {
     return Column(
       children: [
         _buildTableHeader(),
+        leadsController.leadsCustomerDataList.isEmpty?SizedBox(height: MediaQuery.of(context).size.height*0.4):Container(),
+        leadsController.leadsCustomerDataList.isEmpty? 
+        Center(child: NodataWidget(),):
         Expanded(
           child: SingleChildScrollView(
             child: Column(

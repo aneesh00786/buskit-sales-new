@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -15,17 +16,17 @@ class LeadRejectedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
-      child: NkWidgetExceptionHandel(
-        onRetryPressed: () => rejectedLeadsController.loadRejectedLeadsData,
-        data: rejectedLeadsController.loadRejectedLeadsData,
-        child: _buildTableLayout(context)),
-    );
+      child:  _buildTableLayout(context));
+    
   }
 
   Widget _buildTableLayout(BuildContext context) {
     return Column(
       children: [
         _buildTableHeader(),
+         rejectedLeadsController.rejectedLeadsDataList.isEmpty?SizedBox(height: MediaQuery.of(context).size.height*0.4):Container(),
+        rejectedLeadsController.rejectedLeadsDataList.isEmpty? 
+        Center(child: NodataWidget(),):
         Expanded(
           child: SingleChildScrollView(
             child: Column(

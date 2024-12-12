@@ -1576,7 +1576,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _scrollController,
                     itemCount: messages.length + (isFetching ? 1 : 0),
                     reverse:
-                        true, // Reverse the list to show the latest at the bottom
+                        true, 
                     itemBuilder: (context, index) {
                       if (isFetching && index == messages.length) {
                         return CircleAvatar(

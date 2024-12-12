@@ -82,11 +82,8 @@ class OrderController extends GetxController {
     }
     isCountLoading(false);
   }
-
-  // Function to load order data for a specific status
   Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     orderDataList.clear();
-
     switch (selectedIndex) {
       case 0:
         selectedStatusCountIndex.value = 11;
@@ -159,15 +156,12 @@ class OrderController extends GetxController {
     );
   }
 
-  // Loading indicator for async tasks
   RxBool isLoading = false.obs;
-
-  // Function to load invoice data for a specific order process
   Future<OrderProcessInvoiceData?> loadOrderProcessInvoiceData({
     required String orderId,
     required int orderStatus,
   }) async {
-    isLoading(true); // Start loading
+    isLoading(true);
     log("Loading Order Process Invoice Data");
 
     var data = await _apiWorker.getOrderProcessInvoiceData(

@@ -152,55 +152,59 @@ class OptionWidget extends StatelessWidget {
     );
 
     return Flexible(
-      child: MyCommnonContainer(
-        borderRadius: 5.3,
-        onTap: optionData.onTap,
-        margin: nkSymmetricPadding(
-          vertical: 0,
-          horizontal: AppDimensions.instance!.width * 0.001,
-        ),
-        padding: nkLargePadding(),
-        isCommonBorder: true,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8,bottom: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ClipOval(
-                child: ColoredBox(
-                  color: optionData.svgBgColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: svgComponent,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 3,left: 3),
+        child: MyCommnonContainer(
+          borderRadius: 10,
+          onTap: optionData.onTap,
+          margin: nkSymmetricPadding(
+            vertical: 0,
+            horizontal: AppDimensions.instance!.width * 0.001,
+          ),
+          
+          padding: nkLargePadding(),
+          isCommonBorder: true,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8,bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ClipOval(
+                  child: ColoredBox(
+                    color: optionData.svgBgColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: svgComponent,
+                    ),
                   ),
                 ),
-              ),
-              Flexible(
-                child: Wrap(
-                  direction: Axis.vertical,
-                  children: [
-                    MyRegularText(
-                      label: optionData.title,
-                      fontSize: (MediaQuery.of(context).orientation ==
-                              Orientation.portrait)
-                          ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
-                          : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
-                      fontWeight: FontWeight.w600,
-                      color: secondaryTextColor,
-                      //maxLines: optionData.title.length,
-                    ),
-                    MyRegularText(
-                      label: _getCountForTitle(optionData.title, orderCountList),
-                      fontSize:
-                          ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
-                      fontWeight: FontWeight.w600,
-                      color: secondaryTextColor,
-                    ),
-                  ],
+                Flexible(
+                  child: Wrap(
+                    direction: Axis.vertical,
+                    children: [
+                      MyRegularText(
+                        label: optionData.title,
+                        fontSize: (MediaQuery.of(context).orientation ==
+                                Orientation.portrait)
+                            ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
+                            : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                        //maxLines: optionData.title.length,
+                      ),
+                      MyRegularText(
+                        label: _getCountForTitle(optionData.title, orderCountList),
+                        fontSize:
+                            ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -31,6 +33,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,153 +126,164 @@ class DashBoardMiddleWidget extends StatelessWidget {
   }
 
   Widget collectionChart(BuildContext context) {
-    return MyCommnonContainer(
-      height: 280,
-      isCommonBorder: true,
-      padding: nkRegularPadding(),
-      width: double.maxFinite,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Collection',
-            style: cardHeadingTextStyle,
-          ),
-          nkSmallSizeBox(),
-          Expanded(child: Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<model1.ResponseModell>(
-                future: provider.futureResponseModel,
-                builder:
-                    (context, AsyncSnapshot<model1.ResponseModell> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline,
-                              size: 50, color: Colors.red),
-                          SizedBox(height: 10),
-                          Text(
-                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  } else if (!snapshot.hasData) {
-                    return const NodataWidget();
-                  } else {
-                    final responseModel = snapshot.data!;
-                    final totalCompletedAmount = responseModel
-                            .collection?.payment?.completedOrders
-                            ?.fold(
-                                0.0, (sum, order) => sum + order.orderTotal) ??
-                        0.0;
-
-                    final pendingAmountCount = responseModel
-                                .collection?.order?.pendingAmount?.isNotEmpty ==
-                            true
-                        ? responseModel.collection!.order!.pendingAmount!.last
-                            .amount as int
-                        : 0;
-                    final pendingAmountLabel = pendingAmountCount > 0
-                        ? 'Pending : ${formatAmount(pendingAmountCount)}'
-                        : 'Pending : \$ 0.00';
-
-                    final dueAmountCount = responseModel
-                                .collection?.order?.pendingAmount?.isNotEmpty ==
-                            true
-                        ? responseModel.collection!.order!.pendingAmount!.last
-                            .dueAmount as int
-                        : 0;
-                    final dueAmountLabel = dueAmountCount > 0
-                        ? 'Due : ${formatAmount(dueAmountCount)}'
-                        : 'Due : \$ 0.00';
-
-                    final overdueAmountCount = responseModel
-                                .collection?.order?.pendingAmount?.isNotEmpty ==
-                            true
-                        ? responseModel.collection!.order!.pendingAmount!.last
-                            .overDue as int
-                        : 0;
-                    final overdueAmountLabel = overdueAmountCount > 0
-                        ? 'Overdue : ${formatAmount(overdueAmountCount)}'
-                        : 'Overdue : \$ 0.00';
-
-                    final completedOrdersLabel = totalCompletedAmount > 0
-                        ? 'Completed : ${formatAmount(totalCompletedAmount)}'
-                        : 'Completed : \$ 0.00';
-
-                    if (totalCompletedAmount <= 0 &&
-                        pendingAmountCount <= 0 &&
-                        dueAmountCount <= 0 &&
-                        overdueAmountCount <= 0) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+         boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
+              blurRadius: 10, 
+              offset: Offset(4, 4),
+            ),
+          ],
+          borderRadius: 25,
+        height: 300,
+        isCommonBorder: true,
+        padding: nkRegularPadding(),
+        width: double.maxFinite,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Collection',
+              style: cardHeadingTextStyle,
+            ),
+            nkSmallSizeBox(),
+            Expanded(child: Consumer<DashboardProvider>(
+              builder: (context, provider, child) {
+                return FutureBuilder<model1.ResponseModell>(
+                  future: provider.futureResponseModel,
+                  builder:
+                      (context, AsyncSnapshot<model1.ResponseModell> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: SpinKitFadingCube(
+                          color: primaryColor,
+                          size: 20.0,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                size: 50, color: Colors.red),
+                            SizedBox(height: 10),
+                            Text(
+                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (!snapshot.hasData) {
                       return const NodataWidget();
                     } else {
-                      return Column(
-                        children: [
-                          Expanded(
-                            child: NestedPieChartj(
-                              completedOrdersCount:
-                                  totalCompletedAmount.toInt(),
-                              pendingAmountCount: pendingAmountCount,
-                              dueAmountCount: dueAmountCount,
-                              overdueAmountCount: overdueAmountCount,
-                              collection: responseModel.collection ??
-                                  model1.Collection(),
+                      final responseModel = snapshot.data!;
+                      final totalCompletedAmount = responseModel
+                              .collection?.payment?.completedOrders
+                              ?.fold(
+                                  0.0, (sum, order) => sum + order.orderTotal) ??
+                          0.0;
+      
+                      final pendingAmountCount = responseModel
+                                  .collection?.order?.pendingAmount?.isNotEmpty ==
+                              true
+                          ? responseModel.collection!.order!.pendingAmount!.last
+                              .amount as int
+                          : 0;
+                      final pendingAmountLabel = pendingAmountCount > 0
+                          ? 'Pending : ${formatAmount(pendingAmountCount)}'
+                          : 'Pending : \$ 0.00';
+      
+                      final dueAmountCount = responseModel
+                                  .collection?.order?.pendingAmount?.isNotEmpty ==
+                              true
+                          ? responseModel.collection!.order!.pendingAmount!.last
+                              .dueAmount as int
+                          : 0;
+                      final dueAmountLabel = dueAmountCount > 0
+                          ? 'Due : ${formatAmount(dueAmountCount)}'
+                          : 'Due : \$ 0.00';
+      
+                      final overdueAmountCount = responseModel
+                                  .collection?.order?.pendingAmount?.isNotEmpty ==
+                              true
+                          ? responseModel.collection!.order!.pendingAmount!.last
+                              .overDue as int
+                          : 0;
+                      final overdueAmountLabel = overdueAmountCount > 0
+                          ? 'Overdue : ${formatAmount(overdueAmountCount)}'
+                          : 'Overdue : \$ 0.00';
+      
+                      final completedOrdersLabel = totalCompletedAmount > 0
+                          ? 'Completed : ${formatAmount(totalCompletedAmount)}'
+                          : 'Completed : \$ 0.00';
+      
+                      if (totalCompletedAmount <= 0 &&
+                          pendingAmountCount <= 0 &&
+                          dueAmountCount <= 0 &&
+                          overdueAmountCount <= 0) {
+                        return const NodataWidget();
+                      } else {
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: NestedPieChartj(
+                                completedOrdersCount:
+                                    totalCompletedAmount.toInt(),
+                                pendingAmountCount: pendingAmountCount,
+                                dueAmountCount: dueAmountCount,
+                                overdueAmountCount: overdueAmountCount,
+                                collection: responseModel.collection ??
+                                    model1.Collection(),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          // Legend for the chart
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildLegendItem(
-                                const Color.fromARGB(255, 90, 119, 37),
-                                completedOrdersLabel,
-                              ),
-                              const SizedBox(width: 8.3),
-                              _buildLegendItem(
-                                const Color(0xffa30c13),
-                                pendingAmountLabel,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildLegendItem(
-                                const Color.fromARGB(255, 255, 173, 181),
-                                dueAmountLabel,
-                              ),
-                              const SizedBox(width: 8.3),
-                              _buildLegendItem(
-                                const Color.fromARGB(255, 255, 101, 132),
-                                overdueAmountLabel,
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
+                            const SizedBox(height: 8.0),
+                            // Legend for the chart
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildLegendItem(
+                                  const Color.fromARGB(255, 90, 119, 37),
+                                  completedOrdersLabel,
+                                ),
+                                const SizedBox(width: 8.3),
+                                _buildLegendItem(
+                                  const Color(0xffa30c13),
+                                  pendingAmountLabel,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildLegendItem(
+                                  const Color.fromARGB(255, 255, 173, 181),
+                                  dueAmountLabel,
+                                ),
+                                const SizedBox(width: 8.3),
+                                _buildLegendItem(
+                                  const Color.fromARGB(255, 255, 101, 132),
+                                  overdueAmountLabel,
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
                     }
-                  }
-                },
-              );
-            },
-          )),
-
-          //    nkMediumSizeBox()
-        ],
+                  },
+                );
+              },
+            )),
+      
+            //    nkMediumSizeBox()
+          ],
+        ),
       ),
     );
   }
@@ -297,239 +311,29 @@ class DashBoardMiddleWidget extends StatelessWidget {
   }
 
   Widget orderDeliveryChart(BuildContext context) {
-    return MyCommnonContainer(
-      height: 280,
-      width: double.infinity,
-      isCommonBorder: true,
-      padding: nkRegularPadding(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Order Status',
-            style: cardHeadingTextStyle,
-          ),
-          Expanded(child: Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<model1.ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline,
-                              size: 50, color: Colors.red),
-                          SizedBox(height: 10),
-                          Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                              textAlign: TextAlign.center),
-                        ],
-                      ),
-                    );
-                  } else if (snapshot.hasData) {
-                    final categories = snapshot.data!.allCategory;
-                    final categoryPerformance = snapshot.data!.delivery;
-
-                    if (categoryPerformance == null ||
-                        categoryPerformance.order!.totalOrders!.isEmpty) {
-                      return const NodataWidget();
-                    }
-
-                    return Center(
-                      child: DoughnutDefaultDelivery(
-                        deliveryData: categoryPerformance,
-                        aColor: const Color(0xff142b33),
-                        bColor: const Color(0xff4455dd),
-                        sabik: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: ResponsiveInfo.isMobileDimension(context)
-                                  ? 11.5
-                                  : 11.9,
-                              width: ResponsiveInfo.isMobileDimension(context)
-                                  ? 14.9
-                                  : 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xffc38a42),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Out for delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                            const SizedBox(width: 8.3),
-                            Container(
-                              height: 11.9,
-                              width: 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff33b4a8),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.delivered)}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                          ],
-                        ),
-                        sabik1: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 11.9,
-                              width: 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff142b33),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                            const SizedBox(width: 8.3),
-                            Container(
-                              height: 11.9,
-                              width: 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff4455dd),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  "Packed : ${formatAmount(categoryPerformance.order!.totalOrders!.last.packedForDelivery)}",
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                              color: secondaryTextColor,
-                            ),
-                          ],
-                        ),
-                        cColor: const Color(0xffcc8f3d),
-                        dColor: const Color(0xff33b4a8),
-                      ),
-                    );
-                  } else {
-                    return const NodataWidget();
-                  }
-                },
-              );
-            },
-          ))
-        ],
-      ),
-    );
-  }
-
-  Widget middleTopLeftComponet() {
-    return MyCommnonContainer(
-      height: 280,
-      width: double.infinity,
-      isCommonBorder: true,
-      padding: nkRegularPadding(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            projectionsVsActual,
-            style: cardHeadingTextStyle,
-            maxLines: 1,
-            softWrap: false,
-          ),
-          nkMediumSizeBox(),
-          Expanded(
-            child: Consumer<DashboardProvider>(
-              builder: (context, provider, child) {
-                return FutureBuilder<model1.ResponseModell>(
-                  future: provider.futureResponseModel,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: SpinKitFadingCube(
-                          color: primaryColor, // Customize color if needed
-                          size: 20.0,
-                        ),
-                      );
-                    } else if (snapshot.hasError || !snapshot.hasData) {
-                      final errorMessage = snapshot.error.toString();
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline,
-                                size: 50, color: Colors.red),
-                            Text(
-                                "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
-                          ],
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      final categories = snapshot.data!.allCategory;
-                      final categoryPerformance =
-                          snapshot.data!.categoryPerformance;
-
-                      return Center(
-                        child: CustomBarChart(
-                          categoryPerformance: categoryPerformance!,
-                          allCategory: categories!,
-                        ),
-                      );
-                    } else {
-                      return const NodataWidget();
-                    }
-                  },
-                );
-              },
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+         boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
+             blurRadius: 10, 
+              offset: Offset(4, 4),
             ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget middleTopRightComponet() {
-    return MyCommnonContainer(
-      height: 280,
-      width: double.infinity,
-      isCommonBorder: true,
-      padding: nkRegularPadding(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Revenue',
-            style: cardHeadingTextStyle,
-          ),
-          Expanded(
-            child: Consumer<DashboardProvider>(
+          ],
+          borderRadius: 25,
+        height: 300,
+        width: double.infinity,
+        isCommonBorder: true,
+        padding: nkRegularPadding(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Order Status',
+              style: cardHeadingTextStyle,
+            ),
+            Expanded(child: Consumer<DashboardProvider>(
               builder: (context, provider, child) {
                 return FutureBuilder<model1.ResponseModell>(
                   future: provider.futureResponseModel,
@@ -541,106 +345,350 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           size: 20.0,
                         ),
                       );
-                    }
-
-                    if (snapshot.hasError) {
+                    } else if (snapshot.hasError) {
                       return const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.error_outline,
                                 size: 50, color: Colors.red),
+                            SizedBox(height: 10),
                             Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                              textAlign: TextAlign.center,
-                            ),
+                                "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                textAlign: TextAlign.center),
                           ],
                         ),
                       );
-                    }
-
-                    if (!snapshot.hasData || snapshot.data?.revenue == null) {
-                      return const NodataWidget();
-                    }
-
-                    final categoryPerformance = snapshot.data!.revenue;
-
-                    // Check if booking or order revenue data is empty
-                    final bookingRevenueLength = categoryPerformance
-                                ?.bookingRevenueData?.isNotEmpty ??
-                            false
-                        ? categoryPerformance?.bookingRevenueData?.last.total
-                        : 0.0;
-
-                    final orderRevenueLast =
-                        categoryPerformance?.orderRevenueData?.isNotEmpty ??
-                                false
-                            ? categoryPerformance
-                                ?.orderRevenueData?.last.totalOrderRevenue
-                            : 0.0;
-                    if (bookingRevenueLength == 0.0 &&
-                        orderRevenueLast == 0.0) {
-                      return const NodataWidget();
-                    }
-
-                    return Center(
-                      child: DoughnutDefault(
-                        categoryData: categoryPerformance!,
-                        booking: "Booking : 3",
-                        order: "Order : 3",
-                        aColor: Colors.blue,
-                        bColor: const Color(0xff1d3d63),
-                        sabik: const SizedBox.shrink(),
-                        sabik1: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 11.9,
-                              width: 14.9,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff1d3d63),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
+                    } else if (snapshot.hasData) {
+                      final categories = snapshot.data!.allCategory;
+                      final categoryPerformance = snapshot.data!.delivery;
+      
+                      if (categoryPerformance == null ||
+                          categoryPerformance.order!.totalOrders!.isEmpty) {
+                        return const NodataWidget();
+                      }
+      
+                      return Center(
+                        child: DoughnutDefaultDelivery(
+                          deliveryData: categoryPerformance,
+                          aColor: const Color(0xff142b33),
+                          bColor: const Color(0xff4455dd),
+                          sabik: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: ResponsiveInfo.isMobileDimension(context)
+                                    ? 11.5
+                                    : 11.9,
+                                width: ResponsiveInfo.isMobileDimension(context)
+                                    ? 14.9
+                                    : 14.9,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffc38a42),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1.0)),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  'Booking : ${formatAmount(bookingRevenueLength)}',
-                              color: secondaryTextColor,
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            const SizedBox(
-                              width: 8.3,
-                            ),
-                            Container(
-                              height: 11.9,
-                              width: 14.9,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.0)),
+                              const SizedBox(width: 2),
+                              MyRegularText(
+                                label:
+                                    "Out for delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
+                                fontSize: 11.6,
+                                fontWeight: FontWeight.w600,
+                                color: secondaryTextColor,
                               ),
-                            ),
-                            const SizedBox(width: 2),
-                            MyRegularText(
-                              label:
-                                  'Order : ${formatAmount(orderRevenueLast)}',
-                              color: secondaryTextColor,
-                              fontSize: 11.6,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
+                              const SizedBox(width: 8.3),
+                              Container(
+                                height: 11.9,
+                                width: 14.9,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xff33b4a8),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1.0)),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              MyRegularText(
+                                label:
+                                    "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.delivered)}",
+                                fontSize: 11.6,
+                                fontWeight: FontWeight.w600,
+                                color: secondaryTextColor,
+                              ),
+                            ],
+                          ),
+                          sabik1: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 11.9,
+                                width: 14.9,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xff142b33),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1.0)),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              MyRegularText(
+                                label:
+                                    "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+                                fontSize: 11.6,
+                                fontWeight: FontWeight.w600,
+                                color: secondaryTextColor,
+                              ),
+                              const SizedBox(width: 8.3),
+                              Container(
+                                height: 11.9,
+                                width: 14.9,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xff4455dd),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1.0)),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              MyRegularText(
+                                label:
+                                    "Packed : ${formatAmount(categoryPerformance.order!.totalOrders!.last.packedForDelivery)}",
+                                fontSize: 11.6,
+                                fontWeight: FontWeight.w600,
+                                color: secondaryTextColor,
+                              ),
+                            ],
+                          ),
+                          cColor: const Color(0xffcc8f3d),
+                          dColor: const Color(0xff33b4a8),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      return const NodataWidget();
+                    }
                   },
                 );
               },
+            ))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget middleTopLeftComponet() {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+         boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
+              blurRadius: 10, 
+              offset: Offset(4, 4),
             ),
-          ),
-        ],
+          ],
+          borderRadius: 25,
+        height: 300,
+        width: double.infinity,
+        isCommonBorder: true,
+        padding: nkRegularPadding(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              projectionsVsActual,
+              style: cardHeadingTextStyle,
+              maxLines: 1,
+              softWrap: false,
+              
+            ),
+            nkMediumSizeBox(),
+            Expanded(
+              child: Consumer<DashboardProvider>(
+                builder: (context, provider, child) {
+                  return FutureBuilder<model1.ResponseModell>(
+                    future: provider.futureResponseModel,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: SpinKitFadingCube(
+                            color: primaryColor, // Customize color if needed
+                            size: 20.0,
+                          ),
+                        );
+                      } else if (snapshot.hasError || !snapshot.hasData) {
+                        final errorMessage = snapshot.error.toString();
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error_outline,
+                                  size: 50, color: Colors.red),
+                              Text(
+                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
+                            ],
+                          ),
+                        );
+                      } else if (snapshot.hasData) {
+                        final categories = snapshot.data!.allCategory;
+                        final categoryPerformance =
+                            snapshot.data!.categoryPerformance;
+      
+                        return Center(
+                          child: CustomBarChart(
+                            categoryPerformance: categoryPerformance!,
+                            allCategory: categories!,
+                          ),
+                        );
+                      } else {
+                        return const NodataWidget();
+                      }
+                    },
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget middleTopRightComponet() {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+         boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
+              blurRadius: 10, 
+              offset: Offset(4, 4),
+            ),
+          ],
+          borderRadius: 25,
+        height: 300,
+        width: double.infinity,
+        isCommonBorder: true,
+        padding: nkRegularPadding(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Revenue',
+              style: cardHeadingTextStyle,
+            ),
+            Expanded(
+              child: Consumer<DashboardProvider>(
+                builder: (context, provider, child) {
+                  return FutureBuilder<model1.ResponseModell>(
+                    future: provider.futureResponseModel,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: SpinKitFadingCube(
+                            color: primaryColor,
+                            size: 20.0,
+                          ),
+                        );
+                      }
+      
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error_outline,
+                                  size: 50, color: Colors.red),
+                              Text(
+                                "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+      
+                      if (!snapshot.hasData || snapshot.data?.revenue == null) {
+                        return const NodataWidget();
+                      }
+      
+                      final categoryPerformance = snapshot.data!.revenue;
+      
+                      // Check if booking or order revenue data is empty
+                      final bookingRevenueLength = categoryPerformance
+                                  ?.bookingRevenueData?.isNotEmpty ??
+                              false
+                          ? categoryPerformance?.bookingRevenueData?.last.total
+                          : 0.0;
+      
+                      final orderRevenueLast =
+                          categoryPerformance?.orderRevenueData?.isNotEmpty ??
+                                  false
+                              ? categoryPerformance
+                                  ?.orderRevenueData?.last.totalOrderRevenue
+                              : 0.0;
+                      if (bookingRevenueLength == 0.0 &&
+                          orderRevenueLast == 0.0) {
+                        return const NodataWidget();
+                      }
+      
+                      return Center(
+                        child: DoughnutDefault(
+                          categoryData: categoryPerformance!,
+                          booking: "Booking : 3",
+                          order: "Order : 3",
+                          aColor: Colors.blue,
+                          bColor: const Color(0xff1d3d63),
+                          sabik: const SizedBox.shrink(),
+                          sabik1: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 11.9,
+                                width: 14.9,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xff1d3d63),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1.0)),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              MyRegularText(
+                                label:
+                                    'Booking : ${formatAmount(bookingRevenueLength)}',
+                                color: secondaryTextColor,
+                                fontSize: 11.6,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              const SizedBox(
+                                width: 8.3,
+                              ),
+                              Container(
+                                height: 11.9,
+                                width: 14.9,
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1.0)),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              MyRegularText(
+                                label:
+                                    'Order : ${formatAmount(orderRevenueLast)}',
+                                color: secondaryTextColor,
+                                fontSize: 11.6,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -703,99 +751,110 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget communicationsDisplayListWidget(Map<String, dynamic> data, int index) {
     return Obx(
-      () => MyCommnonContainer(
-        padding: dashBoardController.selectedCommunicationIndex.value == index
-            ? nkSmallPadding()
-            : null,
-        onTap: () {
-          dashBoardController.selectedCommunicationIndex.value = index;
-
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipOval(
-                          child: MyNetworkImage(
-                        imageUrl: data["image"],
-                        height: AppDimensions.instance!.height * 0.05,
-                        width: AppDimensions.instance!.height * 0.05,
-                      )),
-                      Text(
-                        // ignore: prefer_interpolation_to_compose_strings
-                        "   " + data["name"],
-                        style: const TextStyle(fontSize: 12),
-                      )
-                    ]),
-                content: Container(
-                  width: double.maxFinite,
-                  color: const Color(0xffebe8e5),
-                  child: ListView.builder(
-                      itemCount: 5,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Stack(
-                          children: [
-                            Align(
-                              alignment: (index % 2 == 0)
-                                  ? FractionalOffset.topRight
-                                  : FractionalOffset.topLeft,
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: const Color(0xffddf7c9),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Container(
-                                        constraints: const BoxConstraints(
-                                            minWidth: 50, maxWidth: 150),
-                                        child: const Text("Hi..",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black87))),
+      () => Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: MyCommnonContainer(
+            boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
+              blurRadius: 10, 
+              offset: Offset(4, 4),
+            ),
+          ],
+          borderRadius: 25,
+          padding: dashBoardController.selectedCommunicationIndex.value == index
+              ? nkSmallPadding()
+              : null,
+          onTap: () {
+            dashBoardController.selectedCommunicationIndex.value = index;
+        
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipOval(
+                            child: MyNetworkImage(
+                          imageUrl: data["image"],
+                          height: AppDimensions.instance!.height * 0.05,
+                          width: AppDimensions.instance!.height * 0.05,
+                        )),
+                        Text(
+                          // ignore: prefer_interpolation_to_compose_strings
+                          "   " + data["name"],
+                          style: const TextStyle(fontSize: 12),
+                        )
+                      ]),
+                  content: Container(
+                    width: double.maxFinite,
+                    color: const Color(0xffebe8e5),
+                    child: ListView.builder(
+                        itemCount: 5,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Stack(
+                            children: [
+                              Align(
+                                alignment: (index % 2 == 0)
+                                    ? FractionalOffset.topRight
+                                    : FractionalOffset.topLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: const Color(0xffddf7c9),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Container(
+                                          constraints: const BoxConstraints(
+                                              minWidth: 50, maxWidth: 150),
+                                          child: const Text("Hi..",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black87))),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          ],
-                        );
-                      }),
+                              )
+                            ],
+                          );
+                        }),
+                  ),
+                );
+              },
+            );
+          },
+          isCommonBorder:
+              dashBoardController.selectedCommunicationIndex.value == index,
+          child: Row(
+            children: [
+              ClipOval(
+                  child: MyNetworkImage(
+                imageUrl: data["image"],
+                height: AppDimensions.instance!.height * 0.05,
+                width: AppDimensions.instance!.height * 0.05,
+              )),
+              nkSmallSizeBox(),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MyRegularText(label: data["name"]),
+                    MyRegularText(
+                      label: data["message"],
+                      fontSize: NkFontSize.smallFont(),
+                      color: primaryColor,
+                      align: TextAlign.start,
+                    )
+                  ],
                 ),
-              );
-            },
-          );
-        },
-        isCommonBorder:
-            dashBoardController.selectedCommunicationIndex.value == index,
-        child: Row(
-          children: [
-            ClipOval(
-                child: MyNetworkImage(
-              imageUrl: data["image"],
-              height: AppDimensions.instance!.height * 0.05,
-              width: AppDimensions.instance!.height * 0.05,
-            )),
-            nkSmallSizeBox(),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MyRegularText(label: data["name"]),
-                  MyRegularText(
-                    label: data["message"],
-                    fontSize: NkFontSize.smallFont(),
-                    color: primaryColor,
-                    align: TextAlign.start,
-                  )
-                ],
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -825,9 +884,10 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         dataRowHeight: 0,
                         dividerThickness: 0,
                         headingRowColor: WidgetStateProperty.resolveWith(
-                          (states) => Colors.grey[100],
+                          (states) => primaryColor.withOpacity(0.2),
                         ),
-                        border: TableBorder.all(width: 0, color: Colors.white),
+                      
+                        border: TableBorder.all(width: 0, color: white),
                         columns: const [
                           DataColumn(
                             label: Expanded(
@@ -835,7 +895,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 child: MyRegularText(
                                   label: "Product",
                                   fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
+                                  color: black,
                                   align: TextAlign.center,
                                   fontSize: 11.3,
                                 ),
@@ -848,7 +908,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 child: MyRegularText(
                                   label: "Last Purchase",
                                   fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
+                                  color: black,
                                   maxlines: 2,
                                   align: TextAlign.center,
                                   fontSize: 11.3,
@@ -862,7 +922,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 child: MyRegularText(
                                   label: "Times",
                                   fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
+                                  color: black,
                                   align: TextAlign.center,
                                   fontSize: 11.3,
                                 ),
@@ -875,7 +935,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 child: MyRegularText(
                                   label: "Price",
                                   fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
+                                  color: black,
                                   align: TextAlign.center,
                                   fontSize: 11.3,
                                 ),
@@ -888,7 +948,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 child: MyRegularText(
                                   label: "Qty",
                                   fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
+                                  color: black,
                                   align: TextAlign.center,
                                   fontSize: 11.3,
                                 ),
@@ -1325,60 +1385,71 @@ class DashBoardMiddleWidget extends StatelessWidget {
   }
 
   Widget topSellingProductWidget() {
-    return MyCommnonContainer(
-      height: 280,
-      isCommonBorder: true,
-      padding: EdgeInsets.zero,
-      margin: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          nkSmallSizeBox(),
-          Row(
-            children: [
-              nkSmallSizeBox(),
-              const Text(
-                'Frequently Bought Products',
-                style: cardHeadingTextStyle,
-              ),
-            ],
-          ),
-          nkSmallSizeBox(),
-          Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<model1.ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitFadingCube(
-                        color: primaryColor,
-                        size: 20.0,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    final topSellingProducts =
-                        snapshot.data!.topSellingProducts ?? [];
-                    return Expanded(
-                        child: topSellingProductList(topSellingProducts));
-                  } else {
-                    return const Center(
-                      child: MyRegularText(
-                        label: "No data available",
-                        color: secondaryTextColor,
-                        align: TextAlign.center,
-                      ),
-                    );
-                  }
-                },
-              );
-            },
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+        boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
+              blurRadius: 10, 
+              offset: Offset(4, 4),
+            ),
+          ],
+          borderRadius: 25,
+        height: 300,
+        isCommonBorder: true,
+        padding: EdgeInsets.zero,
+        margin: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            nkSmallSizeBox(),
+            Row(
+              children: [
+                nkSmallSizeBox(),
+                const Text(
+                  'Frequently Bought Products',
+                  style: cardHeadingTextStyle,
+                ),
+              ],
+            ),
+            nkSmallSizeBox(),
+            Consumer<DashboardProvider>(
+              builder: (context, provider, child) {
+                return FutureBuilder<model1.ResponseModell>(
+                  future: provider.futureResponseModel,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: SpinKitFadingCube(
+                          color: primaryColor,
+                          size: 20.0,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else if (snapshot.hasData) {
+                      final topSellingProducts =
+                          snapshot.data!.topSellingProducts ?? [];
+                      return Expanded(
+                          child: topSellingProductList(topSellingProducts));
+                    } else {
+                      return const Center(
+                        child: MyRegularText(
+                          label: "No data available",
+                          color: secondaryTextColor,
+                          align: TextAlign.center,
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1454,7 +1525,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isFetching = false;
   bool noMoreData = false;
   int currentPage = 1;
-
   @override
   void initState() {
     super.initState();
@@ -1476,6 +1546,8 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
+
+
 
   void _fetchMoreMessages() async {
     if (isFetching) return;
@@ -1551,7 +1623,7 @@ void _scrollToBottom() {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 10,right: 10),
         child: Column(
           children: [
             Expanded(
@@ -1612,7 +1684,7 @@ void _scrollToBottom() {
                                   : Radius.circular(10),
                             ),
                           ),
-                          child: Text(
+                          child:Text(
                             message.message,
                             softWrap: true,
                             style: TextStyle(fontSize: 16),
@@ -1624,48 +1696,61 @@ void _scrollToBottom() {
                 },
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                    onTap: () {},
-                    child: Icon(
-                      EneftyIcons.camera_outline,
-                      size: 30,
-                    )),
-                SizedBox(
-                  width: 5,
+            Padding(
+               padding: const EdgeInsets.only(right: 5, left: 5),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: const Color.fromARGB(255, 249, 249, 249),
+                  border: Border.all(color: Colors.grey, width: 0.3),
                 ),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Type your message here...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                child: Padding(
+                   padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                          onTap: () {
+                            
+                          },
+                          child: Icon(
+                            EneftyIcons.camera_outline,
+                            size: 30,
+                          )),
+                      
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: 'Type your message here...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                              ),
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            ),
+                          ),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    ),
+                      
+                      InkWell(
+                        onTap: () => _sendMessage(),
+                        child: Icon(EneftyIcons.send_3_outline,size: 30,))
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    size: 25,
-                  ),
-                  onPressed: _sendMessage,
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -1688,34 +1773,45 @@ class _CommunicationsDisplayWidgetState
   Widget build(BuildContext context) {
     final DashboardProvider provider = Provider.of<DashboardProvider>(context);
 
-    return MyCommnonContainer(
-        height: 280,
-        isCommonBorder: true,
-        padding: EdgeInsets.zero,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            width: double.maxFinite,
-            height: 40,
-            decoration: BoxDecoration(
-                color: Color(0xFF62a582),
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            child: const Text(
-              'Communications',
-              style: TextStyle(
-                fontFamily: fontFamilyName,
-                fontWeight: FontWeight.bold,
-                fontSize: 13.0,
-                color: white,
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+        boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 230, 229, 229).withOpacity(0.2), 
+              blurRadius: 8,
+              offset: Offset(4, 4), 
+            ),
+          ],
+          borderRadius: 25,
+          height: 300,
+          isCommonBorder: true,
+          padding: EdgeInsets.zero,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              width: double.maxFinite,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: Color(0xFF62a582),
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              child: const Text(
+                'Communications',
+                style: TextStyle(
+                  fontFamily: fontFamilyName,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13.0,
+                  color: white,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: ChatScreen(),
-          ),
-          nkSmallSizeBox(),
-        ]));
+            Expanded(
+              child: ChatScreen(),
+            ),
+            nkSmallSizeBox(),
+          ])),
+    );
   }
 }

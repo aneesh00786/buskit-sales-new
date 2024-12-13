@@ -94,6 +94,7 @@ class ApiWorker with ApiConstants {
       );
     }
   }
+
   Future<SalesmanTargetResponse> fetchSalesmanTarget(
       String salesmanId, String month, String year) async {
     log(companyId.toString());
@@ -118,6 +119,7 @@ class ApiWorker with ApiConstants {
     });
     return SalesmanTargetResponse.fromJson(response.data);
   }
+
   Future<Response> updateCategoryTargetValue(
     String salesmanId,
     String month,
@@ -142,6 +144,7 @@ class ApiWorker with ApiConstants {
     });
     return response;
   }
+
   /// ************************ DASHBOARD SECTION ***************** ///
 
   Future<DashboardResponse> dashboardData() async {
@@ -259,7 +262,7 @@ class ApiWorker with ApiConstants {
     final response = await dio
         .postbycustom(
       '${ApiConstants.recent_order_count}',
-      data: {"companyId": companyId,"salesman_id":salesmanId},
+      data: {"companyId": companyId, "salesman_id": salesmanId},
       options: Options(
         headers: {
           "Content-Type": "application/json",
@@ -619,7 +622,8 @@ class ApiWorker with ApiConstants {
   /// ******************** CALENDAR SECTION ******************/
   Future<List<EventData>> getCalendarEvents(
       Map<String, dynamic> sendData) async {
-    log('REquest Data :$sendData');
+    sendData['companyId'] = SessionHelper.loginSavedData?.company_id;
+    log('Request Data to Calender :$sendData');
     final response = await dio
         .postbycustom(ApiConstants.get_event, data: FormData.fromMap(sendData))
         .onError((DioError error, stackTrace) {
@@ -799,12 +803,12 @@ class ApiWorker with ApiConstants {
     });
     return IndividualPendingPaymentResponse.fromJson(response.data);
   }
+
   //************************ RECENT ORDERS **************/
   Future<OrderCountResponse> getOrderCountData({
     SearchModel? searchModel,
   }) async {
-    log(
-        "startDate++1234++Order count : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
+    log("startDate++1234++Order count : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
     final response = await dio
         .postbycustom(
       ApiConstants.orders_count_get,
@@ -812,7 +816,7 @@ class ApiWorker with ApiConstants {
         "start_date": searchModel?.startDate,
         "end_date": searchModel?.endDate,
         "companyId": companyId,
-        "salesman_id":salesmanId,
+        "salesman_id": salesmanId,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -822,40 +826,39 @@ class ApiWorker with ApiConstants {
     return OrderCountResponse.fromJson(response.data);
   }
 
-Future<OrderResponce> getRecentOrdersData({
-  SearchModel? searchModel,
-  int? order_status,
-}) async {
-  final requestBody = {
-    "order_status": order_status,
-    "start_date": searchModel?.startDate,
-    "end_date": searchModel?.endDate,
-    "companyId": companyId,
-    "salesman_id": salesmanId,
-  };
+  Future<OrderResponce> getRecentOrdersData({
+    SearchModel? searchModel,
+    int? order_status,
+  }) async {
+    final requestBody = {
+      "order_status": order_status,
+      "start_date": searchModel?.startDate,
+      "end_date": searchModel?.endDate,
+      "companyId": companyId,
+      "salesman_id": salesmanId,
+    };
 
-  // Log the request body
-  log("Request Body: $requestBody");
+    // Log the request body
+    log("Request Body: $requestBody");
 
-  log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
+    log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
 
-  try {
-    final response = await dio.postbycustom(
-      ApiConstants.get_recent_order,
-      data: FormData.fromMap(requestBody),
-    );
+    try {
+      final response = await dio.postbycustom(
+        ApiConstants.get_recent_order,
+        data: FormData.fromMap(requestBody),
+      );
 
-    // Log the response data
-    log("Response Data: ${response.data}");
+      // Log the response data
+      log("Response Data: ${response.data}");
 
-    return OrderResponce.fromJson(response.data);
-  } on DioException catch (error, stackTrace) {
-    // Log the error details
-    log("DioException: ${error.toString()}");
-    return Future.error(DioExceptionHandler.fromDioError(error));
+      return OrderResponce.fromJson(response.data);
+    } on DioException catch (error, stackTrace) {
+      // Log the error details
+      log("DioException: ${error.toString()}");
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    }
   }
-}
-
 
   Future<OrderProcessInvoice> getOrderProcessInvoiceData({
     String? orderId,

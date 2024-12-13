@@ -303,18 +303,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-                child: text == 'Image of ID Card'
-                    ? Image.asset("assets/images/id_card.jpg")
-                    : Image.network(imageUrl ?? '')
-                // imageUrl != null
-                //         ? MyNetworkImage(
-                //             imageUrl: imageUrl,
-                //             height: AppDimensions.instance.height * 0.2,
-                //           )
-
-                ),
+              borderRadius:
+                  BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
+              child: text == 'Image of ID Card'
+                  ? Image.asset(
+                      "assets/images/id_card.jpg",
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.network(
+                      imageUrl ?? '',
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+            ),
           ),
         ),
         CustomText(

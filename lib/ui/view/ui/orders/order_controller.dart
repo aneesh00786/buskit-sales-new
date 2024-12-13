@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,22 +16,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrderController extends GetxController {
-  // API worker for handling network requests
   final ApiWorker _apiWorker = ApiWorker();
-
-  // Observables for storing order data and various status counts
   RxList<OrderData> orderDataList = <OrderData>[].obs;
   OrderProcessInvoiceData orderProcessInvoiceData = OrderProcessInvoiceData();
   FetchSpecificOrderData fetchSpecificOrderData = FetchSpecificOrderData();
-
-  // Observables to manage UI state like selected tab index and status
   RxInt selectedTabIndex = 0.obs;
   RxInt selectedStatusCountIndex = 11.obs;
-
-  // Model to store search/filter data
   SearchModel searchData = SearchModel();
-
-  // Order status counts (Observables)
   RxInt receivedCount = 0.obs;
   RxInt approvalCount = 0.obs;
   RxInt quickSaleCount = 0.obs;
@@ -38,50 +30,28 @@ class OrderController extends GetxController {
   RxInt packedCount = 0.obs;
   RxInt deliveredCount = 0.obs;
   RxInt rejectedCount = 0.obs;
-
-  // Loading status for order count
   RxBool isCountLoading = true.obs;
-
-  // Function to load order count data based on status
-  Future<void> loadOrderCountData() async {
-    var response = await _apiWorker.getOrderCountData(
-      searchModel: searchData,
-    );
-
-    if (response != null && response.data != null) {
-      var orderCountDataList = response.data;
-
-      // Update counts for each order status
-      for (var countData in orderCountDataList) {
-        switch (countData.status) {
-          case 'latest':
-            receivedCount.value = countData.count;
-            break;
-          case 'approval':
-            approvalCount.value = countData.count;
-            break;
-          case 'quickSale':
-            quickSaleCount.value = countData.count;
-            break;
-          case 'proccessing':
-            processingCount.value = countData.count;
-            break;
-          case 'packed':
-            packedCount.value = countData.count;
-            break;
-          case 'delivers':
-            deliveredCount.value = countData.count;
-            break;
-          case 'rejected':
-            rejectedCount.value = countData.count;
-            break;
-          default:
-            break;
-        }
-      }
+Future<void> loadOrderCountData() async {
+  isCountLoading(true);
+  try {
+    var notificationData = await Get.find<NotificationController>().loadNotificationData();
+    if (notificationData.mainNotification != null) {
+      var mainNotification = notificationData.mainNotification!;
+      receivedCount.value = mainNotification.recentOrders ?? 0;
+      approvalCount.value = mainNotification.waitingForApproval ?? 0;
+      quickSaleCount.value = mainNotification.quickSale ?? 0;
+      processingCount.value = mainNotification.processingOrders ?? 0;
+      packedCount.value = mainNotification.packedAndReadyForDelivery ?? 0;
+      deliveredCount.value =  0;
+      rejectedCount.value =  0;
     }
+  } catch (e) {
+    log("Error loading order count data: $e");
+  } finally {
     isCountLoading(false);
   }
+}
+
   Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     orderDataList.clear();
     switch (selectedIndex) {

@@ -131,8 +131,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       child: MyCommnonContainer(
          boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
-              blurRadius: 10, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
               offset: Offset(4, 4),
             ),
           ],
@@ -316,8 +316,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       child: MyCommnonContainer(
          boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
-             blurRadius: 10, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
               offset: Offset(4, 4),
             ),
           ],
@@ -480,8 +480,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       child: MyCommnonContainer(
          boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
-              blurRadius: 10, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
               offset: Offset(4, 4),
             ),
           ],
@@ -558,8 +558,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       child: MyCommnonContainer(
          boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
-              blurRadius: 10, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
               offset: Offset(4, 4),
             ),
           ],
@@ -756,8 +756,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
         child: MyCommnonContainer(
             boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
-              blurRadius: 10, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
               offset: Offset(4, 4),
             ),
           ],
@@ -1390,8 +1390,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       child: MyCommnonContainer(
         boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 185, 184, 184).withOpacity(0.2), 
-              blurRadius: 10, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
               offset: Offset(4, 4),
             ),
           ],
@@ -1778,9 +1778,9 @@ class _CommunicationsDisplayWidgetState
       child: MyCommnonContainer(
         boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 230, 229, 229).withOpacity(0.2), 
-              blurRadius: 8,
-              offset: Offset(4, 4), 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
+              blurRadius: 5, 
+              offset: Offset(4, 4),
             ),
           ],
           borderRadius: 25,

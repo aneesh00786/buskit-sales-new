@@ -28,13 +28,15 @@ class Assets {
   static const String iconsIcDashboardCalander =
       'assets/icons/ic_dashboard_calander.svg';
   static const String iconsIcDashboardDraft =
-      'assets/icons/ic_dashboard_draft.svg';
+      'assets/icons/draft.png';
   static const String iconsIcDashboardEstimates =
-      'assets/icons/ic_dashboard_estimates.svg';
+      'assets/icons/milestone.png';
   static const String iconsIcDashboardPreOrder =
-      'assets/icons/ic_dashboard_pre_order.svg';
+      'assets/icons/pre-order.png';
   static const String iconsIcDashboardShoppingCart =
-      'assets/icons/ic_dashboard_shopping_cart.svg';
+      'assets/icons/shopping-cart.png';
+  static const String iconsIcDashboardCancel =
+      'assets/icons/delivery.png';
   static const String iconsIcDelete = 'assets/icons/ic_delete.svg';
   static const String iconsIcEdit = 'assets/icons/ic_edit.svg';
   static const String iconsIcImagePic = 'assets/icons/ic_image_pic.svg';

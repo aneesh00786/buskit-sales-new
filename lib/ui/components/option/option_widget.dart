@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -98,7 +99,8 @@ class OptionWidget extends StatelessWidget {
             title: 'Orders',
             count: orderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardShoppingCart,
-            svgBgColor: const Color(0xFFFCDABD),
+            svgBgColor: const Color.fromARGB(255, 229, 242, 254),
+            color:Color.fromARGB(255, 55, 74, 134) ,
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.delivered);
               _showOrderStatusDialog(context, provider, OrderStatus.delivered);
@@ -107,7 +109,8 @@ class OptionWidget extends StatelessWidget {
             title: 'Estimates',
             count: eastimatesCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardEstimates,
-            svgBgColor: const Color(0xFFC3DDFD),
+            svgBgColor: const Color.fromARGB(255, 226, 249, 243),
+            color: Color.fromARGB(255, 36, 108, 44),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.estimates);
               _showEstimatesDialog(context, provider, OrderStatus.estimates);
@@ -116,7 +119,8 @@ class OptionWidget extends StatelessWidget {
             title: 'Pre-Orders',
             count: preOrderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardPreOrder,
-            svgBgColor: const Color(0xFFAFECEF),
+            svgBgColor: const Color.fromARGB(255, 230, 247, 251),
+            color: Color.fromARGB(255, 45, 104, 116),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.preOrder);
               _showPreOrderDialog(context, provider, OrderStatus.preOrder);
@@ -125,7 +129,8 @@ class OptionWidget extends StatelessWidget {
             title: 'Draft',
             count: draftCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardDraft,
-            svgBgColor: const Color(0xFFBCF0DA),
+            svgBgColor: const Color.fromARGB(255, 255, 227, 255),
+            color: Color.fromARGB(255, 100, 43, 109),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showDraftDialog(context, provider, OrderStatus.draft);
@@ -133,8 +138,9 @@ class OptionWidget extends StatelessWidget {
         OptionData(
             title: 'Cancelled',
             count: cancelledCount?.toString() ?? "0",
-            svg: Assets.iconsIcDashboardDraft,
-            svgBgColor: const Color(0xFFBCF0DA),
+            svg: Assets.iconsIcDashboardCancel,
+            svgBgColor: const Color.fromARGB(255, 255, 228, 228),
+            color: Color.fromARGB(255, 139, 27, 27),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.cancelled);
               _showCancelledDialog(context, provider, OrderStatus.cancelled);
@@ -145,7 +151,7 @@ class OptionWidget extends StatelessWidget {
 
   Widget orderOptions(OptionData optionData, OrderCountListt? orderCountList,
       BuildContext context) {
-    SvgPicture svgComponent = SvgPicture.asset(
+    Image svgComponent = Image.asset(
       optionData.svg,
       height: AppDimensions.instance!.height * 0.03,
       fit: BoxFit.contain,
@@ -155,7 +161,14 @@ class OptionWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(right: 3,left: 3),
         child: MyCommnonContainer(
-          borderRadius: 10,
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1), 
+              blurRadius: 2, 
+              offset: Offset(4, 4),
+            ),
+          ],
+          borderRadius: 20,
           onTap: optionData.onTap,
           margin: nkSymmetricPadding(
             vertical: 0,
@@ -167,38 +180,38 @@ class OptionWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: 8,bottom: 8),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ClipOval(
-                  child: ColoredBox(
+                Container(
+                  decoration: BoxDecoration(
                     color: optionData.svgBgColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: svgComponent,
-                    ),
+                    borderRadius: BorderRadius.circular(15)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.asset(optionData.svg,height: 30,),
                   ),
-                ),
+                  ),
                 Flexible(
                   child: Wrap(
                     direction: Axis.vertical,
                     children: [
-                      MyRegularText(
-                        label: optionData.title,
+                      CustomText(
+                        content: optionData.title,
                         fontSize: (MediaQuery.of(context).orientation ==
                                 Orientation.portrait)
-                            ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
-                            : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
+                            ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 13)
+                            : (ResponsiveInfo.isMobileDimension(context) ? 7 : 13),
                         fontWeight: FontWeight.w600,
                         color: secondaryTextColor,
                         //maxLines: optionData.title.length,
                       ),
-                      MyRegularText(
-                        label: _getCountForTitle(optionData.title, orderCountList),
+                      CustomText(
+                        content: _getCountForTitle(optionData.title, orderCountList),
                         fontSize:
-                            ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
+                            ResponsiveInfo.isMobileDimension(context) ? 7.7 : 15.3,
+                        fontWeight: FontWeight.w800,
+                        color: optionData.color,
                       ),
                     ],
                   ),
@@ -2928,6 +2941,7 @@ class OptionData {
   String count;
   String svg;
   Color svgBgColor;
+  Color? color;
   VoidCallback? onTap;
 
   OptionData({
@@ -2936,5 +2950,6 @@ class OptionData {
     required this.svg,
     required this.svgBgColor,
     this.onTap,
+    this.color,
   });
 }

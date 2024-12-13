@@ -143,72 +143,76 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   //     ),
   //   );
   // }
-  Widget listComponent(SidebarXItem sideBarData, int index) {
-    final NotificationController notificationController =
-        Get.put(NotificationController());
+Widget listComponent(SidebarXItem sideBarData, int index) {
+  final NotificationController notificationController =
+      Get.put(NotificationController());
 
-    // notificationController.loadNotificationData();
+  bool isRecentOrders = index == 7;
 
-    bool isRecentOrders = index == 7;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          widget.sidebarXController.selectIndex(index);
-          sideBarData.onTap?.call();
-          widget.onTap?.call(widget.sidebarXController.selectedIndex);
-        });
-      },
-      child: Container(
-        padding: EdgeInsets.only(
-            top: 5,
-            bottom: 5,
-            left: widget.sidebarXController.selectedIndex == index ? 12 : 15),
-        decoration: BoxDecoration(
-          border: widget.sidebarXController.selectedIndex == index
-              ? Border(
-                  left: BorderSide(
-                      color: Theme.of(context).primaryColor, width: 3),
-                )
-              : null,
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Icon(
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        widget.sidebarXController.selectIndex(index);
+        sideBarData.onTap?.call();
+        widget.onTap?.call(widget.sidebarXController.selectedIndex);
+      });
+    },
+    child: AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeIn,
+      padding: EdgeInsets.only(
+        top: 5,
+        bottom: 5,
+        left: widget.sidebarXController.selectedIndex == index ? 12 : 15,
+      ),
+      decoration: BoxDecoration(
+        border: widget.sidebarXController.selectedIndex == index
+            ? Border(
+                left: BorderSide(
+                    color: Theme.of(context).primaryColor, width: 3),
+              )
+            : null,
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedScale(
+            scale: widget.sidebarXController.selectedIndex == index ? 1.2 : 1.0, 
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: Icon(
               sideBarData.icon!,
-              size: 22,
+              size: 25, 
               color: widget.sidebarXController.selectedIndex == index
                   ? Theme.of(context).primaryColor
                   : Colors.grey,
             ),
-            if (isRecentOrders)
-              Positioned(
-                top: -15,
-                left: 10,
-                child: notificationController.isNotificationLoading.value
-                    ? SizedBox.shrink() // Show nothing when loading
-                    : notificationController
-                                .recentOrderCountData.mainNotification !=
-                            null
-                        ? CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Colors.red,
-                            child: Text(
-                              notificationController.recentOrderCountData
-                                      .mainNotification!.recentOrders
-                                      ?.toString() ??
-                                  '0',
-                              style:
-                                  TextStyle(fontSize: 10, color: Colors.white),
-                            ),
-                          )
-                        : SizedBox.shrink(), //
-              ),
-          ],
-        ),
-        // ),
+          ),
+          if (isRecentOrders)
+            Positioned(
+              top: -15,
+              left: 10,
+              child: notificationController.isNotificationLoading.value
+                  ? SizedBox.shrink() // Show nothing when loading
+                  : notificationController.recentOrderCountData.mainNotification !=
+                          null
+                      ? CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            notificationController.recentOrderCountData
+                                    .mainNotification!.recentOrders
+                                    ?.toString() ??
+                                '0',
+                            style: TextStyle(fontSize: 10, color: Colors.white),
+                          ),
+                        )
+                      : SizedBox.shrink(), //
+            ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

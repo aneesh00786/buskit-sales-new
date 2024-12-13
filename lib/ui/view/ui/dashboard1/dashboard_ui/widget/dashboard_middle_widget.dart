@@ -129,158 +129,174 @@ class DashBoardMiddleWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: MyCommnonContainer(
-         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
-              offset: Offset(4, 4),
-            ),
-          ],
-          borderRadius: 25,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
         height: 300,
         isCommonBorder: true,
-        padding: nkRegularPadding(),
+       
         width: double.maxFinite,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Collection',
-              style: cardHeadingTextStyle,
+             Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
+              ),
+              padding:
+                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+              child: Text(
+                "Collection",
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
+              ),
             ),
             nkSmallSizeBox(),
-            Expanded(child: Consumer<DashboardProvider>(
-              builder: (context, provider, child) {
-                return FutureBuilder<model1.ResponseModell>(
-                  future: provider.futureResponseModel,
-                  builder:
-                      (context, AsyncSnapshot<model1.ResponseModell> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: SpinKitFadingCube(
-                          color: primaryColor,
-                          size: 20.0,
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline,
-                                size: 50, color: Colors.red),
-                            SizedBox(height: 10),
-                            Text(
-                              "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (!snapshot.hasData) {
-                      return const NodataWidget();
-                    } else {
-                      final responseModel = snapshot.data!;
-                      final totalCompletedAmount = responseModel
-                              .collection?.payment?.completedOrders
-                              ?.fold(
-                                  0.0, (sum, order) => sum + order.orderTotal) ??
-                          0.0;
-      
-                      final pendingAmountCount = responseModel
-                                  .collection?.order?.pendingAmount?.isNotEmpty ==
-                              true
-                          ? responseModel.collection!.order!.pendingAmount!.last
-                              .amount as int
-                          : 0;
-                      final pendingAmountLabel = pendingAmountCount > 0
-                          ? 'Pending : ${formatAmount(pendingAmountCount)}'
-                          : 'Pending : \$ 0.00';
-      
-                      final dueAmountCount = responseModel
-                                  .collection?.order?.pendingAmount?.isNotEmpty ==
-                              true
-                          ? responseModel.collection!.order!.pendingAmount!.last
-                              .dueAmount as int
-                          : 0;
-                      final dueAmountLabel = dueAmountCount > 0
-                          ? 'Due : ${formatAmount(dueAmountCount)}'
-                          : 'Due : \$ 0.00';
-      
-                      final overdueAmountCount = responseModel
-                                  .collection?.order?.pendingAmount?.isNotEmpty ==
-                              true
-                          ? responseModel.collection!.order!.pendingAmount!.last
-                              .overDue as int
-                          : 0;
-                      final overdueAmountLabel = overdueAmountCount > 0
-                          ? 'Overdue : ${formatAmount(overdueAmountCount)}'
-                          : 'Overdue : \$ 0.00';
-      
-                      final completedOrdersLabel = totalCompletedAmount > 0
-                          ? 'Completed : ${formatAmount(totalCompletedAmount)}'
-                          : 'Completed : \$ 0.00';
-      
-                      if (totalCompletedAmount <= 0 &&
-                          pendingAmountCount <= 0 &&
-                          dueAmountCount <= 0 &&
-                          overdueAmountCount <= 0) {
+            Expanded(child: Padding(
+               padding: nkRegularPadding(),
+              child: Consumer<DashboardProvider>(
+                builder: (context, provider, child) {
+                  return FutureBuilder<model1.ResponseModell>(
+                    future: provider.futureResponseModel,
+                    builder:
+                        (context, AsyncSnapshot<model1.ResponseModell> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: SpinKitFadingCube(
+                            color: primaryColor,
+                            size: 20.0,
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error_outline,
+                                  size: 50, color: Colors.red),
+                              SizedBox(height: 10),
+                              Text(
+                                "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      } else if (!snapshot.hasData) {
                         return const NodataWidget();
                       } else {
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: NestedPieChartj(
-                                completedOrdersCount:
-                                    totalCompletedAmount.toInt(),
-                                pendingAmountCount: pendingAmountCount,
-                                dueAmountCount: dueAmountCount,
-                                overdueAmountCount: overdueAmountCount,
-                                collection: responseModel.collection ??
-                                    model1.Collection(),
+                        final responseModel = snapshot.data!;
+                        final totalCompletedAmount = responseModel
+                                .collection?.payment?.completedOrders
+                                ?.fold(0.0,
+                                    (sum, order) => sum + order.orderTotal) ??
+                            0.0;
+              
+                        final pendingAmountCount = responseModel.collection?.order
+                                    ?.pendingAmount?.isNotEmpty ==
+                                true
+                            ? responseModel.collection!.order!.pendingAmount!.last
+                                .amount as int
+                            : 0;
+                        final pendingAmountLabel = pendingAmountCount > 0
+                            ? 'Pending : ${formatAmount(pendingAmountCount)}'
+                            : 'Pending : \$ 0.00';
+              
+                        final dueAmountCount = responseModel.collection?.order
+                                    ?.pendingAmount?.isNotEmpty ==
+                                true
+                            ? responseModel.collection!.order!.pendingAmount!.last
+                                .dueAmount as int
+                            : 0;
+                        final dueAmountLabel = dueAmountCount > 0
+                            ? 'Due : ${formatAmount(dueAmountCount)}'
+                            : 'Due : \$ 0.00';
+              
+                        final overdueAmountCount = responseModel.collection?.order
+                                    ?.pendingAmount?.isNotEmpty ==
+                                true
+                            ? responseModel.collection!.order!.pendingAmount!.last
+                                .overDue as int
+                            : 0;
+                        final overdueAmountLabel = overdueAmountCount > 0
+                            ? 'Overdue : ${formatAmount(overdueAmountCount)}'
+                            : 'Overdue : \$ 0.00';
+              
+                        final completedOrdersLabel = totalCompletedAmount > 0
+                            ? 'Completed : ${formatAmount(totalCompletedAmount)}'
+                            : 'Completed : \$ 0.00';
+              
+                        if (totalCompletedAmount <= 0 &&
+                            pendingAmountCount <= 0 &&
+                            dueAmountCount <= 0 &&
+                            overdueAmountCount <= 0) {
+                          return const NodataWidget();
+                        } else {
+                          return Column(
+                            children: [
+                              Expanded(
+                                child: NestedPieChartj(
+                                  completedOrdersCount:
+                                      totalCompletedAmount.toInt(),
+                                  pendingAmountCount: pendingAmountCount,
+                                  dueAmountCount: dueAmountCount,
+                                  overdueAmountCount: overdueAmountCount,
+                                  collection: responseModel.collection ??
+                                      model1.Collection(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8.0),
-                            // Legend for the chart
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _buildLegendItem(
-                                  const Color.fromARGB(255, 90, 119, 37),
-                                  completedOrdersLabel,
-                                ),
-                                const SizedBox(width: 8.3),
-                                _buildLegendItem(
-                                  const Color(0xffa30c13),
-                                  pendingAmountLabel,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _buildLegendItem(
-                                  const Color.fromARGB(255, 255, 173, 181),
-                                  dueAmountLabel,
-                                ),
-                                const SizedBox(width: 8.3),
-                                _buildLegendItem(
-                                  const Color.fromARGB(255, 255, 101, 132),
-                                  overdueAmountLabel,
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
+                              const SizedBox(height: 8.0),
+                              // Legend for the chart
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildLegendItem(
+                                    const Color.fromARGB(255, 90, 119, 37),
+                                    completedOrdersLabel,
+                                  ),
+                                  const SizedBox(width: 8.3),
+                                  _buildLegendItem(
+                                    const Color(0xffa30c13),
+                                    pendingAmountLabel,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildLegendItem(
+                                    const Color.fromARGB(255, 255, 173, 181),
+                                    dueAmountLabel,
+                                  ),
+                                  const SizedBox(width: 8.3),
+                                  _buildLegendItem(
+                                    const Color.fromARGB(255, 255, 101, 132),
+                                    overdueAmountLabel,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
                       }
-                    }
-                  },
-                );
-              },
+                    },
+                  );
+                },
+              ),
             )),
-      
+
             //    nkMediumSizeBox()
           ],
         ),
@@ -314,268 +330,40 @@ class DashBoardMiddleWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: MyCommnonContainer(
-         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
-              offset: Offset(4, 4),
-            ),
-          ],
-          borderRadius: 25,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
         height: 300,
         width: double.infinity,
         isCommonBorder: true,
-        padding: nkRegularPadding(),
+       
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Order Status',
-              style: cardHeadingTextStyle,
-            ),
-            Expanded(child: Consumer<DashboardProvider>(
-              builder: (context, provider, child) {
-                return FutureBuilder<model1.ResponseModell>(
-                  future: provider.futureResponseModel,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: SpinKitFadingCube(
-                          color: primaryColor,
-                          size: 20.0,
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline,
-                                size: 50, color: Colors.red),
-                            SizedBox(height: 10),
-                            Text(
-                                "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                textAlign: TextAlign.center),
-                          ],
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      final categories = snapshot.data!.allCategory;
-                      final categoryPerformance = snapshot.data!.delivery;
-      
-                      if (categoryPerformance == null ||
-                          categoryPerformance.order!.totalOrders!.isEmpty) {
-                        return const NodataWidget();
-                      }
-      
-                      return Center(
-                        child: DoughnutDefaultDelivery(
-                          deliveryData: categoryPerformance,
-                          aColor: const Color(0xff142b33),
-                          bColor: const Color(0xff4455dd),
-                          sabik: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                height: ResponsiveInfo.isMobileDimension(context)
-                                    ? 11.5
-                                    : 11.9,
-                                width: ResponsiveInfo.isMobileDimension(context)
-                                    ? 14.9
-                                    : 14.9,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xffc38a42),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1.0)),
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              MyRegularText(
-                                label:
-                                    "Out for delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
-                                fontSize: 11.6,
-                                fontWeight: FontWeight.w600,
-                                color: secondaryTextColor,
-                              ),
-                              const SizedBox(width: 8.3),
-                              Container(
-                                height: 11.9,
-                                width: 14.9,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff33b4a8),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1.0)),
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              MyRegularText(
-                                label:
-                                    "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.delivered)}",
-                                fontSize: 11.6,
-                                fontWeight: FontWeight.w600,
-                                color: secondaryTextColor,
-                              ),
-                            ],
-                          ),
-                          sabik1: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                height: 11.9,
-                                width: 14.9,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff142b33),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1.0)),
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              MyRegularText(
-                                label:
-                                    "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
-                                fontSize: 11.6,
-                                fontWeight: FontWeight.w600,
-                                color: secondaryTextColor,
-                              ),
-                              const SizedBox(width: 8.3),
-                              Container(
-                                height: 11.9,
-                                width: 14.9,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff4455dd),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1.0)),
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              MyRegularText(
-                                label:
-                                    "Packed : ${formatAmount(categoryPerformance.order!.totalOrders!.last.packedForDelivery)}",
-                                fontSize: 11.6,
-                                fontWeight: FontWeight.w600,
-                                color: secondaryTextColor,
-                              ),
-                            ],
-                          ),
-                          cColor: const Color(0xffcc8f3d),
-                          dColor: const Color(0xff33b4a8),
-                        ),
-                      );
-                    } else {
-                      return const NodataWidget();
-                    }
-                  },
-                );
-              },
-            ))
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget middleTopLeftComponet() {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: MyCommnonContainer(
-         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
-              offset: Offset(4, 4),
-            ),
-          ],
-          borderRadius: 25,
-        height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
-        padding: nkRegularPadding(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              projectionsVsActual,
-              style: cardHeadingTextStyle,
-              maxLines: 1,
-              softWrap: false,
-              
-            ),
-            nkMediumSizeBox(),
-            Expanded(
-              child: Consumer<DashboardProvider>(
-                builder: (context, provider, child) {
-                  return FutureBuilder<model1.ResponseModell>(
-                    future: provider.futureResponseModel,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: SpinKitFadingCube(
-                            color: primaryColor, // Customize color if needed
-                            size: 20.0,
-                          ),
-                        );
-                      } else if (snapshot.hasError || !snapshot.hasData) {
-                        final errorMessage = snapshot.error.toString();
-                        return const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.error_outline,
-                                  size: 50, color: Colors.red),
-                              Text(
-                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
-                            ],
-                          ),
-                        );
-                      } else if (snapshot.hasData) {
-                        final categories = snapshot.data!.allCategory;
-                        final categoryPerformance =
-                            snapshot.data!.categoryPerformance;
-      
-                        return Center(
-                          child: CustomBarChart(
-                            categoryPerformance: categoryPerformance!,
-                            allCategory: categories!,
-                          ),
-                        );
-                      } else {
-                        return const NodataWidget();
-                      }
-                    },
-                  );
-                },
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
               ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget middleTopRightComponet() {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: MyCommnonContainer(
-         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
-              offset: Offset(4, 4),
+              padding:
+                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+              child: Text(
+                "Order Status",
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
+              ),
             ),
-          ],
-          borderRadius: 25,
-        height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
-        padding: nkRegularPadding(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Revenue',
-              style: cardHeadingTextStyle,
-            ),
-            Expanded(
+            Expanded(child: Padding(
+               padding: nkRegularPadding(),
               child: Consumer<DashboardProvider>(
                 builder: (context, provider, child) {
                   return FutureBuilder<model1.ResponseModell>(
@@ -588,103 +376,377 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             size: 20.0,
                           ),
                         );
-                      }
-      
-                      if (snapshot.hasError) {
+                      } else if (snapshot.hasError) {
                         return const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.error_outline,
                                   size: 50, color: Colors.red),
+                              SizedBox(height: 10),
                               Text(
-                                "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                textAlign: TextAlign.center,
-                              ),
+                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                  textAlign: TextAlign.center),
                             ],
                           ),
                         );
-                      }
-      
-                      if (!snapshot.hasData || snapshot.data?.revenue == null) {
-                        return const NodataWidget();
-                      }
-      
-                      final categoryPerformance = snapshot.data!.revenue;
-      
-                      // Check if booking or order revenue data is empty
-                      final bookingRevenueLength = categoryPerformance
-                                  ?.bookingRevenueData?.isNotEmpty ??
-                              false
-                          ? categoryPerformance?.bookingRevenueData?.last.total
-                          : 0.0;
-      
-                      final orderRevenueLast =
-                          categoryPerformance?.orderRevenueData?.isNotEmpty ??
-                                  false
-                              ? categoryPerformance
-                                  ?.orderRevenueData?.last.totalOrderRevenue
-                              : 0.0;
-                      if (bookingRevenueLength == 0.0 &&
-                          orderRevenueLast == 0.0) {
-                        return const NodataWidget();
-                      }
-      
-                      return Center(
-                        child: DoughnutDefault(
-                          categoryData: categoryPerformance!,
-                          booking: "Booking : 3",
-                          order: "Order : 3",
-                          aColor: Colors.blue,
-                          bColor: const Color(0xff1d3d63),
-                          sabik: const SizedBox.shrink(),
-                          sabik1: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                height: 11.9,
-                                width: 14.9,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff1d3d63),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1.0)),
+                      } else if (snapshot.hasData) {
+                        final categories = snapshot.data!.allCategory;
+                        final categoryPerformance = snapshot.data!.delivery;
+              
+                        if (categoryPerformance == null ||
+                            categoryPerformance.order!.totalOrders!.isEmpty) {
+                          return const NodataWidget();
+                        }
+              
+                        return Center(
+                          child: DoughnutDefaultDelivery(
+                            deliveryData: categoryPerformance,
+                            aColor: const Color(0xff142b33),
+                            bColor: const Color(0xff4455dd),
+                            sabik: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height:
+                                      ResponsiveInfo.isMobileDimension(context)
+                                          ? 11.5
+                                          : 11.9,
+                                  width: ResponsiveInfo.isMobileDimension(context)
+                                      ? 14.9
+                                      : 14.9,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xffc38a42),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 2),
-                              MyRegularText(
-                                label:
-                                    'Booking : ${formatAmount(bookingRevenueLength)}',
-                                color: secondaryTextColor,
-                                fontSize: 11.6,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              const SizedBox(
-                                width: 8.3,
-                              ),
-                              Container(
-                                height: 11.9,
-                                width: 14.9,
-                                decoration: const BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1.0)),
+                                const SizedBox(width: 2),
+                                MyRegularText(
+                                  label:
+                                      "Out for delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
+                                  fontSize: 11.6,
+                                  fontWeight: FontWeight.w600,
+                                  color: secondaryTextColor,
                                 ),
-                              ),
-                              const SizedBox(width: 2),
-                              MyRegularText(
-                                label:
-                                    'Order : ${formatAmount(orderRevenueLast)}',
-                                color: secondaryTextColor,
-                                fontSize: 11.6,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
+                                const SizedBox(width: 8.3),
+                                Container(
+                                  height: 11.9,
+                                  width: 14.9,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff33b4a8),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                MyRegularText(
+                                  label:
+                                      "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.delivered)}",
+                                  fontSize: 11.6,
+                                  fontWeight: FontWeight.w600,
+                                  color: secondaryTextColor,
+                                ),
+                              ],
+                            ),
+                            sabik1: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 11.9,
+                                  width: 14.9,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff142b33),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                MyRegularText(
+                                  label:
+                                      "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+                                  fontSize: 11.6,
+                                  fontWeight: FontWeight.w600,
+                                  color: secondaryTextColor,
+                                ),
+                                const SizedBox(width: 8.3),
+                                Container(
+                                  height: 11.9,
+                                  width: 14.9,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff4455dd),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                MyRegularText(
+                                  label:
+                                      "Packed : ${formatAmount(categoryPerformance.order!.totalOrders!.last.packedForDelivery)}",
+                                  fontSize: 11.6,
+                                  fontWeight: FontWeight.w600,
+                                  color: secondaryTextColor,
+                                ),
+                              ],
+                            ),
+                            cColor: const Color(0xffcc8f3d),
+                            dColor: const Color(0xff33b4a8),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        return const NodataWidget();
+                      }
                     },
                   );
                 },
+              ),
+            ))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget middleTopLeftComponet() {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
+        height: 300,
+        width: double.infinity,
+        isCommonBorder: true,
+        
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
+              ),
+              padding:
+                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+              child: Text(
+                projectionsVsActual,
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
+              ),
+            ),
+            nkMediumSizeBox(),
+            Expanded(
+              child: Padding(
+                padding: nkRegularPadding(),
+                child: Consumer<DashboardProvider>(
+                  builder: (context, provider, child) {
+                    return FutureBuilder<model1.ResponseModell>(
+                      future: provider.futureResponseModel,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: SpinKitFadingCube(
+                              color: primaryColor,
+                              size: 20.0,
+                            ),
+                          );
+                        } else if (snapshot.hasError || !snapshot.hasData) {
+                          final errorMessage = snapshot.error.toString();
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.error_outline,
+                                    size: 50, color: Colors.red),
+                                Text(
+                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
+                              ],
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          final categories = snapshot.data!.allCategory;
+                          final categoryPerformance =
+                              snapshot.data!.categoryPerformance;
+                
+                          return Center(
+                            child: CustomBarChart(
+                              categoryPerformance: categoryPerformance!,
+                              allCategory: categories!,
+                            ),
+                          );
+                        } else {
+                          return const NodataWidget();
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget middleTopRightComponet() {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: MyCommnonContainer(
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
+        height: 300,
+        width: double.infinity,
+        isCommonBorder: true,
+        
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
+              ),
+              padding:
+                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+              child: Text(
+                "Revenue",
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: nkRegularPadding(),
+                child: Consumer<DashboardProvider>(
+                  builder: (context, provider, child) {
+                    return FutureBuilder<model1.ResponseModell>(
+                      future: provider.futureResponseModel,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: SpinKitFadingCube(
+                              color: primaryColor,
+                              size: 20.0,
+                            ),
+                          );
+                        }
+                
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.error_outline,
+                                    size: 50, color: Colors.red),
+                                Text(
+                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                
+                        if (!snapshot.hasData || snapshot.data?.revenue == null) {
+                          return const NodataWidget();
+                        }
+                
+                        final categoryPerformance = snapshot.data!.revenue;
+                
+                        // Check if booking or order revenue data is empty
+                        final bookingRevenueLength = categoryPerformance
+                                    ?.bookingRevenueData?.isNotEmpty ??
+                                false
+                            ? categoryPerformance?.bookingRevenueData?.last.total
+                            : 0.0;
+                
+                        final orderRevenueLast =
+                            categoryPerformance?.orderRevenueData?.isNotEmpty ??
+                                    false
+                                ? categoryPerformance
+                                    ?.orderRevenueData?.last.totalOrderRevenue
+                                : 0.0;
+                        if (bookingRevenueLength == 0.0 &&
+                            orderRevenueLast == 0.0) {
+                          return const NodataWidget();
+                        }
+                
+                        return Center(
+                          child: DoughnutDefault(
+                            categoryData: categoryPerformance!,
+                            booking: "Booking : 3",
+                            order: "Order : 3",
+                            aColor: Colors.blue,
+                            bColor: const Color(0xff1d3d63),
+                            sabik: const SizedBox.shrink(),
+                            sabik1: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 11.9,
+                                  width: 14.9,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff1d3d63),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                MyRegularText(
+                                  label:
+                                      'Booking : ${formatAmount(bookingRevenueLength)}',
+                                  color: secondaryTextColor,
+                                  fontSize: 11.6,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                const SizedBox(
+                                  width: 8.3,
+                                ),
+                                Container(
+                                  height: 11.9,
+                                  width: 14.9,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                MyRegularText(
+                                  label:
+                                      'Order : ${formatAmount(orderRevenueLast)}',
+                                  color: secondaryTextColor,
+                                  fontSize: 11.6,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -754,10 +816,10 @@ class DashBoardMiddleWidget extends StatelessWidget {
       () => Padding(
         padding: const EdgeInsets.all(5.0),
         child: MyCommnonContainer(
-            boxShadow: [
+          boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+              blurRadius: 5,
               offset: Offset(4, 4),
             ),
           ],
@@ -767,7 +829,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
               : null,
           onTap: () {
             dashBoardController.selectedCommunicationIndex.value = index;
-        
+
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -886,7 +948,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         headingRowColor: WidgetStateProperty.resolveWith(
                           (states) => primaryColor.withOpacity(0.2),
                         ),
-                      
                         border: TableBorder.all(width: 0, color: white),
                         columns: const [
                           DataColumn(
@@ -1389,13 +1450,13 @@ class DashBoardMiddleWidget extends StatelessWidget {
       padding: const EdgeInsets.all(5.0),
       child: MyCommnonContainer(
         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
-              offset: Offset(4, 4),
-            ),
-          ],
-          borderRadius: 25,
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
         height: 300,
         isCommonBorder: true,
         padding: EdgeInsets.zero,
@@ -1403,15 +1464,22 @@ class DashBoardMiddleWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            nkSmallSizeBox(),
-            Row(
-              children: [
-                nkSmallSizeBox(),
-                const Text(
-                  'Frequently Bought Products',
-                  style: cardHeadingTextStyle,
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
                 ),
-              ],
+              ),
+              padding:
+                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+              child: Text(
+                "Frequently Bought Products",
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
+              ),
             ),
             nkSmallSizeBox(),
             Consumer<DashboardProvider>(
@@ -1547,8 +1615,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-
-
   void _fetchMoreMessages() async {
     if (isFetching) return;
     setState(() {
@@ -1600,17 +1666,17 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
   }
 
-void _scrollToBottom() {
-  Future.delayed(Duration(milliseconds: 100), () {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0.0, 
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  });
-}
+  void _scrollToBottom() {
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -1623,7 +1689,7 @@ void _scrollToBottom() {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(left: 10,right: 10),
+        padding: const EdgeInsets.only(left: 10, right: 10),
         child: Column(
           children: [
             Expanded(
@@ -1637,8 +1703,7 @@ void _scrollToBottom() {
                   return ListView.builder(
                     controller: _scrollController,
                     itemCount: messages.length + (isFetching ? 1 : 0),
-                    reverse:
-                        true, 
+                    reverse: true,
                     itemBuilder: (context, index) {
                       if (isFetching && index == messages.length) {
                         return CircleAvatar(
@@ -1684,7 +1749,7 @@ void _scrollToBottom() {
                                   : Radius.circular(10),
                             ),
                           ),
-                          child:Text(
+                          child: Text(
                             message.message,
                             softWrap: true,
                             style: TextStyle(fontSize: 16),
@@ -1697,7 +1762,7 @@ void _scrollToBottom() {
               ),
             ),
             Padding(
-               padding: const EdgeInsets.only(right: 5, left: 5),
+              padding: const EdgeInsets.only(right: 5, left: 5),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50),
@@ -1705,19 +1770,16 @@ void _scrollToBottom() {
                   border: Border.all(color: Colors.grey, width: 0.3),
                 ),
                 child: Padding(
-                   padding: const EdgeInsets.only(left: 10, right: 10),
+                  padding: const EdgeInsets.only(left: 10, right: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
-                          onTap: () {
-                            
-                          },
+                          onTap: () {},
                           child: Icon(
                             EneftyIcons.camera_outline,
                             size: 30,
                           )),
-                      
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(5.0),
@@ -1727,26 +1789,31 @@ void _scrollToBottom() {
                               hintText: 'Type your message here...',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 0.5),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 0.5),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                                borderSide:
+                                    BorderSide(color: Colors.blue, width: 1.0),
                               ),
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 15),
                             ),
                           ),
                         ),
                       ),
-                      
                       InkWell(
-                        onTap: () => _sendMessage(),
-                        child: Icon(EneftyIcons.send_3_outline,size: 30,))
+                          onTap: () => _sendMessage(),
+                          child: Icon(
+                            EneftyIcons.send_3_outline,
+                            size: 30,
+                          ))
                     ],
                   ),
                 ),
@@ -1776,10 +1843,10 @@ class _CommunicationsDisplayWidgetState
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: MyCommnonContainer(
-        boxShadow: [
+          boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2), 
-              blurRadius: 5, 
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+              blurRadius: 5,
               offset: Offset(4, 4),
             ),
           ],
@@ -1787,24 +1854,23 @@ class _CommunicationsDisplayWidgetState
           height: 300,
           isCommonBorder: true,
           padding: EdgeInsets.zero,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              width: double.maxFinite,
-              height: 40,
               decoration: BoxDecoration(
-                  color: Color(0xFF62a582),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
-              child: const Text(
-                'Communications',
-                style: TextStyle(
-                  fontFamily: fontFamilyName,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13.0,
-                  color: white,
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
                 ),
+              ),
+              padding:
+                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+              child: Text(
+                "Communication",
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
               ),
             ),
             Expanded(

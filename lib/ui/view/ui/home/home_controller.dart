@@ -197,7 +197,7 @@ class HomeController extends GetxController {
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
-      sideBarComponent(sidebarName[0], SIdeBarIcon.ic_dashboard),
+      sideBarComponent(sidebarName[0], Icons.dashboard),
       sideBarComponent(sidebarName[1], SIdeBarIcon.ic_customer_and_orders),
       sideBarComponent(sidebarName[2], SIdeBarIcon.ic_products),
       sideBarComponent(sidebarName[3], SIdeBarIcon.ic_pending_payment),
@@ -227,7 +227,6 @@ class HomeController extends GetxController {
       icon: iconData,
       onTap: () async {
         homeScaffoldKey.currentState?.closeDrawer();
-
         if (isLogout) {
           showDialog(
             context: context!,

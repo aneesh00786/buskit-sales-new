@@ -1362,14 +1362,11 @@ class Messages {
   final String message;
   final String source;
   final String salesman;
-
   Messages({
     required this.message,
     required this.source,
     required this.salesman,
   });
-
-  // If you want to access these properties as a map
   Map<String, dynamic> toMap() {
     return {
       'message': message,

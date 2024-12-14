@@ -147,7 +147,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           children: [
              Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
+                color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),
@@ -347,7 +347,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
+                color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),
@@ -528,7 +528,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
+                color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),
@@ -619,7 +619,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
+                color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),
@@ -946,9 +946,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         dataRowHeight: 0,
                         dividerThickness: 0,
                         headingRowColor: WidgetStateProperty.resolveWith(
-                          (states) => primaryColor.withOpacity(0.2),
+                          (states) => const Color.fromARGB(255, 205, 206, 208).withOpacity(0.2),
                         ),
-                        border: TableBorder.all(width: 0, color: white),
+                        border: TableBorder.all(width: 0, color: const Color.fromARGB(255, 238, 235, 235)),
                         columns: const [
                           DataColumn(
                             label: Expanded(
@@ -1466,7 +1466,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
+                color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),
@@ -1858,7 +1858,7 @@ class _CommunicationsDisplayWidgetState
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
+                color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),

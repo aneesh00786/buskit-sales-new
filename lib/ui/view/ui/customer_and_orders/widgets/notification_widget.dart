@@ -212,7 +212,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
                   radius: 8,
                   backgroundColor: Colors.red,
                   child: Text(
-                    '${calculateNotificationCount()}',
+                    '${calculateNotificationCount(notificationController)}',
                     style: const TextStyle(
                       fontSize: 10,
                       color: Colors.white,
@@ -227,9 +227,10 @@ class _NotificationWidgetState extends State<NotificationWidget> {
     });
   }
 
-  int calculateNotificationCount() {
+}
+  int calculateNotificationCount(NotificationController controller) {
     final mainNotification =
-        notificationController.recentOrderCountData.mainNotification;
+        controller.recentOrderCountData.mainNotification;
 
     if (mainNotification == null) {
       return 0; // Return 0 if `mainNotification` is null.
@@ -241,4 +242,3 @@ class _NotificationWidgetState extends State<NotificationWidget> {
         (mainNotification.processingOrders ?? 0) +
         (mainNotification.packedAndReadyForDelivery ?? 0);
   }
-}

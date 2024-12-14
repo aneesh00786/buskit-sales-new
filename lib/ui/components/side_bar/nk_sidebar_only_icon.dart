@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -200,10 +201,7 @@ Widget listComponent(SidebarXItem sideBarData, int index) {
                           radius: 10,
                           backgroundColor: Colors.red,
                           child: Text(
-                            notificationController.recentOrderCountData
-                                    .mainNotification!.recentOrders
-                                    ?.toString() ??
-                                '0',
+                            '${calculateNotificationCount(notificationController)}',
                             style: TextStyle(fontSize: 10, color: Colors.white),
                           ),
                         )

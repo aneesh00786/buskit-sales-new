@@ -673,7 +673,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                       response.touchedSection != null) {
                     final section = response.touchedSection!;
                     final PieChartSectionData touchedSectionData =
-                        section.touchedSection!;
+                        section.touchedSection??PieChartSectionData();
                     final title = touchedSectionData.value ==
                             orderProcessingValue
                         ? 'Order Processing'

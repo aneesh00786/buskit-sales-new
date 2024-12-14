@@ -97,6 +97,16 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
   Widget build(BuildContext context) {
     final isSpecificData = widget.selectedTabIndex == 0;
     double totalWidth = MediaQuery.of(context).size.width;
+    double tax = double.tryParse(isSpecificData
+            ? widget.specificData?.cart?.first.tax ?? '0'
+            : widget.invoiceData?.cart?.first.tax ?? '0') ??
+        0.0;
+
+    num orderTotal = isSpecificData
+        ? widget.specificData?.orderTotal ?? 0.0
+        : widget.invoiceData?.orderTotal ?? 0.0;
+
+    double calculatedAmount = (tax * orderTotal) / 100;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -260,7 +270,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                           ? TextField(
                                               controller:
                                                   _priceControllers[index],
-                                                  readOnly: true,
+                                              readOnly: true,
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor:
@@ -305,8 +315,9 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     Center(
                                       child: isSpecificData
                                           ? Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: TextField(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: TextField(
                                                 controller:
                                                     _quantityControllers[index],
                                                 readOnly: true,
@@ -319,7 +330,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                       const EdgeInsets.all(8),
                                                   border: OutlineInputBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(8),
+                                                        BorderRadius.circular(
+                                                            8),
                                                     borderSide: BorderSide.none,
                                                   ),
                                                 ),
@@ -327,10 +339,11 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                 keyboardType:
                                                     TextInputType.number,
                                                 onChanged: (value) {
-                                                  final originalQuantity = widget
-                                                      .specificData!
-                                                      .cart![index]
-                                                      .quantity;
+                                                  final originalQuantity =
+                                                      widget
+                                                          .specificData!
+                                                          .cart![index]
+                                                          .quantity;
                                                   if (value !=
                                                       originalQuantity
                                                           ?.toString()) {
@@ -344,7 +357,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                   _updateTotalPrice(index);
                                                 },
                                               ),
-                                          )
+                                            )
                                           : Text(widget.invoiceData
                                                   ?.cart?[index].quantity
                                                   ?.toString() ??
@@ -383,9 +396,12 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                         isSpecificData
                                             ? formatAmount(_totalPrices[index])
                                             : formatAmount((widget.invoiceData!
-                                                    .cart![index].price)??0 *
-                                                (widget.invoiceData!
-                                                    .cart![index].quantity)!),
+                                                    .cart![index].price) ??
+                                                0 *
+                                                    (widget
+                                                        .invoiceData!
+                                                        .cart![index]
+                                                        .quantity)!),
                                       ),
                                     ),
                                   ),
@@ -429,7 +445,20 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     : widget.invoiceData!.cart!.first.tax) !=
                                 null
                             ? formatAmount(
-                                '${(isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) * (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0) / 100}')
+                                (double.tryParse(isSpecificData
+                                            ? widget.specificData?.cart?.first
+                                                    .tax ??
+                                                '0'
+                                            : widget.invoiceData?.cart?.first
+                                                    .tax ??
+                                                '0') ??
+                                        0.0) *
+                                    (isSpecificData
+                                        ? widget.specificData?.orderTotal ?? 0.0
+                                        : widget.invoiceData?.orderTotal ??
+                                            0.0) /
+                                    100,
+                              )
                             : formatAmount(isSpecificData
                                 ? widget.specificData!.orderTotal ?? 0
                                 : widget.invoiceData!.orderTotal ?? 0),
@@ -443,7 +472,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                     Row(
                       children: [
                         Text(
-                          '${isSpecificData ? widget.specificData!.cart!.first.taxName : widget.invoiceData!.cart!.first.taxName} - ${isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax} %',
+                          '${formatAmount(calculatedAmount.toStringAsFixed(2))} %',
                           style: TextStyle(
                             color: black,
                             fontSize: 14,
@@ -452,7 +481,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         ),
                         Spacer(),
                         Text(
-                            '${(isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) * (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0) / 100}'),
+                          '${((double.tryParse(isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) ?? 0.0) * (isSpecificData ? widget.specificData!.orderTotal ?? 0.0 : widget.invoiceData!.orderTotal ?? 0.0) / 100).toStringAsFixed(2)}',
+                        ),
                       ],
                     ),
                   ],
@@ -469,15 +499,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       ),
                       const Spacer(),
                       Text(
-                        (isSpecificData
-                                    ? widget.specificData!.cart!.first.tax
-                                    : widget.invoiceData!.cart!.first.tax) !=
-                                null
-                            ? formatAmount(
-                                '${(isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) * (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0) / 100}')
-                            : formatAmount(isSpecificData
-                                ? widget.specificData!.orderTotal ?? 0
-                                : widget.invoiceData!.orderTotal ?? 0),
+                        '${formatAmount(calculatedAmount.toStringAsFixed(2))}%',
                         style: const TextStyle(
                           fontSize: 16,
                           color: red,
@@ -490,287 +512,291 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               ),
             ),
             const SizedBox(height: 16),
-           widget.selectedTabIndex==1? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (widget.selectedTabIndex == 0 && !isRejecting) ...[
-                  CustomButton(
-                    text: 'Accept',
-                    onPressed: () {
-                      if (isChanged) {
-                        // Update specificData with the modified values
-                        if (widget.specificData != null) {
-                          for (int i = 0;
-                              i < widget.specificData!.cart!.length;
-                              i++) {
-                            // Update price and quantity in specificData's cart
-                            widget.specificData!.cart![i].price =
-                                _priceControllers[i].text ??
-                                    widget.specificData!.cart![i].price;
-                            widget.specificData!.cart![i].quantity =
-                                int.tryParse(_quantityControllers[i].text) ??
-                                    widget.specificData!.cart![i].quantity;
-                          }
-
-                          // Add the updated specificData to _updatedOrder
-                          setState(() {
-                            _updatedOrder.add(widget.specificData!);
-                            isChanged = false;
-                          });
-                        }
-                      }
-
-                      String jsonOrder = jsonEncode(_updatedOrder
-                          .map((order) => order.toJson())
-                          .toList());
-                      log("JSON Order: $jsonOrder");
-
-                      // log(jsonOrder);
-
-                      // Call the existing action for accepting the order
-                      widget.orderController.acceptButtonAction(
-                        context: context,
-                        orderId: widget.specificData!.orderId.toString(),
-                        updatedOrders: _updatedOrder, // Pass the list directly
-                      );
-
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Reject',
-                    onPressed: () {
-                      setState(() {
-                        isRejecting = true;
-                      });
-                    },
-                  ),
-                  if (isChanged) ...[
-                    nkMediumSizeBox(),
-                    CustomButton(
-                      text: 'Send for Customer Approval',
-                      onPressed: () {
-                        if (isChanged) {
-                          // Update specificData with the modified values
-                          if (widget.specificData != null) {
-                            for (int i = 0;
-                                i < widget.specificData!.cart!.length;
-                                i++) {
-                              // Update price and quantity in specificData's cart
-                              widget.specificData!.cart![i].price =
-                                  _priceControllers[i].text ??
-                                      widget.specificData!.cart![i].price;
-                              widget.specificData!.cart![i].quantity =
-                                  int.tryParse(_quantityControllers[i].text) ??
+            widget.selectedTabIndex == 1
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (widget.selectedTabIndex == 0 && !isRejecting) ...[
+                        CustomButton(
+                          text: 'Accept',
+                          onPressed: () {
+                            if (isChanged) {
+                              if (widget.specificData != null) {
+                                for (int i = 0;
+                                    i < widget.specificData!.cart!.length;
+                                    i++) {
+                                  widget.specificData!.cart![i].price =
+                                      _priceControllers[i].text ??
+                                          widget.specificData!.cart![i].price;
+                                  widget.specificData!.cart![i]
+                                      .quantity = int.tryParse(
+                                          _quantityControllers[i].text) ??
                                       widget.specificData!.cart![i].quantity;
+                                }
+                                setState(() {
+                                  _updatedOrder.add(widget.specificData!);
+                                  isChanged = false;
+                                });
+                              }
                             }
 
-                            // Add the updated specificData to _updatedOrder
+                            String jsonOrder = jsonEncode(_updatedOrder
+                                .map((order) => order.toJson())
+                                .toList());
+                            log("JSON Order: $jsonOrder");
+
+                            // log(jsonOrder);
+
+                            // Call the existing action for accepting the order
+                            widget.orderController.acceptButtonAction(
+                              context: context,
+                              orderId: widget.specificData!.orderId.toString(),
+                              updatedOrders:
+                                  _updatedOrder, // Pass the list directly
+                            );
+
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                        nkMediumSizeBox(),
+                        CustomButton(
+                          text: 'Reject',
+                          onPressed: () {
                             setState(() {
-                              _updatedOrder.add(widget.specificData!);
-                              isChanged = false;
+                              isRejecting = true;
                             });
-                          }
-                        }
+                          },
+                        ),
+                        if (isChanged) ...[
+                          nkMediumSizeBox(),
+                          CustomButton(
+                            text: 'Send for Customer Approval',
+                            onPressed: () {
+                              if (isChanged) {
+                                // Update specificData with the modified values
+                                if (widget.specificData != null) {
+                                  for (int i = 0;
+                                      i < widget.specificData!.cart!.length;
+                                      i++) {
+                                    // Update price and quantity in specificData's cart
+                                    widget.specificData!.cart![i].price =
+                                        _priceControllers[i].text ??
+                                            widget.specificData!.cart![i].price;
+                                    widget.specificData!.cart![i]
+                                        .quantity = int.tryParse(
+                                            _quantityControllers[i].text) ??
+                                        widget.specificData!.cart![i].quantity;
+                                  }
 
-                        String jsonOrder = jsonEncode(_updatedOrder
-                            .map((order) => order.toJson())
-                            .toList());
-                        log("JSON Order: $jsonOrder");
+                                  // Add the updated specificData to _updatedOrder
+                                  setState(() {
+                                    _updatedOrder.add(widget.specificData!);
+                                    isChanged = false;
+                                  });
+                                }
+                              }
 
-                        // log(jsonOrder);
+                              String jsonOrder = jsonEncode(_updatedOrder
+                                  .map((order) => order.toJson())
+                                  .toList());
+                              log("JSON Order: $jsonOrder");
 
-                        // Call the existing action for accepting the order
-                        widget.orderController
-                            .sendForCustomerApprovalButtonAction(
-                          context: context,
-                          orderId: widget.specificData!.orderId.toString(),
-                          updatedOrders:
-                              _updatedOrder, // Pass the list directly
-                        );
+                              // log(jsonOrder);
 
-                        // Pop the screen after the action is completed
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                ],
-                if (widget.selectedTabIndex == 0 && isRejecting) ...[
-                  Expanded(
-                    child: TextField(
-                      controller: rejectionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rejection Reason',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Confirm Reject',
-                    onPressed: () {
-                      widget.orderController.rejectButtonAction(
-                        context: context,
-                        orderId: widget.specificData!.orderId.toString(),
-                        reason: rejectionController.text,
-                      );
-                      String rejectionReason = rejectionController.text.trim();
-                      if (rejectionReason.isNotEmpty) {
-                        setState(() {
-                          isRejecting = false;
-                        });
-                      }
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 1 && !isRejecting) ...[
-                  CustomButton(
-                    text: 'Accept',
-                    onPressed: () {
-                      widget.orderController.acceptButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                      );
-                    },
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Reject',
-                    onPressed: () {
-                      setState(() {
-                        isRejecting = true;
-                      });
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 1 && isRejecting) ...[
-                  Expanded(
-                    child: TextField(
-                      controller: rejectionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rejection Reason',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Confirm Reject',
-                    onPressed: () {
-                      widget.orderController.rejectButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                        reason: rejectionController.text,
-                      );
-                      String rejectionReason = rejectionController.text.trim();
-                      if (rejectionReason.isNotEmpty) {
-                        setState(() {
-                          isRejecting = false;
-                        });
-                      }
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 2 && !isRejecting) ...[
-                  CustomButton(
-                    text: 'Accept',
-                    onPressed: () {
-                      widget.orderController.acceptButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                      );
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Reject',
-                    onPressed: () {
-                      setState(() {
-                        isRejecting = true;
-                      });
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 2 && isRejecting) ...[
-                  Expanded(
-                    child: TextField(
-                      controller: rejectionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rejection Reason',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Confirm Reject',
-                    onPressed: () {
-                      widget.orderController.rejectButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                        reason: rejectionController.text,
-                      );
-                      String rejectionReason = rejectionController.text.trim();
-                      if (rejectionReason.isNotEmpty) {
-                        setState(() {
-                          isRejecting = false;
-                        });
-                      }
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 3) ...[
-                  CustomButton(
-                    text: 'Packed and Ready',
-                    onPressed: () {
-                      widget.orderController.addToPackedAndReady(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                        cartid: widget.invoiceData!.cartId.toString(),
-                      );
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 4) ...[
-                  CustomButton(
-                    text: 'Deliver',
-                    onPressed: () {
-                      widget.orderController.deliverButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                      );
-                      // Pop the screen after the action is completed
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 6) ...[
-                  const Text('Rejection Reason : '),
-                  nkMediumSizeBox(),
-                  Text(widget.invoiceData!.rejectionReason.toString()),
-                  nkMediumSizeBox(),
-                  Text(NKDateUtils.commonDayFormat2(
-                      NKDateUtils.formatStringUTCDateTime(
-                          widget.invoiceData!.rejectedDate.toString()))),
-                ],
-              ],
-            ):Container()
+                              // Call the existing action for accepting the order
+                              widget.orderController
+                                  .sendForCustomerApprovalButtonAction(
+                                context: context,
+                                orderId:
+                                    widget.specificData!.orderId.toString(),
+                                updatedOrders:
+                                    _updatedOrder, // Pass the list directly
+                              );
+
+                              // Pop the screen after the action is completed
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ],
+                      if (widget.selectedTabIndex == 0 && isRejecting) ...[
+                        Expanded(
+                          child: TextField(
+                            controller: rejectionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Rejection Reason',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        nkMediumSizeBox(),
+                        CustomButton(
+                          text: 'Confirm Reject',
+                          onPressed: () {
+                            widget.orderController.rejectButtonAction(
+                              context: context,
+                              orderId: widget.specificData!.orderId.toString(),
+                              reason: rejectionController.text,
+                            );
+                            String rejectionReason =
+                                rejectionController.text.trim();
+                            if (rejectionReason.isNotEmpty) {
+                              setState(() {
+                                isRejecting = false;
+                              });
+                            }
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 1 && !isRejecting) ...[
+                        CustomButton(
+                          text: 'Accept',
+                          onPressed: () {
+                            widget.orderController.acceptButtonAction(
+                              context: context,
+                              orderId: widget.invoiceData!.orderId.toString(),
+                            );
+                          },
+                        ),
+                        nkMediumSizeBox(),
+                        CustomButton(
+                          text: 'Reject',
+                          onPressed: () {
+                            setState(() {
+                              isRejecting = true;
+                            });
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 1 && isRejecting) ...[
+                        Expanded(
+                          child: TextField(
+                            controller: rejectionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Rejection Reason',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        nkMediumSizeBox(),
+                        CustomButton(
+                          text: 'Confirm Reject',
+                          onPressed: () {
+                            widget.orderController.rejectButtonAction(
+                              context: context,
+                              orderId: widget.invoiceData!.orderId.toString(),
+                              reason: rejectionController.text,
+                            );
+                            String rejectionReason =
+                                rejectionController.text.trim();
+                            if (rejectionReason.isNotEmpty) {
+                              setState(() {
+                                isRejecting = false;
+                              });
+                            }
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 2 && !isRejecting) ...[
+                        CustomButton(
+                          text: 'Accept',
+                          onPressed: () {
+                            widget.orderController.acceptButtonAction(
+                              context: context,
+                              orderId: widget.invoiceData!.orderId.toString(),
+                            );
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                        nkMediumSizeBox(),
+                        CustomButton(
+                          text: 'Reject',
+                          onPressed: () {
+                            setState(() {
+                              isRejecting = true;
+                            });
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 2 && isRejecting) ...[
+                        Expanded(
+                          child: TextField(
+                            controller: rejectionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Rejection Reason',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        nkMediumSizeBox(),
+                        CustomButton(
+                          text: 'Confirm Reject',
+                          onPressed: () {
+                            widget.orderController.rejectButtonAction(
+                              context: context,
+                              orderId: widget.invoiceData!.orderId.toString(),
+                              reason: rejectionController.text,
+                            );
+                            String rejectionReason =
+                                rejectionController.text.trim();
+                            if (rejectionReason.isNotEmpty) {
+                              setState(() {
+                                isRejecting = false;
+                              });
+                            }
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 3) ...[
+                        CustomButton(
+                          text: 'Packed and Ready',
+                          onPressed: () {
+                            widget.orderController.addToPackedAndReady(
+                              context: context,
+                              orderId: widget.invoiceData!.orderId.toString(),
+                              cartid: widget.invoiceData!.cartId.toString(),
+                            );
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 4) ...[
+                        CustomButton(
+                          text: 'Deliver',
+                          onPressed: () {
+                            widget.orderController.deliverButtonAction(
+                              context: context,
+                              orderId: widget.invoiceData!.orderId.toString(),
+                            );
+                            // Pop the screen after the action is completed
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                      if (widget.selectedTabIndex == 6) ...[
+                        const Text('Rejection Reason : '),
+                        nkMediumSizeBox(),
+                        Text(widget.invoiceData!.rejectionReason.toString()),
+                        nkMediumSizeBox(),
+                        Text(NKDateUtils.commonDayFormat2(
+                            NKDateUtils.formatStringUTCDateTime(
+                                widget.invoiceData!.rejectedDate.toString()))),
+                      ],
+                    ],
+                  )
+                : Container()
           ],
         ),
       ),
     );
   }
 }
-

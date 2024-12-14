@@ -98,6 +98,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           count: orderCountList.totalOrder.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
+          color: Color.fromARGB(255, 55, 74, 134),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.delivered);
 
@@ -110,6 +111,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           count: orderCountList.estimateOrder.toString(),
           svg: Assets.iconsIcDashboardEstimates,
           svgBgColor: const Color.fromARGB(255, 226, 249, 243),
+          color: Color.fromARGB(255, 36, 108, 44),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.estimates);
 
@@ -122,6 +124,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           count: orderCountList.preorderOrder.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
           svgBgColor: const Color.fromARGB(255, 230, 247, 251),
+          color: Color.fromARGB(255, 45, 104, 116),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
 
@@ -133,6 +136,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           count: orderCountList.draftOrder.toString(),
           svg: Assets.iconsIcDashboardDraft,
           svgBgColor: const Color.fromARGB(255, 255, 227, 255),
+          color: Color.fromARGB(255, 100, 43, 109),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.draft);
 
@@ -144,6 +148,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           count: orderCountList.cancelOrder.toString(),
           svg: Assets.iconsIcDashboardCancel,
           svgBgColor: const Color.fromARGB(255, 255, 228, 228),
+          color: Color.fromARGB(255, 139, 27, 27),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
 
@@ -169,46 +174,62 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           vertical: 0,
           horizontal: AppDimensions.instance!.width * 0.001,
         ),
-        padding: nkLargePadding(),
-        isCommonBorder: true,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-                  decoration: BoxDecoration(
-                    color: optionData.svgBgColor,
-                    borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: svgComponent,
-                  ),
-                  ),
-            Flexible(
-              child: Wrap(
-                direction: Axis.vertical,
-                children: [
-                  MyRegularText(
-                    label: optionData.title,
-                    fontSize: (MediaQuery.of(context).orientation ==
-                            Orientation.portrait)
-                        ? (ResponsiveInfo.isMobileDimension(context) ? 4.9 : 12)
-                        : (ResponsiveInfo.isMobileDimension(context) ? 7 : 12),
-                    fontWeight: FontWeight.w600,
-                    color: secondaryTextColor,
-                    //maxLines: optionData.title.length,
-                  ),
-                  MyRegularText(
-                    label: _getCountForTitle(optionData.title, orderCountList),
-                    fontSize:
-                        ResponsiveInfo.isMobileDimension(context) ? 7.7 : 12.3,
-                    fontWeight: FontWeight.w600,
-                    color: secondaryTextColor,
-                  ),
-                ],
-              ),
+        boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+              blurRadius: 2,
+              offset: Offset(4, 4),
             ),
           ],
+        borderRadius: 20,
+        padding: nkLargePadding(),
+        isCommonBorder: true,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                    decoration: BoxDecoration(
+                      color: optionData.svgBgColor,
+                      borderRadius: BorderRadius.circular(15)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: svgComponent,
+                    ),
+                    ),
+              Flexible(
+                child: Wrap(
+                  direction: Axis.vertical,
+                  children: [
+                     CustomText(
+                          content: optionData.title,
+                          fontSize: (MediaQuery.of(context).orientation ==
+                                  Orientation.portrait)
+                              ? (ResponsiveInfo.isMobileDimension(context)
+                                  ? 4.9
+                                  : 13)
+                              : (ResponsiveInfo.isMobileDimension(context)
+                                  ? 7
+                                  : 13),
+                          fontWeight: FontWeight.w600,
+                          color: secondaryTextColor,
+                          //maxLines: optionData.title.length,
+                        ),
+                    CustomText(
+                      content: _getCountForTitle(optionData.title, orderCountList),
+                      fontSize: ResponsiveInfo.isMobileDimension(context)
+                            ? 7.7
+                            : 15.3,
+                      fontWeight: FontWeight.w600,
+                      color:  optionData.color,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -975,6 +996,7 @@ class OptionData {
   String count;
   String svg;
   Color svgBgColor;
+  Color? color;
   VoidCallback? onTap;
 
   OptionData({
@@ -983,6 +1005,7 @@ class OptionData {
     required this.svg,
     required this.svgBgColor,
     this.onTap,
+    this.color,
   });
 }
 

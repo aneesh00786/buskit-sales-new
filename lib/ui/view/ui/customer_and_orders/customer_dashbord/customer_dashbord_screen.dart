@@ -381,9 +381,17 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Expanded Category(BuildContext context) {
     return Expanded(
         child: Padding(
-      padding: const EdgeInsets.all(1.0),
+      padding: const EdgeInsets.all(5.0),
       child: MyCommnonContainer(
-        height: 280,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
+        height: 300,
         width: double.infinity,
         isCommonBorder: true,
         padding: nkRegularPadding(),
@@ -511,7 +519,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
       child: MyCommnonContainer(
-        height: 280,
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
+        height: 300,
         isCommonBorder: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -1417,87 +1433,99 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 final remaCompleted = categoryPerformance
                     .data.totalSale.paymentRemaining.totalAmount;
 
-                return MyCommnonContainer(
-                  height: 280,
-                  width: double.infinity,
-                  isCommonBorder: true,
-                  padding: nkRegularPadding(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 240,
-                            height: 27,
-                            child: TabBar(
-                              controller: _tabController,
-                              indicatorColor: primaryColor,
-                              labelColor: primaryColor,
-                              unselectedLabelColor: Colors.black,
-                              tabs: const [
-                                Tab(
-                                  child: Text(
-                                    'Revenue',
-                                    style: tabTextStyle,
-                                  ),
-                                ),
-                                Tab(
-                                  child: Text(
-                                    'Customer Offer',
-                                    style: tabTextStyle,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            height: 26,
-                            padding: const EdgeInsets.only(left: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xffeef2f7),
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                            child: DropdownButton<int>(
-                              iconSize: 18,
-                              value: selectedYear,
-                              underline: Container(),
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedYear = newValue!;
-                                  Provider.of<CustomersProvider>(context,
-                                          listen: false)
-                                      .fetchCustomerDashboardDataSalseData(
-                                          productsController
-                                              .selectedCategoryId.value,
-                                          selectedYear);
-                                });
-                              },
-                              items: provider.yearList
-                                  .map((item) => DropdownMenuItem<int>(
-                                        value: item.year,
-                                        child: Text(
-                                          item.year.toString(),
-                                          style: cardHeadingTextStyle,
-                                        ),
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            TotalSalse(context),
-                            TotalSalseCustomers(context),
-                          ],
-                        ),
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: MyCommnonContainer(
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color.fromARGB(255, 211, 211, 211)
+                            .withOpacity(0.2),
+                        blurRadius: 5,
+                        offset: Offset(4, 4),
                       ),
                     ],
+                    borderRadius: 25,
+                    height: 320,
+                    width: double.infinity,
+                    isCommonBorder: true,
+                    padding: nkRegularPadding(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 240,
+                              height: 27,
+                              child: TabBar(
+                                controller: _tabController,
+                                indicatorColor: primaryColor,
+                                labelColor: primaryColor,
+                                unselectedLabelColor: Colors.black,
+                                tabs: const [
+                                  Tab(
+                                    child: Text(
+                                      'Revenue',
+                                      style: tabTextStyle,
+                                    ),
+                                  ),
+                                  Tab(
+                                    child: Text(
+                                      'Customer Offer',
+                                      style: tabTextStyle,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              height: 26,
+                              padding: const EdgeInsets.only(left: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffeef2f7),
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              child: DropdownButton<int>(
+                                iconSize: 18,
+                                value: selectedYear,
+                                underline: Container(),
+                                onChanged: (int? newValue) {
+                                  setState(() {
+                                    selectedYear = newValue!;
+                                    Provider.of<CustomersProvider>(context,
+                                            listen: false)
+                                        .fetchCustomerDashboardDataSalseData(
+                                            productsController
+                                                .selectedCategoryId.value,
+                                            selectedYear);
+                                  });
+                                },
+                                items: provider.yearList
+                                    .map((item) => DropdownMenuItem<int>(
+                                          value: item.year,
+                                          child: Text(
+                                            item.year.toString(),
+                                            style: cardHeadingTextStyle,
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              TotalSalse(context),
+                              TotalSalseCustomers(context),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               } else {
@@ -1510,7 +1538,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   Widget TotalSalse(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(5.0),
       child: Consumer<CustomersProvider>(
         builder: (context, provider, child) {
           return FutureBuilder<CustomerRevenueResponse>(
@@ -1619,7 +1647,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
 
     return MyCommnonContainer(
-      height: 280,
+      boxShadow: [
+        BoxShadow(
+          color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+          blurRadius: 5,
+          offset: Offset(4, 4),
+        ),
+      ],
+      borderRadius: 25,
+      height: 320,
       isCommonBorder: true,
       margin: EdgeInsets.zero,
       child: Column(
@@ -1649,6 +1685,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               child: DataTable(
                                 horizontalMargin: 6,
                                 headingRowHeight: 30,
+                                headingRowColor:
+                                    WidgetStateProperty.resolveWith(
+                                  (states) =>
+                                      const Color.fromARGB(255, 205, 206, 208)
+                                          .withOpacity(0.2),
+                                ),
                                 dataRowHeight: 0,
                                 dividerThickness: 0,
                                 border: TableBorder.all(

@@ -97,7 +97,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           title: 'Orders',
           count: orderCountList.totalOrder.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
-          svgBgColor: const Color(0xFFFCDABD),
+          svgBgColor: const Color.fromARGB(255, 229, 242, 254),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.delivered);
 
@@ -109,7 +109,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           title: 'Estimates',
           count: orderCountList.estimateOrder.toString(),
           svg: Assets.iconsIcDashboardEstimates,
-          svgBgColor: const Color(0xFFC3DDFD),
+          svgBgColor: const Color.fromARGB(255, 226, 249, 243),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.estimates);
 
@@ -121,7 +121,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           title: 'Pre-Orders',
           count: orderCountList.preorderOrder.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
-          svgBgColor: const Color(0xFFAFECEF),
+          svgBgColor: const Color.fromARGB(255, 230, 247, 251),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
 
@@ -132,7 +132,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           title: 'Draft',
           count: orderCountList.draftOrder.toString(),
           svg: Assets.iconsIcDashboardDraft,
-          svgBgColor: const Color(0xFFBCF0DA),
+          svgBgColor: const Color.fromARGB(255, 255, 227, 255),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.draft);
 
@@ -142,8 +142,8 @@ class OptionWidgetCustomerDash extends StatelessWidget {
         OptionData(
           title: 'Cancelled',
           count: orderCountList.cancelOrder.toString(),
-          svg: Assets.iconsIcDashboardDraft,
-          svgBgColor: const Color(0xFFBCF0DA),
+          svg: Assets.iconsIcDashboardCancel,
+          svgBgColor: const Color.fromARGB(255, 255, 228, 228),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
 
@@ -155,7 +155,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
 
   Widget orderOptions(
       OptionData optionData, OrderDataas orderCountList, BuildContext context) {
-    SvgPicture svgComponent = SvgPicture.asset(
+        Image svgComponent = Image.asset(
       optionData.svg,
       height: AppDimensions.instance!.height * 0.03,
       fit: BoxFit.contain,
@@ -175,15 +175,15 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ClipOval(
-              child: ColoredBox(
-                color: optionData.svgBgColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: svgComponent,
-                ),
-              ),
-            ),
+            Container(
+                  decoration: BoxDecoration(
+                    color: optionData.svgBgColor,
+                    borderRadius: BorderRadius.circular(15)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: svgComponent,
+                  ),
+                  ),
             Flexible(
               child: Wrap(
                 direction: Axis.vertical,

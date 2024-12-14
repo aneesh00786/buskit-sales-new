@@ -189,7 +189,7 @@ class OptionWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15)),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Image.asset(optionData.svg,height: 30,),
+                    child: svgComponent,
                   ),
                   ),
                 Flexible(

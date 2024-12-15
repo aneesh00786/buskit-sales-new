@@ -69,16 +69,17 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
                           );
                         } else if (snapshot.hasError || !snapshot.hasData) {
                           return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.error_outline,
-                                    size: 50, color: Colors.red),
-                                Text(
-                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                ),
-                              ],
-                            ),
+                            child: NodataWidget(),
+                            // child: Column(
+                            //   mainAxisAlignment: MainAxisAlignment.center,
+                            //   children: [
+                            //     Icon(Icons.error_outline,
+                            //         size: 50, color: Colors.red),
+                            //     Text(
+                            //       "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                            //     ),
+                            //   ],
+                            // ),
                           );
                         } else if (snapshot.hasData) {
                           final categories = snapshot.data!.allCategory;

@@ -31,20 +31,18 @@ class PerformanceWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
           Container(
             height: 50,
             width: 50,
             decoration: BoxDecoration(
               color: svgBgColor,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(20)
             ),
             child: Center(
-              child: SvgPicture.asset(
+              child: Image.asset(
                 svg,
                 width: 24,
                 height: 24,
-                color: Colors.white,
               ),
             ),
           ),

@@ -1736,7 +1736,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: isSentBySalesman
-                                ? Colors.green[100]
+                                ? const Color.fromARGB(255, 206, 241, 219)
                                 : Colors.grey[100],
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -1761,61 +1761,74 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 5, left: 5),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: const Color.fromARGB(255, 249, 249, 249),
-                  border: Border.all(color: Colors.grey, width: 0.3),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
+            Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 246, 246, 246),
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: const Color.fromARGB(255, 225, 225, 225) )
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 5,right: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: const Color.fromARGB(255, 204, 203, 203),
+                      radius: 25,
+                      child: InkWell(
                           onTap: () {},
-                          child: Icon(
-                            EneftyIcons.camera_outline,
-                            size: 30,
-                          )),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: TextField(
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              hintText: 'Type your message here...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.5),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide:
-                                    BorderSide(color: Colors.blue, width: 1.0),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 15),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Icon(
+                              EneftyIcons.camera_outline,
+                              color: white,
+                              size: 25,
                             ),
+                          )),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: TextField(
+                
+                          controller: _controller,
+                          decoration: InputDecoration(
+                            fillColor: white,
+                            filled:true,
+                            hintText: 'Type your message here...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 0.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 0.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide:
+                                  BorderSide(color: Colors.blue, width: 1.0),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
                           ),
                         ),
                       ),
-                      InkWell(
+                    ),
+                    CircleAvatar(
+                       backgroundColor: const Color.fromARGB(255, 167, 214, 225),
+                      radius: 25,
+                      child: InkWell(
                           onTap: () => _sendMessage(),
                           child: Icon(
                             EneftyIcons.send_3_outline,
-                            size: 30,
-                          ))
-                    ],
-                  ),
+                            size: 25,
+                            color: white,
+                          )),
+                    )
+                  ],
                 ),
               ),
             ),
@@ -1845,7 +1858,7 @@ class _CommunicationsDisplayWidgetState
       child: MyCommnonContainer(
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+              color: const Color.fromARGB(255, 205, 206, 208).withOpacity(0.2),
               blurRadius: 5,
               offset: Offset(4, 4),
             ),
@@ -1856,22 +1869,36 @@ class _CommunicationsDisplayWidgetState
           padding: EdgeInsets.zero,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+            Stack(
+              children: [
+                Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 224, 224, 226).withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                  ),
                 ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
-              child: Text(
-                "Communication",
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                  ),
+                  padding:
+                      const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  child: Text(
+                    "Communication",
+                    style: cardHeadingTextStyle,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
+                ),
+              ],
             ),
             Expanded(
               child: ChatScreen(),

@@ -21,8 +21,15 @@ class PerformanceWidget extends StatelessWidget {
       margin: const EdgeInsets.all(3.0),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: BoxDecoration(
+        boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+              blurRadius: 2,
+              offset: Offset(4, 4),
+            ),
+          ],
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Color.fromARGB(255, 205, 204, 204),
           width: 0.5,

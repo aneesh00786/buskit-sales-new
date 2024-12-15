@@ -38,81 +38,116 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         children: [
           OptionsWidget(options: defaultOption(context)),
           nkMediumSizeBox(),
-          Expanded(child: 
-          SingleChildScrollView(
+          Expanded(
+              child: SingleChildScrollView(
             child: Column(
               children: [
                 Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                height: 350,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 0.4,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    height: 350,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.grey,
+                        width: 0.4,
+                      ),
+                    ),
+                    child: Consumer<DashboardProvider>(
+                      builder: (context, provider, child) {
+                        return FutureBuilder<model1.ResponseModell>(
+                          future: provider.futureResponseModel,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(
+                                child: SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                ),
+                              );
+                            } else if (snapshot.hasError || !snapshot.hasData) {
+                              return const Center(
+                                child: NodataWidget(),
+                                // child: Column(
+                                //   mainAxisAlignment: MainAxisAlignment.center,
+                                //   children: [
+                                //     Icon(Icons.error_outline,
+                                //         size: 50, color: Colors.red),
+                                //     Text(
+                                //       "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                //     ),
+                                //   ],
+                                // ),
+                              );
+                            } else if (snapshot.hasData) {
+                              final categories = snapshot.data!.allCategory;
+                              final categoryPerformance =
+                                  snapshot.data!.categoryPerformance;
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color.fromARGB(
+                                              255, 211, 211, 211)
+                                          .withOpacity(0.2),
+                                      blurRadius: 4,
+                                      spreadRadius: 5,
+                                      offset: Offset(4, 4),
+                                    ),
+                                  ],
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Color.fromARGB(255, 205, 204, 204),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: CustomBarChart(
+                                  categoryPerformance: categoryPerformance!,
+                                  allCategory: categories!,
+                                ),
+                              );
+                            } else {
+                              return const NodataWidget();
+                            }
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ),
-                child: Consumer<DashboardProvider>(
-                  builder: (context, provider, child) {
-                    return FutureBuilder<model1.ResponseModell>(
-                      future: provider.futureResponseModel,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: SpinKitFadingCube(
-                              color: primaryColor,
-                              size: 20.0,
-                            ),
-                          );
-                        } else if (snapshot.hasError || !snapshot.hasData) {
-                          return const Center(
-                            child: NodataWidget(),
-                            // child: Column(
-                            //   mainAxisAlignment: MainAxisAlignment.center,
-                            //   children: [
-                            //     Icon(Icons.error_outline,
-                            //         size: 50, color: Colors.red),
-                            //     Text(
-                            //       "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                            //     ),
-                            //   ],
-                            // ),
-                          );
-                        } else if (snapshot.hasData) {
-                          final categories = snapshot.data!.allCategory;
-                          final categoryPerformance =
-                              snapshot.data!.categoryPerformance;
-                  
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: CustomBarChart(
-                              categoryPerformance: categoryPerformance!,
-                              allCategory: categories!,
-                            ),
-                          );
-                        } else {
-                          return const NodataWidget();
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-            nkMediumSizeBox(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: StaffTargetDialog(
-                staffController: staffController,
-              ),
-            )
+                nkMediumSizeBox(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color.fromARGB(255, 211, 211, 211)
+                              .withOpacity(0.2),
+                          blurRadius: 4,
+                          spreadRadius: 5,
+                          offset: Offset(4, 4),
+                        ),
+                      ],
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Color.fromARGB(255, 205, 204, 204),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: StaffTargetDialog(
+                      staffController: staffController,
+                    ),
+                  ),
+                )
               ],
             ),
-          )
-          )
+          ))
         ],
       ),
     );

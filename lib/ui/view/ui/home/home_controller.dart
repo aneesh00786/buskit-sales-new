@@ -298,6 +298,8 @@ class HomeController extends GetxController {
                 iconData,
                 size: 20,
                 color: Colors.black.withOpacity(0.4),
+                weight: 700,
+                
               ),
               const SizedBox(width: 20),
               Stack(

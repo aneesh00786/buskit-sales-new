@@ -540,12 +540,14 @@ class ApiService {
       "customer_id": cusId,
       "salesman_id": salesmanId,
       "order_type": orderStatusString,
+      "companyId":companyId,
       "payment_type": "3",
       "start_date": startDate,
       "end_date": endDate,
       "limit": 10,
       "page": 1,
     };
+    log("Customer ID $cusId");
 
     try {
       final response = await http.post(

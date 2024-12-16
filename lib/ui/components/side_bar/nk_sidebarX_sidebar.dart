@@ -106,8 +106,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                 ),
                 Center(
                   child: Container(
-                    height: ResponsiveInfo.isMobile() ? 60 : 75,
-                    width: ResponsiveInfo.isMobile() ? 60 : 75,
+                    height: ResponsiveInfo.isMobile() ? 60 : 85,
+                    width: ResponsiveInfo.isMobile() ? 60 : 85,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(

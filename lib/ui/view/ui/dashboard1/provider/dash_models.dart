@@ -1361,9 +1361,11 @@ class SalesmanChat {
 class Messages {
   final String message;
   final String source;
+    final String? image;
   final String salesman;
   Messages({
     required this.message,
+    this.image,
     required this.source,
     required this.salesman,
   });
@@ -1371,6 +1373,7 @@ class Messages {
     return {
       'message': message,
       'source': source,
+        'image': image,
       'salesman': salesman,
     };
   }
@@ -1381,6 +1384,7 @@ class Messages {
     return Messages(
       message: json['message'] ?? '',
       source: json['source'] ?? '',
+      image: json['image'] ?? '',
       salesman: json['salesman'] ?? '',
     );
   }

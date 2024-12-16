@@ -1593,6 +1593,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isFetching = false;
   bool noMoreData = false;
   int currentPage = 1;
+  File? _selectedImage;
   @override
   void initState() {
     super.initState();
@@ -1646,6 +1647,7 @@ class _ChatScreenState extends State<ChatScreen> {
     socket.on('chat message', (msg) {
       final newMessage = Messages(
         message: msg['message'],
+        image: msg['image'],
         source: msg['source'],
         salesman: msg['salesman'],
       );
@@ -1654,7 +1656,60 @@ class _ChatScreenState extends State<ChatScreen> {
       _scrollToBottom();
     });
   }
+    Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      setState(() {
+        _selectedImage = imageFile;
+      });
+    }
+  }
+    String? _prepareImage() {
+    if (_selectedImage == null) return null;
+
+    final fileBytes = _selectedImage!.readAsBytesSync();
+    final base64Image = base64Encode(fileBytes);
+
+    if (base64Image.length > 1000000) {
+      debugPrint('Image is too large to send');
+      return null;
+    }
+
+    // log(base64Image);
+    return base64Image;
+  }
+    Widget _buildMessageContent(Messages message) {
+    if (message.image != null && message.image!.isNotEmpty) {
+      try {
+        final imageBytes = base64Decode(message.image!);
+        return Image.memory(
+          imageBytes,
+          errorBuilder: (context, error, stackTrace) {
+            return Text(
+              'Failed to load image',
+              style: TextStyle(color: Colors.red),
+            );
+          },
+          width: MediaQuery.of(context).size.width * 0.5,
+        );
+      } catch (e) {
+        debugPrint("Error decoding image: $e");
+        return Text(
+          'Failed to load image',
+          style: TextStyle(color: Colors.red),
+        );
+      }
+    }
+
+    // If no image, return the text message
+    return Text(
+      message.message ?? '',
+      style: TextStyle(fontSize: 16),
+    );
+  }
   void _sendMessage() {
     String message = _controller.text.trim();
     if (message.isEmpty) return;
@@ -1662,6 +1717,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'message': message,
       'source': 'salesman',
       'salesman': salesmanId,
+       'image': _selectedImage != null ? _prepareImage() : null,
     });
     _controller.clear();
   }
@@ -1749,11 +1805,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   : Radius.circular(10),
                             ),
                           ),
-                          child: Text(
-                            message.message,
-                            softWrap: true,
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          child: _buildMessageContent(
+                                message),
                         ),
                       );
                     },
@@ -1761,12 +1814,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
+            if (_selectedImage != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  child: Image.file(
+                    _selectedImage!,
+                    
+                  ),
+                ),
+              ),
             Container(
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 246, 246, 246),
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(color: const Color.fromARGB(255, 225, 225, 225) )
               ),
+              
               child: Padding(
                 padding: const EdgeInsets.only(left: 5,right: 5),
                 child: Row(
@@ -1776,7 +1840,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       backgroundColor: const Color.fromARGB(255, 204, 203, 203),
                       radius: 25,
                       child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            _pickImage();
+                          },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Icon(

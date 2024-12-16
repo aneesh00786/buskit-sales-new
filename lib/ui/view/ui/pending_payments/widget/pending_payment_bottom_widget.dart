@@ -71,7 +71,7 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildHeader(BuildContext context) {
     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 7 : 11;
+    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 13;
     if (MediaQuery.of(context).orientation != Orientation.portrait) {
       headerHeight = ResponsiveInfo.isMobileDimension(context) ? 50 : 55;
       fontSize = ResponsiveInfo.isMobileDimension(context) ? 11 : 13;
@@ -114,15 +114,12 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildHeaderText(String text, double fontSize) {
     return Center(
-      child: Text(
-        text,
+      child: CustomText(
+        content: text,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Poppins_Regular',
-        ),
+        fontSize: fontSize,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
@@ -201,8 +198,8 @@ class _PendingPaymentBottomWidgetState
           const SizedBox(width: 8),
           ClipOval(
             child: Container(
-              height: 25,
-              width: 25,
+              height: 40,
+              width: 40,
               color: Colors.grey[200],
               child: Image.network(
                 'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
@@ -225,20 +222,20 @@ class _PendingPaymentBottomWidgetState
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  customerData.businessName ?? '',
-                  style: const TextStyle(
+                CustomText(
+                content:  customerData.businessName ?? '',
+                  
                     fontSize: 12,
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
+                  
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  customerData.fullname ?? '',
-                  style: const TextStyle(fontSize: 11, color: Colors.black),
-                  maxLines: 1,
+                CustomText(
+                 content:  customerData.fullname ?? '',
+                  fontSize: 11, color: Colors.black,
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 // Text(
@@ -247,10 +244,10 @@ class _PendingPaymentBottomWidgetState
                 //   maxLines: 1,
                 //   overflow: TextOverflow.ellipsis,
                 // ),
-                Text(
-                  customerData.email ?? '',
-                  style: const TextStyle(fontSize: 11, color: Colors.black),
-                  maxLines: 1,
+                CustomText(
+                content:   customerData.email ?? '',
+                 fontSize: 10, color: Colors.black,
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -328,7 +325,7 @@ class _PendingPaymentBottomWidgetState
   }
 
   Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 6 : 8;
+    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
     return Container(
       height: fontSize * 3.0,
       // padding: const EdgeInsets.all(4.0),
@@ -344,6 +341,7 @@ class _PendingPaymentBottomWidgetState
           style: TextStyle(
             fontSize: fontSize,
             fontFamily: 'Poppins_Regular',
+            fontWeight: FontWeight.w700
           ),
         ),
       ),
@@ -352,7 +350,7 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildPaymentCollectionButton(
       CustomerData customerData, BuildContext context) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 6 : 8;
+    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: InkResponse(
@@ -385,11 +383,11 @@ class _PendingPaymentBottomWidgetState
   Widget _buildRegularText(
     String label,
     BuildContext context, {
-    FontWeight fontWeight = FontWeight.normal,
+    FontWeight fontWeight = FontWeight.w700,
     TextOverflow overflow = TextOverflow.ellipsis,
     int maxLines = 1,
   }) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 6 : 9;
+    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 :12;
     if (MediaQuery.of(context).orientation != Orientation.portrait) {
       fontSize = ResponsiveInfo.isMobileDimension(context) ? 10 : 12;
     }

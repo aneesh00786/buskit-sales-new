@@ -120,6 +120,7 @@ class CustomText extends StatelessWidget {
   FontWeight? fontWeight;
   TextAlign? textAlign;
   int? maxLine;
+  TextOverflow? overflow;
 
   CustomText({
     super.key,
@@ -130,6 +131,7 @@ class CustomText extends StatelessWidget {
     this.fontWeight,
     this.textAlign,
     this.maxLine,
+    this.overflow,
   });
 
   @override
@@ -143,6 +145,7 @@ class CustomText extends StatelessWidget {
           fontWeight: fontWeight),
       textAlign: textAlign != null ? textAlign : null,
       maxLines: maxLine == null ? null : maxLine,
+      overflow: overflow,
     );
   }
 }

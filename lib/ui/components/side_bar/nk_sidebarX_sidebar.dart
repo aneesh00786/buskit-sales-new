@@ -60,13 +60,10 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
           ),
           textStyle: TextStyle(color: primaryTextColor),
           selectedTextStyle: const TextStyle(color: primaryColor),
-          /* itemTextPadding: const EdgeInsets.only(left: 30),
-            selectedItemTextPadding: const EdgeInsets.only(left: 30), */
           selectedItemDecoration: BoxDecoration(
             color: primaryColor.withOpacity(0.05),
             border: const Border(
               left: BorderSide(
-                //                  <--- left side
                 color: primaryColor,
                 width: 5.0,
               ),
@@ -177,7 +174,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                           iconOff: Icons.close,
                           textSize: 16.0,
                           onChanged: (bool state) {
-                            //Use it to manage the different states
                             print('Current State of SWITCH IS: $state');
                           },
                         ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -40,6 +41,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:image/image.dart' as img;
 
 // ignore: must_be_immutable
 class DashBoardMiddleWidget extends StatelessWidget {
@@ -139,13 +141,12 @@ class DashBoardMiddleWidget extends StatelessWidget {
         borderRadius: 25,
         height: 300,
         isCommonBorder: true,
-       
         width: double.maxFinite,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-             Container(
+            Container(
               decoration: BoxDecoration(
                 color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
@@ -154,7 +155,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 ),
               ),
               padding:
-                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
                 "Collection",
                 style: cardHeadingTextStyle,
@@ -163,14 +164,15 @@ class DashBoardMiddleWidget extends StatelessWidget {
               ),
             ),
             nkSmallSizeBox(),
-            Expanded(child: Padding(
-               padding: nkRegularPadding(),
+            Expanded(
+                child: Padding(
+              padding: nkRegularPadding(),
               child: Consumer<DashboardProvider>(
                 builder: (context, provider, child) {
                   return FutureBuilder<model1.ResponseModell>(
                     future: provider.futureResponseModel,
-                    builder:
-                        (context, AsyncSnapshot<model1.ResponseModell> snapshot) {
+                    builder: (context,
+                        AsyncSnapshot<model1.ResponseModell> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                           child: SpinKitFadingCube(
@@ -202,41 +204,41 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 ?.fold(0.0,
                                     (sum, order) => sum + order.orderTotal) ??
                             0.0;
-              
-                        final pendingAmountCount = responseModel.collection?.order
-                                    ?.pendingAmount?.isNotEmpty ==
+
+                        final pendingAmountCount = responseModel.collection
+                                    ?.order?.pendingAmount?.isNotEmpty ==
                                 true
-                            ? responseModel.collection!.order!.pendingAmount!.last
-                                .amount as int
+                            ? responseModel.collection!.order!.pendingAmount!
+                                .last.amount as int
                             : 0;
                         final pendingAmountLabel = pendingAmountCount > 0
                             ? 'Pending : ${formatAmount(pendingAmountCount)}'
                             : 'Pending : \$ 0.00';
-              
+
                         final dueAmountCount = responseModel.collection?.order
                                     ?.pendingAmount?.isNotEmpty ==
                                 true
-                            ? responseModel.collection!.order!.pendingAmount!.last
-                                .dueAmount as int
+                            ? responseModel.collection!.order!.pendingAmount!
+                                .last.dueAmount as int
                             : 0;
                         final dueAmountLabel = dueAmountCount > 0
                             ? 'Due : ${formatAmount(dueAmountCount)}'
                             : 'Due : \$ 0.00';
-              
-                        final overdueAmountCount = responseModel.collection?.order
-                                    ?.pendingAmount?.isNotEmpty ==
+
+                        final overdueAmountCount = responseModel.collection
+                                    ?.order?.pendingAmount?.isNotEmpty ==
                                 true
-                            ? responseModel.collection!.order!.pendingAmount!.last
-                                .overDue as int
+                            ? responseModel.collection!.order!.pendingAmount!
+                                .last.overDue as int
                             : 0;
                         final overdueAmountLabel = overdueAmountCount > 0
                             ? 'Overdue : ${formatAmount(overdueAmountCount)}'
                             : 'Overdue : \$ 0.00';
-              
+
                         final completedOrdersLabel = totalCompletedAmount > 0
                             ? 'Completed : ${formatAmount(totalCompletedAmount)}'
                             : 'Completed : \$ 0.00';
-              
+
                         if (totalCompletedAmount <= 0 &&
                             pendingAmountCount <= 0 &&
                             dueAmountCount <= 0 &&
@@ -296,7 +298,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 },
               ),
             )),
-      
+
             //    nkMediumSizeBox()
           ],
         ),
@@ -341,7 +343,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
         height: 300,
         width: double.infinity,
         isCommonBorder: true,
-       
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -354,7 +355,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 ),
               ),
               padding:
-                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
                 "Order Status",
                 style: cardHeadingTextStyle,
@@ -362,8 +363,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 softWrap: false,
               ),
             ),
-            Expanded(child: Padding(
-               padding: nkRegularPadding(),
+            Expanded(
+                child: Padding(
+              padding: nkRegularPadding(),
               child: Consumer<DashboardProvider>(
                 builder: (context, provider, child) {
                   return FutureBuilder<model1.ResponseModell>(
@@ -393,12 +395,12 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       } else if (snapshot.hasData) {
                         final categories = snapshot.data!.allCategory;
                         final categoryPerformance = snapshot.data!.delivery;
-              
+
                         if (categoryPerformance == null ||
                             categoryPerformance.order!.totalOrders!.isEmpty) {
                           return const NodataWidget();
                         }
-              
+
                         return Center(
                           child: DoughnutDefaultDelivery(
                             deliveryData: categoryPerformance,
@@ -412,9 +414,10 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                       ResponsiveInfo.isMobileDimension(context)
                                           ? 11.5
                                           : 11.9,
-                                  width: ResponsiveInfo.isMobileDimension(context)
-                                      ? 14.9
-                                      : 14.9,
+                                  width:
+                                      ResponsiveInfo.isMobileDimension(context)
+                                          ? 14.9
+                                          : 14.9,
                                   decoration: const BoxDecoration(
                                     color: Color(0xffc38a42),
                                     borderRadius:
@@ -522,7 +525,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
         height: 300,
         width: double.infinity,
         isCommonBorder: true,
-        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -535,7 +537,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 ),
               ),
               padding:
-                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
                 projectionsVsActual,
                 style: cardHeadingTextStyle,
@@ -552,7 +554,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     return FutureBuilder<model1.ResponseModell>(
                       future: provider.futureResponseModel,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Center(
                             child: SpinKitFadingCube(
                               color: primaryColor,
@@ -576,7 +579,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           final categories = snapshot.data!.allCategory;
                           final categoryPerformance =
                               snapshot.data!.categoryPerformance;
-                
+
                           return Center(
                             child: CustomBarChart(
                               categoryPerformance: categoryPerformance!,
@@ -613,7 +616,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
         height: 300,
         width: double.infinity,
         isCommonBorder: true,
-        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -626,7 +628,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 ),
               ),
               padding:
-                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
                 "Revenue",
                 style: cardHeadingTextStyle,
@@ -642,7 +644,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     return FutureBuilder<model1.ResponseModell>(
                       future: provider.futureResponseModel,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Center(
                             child: SpinKitFadingCube(
                               color: primaryColor,
@@ -650,7 +653,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             ),
                           );
                         }
-                
+
                         if (snapshot.hasError) {
                           return const Center(
                             child: Column(
@@ -666,20 +669,22 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             ),
                           );
                         }
-                
-                        if (!snapshot.hasData || snapshot.data?.revenue == null) {
+
+                        if (!snapshot.hasData ||
+                            snapshot.data?.revenue == null) {
                           return const NodataWidget();
                         }
-                
+
                         final categoryPerformance = snapshot.data!.revenue;
-                
+
                         // Check if booking or order revenue data is empty
                         final bookingRevenueLength = categoryPerformance
                                     ?.bookingRevenueData?.isNotEmpty ??
                                 false
-                            ? categoryPerformance?.bookingRevenueData?.last.total
+                            ? categoryPerformance
+                                ?.bookingRevenueData?.last.total
                             : 0.0;
-                
+
                         final orderRevenueLast =
                             categoryPerformance?.orderRevenueData?.isNotEmpty ??
                                     false
@@ -690,7 +695,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             orderRevenueLast == 0.0) {
                           return const NodataWidget();
                         }
-                
+
                         return Center(
                           child: DoughnutDefault(
                             categoryData: categoryPerformance!,
@@ -946,9 +951,12 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         dataRowHeight: 0,
                         dividerThickness: 0,
                         headingRowColor: WidgetStateProperty.resolveWith(
-                          (states) => const Color.fromARGB(255, 205, 206, 208).withOpacity(0.2),
+                          (states) => const Color.fromARGB(255, 205, 206, 208)
+                              .withOpacity(0.2),
                         ),
-                        border: TableBorder.all(width: 0, color: const Color.fromARGB(255, 238, 235, 235)),
+                        border: TableBorder.all(
+                            width: 0,
+                            color: const Color.fromARGB(255, 238, 235, 235)),
                         columns: const [
                           DataColumn(
                             label: Expanded(
@@ -1473,7 +1481,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 ),
               ),
               padding:
-                  const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
                 "Frequently Bought Products",
                 style: cardHeadingTextStyle,
@@ -1656,7 +1664,8 @@ class _ChatScreenState extends State<ChatScreen> {
       _scrollToBottom();
     });
   }
-    Future<void> _pickImage() async {
+
+  Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
@@ -1667,41 +1676,64 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
-    String? _prepareImage() {
+  String? _prepareImage() {
     if (_selectedImage == null) return null;
 
     final fileBytes = _selectedImage!.readAsBytesSync();
     final base64Image = base64Encode(fileBytes);
-
-    if (base64Image.length > 1000000) {
+    if (fileBytes.length > 1 * 1024 * 1024) {
       debugPrint('Image is too large to send');
       return null;
     }
-
-    // log(base64Image);
     return base64Image;
   }
-    Widget _buildMessageContent(Messages message) {
+  String cleanBase64(String base64String) {
+    if (base64String.startsWith('data:image')) {
+      final index = base64String.indexOf(',') + 1;
+      return base64String.substring(index);
+    }
+    return base64String;
+  }
+
+  Uint8List? decodeBase64Image(String base64String) {
+    try {
+      String cleanedString = cleanBase64(base64String);
+      return base64Decode(cleanedString);
+    } catch (e) {
+      debugPrint("Error decoding image: $e");
+      return null;
+    }
+  }
+
+  Uint8List compressImage(File file) {
+    final originalImage = img.decodeImage(file.readAsBytesSync());
+    final compressedImage = img.encodeJpg(originalImage!, quality: 70);
+    return Uint8List.fromList(compressedImage);
+  }
+
+  Widget _buildMessageContent(Messages message) {
     if (message.image != null && message.image!.isNotEmpty) {
       try {
-        final imageBytes = base64Decode(message.image!);
-        return Image.memory(
-          imageBytes,
-          errorBuilder: (context, error, stackTrace) {
-            return Text(
-              'Failed to load image',
-              style: TextStyle(color: Colors.red),
-            );
-          },
-          width: MediaQuery.of(context).size.width * 0.5,
-        );
+        final Uint8List? imageBytes = decodeBase64Image(message.image!);
+        if (imageBytes != null) {
+          return Image.memory(
+            imageBytes,
+            errorBuilder: (context, error, stackTrace) {
+              return Text(
+                'Failed to load image',
+                style: TextStyle(color: Colors.red),
+              );
+            },
+            width: MediaQuery.of(context).size.width * 0.5,
+          );
+        }
       } catch (e) {
         debugPrint("Error decoding image: $e");
-        return Text(
-          'Failed to load image',
-          style: TextStyle(color: Colors.red),
-        );
       }
+      return Text(
+        'Failed to load image',
+        style: TextStyle(color: Colors.red),
+      );
     }
 
     // If no image, return the text message
@@ -1710,16 +1742,31 @@ class _ChatScreenState extends State<ChatScreen> {
       style: TextStyle(fontSize: 16),
     );
   }
+
   void _sendMessage() {
     String message = _controller.text.trim();
-    if (message.isEmpty) return;
+    String? base64Image = _prepareImage();
+    if (message.isEmpty && base64Image == null) return;
     socket.emit('chat message', {
       'message': message,
       'source': 'salesman',
       'salesman': salesmanId,
-       'image': _selectedImage != null ? _prepareImage() : null,
+      'image': base64Image,
     });
+    final newMessage = Messages(
+      message: message,
+      image: base64Image,
+      source: 'salesman',
+      salesman: salesmanId,
+    );
+    Provider.of<DashboardProvider>(context, listen: false)
+        .addMessages([newMessage]);
     _controller.clear();
+    setState(() {
+      _selectedImage = null;
+    });
+
+    _scrollToBottom();
   }
 
   void _scrollToBottom() {
@@ -1805,8 +1852,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   : Radius.circular(10),
                             ),
                           ),
-                          child: _buildMessageContent(
-                                message),
+                          child: _buildMessageContent(message),
                         ),
                       );
                     },
@@ -1818,21 +1864,21 @@ class _ChatScreenState extends State<ChatScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
+                  height: 100,
+                  width: 200,
                   child: Image.file(
                     _selectedImage!,
-                    
                   ),
                 ),
               ),
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 246, 246),
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(color: const Color.fromARGB(255, 225, 225, 225) )
-              ),
-              
+                  color: const Color.fromARGB(255, 246, 246, 246),
+                  borderRadius: BorderRadius.circular(50),
+                  border: Border.all(
+                      color: const Color.fromARGB(255, 225, 225, 225))),
               child: Padding(
-                padding: const EdgeInsets.only(left: 5,right: 5),
+                padding: const EdgeInsets.only(left: 5, right: 5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1856,11 +1902,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
                         child: TextField(
-                
                           controller: _controller,
                           decoration: InputDecoration(
                             fillColor: white,
-                            filled:true,
+                            filled: true,
                             hintText: 'Type your message here...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
@@ -1884,7 +1929,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     CircleAvatar(
-                       backgroundColor: const Color.fromARGB(255, 167, 214, 225),
+                      backgroundColor: const Color.fromARGB(255, 167, 214, 225),
                       radius: 25,
                       child: InkWell(
                           onTap: () => _sendMessage(),
@@ -1940,7 +1985,8 @@ class _CommunicationsDisplayWidgetState
                 Container(
                   height: 30,
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 224, 224, 226).withOpacity(0.2),
+                    color: const Color.fromARGB(255, 224, 224, 226)
+                        .withOpacity(0.2),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25),
@@ -1955,8 +2001,8 @@ class _CommunicationsDisplayWidgetState
                       bottomRight: Radius.circular(25),
                     ),
                   ),
-                  padding:
-                      const EdgeInsets.only(right: 20,left: 20,top: 5,bottom: 5), 
+                  padding: const EdgeInsets.only(
+                      right: 20, left: 20, top: 5, bottom: 5),
                   child: Text(
                     "Communication",
                     style: cardHeadingTextStyle,

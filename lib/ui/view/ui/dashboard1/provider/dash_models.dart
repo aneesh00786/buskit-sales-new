@@ -57,6 +57,7 @@ class Salesmann {
     };
   }
 }
+
 class CategoryPerformancee {
   int? cid;
   String? category;
@@ -114,10 +115,10 @@ class ResponseModelCp {
   final List<Salesmanvn>? data;
 
   ResponseModelCp({
-     this.statusCode,
-     this.status,
-     this.message,
-     this.data,
+    this.statusCode,
+    this.status,
+    this.message,
+    this.data,
   });
 
   factory ResponseModelCp.fromJson(Map<String, dynamic> json) {
@@ -144,13 +145,13 @@ class Salesmanvn {
   final int? projectionTotal;
 
   Salesmanvn({
-     this.id,
+    this.id,
     required this.salesmanId,
     required this.fullname,
     required this.lastname,
     required this.orderTotal,
-     this.targetTotal,
-     this.projectionTotal,
+    this.targetTotal,
+    this.projectionTotal,
   });
 
   factory Salesmanvn.fromJson(Map<String, dynamic> json) {
@@ -274,6 +275,7 @@ class OrderRevenueData {
     };
   }
 }
+
 class Revenuee {
   List<OrderRevenueData>? bookingRevenueData;
   List<OrderRevenueData>? orderRevenueData;
@@ -303,6 +305,7 @@ class Revenuee {
     };
   }
 }
+
 class ResponseModell {
   int? statusCode;
   bool? status;
@@ -385,6 +388,7 @@ class OrderCountListt {
     );
   }
 }
+
 enum EventDays { EMPTY, FRIDAY, MONDAY }
 
 enum SalesmanName { B, N, RP, SALES6 }
@@ -425,7 +429,7 @@ class TopSellingProductA {
       variationId: json['variation_id'],
       variationName: json['variation_name'],
       price: json['price'],
-      productName : json['product_name'],
+      productName: json['product_name'],
       quantity: json['quantity'],
       totalPrice: json['total_price'],
       createdAt: DateTime.parse(json['created_at']),
@@ -441,7 +445,7 @@ class TopSellingProductA {
       'price': price,
       'quantity': quantity,
       'total_price': totalPrice,
-      'product_name':productName,
+      'product_name': productName,
       'created_at': createdAt?.toIso8601String(),
       'customer': customers?.map((customer) => customer.toJson()).toList(),
       'quantityList':
@@ -517,12 +521,13 @@ class Customer {
       imageUrl: json['image_url'],
       salesmanId: _parseSalesmanName(json['salesman_id']),
       status: _parseInt(json['status']),
-      createAt: json['create_at'] != null ? DateTime.parse(json['create_at']) : null,
+      createAt:
+          json['create_at'] != null ? DateTime.parse(json['create_at']) : null,
       salesmanName: _parseSalesmanName(json['salesman_name']),
       discount: json['discount'],
       eventType: _parseInt(json['event_type']),
       eventDays: json['event_days'] != null
-          ? EventDays.values[_parseInt(json['event_days'])??0]
+          ? EventDays.values[_parseInt(json['event_days']) ?? 0]
           : null,
       creditPeriod: _parseInt(json['credit_period']),
     );
@@ -578,7 +583,6 @@ class Customer {
     }
   }
 }
-
 
 class QuantityList {
   int? id;
@@ -641,8 +645,12 @@ class QuantityList {
       reason: json['reason'],
       quantity: _parseInt(json['quantity']),
       status: _parseInt(json['status']),
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
       customerId: json['customer_id'],
       salesmanId: _parseSalesmanName(json['salesman_id']),
       total: _parseInt(json['total']),
@@ -711,14 +719,13 @@ class QuantityList {
   }
 }
 
-
 class Delivery {
   OrderA? order;
   DeliveryOrder? deliveryOrder;
 
   Delivery({
-     this.order,
-     this.deliveryOrder,
+    this.order,
+    this.deliveryOrder,
   });
 
   factory Delivery.fromJson(Map<String, dynamic> json) {
@@ -736,12 +743,11 @@ class Delivery {
   }
 }
 
-
 class OrderA {
   List<OrderDetails>? totalOrders;
 
   OrderA({
-     this.totalOrders,
+    this.totalOrders,
   });
 
   factory OrderA.fromJson(Map<String, dynamic> json) {
@@ -767,8 +773,8 @@ class DeliveryOrder {
   String? percentage;
 
   DeliveryOrder({
-     this.count,
-     this.percentage,
+    this.count,
+    this.percentage,
   });
 
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
@@ -1111,7 +1117,7 @@ class PendingAmount {
   String? orderCreatAt;
   int? orderTotal;
   int? receivedAmount;
-    dynamic receivableAmount;
+  dynamic receivableAmount;
   String? receivedAmountDate;
   String? checkDueDate;
   int? checkNumber;
@@ -1231,6 +1237,7 @@ String getFormattedOrderCreatAt(dynamic value) {
     return '';
   }
 }
+
 class SalesmenResponse {
   int statusCode;
   bool status;
@@ -1361,7 +1368,7 @@ class SalesmanChat {
 class Messages {
   final String message;
   final String source;
-    final String? image;
+  final String? image;
   final String salesman;
   Messages({
     required this.message,
@@ -1373,13 +1380,15 @@ class Messages {
     return {
       'message': message,
       'source': source,
-        'image': image,
+      'image': image,
       'salesman': salesman,
     };
   }
+
   String get getMessage => message;
   String get getSource => source;
   String get getSalesman => salesman;
+  String get getImage => image??'';
   factory Messages.fromJson(Map<String, dynamic> json) {
     return Messages(
       message: json['message'] ?? '',
@@ -1390,8 +1399,6 @@ class Messages {
   }
 }
 
-
-
 class MessagesResponse {
   final int? statusCode;
   final bool? status;
@@ -1399,9 +1406,9 @@ class MessagesResponse {
   final List<Messages> data;
 
   MessagesResponse({
-     this.statusCode,
-     this.status,
-     this.message,
+    this.statusCode,
+    this.status,
+    this.message,
     required this.data,
   });
 

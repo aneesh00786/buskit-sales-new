@@ -358,7 +358,7 @@ class ApiService {
         List<Messages> messages = messagesList
             .map((messageJson) => Messages.fromJson(messageJson))
             .toList();
-
+        log('Image Path  : ${messages.last.getImage}');
         return MessagesResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -540,7 +540,7 @@ class ApiService {
       "customer_id": cusId,
       "salesman_id": salesmanId,
       "order_type": orderStatusString,
-      "companyId":companyId,
+      "companyId": companyId,
       "payment_type": "3",
       "start_date": startDate,
       "end_date": endDate,
@@ -1783,42 +1783,43 @@ class DashboardProvider with ChangeNotifier {
     notifyListeners();
   }
 
-Future<MessagesResponse> fetch_individual_chat(String chatId, int page) async {
-  try {
-    if (_noMoreData && page > 1) return MessagesResponse(data: []);
-    final chatData = await _apiService.fetch_individual_chatApi(chatId, page);
+  Future<MessagesResponse> fetch_individual_chat(
+      String chatId, int page) async {
+    try {
+      if (_noMoreData && page > 1) return MessagesResponse(data: []);
+      final chatData = await _apiService.fetch_individual_chatApi(chatId, page);
 
-    if (chatData.data.isEmpty && page > 1) {
-      _noMoreData = true;
-    } else {
-      _individualChatMessages ??= [];
-      if (page == 1) {
-        _individualChatMessages = [
-          ...chatData.data,
-          ..._individualChatMessages!,
-        ].toSet().toList();
+      if (chatData.data.isEmpty && page > 1) {
+        _noMoreData = true;
       } else {
-        _individualChatMessages!.addAll(chatData.data);
-        _individualChatMessages = _individualChatMessages!.toSet().toList();
+        _individualChatMessages ??= [];
+        if (page == 1) {
+          _individualChatMessages = [
+            ...chatData.data,
+            ..._individualChatMessages!,
+          ].toSet().toList();
+        } else {
+          _individualChatMessages!.addAll(chatData.data);
+          _individualChatMessages = _individualChatMessages!.toSet().toList();
+        }
       }
+      notifyListeners();
+      return chatData;
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching individual chat data',
+          error: e, stackTrace: stackTrace);
+      throw Exception('Failed to fetch individual chat data: $e');
     }
-    notifyListeners();
-    return chatData;
-  } catch (e, stackTrace) {
-    _logger.e('Error fetching individual chat data', error: e, stackTrace: stackTrace);
-    throw Exception('Failed to fetch individual chat data: $e');
   }
-}
 
-
-void addMessages(List<Messages> newMessages) {
-  _individualChatMessages ??= [];
-  _individualChatMessages = [
-    ...newMessages,
-    ..._individualChatMessages!,
-  ].toSet().toList(); 
-  notifyListeners();
-}
+  void addMessages(List<Messages> newMessages) {
+    _individualChatMessages ??= [];
+    _individualChatMessages = [
+      ...newMessages,
+      ..._individualChatMessages!,
+    ].toSet().toList();
+    notifyListeners();
+  }
 
   void clearSelectedChat() {
     selectedChat = null;

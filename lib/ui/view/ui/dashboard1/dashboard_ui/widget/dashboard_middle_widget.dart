@@ -127,7 +127,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget collectionChart(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
         boxShadow: [
           BoxShadow(
@@ -296,7 +296,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                 },
               ),
             )),
-
+      
             //    nkMediumSizeBox()
           ],
         ),
@@ -328,7 +328,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget orderDeliveryChart(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
         boxShadow: [
           BoxShadow(
@@ -509,7 +509,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget middleTopLeftComponet() {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
         boxShadow: [
           BoxShadow(
@@ -600,7 +600,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget middleTopRightComponet() {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
         boxShadow: [
           BoxShadow(
@@ -1447,7 +1447,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
   Widget topSellingProductWidget() {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
         boxShadow: [
           BoxShadow(
@@ -1854,7 +1854,7 @@ class _CommunicationsDisplayWidgetState
     final DashboardProvider provider = Provider.of<DashboardProvider>(context);
 
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
           boxShadow: [
             BoxShadow(

@@ -124,9 +124,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     return Container(
         decoration: BoxDecoration(
           color: white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: Colors.grey,
+            color: const Color.fromARGB(255, 230, 229, 229),
             width: 0.4,
           ),
         ),
@@ -177,14 +177,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                         topLeft: Radius.circular(5),
                                         topRight: Radius.circular(5)),
                                   ),
-                                  child: Text(
-                                    monthName,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.black
-                                          : Colors.blue,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  child: CustomText(
+                                    content: monthName,
+                                    color:
+                                        isSelected ? Colors.black : Colors.blue,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               );
@@ -348,13 +345,17 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   }
 
   Widget _buildTableHeader(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: CustomText(
-        content: text,
-        textAlign: TextAlign.center,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
+    return Container(
+      color: primaryColor,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CustomText(
+          content: text,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.bold,
+          color: white,
+          fontSize: 15,
+        ),
       ),
     );
   }
@@ -485,12 +486,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     return SizedBox(
       height: 50,
       child: Center(
-        child: Text(
-          text,
+        child: CustomText(
+          content: text,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.black,
-          ),
+          color: Colors.black,
         ),
       ),
     );
@@ -499,10 +498,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Widget _buildTableTextField(int index) {
     return Container(
       height: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       child: TextField(
         controller: _targetControllers[index],
         textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 16),
         readOnly: true,
         decoration: InputDecoration(
           fillColor: Colors.blueGrey.shade50,

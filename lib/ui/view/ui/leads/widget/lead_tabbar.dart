@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
@@ -71,12 +72,12 @@ class _LeadsTabBarState extends State<LeadsTabBar> {
                       topRight: Radius.circular(10),
                     ),
                   ),
-                  child: Text(
-                    _tabs[index],
-                    style: TextStyle(
+                  child: CustomText(
+                   content: _tabs[index],
+                   
                       color: isSelected ? Colors.white : Colors.blue,
                       fontWeight: FontWeight.bold,
-                    ),
+                    
                   ),
                 ),
               );

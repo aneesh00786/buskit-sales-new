@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_mode
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,23 +35,27 @@ class LeadBottomScreen extends StatelessWidget {
     return Column(
       children: [
         _buildTableHeader(),
-        leadsController.leadsCustomerDataList.isEmpty?SizedBox(height: MediaQuery.of(context).size.height*0.4):Container(),
-        leadsController.leadsCustomerDataList.isEmpty? 
-        Center(child: NodataWidget(),):
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: leadsController.leadsCustomerDataList
-                  .asMap()
-                  .entries
-                  .map((entry) {
-                int index = entry.key;
-                LeadCustomerData leadCustomerData = entry.value;
-                return _buildTableRow(leadCustomerData, context, index);
-              }).toList(),
-            ),
-          ),
-        ),
+        leadsController.leadsCustomerDataList.isEmpty
+            ? SizedBox(height: MediaQuery.of(context).size.height * 0.4)
+            : Container(),
+        leadsController.leadsCustomerDataList.isEmpty
+            ? Center(
+                child: NodataWidget(),
+              )
+            : Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: leadsController.leadsCustomerDataList
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                      int index = entry.key;
+                      LeadCustomerData leadCustomerData = entry.value;
+                      return _buildTableRow(leadCustomerData, context, index);
+                    }).toList(),
+                  ),
+                ),
+              ),
       ],
     );
   }
@@ -63,15 +68,14 @@ class LeadBottomScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(width: 10),
-          Expanded(flex: 2, child: _buildHeaderText('Leads', 13)),
-          Expanded(child: _buildHeaderText('Address', 13)),
-          Expanded(child: _buildHeaderText('Mobile', 13)),
-          Expanded(child: _buildHeaderText('Email', 13)),
-          Expanded(child: _buildHeaderText('C. Person', 13)),
-          Expanded(child: _buildHeaderText('C. Number', 13)),
-          Expanded(child: _buildHeaderText('Status', 13)),
-          const Expanded(child: Text('')), // Empty for the action buttons
-          SizedBox(width: 10),
+          Expanded(flex: 2, child: _buildHeaderText('Leads', 14)),
+          Expanded(flex: 2,child: _buildHeaderText('Address', 14)),
+          Expanded(child: _buildHeaderText('Mobile', 14)),
+          Expanded(child: _buildHeaderText('Email', 14)),
+          Expanded(child: _buildHeaderText('C. Person', 14)),
+          Expanded(child: _buildHeaderText('C. Number', 14)),
+          Expanded(child: _buildHeaderText('Status', 14)),
+          const Expanded(child: Text('')),
         ],
       ),
     );
@@ -79,15 +83,12 @@ class LeadBottomScreen extends StatelessWidget {
 
   Widget _buildHeaderText(String text, double fontSize) {
     return Center(
-      child: Text(
-        text,
+      child: CustomText(
+        content: text,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Poppins_Regular',
-        ),
+        fontSize: fontSize,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
@@ -106,6 +107,8 @@ class LeadBottomScreen extends StatelessWidget {
               children: [
                 ClipOval(
                   child: Container(
+                    height: 40,
+                    width: 40,
                     color: Colors.grey[200],
                     child: Image.network(
                       'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
@@ -125,10 +128,10 @@ class LeadBottomScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
-                    leadCustomerData.businessName ?? '',
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.bold),
+                  child: CustomText(
+                    content: leadCustomerData.businessName ?? '',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -136,31 +139,32 @@ class LeadBottomScreen extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  leadCustomerData.address ?? '',
-                  style: const TextStyle(fontSize: 11),
-                  maxLines: 2,
+                CustomText(
+                 content: leadCustomerData.address ?? '',
+                 fontSize: 12,
+                  maxLine: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  leadCustomerData.town ?? '',
-                  style: const TextStyle(fontSize: 11),
-                  maxLines: 1,
+                CustomText(
+                 content: leadCustomerData.town ?? '',
+                  fontSize: 12,
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  leadCustomerData.state ?? '',
-                  style: const TextStyle(fontSize: 11),
-                  maxLines: 1,
+                CustomText(
+                content:  leadCustomerData.state ?? '',
+                 fontSize: 12,
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  leadCustomerData.zipcode?.toString() ?? '',
-                  style: const TextStyle(fontSize: 11),
-                  maxLines: 1,
+                CustomText(
+                content:  leadCustomerData.zipcode?.toString() ?? '',
+                 fontSize: 12,
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -168,32 +172,34 @@ class LeadBottomScreen extends StatelessWidget {
           ),
           Expanded(
             child: Center(
-                child: Text(leadCustomerData.businessNo ?? '',
-                    style: const TextStyle(fontSize: 11))),
+                child: CustomText(
+                 content: leadCustomerData.businessNo ?? '',
+                   fontSize: 12)),
+          ),
+          SizedBox(width: 10,),
+          Expanded(
+            child: Center(
+                child: CustomText(content:leadCustomerData.email ?? '',
+                    fontSize: 12)),
           ),
           Expanded(
             child: Center(
-                child: Text(leadCustomerData.email ?? '',
-                    style: const TextStyle(fontSize: 11))),
+                child: CustomText(content : leadCustomerData.fullname ?? '',
+                    fontSize: 12)),
           ),
           Expanded(
             child: Center(
-                child: Text(leadCustomerData.fullname ?? '',
-                    style: const TextStyle(fontSize: 11))),
-          ),
-          Expanded(
-            child: Center(
-                child: Text(leadCustomerData.mobileno ?? '',
-                    style: const TextStyle(fontSize: 11))),
+                child: CustomText(content:leadCustomerData.mobileno ?? '',
+                   fontSize: 12)),
           ),
           Expanded(
             child: LeadsStatusSelect(customerId: leadCustomerData.id ?? 0),
           ),
           Expanded(
-            child: Row(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(width: 5), 
+                SizedBox(width: 5),
                 SizedBox(
                   width: 20,
                   child: IconButton(
@@ -203,7 +209,7 @@ class LeadBottomScreen extends StatelessWidget {
                     },
                     padding: EdgeInsets.all(4),
                     constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.edit_square, size: 20),
+                    icon: const Icon(EneftyIcons.edit_outline,size: 20,),
                   ),
                 ),
                 SizedBox(width: 6),
@@ -213,7 +219,7 @@ class LeadBottomScreen extends StatelessWidget {
                     onPressed: () {},
                     padding: EdgeInsets.all(4),
                     constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                    icon: const Icon(EneftyIcons.trash_outline, color: Colors.red, size: 20),
                   ),
                 ),
               ],

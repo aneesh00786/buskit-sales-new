@@ -93,21 +93,24 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
                                       color: const Color.fromARGB(
                                               255, 211, 211, 211)
                                           .withOpacity(0.2),
-                                      blurRadius: 4,
+                                      blurRadius: 5,
                                       spreadRadius: 5,
                                       offset: Offset(4, 4),
                                     ),
                                   ],
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(25),
                                   border: Border.all(
                                     color: Color.fromARGB(255, 205, 204, 204),
                                     width: 0.5,
                                   ),
                                 ),
-                                child: CustomBarChart(
-                                  categoryPerformance: categoryPerformance!,
-                                  allCategory: categories!,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: CustomBarChart(
+                                    categoryPerformance: categoryPerformance!,
+                                    allCategory: categories!,
+                                  ),
                                 ),
                               );
                             } else {

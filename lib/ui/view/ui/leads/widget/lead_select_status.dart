@@ -71,8 +71,10 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
     return Container(
       height: 26,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5), // Rounded corners
-        color: const Color.fromARGB(255, 220, 231, 236), // Background color
+        borderRadius: BorderRadius.circular(20), // Rounded corners
+        color: const Color.fromARGB(255, 197, 247, 252),
+        border: Border.all(color: const Color.fromARGB(255, 215, 215, 215))
+         // Background color
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(

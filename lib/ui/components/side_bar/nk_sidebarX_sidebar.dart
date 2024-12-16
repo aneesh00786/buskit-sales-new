@@ -18,6 +18,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../../../database/session/sessionmanager.dart';
@@ -103,27 +104,39 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                 SizedBox(
                   height: 30,
                 ),
+                Center(
+                  child: Container(
+                    height: ResponsiveInfo.isMobile() ? 60 : 75,
+                    width: ResponsiveInfo.isMobile() ? 60 : 75,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 164, 236, 247),
+                        width: 2.0,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: MyNetworkImage(
+                        fit: BoxFit.cover,
+                        imageUrl: widget.userDetails.imagePath ?? '',
+                        height: ResponsiveInfo.isMobile() ? 50 : 65,
+                        width: ResponsiveInfo.isMobile() ? 50 : 65,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ClipOval(
-                              child: MyNetworkImage(
-                            fit: BoxFit.cover,
-                            imageUrl: widget.userDetails.imagePath ?? '',
-                            height: ResponsiveInfo.isMobile() ? 35 : 50,
-                            width: ResponsiveInfo.isMobile() ? 35 : 50,
-                          )),
-                          SizedBox(
-                            width: 12,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
+                          CustomText(
                             content:
                                 widget.userDetails.fullname?.toUpperCase() ??
                                     'No Data',
@@ -132,46 +145,44 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                             fontWeight: FontWeight.w700,
                           ),
                           CustomText(
-                            content:
-                                widget.userDetails.email ??
-                                    'No Data',
+                            content: widget.userDetails.email ?? 'No Data',
                             fontSize: ResponsiveInfo.isMobile() ? 8 : 12,
                             color: Colors.white,
                           ),
-                            ],
-                          )
                         ],
                       ),
+                      SizedBox(
+                        height: 35,
+                        child: LiteRollingSwitch(
+                          width: 80,
+                          onSwipe: (value) {
+                            setState(() {
+                              _onSwitchSelected = value;
+                            });
+                          },
+                          onTap: (value) {
+                            setState(() {
+                              _onSwitchSelected = value;
+                            });
+                          },
+                          onDoubleTap: () {},
+                          value: true,
+                          textOn: 'In',
+                          textOff: 'Out',
+                          textOnColor: white,
+                          textOffColor: white,
+                          colorOn: const Color.fromARGB(255, 100, 224, 164),
+                          colorOff: const Color.fromARGB(255, 244, 152, 152),
+                          iconOn: Icons.done,
+                          iconOff: Icons.close,
+                          textSize: 16.0,
+                          onChanged: (bool state) {
+                            //Use it to manage the different states
+                            print('Current State of SWITCH IS: $state');
+                          },
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SizedBox(
-                        height: 25,
-                        width: 40,
-                        child: FittedBox(
-                            fit: BoxFit.fill,
-                            child: Transform.scale(
-                              child: CupertinoSwitch(
-                                  value: _onSwitchSelected,
-                                  activeColor: const Color.fromARGB(255, 33, 243, 226),
-                                  trackColor: const Color.fromARGB(255, 228, 227, 227),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _onSwitchSelected = value;
-                                      /*   widget.onTopToggleSwitch != null
-                                            ? (value)
-                                            : null;*/
-                                    });
-                                  }),
-                              scale: 1.2,
-                            ))),
                   ),
                 )
               ],

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -57,6 +58,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
           color: black,
           fontSize: 20,
           fontWeight: FontWeight.w700,
+          fontFamily: "Poppins_Regular"
         ),
       ),
       pageTransitionCurve: Curves.easeInOutCubicEmphasized,
@@ -98,14 +100,14 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                MyRegularText(
-                  label: date.day.toString(),
+                CustomText(
+                  content: date.day.toString(),
                   color: isToday
                       ? buttonTextColor
                       : !isInMonth
                           ? secondaryTextColor.withOpacity(0.5)
                           : null,
-                  fontSize: 25,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
                 if (eventCount > 0)

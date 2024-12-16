@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -13,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,16 +49,15 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     return OrientationBuilder(builder: (context, orientation) {
       return SidebarX(
         controller: widget._controller,
+        headerDivider: Container(
+          color: primaryColor,
+        ),
         theme: SidebarXTheme(
           decoration: const BoxDecoration(
-            color: backgroundColor,
+            color: white,
             borderRadius: BorderRadius.zero,
           ),
-          itemMargin: EdgeInsets.zero,
-          selectedItemMargin: EdgeInsets.zero,
-          itemTextPadding: const EdgeInsets.only(left: 16.0),
-          selectedItemTextPadding: const EdgeInsets.only(left: 16.0),
-          textStyle:  TextStyle(color: primaryTextColor),
+          textStyle: TextStyle(color: primaryTextColor),
           selectedTextStyle: const TextStyle(color: primaryColor),
           /* itemTextPadding: const EdgeInsets.only(left: 30),
             selectedItemTextPadding: const EdgeInsets.only(left: 30), */
@@ -66,7 +67,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
               left: BorderSide(
                 //                  <--- left side
                 color: primaryColor,
-                width: 3.0,
+                width: 5.0,
               ),
             ),
           ),
@@ -81,67 +82,101 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
         ),
         showToggleButton: false,
         headerBuilder: (context, extended) {
-          return  Padding(
-              padding: nkMediumPadding(right: 0, left: 0, top: 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: extended
-                    ? MainAxisAlignment.spaceBetween
-                    : MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: InkResponse(
-                        onTap: () => {
-                          HomeController.homeScaffoldKey.currentState
-                              ?.closeDrawer(),
-                        },
-                        child:  Icon(
-                          Icons.menu_outlined,
-                          size:ResponsiveInfo.isMobile()? 24:32,
-                        )),
-                  ),
-                  ClipOval(
-                      child: MyNetworkImage(
-                        fit: BoxFit.cover,
-                        imageUrl: widget.userDetails.imagePath ?? '',
-                        height:ResponsiveInfo.isMobile()? 25:40,
-                        width:ResponsiveInfo.isMobile()? 25:40,
+          return Container(
+            color: primaryColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkResponse(
+                      onTap: () => {
+                            HomeController.homeScaffoldKey.currentState
+                                ?.closeDrawer(),
+                          },
+                      child: Icon(
+                        EneftyIcons.menu_outline,
+                        size: ResponsiveInfo.isMobile() ? 24 : 32,
+                        color: white,
                       )),
-
-
-                   MyRegularText(
-                    label: widget.userDetails.fullname ?? 'No Data',
-                    fontSize: ResponsiveInfo.isMobile()?13:16,
-                  ),
-
-
-                   SizedBox(
-                      height: 25,
-                       width: 40,
-                      child: FittedBox(
-                          fit: BoxFit.fill,
-                          child: Transform.scale(
-
-                            child: CupertinoSwitch(
-                                value: _onSwitchSelected,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _onSwitchSelected = value;
-                                    /*   widget.onTopToggleSwitch != null
-                                      ? (value)
-                                      : null;*/
-                                  });
-                                }),
-                            scale: 1.2,
-
-
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          ClipOval(
+                              child: MyNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: widget.userDetails.imagePath ?? '',
+                            height: ResponsiveInfo.isMobile() ? 35 : 50,
+                            width: ResponsiveInfo.isMobile() ? 35 : 50,
+                          )),
+                          SizedBox(
+                            width: 12,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomText(
+                            content:
+                                widget.userDetails.fullname?.toUpperCase() ??
+                                    'No Data',
+                            fontSize: ResponsiveInfo.isMobile() ? 15 : 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          CustomText(
+                            content:
+                                widget.userDetails.email ??
+                                    'No Data',
+                            fontSize: ResponsiveInfo.isMobile() ? 8 : 12,
+                            color: Colors.white,
+                          ),
+                            ],
                           )
-
-                      ))
-
-                ],
-              ),
-            );
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: SizedBox(
+                        height: 25,
+                        width: 40,
+                        child: FittedBox(
+                            fit: BoxFit.fill,
+                            child: Transform.scale(
+                              child: CupertinoSwitch(
+                                  value: _onSwitchSelected,
+                                  activeColor: const Color.fromARGB(255, 33, 243, 226),
+                                  trackColor: const Color.fromARGB(255, 228, 227, 227),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _onSwitchSelected = value;
+                                      /*   widget.onTopToggleSwitch != null
+                                            ? (value)
+                                            : null;*/
+                                    });
+                                  }),
+                              scale: 1.2,
+                            ))),
+                  ),
+                )
+              ],
+            ),
+          );
         },
         extendedTheme: SidebarXTheme(
           width: AppDimensions.instance.width * 0.7,
@@ -181,7 +216,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
             MyRegularText(
               color: buttonTextColor,
               label: name,
-              fontSize: ResponsiveInfo.isMobile()?14:18,
+              fontSize: ResponsiveInfo.isMobile() ? 14 : 18,
             )
           ],
         ),

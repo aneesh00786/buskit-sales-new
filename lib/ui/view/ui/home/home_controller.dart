@@ -18,6 +18,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -197,19 +198,34 @@ class HomeController extends GetxController {
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
-      sideBarComponent(sidebarName[0], Icons.dashboard),
-      sideBarComponent(sidebarName[1], SIdeBarIcon.ic_customer_and_orders),
-      sideBarComponent(sidebarName[2], SIdeBarIcon.ic_products),
-      sideBarComponent(sidebarName[3], SIdeBarIcon.ic_pending_payment),
-      sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
-      sideBarComponent(sidebarName[5], Icons.bar_chart),
-      sideBarComponent(sidebarName[6], SIdeBarIcon.ic_calender),
-      sideBarComponent(sidebarName[7], SIdeBarIcon.ic_today_order),
-      sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
+      sideBarComponent(sidebarName[0], Icons.dashboard_outlined),
+      sideBarComponent(sidebarName[1], EneftyIcons.profile_2user_outline),
+      sideBarComponent(sidebarName[2], EneftyIcons.a_3d_cube_outline),
+      sideBarComponent(sidebarName[3], EneftyIcons.moneys_outline),
+      sideBarComponent(sidebarName[4], EneftyIcons.arrow_circle_up_outline),
+      sideBarComponent(sidebarName[5], EneftyIcons.chart_square_outline),
+      sideBarComponent(sidebarName[6], EneftyIcons.calendar_outline),
+      sideBarComponent(sidebarName[7], EneftyIcons.shopping_cart_outline),
+      sideBarComponent(sidebarName[8], EneftyIcons.setting_2_outline),
       sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out,
           context: context),
     ];
   }
+  // List<SidebarXItem> drawSidebarItems(BuildContext context) {
+  //   return [
+  //     sideBarComponent(sidebarName[0], Icons.dashboard),
+  //     sideBarComponent(sidebarName[1], SIdeBarIcon.ic_customer_and_orders),
+  //     sideBarComponent(sidebarName[2], SIdeBarIcon.ic_products),
+  //     sideBarComponent(sidebarName[3], SIdeBarIcon.ic_pending_payment),
+  //     sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
+  //     sideBarComponent(sidebarName[5], Icons.bar_chart),
+  //     sideBarComponent(sidebarName[6], SIdeBarIcon.ic_calender),
+  //     sideBarComponent(sidebarName[7], SIdeBarIcon.ic_today_order),
+  //     sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
+  //     sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out,
+  //         context: context),
+  //   ];
+  // }
 
   SidebarXItem sideBarComponent(
     String barTitle,
@@ -332,17 +348,17 @@ class HomeController extends GetxController {
 
   Widget upperSideBar() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(10.0),
       child: Center(
         child: InkResponse(
             onTap: () => {
                   homeScaffoldKey.currentState?.openDrawer(),
                 },
             child: const Icon(
-              Icons.menu_outlined,
-              size: 30,
+              EneftyIcons.menu_outline,size: 30,),
+              
             )),
-      ),
-    );
+      );
+    
   }
 }

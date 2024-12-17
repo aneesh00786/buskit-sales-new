@@ -81,17 +81,17 @@ class CategoryPerformancee {
         salesmanList.map((i) => Salesmann.fromJson(i)).toList();
 
     return CategoryPerformancee(
-      cid: json['cid'],
+      cid: json['cid'] ?? 0,
       category: json['category'],
       actualProjection: json['actual_projection'] != null
           ? double.parse(json['actual_projection'].toString())
-          : null,
+          : 0.0,
       actualTarget: json['actual_target'] != null
           ? double.parse(json['actual_target'].toString())
-          : null,
+          : 0.0,
       actualSales: json['actual_sales'] != null
           ? double.tryParse(json['actual_sales'].toString())
-          : null,
+          : 0.0,
       salesman: salesman.isNotEmpty ? salesman : null,
     );
   }
@@ -240,7 +240,7 @@ class OrderRevenueData {
       receivedAmount: json['received_amount'] ?? 0,
       receivedAmountDate: json['received_amount_date']?.toString() ?? '',
       checkDueDate: json['check_due_date']?.toString() ?? '',
-      checkNumber: json['check_number'] ?? 0,
+      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
       transactionDate: json['transaction_date']?.toString() ?? '',
       transactionDetails: json['transaction_details']?.toString() ?? '',
       totalOrderRevenue: json['total_order_revenue'] ?? 0,
@@ -855,7 +855,7 @@ class OrderDetails {
       receivedAmount: json['received_amount'],
       receivedAmountDate: json['received_amount_date']?.toString(),
       checkDueDate: json['check_due_date']?.toString(),
-      checkNumber: json['check_number'],
+      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
       transactionDate: json['transaction_date']?.toString(),
       transactionDetails: json['transaction_details'],
       orderProcessing: json['order_processing'],
@@ -1028,7 +1028,8 @@ class CompletedOrder {
       receivedAmount: json['received_amount'],
       receivedAmountDate: json['received_amount_date'],
       checkDueDate: json['check_due_date'],
-      checkNumber: json['check_number'],
+      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
+
       transactionDate: json['transaction_date'],
       transactionDetails: json['transaction_details'],
       // receivableAmount: json['receivable_amount'],
@@ -1173,10 +1174,12 @@ class PendingAmount {
       orderCreatAt: json['order_creat_at'],
       orderTotal: json['order_total'],
       receivedAmount: json['received_amount'],
-      receivableAmount: json['receivable_amount'],
+      receivableAmount: json['receivable_amount'] != null
+          ? (json['receivable_amount'] as num).toDouble()
+          : 0.0,
       receivedAmountDate: json['received_amount_date'],
       checkDueDate: json['check_due_date'],
-      checkNumber: json['check_number'],
+      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
       transactionDate: json['transaction_date'],
       transactionDetails: json['transaction_details'],
       creditPeriod: json['credit_period'],
@@ -1388,7 +1391,7 @@ class Messages {
   String get getMessage => message;
   String get getSource => source;
   String get getSalesman => salesman;
-  String get getImage => image??'';
+  String get getImage => image ?? '';
   factory Messages.fromJson(Map<String, dynamic> json) {
     return Messages(
       message: json['message'] ?? '',
@@ -1713,7 +1716,7 @@ class OrdersDash {
       receivedAmountDate: _parseNullableDateTime(json['received_amount_date']),
       deliveryDate: _parseNullableDateTime(json['delivery_datetime']),
       checkDueDate: _parseDateTime(json['check_due_date']),
-      checkNumber: json['check_number'] ?? 0,
+      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
       transactionDate: _parseNullableDateTime(json['transaction_date']),
       transactionDetails: json['transaction_details'] ?? '',
       fullname: json['fullname'] ?? '',
@@ -2351,19 +2354,23 @@ class SpecificOrderData {
         checkDueDate: json["check_due_date"] != null
             ? DateTime.parse(json["check_due_date"])
             : null,
-        checkNumber: json["check_number"],
+        checkNumber: json['check_number'] != null ? json['check_number'] : 0,
         transactionDate: json["transaction_date"] != null
             ? DateTime.parse(json["transaction_date"])
             : null,
         transactionDetails: json["transaction_details"],
         rejectionReason: json["rejection_reason"],
-        rejectedDate: json["rejected_date"],
-        receivableAmount: json["receivable_amount"],
+        rejectedDate: json["rejected_date"] ?? 0,
+        receivableAmount: json['receivable_amount'] != null
+            ? (json['receivable_amount'] as num).toDouble()
+            : 0.0,
         deliveryDatetime: json["delivery_datetime"] != null
             ? DateTime.parse(json["delivery_datetime"])
             : null,
         notificationStatus: json["notification_status"],
-        orderCreatedStored: json["order_created_stored"],
+        orderCreatedStored: json["order_created_stored"] != null
+            ? json["order_created_stored"] as String
+            : '',
         cart: json["cart"] != null
             ? List<SpecificOrderCart>.from(
                 json["cart"].map((x) => SpecificOrderCart.fromJson(x)))

@@ -198,15 +198,15 @@ class HomeController extends GetxController {
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
-      sideBarComponent(sidebarName[0], Icons.dashboard_outlined),
-      sideBarComponent(sidebarName[1], EneftyIcons.profile_2user_outline),
-      sideBarComponent(sidebarName[2], EneftyIcons.a_3d_cube_outline),
-      sideBarComponent(sidebarName[3], EneftyIcons.moneys_outline),
-      sideBarComponent(sidebarName[4], EneftyIcons.arrow_circle_up_outline),
-      sideBarComponent(sidebarName[5], EneftyIcons.chart_square_outline),
-      sideBarComponent(sidebarName[6], EneftyIcons.calendar_outline),
-      sideBarComponent(sidebarName[7], EneftyIcons.shopping_cart_outline),
-      sideBarComponent(sidebarName[8], EneftyIcons.setting_2_outline),
+      sideBarComponent(sidebarName[0], Icons.dashboard),
+      sideBarComponent(sidebarName[1], EneftyIcons.profile_2user_bold),
+      sideBarComponent(sidebarName[2], EneftyIcons.a_3d_cube_bold),
+      sideBarComponent(sidebarName[3], EneftyIcons.moneys_bold),
+      sideBarComponent(sidebarName[4], EneftyIcons.arrow_circle_up_bold),
+      sideBarComponent(sidebarName[5], EneftyIcons.chart_square_bold),
+      sideBarComponent(sidebarName[6], EneftyIcons.calendar_bold),
+      sideBarComponent(sidebarName[7], EneftyIcons.shopping_cart_bold),
+      sideBarComponent(sidebarName[8], EneftyIcons.setting_2_bold),
       sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out,
           context: context),
     ];

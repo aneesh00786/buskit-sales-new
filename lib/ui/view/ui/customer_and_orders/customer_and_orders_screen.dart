@@ -45,15 +45,12 @@ class _tableeeState extends State<tableee> {
     return Scaffold(
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              calender(),
-              FrozenHeaderTable(),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            calender(),
+            FrozenHeaderTable(),
+          ],
         ),
       ),
     );
@@ -1803,18 +1800,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                 return const Center(child: Text('No customers found'));
               } else {
                 double screenHeight = MediaQuery.of(context).size.height;
-                double containerHeight = screenHeight * 0.85;
-
+                double containerHeight = screenHeight * 0.9;
                 return Container(
-                  height: totalTableWidth1,
+                  height: containerHeight,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Fixed first column
                       SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         controller: _verticalScrollController,
-                        // controller: _horizontalScrollController,
                         child: SizedBox(
                           width: 260,
                           child: Column(

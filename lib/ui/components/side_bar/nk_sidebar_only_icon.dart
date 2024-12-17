@@ -81,69 +81,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         },
         itemCount: sideBarList.length);
   }
-
-  // Widget listComponet(SidebarXItem sideBarData, int index) {
-  //   final NotificationController notificationController =
-  //       Get.put(NotificationController());
-
-  //   // notificationController.loadNotificationData();
-
-  //   bool isRecentOrders = index == 7;
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //         border: widget.sidebarXController.selectedIndex == index
-  //             ? const BorderDirectional(
-  //                 start: BorderSide(color: primaryColor, width: 3))
-  //             : null),
-  //     child: GestureDetector(
-  //       onTap: () {
-  //         setState(() {
-  //           widget.sidebarXController.selectIndex(index);
-  //           sideBarData.onTap?.call();
-  //           widget.onTap?.call(widget.sidebarXController.selectedIndex);
-  //         });
-  //       },
-  //       child: Padding(
-  //         padding: EdgeInsets.zero,
-  //         child:Stack(
-  //         clipBehavior: Clip.none,
-  //         children: [
-  //           Icon(
-  //             sideBarData.icon!,
-  //             size: 20,
-  //             color: widget.sidebarXController.selectedIndex == index
-  //                 ? Theme.of(context).primaryColor
-  //                 : Colors.grey,
-  //           ),
-  //           if (isRecentOrders)
-  //             Positioned(
-  //               top: -15,
-  //               left: 10,
-  //               child: notificationController.isNotificationLoading.value
-  //                   ? SizedBox.shrink() // Show nothing when loading
-  //                   : notificationController
-  //                               .recentOrderCountData.mainNotification !=
-  //                           null
-  //                       ? CircleAvatar(
-  //                           radius: 10,
-  //                           backgroundColor: Colors.red,
-  //                           child: Text(
-  //                             notificationController.recentOrderCountData
-  //                                     .mainNotification!.recentOrders
-  //                                     ?.toString() ??
-  //                                 '0',
-  //                             style:
-  //                                 TextStyle(fontSize: 10, color: Colors.white),
-  //                           ),
-  //                         )
-  //                       : SizedBox.shrink(), //
-  //             ),
-  //         ],
-  //       ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  
   Widget listComponent(SidebarXItem sideBarData, int index) {
     final NotificationController notificationController =
         Get.put(NotificationController());
@@ -188,15 +126,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                 color: widget.sidebarXController.selectedIndex == index
                     ? Theme.of(context).primaryColor
                     : Colors.grey,
-                weight: 1000,
-                shadows: [
-                  Shadow(
-                      color: widget.sidebarXController.selectedIndex == index
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey,
-                      blurRadius: 1,
-                      offset: Offset(1, 1))
-                ],
               ),
             ),
             if (isRecentOrders)
@@ -204,7 +133,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                 top: -15,
                 left: 10,
                 child: notificationController.isNotificationLoading.value
-                    ? SizedBox.shrink() // Show nothing when loading
+                    ? SizedBox.shrink() 
                     : notificationController
                                 .recentOrderCountData.mainNotification !=
                             null

@@ -90,14 +90,12 @@ class ApiService {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     String createdToken = jsonMap['createdToken'];
-    //String companyId = jsonMap['company_id'];
     final url = '$_baseUrl${ApiConstants.dashboard_list}';
     final requestBody = {
       "salesman_id": salesmanId,
       "start_date": startDate,
       "end_date": endDate,
       "companyId": companyId,
-      //"companyId":companyId,
     };
     try {
       log('API URL: $url');
@@ -404,12 +402,7 @@ class ApiService {
   }) async {
     final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    String orderStatusString = '';
-    if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString();
-    }
     log('FETCH_ALL_ORDER API called');
-    //check_back
     final requestBody = {
       "customer_id": "",
       "salesman_id": salesmanId,
@@ -417,7 +410,7 @@ class ApiService {
       "payment_type": 0,
       "start_date": startDate,
       "end_date": endDate,
-      "limit": 10,
+      "limit": 1000,
       "page": 1,
       "companyId": companyId,
     };
@@ -428,13 +421,12 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        print('Fetch All Orders Response: $jsonResponse');
-
+        log('Fetch All Orders Response: ${jsonResponse}');
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
+        log('Fetch All Orders Pagination: ${pagination.totalRecord}');
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
         List<OrdersDash> orders = [];
         if (orderData != null) {
@@ -442,7 +434,6 @@ class ApiService {
               .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
               .toList();
         }
-
         return OrderResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -803,8 +794,6 @@ class ApiService {
                   .map((json) => CategoryPerformancez.fromJson(json))
                   .toList();
         }
-
-        // Parse allCategory
         List<FullCategory> allCategory = [];
         if (jsonResponse['data']['fullCategotry'] != null) {
           allCategory = (jsonResponse['data']['fullCategotry'] as List)
@@ -813,16 +802,12 @@ class ApiService {
         }
         print(
             "sabik ca ca ca caca cc acacac  ,${jsonResponse['data']['fullCategotry']}");
-
-        // Parse recentOrders
         List<RecentOrder> recentOrders = [];
         if (jsonResponse['data']['recent_orders'] != null) {
           recentOrders = (jsonResponse['data']['recent_orders'] as List)
               .map((json) => RecentOrder.fromJson(json))
               .toList();
         }
-
-        // Parse frequentProductLists
         List<FrequantliyProductList> frequentProductLists = [];
         if (jsonResponse['data']['frequantliy_product_lists'] != null) {
           frequentProductLists =
@@ -830,15 +815,12 @@ class ApiService {
                   .map((json) => FrequantliyProductList.fromJson(json))
                   .toList();
         }
-
-        // Parse yearList
         List<YearList> yearList = [];
         if (jsonResponse['data']['year_list'] != null) {
           yearList = (jsonResponse['data']['year_list'] as List)
               .map((json) => YearList.fromJson(json))
               .toList();
         }
-
         return ApiResponseModel(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -1462,12 +1444,11 @@ class DashboardProvider with ChangeNotifier {
         return _apiService.fetchAllOrders(
             startDate: startDate, endDate: endDate, orderStatus: s);
       });
-      print("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
-
+      log("Order Response Type : ${s.type}");
+      log("Order Response : ${_orderResponse}");
       notifyListeners();
 
-      print(
-          "sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .${_orderResponse}");
+      log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .${_orderResponse}");
 
       notifyListeners();
     } catch (e, stackTrace) {
@@ -1727,8 +1708,7 @@ class DashboardProvider with ChangeNotifier {
       }
       if (_selectedFilter == FilterDateEnum.range &&
           _selectedStartDate.isNotEmpty &&
-          _selectedEndDate.isNotEmpty) {
-      }
+          _selectedEndDate.isNotEmpty) {}
       notifyListeners();
     }
   }
@@ -1737,12 +1717,13 @@ class DashboardProvider with ChangeNotifier {
     try {
       Future<SalesmenResponse> chatData = _apiService.fetchChatData(salesmanId);
       _salesmenResponse = chatData as Future<SalesmenResponse>?;
-      return chatData; 
+      return chatData;
     } catch (e, stackTrace) {
       _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);
       throw Exception('Failed to fetch chat data: $e');
     }
   }
+
   List<Messages>? _individualChatMessages = [];
   List<Messages>? get individualChatMessages => _individualChatMessages;
   bool _noMoreData = false;

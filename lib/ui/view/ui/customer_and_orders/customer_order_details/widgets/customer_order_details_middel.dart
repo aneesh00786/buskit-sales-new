@@ -46,55 +46,6 @@ class _CustomerOrderDetailMiddelWidgetState
         children: [
           Obx(() {
             return Container();
-            // return CategoryFilterWidget(
-            //   onRetryPressed: () {
-            //     widget.productsController.loadDataOfCategory;
-            //   },
-            //   categoryData: widget.productsController.categoryData.value.data,
-            //   onSelected: (category, subCategory) {
-            //     if (widget.productsController.categoryData.value.data != null) {
-            //       widget.productsController.selectedSubCategoryId.value = widget
-            //           .productsController
-            //           .categoryData
-            //           .value
-            //           .data![category!]
-            //           .subCategoryItem![subCategory!]
-            //           .id!;
-            //       widget.productsController.selectedCategoryId.value = widget
-            //           .productsController.categoryData.value.data![category].id!;
-            //       widget.productsController.selectedSubCategoryIndex.value =
-            //           subCategory;
-            //       widget.productsController.selectedCategoryIndex.value =
-            //           category;
-            //       /*   widget.productsController.productList.value = widget
-            //             .productsController
-            //             .categoryData
-            //             .value
-            //             .data![category]
-            //             .subCategoryItem![subCategory]
-            //             .productList ??
-            //         [];*/
-
-            //       WidgetsBinding.instance.addPostFrameCallback((_) {
-            //         setState(() {
-            //           widget.productsController.updateProductList(
-            //               widget
-            //                   .productsController
-            //                   .categoryData
-            //                   .value
-            //                   .data![category]
-            //                   .subCategoryItem![subCategory]
-            //                   .productList
-            //                   ?.map((e) => e)
-            //                   .toSet()
-            //                   .toList() ??
-            //                   [],
-            //               isBackupUpdate: true);
-            //         });
-            //       });
-            //     }
-            //   },
-            // );
           })
           ,
           nkMediumSizeBox(),

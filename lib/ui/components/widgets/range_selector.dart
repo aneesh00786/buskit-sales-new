@@ -48,48 +48,64 @@ class RangeSelectorState extends State<RangeSelector> {
 
   @override
   Widget build(BuildContext context) {
+    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        MyPopUpMenu<int>(
-          onItemSelected: (value) {
-            setState(() {
-              selectedIndex = value;
-            });
-            if (selectedIndex != FilterDateEnum.values.length - 1) {
-              widget.onChanged?.call(
-                  selectedIndex,
-                  FilterDateEnum.values[selectedIndex]
-                      .selectDateRange(context));
-            }
-          },
-          items: FilterDateEnum.values
-              .map((e) => PopupMenuItem<int>(
-                    value: FilterDateEnum.values.indexOf(e),
-                    child: MyRegularText(
-                      label: e.name,
-                      fontSize: NkFontSize.smallFont(),
-                    ),
-                    
-                  ))
-              .toList(),
-          buttonChild: Container(
-            padding: nkSymmetricPadding(
-                vertical: AppDimensions.instance!.height * .001),
-            
-            decoration: decoration,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                MyRegularText(
-                  label: FilterDateEnum.values[selectedIndex].name,
-                  fontSize: NkFontSize.smallFont(),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_down,
-                ),
-              ],
+        Container(
+          height: isSmallScreen ? 30 : 45,
+          width: isSmallScreen ? 96 : 130,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: MyPopUpMenu<int>(
+            onItemSelected: (value) {
+              setState(() {
+                selectedIndex = value;
+              });
+              if (selectedIndex != FilterDateEnum.values.length - 1) {
+                widget.onChanged?.call(
+                    selectedIndex,
+                    FilterDateEnum.values[selectedIndex]
+                        .selectDateRange(context));
+              }
+            },
+            items: FilterDateEnum.values
+                .map((e) => PopupMenuItem<int>(
+                      value: FilterDateEnum.values.indexOf(e),
+                      child: MyRegularText(
+                        label: e.name,
+                        fontSize: NkFontSize.smallFont(),
+                      ),
+                    ))
+                .toList(),
+            buttonChild: Container(
+              padding: nkSymmetricPadding(
+                  vertical: AppDimensions.instance!.height * .002),
+              decoration: decoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MyRegularText(
+                    label: FilterDateEnum.values[selectedIndex].name,
+                    fontSize: NkFontSize.smallFont(),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -103,94 +119,39 @@ class RangeSelectorState extends State<RangeSelector> {
     );
   }
 
-
   Widget goButton() {
     return Padding(
-
-        padding: EdgeInsets.all((MediaQuery.of(
-            context)
-            .orientation ==
-            Orientation
-                .portrait)
-            ? (ResponsiveInfo
-            .isMobileDimension(
-            context)
-            ? 2
-            : 3)
-            : (ResponsiveInfo
-            .isMobileDimension(
-            context)
-            ? 4
-            : 6)),
-
-        child:  Container(
-
-          width: (MediaQuery.of(
-              context)
-              .orientation ==
-              Orientation
-                  .portrait)
-              ? (ResponsiveInfo
-              .isMobileDimension(
-              context)
-              ? 40
-              : 60)
-              : (ResponsiveInfo
-              .isMobileDimension(
-              context)
-              ? 60
-              : 70),
-          height:(MediaQuery.of(
-              context)
-              .orientation ==
-              Orientation
-                  .portrait)
-              ? (ResponsiveInfo
-              .isMobileDimension(
-              context)
-              ? 30
-              : 45)
-              : (ResponsiveInfo
-              .isMobileDimension(
-              context)
-              ? 45
-              : 50),
-
+        padding: EdgeInsets.all(
+            (MediaQuery.of(context).orientation == Orientation.portrait)
+                ? (ResponsiveInfo.isMobileDimension(context) ? 2 : 3)
+                : (ResponsiveInfo.isMobileDimension(context) ? 4 : 6)),
+        child: Container(
+          width: (MediaQuery.of(context).orientation == Orientation.portrait)
+              ? (ResponsiveInfo.isMobileDimension(context) ? 40 : 60)
+              : (ResponsiveInfo.isMobileDimension(context) ? 60 : 70),
+          height: (MediaQuery.of(context).orientation == Orientation.portrait)
+              ? (ResponsiveInfo.isMobileDimension(context) ? 30 : 45)
+              : (ResponsiveInfo.isMobileDimension(context) ? 45 : 50),
           decoration: BoxDecoration(
             color: Color(0xff747ced),
-            borderRadius: BorderRadius.circular(ResponsiveInfo.isMobileDimension(context)?5:7),
+            borderRadius: BorderRadius.circular(
+                ResponsiveInfo.isMobileDimension(context) ? 5 : 7),
           ),
-
-          child:  TextButton(
-
-            child:       Text(
+          child: TextButton(
+            child: Text(
               "Go",
               textAlign: TextAlign.start,
               style: TextStyle(
-                  fontSize: (MediaQuery.of(
-                      context)
-                      .orientation ==
-                      Orientation
-                          .portrait)
-                      ? (ResponsiveInfo
-                      .isMobileDimension(
-                      context)
-                      ? 7
-                      : 10)
-                      : (ResponsiveInfo
-                      .isMobileDimension(
-                      context)
-                      ? 10
-                      : 13),
+                  fontSize: (MediaQuery.of(context).orientation ==
+                          Orientation.portrait)
+                      ? (ResponsiveInfo.isMobileDimension(context) ? 7 : 10)
+                      : (ResponsiveInfo.isMobileDimension(context) ? 10 : 13),
                   color: Colors.white,
-                  fontFamily:
-                  'Poppins_Regular'),
+                  fontFamily: 'Poppins_Regular'),
               maxLines: 2,
-              overflow:
-              TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
             ),
-            onPressed: (){
-
+            onPressed: () {
               widget.onChanged?.call(
                   selectedIndex,
                   FilterDateEnum.values[selectedIndex].selectDateRange(context,
@@ -199,8 +160,6 @@ class RangeSelectorState extends State<RangeSelector> {
           ),
         ));
   }
-
-
 
   Widget selectDateRange() {
     return Wrap(
@@ -233,7 +192,6 @@ class RangeSelectorState extends State<RangeSelector> {
             }
           });
         }),
-
       ],
     );
   }
@@ -266,16 +224,16 @@ class RangeSelectorState extends State<RangeSelector> {
       ),
     );
   }
+
   Decoration get decoration {
     return BoxDecoration(
-  borderRadius: widget.borderRadius ??
-      BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-  color:white,
-  border: Border.all(
-    color: Colors.grey, 
-    width: 0.3, 
-  ),
-);
-
+      borderRadius: widget.borderRadius ??
+          BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
+      color: white,
+      border: Border.all(
+        color: Colors.grey,
+        width: 0.3,
+      ),
+    );
   }
 }

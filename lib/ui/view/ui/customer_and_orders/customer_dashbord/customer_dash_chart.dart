@@ -326,14 +326,11 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                     return const SizedBox.shrink();
                   } else if (snapshot.hasError) {
                      return _buildTableLayout(context);
-
                   } else {
                     final orders = snapshot.data?.data ?? [];
-
-                    // Filter orders based on selected order status
                     final filteredOrders = orders.where((order) {
                       if (_selectedOrderStatus == null) {
-                        return true; // Show all orders if no status filter is selected
+                        return true;
                       } else {
                         return order.orderStatus == _selectedOrderStatus.type;
                       }

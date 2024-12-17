@@ -32,13 +32,7 @@ class MyPopUpMenu<T> extends StatelessWidget {
         onItemSelected?.call(value as dynamic);
       },
       itemBuilder: (context) {
-        return items /*List.generate(items.length, (index) {
-          return items[index]??PopupMenuItem(
-            mouseCursor: MaterialStateMouseCursor.clickable,
-            child: Text('button no $index'),
-          );
-        })*/
-            ;
+        return items ;
       },
     );
   }

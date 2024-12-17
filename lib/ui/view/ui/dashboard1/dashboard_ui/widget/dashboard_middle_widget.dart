@@ -1665,9 +1665,9 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
@@ -1676,6 +1676,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
+
   String? _prepareImage() {
     if (_selectedImage == null) return null;
 
@@ -1687,6 +1688,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     return base64Image;
   }
+
   String cleanBase64(String base64String) {
     if (base64String.startsWith('data:image')) {
       final index = base64String.indexOf(',') + 1;
@@ -1713,30 +1715,48 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageContent(Messages message) {
     if (message.image != null && message.image!.isNotEmpty) {
-      try {
-        final Uint8List? imageBytes = decodeBase64Image(message.image!);
-        if (imageBytes != null) {
-          return Image.memory(
-            imageBytes,
+      if (message.image!.contains('chat')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Image.network(
+            '${ApiConstants.imageBaseUrlss}${message.image}',
+            width: MediaQuery.of(context).size.width * 0.25,
+            fit: BoxFit.fitWidth,
             errorBuilder: (context, error, stackTrace) {
               return Text(
                 'Failed to load image',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Colors.green),
               );
             },
-            width: MediaQuery.of(context).size.width * 0.5,
+          ),
+        );
+      } else {
+        try {
+          final base64String = message.image!.split(',').last;
+          final imageBytes = base64Decode(base64String);
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.memory(
+              imageBytes,
+              width: MediaQuery.of(context).size.width * 0.25,
+              fit: BoxFit.fitWidth,
+              errorBuilder: (context, error, stackTrace) {
+                return Text(
+                  'Failed to load image',
+                  style: TextStyle(color: Colors.red),
+                );
+              },
+            ),
+          );
+        } catch (e) {
+          debugPrint("Error decoding image: $e");
+          return Text(
+            'Failed to load image',
+            style: TextStyle(color: Colors.red),
           );
         }
-      } catch (e) {
-        debugPrint("Error decoding image: $e");
       }
-      return Text(
-        'Failed to load image',
-        style: TextStyle(color: Colors.red),
-      );
     }
-
-    // If no image, return the text message
     return Text(
       message.message ?? '',
       style: TextStyle(fontSize: 16),
@@ -1753,14 +1773,6 @@ class _ChatScreenState extends State<ChatScreen> {
       'salesman': salesmanId,
       'image': base64Image,
     });
-    final newMessage = Messages(
-      message: message,
-      image: base64Image,
-      source: 'salesman',
-      salesman: salesmanId,
-    );
-    Provider.of<DashboardProvider>(context, listen: false)
-        .addMessages([newMessage]);
     _controller.clear();
     setState(() {
       _selectedImage = null;
@@ -1833,7 +1845,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             : Alignment.centerLeft,
                         child: Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.all(10),
+                          padding: EdgeInsets.all(
+                              message.message.isEmpty || message.message == ''
+                                  ? 5
+                                  : 10),
                           constraints: BoxConstraints(
                             maxWidth: MediaQuery.of(context).size.width * 0.5,
                           ),
@@ -1862,7 +1877,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             if (_selectedImage != null)
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(4.0),
                 child: Container(
                   height: 100,
                   width: 200,
@@ -1887,7 +1902,30 @@ class _ChatScreenState extends State<ChatScreen> {
                       radius: 25,
                       child: InkWell(
                           onTap: () {
-                            _pickImage();
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Select Method'),
+                                  actions: [
+                                    IconButton(
+                                      onPressed: () {
+                                        _pickImage(ImageSource.camera);
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon: Icon(EneftyIcons.camera_outline),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        _pickImage(ImageSource.gallery);
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon: Icon(EneftyIcons.gallery_bold),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),

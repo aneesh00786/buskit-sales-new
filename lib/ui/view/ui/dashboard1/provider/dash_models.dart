@@ -1393,7 +1393,7 @@ class Messages {
     return Messages(
       message: json['message'] ?? '',
       source: json['source'] ?? '',
-      image: json['image'] ?? '',
+      image: json['image_url'] ?? '',
       salesman: json['salesman'] ?? '',
     );
   }

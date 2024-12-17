@@ -103,8 +103,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                 ),
                 Center(
                   child: Container(
-                    height: ResponsiveInfo.isMobile() ? 60 : 85,
-                    width: ResponsiveInfo.isMobile() ? 60 : 85,
+                    height: ResponsiveInfo.isMobile() ? 70 : 100,
+                    width: ResponsiveInfo.isMobile() ? 70 : 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -116,8 +116,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                       child: MyNetworkImage(
                         fit: BoxFit.cover,
                         imageUrl: widget.userDetails.imagePath ?? '',
-                        height: ResponsiveInfo.isMobile() ? 50 : 65,
-                        width: ResponsiveInfo.isMobile() ? 50 : 65,
+                        height: ResponsiveInfo.isMobile() ? 50 : 75,
+                        width: ResponsiveInfo.isMobile() ? 50 : 75,
                       ),
                     ),
                   ),
@@ -163,7 +163,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                             });
                           },
                           onDoubleTap: () {},
-                          value: true,
+                          value: _onSwitchSelected,
                           textOn: 'In',
                           textOff: 'Out',
                           textOnColor: white,

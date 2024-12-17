@@ -436,7 +436,6 @@ class ApiService {
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
-
         List<OrdersDash> orders = [];
         if (orderData != null) {
           orders = orderData
@@ -1726,12 +1725,9 @@ class DashboardProvider with ChangeNotifier {
       } else {
         _selectedEndDate = formattedDate;
       }
-
-      // Only fetch data if both dates are set when range is selected
       if (_selectedFilter == FilterDateEnum.range &&
           _selectedStartDate.isNotEmpty &&
           _selectedEndDate.isNotEmpty) {
-        // fetchData(); // Fetch data after selecting both dates
       }
       notifyListeners();
     }
@@ -1741,37 +1737,12 @@ class DashboardProvider with ChangeNotifier {
     try {
       Future<SalesmenResponse> chatData = _apiService.fetchChatData(salesmanId);
       _salesmenResponse = chatData as Future<SalesmenResponse>?;
-      return chatData; // Return the fetched data
+      return chatData; 
     } catch (e, stackTrace) {
       _logger.e('Error fetching chat data', error: e, stackTrace: stackTrace);
       throw Exception('Failed to fetch chat data: $e');
     }
   }
-
-  // Future<MessagesResponse> fetch_individual_chat(String chatId) async {
-  //   try {
-  //     final chatData = await _apiService.fetch_individual_chat(chatId);
-  //     _individualChatResponse = Future.value(chatData);
-  //     notifyListeners();
-  //     return chatData;
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error fetching individual chat data',
-  //         error: e, stackTrace: stackTrace);
-  //     throw Exception('Failed to fetch individual chat data: $e');
-  //   }
-  // }
-
-  // Future<void> postAdminMessage(String salesmanId, String message) async {
-  //   try {
-  //     await _apiService.postAdminMessage(
-  //         salesmanId: salesmanId, message: message);
-  //     notifyListeners();
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error posting admin message',
-  //         error: e, stackTrace: stackTrace);
-  //     throw Exception('Failed to post admin message: $e');
-  //   }
-  // }
   List<Messages>? _individualChatMessages = [];
   List<Messages>? get individualChatMessages => _individualChatMessages;
   bool _noMoreData = false;

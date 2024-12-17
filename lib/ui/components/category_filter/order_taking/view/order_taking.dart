@@ -11,7 +11,9 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -380,7 +382,6 @@ class _OrderTakingState extends State<OrderTaking>
             child: Obx(() => Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Circle Avatar
                     if (!widget.productsController.selectedCustomerName.isEmpty)
                       CircleAvatar(
                         backgroundImage: widget.productsController
@@ -394,12 +395,12 @@ class _OrderTakingState extends State<OrderTaking>
                             ? Colors.blueGrey
                             : const Color.fromARGB(123, 194, 192, 192),
                       ),
-                    const SizedBox(width: 8), // Spacing between avatar and text
-                    // Name Text
+                    const SizedBox(width: 8),
                     widget.productsController.selectedCustomerName.isEmpty
                         ? Container()
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 widget.productsController.selectedCustomerName
@@ -412,6 +413,9 @@ class _OrderTakingState extends State<OrderTaking>
                   ],
                 )),
           ),
+          NotificationWidget(),
+          profiloe(),
+        
         ],
       ),
       body: Obx(() {

@@ -2,6 +2,8 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/option_list.dart';
@@ -25,12 +27,22 @@ class PerformanceScreen extends StatefulWidget {
 class _PerformanceScreenState extends State<PerformanceScreen> {
   bool isActive = false;
   StaffController staffController = Get.put(StaffController());
+
+  @override
+  void initState() {
+    super.initState();
+    final dashboardProvider =
+        Provider.of<CustomersProvider>(context, listen: false);
+    dashboardProvider.fetchCustomerData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,
         actions: [
+          NotificationWidget(),
           profiloe(),
         ],
       ),
@@ -70,22 +82,11 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
                             } else if (snapshot.hasError || !snapshot.hasData) {
                               return const Center(
                                 child: NodataWidget(),
-                                // child: Column(
-                                //   mainAxisAlignment: MainAxisAlignment.center,
-                                //   children: [
-                                //     Icon(Icons.error_outline,
-                                //         size: 50, color: Colors.red),
-                                //     Text(
-                                //       "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                //     ),
-                                //   ],
-                                // ),
                               );
                             } else if (snapshot.hasData) {
                               final categories = snapshot.data!.allCategory;
                               final categoryPerformance =
                                   snapshot.data!.categoryPerformance;
-
                               return Container(
                                 decoration: BoxDecoration(
                                   boxShadow: [

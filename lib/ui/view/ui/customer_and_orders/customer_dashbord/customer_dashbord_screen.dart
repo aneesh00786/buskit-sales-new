@@ -233,7 +233,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               child: Container(
                 height: 44,
                 width: double.infinity,
-                //  color: const Color(0xffffffff),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -259,7 +258,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               ),
                             ),
                           )
-                          // Placeholder if imagePath is null
                           ),
                       const SizedBox(
                         width: 4.5,

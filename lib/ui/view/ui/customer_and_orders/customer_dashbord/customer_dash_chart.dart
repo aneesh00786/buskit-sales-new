@@ -103,7 +103,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.delivered);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.delivered, customerId,'');
+                OrderStatus.delivered, customerId, '');
           },
         ),
         OptionData(
@@ -116,7 +116,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.estimates);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.estimates, customerId,7);
+                OrderStatus.estimates, customerId, 7);
           },
         ),
         OptionData(
@@ -128,7 +128,8 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
 
-            provider.fetchOrdersForCustomDash(OrderStatus.preOrder, customerId,0);
+            provider.fetchOrdersForCustomDash(
+                OrderStatus.preOrder, customerId, 0);
           },
         ),
         OptionData(
@@ -140,7 +141,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.draft);
 
-            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId,4);
+            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId, 4);
           },
         ),
         OptionData(
@@ -153,14 +154,14 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.cancelled, customerId,3);
+                OrderStatus.cancelled, customerId, 3);
           },
         ),
       ];
 
   Widget orderOptions(
       OptionData optionData, OrderDataas orderCountList, BuildContext context) {
-        Image svgComponent = Image.asset(
+    Image svgComponent = Image.asset(
       optionData.svg,
       height: AppDimensions.instance!.height * 0.03,
       fit: BoxFit.contain,
@@ -168,19 +169,19 @@ class OptionWidgetCustomerDash extends StatelessWidget {
 
     return Flexible(
       child: MyCommnonContainer(
-        color:white,
+        color: white,
         onTap: optionData.onTap,
         margin: nkSymmetricPadding(
           vertical: 0,
           horizontal: AppDimensions.instance!.width * 0.001,
         ),
         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
-              blurRadius: 2,
-              offset: Offset(4, 4),
-            ),
-          ],
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+            blurRadius: 2,
+            offset: Offset(4, 4),
+          ),
+        ],
         borderRadius: 20,
         padding: nkLargePadding(),
         isCommonBorder: true,
@@ -191,39 +192,40 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                    decoration: BoxDecoration(
-                      color: optionData.svgBgColor,
-                      borderRadius: BorderRadius.circular(15)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: svgComponent,
-                    ),
-                    ),
+                decoration: BoxDecoration(
+                    color: optionData.svgBgColor,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: svgComponent,
+                ),
+              ),
               Flexible(
                 child: Wrap(
                   direction: Axis.vertical,
                   children: [
-                     CustomText(
-                          content: optionData.title,
-                          fontSize: (MediaQuery.of(context).orientation ==
-                                  Orientation.portrait)
-                              ? (ResponsiveInfo.isMobileDimension(context)
-                                  ? 4.9
-                                  : 13)
-                              : (ResponsiveInfo.isMobileDimension(context)
-                                  ? 7
-                                  : 13),
-                          fontWeight: FontWeight.w600,
-                          color: secondaryTextColor,
-                          //maxLines: optionData.title.length,
-                        ),
                     CustomText(
-                      content: _getCountForTitle(optionData.title, orderCountList),
-                      fontSize: ResponsiveInfo.isMobileDimension(context)
-                            ? 7.7
-                            : 15.3,
+                      content: optionData.title,
+                      fontSize: (MediaQuery.of(context).orientation ==
+                              Orientation.portrait)
+                          ? (ResponsiveInfo.isMobileDimension(context)
+                              ? 4.9
+                              : 13)
+                          : (ResponsiveInfo.isMobileDimension(context)
+                              ? 7
+                              : 13),
                       fontWeight: FontWeight.w600,
-                      color:  optionData.color,
+                      color: secondaryTextColor,
+                      //maxLines: optionData.title.length,
+                    ),
+                    CustomText(
+                      content:
+                          _getCountForTitle(optionData.title, orderCountList),
+                      fontSize: ResponsiveInfo.isMobileDimension(context)
+                          ? 7.7
+                          : 15.3,
+                      fontWeight: FontWeight.w600,
+                      color: optionData.color,
                     ),
                   ],
                 ),
@@ -323,9 +325,8 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const SizedBox.shrink();
                   } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
+                     return _buildTableLayout(context);
+
                   } else {
                     final orders = snapshot.data?.data ?? [];
 
@@ -990,7 +991,56 @@ void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
     },
   );
 }
+  Widget _buildTableLayout(BuildContext context) {
+    return Container(
+     height: MediaQuery.of(context).size.height * 0.2,
+      child: Column(
+        children: [
+          _buildTableHeader(),
+       SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+             Center(
+                  child: NodataWidget(),
+                )
+      
+        ],
+      ),
+    );
+  }
+    Widget _buildTableHeader() {
+    return Container(
+      color: primaryColor,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(width: 10),
+          Expanded(flex: 2, child: _buildHeaderText('Customer List', 13)),
+          Expanded(child: _buildHeaderText('Order Number', 13)),
+          Expanded(child: _buildHeaderText('Order Created', 13)),
+          Expanded(child: _buildHeaderText('Order Price', 13)),
+          Expanded(child: _buildHeaderText('Invoice', 13)),
+          Expanded(child: _buildHeaderText('Payment Status', 13)),
+          Expanded(child: _buildHeaderText('Status', 13)),
+          SizedBox(width: 10),
+        ],
+      ),
+    );
+  }
 
+  Widget _buildHeaderText(String text, double fontSize) {
+    return Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: fontSize,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins_Regular',
+        ),
+      ),
+    );
+  }
 class OptionData {
   String title;
   String count;

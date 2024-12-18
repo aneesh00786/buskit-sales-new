@@ -329,17 +329,38 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   }
 
   Widget orderStatus(CustomerCart orderData) {
+    Color statusColor;
+    switch (orderData.optionOrderData?.orderStatus) {
+      case 11:
+        statusColor = const Color.fromARGB(255, 225, 250, 191);
+        break;
+      case 12:
+        statusColor = const Color.fromARGB(255, 255, 222, 168);
+        break;
+      case 14:
+        statusColor = const Color.fromARGB(255, 192, 226, 254);
+        break;
+      case 5:
+        statusColor = const Color.fromARGB(255, 190, 253, 247);
+        break;
+      case 1:
+        statusColor = const Color.fromARGB(255, 245, 195, 254);
+        break;
+      case 2:
+        statusColor = const Color.fromARGB(255, 222, 199, 246);
+        break;
+      case 13:
+        statusColor = const Color.fromARGB(255, 246, 199, 199);
+        break;
+      default:
+        statusColor = Colors.grey;
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
           decoration: BoxDecoration(
-            color: orderData.optionOrderData?.orderStatus != null
-                // ? OrderHandlingClass.fromType(
-                //         orderData.optionOrderData!.orderStatus!)
-                //     .orderColor
-                ? Color.fromARGB(255, 216, 204, 250)
-                : Colors.grey,
+            color: statusColor,
             borderRadius: BorderRadius.circular(50),
           ),
           child: Center(
@@ -349,8 +370,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           orderData.optionOrderData!.orderStatus!)
                       .name
                   : 'Unknown',
-              fontSize: 12,
+              fontSize: 13,
               align: TextAlign.center,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

@@ -32,10 +32,6 @@ class _CustomerOrderDetailsScreenState
     customerOrderDetailsController.customerAndOrderData.value =
         widget.customerAndOrderData;
     productsController.loadDataOfCategory.whenComplete(() {
-      // productsController.loadDataOfProduct().then((value) {
-      //   /*  productsController.productList.value = productsController
-      //       .loadAlredyAddedInCartProductCount(productsController.productList);*/
-      // });
     });
     productsController.updateCustomerAndOrderData(widget.customerAndOrderData);
     log("DATATATAA ${widget.customerAndOrderData.fullname}");
@@ -55,13 +51,6 @@ class _CustomerOrderDetailsScreenState
         body: GetBuilder<ProductsController>(
           init: productsController,
           assignId: true,
-          /* didUpdateWidget: (oldWidget, state) {
-            if (productsController.customerAndOrderData.value.cart !=
-                state.controller?.customerAndOrderData.value.cart) {
-              productsController.loadAlredyAddedInCartProductCount();
-              setState(() {});
-            }
-          },*/
           builder: (productsController) {
             return SafeArea(
               minimum: nkRegularPadding(),

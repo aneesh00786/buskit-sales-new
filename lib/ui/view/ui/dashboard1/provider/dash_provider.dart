@@ -895,33 +895,33 @@ class ApiService {
     }
   }
 
-  Future<ApiResponseModel> fetchCustomerDashboardData() async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
-    final id = SessionHelper.loginSavedData?.company_id ?? 0;
-    final body = {
-      'customer_id': 'CUSTO42',
-      'specifiedYear': 2024,
-      'companyId': id
-    };
+  // Future<ApiResponseModel> fetchCustomerDashboardData() async {
+  //   final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
+  //   final id = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   final body = {
+  //     'customer_id': 'CUSTO42',
+  //     'specifiedYear': 2024,
+  //     'companyId': id
+  //   };
 
-    try {
-      final response = await http.post(url, body: body);
-      print(
-          " sabik k k k k kresponse k k k k  k k k  k kresponse k k kkresponse k k kresponse k k k  ${response}");
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+  //   try {
+  //     final response = await http.post(url, body: body);
+  //     print(
+  //         " sabik k k k k kresponse k k k k  k k k  k kresponse k k kkresponse k k kresponse k k k  ${response}");
+  //     if (response.statusCode == 200) {
+  //       final jsonData = json.decode(response.body);
 
-        print(
-            " sabik k k k k k k k k k  k k k  k k k k kk k k k k k k  ${jsonData['data']}");
+  //       print(
+  //           " sabik k k k k k k k k k  k k k  k k k k kk k k k k k k  ${jsonData['data']}");
 
-        return ApiResponseModel.fromJson(jsonData);
-      } else {
-        throw Exception('Failed to load data');
-      }
-    } catch (e) {
-      throw Exception('Failed to connect to server');
-    }
-  }
+  //       return ApiResponseModel.fromJson(jsonData);
+  //     } else {
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Failed to connect to server');
+  //   }
+  // }
 
   Future<ApiResponsees> fetchOrderCount(
     String customerId,

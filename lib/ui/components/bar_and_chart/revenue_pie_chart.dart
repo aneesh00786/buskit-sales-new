@@ -2093,7 +2093,7 @@ class _DoughnutDefaultCustomerDashState
                           response.touchedSection != null) {
                         final section = response.touchedSection!;
                         final PieChartSectionData touchedSectionData =
-                            section.touchedSection!;
+                            section.touchedSection??PieChartSectionData();
                         final isPaymentCompleted = touchedSectionData.value ==
                             paymentCompleted.toDouble();
                         final title =

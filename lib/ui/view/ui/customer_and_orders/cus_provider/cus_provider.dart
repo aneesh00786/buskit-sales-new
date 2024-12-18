@@ -32,7 +32,7 @@ class CustomersProvider with ChangeNotifier {
   })  : _apiService = apiService,
         _logger = logger {
     fetchCustomerData();
-    fetchcustomersDash();
+    // fetchcustomersDash();
   }
 
   String _errorMessage = '';
@@ -105,7 +105,6 @@ class CustomersProvider with ChangeNotifier {
         selectedYearCategory: selectedYearCategory,
       );
 
-      notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
       rethrow;
@@ -144,18 +143,18 @@ class CustomersProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchcustomersDash() async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-      _customersDashFuture = _apiService.fetchCustomerDashboardData();
-      notifyListeners();
-    } catch (e, stackTrace) {
-      _isLoading = false;
-      _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-      rethrow;
-    }
-  }
+  // Future<void> fetchcustomersDash() async {
+  //   try {
+  //     _isLoading = true;
+  //     notifyListeners();
+  //     _customersDashFuture = _apiService.fetchCustomerDashboardData();
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _isLoading = false;
+  //     _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> fetchCustomerDashboardCountData(String customerId) async {
     try {

@@ -43,15 +43,11 @@ class _tableeeState extends State<tableee> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            calender(),
-            FrozenHeaderTable(),
-          ],
-        ),
+      body: Column(
+        children: [
+          calender(),
+          Expanded(child: FrozenHeaderTable()),
+        ],
       ),
     );
   }
@@ -349,8 +345,7 @@ class _tableeeState extends State<tableee> {
                           padding: const EdgeInsets.all(8.0),
                           child: Dialog(
                             insetPadding: EdgeInsets.zero,
-                            backgroundColor:
-                                Colors.grey[200],
+                            backgroundColor: Colors.grey[200],
                             shape: const RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10.0)),
@@ -1702,26 +1697,26 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     super.initState();
 
     _horizontalScrollController.addListener(() {
-      // Disable scrolling at the end
-      if (_horizontalScrollController.offset <=
-          _horizontalScrollController.position.minScrollExtent) {
-        _horizontalScrollController
-            .jumpTo(_horizontalScrollController.position.minScrollExtent);
-      } else if (_horizontalScrollController.offset >=
-          _horizontalScrollController.position.maxScrollExtent) {
-        _horizontalScrollController
-            .jumpTo(_horizontalScrollController.position.maxScrollExtent);
+      if (_horizontalScrollController.hasClients) {
+        double clampedOffset = _horizontalScrollController.offset.clamp(
+          _horizontalScrollController.position.minScrollExtent,
+          _horizontalScrollController.position.maxScrollExtent,
+        );
+        if (_horizontalScrollController.offset != clampedOffset) {
+          _horizontalScrollController.jumpTo(clampedOffset);
+        }
       }
     });
+
     _verticalScrollController.addListener(() {
-      if (_verticalScrollController.offset <=
-          _verticalScrollController.position.minScrollExtent) {
-        _verticalScrollController
-            .jumpTo(_verticalScrollController.position.minScrollExtent);
-      } else if (_verticalScrollController.offset >=
-          _verticalScrollController.position.maxScrollExtent) {
-        _verticalScrollController
-            .jumpTo(_verticalScrollController.position.maxScrollExtent);
+      if (_verticalScrollController.hasClients) {
+        double clampedOffset = _verticalScrollController.offset.clamp(
+          _verticalScrollController.position.minScrollExtent,
+          _verticalScrollController.position.maxScrollExtent,
+        );
+        if (_verticalScrollController.offset != clampedOffset) {
+          _verticalScrollController.jumpTo(clampedOffset);
+        }
       }
     });
   }
@@ -1732,437 +1727,435 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     _verticalScrollController.dispose();
     super.dispose();
   }
+  double containersHeight(BuildContext context) {
+  bool isLandscape =
+      MediaQuery.of(context).orientation == Orientation.landscape;
+  return isLandscape
+      ? MediaQuery.of(context).size.height  
+      : MediaQuery.of(context).size.height ; 
+}
 
   @override
   Widget build(BuildContext context) {
     double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 140 + 100;
     double fixedRowHeight = 80.0;
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Consumer<CustomersProvider>(builder: (context, provider, _) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (provider.errorMessage.isNotEmpty) {
-          return Expanded(
-            child: Column(children: [
-              Container(
-                color: primaryColor,
-                width: double.infinity,
-                padding: EdgeInsets.all(8.0),
-                child: Table(
-                  columnWidths: {
-                    0: FlexColumnWidth(2),
-                    1: FlexColumnWidth(2),
-                    2: FlexColumnWidth(2),
-                    3: FlexColumnWidth(2),
-                    4: FlexColumnWidth(2),
-                    5: FlexColumnWidth(2),
-                    6: FlexColumnWidth(2),
-                    7: FlexColumnWidth(2),
-                  },
-                  children: [
-                    TableRow(
-                      children: [
-                        _buildTableHeader1('Sales'),
-                        _buildTableHeader1('Sales / Delivery / Payments'),
-                        _buildTableHeader1('Estimates'),
-                        _buildTableHeader1('Pre-Order'),
-                        _buildTableHeader1('Drafts'),
-                        _buildTableHeader1('Cancelled'),
-                        _buildTableHeader1('Visits'),
-                        _buildTableHeader1('SE'),
-                      ],
-                    ),
-                  ],
-                ),
+    return Consumer<CustomersProvider>(builder: (context, provider, _) {
+      if (provider.isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (provider.errorMessage.isNotEmpty) {
+        return Expanded(
+          child: Column(children: [
+            Container(
+              color: primaryColor,
+              width: double.infinity,
+              padding: EdgeInsets.all(8.0),
+              child: Table(
+                columnWidths: {
+                  0: FlexColumnWidth(2),
+                  1: FlexColumnWidth(2),
+                  2: FlexColumnWidth(2),
+                  3: FlexColumnWidth(2),
+                  4: FlexColumnWidth(2),
+                  5: FlexColumnWidth(2),
+                  6: FlexColumnWidth(2),
+                  7: FlexColumnWidth(2),
+                },
+                children: [
+                  TableRow(
+                    children: [
+                      _buildTableHeader1('Sales'),
+                      _buildTableHeader1('Sales / Delivery / Payments'),
+                      _buildTableHeader1('Estimates'),
+                      _buildTableHeader1('Pre-Order'),
+                      _buildTableHeader1('Drafts'),
+                      _buildTableHeader1('Cancelled'),
+                      _buildTableHeader1('Visits'),
+                      _buildTableHeader1('SE'),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.45,
-              ),
-              Center(child: NodataWidget()),
-            ]),
-          );
-        } else if (provider.customersFuture == null) {
-          return const Center(child: Text('No data available'));
-        } else {
-          return FutureBuilder<CustomerResponseModelxx>(
-            future: provider.customersFuture!,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
-                return const Center(child: Text('No customers found'));
-              } else {
-                double screenHeight = MediaQuery.of(context).size.height;
-                double containerHeight = screenHeight * 0.9;
-                return Container(
-                  height: containerHeight,
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
+            ),
+            Center(child: NodataWidget()),
+          ]),
+        );
+      } else if (provider.customersFuture == null) {
+        return const Center(child: Text('No data available'));
+      } else {
+        return FutureBuilder<CustomerResponseModelxx>(
+          future: provider.customersFuture!,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
+              return const Center(child: Text('No customers found'));
+            } else {
+              return SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Container(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        controller: _verticalScrollController,
-                        child: SizedBox(
-                          width: 270,
-                          child: Column(
-                            children: [
-                              _buildTableHeader(
-                                Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: TextField(
-                                    onChanged: (query) {
-                                      provider.updateSearchQuery(query);
-                                    },
-                                    decoration: InputDecoration(
-                                      hintText: 'Search',
-                                      hintStyle:
-                                          const TextStyle(color: Colors.grey),
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(3.2),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 9.5, vertical: 9.5),
+                      SizedBox(
+                        width: 270,
+                        child: Column(
+                          children: [
+                            _buildTableHeader(
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: TextField(
+                                  onChanged: (query) {
+                                    provider.updateSearchQuery(query);
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Search',
+                                    hintStyle:
+                                        const TextStyle(color: Colors.grey),
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(3.2),
+                                      borderSide: BorderSide.none,
                                     ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                            horizontal: 9.5, vertical: 9.5),
                                   ),
                                 ),
-                                270,
                               ),
-                              ...List.generate(
-                                provider.filteredCustomers.length,
-                                (index) {
-                                  var customer =
-                                      provider.filteredCustomers[index];
-                                  return Container(
-                                    height: fixedRowHeight,
-                                    color: index.isEven
-                                        ? Colors.grey[50]
-                                        : Colors.white,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: 220,
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Row(
-                                            children: [
-                                              ClipOval(
-                                                child: Container(
-                                                  color: Colors.grey[200],
-                                                  child: Image.network(
-                                                    'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
-                                                    fit: BoxFit.cover,
-                                                    width: 34,
-                                                    height: 34,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Container(
-                                                        color: Colors.grey[200],
-                                                        child: const Icon(
-                                                            Icons.person,
-                                                            color: Colors.blue,
-                                                            size: 34),
-                                                      );
-                                                    },
-                                                  ),
+                              270,
+                            ),
+                            ...List.generate(
+                              provider.filteredCustomers.length,
+                              (index) {
+                                var customer =
+                                    provider.filteredCustomers[index];
+                                return Container(
+                                  height: fixedRowHeight,
+                                  color: index.isEven
+                                      ? Colors.grey[50]
+                                      : Colors.white,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 220,
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Row(
+                                          children: [
+                                            ClipOval(
+                                              child: Container(
+                                                color: Colors.grey[200],
+                                                child: Image.network(
+                                                  'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
+                                                  fit: BoxFit.cover,
+                                                  width: 34,
+                                                  height: 34,
+                                                  errorBuilder: (context,
+                                                      error, stackTrace) {
+                                                    return Container(
+                                                      color: Colors.grey[200],
+                                                      child: const Icon(
+                                                          Icons.person,
+                                                          color: Colors.blue,
+                                                          size: 34),
+                                                    );
+                                                  },
                                                 ),
                                               ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: GestureDetector(
-                                                  behavior:
-                                                      HitTestBehavior.opaque,
-                                                  onTap: () {
-                                                    customerAndOrderController
-                                                        .setCustomerId(customer
-                                                                .customerId ??
-                                                            '');
-                                                    provider
-                                                        .setCurrentMonthDates();
-                                                    prodController
-                                                            .selectedCustomerName
-                                                            .value =
-                                                        customer.businessName;
-                                                    prodController
-                                                            .selectedCustomerId
-                                                            .value =
-                                                        customer.customerId;
-                                                    prodController
-                                                        .selectedCustomerImageUrl
-                                                        .value = customer.imageUrl;
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            CustomerDachScreen(
-                                                                year: 2024,
-                                                                startDate: provider
-                                                                    .selectedStartDate,
-                                                                endDate: provider
-                                                                    .selectedEndDate,
-                                                                isFromOrder:
-                                                                    true),
-                                                      ),
-                                                    );
-
-                                                    provider.fetchCustomerDashboardData(
-                                                        customer.customerId,
-                                                        2024,
-                                                        provider
-                                                            .selectedStartDate,
-                                                        provider
-                                                            .selectedEndDate);
-                                                    provider.fetchCustomerDashboardRevenueData(
-                                                        customer.customerId,
-                                                        2024,
-                                                        provider
-                                                            .selectedStartDate,
-                                                        provider
-                                                            .selectedEndDate);
-                                                    provider
-                                                        .fetchCustomerDashboardCountData(
-                                                            customer
-                                                                .customerId);
-                                                  },
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  customerAndOrderController
+                                                      .setCustomerId(customer
+                                                              .customerId ??
+                                                          '');
+                                                  provider
+                                                      .setCurrentMonthDates();
+                                                  prodController
+                                                          .selectedCustomerName
+                                                          .value =
+                                                      customer.businessName;
+                                                  prodController
+                                                          .selectedCustomerId
+                                                          .value =
+                                                      customer.customerId;
+                                                  prodController
+                                                      .selectedCustomerImageUrl
+                                                      .value = customer.imageUrl;
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          CustomerDachScreen(
+                                                              year: 2024,
+                                                              startDate: provider
+                                                                  .selectedStartDate,
+                                                              endDate: provider
+                                                                  .selectedEndDate,
+                                                              isFromOrder:
+                                                                  true),
+                                                    ),
+                                                  );
+                                        
+                                                  provider.fetchCustomerDashboardData(
+                                                      customer.customerId,
+                                                      2024,
+                                                      provider
+                                                          .selectedStartDate,
+                                                      provider
+                                                          .selectedEndDate);
+                                                  provider.fetchCustomerDashboardRevenueData(
+                                                      customer.customerId,
+                                                      2024,
+                                                      provider
+                                                          .selectedStartDate,
+                                                      provider
+                                                          .selectedEndDate);
+                                                  provider
+                                                      .fetchCustomerDashboardCountData(
+                                                          customer
+                                                              .customerId);
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start,
+                                                  children: [
+                                                    CustomText(
+                                                        content: customer
+                                                                .businessName ??
+                                                            'Business Name',
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black,
+                                                        maxLine: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis),
+                                                    CustomText(
+                                                        content:
+                                                            customer.town ??
+                                                                'Town',
+                                                        fontSize: 11,
+                                                        color: Colors.black,
+                                                        maxLine: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis),
+                                                    CustomText(
+                                                        content: customer
+                                                                .businessName ??
+                                                            'Full Name',
+                                                        fontSize: 11,
+                                                        color: Colors.black,
+                                                        maxLine: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis),
+                                                    CustomText(
+                                                        content: customer
+                                                                .email ??
+                                                            'email@example.com',
+                                                        fontSize: 11,
+                                                        color: Colors.black,
+                                                        maxLine: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildTableCell(
+                              padding: EdgeInsets.zero,
+                              Container(
+                                color: Colors.grey[200],
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child:
+                                          provider.filteredCustomers.length >=
+                                                  10
+                                              ? Container(
+                                                  width: 3 * 62.0,
+                                                  decoration: BoxDecoration(
+                                                    color: primaryColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            3.0),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
                                                             .start,
                                                     children: [
-                                                      CustomText(
-                                                          content: customer
-                                                                  .businessName ??
-                                                              'Business Name',
-                                                          fontSize: 15,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black,
-                                                          maxLine: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis),
-                                                      CustomText(
-                                                          content:
-                                                              customer.town ??
-                                                                  'Town',
-                                                          fontSize: 11,
-                                                          color: Colors.black,
-                                                          maxLine: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis),
-                                                      CustomText(
-                                                        content:  customer.businessName ??
-                                                              'Full Name',
-                                                          
-                                                                  fontSize: 11,
-                                                                  color: Colors
-                                                                      .black,
-                                                          maxLine: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis),
-                                                      CustomText(
-                                                         content: customer.email ??
-                                                              'email@example.com',
-                                                          
-                                                                  fontSize: 11,
-                                                                  color: Colors
-                                                                      .black,
-                                                          maxLine: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                              _buildTableCell(
-                                padding: EdgeInsets.zero,
-                                Container(
-                                  color: Colors.grey[200],
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child:
-                                            provider.filteredCustomers.length >=
-                                                    10
-                                                ? Container(
-                                                    width: 3 * 62.0,
-                                                    decoration: BoxDecoration(
-                                                      color: primaryColor,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              3.0),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Container(
-                                                          height: 40,
-                                                          width: 40,
-                                                          child: IconButton(
-                                                            icon: const Icon(
-                                                              Icons
-                                                                  .keyboard_double_arrow_left,
-                                                              size: 20,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                            onPressed:
-                                                                provider.currentPage >
-                                                                        1
-                                                                    ? () {
-                                                                        provider
-                                                                            .goToPreviousPage();
-                                                                      }
-                                                                    : null,
+                                                      Container(
+                                                        height: 40,
+                                                        width: 40,
+                                                        child: IconButton(
+                                                          icon: const Icon(
+                                                            Icons
+                                                                .keyboard_double_arrow_left,
+                                                            size: 20,
+                                                            color:
+                                                                Colors.white,
                                                           ),
+                                                          onPressed:
+                                                              provider.currentPage >
+                                                                      1
+                                                                  ? () {
+                                                                      provider
+                                                                          .goToPreviousPage();
+                                                                    }
+                                                                  : null,
                                                         ),
-                                                        Expanded(
-                                                          child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceAround,
-                                                              children:
-                                                                  List.generate(
-                                                                provider.totalPages >
-                                                                        0
-                                                                    ? 3
-                                                                    : 0,
-                                                                (index) {
-                                                                  if (provider
-                                                                          .totalPages <=
-                                                                      0) {
-                                                                    return Container();
-                                                                  }
-                                                                  int firstPage =
-                                                                      (provider.currentPage -
-                                                                              1)
-                                                                          .clamp(
-                                                                              1,
-                                                                              provider.totalPages - 2);
-                                                                  int visiblePage =
-                                                                      firstPage +
-                                                                          index;
-                                                                  visiblePage =
-                                                                      visiblePage.clamp(
-                                                                          1,
-                                                                          provider
-                                                                              .totalPages);
-
-                                                                  return GestureDetector(
-                                                                    onTap: visiblePage <=
-                                                                            provider.totalPages
-                                                                        ? () {
-                                                                            provider.currentPage =
-                                                                                visiblePage;
-                                                                            provider.refreshCurrentPage();
-                                                                          }
-                                                                        : null,
+                                                      ),
+                                                      Expanded(
+                                                        child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            children:
+                                                                List.generate(
+                                                              provider.totalPages >
+                                                                      0
+                                                                  ? 3
+                                                                  : 0,
+                                                              (index) {
+                                                                if (provider
+                                                                        .totalPages <=
+                                                                    0) {
+                                                                  return Container();
+                                                                }
+                                                                int firstPage =
+                                                                    (provider.currentPage -
+                                                                            1)
+                                                                        .clamp(
+                                                                            1,
+                                                                            provider.totalPages - 2);
+                                                                int visiblePage =
+                                                                    firstPage +
+                                                                        index;
+                                                                visiblePage =
+                                                                    visiblePage.clamp(
+                                                                        1,
+                                                                        provider
+                                                                            .totalPages);
+                                        
+                                                                return GestureDetector(
+                                                                  onTap: visiblePage <=
+                                                                          provider.totalPages
+                                                                      ? () {
+                                                                          provider.currentPage =
+                                                                              visiblePage;
+                                                                          provider.refreshCurrentPage();
+                                                                        }
+                                                                      : null,
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .all(
+                                                                        2.0),
                                                                     child:
-                                                                        Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .all(
-                                                                          2.0),
+                                                                        Container(
+                                                                      height:
+                                                                          40,
+                                                                      width:
+                                                                          25,
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: provider.currentPage == visiblePage
+                                                                            ? Colors.white
+                                                                            : Colors.transparent,
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                      ),
                                                                       child:
-                                                                          Container(
-                                                                        height:
-                                                                            40,
-                                                                        width:
-                                                                            25,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color: provider.currentPage == visiblePage
-                                                                              ? Colors.white
-                                                                              : Colors.transparent,
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(10),
-                                                                        ),
+                                                                          Center(
                                                                         child:
-                                                                            Center(
-                                                                          child:
-                                                                              Text(
-                                                                            '$visiblePage',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 13,
-                                                                              color: provider.currentPage == visiblePage ? primaryColor : Colors.white,
-                                                                            ),
+                                                                            Text(
+                                                                          '$visiblePage',
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize: 13,
+                                                                            color: provider.currentPage == visiblePage ? primaryColor : Colors.white,
                                                                           ),
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                  );
-                                                                },
-                                                              )),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 40,
-                                                          width: 40,
-                                                          child: IconButton(
-                                                            icon: const Icon(
-                                                              Icons
-                                                                  .keyboard_double_arrow_right,
-                                                              size: 20,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                            onPressed: provider
-                                                                        .currentPage <
-                                                                    provider
-                                                                        .totalPages
-                                                                ? () {
-                                                                    provider
-                                                                        .goToNextPage();
-                                                                  }
-                                                                : null,
+                                                                  ),
+                                                                );
+                                                              },
+                                                            )),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 40,
+                                                        width: 40,
+                                                        child: IconButton(
+                                                          icon: const Icon(
+                                                            Icons
+                                                                .keyboard_double_arrow_right,
+                                                            size: 20,
+                                                            color:
+                                                                Colors.white,
                                                           ),
+                                                          onPressed: provider
+                                                                      .currentPage <
+                                                                  provider
+                                                                      .totalPages
+                                                              ? () {
+                                                                  provider
+                                                                      .goToNextPage();
+                                                                }
+                                                              : null,
                                                         ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : Container(),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : Container(),
+                                    ),
+                                    Container(
+                                      color: Colors.grey[200],
+                                      // height: 58,
+                                      child: const Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text('Total',
+                                              style: TextStyle(
+                                                  fontSize: 17,
+                                                  fontWeight:
+                                                      FontWeight.w700)),
+                                        ],
                                       ),
-                                      Container(
-                                        color: Colors.grey[200],
-                                        // height: 58,
-                                        child: const Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text('Total',
-                                                style: TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight:
-                                                        FontWeight.w700)),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                                    )
+                                  ],
                                 ),
-                                330,
                               ),
-                            ],
-                          ),
+                              330,
+                            ),
+                          ],
                         ),
                       ),
                       // Scrollable columns
@@ -2344,21 +2337,21 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                 Container(
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.vertical,
                                     itemCount:
                                         provider.filteredCustomers.length,
                                     itemBuilder: (context, index) {
                                       var customer =
                                           provider.filteredCustomers[index];
-
+                
                                       return Container(
                                         height: fixedRowHeight,
                                         color: index.isEven
                                             ? Colors.grey[50]
                                             : Colors.white,
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           children: [
                                             _buildTableCell(
                                               Center(
@@ -2383,8 +2376,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 0 ||
                                                             customer.totalSales ==
                                                                 null) {
-                                                          ScaffoldMessenger
-                                                                  .of(context)
+                                                          ScaffoldMessenger.of(
+                                                                  context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
@@ -2404,13 +2397,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         }
                                                       },
                                                       child: _buildDataCell(
-                                                        customer.sales
-                                                                ?.toString() ??
-                                                            '0',
-                                                        '${customer.totalSales?.toString() ?? '0'}',
-                                                        Colors.blue,
-                                                        false
-                                                      ),
+                                                          customer.sales
+                                                                  ?.toString() ??
+                                                              '0',
+                                                          '${customer.totalSales?.toString() ?? '0'}',
+                                                          Colors.blue,
+                                                          false),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 5),
@@ -2422,8 +2414,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 0 ||
                                                             customer.delivery ==
                                                                 null) {
-                                                          ScaffoldMessenger
-                                                                  .of(context)
+                                                          ScaffoldMessenger.of(
+                                                                  context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
@@ -2443,13 +2435,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         }
                                                       },
                                                       child: _buildDataCell(
-                                                        customer.delivery
-                                                                ?.toString() ??
-                                                            '0',
-                                                        '${customer.salesPrice?.toString() ?? '0'}',
-                                                        Colors.green,
-                                                        false
-                                                      ),
+                                                          customer.delivery
+                                                                  ?.toString() ??
+                                                              '0',
+                                                          '${customer.salesPrice?.toString() ?? '0'}',
+                                                          Colors.green,
+                                                          false),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 5),
@@ -2461,8 +2452,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 0 ||
                                                             customer.payment ==
                                                                 null) {
-                                                          ScaffoldMessenger
-                                                                  .of(context)
+                                                          ScaffoldMessenger.of(
+                                                                  context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
@@ -2482,13 +2473,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         }
                                                       },
                                                       child: _buildDataCell(
-                                                        customer.payment
-                                                                ?.toString() ??
-                                                            '0',
-                                                        '${customer.paymentPrice?.toString() ?? '0'}',
-                                                        Colors.orange,
-                                                        false
-                                                      ),
+                                                          customer.payment
+                                                                  ?.toString() ??
+                                                              '0',
+                                                          '${customer.paymentPrice?.toString() ?? '0'}',
+                                                          Colors.orange,
+                                                          false),
                                                     ),
                                                   ),
                                                 ],
@@ -2497,64 +2487,57 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ),
                                             _buildTableCell(
                                               _buildDataCell(
-                                                customer.estimates
-                                                        ?.toString() ??
-                                                    '0',
-                                                '\$${customer.estimatesPrice?.toString() ?? '0'}',
-                                                Colors.purple,
-                                                true
-                                              ),
+                                                  customer.estimates
+                                                          ?.toString() ??
+                                                      '0',
+                                                  '\$${customer.estimatesPrice?.toString() ?? '0'}',
+                                                  Colors.purple,
+                                                  true),
                                               140,
                                             ),
                                             _buildTableCell(
                                               _buildDataCell(
-                                                customer.preOrder.toString(),
-                                                '\$${customer.preOrderPrice?.toString() ?? '0'}',
-                                                Colors.grey,
-                                                true
-                                              ),
+                                                  customer.preOrder.toString(),
+                                                  '\$${customer.preOrderPrice?.toString() ?? '0'}',
+                                                  Colors.grey,
+                                                  true),
                                               140,
                                             ),
                                             _buildTableCell(
                                               _buildDataCell(
-                                                customer.drafts.toString(),
-                                                customer.orderData.draft
-                                                    .takeLast(customer.drafts)
-                                                    .fold(
-                                                        0.0,
-                                                        (a, b) =>
-                                                            a + b.orderTotal)
-                                                    .toString(),
-                                                Colors.red,
-                                                true
-                                              ),
+                                                  customer.drafts.toString(),
+                                                  customer.orderData.draft
+                                                      .takeLast(customer.drafts)
+                                                      .fold(
+                                                          0.0,
+                                                          (a, b) =>
+                                                              a + b.orderTotal)
+                                                      .toString(),
+                                                  Colors.red,
+                                                  true),
                                               140,
                                             ),
                                             _buildTableCell(
                                               _buildDataCell(
-                                                customer.cancelled
-                                                        ?.toString() ??
-                                                    '0',
-                                                '\$${customer.cancelled?.toString() ?? '0'}',
-                                                Colors.purple,
-                                                true
-                                              ),
+                                                  customer.cancelled
+                                                          ?.toString() ??
+                                                      '0',
+                                                  '\$${customer.cancelled?.toString() ?? '0'}',
+                                                  Colors.purple,
+                                                  true),
                                               140,
                                             ),
                                             _buildTableCell(
                                               EventTypeDropdown(
-                                                initialValue:
-                                                    EventTypeExtension
-                                                        .fromValue(customer
-                                                            .eventType),
+                                                initialValue: EventTypeExtension
+                                                    .fromValue(
+                                                        customer.eventType),
                                                 onChanged:
                                                     (EventType newType) {},
                                                 defaultEventDays:
                                                     customer.eventDays,
-                                                customerId:
-                                                    customer.customerId,
-                                                eventStatus:
-                                                    customer.eventType,
+                                                customerId: customer.customerId,
+                                                eventStatus: customer.eventType,
                                                 provider: provider,
                                               ),
                                               140,
@@ -2562,7 +2545,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             _buildTableCell(
                                               Center(
                                                   child: CustomText(
-                                                    content:   customer.salesmanName)),
+                                                      content: customer
+                                                          .salesmanName)),
                                               100,
                                             ),
                                           ],
@@ -2579,9 +2563,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       _buildTableCell(
                                         Center(
                                           child: CustomText(
-                                              content: formatAmount(
-                                                  0),
-
+                                              content: formatAmount(0),
                                               fontWeight: FontWeight.w600,
                                               fontSize: 14),
                                         ),
@@ -2595,38 +2577,31 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             Expanded(
                                               flex: 2,
                                               child: CustomText(
-                                               content: formatAmount(provider
+                                                content: formatAmount(provider
                                                     .orderTotalList[0].sales),
-                                              
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                              
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
                                               ),
                                             ),
                                             SizedBox(width: 5),
                                             Expanded(
                                               flex: 2,
                                               child: CustomText(
-                                               content: formatAmount(provider
+                                                content: formatAmount(provider
                                                     .orderTotalList[1]
                                                     .delivery),
-                                                                                             
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                                
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
                                               ),
                                             ),
                                             SizedBox(width: 5),
                                             Expanded(
                                               flex: 2,
                                               child: CustomText(
-                                              content:  formatAmount(provider
-                                                    .orderTotalList[2]
-                                                    .payment),
-                                                
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                                
+                                                content: formatAmount(provider
+                                                    .orderTotalList[2].payment),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
                                               ),
                                             ),
                                           ],
@@ -2636,12 +2611,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       _buildTableCell(
                                         Center(
                                           child: CustomText(
-                                           content: formatAmount(provider
+                                            content: formatAmount(provider
                                                 .orderTotalList[3].estimate),
-                                           
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14,
-                                            
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
                                           ),
                                         ),
                                         140,
@@ -2649,12 +2622,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       _buildTableCell(
                                         Center(
                                           child: CustomText(
-                                          content:  formatAmount(provider
+                                            content: formatAmount(provider
                                                 .orderTotalList[4].preOrder),
-                                            
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14,
-                                            
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
                                           ),
                                         ),
                                         140,
@@ -2662,12 +2633,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       _buildTableCell(
                                         Center(
                                           child: CustomText(
-                                           content: formatAmount(provider
+                                            content: formatAmount(provider
                                                 .orderTotalList[5].draft),
-                                          
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14,
-                                            
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
                                           ),
                                         ),
                                         140,
@@ -2703,13 +2672,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                       ),
                     ],
                   ),
-                );
-              }
-            },
-          );
-        }
-      }),
-    );
+                ),
+              );
+            }
+          },
+        );
+      }
+    });
   }
 
   Widget _buildTableHeader1(String text) {
@@ -2750,9 +2719,10 @@ Widget _buildTableCell(Widget child, double width,
   );
 }
 
-Widget _buildDataCell(String count, String amount, Color color,bool isCenter) {
+Widget _buildDataCell(String count, String amount, Color color, bool isCenter) {
   return Row(
-    mainAxisAlignment: isCenter?MainAxisAlignment.center:MainAxisAlignment.start,
+    mainAxisAlignment:
+        isCenter ? MainAxisAlignment.center : MainAxisAlignment.start,
     children: [
       Container(
         width: 24,

@@ -363,58 +363,67 @@ class _OrderTakingState extends State<OrderTaking>
           'Products',
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          onPressed: () {
-            bool toDash = !(widget.isDirectDialogue ||
-                widget.isFromCalender ||
-                widget.isFromOrder);
-            log('To Dash : ${toDash}');
-            triggerLeadingIcon(toDash);
-            log('Triggered');
-            log(customerAndOrderController.customerId.value);
-            log('Is From Order : ${widget.isFromOrder == true}');
-          },
-          icon: const Icon(Icons.arrow_back_ios),
+        leading: SingleChildScrollView(
+          child: IconButton(
+            onPressed: () {
+              bool toDash = !(widget.isDirectDialogue ||
+                  widget.isFromCalender ||
+                  widget.isFromOrder);
+              log('To Dash : ${toDash}');
+              triggerLeadingIcon(toDash);
+              log('Triggered');
+              log(customerAndOrderController.customerId.value);
+              log('Is From Order : ${widget.isFromOrder == true}');
+            },
+            icon: const Icon(Icons.arrow_back_ios),
+          ),
         ),
         actions: [
-          SizedBox(
-            width: 200,
-            child: Obx(() => Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (!widget.productsController.selectedCustomerName.isEmpty)
-                      CircleAvatar(
-                        backgroundImage: widget.productsController
-                                .selectedCustomerImageUrl.isEmpty
-                            ? null
-                            : NetworkImage(
-                                '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
-                              ),
-                        backgroundColor: widget.productsController
-                                .selectedCustomerImageUrl.isEmpty
-                            ? Colors.blueGrey
-                            : const Color.fromARGB(123, 194, 192, 192),
-                      ),
-                    const SizedBox(width: 8),
-                    widget.productsController.selectedCustomerName.isEmpty
-                        ? Container()
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.productsController.selectedCustomerName
-                                    .value,
-                              ),
-                              MyRegularText(label: "Customer", fontSize: 9),
-                            ],
-                          ),
-                    const SizedBox(width: 10),
-                  ],
-                )),
-          ),
-          NotificationWidget(),
-          profiloe(),
+         SizedBox(
+          width: MediaQuery.of(context).size.width*0.85,
+           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+               Flexible(
+                  child: Obx(() => Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if (!widget.productsController.selectedCustomerName.isEmpty)
+                            CircleAvatar(
+                              backgroundImage: widget.productsController
+                                      .selectedCustomerImageUrl.isEmpty
+                                  ? null
+                                  : NetworkImage(
+                                      '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
+                                    ),
+                              backgroundColor: widget.productsController
+                                      .selectedCustomerImageUrl.isEmpty
+                                  ? Colors.blueGrey
+                                  : const Color.fromARGB(123, 194, 192, 192),
+                            ),
+                          const SizedBox(width: 8),
+                          widget.productsController.selectedCustomerName.isEmpty
+                              ? Container()
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.productsController.selectedCustomerName
+                                          .value,
+                                    ),
+                                    MyRegularText(label: "Customer", fontSize: 9),
+                                  ],
+                                ),
+                          const SizedBox(width: 10),
+                        ],
+                      )),
+                ),
+            NotificationWidget(),
+            profiloe(),
+            ],
+           ),
+         )
         
         ],
       ),

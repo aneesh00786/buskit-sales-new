@@ -1863,7 +1863,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       child: const Icon(
                                                           EneftyIcons.profile_bold,
                                                           color: Color.fromARGB(255, 124, 124, 164),
-                                                          size: 25,
+                                                          size: 30,
                                                           ),
                                                     );
                                                   },

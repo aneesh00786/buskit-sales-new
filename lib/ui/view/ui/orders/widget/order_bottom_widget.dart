@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 
@@ -35,7 +36,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
       print(
           "Tab changed: Reloading data for tab index ${widget.selectedTabIndex}");
-      widget.orderController.loadOrderData(selectedIndex: widget.selectedTabIndex);
+      widget.orderController
+          .loadOrderData(selectedIndex: widget.selectedTabIndex);
       widget.orderController.loadOrderCountData();
     }
   }
@@ -60,7 +62,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                   width: double.infinity,
                   height: 50,
                   color: primaryColor,
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -69,70 +71,57 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         Expanded(
                           flex: 2,
                           child: Center(
-                            child: Text(
-                              'Customer List',
-                              style: TextStyle(
-                                  fontFamily: 'Poppins_Regular',
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 12,
-                                  color: Colors.white),
-                            ),
+                            child: CustomText(
+                                content: 'Customer List',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
                           ),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           flex: 1,
                           child: Center(
-                            child: Text(
-                              'Order Number',
-                              style: TextStyle(
-                                  fontFamily: 'Poppins_Regular',
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 12,
-                                  color: Colors.white),
-                            ),
+                            child: CustomText(
+                                content: 'Order Number',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
                           ),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           flex: 1,
                           child: Center(
-                            child: Text(
-                              'Order created',
-                              style: TextStyle(
-                                  fontFamily: 'Poppins_Regular',
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 12,
-                                  color: Colors.white),
-                            ),
+                            child: CustomText(
+                                content: 'Order created',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.white),
                           ),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           flex: 1,
                           child: Center(
-                            child: Text(
-                              'Order Price',
-                              style: TextStyle(
-                                  fontFamily: 'Poppins_Regular',
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 12,
-                                  color: Colors.white),
-                            ),
+                            child: CustomText(
+                                content: 'Order Price',
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 14,
+                                color: Colors.white),
                           ),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           flex: 1,
                           child: Center(
-                            child: Text(
-                              'Status',
-                              style: TextStyle(
-                                  fontFamily: 'Poppins_Regular',
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 12,
-                                  color: Colors.white),
-                            ),
+                            child: CustomText(
+                                content: 'Status',
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.white),
                           ),
                         ),
                         SizedBox(width: 10),
@@ -154,7 +143,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                     ),
                   ),
                 ),
-                if(widget.orderController.orderDataList == null)...[
+                if (widget.orderController.orderDataList == null) ...[
                   Text("Record not found"),
                 ],
                 if (widget.orderController.orderDataList != null) ...[
@@ -214,8 +203,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             ),
                             SizedBox(width: 10),
                             SizedBox(
-                              width: 60,
-                              child: viewOrder(widget.orderController, orderData)),
+                                width: 60,
+                                child: viewOrder(
+                                    widget.orderController, orderData)),
                             SizedBox(width: 10),
                           ],
                         ),
@@ -248,8 +238,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           SizedBox(width: 8),
           SizedBox(
-            width: 30,
-            height: 30,
+            width: 40,
+            height: 40,
             child: ClipOval(
               child: Image.network(
                 orderData.customerDetails!.imageUrl.toString(),
@@ -265,20 +255,20 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                   MyRegularText(
                     label: orderData.customerDetails?.fullname ?? 'Unknown',
                     maxlines: 2,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                   MyRegularText(
                     label: orderData.customerDetails?.mobileno ?? 'Unknown',
                     maxlines: 2,
-                    fontSize: 10,
+                    fontSize: 12,
                   ),
                   SizedBox(
                     child: MyRegularText(
                       align: TextAlign.start,
                       label: orderData.customerDetails?.email ?? 'Unknown',
                       maxlines: 2,
-                      fontSize: 10,
+                      fontSize: 12,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -294,7 +284,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
       child: MyRegularText(
         label: orderData.optionOrderData?.orderId ?? 'N/A',
         fontWeight: FontWeight.w600,
-        fontSize: 11,
+        fontSize: 13,
       ),
     );
   }
@@ -311,7 +301,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         orderData.optionOrderData!.orderCreatAt!))
                 : 'N/A',
             fontWeight: FontWeight.w600,
-            fontSize: 11,
+            fontSize: 12,
           ),
           MyRegularText(
             label: orderData.optionOrderData?.orderCreatAt != null
@@ -319,7 +309,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                     NKDateUtils.formatStringUTCDateTime(
                         orderData.optionOrderData!.orderCreatAt!))
                 : 'N/A',
-            fontSize: 11,
+            fontSize: 12,
           ),
         ],
       ),
@@ -330,11 +320,10 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     return Center(
       child: MyRegularText(
         label: orderData.optionOrderData?.orderTotal != null
-            ? formatAmount(orderData.optionOrderData!.orderTotal) ??
-                ''
+            ? formatAmount(orderData.optionOrderData!.orderTotal) ?? ''
             : 'N/A',
         fontWeight: FontWeight.w600,
-        fontSize: 11,
+        fontSize: 12,
       ),
     );
   }
@@ -349,7 +338,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 // ? OrderHandlingClass.fromType(
                 //         orderData.optionOrderData!.orderStatus!)
                 //     .orderColor
-                ? Color(0xFFFFDBB8)
+                ? Color.fromARGB(255, 216, 204, 250)
                 : Colors.grey,
             borderRadius: BorderRadius.circular(50),
           ),
@@ -360,7 +349,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           orderData.optionOrderData!.orderStatus!)
                       .name
                   : 'Unknown',
-              fontSize: 11,
+              fontSize: 12,
               align: TextAlign.center,
             ),
           ),
@@ -369,7 +358,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     );
   }
 
-Widget viewOrder(OrderController orderController, OrderData orderData) {
+  Widget viewOrder(OrderController orderController, OrderData orderData) {
     return Center(
       child: IconButton(
         onPressed: () async {

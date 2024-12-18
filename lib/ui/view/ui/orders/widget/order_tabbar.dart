@@ -141,6 +141,7 @@ int _getCountForTab(int index) {
                                             ? Colors.white
                                             : Colors.blue,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 14
                                       ),
                                     ),
                                     if (count != 0) ...[

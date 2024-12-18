@@ -273,8 +273,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                               readOnly: true,
                                               decoration: InputDecoration(
                                                 filled: true,
-                                                fillColor:
-                                                    white,
+                                                fillColor: white,
                                                 isDense: true,
                                                 contentPadding:
                                                     const EdgeInsets.all(8),
@@ -315,45 +314,42 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     Center(
                                       child: isSpecificData
                                           ? TextField(
-                                            controller:
-                                                _quantityControllers[index],
-                                            readOnly: true,
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor:
-                                                  white,
-                                              isDense: true,
-                                              contentPadding:
-                                                  const EdgeInsets.all(8),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        8),
-                                                borderSide: BorderSide.none,
+                                              controller:
+                                                  _quantityControllers[index],
+                                              readOnly: true,
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: white,
+                                                isDense: true,
+                                                contentPadding:
+                                                    const EdgeInsets.all(8),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide.none,
+                                                ),
                                               ),
-                                            ),
-                                            textAlign: TextAlign.center,
-                                            keyboardType:
-                                                TextInputType.number,
-                                            onChanged: (value) {
-                                              final originalQuantity =
-                                                  widget
-                                                      .specificData!
-                                                      .cart![index]
-                                                      .quantity;
-                                              if (value !=
-                                                  originalQuantity
-                                                      ?.toString()) {
-                                                setState(() {
-                                                  isChanged = true;
-                                                });
-                                              }
-                                              _updateTotalPrice(index);
-                                            },
-                                            onSubmitted: (value) {
-                                              _updateTotalPrice(index);
-                                            },
-                                          )
+                                              textAlign: TextAlign.center,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              onChanged: (value) {
+                                                final originalQuantity = widget
+                                                    .specificData!
+                                                    .cart![index]
+                                                    .quantity;
+                                                if (value !=
+                                                    originalQuantity
+                                                        ?.toString()) {
+                                                  setState(() {
+                                                    isChanged = true;
+                                                  });
+                                                }
+                                                _updateTotalPrice(index);
+                                              },
+                                              onSubmitted: (value) {
+                                                _updateTotalPrice(index);
+                                              },
+                                            )
                                           : Text(widget.invoiceData
                                                   ?.cart?[index].quantity
                                                   ?.toString() ??
@@ -434,7 +430,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         ),
                       ),
                       const Spacer(),
-                     Text(
+                      Text(
                         formatAmount(isSpecificData
                             ? widget.specificData!.orderTotal ?? 0
                             : widget.invoiceData!.orderTotal ?? 0),
@@ -457,7 +453,16 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         ),
                         const Spacer(),
                         Text(
-                            '${(isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) * (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0) / 100}'),
+                          formatAmount(
+                            (_getTaxValue(isSpecificData
+                                    ? widget.specificData!.cart!.first.tax
+                                    : widget.invoiceData!.cart!.first.tax)) *
+                                (isSpecificData
+                                    ? widget.specificData!.orderTotal ?? 0
+                                    : widget.invoiceData!.orderTotal ?? 0) /
+                                100,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -474,15 +479,18 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       ),
                       const Spacer(),
                       Text(
-                        (isSpecificData
-                                    ? widget.specificData!.cart!.first.tax
-                                    : widget.invoiceData!.cart!.first.tax) !=
-                                null
-                            ? formatAmount(
-                                '${((isSpecificData ? widget.specificData!.cart!.first.tax : widget.invoiceData!.cart!.first.tax) * (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0) / 100) + (isSpecificData ? widget.specificData!.orderTotal ?? 0 : widget.invoiceData!.orderTotal ?? 0)}')
-                            : formatAmount(isSpecificData
-                                ? widget.specificData!.orderTotal ?? 0
-                                : widget.invoiceData!.orderTotal ?? 0),
+                        formatAmount(
+                          (isSpecificData
+                                  ? widget.specificData!.orderTotal ?? 0
+                                  : widget.invoiceData!.orderTotal ?? 0) +
+                              ((_getTaxValue(isSpecificData
+                                      ? widget.specificData!.cart!.first.tax
+                                      : widget.invoiceData!.cart!.first.tax)) *
+                                  (isSpecificData
+                                      ? widget.specificData!.orderTotal ?? 0
+                                      : widget.invoiceData!.orderTotal ?? 0) /
+                                  100),
+                        ),
                         style: const TextStyle(
                           fontSize: 16,
                           color: red,
@@ -781,5 +789,14 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
         ),
       ),
     );
+  }
+
+  double _getTaxValue(dynamic tax) {
+    if (tax is int) {
+      return tax.toDouble(); // If tax is an int, convert it to double
+    } else if (tax is String) {
+      return double.tryParse(tax) ?? 0; // If tax is a String, parse it safely
+    }
+    return 0; // Default to 0 if tax is neither int nor String
   }
 }

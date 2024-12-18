@@ -673,7 +673,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                       response.touchedSection != null) {
                     final section = response.touchedSection!;
                     final PieChartSectionData touchedSectionData =
-                        section.touchedSection??PieChartSectionData();
+                        section.touchedSection ?? PieChartSectionData();
                     final title = touchedSectionData.value ==
                             orderProcessingValue
                         ? 'Order Processing'
@@ -1150,29 +1150,28 @@ class NestedPieChartj extends StatelessWidget {
     return Center(
       child: SfCircularChart(
         series: <CircularSeries>[
-
-            DoughnutSeries<ChartData2, String>(
-              dataSource: [
-                ChartData2(
-                    'Completed', completedOrdersCount, const Color(0xFF5A7725)),
-                ChartData2(
-                    'Pending', pendingAmountCount, const Color(0xFFA30C13)),
-              ],
-              xValueMapper: (ChartData2 data, _) => data.label,
-              yValueMapper: (ChartData2 data, _) => data.value,
-              pointColorMapper: (ChartData2 data, _) => data.color,
-              radius: '90%',
-              innerRadius: '65%',
-              strokeColor: white,
-              strokeWidth: 2,
-              onPointTap: (ChartPointDetails details) {
-                if (details.pointIndex == 0) {
-                  _showValueDialog(context, 'Completed', collection);
-                } else if (details.pointIndex == 1) {
-                  _pendingPaymentCollectionDialog(context, collection);
-                }
-              },
-            ),
+          DoughnutSeries<ChartData2, String>(
+            dataSource: [
+              ChartData2(
+                  'Completed', completedOrdersCount, const Color(0xFF5A7725)),
+              ChartData2(
+                  'Pending', pendingAmountCount, const Color(0xFFA30C13)),
+            ],
+            xValueMapper: (ChartData2 data, _) => data.label,
+            yValueMapper: (ChartData2 data, _) => data.value,
+            pointColorMapper: (ChartData2 data, _) => data.color,
+            radius: '90%',
+            innerRadius: '65%',
+            strokeColor: white,
+            strokeWidth: 2,
+            onPointTap: (ChartPointDetails details) {
+              if (details.pointIndex == 0) {
+                _showValueDialog(context, 'Completed', collection);
+              } else if (details.pointIndex == 1) {
+                _pendingPaymentCollectionDialog(context, collection);
+              }
+            },
+          ),
           DoughnutSeries<ChartData2, String>(
             dataSource: [
               ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
@@ -1417,7 +1416,14 @@ class NestedPieChartj extends StatelessWidget {
                                       index: index,
                                       orderId: payment.orderId.toString(),
                                       orderTotal: payment.orderTotal!.toInt(),
-                                      receivable: payment.receivableAmount,
+                                      receivable:
+                                          payment.receivableAmount != null
+                                              ? double.tryParse(payment
+                                                          .receivableAmount
+                                                          .toString())
+                                                      ?.toInt() ??
+                                                  0
+                                              : 0,
                                       onValueChanged: (newValue, index) {
                                         // Handle editable cells if necessary
                                       },

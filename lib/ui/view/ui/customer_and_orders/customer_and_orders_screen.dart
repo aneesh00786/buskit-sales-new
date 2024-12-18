@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -1727,18 +1728,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     _verticalScrollController.dispose();
     super.dispose();
   }
-  double containersHeight(BuildContext context) {
-  bool isLandscape =
-      MediaQuery.of(context).orientation == Orientation.landscape;
-  return isLandscape
-      ? MediaQuery.of(context).size.height  
-      : MediaQuery.of(context).size.height ; 
-}
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape =
+      MediaQuery.of(context).orientation == Orientation.landscape;
     double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 140 + 100;
-    double fixedRowHeight = 80.0;
+    double fixedRowHeight = isLandscape ?MediaQuery.of(context).size.height/9.05:MediaQuery.of(context).size.height/11.8;
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
       if (provider.isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -1852,6 +1848,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           children: [
                                             ClipOval(
                                               child: Container(
+                                                height: 50,
+                                                width: 50,
                                                 color: Colors.grey[200],
                                                 child: Image.network(
                                                   'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
@@ -1863,9 +1861,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     return Container(
                                                       color: Colors.grey[200],
                                                       child: const Icon(
-                                                          Icons.person,
-                                                          color: Colors.blue,
-                                                          size: 34),
+                                                          EneftyIcons.profile_bold,
+                                                          color: Color.fromARGB(255, 124, 124, 164),
+                                                          size: 25,
+                                                          ),
                                                     );
                                                   },
                                                 ),
@@ -1932,12 +1931,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment
                                                           .start,
+                                                          mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
                                                     CustomText(
                                                         content: customer
                                                                 .businessName ??
                                                             'Business Name',
-                                                        fontSize: 15,
+                                                        fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color: Colors.black,
@@ -1948,7 +1948,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         content:
                                                             customer.town ??
                                                                 'Town',
-                                                        fontSize: 11,
+                                                        fontSize: 11.5,
                                                         color: Colors.black,
                                                         maxLine: 1,
                                                         overflow: TextOverflow
@@ -1957,7 +1957,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         content: customer
                                                                 .businessName ??
                                                             'Full Name',
-                                                        fontSize: 11,
+                                                        fontSize: 11.5,
                                                         color: Colors.black,
                                                         maxLine: 1,
                                                         overflow: TextOverflow
@@ -1966,7 +1966,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         content: customer
                                                                 .email ??
                                                             'email@example.com',
-                                                        fontSize: 11,
+                                                        fontSize: 11.5,
                                                         color: Colors.black,
                                                         maxLine: 1,
                                                         overflow: TextOverflow

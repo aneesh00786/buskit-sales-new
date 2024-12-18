@@ -207,7 +207,6 @@ class OptionWidget extends StatelessWidget {
                                 : 13),
                         fontWeight: FontWeight.w600,
                         color: secondaryTextColor,
-                        //maxLines: optionData.title.length,
                       ),
                       CustomText(
                         content:

@@ -350,13 +350,13 @@ class _tableeeState extends State<tableee> {
                           child: Dialog(
                             insetPadding: EdgeInsets.zero,
                             backgroundColor:
-                                Colors.grey[200], // Grey background color
+                                Colors.grey[200],
                             shape: const RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10.0)),
-                              side: BorderSide.none, // Remove outline
+                              side: BorderSide.none,
                             ),
-                            elevation: 24.0, // Shadow elevation
+                            elevation: 24.0,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -386,7 +386,6 @@ class _tableeeState extends State<tableee> {
                                   ),
                                 ),
                                 const SizedBox(height: 16.0),
-                                // First row - Full Name
                                 Padding(
                                   padding: const EdgeInsets.all(4.0),
                                   child: Container(
@@ -409,7 +408,6 @@ class _tableeeState extends State<tableee> {
                                   ),
                                 ),
                                 const SizedBox(height: 12.0),
-                                // Second row - Mobile Number and Email
                                 Row(
                                   children: [
                                     Expanded(
@@ -468,7 +466,6 @@ class _tableeeState extends State<tableee> {
                                   ],
                                 ),
                                 const SizedBox(height: 12.0),
-                                // Third row - State and Zip Code
                                 Row(
                                   children: [
                                     Expanded(
@@ -1738,8 +1735,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
 
   @override
   Widget build(BuildContext context) {
-    double totalTableWidth = 120 + 330 + 120 + 120 + 120 + 120 + 170 + 170;
-    final totalTableWidth1 = MediaQuery.of(context).size.height * 0.8;
+    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 140 + 100;
     double fixedRowHeight = 80.0;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
@@ -1750,7 +1746,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
           return Expanded(
             child: Column(children: [
               Container(
-                color: primaryColor, // Background color for the header
+                color: primaryColor,
                 width: double.infinity,
                 padding: EdgeInsets.all(8.0),
                 child: Table(
@@ -1810,7 +1806,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                         scrollDirection: Axis.vertical,
                         controller: _verticalScrollController,
                         child: SizedBox(
-                          width: 260,
+                          width: 270,
                           child: Column(
                             children: [
                               _buildTableHeader(
@@ -1837,7 +1833,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     ),
                                   ),
                                 ),
-                                260,
+                                270,
                               ),
                               ...List.generate(
                                 provider.filteredCustomers.length,
@@ -2271,7 +2267,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           maxLine: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        310,
+                                        350,
                                       ),
                                       _buildTableHeader(
                                         CustomText(
@@ -2282,7 +2278,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           maxLine: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        135,
+                                        140,
                                       ),
                                       _buildTableHeader(
                                         CustomText(
@@ -2294,7 +2290,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           maxLine: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        135,
+                                        140,
                                       ),
                                       _buildTableHeader(
                                         CustomText(
@@ -2306,7 +2302,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           maxLine: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        135,
+                                        140,
                                       ),
                                       _buildTableHeader(
                                         CustomText(
@@ -2318,7 +2314,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           maxLine: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        130,
+                                        140,
                                       ),
                                       _buildTableHeader(
                                         CustomText(
@@ -2330,7 +2326,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           maxLine: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        170,
+                                        140,
                                       ),
                                       _buildTableHeader(
                                         CustomText(
@@ -2340,7 +2336,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'Poppins_Regular',
                                         ),
-                                        130,
+                                        100,
                                       ),
                                     ],
                                   ),
@@ -2362,6 +2358,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ? Colors.grey[50]
                                             : Colors.white,
                                         child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             _buildTableCell(
                                               Center(
@@ -2370,7 +2367,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   fontSize: 12,
                                                 ),
                                               ),
-                                              130,
+                                              120,
                                             ),
                                             _buildTableCell(
                                               Row(
@@ -2380,208 +2377,193 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 children: [
                                                   Expanded(
                                                     flex: 2,
-                                                    child: Center(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          if (customer.totalSales ==
-                                                                  0 ||
-                                                              customer.totalSales ==
-                                                                  null) {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                    'No Record Found.'),
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            _showOrderDataDialog(
-                                                                context,
-                                                                customer
-                                                                    .orderData,
-                                                                customer);
-                                                          }
-                                                        },
-                                                        child: _buildDataCell(
-                                                          customer.sales
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          '${customer.totalSales?.toString() ?? '0'}',
-                                                          Colors.blue,
-                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (customer.totalSales ==
+                                                                0 ||
+                                                            customer.totalSales ==
+                                                                null) {
+                                                          ScaffoldMessenger
+                                                                  .of(context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'No Record Found.'),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          3),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          _showOrderDataDialog(
+                                                              context,
+                                                              customer
+                                                                  .orderData,
+                                                              customer);
+                                                        }
+                                                      },
+                                                      child: _buildDataCell(
+                                                        customer.sales
+                                                                ?.toString() ??
+                                                            '0',
+                                                        '${customer.totalSales?.toString() ?? '0'}',
+                                                        Colors.blue,
+                                                        false
                                                       ),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Expanded(
                                                     flex: 2,
-                                                    child: Center(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          if (customer.delivery ==
-                                                                  0 ||
-                                                              customer.delivery ==
-                                                                  null) {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                    'No Record Found.'),
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            _showOrderDataDialog(
-                                                                context,
-                                                                customer
-                                                                    .orderData,
-                                                                customer);
-                                                          }
-                                                        },
-                                                        child: _buildDataCell(
-                                                          customer.delivery
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          '${customer.salesPrice?.toString() ?? '0'}',
-                                                          Colors.green,
-                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (customer.delivery ==
+                                                                0 ||
+                                                            customer.delivery ==
+                                                                null) {
+                                                          ScaffoldMessenger
+                                                                  .of(context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'No Record Found.'),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          3),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          _showOrderDataDialog(
+                                                              context,
+                                                              customer
+                                                                  .orderData,
+                                                              customer);
+                                                        }
+                                                      },
+                                                      child: _buildDataCell(
+                                                        customer.delivery
+                                                                ?.toString() ??
+                                                            '0',
+                                                        '${customer.salesPrice?.toString() ?? '0'}',
+                                                        Colors.green,
+                                                        false
                                                       ),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Expanded(
                                                     flex: 2,
-                                                    child: Center(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          if (customer.payment ==
-                                                                  0 ||
-                                                              customer.payment ==
-                                                                  null) {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                    'No Record Found.'),
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            _showOrderDataDialog(
-                                                                context,
-                                                                customer
-                                                                    .orderData,
-                                                                customer);
-                                                          }
-                                                        },
-                                                        child: _buildDataCell(
-                                                          customer.payment
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          '${customer.paymentPrice?.toString() ?? '0'}',
-                                                          Colors.orange,
-                                                        ),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (customer.payment ==
+                                                                0 ||
+                                                            customer.payment ==
+                                                                null) {
+                                                          ScaffoldMessenger
+                                                                  .of(context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'No Record Found.'),
+                                                              duration:
+                                                                  Duration(
+                                                                      seconds:
+                                                                          3),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          _showOrderDataDialog(
+                                                              context,
+                                                              customer
+                                                                  .orderData,
+                                                              customer);
+                                                        }
+                                                      },
+                                                      child: _buildDataCell(
+                                                        customer.payment
+                                                                ?.toString() ??
+                                                            '0',
+                                                        '${customer.paymentPrice?.toString() ?? '0'}',
+                                                        Colors.orange,
+                                                        false
                                                       ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                              310,
+                                              350,
+                                            ),
+                                            _buildTableCell(
+                                              _buildDataCell(
+                                                customer.estimates
+                                                        ?.toString() ??
+                                                    '0',
+                                                '\$${customer.estimatesPrice?.toString() ?? '0'}',
+                                                Colors.purple,
+                                                true
+                                              ),
+                                              140,
+                                            ),
+                                            _buildTableCell(
+                                              _buildDataCell(
+                                                customer.preOrder.toString(),
+                                                '\$${customer.preOrderPrice?.toString() ?? '0'}',
+                                                Colors.grey,
+                                                true
+                                              ),
+                                              140,
+                                            ),
+                                            _buildTableCell(
+                                              _buildDataCell(
+                                                customer.drafts.toString(),
+                                                customer.orderData.draft
+                                                    .takeLast(customer.drafts)
+                                                    .fold(
+                                                        0.0,
+                                                        (a, b) =>
+                                                            a + b.orderTotal)
+                                                    .toString(),
+                                                Colors.red,
+                                                true
+                                              ),
+                                              140,
+                                            ),
+                                            _buildTableCell(
+                                              _buildDataCell(
+                                                customer.cancelled
+                                                        ?.toString() ??
+                                                    '0',
+                                                '\$${customer.cancelled?.toString() ?? '0'}',
+                                                Colors.purple,
+                                                true
+                                              ),
+                                              140,
+                                            ),
+                                            _buildTableCell(
+                                              EventTypeDropdown(
+                                                initialValue:
+                                                    EventTypeExtension
+                                                        .fromValue(customer
+                                                            .eventType),
+                                                onChanged:
+                                                    (EventType newType) {},
+                                                defaultEventDays:
+                                                    customer.eventDays,
+                                                customerId:
+                                                    customer.customerId,
+                                                eventStatus:
+                                                    customer.eventType,
+                                                provider: provider,
+                                              ),
+                                              140,
                                             ),
                                             _buildTableCell(
                                               Center(
-                                                child: _buildDataCell(
-                                                  customer.estimates
-                                                          ?.toString() ??
-                                                      '0',
-                                                  '\$${customer.estimatesPrice?.toString() ?? '0'}',
-                                                  Colors.purple,
-                                                ),
-                                              ),
-                                              130,
-                                            ),
-                                            _buildTableCell(
-                                              Center(
-                                                child: _buildDataCell(
-                                                  customer.preOrder.toString(),
-                                                  '\$${customer.preOrderPrice?.toString() ?? '0'}',
-                                                  Colors.grey,
-                                                ),
-                                              ),
-                                              130,
-                                            ),
-                                            _buildTableCell(
-                                              Center(
-                                                child: _buildDataCell(
-                                                  customer.drafts.toString(),
-                                                  customer.orderData.draft
-                                                      .takeLast(customer.drafts)
-                                                      .fold(
-                                                          0.0,
-                                                          (a, b) =>
-                                                              a + b.orderTotal)
-                                                      .toString(),
-                                                  Colors.red,
-                                                ),
-                                              ),
-                                              130,
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: _buildDataCell(
-                                                    customer.cancelled
-                                                            ?.toString() ??
-                                                        '0',
-                                                    '\$${customer.cancelled?.toString() ?? '0'}',
-                                                    Colors.purple,
-                                                  ),
-                                                ),
-                                              ),
-                                              120,
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: EventTypeDropdown(
-                                                  initialValue:
-                                                      EventTypeExtension
-                                                          .fromValue(customer
-                                                              .eventType),
-                                                  onChanged:
-                                                      (EventType newType) {},
-                                                  defaultEventDays:
-                                                      customer.eventDays,
-                                                  customerId:
-                                                      customer.customerId,
-                                                  eventStatus:
-                                                      customer.eventType,
-                                                  provider: provider,
-                                                ),
-                                              ),
-                                              170,
-                                            ),
-                                            _buildTableCell(
-                                              Center(
-                                                  child: Text(
-                                                      customer.salesmanName)),
-                                              110,
+                                                  child: CustomText(
+                                                    content:   customer.salesmanName)),
+                                              100,
                                             ),
                                           ],
                                         ),
@@ -2594,17 +2576,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   color: Colors.grey[200],
                                   child: Row(
                                     children: [
-                                      // Uncomment sections as needed, ensuring proper layout
                                       _buildTableCell(
                                         Center(
                                           child: CustomText(
                                               content: formatAmount(
-                                                  0), // to be changed
+                                                  0),
 
                                               fontWeight: FontWeight.w600,
                                               fontSize: 14),
                                         ),
-                                        100,
+                                        120,
                                       ),
                                       _buildTableCell(
                                         Row(
@@ -2613,45 +2594,39 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           children: [
                                             Expanded(
                                               flex: 2,
-                                              child: Center(
-                                                child: CustomText(
-                                                 content: formatAmount(provider
-                                                      .orderTotalList[0].sales),
-                                                
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14,
-                                                
-                                                ),
+                                              child: CustomText(
+                                               content: formatAmount(provider
+                                                    .orderTotalList[0].sales),
+                                              
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                              
                                               ),
                                             ),
                                             SizedBox(width: 5),
                                             Expanded(
                                               flex: 2,
-                                              child: Center(
-                                                child: CustomText(
-                                                 content: formatAmount(provider
-                                                      .orderTotalList[1]
-                                                      .delivery),
-                                               
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14,
-                                                  
-                                                ),
+                                              child: CustomText(
+                                               content: formatAmount(provider
+                                                    .orderTotalList[1]
+                                                    .delivery),
+                                                                                             
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                
                                               ),
                                             ),
                                             SizedBox(width: 5),
                                             Expanded(
                                               flex: 2,
-                                              child: Center(
-                                                child: CustomText(
-                                                content:  formatAmount(provider
-                                                      .orderTotalList[2]
-                                                      .payment),
-                                                  
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14,
-                                                  
-                                                ),
+                                              child: CustomText(
+                                              content:  formatAmount(provider
+                                                    .orderTotalList[2]
+                                                    .payment),
+                                                
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                
                                               ),
                                             ),
                                           ],
@@ -2669,7 +2644,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             
                                           ),
                                         ),
-                                        130,
+                                        140,
                                       ),
                                       _buildTableCell(
                                         Center(
@@ -2682,7 +2657,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             
                                           ),
                                         ),
-                                        130,
+                                        140,
                                       ),
                                       _buildTableCell(
                                         Center(
@@ -2695,7 +2670,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             
                                           ),
                                         ),
-                                        130,
+                                        140,
                                       ),
                                       _buildTableCell(
                                         Center(
@@ -2706,7 +2681,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             fontSize: 14,
                                           ),
                                         ),
-                                        130,
+                                        140,
                                       ),
                                       _buildTableCell(
                                         Text(
@@ -2767,7 +2742,6 @@ Widget _buildTableHeader(Widget child, double width) {
 
 Widget _buildTableCell(Widget child, double width,
     {EdgeInsetsGeometry padding = const EdgeInsets.all(8.0)}) {
-  // debugPrint("Building table cell with width: $width");
   return Container(
     height: 58,
     width: width,
@@ -2776,9 +2750,9 @@ Widget _buildTableCell(Widget child, double width,
   );
 }
 
-Widget _buildDataCell(String count, String amount, Color color) {
+Widget _buildDataCell(String count, String amount, Color color,bool isCenter) {
   return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisAlignment: isCenter?MainAxisAlignment.center:MainAxisAlignment.start,
     children: [
       Container(
         width: 24,
@@ -2798,7 +2772,7 @@ Widget _buildDataCell(String count, String amount, Color color) {
         child: Center(
           child: CustomText(
             content: count,
-            fontSize: 12,
+            fontSize: 11,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),

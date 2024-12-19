@@ -45,31 +45,41 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         staffId: salesmanId);
   }
 
-  void _initializeControllers() {
-    final salesmanTargetList = widget.staffController.salesmanTargetList;
+void _initializeControllers() {
+  final salesmanTargetList = widget.staffController.salesmanTargetList;
+  log('Salesman Target List${salesmanTargetList.length}');
+  widget.tabControllers.clear();
+  for (var target in salesmanTargetList) {
+    widget.tabControllers.add(
+      TextEditingController(
+        text: target.target?.toString() ?? '', 
+      ),
+    );
+    log('TargetControllers List${widget.tabControllers.length}');
+  }
 
-    Future.delayed(Duration(seconds: 1));
-    _weeklyTargetControllers.clear();
-    if (salesmanTargetList.isNotEmpty) {
-      for (var target in salesmanTargetList) {
-        final weeklyTargets = target.weeklyTarget?.targets ?? {};
-        weeklyTargets.forEach((week, value) {
-          if (_weeklyTargetControllers[week] == null) {
-            _weeklyTargetControllers[week] = [];
+  _weeklyTargetControllers.clear();
+  if (salesmanTargetList.isNotEmpty) {
+    for (var target in salesmanTargetList) {
+      final weeklyTargets = target.weeklyTarget?.targets ?? {};
+      weeklyTargets.forEach((week, value) {
+        if (_weeklyTargetControllers[week] == null) {
+          _weeklyTargetControllers[week] = [];
+        }
+        final categoryIndex = widget.staffController.salesmanTargetList
+            .indexWhere((item) => item.id == target.id);
+        if (categoryIndex >= 0) {
+          while (_weeklyTargetControllers[week]!.length <= categoryIndex) {
+            _weeklyTargetControllers[week]!.add(TextEditingController());
           }
-          final categoryIndex = widget.staffController.salesmanTargetList
-              .indexWhere((item) => item.id == target.id);
-          if (categoryIndex >= 0) {
-            while (_weeklyTargetControllers[week]!.length <= categoryIndex) {
-              _weeklyTargetControllers[week]!.add(TextEditingController());
-            }
-            _weeklyTargetControllers[week]![categoryIndex] =
-                TextEditingController(text: value?.toString() ?? '');
-          }
-        });
-      }
+          _weeklyTargetControllers[week]![categoryIndex] =
+              TextEditingController(text: value?.toString() ?? '');
+        }
+      });
     }
   }
+}
+
 
   @override
   void dispose() {
@@ -295,8 +305,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       return TableRow(
         children: [
           _buildTableCell(targetData.categoryName.toString()),
-          _buildTableTextField(index),
-          _buildTableTextField(index),
+          _buildTableTextField(index,true),
+          _buildTableTextField(index,false),
         ],
       );
     });
@@ -424,7 +434,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     );
   }
 
-Widget _buildTableTextField(int index) {
+Widget _buildTableTextField(int index,bool isReadOnly) {
   if (index >= widget.tabControllers.length) {
     return Container(
       height: 50,
@@ -439,7 +449,7 @@ Widget _buildTableTextField(int index) {
       controller: widget.tabControllers[index],
       textAlign: TextAlign.center,
       style: const TextStyle(fontSize: 16),
-      readOnly: true,
+      readOnly: isReadOnly,
       decoration: InputDecoration(
         fillColor: Colors.blueGrey.shade50,
         filled: true,

@@ -1987,6 +1987,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             _buildTableCell(
                               padding: EdgeInsets.zero,
                               Container(
+                                height: fixedRowHeight/2,
                                 color: Colors.grey[200],
                                 child: Row(
                                   mainAxisAlignment:
@@ -2558,7 +2559,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   ),
                                 ),
                                 Container(
-                                  height: 58,
+                                  
                                   color: Colors.grey[200],
                                   child: Row(
                                     children: [

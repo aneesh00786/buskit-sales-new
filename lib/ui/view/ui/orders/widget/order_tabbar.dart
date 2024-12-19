@@ -89,129 +89,127 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
-          const SizedBox(height: 0),
-          SizedBox(
-            height: 60,
-            child: ScrollbarTheme(
-              data: ScrollbarThemeData(
-                trackBorderColor: WidgetStatePropertyAll(Colors.transparent),
-                thumbColor:
-                    MaterialStatePropertyAll(primaryColor.withOpacity(0.3)),
-                trackColor: WidgetStatePropertyAll(Colors.grey[100]),
-              ),
-              child: Scrollbar(
-                thumbVisibility: true,
-                trackVisibility: true,
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const ClampingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _tabs.length,
-                        itemBuilder: (context, index) {
-                          bool isSelected = _selectedTabIndex == index;
-                          int count = _getCountForTab(index);
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedTabIndex = index;
-                              });
-                              widget.orderController
-                                  .updateTabIndex(_selectedTabIndex);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.cyan
-                                    : Colors.transparent,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  AnimatedDefaultTextStyle(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.cyan,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                    child: Text(_tabs[index]),
-                                  ),
-                                  if (count != 0) ...[
-                                    const SizedBox(width: 8),
-                                    CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.red,
-                                      child: Text(
-                                        count.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ]
-                                ],
+    return Column(
+      children: [
+        SizedBox(
+          height: 60,
+          child: ScrollbarTheme(
+            data: ScrollbarThemeData(
+              trackBorderColor: WidgetStatePropertyAll(Colors.transparent),
+              thumbColor:
+                  MaterialStatePropertyAll(primaryColor.withOpacity(0.3)),
+              trackColor: WidgetStatePropertyAll(Colors.grey[100]),
+            ),
+            child: Scrollbar(
+              thumbVisibility: true,
+              trackVisibility: true,
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      physics: const ClampingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _tabs.length,
+                      itemBuilder: (context, index) {
+                        bool isSelected = _selectedTabIndex == index;
+                        int count = _getCountForTab(index);
+    
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedTabIndex = index;
+                            });
+                            widget.orderController
+                                .updateTabIndex(_selectedTabIndex);
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.cyan
+                                  : Colors.transparent,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.cyan,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  child: Text(_tabs[index]),
+                                ),
+                                if (count != 0) ...[
+                                  const SizedBox(width: 8),
+                                  CircleAvatar(
+                                    radius: 8,
+                                    backgroundColor: Colors.red,
+                                    child: Text(
+                                      count.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ]
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-          Obx(() {
-            if (widget.orderController.isLoading.value ||
-                widget.orderController.isCountLoading.value) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.4,
-                  ),
-                  SpinKitFadingCube(
-                    color: primaryColor,
-                    size: 20.0,
-                  ),
-                ],
-              );
-            }
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.8,
+        ),
+        Obx(() {
+          if (widget.orderController.isLoading.value ||
+              widget.orderController.isCountLoading.value) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                ),
+                SpinKitFadingCube(
+                  color: primaryColor,
+                  size: 20.0,
+                ),
+              ],
+            );
+          }
+          return Expanded(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.9,
               child: OrderBottomWidget(
                 orderController: widget.orderController,
                 selectedTabIndex: _selectedTabIndex,
               ),
-            );
-          }),
-        ],
-      ),
+            ),
+          );
+        }),
+      ],
     );
   }
 }

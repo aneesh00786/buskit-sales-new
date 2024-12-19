@@ -55,6 +55,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           data: widget.orderController.orderDataList,
           child: SizedBox(
             width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width,
             child: Column(
               children: [
                 Container(
@@ -72,8 +73,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           child: Center(
                             child: CustomText(
                                 content: 'Customer List',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
                                 color: Colors.white),
                           ),
                         ),
@@ -83,8 +84,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           child: Center(
                             child: CustomText(
                                 content: 'Order NO',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
                                 color: Colors.white),
                           ),
                         ),
@@ -94,8 +95,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           child: Center(
                             child: CustomText(
                                 content: 'Created',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
                                 color: Colors.white),
                           ),
                         ),
@@ -105,9 +106,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           child: Center(
                             child: CustomText(
                                 content: 'Order Price',
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 fontFamily: 'Poppins_Regular',
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: Colors.white),
                           ),
                         ),
@@ -118,8 +119,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             child: CustomText(
                                 content: 'Status',
                                 fontFamily: 'Poppins_Regular',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
                                 color: Colors.white),
                           ),
                         ),
@@ -146,70 +147,72 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                   Text("Record not found"),
                 ],
                 if (widget.orderController.orderDataList != null) ...[
-                  ListView.builder(
-                    itemCount: widget.orderController.orderDataList.length,
-                    shrinkWrap: true,
-                    primary: false,
-                    itemBuilder: (BuildContext context, int index) {
-                      OrderData orderData =
-                          widget.orderController.orderDataList[index];
-                      if (orderData.cart == null || orderData.cart!.isEmpty) {
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: widget.orderController.orderDataList.length,
+                      shrinkWrap: true,
+                      primary: false,
+                      itemBuilder: (BuildContext context, int index) {
+                        OrderData orderData =
+                            widget.orderController.orderDataList[index];
+                        if (orderData.cart == null || orderData.cart!.isEmpty) {
+                          return Container(
+                            color: index.isEven ? Colors.white : Colors.grey[50],
+                            height: 60,
+                            child: Row(
+                              children: [
+                                Expanded(flex: 2, child: placeholderWidget()),
+                                Expanded(flex: 1, child: placeholderWidget()),
+                                Expanded(flex: 1, child: placeholderWidget()),
+                                Expanded(flex: 1, child: placeholderWidget()),
+                                Expanded(flex: 1, child: placeholderWidget()),
+                                Expanded(flex: 1, child: placeholderWidget()),
+                              ],
+                            ),
+                          );
+                        }
                         return Container(
                           color: index.isEven ? Colors.white : Colors.grey[50],
-                          height: 60,
+                          height: MediaQuery.of(context).size.height / 11.5,
                           child: Row(
                             children: [
-                              Expanded(flex: 2, child: placeholderWidget()),
-                              Expanded(flex: 1, child: placeholderWidget()),
-                              Expanded(flex: 1, child: placeholderWidget()),
-                              Expanded(flex: 1, child: placeholderWidget()),
-                              Expanded(flex: 1, child: placeholderWidget()),
-                              Expanded(flex: 1, child: placeholderWidget()),
+                              Expanded(
+                                flex: 2,
+                                child:
+                                    customerDetailsWidget(orderData.cart!.first),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                flex: 1,
+                                child: orderNumberWidget(orderData.cart!.first),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                flex: 1,
+                                child:
+                                    orderCreatedDateWidget(orderData.cart!.first),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                flex: 1,
+                                child: orderPrice(orderData.cart!.first),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                flex: 1,
+                                child: orderStatus(orderData.cart!.first),
+                              ),
+                              SizedBox(width: 10),
+                              SizedBox(
+                                  width: 60,
+                                  child: viewOrder(
+                                      widget.orderController, orderData)),
+                              SizedBox(width: 10),
                             ],
                           ),
                         );
-                      }
-                      return Container(
-                        color: index.isEven ? Colors.white : Colors.grey[50],
-                        height: MediaQuery.of(context).size.height / 12,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child:
-                                  customerDetailsWidget(orderData.cart!.first),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              flex: 1,
-                              child: orderNumberWidget(orderData.cart!.first),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              flex: 1,
-                              child:
-                                  orderCreatedDateWidget(orderData.cart!.first),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              flex: 1,
-                              child: orderPrice(orderData.cart!.first),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              flex: 1,
-                              child: orderStatus(orderData.cart!.first),
-                            ),
-                            SizedBox(width: 10),
-                            SizedBox(
-                                width: 60,
-                                child: viewOrder(
-                                    widget.orderController, orderData)),
-                            SizedBox(width: 10),
-                          ],
-                        ),
-                      );
-                    },
+                      },
+                    ),
                   )
                 ],
               ],
@@ -253,7 +256,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 MyRegularText(
                   label: orderData.customerDetails?.fullname ?? 'Unknown',
                   maxlines: 2,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
                 MyRegularText(

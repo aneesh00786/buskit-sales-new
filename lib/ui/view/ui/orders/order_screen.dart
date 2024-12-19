@@ -42,22 +42,20 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {
       return Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              OrderTopWidget(
+        body: Column(
+          children: [
+            OrderTopWidget(
+              orderController: orderController,
+            ),
+            nkMediumSizeBox(),
+            Flexible(
+              child: OrdersTabBar(
                 orderController: orderController,
+                passIndex: selectedTabIndex,
+                notificationController: notificationController,
               ),
-              nkMediumSizeBox(),
-              Flexible(
-                child: OrdersTabBar(
-                  orderController: orderController,
-                  passIndex: selectedTabIndex,
-                  notificationController: notificationController,
-                ),
-              )
-            ],
-          ),
+            )
+          ],
         ),
       );
     });

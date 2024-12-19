@@ -93,13 +93,14 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       scrollDirection: Axis.vertical,
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 0),
           SizedBox(
             height: 60,
             child: ScrollbarTheme(
               data: ScrollbarThemeData(
                 trackBorderColor: WidgetStatePropertyAll(Colors.transparent),
-                thumbColor: MaterialStatePropertyAll(Colors.cyan),
+                thumbColor:
+                    MaterialStatePropertyAll(primaryColor.withOpacity(0.3)),
                 trackColor: WidgetStatePropertyAll(Colors.grey[100]),
               ),
               child: Scrollbar(
@@ -112,12 +113,13 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                       height: 50,
                       child: ListView.builder(
                         controller: _scrollController,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: _tabs.length,
                         itemBuilder: (context, index) {
                           bool isSelected = _selectedTabIndex == index;
                           int count = _getCountForTab(index);
+
                           return GestureDetector(
                             onTap: () {
                               setState(() {
@@ -126,9 +128,13 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                               widget.orderController
                                   .updateTabIndex(_selectedTabIndex);
                             },
-                            child: Container(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, top: 8, bottom: 0),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 16,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? Colors.cyan
@@ -141,28 +147,29 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    _tabs[index],
+                                  AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
                                     style: TextStyle(
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14),
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.cyan,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    child: Text(_tabs[index]),
                                   ),
                                   if (count != 0) ...[
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     CircleAvatar(
                                       radius: 8,
-                                      backgroundColor: red,
-                                      child: Center(
-                                        child: Text(
-                                          count.toString(),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        count.toString(),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -174,7 +181,6 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                         },
                       ),
                     ),
-                    SizedBox(height: 10),
                   ],
                 ),
               ),

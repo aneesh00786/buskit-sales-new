@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -40,7 +41,7 @@ class LoadingToNoDataWidget extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: SpinKitFadingCube(
-              color: spinnerColor,
+              color: primaryColor,
               size: spinnerSize,
             ),
           );

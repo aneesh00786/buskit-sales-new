@@ -291,13 +291,13 @@ class HomeController extends GetxController {
       },
       iconBuilder: (context, extended) {
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 10.0),
+          padding: const EdgeInsets.symmetric(vertical: 3.0,),
           child: Row(
             children: [
               Icon(
                 iconData,
                 size: 20,
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withOpacity(0.7),
                 weight: 700,
                 
               ),
@@ -307,13 +307,12 @@ class HomeController extends GetxController {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      barTitle,
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(0.4),
+                    child: CustomText(
+                     content: barTitle,
+                        color: Colors.black.withOpacity(0.7),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                      ),
+                      
                     ),
                   ),
                   if (isRecentOrders)
@@ -321,7 +320,7 @@ class HomeController extends GetxController {
                       top: -15,
                       left: 200,
                       child: notificationController.isNotificationLoading.value
-                          ? SizedBox.shrink() // Show nothing when loading
+                          ? SizedBox.shrink() 
                           : notificationController
                                       .recentOrderCountData.mainNotification !=
                                   null

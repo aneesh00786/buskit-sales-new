@@ -187,7 +187,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
         },
         extendedTheme: SidebarXTheme(
           width: AppDimensions.instance.width * 0.7,
-          margin: nkRegularPadding(bottom: 0, right: 0, top: 0),
           decoration: const BoxDecoration(
             color: backgroundColor,
           ),
@@ -195,39 +194,5 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
         items: widget._itemList,
       );
     });
-  }
-
-  Widget buttonWithIcon(String name, IconData iconData,
-      {void Function()? onPressed}) {
-    return Padding(
-      padding: nkSymmetricPadding(
-          vertical: 0,
-          horizontal: MediaQuery.of(context).orientation == Orientation.portrait
-              ? AppDimensions.instance.width * 0.05
-              : AppDimensions.instance.width * 0.02),
-      child: MyThemeButton(
-        width: Get.size.width * 0.4,
-        buttonText: setting,
-        onPressed: onPressed,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              iconData,
-              color: secondaryIconColor,
-              size: 26,
-            ),
-            nkSmallSizeBox(height: 0),
-            MyRegularText(
-              color: buttonTextColor,
-              label: name,
-              fontSize: ResponsiveInfo.isMobile() ? 14 : 18,
-            )
-          ],
-        ),
-      ),
-    );
   }
 }

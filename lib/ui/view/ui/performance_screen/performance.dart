@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -86,14 +87,80 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     }
   }
 
+  String selectedValue = "2024";
   @override
   Widget build(BuildContext context) {
+    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,
         actions: [
-          NotificationWidget(),
-          profiloe(),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: isSmallScreen ? 29 : 38,
+                        width: isSmallScreen ? 84 : 104,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 3,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
+                              child: DropdownButton<String>(
+                                value: selectedValue, 
+                                items: ['2024', '2023'].map((String year) {
+                                  return DropdownMenuItem<String>(
+                                    value: year,
+                                    child: Text(
+                                      year,
+                                      style: TextStyle(
+                                        color: Colors
+                                            .grey, 
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    setState(() {
+                                      selectedValue = newValue;
+                                    });
+                                  }
+                                },
+                                underline: SizedBox(), // Removes the underline
+                                iconEnabledColor: Colors
+                                    .black, // Customize the dropdown icon color
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                NotificationWidget(),
+                profiloe(),
+              ],
+            ),
+          )
         ],
       ),
       body: Column(

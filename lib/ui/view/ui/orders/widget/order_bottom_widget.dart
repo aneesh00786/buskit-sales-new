@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:get/get.dart';
 
@@ -47,10 +48,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     return Obx(
       () {
         if (widget.orderController.orderDataList.isEmpty) {
-          // return const Center(child: CircularProgressIndicator());
-          return const Center(child: NodataWidget());
+          return const LoadingToNoDataWidget();
         }
-
         return NkWidgetExceptionHandel(
           onRetryPressed: () => {},
           data: widget.orderController.orderDataList,
@@ -83,7 +82,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           flex: 1,
                           child: Center(
                             child: CustomText(
-                                content: 'Order Number',
+                                content: 'Order NO',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white),
@@ -94,7 +93,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           flex: 1,
                           child: Center(
                             child: CustomText(
-                                content: 'Order created',
+                                content: 'Created',
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                                 color: Colors.white),
@@ -172,7 +171,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                       }
                       return Container(
                         color: index.isEven ? Colors.white : Colors.grey[50],
-                        height: 60,
+                        height: MediaQuery.of(context).size.height / 12,
                         child: Row(
                           children: [
                             Expanded(
@@ -361,7 +360,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             color: statusColor,
             borderRadius: BorderRadius.circular(50),
           ),
-          child: Center(
+          child: Padding(
+            padding:
+                const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
             child: MyRegularText(
               label: orderData.optionOrderData?.orderStatus != null
                   ? OrderHandlingClass.fromType(
@@ -386,7 +387,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             Center(child: CircularProgressIndicator()),
             barrierDismissible: false,
           );
-
           if (orderController.selectedTabIndex.value == 0) {
             try {
               await orderController.loadSpecificOrderInvoiceData(

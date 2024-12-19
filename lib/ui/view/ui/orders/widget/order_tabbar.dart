@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/no
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_bottom_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 class OrdersTabBar extends StatefulWidget {
@@ -10,7 +11,10 @@ class OrdersTabBar extends StatefulWidget {
   final int passIndex;
   final NotificationController notificationController;
 
-  OrdersTabBar({required this.orderController, this.passIndex = 0,required this.notificationController});
+  OrdersTabBar(
+      {required this.orderController,
+      this.passIndex = 0,
+      required this.notificationController});
 
   @override
   _OrdersTabBarState createState() => _OrdersTabBarState();
@@ -19,7 +23,8 @@ class OrdersTabBar extends StatefulWidget {
 class _OrdersTabBarState extends State<OrdersTabBar> {
   int _selectedTabIndex = 0;
   final ScrollController _scrollController = ScrollController();
-  NotificationController notificationController = Get.find<NotificationController>();
+  NotificationController notificationController =
+      Get.find<NotificationController>();
   final List<String> _tabs = [
     'Latest',
     'Waiting for Approval',
@@ -49,18 +54,29 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       _selectedTabIndex = index;
     });
   }
-int _getCountForTab(int index) {
+
+  int _getCountForTab(int index) {
     switch (index) {
       case 0:
-        return notificationController.recentOrderCountData.mainNotification!.recentOrders!.toInt();
+        return notificationController
+            .recentOrderCountData.mainNotification!.recentOrders!
+            .toInt();
       case 1:
-        return notificationController.recentOrderCountData.mainNotification!.waitingForApproval!.toInt();
+        return notificationController
+            .recentOrderCountData.mainNotification!.waitingForApproval!
+            .toInt();
       case 2:
-        return notificationController.recentOrderCountData.mainNotification!.quickSale!.toInt();
+        return notificationController
+            .recentOrderCountData.mainNotification!.quickSale!
+            .toInt();
       case 3:
-        return notificationController.recentOrderCountData.mainNotification!.processingOrders!.toInt();
+        return notificationController
+            .recentOrderCountData.mainNotification!.processingOrders!
+            .toInt();
       case 4:
-        return notificationController.recentOrderCountData.mainNotification!.packedAndReadyForDelivery!.toInt();
+        return notificationController
+            .recentOrderCountData.mainNotification!.packedAndReadyForDelivery!
+            .toInt();
       case 5:
         return 0;
       case 6:
@@ -71,119 +87,125 @@ int _getCountForTab(int index) {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (widget.orderController.isLoading.value ||
-          widget.orderController.isCountLoading.value) {
-        return Center(
-            child: Text('LOADING'));
-      }
-      return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 60,
-              child: ScrollbarTheme(
-                data: ScrollbarThemeData(
-                  trackBorderColor: WidgetStatePropertyAll(Colors.transparent),
-                  thumbColor: MaterialStatePropertyAll(Colors.cyan),
-                  trackColor: WidgetStatePropertyAll(Colors.grey[100]),
-                ),
-                child: Scrollbar(
-                  thumbVisibility: true,
-                  trackVisibility: true,
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 50,
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          physics: ClampingScrollPhysics(),
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _tabs.length,
-                          itemBuilder: (context, index) {
-                            bool isSelected = _selectedTabIndex == index;
-                            int count = _getCountForTab(
-                                index);
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedTabIndex = index;
-                                });
-                                widget.orderController
-                                    .updateTabIndex(_selectedTabIndex);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.only(
-                                    left: 16, right: 16, top: 8, bottom: 0),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? Colors.cyan
-                                      : Colors.transparent,
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(10),
-                                    topRight: Radius.circular(10),
-                                  ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 60,
+            child: ScrollbarTheme(
+              data: ScrollbarThemeData(
+                trackBorderColor: WidgetStatePropertyAll(Colors.transparent),
+                thumbColor: MaterialStatePropertyAll(Colors.cyan),
+                trackColor: WidgetStatePropertyAll(Colors.grey[100]),
+              ),
+              child: Scrollbar(
+                thumbVisibility: true,
+                trackVisibility: true,
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 50,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        physics: ClampingScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _tabs.length,
+                        itemBuilder: (context, index) {
+                          bool isSelected = _selectedTabIndex == index;
+                          int count = _getCountForTab(index);
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedTabIndex = index;
+                              });
+                              widget.orderController
+                                  .updateTabIndex(_selectedTabIndex);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.only(
+                                  left: 16, right: 16, top: 8, bottom: 0),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Colors.cyan
+                                    : Colors.transparent,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10),
                                 ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      _tabs[index],
-                                      style: TextStyle(
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    _tabs[index],
+                                    style: TextStyle(
                                         color: isSelected
                                             ? Colors.white
                                             : Colors.blue,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 14
-                                      ),
-                                    ),
-                                    if (count != 0) ...[
-                                      SizedBox(width: 8),
-                                      CircleAvatar(
-                                        radius: 8,
-                                        backgroundColor: red,
-                                        child: Center(
-                                          child: Text(
-                                            count.toString(),
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                        fontSize: 14),
+                                  ),
+                                  if (count != 0) ...[
+                                    SizedBox(width: 8),
+                                    CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: red,
+                                      child: Center(
+                                        child: Text(
+                                          count.toString(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: white,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                    ]
-                                  ],
-                                ),
+                                    ),
+                                  ]
+                                ],
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                      SizedBox(height: 10),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 10),
+                  ],
                 ),
               ),
             ),
-            SizedBox(
+          ),
+          Obx(() {
+            if (widget.orderController.isLoading.value ||
+                widget.orderController.isCountLoading.value) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  SpinKitFadingCube(
+                    color: primaryColor,
+                    size: 20.0,
+                  ),
+                ],
+              );
+            }
+            return SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
               child: OrderBottomWidget(
                 orderController: widget.orderController,
                 selectedTabIndex: _selectedTabIndex,
               ),
-            ),
-          ],
-        ),
-      );
-    });
+            );
+          }),
+        ],
+      ),
+    );
   }
 }

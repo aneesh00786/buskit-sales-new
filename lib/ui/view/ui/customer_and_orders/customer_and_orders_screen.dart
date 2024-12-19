@@ -68,7 +68,7 @@ class _tableeeState extends State<tableee> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: SizedBox(
-                        height: isSmallScreen ? 29 : 38,
+                        height: isSmallScreen ? 29 : MediaQuery.of(context).size.height*0.03,
                         width: isSmallScreen ? 84 : 104,
                         child: Container(
                           decoration: BoxDecoration(
@@ -1734,7 +1734,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     bool isLandscape =
       MediaQuery.of(context).orientation == Orientation.landscape;
     double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 140 + 100;
-    double fixedRowHeight = isLandscape ?MediaQuery.of(context).size.height/9.05:MediaQuery.of(context).size.height/11.8;
+    double fixedRowHeight = isLandscape ?MediaQuery.of(context).size.height/9.05:MediaQuery.of(context).size.height/9-MediaQuery.of(context).size.height*0.03;
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
       if (provider.isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -1742,7 +1742,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return Expanded(
           child: Column(children: [
             Container(
-              color: primaryColor,
+              color: primaryColor, 
               width: double.infinity,
               padding: EdgeInsets.all(8.0),
               child: Table(
@@ -1847,7 +1847,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         padding: const EdgeInsets.all(4.0),
                                         child: Row(
                                           children: [
-                                            ClipOval(
+                                            ClipOval( 
                                               child: Container(
                                                 height: 50,
                                                 width: 50,

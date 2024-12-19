@@ -157,7 +157,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             widget.orderController.orderDataList[index];
                         if (orderData.cart == null || orderData.cart!.isEmpty) {
                           return Container(
-                            color: index.isEven ? Colors.white : Colors.grey[50],
+                            color:
+                                index.isEven ? Colors.white : Colors.grey[50],
                             height: 60,
                             child: Row(
                               children: [
@@ -178,8 +179,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             children: [
                               Expanded(
                                 flex: 2,
-                                child:
-                                    customerDetailsWidget(orderData.cart!.first),
+                                child: customerDetailsWidget(
+                                    orderData.cart!.first),
                               ),
                               SizedBox(width: 10),
                               Expanded(
@@ -189,8 +190,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                               SizedBox(width: 10),
                               Expanded(
                                 flex: 1,
-                                child:
-                                    orderCreatedDateWidget(orderData.cart!.first),
+                                child: orderCreatedDateWidget(
+                                    orderData.cart!.first),
                               ),
                               SizedBox(width: 10),
                               Expanded(
@@ -267,7 +268,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 SizedBox(
                   child: MyRegularText(
                     align: TextAlign.start,
-                    label: orderData.customerDetails?.email ?? 'Unknown',
+                    label: (orderData.customerDetails?.email ?? 'Unknown')
+                                .length >
+                            20
+                        ? '${(orderData.customerDetails?.email ?? 'Unknown').substring(0, 15)}...'
+                        : orderData.customerDetails?.email ?? 'Unknown',
                     maxlines: 2,
                     fontSize: 11,
                     overflow: TextOverflow.ellipsis,
@@ -372,7 +377,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           orderData.optionOrderData!.orderStatus!)
                       .name
                   : 'Unknown',
-              fontSize: 13,
+              fontSize: 11,
               align: TextAlign.center,
               fontWeight: FontWeight.w600,
             ),

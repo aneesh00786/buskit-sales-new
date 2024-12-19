@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
@@ -11,9 +12,14 @@ import 'package:intl/intl.dart';
 
 class StaffTargetDialog extends StatefulWidget {
   final StaffController staffController;
-
+  TabController tabController;
+  int currentYear;
+  List<TextEditingController> tabControllers;
   StaffTargetDialog({
     required this.staffController,
+    required this.tabController,
+    required this.currentYear,
+    required this.tabControllers,
   });
 
   @override
@@ -22,56 +28,21 @@ class StaffTargetDialog extends StatefulWidget {
 
 class _StaffTargetDialogState extends State<StaffTargetDialog>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-  List<TextEditingController> _targetControllers = [];
 
   final Map<String, List<TextEditingController>> _weeklyTargetControllers = {};
-
-  final int currentMonth = DateTime.now().month;
-  final int currentYear = DateTime.now().year;
-
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   bool isWeekly = false;
-
-  // Map to store categoryId and its updated target value
   Map<dynamic, String> updatedTargets = {};
   Map<dynamic, String> weeklyTargets = {};
 
   @override
   void initState() {
     super.initState();
-
-    _tabController =
-        TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        _loadSalesmanTargetForSelectedTab();
-      }
-    });
-
     _initializeControllers();
-
-    _loadSalesmanTargetForSelectedTab();
-  }
-
-  // Load targets based on the selected tab and initialize text controllers
-  void _loadSalesmanTargetForSelectedTab() {
-    final selectedMonth = _tabController.index + 1;
-    final selectedMonthName =
-        DateFormat.MMMM().format(DateTime(0, selectedMonth));
-
-    widget.staffController
-        .loadSalesmanTarget(
-      "SALES1",
-      selectedMonthName,
-      currentYear.toString(),
-    )
-        .then((_) {
-      setState(() {
-        _targetControllers = widget.staffController.salesmanTargetList
-            .map((data) => TextEditingController(text: data.target.toString()))
-            .toList();
-      });
-    });
+    widget.staffController.loadSalesmanTargetForSelectedTab(
+        currentYear: widget.currentYear.toString(),
+        selectedTabIndex: widget.tabController.index + 1,
+        staffId: salesmanId);
   }
 
   void _initializeControllers() {
@@ -102,8 +73,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
 
   @override
   void dispose() {
-    _tabController.dispose();
-    for (var controller in _targetControllers) {
+    widget.tabController.dispose();
+    for (var controller in widget.tabControllers) {
       controller.dispose();
     }
     _weeklyTargetControllers.forEach((_, controllers) {
@@ -144,51 +115,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                     children: [
                       nkSmallSizeBox(),
                       const SizedBox(height: 15),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          padding:
-                              const EdgeInsets.only(top: 8, left: 8, right: 8),
-                          child: Wrap(
-                            spacing: 8.0,
-                            children: List.generate(12, (index) {
-                              final monthName = DateFormat.MMMM()
-                                  .format(DateTime(0, index + 1));
-                              final isSelected = _tabController.index == index;
-
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _tabController.index = index;
-                                  });
-                                  _loadSalesmanTargetForSelectedTab();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 12.0),
-                                  decoration: BoxDecoration(
-                                    color: white,
-                                    border: isSelected
-                                        ? Border.all(
-                                            color: Colors.grey.shade300)
-                                        : null,
-                                    borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(5),
-                                        topRight: Radius.circular(5)),
-                                  ),
-                                  child: CustomText(
-                                    content: monthName,
-                                    color:
-                                        isSelected ? Colors.black : Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ),
                       if (isWeekly == false) ...[
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -199,6 +125,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                               columnWidths: const {
                                 0: FlexColumnWidth(3),
                                 1: FlexColumnWidth(2),
+                                2: FlexColumnWidth(2),
                               },
                               children: [
                                 TableRow(
@@ -207,6 +134,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                   children: [
                                     _buildTableHeader('Category'),
                                     _buildTableHeader('Target'),
+                                    _buildTableHeader('Projection'),
                                   ],
                                 ),
                                 ..._buildCategoryRows(),
@@ -221,9 +149,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                 builder: (context) {
                                   // Get the weeks for the current month
                                   final selectedMonth =
-                                      _tabController.index + 1;
+                                      widget.tabController.index + 1;
                                   final relevantWeeks = getWeeksForMonth(
-                                      currentYear, selectedMonth);
+                                      widget.currentYear, selectedMonth);
 
                                   return Container(
                                     width:
@@ -287,14 +215,14 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   }
 
   void _saveTargets() {
-    final selectedMonth = _tabController.index + 1;
+    final selectedMonth = widget.tabController.index + 1;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
 
     updatedTargets = {
-      for (int i = 0; i < _targetControllers.length; i++)
+      for (int i = 0; i < widget.tabControllers.length; i++)
         widget.staffController.salesmanTargetList[i].id.toString():
-            _targetControllers[i].text.toString()
+            widget.tabControllers[i].text.toString()
     };
 
     Map<String, String> buildRequestData(
@@ -327,7 +255,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     }
 
     final categoryIds = getCategoryIds();
-    final relevantWeeks = getWeeksForMonth(currentYear, selectedMonth);
+    final relevantWeeks = getWeeksForMonth(widget.currentYear, selectedMonth);
     final requestData = buildRequestData(categoryIds, relevantWeeks);
 
     log(requestData.toString());
@@ -335,7 +263,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     widget.staffController.updateCategoryTarget(
       "SALES1",
       selectedMonthName,
-      currentYear.toString(),
+      widget.currentYear.toString(),
       updatedTargets,
       requestData,
     );
@@ -367,6 +295,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       return TableRow(
         children: [
           _buildTableCell(targetData.categoryName.toString()),
+          _buildTableTextField(index),
           _buildTableTextField(index),
         ],
       );
@@ -495,25 +424,33 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     );
   }
 
-  Widget _buildTableTextField(int index) {
+Widget _buildTableTextField(int index) {
+  if (index >= widget.tabControllers.length) {
     return Container(
       height: 50,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      child: TextField(
-        controller: _targetControllers[index],
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16),
-        readOnly: true,
-        decoration: InputDecoration(
-          fillColor: Colors.blueGrey.shade50,
-          filled: true,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 5),
-        ),
-      ),
+      child: const Text('Invalid index'),
     );
   }
+  return Container(
+    height: 50,
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+    child: TextField(
+      controller: widget.tabControllers[index],
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 16),
+      readOnly: true,
+      decoration: InputDecoration(
+        fillColor: Colors.blueGrey.shade50,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 5),
+      ),
+    ),
+  );
+}
+
 }

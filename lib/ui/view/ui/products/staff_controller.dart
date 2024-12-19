@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sal
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
 import '../../../../api_handler/api_worker.dart';
@@ -62,6 +63,7 @@ class StaffController extends GetxController {
   TextEditingController stateTextController = TextEditingController();
   RxList<SalesmanTargetData> salesmanTargetList = <SalesmanTargetData>[].obs;
   RxBool isTargetLoading = false.obs;
+  var targetControllers = <TextEditingController>[].obs;
   Future<List<SalesmanTargetData>> loadSalesmanTarget(
       String salesmanId, String month, String year) async {
     try {
@@ -71,9 +73,33 @@ class StaffController extends GetxController {
       salesmanTargetList.assignAll(data.data!);
       return data.data!;
     } finally {
-      isTargetLoading.value = false; // End loading
+      isTargetLoading.value = false; 
     }
   }
+
+  void loadSalesmanTargetForSelectedTab(
+      {required int selectedTabIndex,
+      required String staffId,
+      required String currentYear}) {
+    final selectedMonth = selectedTabIndex + 1;
+    final selectedMonthName =
+        DateFormat.MMMM().format(DateTime(0, selectedMonth));
+
+    loadSalesmanTarget(staffId, selectedMonthName, currentYear.toString());
+  }
+
+  Future<void> loadSalesmanTargets(
+      String staffId, String selectedMonthName, String currentYear) async {
+    await Future.delayed(const Duration(seconds: 1));
+    salesmanTargetList.value = [
+      SalesmanTargetData(target: 100),
+      SalesmanTargetData(target: 200),
+    ];
+    targetControllers.value = salesmanTargetList.map((data) {
+      return TextEditingController(text: data.target.toString());
+    }).toList();
+  }
+
   Future<void> updateCategoryTarget(
     String salesmanId,
     String month,
@@ -90,6 +116,7 @@ class StaffController extends GetxController {
       rethrow;
     }
   }
+
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
       return IconButton(

@@ -232,50 +232,48 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   }
 
   Widget customerDetailsWidget(CustomerCart orderData) {
-    return Container(
-      child: GestureDetector(
-        onTap: () => {},
-        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          SizedBox(width: 8),
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: ClipOval(
-              child: Image.network(
-                orderData.customerDetails!.imageUrl.toString(),
-              ),
+    return GestureDetector(
+      onTap: () => {},
+      child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        SizedBox(width: 8),
+        SizedBox(
+          width: 40,
+          height: 40,
+          child: ClipOval(
+            child: Image.network(
+              orderData.customerDetails!.imageUrl.toString(),
             ),
           ),
-          SizedBox(width: 8),
-          Flexible(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  MyRegularText(
-                    label: orderData.customerDetails?.fullname ?? 'Unknown',
+        ),
+        SizedBox(width: 8),
+        Flexible(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MyRegularText(
+                  label: orderData.customerDetails?.fullname ?? 'Unknown',
+                  maxlines: 2,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+                MyRegularText(
+                  label: orderData.customerDetails?.mobileno ?? 'Unknown',
+                  maxlines: 2,
+                  fontSize: 11,
+                ),
+                SizedBox(
+                  child: MyRegularText(
+                    align: TextAlign.start,
+                    label: orderData.customerDetails?.email ?? 'Unknown',
                     maxlines: 2,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  MyRegularText(
-                    label: orderData.customerDetails?.mobileno ?? 'Unknown',
-                    maxlines: 2,
-                    fontSize: 12,
-                  ),
-                  SizedBox(
-                    child: MyRegularText(
-                      align: TextAlign.start,
-                      label: orderData.customerDetails?.email ?? 'Unknown',
-                      maxlines: 2,
-                      fontSize: 12,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ]),
-          )
-        ]),
-      ),
+                ),
+              ]),
+        )
+      ]),
     );
   }
 

@@ -71,7 +71,7 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildHeader(BuildContext context) {
     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 13;
+    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 7 : 11;
     if (MediaQuery.of(context).orientation != Orientation.portrait) {
       headerHeight = ResponsiveInfo.isMobileDimension(context) ? 50 : 55;
       fontSize = ResponsiveInfo.isMobileDimension(context) ? 11 : 13;

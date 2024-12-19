@@ -205,7 +205,8 @@ class ApiService {
       'startdate': startDate,
       'enddate': endDate,
       'targetType': '1',
-      'salesman_id': salesmanId
+      'salesman_id': salesmanId,
+      'companyId':companyId
     };
 
     try {

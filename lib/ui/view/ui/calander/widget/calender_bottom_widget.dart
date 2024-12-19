@@ -107,7 +107,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                       : !isInMonth
                           ? secondaryTextColor.withOpacity(0.5)
                           : null,
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
                 if (eventCount > 0)

@@ -1793,6 +1793,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             } else {
               return SingleChildScrollView(
                 scrollDirection: Axis.vertical,
+                physics: ClampingScrollPhysics(),
                 child: Container(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2337,6 +2338,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                 Container(
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.vertical,
                                     itemCount:
                                         provider.filteredCustomers.length,

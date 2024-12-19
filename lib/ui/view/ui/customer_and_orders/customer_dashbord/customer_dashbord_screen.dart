@@ -1505,7 +1505,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           value: item.year,
                                           child: Text(
                                             item.year.toString(),
-                                            style: cardHeadingTextStyle,
+                                            style: TextStyle(fontSize: 10),
                                           ),
                                         ))
                                     .toList(),

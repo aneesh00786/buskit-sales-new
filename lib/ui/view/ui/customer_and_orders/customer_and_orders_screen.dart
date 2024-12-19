@@ -34,20 +34,66 @@ class tableee extends StatefulWidget {
 }
 
 class _tableeeState extends State<tableee> {
+  final ScrollController _scrollController1 = ScrollController();
+  final ScrollController _scrollController2 = ScrollController();
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    _scrollController1.addListener(() {
+      if (_scrollController2.hasClients &&
+          _scrollController1.position.pixels !=
+              _scrollController2.position.pixels) {
+        _scrollController2.jumpTo(_scrollController1.position.pixels);
+      }
+    });
+
+    _scrollController2.addListener(() {
+      if (_scrollController1.hasClients &&
+          _scrollController2.position.pixels !=
+              _scrollController1.position.pixels) {
+        _scrollController1.jumpTo(_scrollController2.position.pixels);
+      }
+    });
+
     Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
   }
 
   @override
+  void dispose() {
+    _scrollController1.dispose();
+    _scrollController2.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<CustomersProvider>(context);
     return Scaffold(
-      body: Column(
+      appBar: AppBar(
+        actions: [
+          SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: calender()),
+        ],
+      ),
+      body: Stack(
         children: [
-          calender(),
-          Expanded(child: FrozenHeaderTable()),
+          Column(
+            children: [
+              Expanded(
+                  child: FrozenHeaderTable(
+                scrollController: _scrollController1,
+              )),
+            ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: BottomTotalWidget(
+                scrollController: _scrollController2, provider: provider),
+          ),
         ],
       ),
     );
@@ -68,7 +114,9 @@ class _tableeeState extends State<tableee> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: SizedBox(
-                        height: isSmallScreen ? 29 : MediaQuery.of(context).size.height*0.03,
+                        height: isSmallScreen
+                            ? 29
+                            : MediaQuery.of(context).size.height * 0.03,
                         width: isSmallScreen ? 84 : 104,
                         child: Container(
                           decoration: BoxDecoration(
@@ -155,6 +203,7 @@ class _tableeeState extends State<tableee> {
                     Expanded(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
+                        physics: const ClampingScrollPhysics(),
                         child: Row(
                           children: [
                             if (provider.selectedFilter == FilterDateEnum.range)
@@ -342,6 +391,7 @@ class _tableeeState extends State<tableee> {
                     return SizedBox(
                       height: 300,
                       child: SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Dialog(
@@ -796,6 +846,284 @@ class _tableeeState extends State<tableee> {
             );
           });
     });
+  }
+}
+
+class BottomTotalWidget extends StatelessWidget {
+  const BottomTotalWidget({
+    super.key,
+    required ScrollController scrollController,
+    required this.provider,
+  }) : _scrollController = scrollController;
+
+  final ScrollController _scrollController;
+  final CustomersProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    if (provider.orderTotalList.isEmpty || provider.orderTotalList.length < 7) {
+      return const LoadingToNoDataWidget();
+    }
+    return Row(
+      children: [
+        _buildTableCell(
+          padding: EdgeInsets.zero,
+          Container(
+            width: 200,
+            color: Colors.grey[200],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: provider.filteredCustomers.length >= 10
+                      ? Container(
+                          width: 3 * 62.0,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(3.0),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 40,
+                                width: 40,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.keyboard_double_arrow_left,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: provider.currentPage > 1
+                                      ? () {
+                                          provider.goToPreviousPage();
+                                        }
+                                      : null,
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: List.generate(
+                                      provider.totalPages > 0 ? 3 : 0,
+                                      (index) {
+                                        if (provider.totalPages <= 0) {
+                                          return Container();
+                                        }
+                                        int firstPage = (provider.currentPage -
+                                                1)
+                                            .clamp(1, provider.totalPages - 2);
+                                        int visiblePage = firstPage + index;
+                                        visiblePage = visiblePage.clamp(
+                                            1, provider.totalPages);
+
+                                        return GestureDetector(
+                                          onTap: visiblePage <=
+                                                  provider.totalPages
+                                              ? () {
+                                                  provider.currentPage =
+                                                      visiblePage;
+                                                  provider.refreshCurrentPage();
+                                                }
+                                              : null,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Container(
+                                              height: 40,
+                                              width: 25,
+                                              decoration: BoxDecoration(
+                                                color: provider.currentPage ==
+                                                        visiblePage
+                                                    ? Colors.white
+                                                    : Colors.transparent,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '$visiblePage',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color:
+                                                        provider.currentPage ==
+                                                                visiblePage
+                                                            ? primaryColor
+                                                            : Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    )),
+                              ),
+                              SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.keyboard_double_arrow_right,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed:
+                                      provider.currentPage < provider.totalPages
+                                          ? () {
+                                              provider.goToNextPage();
+                                            }
+                                          : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
+                ),
+                Container(
+                  color: Colors.grey[200],
+                  // height: 58,
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Total',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          270,
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            controller: _scrollController,
+            physics: ClampingScrollPhysics(),
+            child: Container(
+              color: Colors.grey[200],
+              child: Row(
+                children: [
+                  _buildTableCell(
+                    Center(
+                      child: CustomText(
+                          content: formatAmount(0),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14),
+                    ),
+                    120,
+                  ),
+                  _buildTableCell(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: CustomText(
+                            content:
+                                formatAmount(provider.orderTotalList[0].sales),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Expanded(
+                          flex: 2,
+                          child: CustomText(
+                            content: formatAmount(
+                                provider.orderTotalList[1].delivery),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Expanded(
+                          flex: 2,
+                          child: CustomText(
+                            content: formatAmount(
+                                provider.orderTotalList[2].payment),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    350,
+                  ),
+                  _buildTableCell(
+                    Center(
+                      child: CustomText(
+                        content:
+                            formatAmount(provider.orderTotalList[3].estimate),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    140,
+                  ),
+                  _buildTableCell(
+                    Center(
+                      child: CustomText(
+                        content:
+                            formatAmount(provider.orderTotalList[4].preOrder),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    140,
+                  ),
+                  _buildTableCell(
+                    Center(
+                      child: CustomText(
+                        content: formatAmount(provider.orderTotalList[5].draft),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    140,
+                  ),
+                  _buildTableCell(
+                    Center(
+                      child: CustomText(
+                        content:
+                            formatAmount(provider.orderTotalList[6].cancelled),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    140,
+                  ),
+                  _buildTableCell(
+                    Text(
+                      '',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    140,
+                  ),
+                  _buildTableCell(
+                    Text(
+                      '',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    100,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -1452,6 +1780,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      physics: const ClampingScrollPhysics(),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -1563,6 +1892,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
           builder: (context, setState) {
             return AlertDialog(
               content: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 child: ListBody(
                   children: daysOfWeek.map((day) {
                     return CheckboxListTile(
@@ -1674,6 +2004,11 @@ String _getStatusName(int status) {
 }
 
 class FrozenHeaderTable extends StatefulWidget {
+  final ScrollController scrollController;
+
+  const FrozenHeaderTable({required this.scrollController, Key? key})
+      : super(key: key);
+
   @override
   State<FrozenHeaderTable> createState() => _FrozenHeaderTableState();
 }
@@ -1686,55 +2021,40 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   final ProductsController prodController = Get.put(ProductsController());
   final CustomerAndOrderController customerController =
       Get.put(CustomerAndOrderController());
-  final ScrollController _horizontalScrollController = ScrollController();
-  final ScrollController _verticalScrollController = ScrollController();
+  final ScrollController vertical = ScrollController();
+  final ScrollController vertical1 = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    vertical.addListener(() {
+      if (vertical1.hasClients &&
+          vertical.position.pixels != vertical1.position.pixels) {
+        vertical1.jumpTo(vertical.position.pixels);
+      }
+    });
+
+    vertical1.addListener(() {
+      if (vertical.hasClients &&
+          vertical1.position.pixels != vertical.position.pixels) {
+        vertical.jumpTo(vertical1.position.pixels);
+      }
+    });
+  }
 
   String? startDate;
   String? endDate;
   String dropdownValue = 'Today';
 
   @override
-  void initState() {
-    super.initState();
-
-    _horizontalScrollController.addListener(() {
-      if (_horizontalScrollController.hasClients) {
-        double clampedOffset = _horizontalScrollController.offset.clamp(
-          _horizontalScrollController.position.minScrollExtent,
-          _horizontalScrollController.position.maxScrollExtent,
-        );
-        if (_horizontalScrollController.offset != clampedOffset) {
-          _horizontalScrollController.jumpTo(clampedOffset);
-        }
-      }
-    });
-
-    _verticalScrollController.addListener(() {
-      if (_verticalScrollController.hasClients) {
-        double clampedOffset = _verticalScrollController.offset.clamp(
-          _verticalScrollController.position.minScrollExtent,
-          _verticalScrollController.position.maxScrollExtent,
-        );
-        if (_verticalScrollController.offset != clampedOffset) {
-          _verticalScrollController.jumpTo(clampedOffset);
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _horizontalScrollController.dispose();
-    _verticalScrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     bool isLandscape =
-      MediaQuery.of(context).orientation == Orientation.landscape;
+        MediaQuery.of(context).orientation == Orientation.landscape;
     double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 140 + 100;
-    double fixedRowHeight = isLandscape ?MediaQuery.of(context).size.height/9.05:MediaQuery.of(context).size.height/9-MediaQuery.of(context).size.height*0.03;
+    double fixedRowHeight = isLandscape
+        ? MediaQuery.of(context).size.height / 9.05
+        : MediaQuery.of(context).size.height / 9 -
+            MediaQuery.of(context).size.height * 0.032;
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
       if (provider.isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -1742,7 +2062,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return Expanded(
           child: Column(children: [
             Container(
-              color: primaryColor, 
+              color: primaryColor,
               width: double.infinity,
               padding: EdgeInsets.all(8.0),
               child: Table(
@@ -1791,562 +2111,394 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             } else if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
               return const Center(child: Text('No customers found'));
             } else {
-              return SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                physics: ClampingScrollPhysics(),
-                child: Container(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 270,
-                        child: Column(
-                          children: [
-                            _buildTableHeader(
-                              Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: TextField(
-                                  onChanged: (query) {
-                                    provider.updateSearchQuery(query);
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: 'Search',
-                                    hintStyle:
-                                        const TextStyle(color: Colors.grey),
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(3.2),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                            horizontal: 9.5, vertical: 9.5),
+              return Container(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 270,
+                      child: Column(
+                        children: [
+                          _buildTableHeader(
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: TextField(
+                                onChanged: (query) {
+                                  provider.updateSearchQuery(query);
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Search',
+                                  hintStyle:
+                                      const TextStyle(color: Colors.grey),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3.2),
+                                    borderSide: BorderSide.none,
                                   ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 9.5, vertical: 9.5),
                                 ),
                               ),
-                              270,
                             ),
-                            ...List.generate(
-                              provider.filteredCustomers.length,
-                              (index) {
-                                var customer =
-                                    provider.filteredCustomers[index];
-                                return Container(
-                                  height: fixedRowHeight,
-                                  color: index.isEven
-                                      ? Colors.grey[50]
-                                      : Colors.white,
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: 220,
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Row(
-                                          children: [
-                                            ClipOval( 
-                                              child: Container(
-                                                height: 50,
-                                                width: 50,
-                                                color: Colors.grey[200],
-                                                child: Image.network(
-                                                  'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
-                                                  fit: BoxFit.cover,
-                                                  width: 34,
-                                                  height: 34,
-                                                  errorBuilder: (context,
-                                                      error, stackTrace) {
-                                                    return Container(
-                                                      color: Colors.grey[200],
-                                                      child: const Icon(
-                                                          EneftyIcons.profile_bold,
-                                                          color: Color.fromARGB(255, 124, 124, 164),
-                                                          size: 30,
+                            270,
+                          ),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: vertical,
+                              physics: const ClampingScrollPhysics(),
+                              child: Column(
+                                children: List.generate(
+                                  provider.filteredCustomers.length,
+                                  (index) {
+                                    var customer =
+                                        provider.filteredCustomers[index];
+                                    return Container(
+                                      height:
+                                          fixedRowHeight, // Adjust height as needed
+                                      color: index.isEven
+                                          ? Colors.grey[50]
+                                          : Colors.white,
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 220,
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: Row(
+                                              children: [
+                                                ClipOval(
+                                                  child: Container(
+                                                    height: 50,
+                                                    width: 50,
+                                                    color: Colors.grey[200],
+                                                    child: Image.network(
+                                                      'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
+                                                      fit: BoxFit.cover,
+                                                      width: 34,
+                                                      height: 34,
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return Container(
+                                                          color:
+                                                              Colors.grey[200],
+                                                          child: const Icon(
+                                                            Icons.person,
+                                                            color: Colors.grey,
+                                                            size: 30,
                                                           ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                GestureDetector(
+                                                  behavior:
+                                                      HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    // Your existing onTap logic
+                                                    customerAndOrderController
+                                                        .setCustomerId(customer
+                                                                .customerId ??
+                                                            '');
+                                                    provider
+                                                        .setCurrentMonthDates();
+                                                    prodController
+                                                        .selectedCustomerName
+                                                        .value = customer
+                                                            .businessName ??
+                                                        '';
+                                                    prodController
+                                                            .selectedCustomerId
+                                                            .value =
+                                                        customer.customerId ??
+                                                            '';
+                                                    prodController
+                                                        .selectedCustomerImageUrl
+                                                        .value = customer
+                                                            .imageUrl ??
+                                                        '';
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CustomerDachScreen(
+                                                          year: 2024,
+                                                          startDate: provider
+                                                              .selectedStartDate,
+                                                          endDate: provider
+                                                              .selectedEndDate,
+                                                          isFromOrder: true,
+                                                        ),
+                                                      ),
+                                                    );
+
+                                                    provider
+                                                        .fetchCustomerDashboardData(
+                                                      customer.customerId ?? '',
+                                                      2024,
+                                                      provider
+                                                          .selectedStartDate,
+                                                      provider.selectedEndDate,
+                                                    );
+                                                    provider
+                                                        .fetchCustomerDashboardRevenueData(
+                                                      customer.customerId ?? '',
+                                                      2024,
+                                                      provider
+                                                          .selectedStartDate,
+                                                      provider.selectedEndDate,
+                                                    );
+                                                    provider
+                                                        .fetchCustomerDashboardCountData(
+                                                      customer.customerId ?? '',
                                                     );
                                                   },
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: GestureDetector(
-                                                behavior:
-                                                    HitTestBehavior.opaque,
-                                                onTap: () {
-                                                  customerAndOrderController
-                                                      .setCustomerId(customer
-                                                              .customerId ??
-                                                          '');
-                                                  provider
-                                                      .setCurrentMonthDates();
-                                                  prodController
-                                                          .selectedCustomerName
-                                                          .value =
-                                                      customer.businessName;
-                                                  prodController
-                                                          .selectedCustomerId
-                                                          .value =
-                                                      customer.customerId;
-                                                  prodController
-                                                      .selectedCustomerImageUrl
-                                                      .value = customer.imageUrl;
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CustomerDachScreen(
-                                                              year: 2024,
-                                                              startDate: provider
-                                                                  .selectedStartDate,
-                                                              endDate: provider
-                                                                  .selectedEndDate,
-                                                              isFromOrder:
-                                                                  true),
-                                                    ),
-                                                  );
-                                        
-                                                  provider.fetchCustomerDashboardData(
-                                                      customer.customerId,
-                                                      2024,
-                                                      provider
-                                                          .selectedStartDate,
-                                                      provider
-                                                          .selectedEndDate);
-                                                  provider.fetchCustomerDashboardRevenueData(
-                                                      customer.customerId,
-                                                      2024,
-                                                      provider
-                                                          .selectedStartDate,
-                                                      provider
-                                                          .selectedEndDate);
-                                                  provider
-                                                      .fetchCustomerDashboardCountData(
-                                                          customer
-                                                              .customerId);
-                                                },
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
-                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    CustomText(
-                                                        content: customer
-                                                                .businessName ??
-                                                            'Business Name',
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.black,
-                                                        maxLine: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis),
-                                                    CustomText(
-                                                        content:
-                                                            customer.town ??
-                                                                'Town',
-                                                        fontSize: 11.5,
-                                                        color: Colors.black,
-                                                        maxLine: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis),
-                                                    CustomText(
-                                                        content: customer
-                                                                .businessName ??
-                                                            'Full Name',
-                                                        fontSize: 11.5,
-                                                        color: Colors.black,
-                                                        maxLine: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis),
-                                                    CustomText(
-                                                        content: customer
-                                                                .email ??
-                                                            'email@example.com',
-                                                        fontSize: 11.5,
-                                                        color: Colors.black,
-                                                        maxLine: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                            _buildTableCell(
-                              padding: EdgeInsets.zero,
-                              Container(
-                                height: fixedRowHeight/2,
-                                color: Colors.grey[200],
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child:
-                                          provider.filteredCustomers.length >=
-                                                  10
-                                              ? Container(
-                                                  width: 3 * 62.0,
-                                                  decoration: BoxDecoration(
-                                                    color: primaryColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            3.0),
-                                                  ),
-                                                  child: Row(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
-                                                            .start,
+                                                            .center,
                                                     children: [
-                                                      Container(
-                                                        height: 40,
-                                                        width: 40,
-                                                        child: IconButton(
-                                                          icon: const Icon(
-                                                            Icons
-                                                                .keyboard_double_arrow_left,
-                                                            size: 20,
-                                                            color:
-                                                                Colors.white,
-                                                          ),
-                                                          onPressed:
-                                                              provider.currentPage >
-                                                                      1
-                                                                  ? () {
-                                                                      provider
-                                                                          .goToPreviousPage();
-                                                                    }
-                                                                  : null,
+                                                      Text(
+                                                        customer.businessName ??
+                                                            'Business Name',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            children:
-                                                                List.generate(
-                                                              provider.totalPages >
-                                                                      0
-                                                                  ? 3
-                                                                  : 0,
-                                                              (index) {
-                                                                if (provider
-                                                                        .totalPages <=
-                                                                    0) {
-                                                                  return Container();
-                                                                }
-                                                                int firstPage =
-                                                                    (provider.currentPage -
-                                                                            1)
-                                                                        .clamp(
-                                                                            1,
-                                                                            provider.totalPages - 2);
-                                                                int visiblePage =
-                                                                    firstPage +
-                                                                        index;
-                                                                visiblePage =
-                                                                    visiblePage.clamp(
-                                                                        1,
-                                                                        provider
-                                                                            .totalPages);
-                                        
-                                                                return GestureDetector(
-                                                                  onTap: visiblePage <=
-                                                                          provider.totalPages
-                                                                      ? () {
-                                                                          provider.currentPage =
-                                                                              visiblePage;
-                                                                          provider.refreshCurrentPage();
-                                                                        }
-                                                                      : null,
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .all(
-                                                                        2.0),
-                                                                    child:
-                                                                        Container(
-                                                                      height:
-                                                                          40,
-                                                                      width:
-                                                                          25,
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color: provider.currentPage == visiblePage
-                                                                            ? Colors.white
-                                                                            : Colors.transparent,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                      ),
-                                                                      child:
-                                                                          Center(
-                                                                        child:
-                                                                            Text(
-                                                                          '$visiblePage',
-                                                                          style:
-                                                                              TextStyle(
-                                                                            fontSize: 13,
-                                                                            color: provider.currentPage == visiblePage ? primaryColor : Colors.white,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            )),
+                                                      Text(
+                                                        customer.town ?? 'Town',
+                                                        style: TextStyle(
+                                                            fontSize: 11.5),
                                                       ),
-                                                      SizedBox(
-                                                        height: 40,
-                                                        width: 40,
-                                                        child: IconButton(
-                                                          icon: const Icon(
-                                                            Icons
-                                                                .keyboard_double_arrow_right,
-                                                            size: 20,
-                                                            color:
-                                                                Colors.white,
-                                                          ),
-                                                          onPressed: provider
-                                                                      .currentPage <
-                                                                  provider
-                                                                      .totalPages
-                                                              ? () {
-                                                                  provider
-                                                                      .goToNextPage();
-                                                                }
-                                                              : null,
-                                                        ),
+                                                      Text(
+                                                        customer.businessName ??
+                                                            'Full Name',
+                                                        style: TextStyle(
+                                                            fontSize: 11.5),
+                                                      ),
+                                                      Text(
+                                                        customer.email ??
+                                                            'email@example.com',
+                                                        style: TextStyle(
+                                                            fontSize: 11.5),
                                                       ),
                                                     ],
                                                   ),
-                                                )
-                                              : Container(),
-                                    ),
-                                    Container(
-                                      color: Colors.grey[200],
-                                      // height: 58,
-                                      child: const Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text('Total',
-                                              style: TextStyle(
-                                                  fontSize: 17,
-                                                  fontWeight:
-                                                      FontWeight.w700)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                    )
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Scrollable columns
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        controller: widget.scrollController,
+                        physics: ClampingScrollPhysics(),
+                        child: SizedBox(
+                          width: totalTableWidth,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                color: primaryColor,
+                                child: Row(
+                                  children: [
+                                    _buildTableHeader(
+                                      Row(
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Sales',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Poppins_Regular',
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          Obx(() {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 20, top: 20),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          2.0),
+                                                ),
+                                                child: DropdownButton<String>(
+                                                  iconSize: 14,
+                                                  value:
+                                                      customerAndOrderController
+                                                          .selectedYear.value,
+                                                  onChanged:
+                                                      (String? newValue) {
+                                                    if (newValue != null) {
+                                                      customerAndOrderController
+                                                          .updateSelectedYear(
+                                                              newValue);
+                                                    }
+                                                  },
+                                                  items:
+                                                      customerAndOrderController
+                                                          .years
+                                                          .map<
+                                                              DropdownMenuItem<
+                                                                  String>>((String
+                                                              value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: value,
+                                                      child: Text(
+                                                        value,
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily:
+                                                              'Poppins_Regular',
+                                                        ),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  dropdownColor: Colors.white,
+                                                  isExpanded: false,
+                                                  underline: Container(),
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                      120,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'Sales / Delivery / Payments',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      350,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'Estimates',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      140,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'Pre-Order',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins_Regular',
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      140,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'Drafts',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins_Regular',
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      140,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'Cancelled',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins_Regular',
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      140,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'Visits',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins_Regular',
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      140,
+                                    ),
+                                    _buildTableHeader(
+                                      CustomText(
+                                        content: 'SE',
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins_Regular',
+                                      ),
+                                      100,
+                                    ),
                                   ],
                                 ),
                               ),
-                              330,
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Scrollable columns
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _horizontalScrollController,
-                          child: SizedBox(
-                            width: totalTableWidth,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  color: primaryColor,
-                                  child: Row(
-                                    children: [
-                                      _buildTableHeader(
-                                        Row(
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Sales',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'Poppins_Regular',
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            Obx(() {
-                                              return Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 20, top: 20),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            2.0),
-                                                  ),
-                                                  child: DropdownButton<String>(
-                                                    iconSize: 14,
-                                                    value:
-                                                        customerAndOrderController
-                                                            .selectedYear.value,
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      if (newValue != null) {
-                                                        customerAndOrderController
-                                                            .updateSelectedYear(
-                                                                newValue);
-                                                      }
-                                                    },
-                                                    items: customerAndOrderController
-                                                        .years
-                                                        .map<
-                                                            DropdownMenuItem<
-                                                                String>>((String
-                                                            value) {
-                                                      return DropdownMenuItem<
-                                                          String>(
-                                                        value: value,
-                                                        child: Text(
-                                                          value,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.black,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontFamily:
-                                                                'Poppins_Regular',
-                                                          ),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      );
-                                                    }).toList(),
-                                                    dropdownColor: Colors.white,
-                                                    isExpanded: false,
-                                                    underline: Container(),
-                                                  ),
-                                                ),
-                                              );
-                                            }),
-                                          ],
-                                        ),
-                                        120,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content:
-                                              'Sales / Delivery / Payments',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          maxLine: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        350,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content: 'Estimates',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          maxLine: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content: 'Pre-Order',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                          maxLine: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content: 'Drafts',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                          maxLine: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content: 'Cancelled',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                          maxLine: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content: 'Visits',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                          maxLine: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableHeader(
-                                        CustomText(
-                                          content: 'SE',
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                        ),
-                                        100,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  controller: vertical1,
+                                  physics: const ClampingScrollPhysics(),
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.vertical,
+                                    physics: NeverScrollableScrollPhysics(),
                                     itemCount:
                                         provider.filteredCustomers.length,
                                     itemBuilder: (context, index) {
                                       var customer =
                                           provider.filteredCustomers[index];
-                
+
                                       return Container(
                                         height: fixedRowHeight,
                                         color: index.isEven
@@ -2558,123 +2710,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     },
                                   ),
                                 ),
-                                Container(
-                                  
-                                  color: Colors.grey[200],
-                                  child: Row(
-                                    children: [
-                                      _buildTableCell(
-                                        Center(
-                                          child: CustomText(
-                                              content: formatAmount(0),
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14),
-                                        ),
-                                        120,
-                                      ),
-                                      _buildTableCell(
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Expanded(
-                                              flex: 2,
-                                              child: CustomText(
-                                                content: formatAmount(provider
-                                                    .orderTotalList[0].sales),
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-                                            Expanded(
-                                              flex: 2,
-                                              child: CustomText(
-                                                content: formatAmount(provider
-                                                    .orderTotalList[1]
-                                                    .delivery),
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-                                            Expanded(
-                                              flex: 2,
-                                              child: CustomText(
-                                                content: formatAmount(provider
-                                                    .orderTotalList[2].payment),
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        350,
-                                      ),
-                                      _buildTableCell(
-                                        Center(
-                                          child: CustomText(
-                                            content: formatAmount(provider
-                                                .orderTotalList[3].estimate),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableCell(
-                                        Center(
-                                          child: CustomText(
-                                            content: formatAmount(provider
-                                                .orderTotalList[4].preOrder),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableCell(
-                                        Center(
-                                          child: CustomText(
-                                            content: formatAmount(provider
-                                                .orderTotalList[5].draft),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableCell(
-                                        Center(
-                                          child: CustomText(
-                                            content: formatAmount(provider
-                                                .orderTotalList[6].cancelled),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        140,
-                                      ),
-                                      _buildTableCell(
-                                        Text(
-                                          '',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        140,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.03,
+                              )
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             }
@@ -2781,6 +2827,7 @@ void _showOrderDataDialog(
 
             return SingleChildScrollView(
               scrollDirection: Axis.vertical,
+              physics: const ClampingScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: availableWidth),
                 child: Theme(

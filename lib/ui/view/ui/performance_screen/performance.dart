@@ -5,7 +5,6 @@ import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
@@ -41,9 +40,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   @override
   void initState() {
     super.initState();
-    final dashboardProvider =
-        Provider.of<CustomersProvider>(context, listen: false);
-    dashboardProvider.fetchCustomerData();
     _tabController =
         TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
     _tabController.addListener(() {
@@ -67,7 +63,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     for (var controller in _targetControllers) {
       controller.dispose();
     }
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -125,15 +120,14 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                               padding: const EdgeInsets.only(
                                   left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
                               child: DropdownButton<String>(
-                                value: selectedValue, 
+                                value: selectedValue,
                                 items: ['2024', '2023'].map((String year) {
                                   return DropdownMenuItem<String>(
                                     value: year,
                                     child: Text(
                                       year,
                                       style: TextStyle(
-                                        color: Colors
-                                            .grey, 
+                                        color: Colors.grey,
                                       ),
                                     ),
                                   );
@@ -145,9 +139,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                     });
                                   }
                                 },
-                                underline: SizedBox(), // Removes the underline
-                                iconEnabledColor: Colors
-                                    .black, // Customize the dropdown icon color
+                                underline: SizedBox(),
+                                iconEnabledColor: Colors.black,
                               ),
                             ),
                           ),
@@ -165,8 +158,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       ),
       body: Column(
         children: [
-          OptionsWidget(options: defaultOption(context)),
-          nkMediumSizeBox(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -202,9 +193,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         _tabController.index = index;
                       });
                       staffController.loadSalesmanTargetForSelectedTab(
-                          currentYear: currentYear.toString(),
-                          selectedTabIndex: _tabController.index + 1,
-                          staffId: salesmanId);
+                        currentYear: currentYear.toString(),
+                        selectedTabIndex: _tabController.index + 1,
+                        staffId: salesmanId,
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -229,6 +221,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               ),
             ),
           ),
+          nkMediumSizeBox(),
+          Obx(() {
+            return OptionsWidget(options: defaultOption(context));
+          }),
           nkMediumSizeBox(),
           Expanded(
               child: SingleChildScrollView(

@@ -24,6 +24,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -43,6 +45,17 @@ class ApiWorker with ApiConstants {
   }
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  final targetType = SessionHelper.settingsData
+          ?.firstWhere(
+            (setting) => setting.key == 'targetType',
+            orElse: () => AllCompanySettingsData(
+              key: 'targetType',
+              value: '',
+            ),
+          )
+          .value ??
+      '';
+
   Future<LoginResponce?> loginApi(String email, String password) async {
     Map<String, dynamic> data = {
       'email': email,
@@ -95,29 +108,92 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<SalesmanTargetResponse> fetchSalesmanTarget(
-      String salesmanId, String month, String year) async {
+  Future<List<Currency>> getCurrencyList() async {
     log(companyId.toString());
-    final response = await dio
-        .getbycustom(
-      ApiConstants.fetch_salesmanTarget,
-      queryParameters: {
-        "salesman_id": salesmanId,
-        "year": year,
-        "month": month,
-        "companyId": companyId,
-      },
-      options: Options(
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      final response = await dio
+          .getbycustom('http://16.50.232.153:3000/api/get_currencylist')
+          .onError((DioError error, stackTrace) {
+        log(error.toString());
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+
+      List<dynamic> data = response.data;
+      List<Currency> currencyList =
+          data.map((json) => Currency.fromJson(json)).toList();
+
+      return currencyList;
+    } catch (e) {
+      log("Error fetching currency list: $e");
+      rethrow;
+    }
+  }
+
+  Future<List<AllCompanySettingsData>?> fetchAllSettings() async {
+    try {
+      log('Fetching settings for company ID: $companyId');
+      final response = await dio1.post(
+        "${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}",
+        data: {
+          "compay_id": "$companyId",
         },
-      ),
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return SalesmanTargetResponse.fromJson(response.data);
+      );
+      log("Fetch Settings URL : ${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}");
+      log("CompanyId in Settings Function : $companyId");
+      List<dynamic> dataList = response.data['data'] ?? [];
+      List<AllCompanySettingsData> settingsList = dataList
+          .map((item) => AllCompanySettingsData.fromJson(item))
+          .toList();
+      await SessionHelper().setSettingsData(settingsList);
+      log('Settings fetched and saved: $settingsList');
+      return settingsList;
+    } on DioException catch (dioError) {
+      log("Dio error of Settings: ${dioError.response?.data}");
+      return Future.error(DioExceptionHandler.fromDioError(dioError));
+    } catch (e) {
+      log("Error fetching settings: $e");
+      return null;
+    }
+  }
+
+  Future<PerformanceData?> fetchSalesmanPerformanceData(String monthName) async {
+    try {
+      String apiUrl =
+          '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
+      log('Api url of performance : $apiUrl');
+
+      final requestPayload = {
+        "companyId": companyId,
+        "salesman_id": salesmanId,
+        "year": 2024,
+        "month": monthName,
+        "targetType": targetType
+      };
+      log('Request body fetchsalesman chat : $requestPayload');
+      Response response = await dio1.post(
+        apiUrl,
+        data: requestPayload,
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData = response.data['data'];
+        log('Performance Response : $jsonData');
+        return PerformanceData.fromJson(jsonData);
+      } else {
+        log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
+        return null;
+      }
+    } on DioException catch (dioError) {
+      if (dioError.response != null) {
+        log("Dio error response: ${dioError.response?.data}");
+        log("Dio error status code: ${dioError.response?.statusCode}");
+      } else {
+        log("Dio error without response: ${dioError.message}");
+      }
+      return null;
+    } catch (e) {
+      log("Error fetching salesman Performance: $e");
+      return null;
+    }
   }
 
   Future<Response> updateCategoryTargetValue(

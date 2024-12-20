@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarX_sidebar.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
- HomeController homeController =Get.find<HomeController>();
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
@@ -33,11 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
       log('Error fetching login data: $error');
     });
 
-    homeController.sidebarXController
-        .addListener(() {
-          homeController.changePageRouting();
-          log('SidebarXController listener triggered');
-        });
+    homeController.sidebarXController.addListener(() {
+      homeController.changePageRouting();
+      log('SidebarXController listener triggered');
+    });
   }
 
   @override

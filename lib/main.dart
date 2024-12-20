@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -51,6 +52,7 @@ void main() async {
 
   Get.lazyPut<HomeController>(() => HomeController());
   if (SessionHelper.loginSavedData != null) {
+    SessionHelper.settingsData = await SessionHelper().getSettingsData();
     runApp(MyApp(initialRout: AppRoutes.home));
   } else {
     runApp(MyApp(initialRout: AppRoutes.login));

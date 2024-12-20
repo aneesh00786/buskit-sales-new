@@ -2156,7 +2156,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         provider.filteredCustomers[index];
                                     return Container(
                                       height:
-                                          fixedRowHeight, // Adjust height as needed
+                                          fixedRowHeight,
                                       color: index.isEven
                                           ? Colors.grey[50]
                                           : Colors.white,
@@ -2276,12 +2276,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       ),
                                                       Text(
                                                         customer.town ?? 'Town',
-                                                        style: TextStyle(
-                                                            fontSize: 11.5),
-                                                      ),
-                                                      Text(
-                                                        customer.businessName ??
-                                                            'Full Name',
                                                         style: TextStyle(
                                                             fontSize: 11.5),
                                                       ),

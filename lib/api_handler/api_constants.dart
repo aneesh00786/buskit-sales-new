@@ -45,6 +45,8 @@ mixin class ApiConstants {
   static const String fetch_leads_reject = "fetch_leads_reject";
   static const String fetch_specific_order = "fetch_specific_order";
   static const String update_CategorytargetValue = "update_CategorytargetValue";
+  static const String salesman_dashview = "salesman_dashview";
+  static const String fetchAllSetting = "fetchAllSetting";
   
 
   /// Category Api END Point

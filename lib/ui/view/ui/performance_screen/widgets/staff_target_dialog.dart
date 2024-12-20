@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -28,7 +29,6 @@ class StaffTargetDialog extends StatefulWidget {
 
 class _StaffTargetDialogState extends State<StaffTargetDialog>
     with SingleTickerProviderStateMixin {
-
   final Map<String, List<TextEditingController>> _weeklyTargetControllers = {};
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   bool isWeekly = false;
@@ -43,43 +43,50 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         currentYear: widget.currentYear.toString(),
         selectedTabIndex: widget.tabController.index + 1,
         staffId: salesmanId);
+    log("CurrentYear : ${widget.currentYear.toString()}");
+    log("selectedTabIndex : ${widget.tabController.index + 1}");
+    log("salesmanId : $salesmanId");
   }
 
-void _initializeControllers() {
-  final salesmanTargetList = widget.staffController.salesmanTargetList;
-  log('Salesman Target List${salesmanTargetList.length}');
-  widget.tabControllers.clear();
-  for (var target in salesmanTargetList) {
-    widget.tabControllers.add(
-      TextEditingController(
-        text: target.target?.toString() ?? '', 
-      ),
-    );
-    log('TargetControllers List${widget.tabControllers.length}');
-  }
-
-  _weeklyTargetControllers.clear();
-  if (salesmanTargetList.isNotEmpty) {
+  void _initializeControllers() {
+    final salesmanTargetList =
+        widget.staffController.salesmanTargetList.categoryPerformance ?? [];
+    log('Salesman Target List ${salesmanTargetList.length}');
+    widget.tabControllers.clear();
     for (var target in salesmanTargetList) {
-      final weeklyTargets = target.weeklyTarget?.targets ?? {};
-      weeklyTargets.forEach((week, value) {
-        if (_weeklyTargetControllers[week] == null) {
-          _weeklyTargetControllers[week] = [];
-        }
-        final categoryIndex = widget.staffController.salesmanTargetList
-            .indexWhere((item) => item.id == target.id);
-        if (categoryIndex >= 0) {
-          while (_weeklyTargetControllers[week]!.length <= categoryIndex) {
-            _weeklyTargetControllers[week]!.add(TextEditingController());
+      widget.tabControllers.add(
+        TextEditingController(
+          text: target.actualTarget?.toString() ?? '',
+        ),
+      );
+      log('TargetControllers List length: ${widget.tabControllers.length}');
+    }
+    _weeklyTargetControllers.clear();
+
+    if (salesmanTargetList.isNotEmpty) {
+      for (var target in salesmanTargetList) {
+        final weeklyTargets =
+            target.actualTarget is Map ? target.actualTarget as Map : {};
+        weeklyTargets.forEach((week, value) {
+          if (_weeklyTargetControllers[week] == null) {
+            _weeklyTargetControllers[week] = [];
           }
-          _weeklyTargetControllers[week]![categoryIndex] =
-              TextEditingController(text: value?.toString() ?? '');
-        }
-      });
+          final categoryIndex = widget
+                  .staffController.salesmanTargetList.categoryPerformance
+                  ?.indexWhere((item) => item.cid == target.cid) ??
+              0;
+
+          if (categoryIndex >= 0) {
+            while (_weeklyTargetControllers[week]!.length <= categoryIndex) {
+              _weeklyTargetControllers[week]!.add(TextEditingController());
+            }
+            _weeklyTargetControllers[week]![categoryIndex] =
+                TextEditingController(text: value?.toString() ?? '');
+          }
+        });
+      }
     }
   }
-}
-
 
   @override
   void dispose() {
@@ -231,8 +238,8 @@ void _initializeControllers() {
 
     updatedTargets = {
       for (int i = 0; i < widget.tabControllers.length; i++)
-        widget.staffController.salesmanTargetList[i].id.toString():
-            widget.tabControllers[i].text.toString()
+        widget.staffController.salesmanTargetList.categoryPerformance![i].cid
+            .toString(): widget.tabControllers[i].text.toString()
     };
 
     Map<String, String> buildRequestData(
@@ -259,8 +266,8 @@ void _initializeControllers() {
     }
 
     List<int> getCategoryIds() {
-      return widget.staffController.salesmanTargetList
-          .map((category) => category.id!)
+      return widget.staffController.salesmanTargetList.categoryPerformance!
+          .map((category) => category.cid!)
           .toList();
     }
 
@@ -299,17 +306,23 @@ void _initializeControllers() {
   }
 
   List<TableRow> _buildCategoryRows() {
-    return List.generate(widget.staffController.salesmanTargetList.length,
-        (index) {
-      final targetData = widget.staffController.salesmanTargetList[index];
-      return TableRow(
-        children: [
-          _buildTableCell(targetData.categoryName.toString()),
-          _buildTableTextField(index,true),
-          _buildTableTextField(index,false),
-        ],
-      );
-    });
+    log('Length odf :${widget.staffController.salesmanTargetList.categoryPerformance?.length}');
+    return List.generate(
+      widget.staffController.salesmanTargetList.categoryPerformance?.length ??
+          0,
+      (index) {
+        final target = widget
+            .staffController.salesmanTargetList.categoryPerformance?[index];
+        return TableRow(
+          children: [
+            _buildTableCell(target?.category??''),
+            _buildTableCell(target?.actualTarget.toString()??''),
+            _buildTableCell(target?.actualProjection.toString()??'')
+
+          ],
+        );
+      },
+    );
   }
 
   int getWeekNumber(DateTime date) {
@@ -346,14 +359,17 @@ void _initializeControllers() {
     final allWeeklyRows = <TableRow>[];
 
     for (var categoryIndex = 0;
-        categoryIndex < widget.staffController.salesmanTargetList.length;
+        categoryIndex <
+            widget
+                .staffController.salesmanTargetList.categoryPerformance!.length;
         categoryIndex++) {
-      final target = widget.staffController.salesmanTargetList[categoryIndex];
+      final target = widget.staffController.salesmanTargetList
+          .categoryPerformance![categoryIndex];
       final rowColumns = <Widget>[
         Container(
           height: 50,
           padding: const EdgeInsets.all(8.0),
-          child: Center(child: Text(target.categoryName ?? '')),
+          child: Center(child: Text(target.category ?? '')),
         ),
       ];
 
@@ -434,33 +450,32 @@ void _initializeControllers() {
     );
   }
 
-Widget _buildTableTextField(int index,bool isReadOnly) {
-  if (index >= widget.tabControllers.length) {
+  Widget _buildTableTextField(int index, bool isReadOnly) {
+    if (index >= widget.tabControllers.length) {
+      return Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        child: const Text('Invalid index'),
+      );
+    }
     return Container(
       height: 50,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      child: const Text('Invalid index'),
+      child: TextField(
+        controller: widget.tabControllers[index],
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 16),
+        readOnly: isReadOnly,
+        decoration: InputDecoration(
+          fillColor: Colors.blueGrey.shade50,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+        ),
+      ),
     );
   }
-  return Container(
-    height: 50,
-    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-    child: TextField(
-      controller: widget.tabControllers[index],
-      textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 16),
-      readOnly: isReadOnly,
-      decoration: InputDecoration(
-        fillColor: Colors.blueGrey.shade50,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 5),
-      ),
-    ),
-  );
-}
-
 }

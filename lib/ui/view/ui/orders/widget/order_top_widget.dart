@@ -1,6 +1,5 @@
 import 'package:busskit_salesexecutive/ui/components/widgets/range_selector.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:flutter/material.dart';

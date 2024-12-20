@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -61,43 +62,43 @@ class StaffController extends GetxController {
   TextEditingController addressTextController = TextEditingController();
   TextEditingController cityTextController = TextEditingController();
   TextEditingController stateTextController = TextEditingController();
-  RxList<SalesmanTargetData> salesmanTargetList = <SalesmanTargetData>[].obs;
   RxBool isTargetLoading = false.obs;
   var targetControllers = <TextEditingController>[].obs;
-  Future<List<SalesmanTargetData>> loadSalesmanTarget(
-      String salesmanId, String month, String year) async {
+  PerformanceData salesmanTargetList = PerformanceData();
+  Future<PerformanceData> loadSalesmanTarget(
+      String salesmanId, String month, String year, String monthName) async {
     try {
       isTargetLoading.value = true;
-
-      var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
-      salesmanTargetList.assignAll(data.data!);
-      return data.data!;
+      var response = await ApiWorker().fetchSalesmanPerformanceData(monthName);
+      if (response != null) {
+        log('Response contains categoryPerformance: ${response}');
+        salesmanTargetList.navbarAndTargetContent =
+            response.navbarAndTargetContent;
+        salesmanTargetList.categoryPerformance =
+            response.categoryPerformance ?? [];
+        log('Category perfo List Length: ${response.categoryPerformance?.length}');
+        salesmanTargetList.months?.assignAll(response.months ?? []);
+      } else {
+        log('Response was null');
+      }
+    } catch (e) {
+      log('Error loading data: $e');
     } finally {
-      isTargetLoading.value = false; 
+      isTargetLoading.value = false;
     }
+    return salesmanTargetList;
   }
 
-  void loadSalesmanTargetForSelectedTab(
-      {required int selectedTabIndex,
-      required String staffId,
-      required String currentYear}) {
-    final selectedMonth = selectedTabIndex + 1;
+  void loadSalesmanTargetForSelectedTab({
+    required int selectedTabIndex,
+    required String staffId,
+    required String currentYear,
+  }) async {
+    final selectedMonth = selectedTabIndex;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
-
-    loadSalesmanTarget(staffId, selectedMonthName, currentYear.toString());
-  }
-
-  Future<void> loadSalesmanTargets(
-      String staffId, String selectedMonthName, String currentYear) async {
-    await Future.delayed(const Duration(seconds: 1));
-    salesmanTargetList.value = [
-      SalesmanTargetData(target: 100),
-      SalesmanTargetData(target: 200),
-    ];
-    targetControllers.value = salesmanTargetList.map((data) {
-      return TextEditingController(text: data.target.toString());
-    }).toList();
+    await loadSalesmanTarget(
+        staffId, selectedMonthName, currentYear, selectedMonthName);
   }
 
   Future<void> updateCategoryTarget(

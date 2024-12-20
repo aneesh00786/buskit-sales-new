@@ -98,6 +98,7 @@ class DashBoardController extends GetxController {
       isLoading.value = true;
       final response = await fetchData();
       dashbordData.value = response;
+      
     } catch (e) {
       errorMessage.value = 'Error fetching dashboard data: $e';
     } finally {

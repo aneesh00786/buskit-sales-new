@@ -237,7 +237,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   onTap: () {},
                 ),
                 OptionData(
-                  title: 'Check-in/Check-out',
+                  title: 'Check-in/out',
                   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
                   svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 215, 236, 246),

@@ -52,6 +52,7 @@ void main() async {
   ));
 
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
+  SessionHelper.settingsData = await SessionHelper().getSettingsData();
 
   Get.lazyPut<HomeController>(() => HomeController());
   if (SessionHelper.loginSavedData != null) {

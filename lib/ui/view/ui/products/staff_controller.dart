@@ -67,36 +67,36 @@ class StaffController extends GetxController {
   TextEditingController stateTextController = TextEditingController();
   RxBool isTargetLoading = false.obs;
   var targetControllers = <TextEditingController>[].obs;
-var salesmanTargetList = PerformanceData().obs; 
+  var salesmanTargetList = PerformanceData().obs;
   var isLoading = false.obs;
   var checkInOutData = Rxn<CheckInOut>();
-  var visitData = Rxn<VisitDataItem>();
+  var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerItem>();
-Future<void> loadSalesmanTarget(
-    String salesmanId, String month, String year, String monthName) async {
-  try {
-    var response = await ApiWorker().fetchSalesmanPerformanceData(monthName);
-    if (response != null) {
-      log('Response contains categoryPerformance: ${response}');
-      salesmanTargetList.update((list) {
-        list?.navbarAndTargetContent = response.navbarAndTargetContent;
-        list?.categoryPerformance = response.categoryPerformance ?? [];
-        list?.months = response.months ?? [];
-      });
-    } else {
-      log('Response was null');
-    }
-  } catch (e) {
-    log('Error loading data: $e');
-  } finally {
+  Future<void> loadSalesmanTarget(
+      String salesmanId, String month, String year, String monthName) async {
+    try {
+      var response = await ApiWorker().fetchSalesmanPerformanceData(monthName);
+      if (response != null) {
+        log('Response contains categoryPerformance: ${response}');
+        salesmanTargetList.update((list) {
+          list?.navbarAndTargetContent = response.navbarAndTargetContent;
+          list?.categoryPerformance = response.categoryPerformance ?? [];
+          list?.months = response.months ?? [];
+        });
+      } else {
+        log('Response was null');
+      }
+    } catch (e) {
+      log('Error loading data: $e');
+    } finally {}
   }
-}
 
   Future<void> fetchSalesmanTopBarData(String monthName, int tabStatus) async {
     isLoading.value = true;
 
     try {
-      final jsonData = await ApiWorker().fetchSalesmanTopBarData(monthName, tabStatus);
+      final jsonData =
+          await ApiWorker().fetchSalesmanTopBarData(monthName, tabStatus);
 
       if (jsonData != null) {
         switch (tabStatus) {
@@ -104,7 +104,7 @@ Future<void> loadSalesmanTarget(
             checkInOutData.value = CheckInOut.fromJson(jsonData);
             break;
           case 3:
-            visitData.value = VisitDataItem.fromJson(jsonData);
+            visitData.value = VisitData.fromJson(jsonData);
             break;
           case 4:
             customerDatas.value = CustomerItem.fromJson(jsonData);
@@ -121,6 +121,7 @@ Future<void> loadSalesmanTarget(
       isLoading.value = false;
     }
   }
+
   void loadSalesmanTargetForSelectedTab({
     required int selectedTabIndex,
     required String staffId,
@@ -129,7 +130,7 @@ Future<void> loadSalesmanTarget(
     final selectedMonth = selectedTabIndex;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
-     loadSalesmanTarget(
+    loadSalesmanTarget(
         staffId, selectedMonthName, currentYear, selectedMonthName);
   }
 

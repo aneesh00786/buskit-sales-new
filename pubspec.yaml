@@ -67,6 +67,7 @@ dependencies:
   quickalert: ^1.1.0
   rolling_switch: ^0.0.2
   rounded_loading_button_plus: ^3.0.1
+  scrollable_table_view: ^2.0.3
   shared_preferences: ^2.1.1
   shared_preferences_windows: any
   sidebarx: ^0.17.1

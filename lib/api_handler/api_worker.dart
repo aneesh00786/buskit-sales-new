@@ -129,17 +129,17 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<List<AllCompanySettingsData>?> fetchAllSettings() async {
+  Future<List<AllCompanySettingsData>?> fetchAllSettings(int company_Id) async {
     try {
-      log('Fetching settings for company ID: $companyId');
+      log('Fetching settings for company ID: $company_Id');
       final response = await dio1.post(
         "${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}",
         data: {
-          "compay_id": "$companyId",
+          "compay_id": "$company_Id",
         },
       );
       log("Fetch Settings URL : ${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}");
-      log("CompanyId in Settings Function : $companyId");
+      log("CompanyId in Settings Function : $company_Id");
       List<dynamic> dataList = response.data['data'] ?? [];
       List<AllCompanySettingsData> settingsList = dataList
           .map((item) => AllCompanySettingsData.fromJson(item))

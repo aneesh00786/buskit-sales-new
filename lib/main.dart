@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
@@ -13,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,8 +55,18 @@ void main() async {
 
   Get.lazyPut<HomeController>(() => HomeController());
   if (SessionHelper.loginSavedData != null) {
-    SessionHelper.settingsData = await SessionHelper().getSettingsData();
+    List<AllCompanySettingsData>? settings =
+        await SessionHelper().getSettingsData();
+    if (settings == null) {
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      log("Fetching settings after login...");
+      settings = await ApiWorker().fetchAllSettings(companyId);
+      if (settings != null) {
+        await SessionHelper().setSettingsData(settings);
+      }
+    }
     runApp(MyApp(initialRout: AppRoutes.home));
+    log('Settings data fetched: ${settings?.length}');
   } else {
     runApp(MyApp(initialRout: AppRoutes.login));
   }
@@ -69,7 +82,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final connectivityChecker = ConnectivityChecker();
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(

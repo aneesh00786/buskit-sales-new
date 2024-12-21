@@ -261,6 +261,7 @@ class HomeController extends GetxController {
                     onPressed: () async {
                       Navigator.pop(context);
                       await SessionManager.clearData();
+                      await SessionHelper().clearSettingsData();
                       Get.offAllNamed(AppRoutes.login);
                       if (context != null) {
                         Provider.of<DashboardProvider>(context, listen: false)

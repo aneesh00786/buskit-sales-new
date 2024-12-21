@@ -57,15 +57,20 @@ class LoginController extends GetxController {
       log("StatusCode: ${loginResponce?.statusCode}");
 
       if (loginResponce?.statusCode == 200) {
-        loginButtonController.success();
-        await SessionHelper().setLoginData(loginResponce!.data!).then((value) {
-          SessionHelper.loginSavedData = loginResponce!.data;
-          Get.offAllNamed(AppRoutes.home);
-        });
-        log("Fetching settings after login...");
-        await _apiWorker.fetchAllSettings();
-        return true;
-      } else if (loginResponce?.statusCode == 422 ||
+      loginButtonController.success();
+      await SessionHelper().setLoginData(loginResponce!.data!);
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      log("Fetching settings after login...");
+      await Future.delayed(Duration(seconds: 2));
+      final settings = await _apiWorker.fetchAllSettings(companyId);
+
+      if (settings != null) {
+        await SessionHelper().setSettingsData(settings); // Save settings here
+      }
+
+      Get.offAllNamed(AppRoutes.home);
+      return true;
+    } else if (loginResponce?.statusCode == 422 ||
           loginResponce?.statusCode == 409) {
         return false;
       } else if (loginResponce?.statusCode == 401) {

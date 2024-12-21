@@ -60,13 +60,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     );
   }
 
-  @override
-  void dispose() {
-    for (var controller in _targetControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
 
   void updateControllers(int count) {
     if (_targetControllers.length < count) {
@@ -386,7 +379,6 @@ void _createBarGroups() {
     num target = perf.actualTarget ?? 0.0;
     num projection = perf.actualProjection ?? 0.0;
     Object actual = perf.actualSales ?? 0.0;
-
     return BarChartGroupData(
       x: index,
       barRods: [
@@ -415,8 +407,6 @@ void _createBarGroups() {
     );
   }).toList();
 }
-
-
   void _showSalesmanPopup(int cid, String category) {
     showDialog(
       context: context,
@@ -441,7 +431,6 @@ void _createBarGroups() {
                     );
                   } else if (snapshot.hasData) {
                     final categories = snapshot.data!.data;
-
                     return SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Column(

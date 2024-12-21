@@ -20,7 +20,7 @@ class SessionHelper {
 
   static final ValueNotifier<bool> isLoggedIn = ValueNotifier(false);
   static LoginData? loginSavedData;
-static List<AllCompanySettingsData>? settingsData;
+  static List<AllCompanySettingsData>? settingsData;
 
   Future<void> setLoginData(LoginData loginResponse) async {
     await SessionManager.setStringValue(
@@ -38,6 +38,7 @@ static List<AllCompanySettingsData>? settingsData;
       jsonEncode(jsonList),
     );
     log('Settings data saved: $jsonList');
+    settingsData = settingsList;
   }
 
   Future<LoginData?> getLoginData() async {
@@ -53,26 +54,26 @@ static List<AllCompanySettingsData>? settingsData;
     }
   }
 
-Future<List<AllCompanySettingsData>?> getSettingsData() async {
-  String response = await SessionManager.getStringValue(SpString.settingsKey);
-  if (CheckNullData.checkNullOrEmptyString(response)) {
-    log('No settings data found in storage.');
-    return null;
-  } else {
-    try {
-      List<dynamic> jsonList = jsonDecode(response);
-      List<AllCompanySettingsData> settingsList = jsonList
-          .map((item) => AllCompanySettingsData.fromJson(item))
-          .toList();
-
-      log('Fetched settings data: $settingsList');
-      return settingsList;
-    } catch (e) {
-      log('Error decoding settings data: $e');
+  Future<List<AllCompanySettingsData>?> getSettingsData() async {
+    String response = await SessionManager.getStringValue(SpString.settingsKey);
+    if (CheckNullData.checkNullOrEmptyString(response)) {
+      log('No settings data found in storage.');
       return null;
+    } else {
+      try {
+        List<dynamic> jsonList = jsonDecode(response);
+        List<AllCompanySettingsData> settingsList = jsonList
+            .map((item) => AllCompanySettingsData.fromJson(item))
+            .toList();
+
+        log('Fetched settings data: $settingsList');
+        return settingsList;
+      } catch (e) {
+        log('Error decoding settings data: $e');
+        return null;
+      }
     }
   }
-}
 
   Future<void> clearAll() async {
     await SessionManager.clearData();

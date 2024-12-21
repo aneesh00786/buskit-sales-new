@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -317,7 +318,7 @@ void _initializeControllers() {
           children: [
             _buildTableCell(target?.category??''),
             _buildTableCell(target?.actualTarget.toString()??''),
-            _buildTableCell(target?.actualProjection.toString()??'')
+            _buildTableTextField(index, false,target),
 
           ],
         );
@@ -450,32 +451,32 @@ void _initializeControllers() {
     );
   }
 
-  Widget _buildTableTextField(int index, bool isReadOnly) {
-    if (index >= widget.tabControllers.length) {
-      return Container(
-        height: 50,
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-        child: const Text('Invalid index'),
-      );
-    }
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      child: TextField(
-        controller: widget.tabControllers[index],
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 16),
-        readOnly: isReadOnly,
-        decoration: InputDecoration(
-          fillColor: Colors.blueGrey.shade50,
-          filled: true,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+Widget _buildTableTextField(int index, bool isReadOnly, CategoryPerformance? target) {
+  // Use a TextEditingController to hold the value
+  TextEditingController controller = TextEditingController(
+    text: target?.actualProjection?.toString() ?? '', // Set the initial value
+  );
+
+  return Container(
+    height: 50,
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+    child: TextField(
+      controller: controller,  // Set the controller with the value
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 16),
+      readOnly: isReadOnly,
+      decoration: InputDecoration(
+        fillColor: Colors.blueGrey.shade50,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
         ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 5),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 }

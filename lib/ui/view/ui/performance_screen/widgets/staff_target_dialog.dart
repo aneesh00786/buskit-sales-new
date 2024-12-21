@@ -48,45 +48,45 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     log("salesmanId : $salesmanId");
   }
 
-  void _initializeControllers() {
-    final salesmanTargetList =
-        widget.staffController.salesmanTargetList.categoryPerformance ?? [];
-    log('Salesman Target List ${salesmanTargetList.length}');
-    widget.tabControllers.clear();
-    for (var target in salesmanTargetList) {
-      widget.tabControllers.add(
-        TextEditingController(
-          text: target.actualTarget?.toString() ?? '',
-        ),
-      );
-      log('TargetControllers List length: ${widget.tabControllers.length}');
-    }
-    _weeklyTargetControllers.clear();
+void _initializeControllers() {
+  final salesmanTargetList =
+      widget.staffController.salesmanTargetList.value.categoryPerformance ?? [];
 
-    if (salesmanTargetList.isNotEmpty) {
-      for (var target in salesmanTargetList) {
-        final weeklyTargets =
-            target.actualTarget is Map ? target.actualTarget as Map : {};
-        weeklyTargets.forEach((week, value) {
-          if (_weeklyTargetControllers[week] == null) {
-            _weeklyTargetControllers[week] = [];
-          }
-          final categoryIndex = widget
-                  .staffController.salesmanTargetList.categoryPerformance
-                  ?.indexWhere((item) => item.cid == target.cid) ??
-              0;
+  if (salesmanTargetList.isEmpty) {
+    log('Salesman Target List is empty or null');
+    return;
+  }
+  
+  widget.tabControllers.clear();
+  for (var target in salesmanTargetList) {
+    widget.tabControllers.add(
+      TextEditingController(
+        text: target.actualTarget?.toString() ?? '',
+      ),
+    );
+  }
 
-          if (categoryIndex >= 0) {
-            while (_weeklyTargetControllers[week]!.length <= categoryIndex) {
-              _weeklyTargetControllers[week]!.add(TextEditingController());
-            }
-            _weeklyTargetControllers[week]![categoryIndex] =
-                TextEditingController(text: value?.toString() ?? '');
-          }
-        });
-      }
+  _weeklyTargetControllers.clear();
+  for (var target in salesmanTargetList) {
+    if (target.actualTarget is Map) {
+      final weeklyTargets = target.actualTarget as Map;
+      weeklyTargets.forEach((week, value) {
+        if (_weeklyTargetControllers[week] == null) {
+          _weeklyTargetControllers[week] = [];
+        }
+
+        while (_weeklyTargetControllers[week]!.length <=
+            widget.staffController.salesmanTargetList.value.categoryPerformance!
+                .indexOf(target)) {
+          _weeklyTargetControllers[week]!.add(TextEditingController());
+        }
+        _weeklyTargetControllers[week]!.last =
+            TextEditingController(text: value?.toString() ?? '');
+      });
     }
   }
+}
+
 
   @override
   void dispose() {
@@ -238,7 +238,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
 
     updatedTargets = {
       for (int i = 0; i < widget.tabControllers.length; i++)
-        widget.staffController.salesmanTargetList.categoryPerformance![i].cid
+        widget.staffController.salesmanTargetList.value.categoryPerformance![i].cid
             .toString(): widget.tabControllers[i].text.toString()
     };
 
@@ -266,7 +266,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     }
 
     List<int> getCategoryIds() {
-      return widget.staffController.salesmanTargetList.categoryPerformance!
+      return widget.staffController.salesmanTargetList.value.categoryPerformance!
           .map((category) => category.cid!)
           .toList();
     }
@@ -306,13 +306,13 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   }
 
   List<TableRow> _buildCategoryRows() {
-    log('Length odf :${widget.staffController.salesmanTargetList.categoryPerformance?.length}');
+    log('Length odf :${widget.staffController.salesmanTargetList.value.categoryPerformance?.length}');
     return List.generate(
-      widget.staffController.salesmanTargetList.categoryPerformance?.length ??
+      widget.staffController.salesmanTargetList.value.categoryPerformance?.length ??
           0,
       (index) {
         final target = widget
-            .staffController.salesmanTargetList.categoryPerformance?[index];
+            .staffController.salesmanTargetList.value.categoryPerformance?[index];
         return TableRow(
           children: [
             _buildTableCell(target?.category??''),
@@ -361,10 +361,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     for (var categoryIndex = 0;
         categoryIndex <
             widget
-                .staffController.salesmanTargetList.categoryPerformance!.length;
+                .staffController.salesmanTargetList.value.categoryPerformance!.length;
         categoryIndex++) {
       final target = widget.staffController.salesmanTargetList
-          .categoryPerformance![categoryIndex];
+          .value.categoryPerformance![categoryIndex];
       final rowColumns = <Widget>[
         Container(
           height: 50,

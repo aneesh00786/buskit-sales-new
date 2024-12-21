@@ -64,30 +64,28 @@ class StaffController extends GetxController {
   TextEditingController stateTextController = TextEditingController();
   RxBool isTargetLoading = false.obs;
   var targetControllers = <TextEditingController>[].obs;
-  PerformanceData salesmanTargetList = PerformanceData();
-  Future<PerformanceData> loadSalesmanTarget(
-      String salesmanId, String month, String year, String monthName) async {
-    try {
-      isTargetLoading.value = true;
-      var response = await ApiWorker().fetchSalesmanPerformanceData(monthName);
-      if (response != null) {
-        log('Response contains categoryPerformance: ${response}');
-        salesmanTargetList.navbarAndTargetContent =
-            response.navbarAndTargetContent;
-        salesmanTargetList.categoryPerformance =
-            response.categoryPerformance ?? [];
-        log('Category perfo List Length: ${response.categoryPerformance?.length}');
-        salesmanTargetList.months?.assignAll(response.months ?? []);
-      } else {
-        log('Response was null');
-      }
-    } catch (e) {
-      log('Error loading data: $e');
-    } finally {
-      isTargetLoading.value = false;
+var salesmanTargetList = PerformanceData().obs; 
+
+Future<void> loadSalesmanTarget(
+    String salesmanId, String month, String year, String monthName) async {
+  try {
+    var response = await ApiWorker().fetchSalesmanPerformanceData(monthName);
+    if (response != null) {
+      log('Response contains categoryPerformance: ${response}');
+      salesmanTargetList.update((list) {
+        list?.navbarAndTargetContent = response.navbarAndTargetContent;
+        list?.categoryPerformance = response.categoryPerformance ?? [];
+        list?.months = response.months ?? [];
+      });
+    } else {
+      log('Response was null');
     }
-    return salesmanTargetList;
+  } catch (e) {
+    log('Error loading data: $e');
+  } finally {
   }
+}
+
 
   void loadSalesmanTargetForSelectedTab({
     required int selectedTabIndex,
@@ -97,7 +95,7 @@ class StaffController extends GetxController {
     final selectedMonth = selectedTabIndex;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
-    await loadSalesmanTarget(
+     loadSalesmanTarget(
         staffId, selectedMonthName, currentYear, selectedMonthName);
   }
 

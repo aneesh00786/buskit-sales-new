@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -12,7 +13,10 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/no
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/checkin_checkout_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/options_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
@@ -37,6 +41,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   List<TextEditingController> _targetControllers = [];
   final int currentYear = DateTime.now().year;
   final int currentMonth = DateTime.now().month;
+  String? _selectedMonthName;
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
 
   @override
@@ -44,6 +49,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     super.initState();
     _tabController =
         TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
+    _selectedMonthName = DateFormat.MMMM().format(DateTime.now());
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         staffController.loadSalesmanTargetForSelectedTab(
@@ -59,7 +65,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       (index) => TextEditingController(),
     );
   }
-
 
   void updateControllers(int count) {
     if (_targetControllers.length < count) {
@@ -186,8 +191,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     onTap: () {
                       setState(() {
                         _tabController.index = index;
+                        _selectedMonthName = monthName;
                       });
-                      // Trigger data load here, before build starts
                       staffController.loadSalesmanTargetForSelectedTab(
                         currentYear: currentYear.toString(),
                         selectedTabIndex: _tabController.index + 1,
@@ -234,28 +239,32 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   count: targetContent?.timesheet?.toString() ?? '0',
                   svg: "assets/icons/event.png",
                   svgBgColor: const Color.fromARGB(255, 206, 252, 224),
-                  onTap: () {},
+                  onTap: () =>
+                      _showTileDialog(context, _selectedMonthName ?? '', 1),
                 ),
                 OptionData(
                   title: 'Check-in/out',
                   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
                   svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 215, 236, 246),
-                  onTap: () {},
+                  onTap: () =>
+                      _showTileDialog(context, _selectedMonthName ?? '', 2),
                 ),
                 OptionData(
                   title: 'Visits',
                   count: targetContent?.visit?.toString() ?? '0',
                   svg: "assets/icons/location.png",
                   svgBgColor: const Color.fromARGB(255, 249, 219, 193),
-                  onTap: () {},
+                  onTap: () =>
+                      _showTileDialog(context, _selectedMonthName ?? '', 3),
                 ),
                 OptionData(
                   title: 'Customers',
                   count: targetContent?.customer?.toString() ?? '0',
                   svg: "assets/icons/customer.png",
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),
-                  onTap: () {},
+                  onTap: () =>
+                      _showTileDialog(context, _selectedMonthName ?? '', 4),
                 ),
               ],
             );
@@ -278,14 +287,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       ),
                     ),
                     child: Obx(() {
-                       if (staffController.isTargetLoading.value) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final performanceData = staffController.salesmanTargetList.value;
-            if (performanceData.navbarAndTargetContent == null) {
-              return const Center(child: Text("No Data Available"));
-            }
-            final categoryPerformance = performanceData.categoryPerformance;
+                      if (staffController.isTargetLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final performanceData =
+                          staffController.salesmanTargetList.value;
+                      if (performanceData.navbarAndTargetContent == null) {
+                        return const Center(child: Text("No Data Available"));
+                      }
+                      final categoryPerformance =
+                          performanceData.categoryPerformance;
                       return Container(
                         decoration: BoxDecoration(
                           boxShadow: [
@@ -306,7 +317,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: CustomBarChart(
+                          child: CustomPerfoBarChart(
                             categoryPerformance: categoryPerformance!,
                           ),
                         ),
@@ -350,20 +361,247 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       ),
     );
   }
+
+  void _showTileDialog(BuildContext context, String monthName, int tabStatus) {
+    staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Obx(() {
+            if (staffController.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            Widget dialogContent;
+            switch (tabStatus) {
+              case 2:
+                dialogContent = _buildCheckInOutDialogContent(
+                    staffController.checkInOutData.value);
+                break;
+              case 3:
+                dialogContent =
+                    _buildVisitsDialogContent(staffController.visitData.value);
+                break;
+              case 4:
+                dialogContent = _buildCustomersDialogContent(
+                    staffController.customerDatas.value);
+                break;
+              default:
+                dialogContent = const Text('Unknown data.');
+            }
+
+            return Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: white,
+                    ),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: dialogContent),
+                  ),
+                ),
+              ],
+            );
+          });
+        },
+      );
+    });
+  }
+
+// Widget _buildTimesheetDialogContent(TimesheetData? data) {
+//   if (data == null) return const Text('No Timesheet data available.');
+//   return Column(
+//     crossAxisAlignment: CrossAxisAlignment.start,
+//     mainAxisSize: MainAxisSize.min,
+//     children: [
+//       Text('Timesheet Details:', style: TextStyle(fontWeight: FontWeight.bold)),
+//       ...data.entries.map((entry) => Text('${entry.name}: ${entry.value}')),
+//     ],
+//   );
+// }
+
+  Widget _buildCheckInOutDialogContent(CheckInOut? data) {
+    if (data == null) return const Text('No Check-in/out data available.');
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      double availableWidth = constraints.maxWidth;
+      double fontSize = 14.0;
+      double padding = availableWidth / 100;
+      double fixedIconSize = fontSize;
+      return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                width: availableWidth,
+                child: DataTable(
+                  dataRowHeight: fontSize * 5.5,
+                  headingRowHeight: 45,
+                  headingRowColor: MaterialStateProperty.resolveWith<Color>(
+                    (states) => primaryColor,
+                  ),
+                  columnSpacing: padding * 1.5,
+                  headingTextStyle: const TextStyle(
+                      fontSize: 14, color: white, fontWeight: FontWeight.w700),
+                  columns: [
+                    dataColumn(label: 'Customer'),
+                    dataColumn(label: 'Customer ID'),
+                    dataColumn(label: 'Event ID'),
+                    dataColumn(label: 'Individual visit'),
+                    dataColumn(label: 'Total visit'),
+                    dataColumn(label: 'Check IN'),
+                  ],
+                  rows: (staffController.checkInOutData.value == null ||
+                          staffController.checkInOutData.value!.data == null ||
+                          staffController.checkInOutData.value!.data!.isEmpty)
+                      ? [
+                          const DataRow(cells: [
+                            DataCell(Text('Record Not Found')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                          ])
+                        ]
+                      : staffController.checkInOutData.value!.data!
+                          .map((check) {
+                          return DataRow(
+                            cells: [
+                              DataCell(
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: (fixedIconSize / 2) + 2,
+                                      backgroundColor: const Color(0xffe6ecff),
+                                      child: Icon(Icons.person,
+                                          size: fixedIconSize,
+                                          color: Colors.blue),
+                                    ),
+                                    SizedBox(width: padding),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            check.fullname ?? 'N/A',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            check.mobileno ?? 'N/A',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey),
+                                          ),
+                                          Text(
+                                            check.email ?? 'N/A',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              DataCell(Text(check.customerId ?? 'N/A')),
+                              DataCell(Text(check.eventId ?? 'N/A')),
+                              DataCell(Text(
+                                  check.individualVisit.toString() ?? 'N/A')),
+                              DataCell(Text(check.totalVisits ?? 'N/A')),
+                              DataCell(Text(
+                                check.checkIn != null
+                                    ? DateFormat('dd/MM/yyyy')
+                                        .format(check.checkIn!)
+                                    : 'N/A',
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SizedBox(
+                height: 45,
+                width: 45,
+                child: Center(child: dialogCloseButton1(context, red)),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  DataColumn dataColumn({required String label}) {
+    return DataColumn(
+        label: Center(
+      child: Text(
+        label,
+        maxLines: 2,
+      ),
+    ));
+  }
+
+  Widget _buildVisitsDialogContent(VisitDataItem? data) {
+    if (data == null) return const Text('No Visit data available.');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Visits Details:${data.checkIn ?? ''}',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildCustomersDialogContent(CustomerItem? data) {
+    if (data == null) return const Text('No Customer data available.');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Customer Details:',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Total Customers: ${data.businessName}'),
+      ],
+    );
+  }
+
+ 
 }
-class CustomBarChart extends StatefulWidget {
+
+class CustomPerfoBarChart extends StatefulWidget {
   final List<CategoryPerformance> categoryPerformance;
 
-  const CustomBarChart({
+  const CustomPerfoBarChart({
     super.key,
     required this.categoryPerformance,
   });
 
   @override
-  _CustomBarChartState createState() => _CustomBarChartState();
+  _CustomPerfoBarChartState createState() => _CustomPerfoBarChartState();
 }
 
-class _CustomBarChartState extends State<CustomBarChart> {
+class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
   List<BarChartGroupData> barGroups = [];
 
   @override
@@ -372,41 +610,42 @@ class _CustomBarChartState extends State<CustomBarChart> {
     _createBarGroups();
   }
 
-void _createBarGroups() {
-  barGroups = widget.categoryPerformance.asMap().entries.map((entry) {
-    int index = entry.key;
-    CategoryPerformance perf = entry.value;
-    num target = perf.actualTarget ?? 0.0;
-    num projection = perf.actualProjection ?? 0.0;
-    Object actual = perf.actualSales ?? 0.0;
-    return BarChartGroupData(
-      x: index,
-      barRods: [
-        BarChartRodData(
-          toY: double.parse(target.toString()),
-          color: const Color(0xff3b6491),
-          width: 8,
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide.none,
-        ),
-        BarChartRodData(
-          toY: double.parse(projection.toString()),
-          color: const Color(0xff15396a),
-          width: 8,
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide.none,
-        ),
-        BarChartRodData(
-          toY: double.parse(actual.toString()),
-          color: const Color(0xff7a8f3d),
-          width: 8,
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide.none,
-        ),
-      ],
-    );
-  }).toList();
-}
+  void _createBarGroups() {
+    barGroups = widget.categoryPerformance.asMap().entries.map((entry) {
+      int index = entry.key;
+      CategoryPerformance perf = entry.value;
+      num target = perf.actualTarget ?? 0.0;
+      num projection = perf.actualProjection ?? 0.0;
+      Object actual = perf.actualSales ?? 0.0;
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: double.parse(target.toString()),
+            color: const Color(0xff3b6491),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none,
+          ),
+          BarChartRodData(
+            toY: double.parse(projection.toString()),
+            color: const Color(0xff15396a),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none,
+          ),
+          BarChartRodData(
+            toY: double.parse(actual.toString()),
+            color: const Color(0xff7a8f3d),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none,
+          ),
+        ],
+      );
+    }).toList();
+  }
+
   void _showSalesmanPopup(int cid, String category) {
     showDialog(
       context: context,
@@ -529,7 +768,6 @@ void _createBarGroups() {
                                           style: TextStyle(
                                             color: secondaryTextColor,
                                             fontSize: 13,
-
                                           ),
                                         ),
                                       ),
@@ -631,8 +869,7 @@ void _createBarGroups() {
                               leftTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
-                                  getTitlesWidget:
-                                      getLeftTitles,
+                                  getTitlesWidget: getLeftTitles,
                                   reservedSize: 40,
                                 ),
                               ),
@@ -669,10 +906,14 @@ void _createBarGroups() {
                                       widget.categoryPerformance.firstWhere(
                                     (performance) =>
                                         performance.category ==
-                                        widget.categoryPerformance[index].category,
+                                        widget.categoryPerformance[index]
+                                            .category,
                                   );
-                                  _showSalesmanPopup(perf.cid ?? 0,
-                                      widget.categoryPerformance[index].category ?? '');
+                                  _showSalesmanPopup(
+                                      perf.cid ?? 0,
+                                      widget.categoryPerformance[index]
+                                              .category ??
+                                          '');
                                 }
                               },
                             ),

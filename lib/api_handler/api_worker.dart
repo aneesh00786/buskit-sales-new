@@ -24,8 +24,11 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/checkin_checkout_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -156,7 +159,41 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<PerformanceData?> fetchSalesmanPerformanceData(String monthName) async {
+  Future<Map<String, dynamic>?> fetchSalesmanTopBarData(
+      String monthName, int tabStatus) async {
+    try {
+      String apiUrl =
+          '${ApiConstants.baseUrl}${ApiConstants.salesman_dash_navcontents}';
+      log('API URL of TopTab: $apiUrl');
+
+      final requestPayload = {
+        "companyId": companyId,
+        "salesman_id": salesmanId,
+        "year": 2024,
+        "month": monthName,
+        "status_of_tile": tabStatus,
+      };
+
+      Response response = await dio1.post(apiUrl, data: requestPayload);
+
+      if (response.statusCode == 200) {
+        log('Response Data: ${response.data}');
+        return response.data as Map<String, dynamic>;
+      } else {
+        log("Failed to fetch data. Status: ${response.statusCode}, Message: ${response.statusMessage}");
+        return null;
+      }
+    } on DioException catch (dioError) {
+      log("Dio Error: ${dioError.response?.data ?? dioError.message}");
+      return null;
+    } catch (e) {
+      log("Unexpected Error: $e");
+      return null;
+    }
+  }
+
+  Future<PerformanceData?> fetchSalesmanPerformanceData(
+      String monthName) async {
     try {
       String apiUrl =
           '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';

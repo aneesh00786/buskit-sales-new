@@ -5,7 +5,10 @@ import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/checkin_checkout_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,7 +68,10 @@ class StaffController extends GetxController {
   RxBool isTargetLoading = false.obs;
   var targetControllers = <TextEditingController>[].obs;
 var salesmanTargetList = PerformanceData().obs; 
-
+  var isLoading = false.obs;
+  var checkInOutData = Rxn<CheckInOut>();
+  var visitData = Rxn<VisitDataItem>();
+  var customerDatas = Rxn<CustomerItem>();
 Future<void> loadSalesmanTarget(
     String salesmanId, String month, String year, String monthName) async {
   try {
@@ -86,7 +92,35 @@ Future<void> loadSalesmanTarget(
   }
 }
 
+  Future<void> fetchSalesmanTopBarData(String monthName, int tabStatus) async {
+    isLoading.value = true;
 
+    try {
+      final jsonData = await ApiWorker().fetchSalesmanTopBarData(monthName, tabStatus);
+
+      if (jsonData != null) {
+        switch (tabStatus) {
+          case 2:
+            checkInOutData.value = CheckInOut.fromJson(jsonData);
+            break;
+          case 3:
+            visitData.value = VisitDataItem.fromJson(jsonData);
+            break;
+          case 4:
+            customerDatas.value = CustomerItem.fromJson(jsonData);
+            break;
+          default:
+            throw Exception('Invalid tabStatus: $tabStatus');
+        }
+      } else {
+        log("No data returned from the API.");
+      }
+    } catch (e) {
+      log("Error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
   void loadSalesmanTargetForSelectedTab({
     required int selectedTabIndex,
     required String staffId,

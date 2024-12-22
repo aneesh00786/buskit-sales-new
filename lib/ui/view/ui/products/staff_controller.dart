@@ -71,7 +71,7 @@ class StaffController extends GetxController {
   var isLoading = false.obs;
   var checkInOutData = Rxn<CheckInOut>();
   var visitData = Rxn<VisitData>();
-  var customerDatas = Rxn<CustomerItem>();
+  var customerDatas = Rxn<CustomerData>();
   Future<void> loadSalesmanTarget(
       String salesmanId, String month, String year, String monthName) async {
     try {
@@ -93,7 +93,6 @@ class StaffController extends GetxController {
 
   Future<void> fetchSalesmanTopBarData(String monthName, int tabStatus) async {
     isLoading.value = true;
-
     try {
       final jsonData =
           await ApiWorker().fetchSalesmanTopBarData(monthName, tabStatus);
@@ -107,7 +106,7 @@ class StaffController extends GetxController {
             visitData.value = VisitData.fromJson(jsonData);
             break;
           case 4:
-            customerDatas.value = CustomerItem.fromJson(jsonData);
+            customerDatas.value = CustomerData.fromJson(jsonData);
             break;
           default:
             throw Exception('Invalid tabStatus: $tabStatus');

@@ -452,16 +452,15 @@ void _initializeControllers() {
   }
 
 Widget _buildTableTextField(int index, bool isReadOnly, CategoryPerformance? target) {
-  // Use a TextEditingController to hold the value
   TextEditingController controller = TextEditingController(
-    text: target?.actualProjection?.toString() ?? '', // Set the initial value
+    text: target?.actualProjection?.toString() ?? '',
   );
 
   return Container(
     height: 50,
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
     child: TextField(
-      controller: controller,  // Set the controller with the value
+      controller: controller,
       textAlign: TextAlign.center,
       style: const TextStyle(fontSize: 16),
       readOnly: isReadOnly,

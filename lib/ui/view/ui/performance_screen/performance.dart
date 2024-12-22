@@ -28,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_table_view/scrollable_table_view.dart';
 
 class PerformanceScreen extends StatefulWidget {
   const PerformanceScreen({super.key});
@@ -396,7 +397,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               children: [
                 Expanded(
                   child: Container(
-                    height: 600,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: white,
@@ -428,17 +428,77 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 
 
 
-  Widget _buildCustomersDialogContent(CustomerItem? data) {
-    if (data == null) return const Text('No Customer data available.');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('Customer Details:',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        Text('Total Customers: ${data.businessName}'),
-      ],
-    );
+  Widget _buildCustomersDialogContent(CustomerData? data) {
+  List<String> headers = [
+    "Business Name",
+    "Customer ID",
+    "Address",
+    "Business NO",
+    "Created At",
+    "Status",
+  ];
+
+  // Prepare rows based on the visit data
+  List<List<String>> rows = (staffController.customerDatas.value == null ||
+          staffController.customerDatas.value!.data == null ||
+          staffController.customerDatas.value!.data!.isEmpty)
+      ? [
+          ["Record Not Found", "", "", "", "", ""]
+        ]
+      : staffController.customerDatas.value!.data!.map((customer) {
+          return [
+            customer.businessName ?? 'N/A',
+            customer.customerId ?? 'N/A',
+            customer.address.toString() ?? 'N/A',
+            customer.businessNo ?? 'N/A',
+            formatNullableDate(customer.createAt),
+            customer.status.toString() ?? 'N/A',
+          ];
+        }).toList();
+
+  return LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      double availableWidth = constraints.maxWidth;
+      return Stack(
+        children: [
+          Container(
+            width: availableWidth,
+            height: 600,
+            child: ScrollableTableView(
+              headerBackgroundColor: primaryColor,
+              headerHeight: 50,
+              headers: headers.map((label) {
+                return TableViewHeader(
+                  label: label,
+                  width: 150,
+                  textStyle: TextStyle(color: white),
+                );
+              }).toList(),
+              rows: rows.map((record) {
+                return TableViewRow(
+                  height: 60,
+                  cells: record.map((value) {
+                    return TableViewCell(
+                      child: Text(value),
+                    );
+                  }).toList(),
+                );
+              }).toList(),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SizedBox(
+              height: 45,
+              width: 45,
+              child: Center(child: dialogCloseButton1(context, red)),
+            ),
+          ),
+        ],
+      );
+    },
+  );
   }
 }
 

@@ -700,6 +700,13 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                     final section = response.touchedSection!;
                     final PieChartSectionData touchedSectionData =
                         section.touchedSection ?? PieChartSectionData();
+
+                    // Check if the data is valid
+                    if (touchedSectionData.value == null ||
+                        touchedSectionData.value == 0) {
+                      return; // Exit early if the data is empty or null
+                    }
+
                     final title = touchedSectionData.value ==
                             orderProcessingValue
                         ? 'Order Processing'
@@ -710,6 +717,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                 : touchedSectionData.value == deliveredValue
                                     ? 'Delivered'
                                     : 'Unknown';
+
                     final status = touchedSectionData.value ==
                             orderProcessingValue
                         ? 5
@@ -721,15 +729,16 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                     ? 2
                                     : -1;
 
-                    _showValueDialog(
-                        context, widget.deliveryData, title, status);
+                    if (status != -1 && title.isNotEmpty) {
+                      _showValueDialog(
+                          context, widget.deliveryData, title, status);
+                    }
                   }
                 },
               ),
             ),
           ),
         ),
-        const SizedBox(height: 5.7),
         widget.sabik1,
         const SizedBox(height: 2.5),
         widget.sabik,
@@ -850,7 +859,6 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: DataTable(
-                      // ignore: deprecated_member_use
                       dataRowHeight: 39,
                       headingRowHeight: 41,
                       columns: const [
@@ -938,9 +946,11 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                             DataCell(
                               Center(
                                 child: DialogTableHeaderText(
-                                  text: formatAmount(filteredOrders
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b)),
+                                  text: formatAmount(filteredOrders.isNotEmpty
+                                      ? filteredOrders
+                                          .map((e) => e.orderTotal ?? 0.0)
+                                          .reduce((a, b) => a + b)
+                                      : 0.0),
                                   fontSize: 13,
                                 ),
                               ),

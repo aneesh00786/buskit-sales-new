@@ -1292,8 +1292,8 @@ class _CartDialogueState extends State<CartDialogue> {
       }
     }
 
-    log("Total price for all items: \$${total.toStringAsFixed(2)}");
-    log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
+    // log("Total price for all items: \$${total.toStringAsFixed(2)}");
+    // log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
 
   void _clearCartItem(List<CartItem> cartItem) {

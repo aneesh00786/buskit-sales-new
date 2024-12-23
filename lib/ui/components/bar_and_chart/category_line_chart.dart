@@ -766,7 +766,7 @@ class _CustomBarChartCustomerDashState
                                     )),
                                     DataCell(Center(
                                       child: Text(
-                                        '\$${s.price}',
+                                        formatAmount(s.price),
                                         style: TextStyle(
                                           color: secondaryTextColor,
                                           fontSize: 13,

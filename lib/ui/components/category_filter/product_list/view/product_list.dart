@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -315,8 +316,8 @@ class _ProductGridState extends State<ProductGrid> {
                                                 const Spacer(),
                                                 Text(
                                                   product.detail!.length > 1
-                                                      ? '\$${firstSellPrice} - $lastSellPrice'
-                                                      : '\$${firstSellPrice}',
+                                                      ? '${formatAmount(firstSellPrice)} - $lastSellPrice'
+                                                      : formatAmount(firstSellPrice),
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w600,
@@ -376,9 +377,9 @@ class _ProductGridState extends State<ProductGrid> {
                                                 Text(
                                                   product.detail!.length > 1
                                                       ? _getFormattedText(
-                                                          '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)')
+                                                          '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)')
                                                       : _getFormattedText(
-                                                          '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs)'),
+                                                          '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs)'),
                                                   style: GoogleFonts.poppins(
                                                     fontSize: stockFontSize,
                                                     fontWeight: FontWeight.w600,

@@ -2641,7 +2641,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   customer.estimates
                                                           ?.toString() ??
                                                       '0',
-                                                  '\$${customer.estimatesPrice?.toString() ?? '0'}',
+                                                  '${customer.estimatesPrice?.toString() ?? '0'}',
                                                   Colors.purple,
                                                   true),
                                               140,
@@ -2649,7 +2649,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             _buildTableCell(
                                               _buildDataCell(
                                                   customer.preOrder.toString(),
-                                                  '\$${customer.preOrderPrice?.toString() ?? '0'}',
+                                                  '${customer.preOrderPrice?.toString() ?? '0'}',
                                                   Colors.grey,
                                                   true),
                                               140,
@@ -2985,7 +2985,7 @@ void _showOrderDataDialog(
                           ),
                           DataCell(
                             Text(
-                              '\$${order.orderId}',
+                              '${order.orderId}',
                               style: TextStyle(
                                   fontSize: fontSize, color: primaryColor),
                             ),
@@ -3025,30 +3025,7 @@ void _showOrderDataDialog(
   );
 }
 
-String formatAmount(dynamic value) {
-    final currencySymbol = SessionHelper.settingsData
-          ?.firstWhere(
-            (setting) => setting.key == 'currency_symbol',
-            orElse: () => AllCompanySettingsData(
-              key: 'currency_symbol',
-              value: '',
-            ),
-          )
-          .value ??
-      '';
-  double amount;
-  if (value is String) {
-    amount = double.tryParse(value) ?? 0.0;
-  } else if (value is int) {
-    amount = value.toDouble();
-  } else if (value is double) {
-    amount = value;
-  } else {
-    throw ArgumentError('Unsupported value type');
-  }
-  String formattedAmount = amount.toStringAsFixed(2);
-  return currencySymbol + formattedAmount;
-}
+
 
 extension TakeLastExtension<E> on List<E> {
   List<E> takeLast(int n) => skip(length - n).toList();

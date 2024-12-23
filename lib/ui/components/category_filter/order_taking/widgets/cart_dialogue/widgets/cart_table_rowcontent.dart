@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               content:
-                  '\$${double.parse(groupedItem.detail.price ?? '0').toStringAsFixed(2)}')),
+                  formatAmount(groupedItem.detail.price ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
               content:
@@ -56,7 +57,7 @@ class GroupedItemDataRows {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: CustomText(
-                  content: '\$${groupedItem.totalPrice.toStringAsFixed(2)}',
+                  content: formatAmount(groupedItem.totalPrice.toStringAsFixed(2)),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,
                 ),

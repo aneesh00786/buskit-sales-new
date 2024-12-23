@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:flutter/material.dart';
 
 class CartTotalWidget extends StatelessWidget {
@@ -34,7 +35,7 @@ class CartTotalWidget extends StatelessWidget {
             color: color1 ?? Colors.black,
           ),
           CustomText(
-            content: '\$${content.toStringAsFixed(2)}',
+            content: formatAmount(content.toStringAsFixed(2)),
             fontSize: fontSize,
             fontWeight: fontWeight,
             fontFamily: fontFamilyName,

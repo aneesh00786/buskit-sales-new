@@ -2906,8 +2906,8 @@ void _showDetailedOrderDialog(
                         );
                 }),
                 const SizedBox(height: 16),
-                const Text(
-                  'Currency  \$',
+                 Text(
+                  'Currency ${formatAmount('')}',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ],

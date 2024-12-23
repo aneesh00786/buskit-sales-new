@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -9,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -3024,6 +3026,16 @@ void _showOrderDataDialog(
 }
 
 String formatAmount(dynamic value) {
+    final currencySymbol = SessionHelper.settingsData
+          ?.firstWhere(
+            (setting) => setting.key == 'currency_symbol',
+            orElse: () => AllCompanySettingsData(
+              key: 'currency_symbol',
+              value: '',
+            ),
+          )
+          .value ??
+      '';
   double amount;
   if (value is String) {
     amount = double.tryParse(value) ?? 0.0;
@@ -3035,7 +3047,7 @@ String formatAmount(dynamic value) {
     throw ArgumentError('Unsupported value type');
   }
   String formattedAmount = amount.toStringAsFixed(2);
-  return '\$' + formattedAmount;
+  return currencySymbol + formattedAmount;
 }
 
 extension TakeLastExtension<E> on List<E> {

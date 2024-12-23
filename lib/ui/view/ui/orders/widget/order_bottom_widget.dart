@@ -400,9 +400,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               await orderController.loadSpecificOrderInvoiceData(
                 orderId: orderData.orderId!,
               );
-
               Get.back();
-
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
@@ -462,7 +460,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                   barrierDismissible: true,
                 );
               } else {
-                throw Exception('No invoice data available');
+                throw Exception('Data');
               }
             } catch (e) {
               Get.back();

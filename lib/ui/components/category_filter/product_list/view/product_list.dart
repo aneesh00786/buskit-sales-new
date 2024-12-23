@@ -206,162 +206,215 @@ class _ProductGridState extends State<ProductGrid> {
                               }
                             });
                             return GestureDetector(
-                              onTap: () {
-                                _showProductVariantDialog(
-                                    product.detail ?? [],
-                                    index,
-                                    product,
-                                    products,
-                                    widget.playAddToCartAnimation);
-                              },
-                              child: Container(
-                                clipBehavior: Clip.antiAlias,
-                                decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                onTap: () {
+                                  _showProductVariantDialog(
+                                      product.detail ?? [],
+                                      index,
+                                      product,
+                                      products,
+                                      widget.playAddToCartAnimation);
+                                },
+                                child: Stack(
+                                  clipBehavior: Clip.none,
                                   children: [
+                                    // The main container
                                     Container(
-                                        color: const Color.fromARGB(
-                                            255, 247, 247, 247),
-                                        height: imageHeight,
-                                        width: double.maxFinite,
-                                        child: product.imageUrl != null
-                                            ? Image.network(
-                                                '${ApiConstants.imageBaseUrl}/${product.imageUrl}')
-                                            : Image.asset(
-                                                'assets/images/otp.png')),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        product.productName ?? '',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: nameFontSize,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                    ),
-                                    const Spacer(),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5.0),
-                                      child: Row(
+                                      child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 3),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                                color: Colors.yellow[700]),
-                                            child: Text(
-                                              lowstockItem > 0
-                                                  ? '$lowstockItem Low'
-                                                  : '0 Low',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 7,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
+                                            color: const Color.fromARGB(
+                                                255, 247, 247, 247),
+                                            height: imageHeight,
+                                            width: double.maxFinite,
+                                            child: product.imageUrl != null
+                                                ? Image.network(
+                                                    '${ApiConstants.imageBaseUrl}/${product.imageUrl}')
+                                                : Image.asset(
+                                                    'assets/images/otp.png'),
                                           ),
-                                          const SizedBox(width: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 3),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                                color: Colors.red.shade800),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
                                             child: Text(
-                                              stock > 0 || stock < lowstock
-                                                  ? '0 Nll'
-                                                  : '1 Nll',
+                                              product.productName ?? '',
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.center,
                                               style: GoogleFonts.poppins(
-                                                fontSize: 7,
-                                                color: Colors.white,
+                                                fontSize: nameFontSize,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                           ),
                                           const Spacer(),
-                                          Text(
-                                            product.detail!.length > 1
-                                                ? '\$${firstSellPrice} - $lastSellPrice'
-                                                : '\$${firstSellPrice}',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 3),
-                                          product.inclTax!.isNotEmpty
-                                              ? Container(
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 5.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Container(
                                                   padding: const EdgeInsets
                                                       .symmetric(
-                                                      horizontal: 3,
-                                                      vertical: 2),
+                                                      horizontal: 6,
+                                                      vertical: 3),
                                                   decoration: BoxDecoration(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              5),
-                                                      color: Colors.blue),
+                                                              30),
+                                                      color:
+                                                          Colors.yellow[700]),
                                                   child: Text(
-                                                    '(incl.tax)',
+                                                    lowstockItem > 0
+                                                        ? '$lowstockItem Low'
+                                                        : '0 Low',
                                                     style: GoogleFonts.poppins(
-                                                        fontSize: 6,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w600),
+                                                      fontSize: 7,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
                                                   ),
-                                                )
-                                              : Container()
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 5, right: 5, top: 5, bottom: 8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            height: 12,
-                                            width: 12,
-                                            color: Colors.red,
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 3),
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30),
+                                                      color:
+                                                          Colors.red.shade800),
+                                                  child: Text(
+                                                    stock > 0 ||
+                                                            stock < lowstock
+                                                        ? '0 Nll'
+                                                        : '1 Nll',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 7,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const Spacer(),
+                                                Text(
+                                                  product.detail!.length > 1
+                                                      ? '\$${firstSellPrice} - $lastSellPrice'
+                                                      : '\$${firstSellPrice}',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 3),
+                                                product.inclTax!.isNotEmpty
+                                                    ? Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 3,
+                                                                vertical: 2),
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                            color: Colors.blue),
+                                                        child: Text(
+                                                          '(incl.tax)',
+                                                          style: GoogleFonts
+                                                              .poppins(
+                                                                  fontSize: 6,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                        ),
+                                                      )
+                                                    : Container()
+                                              ],
+                                            ),
                                           ),
-                                          const Spacer(),
-                                          Image.asset(
-                                            "assets/images/cart_box.png",
-                                            height: 10,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            product.detail!.length > 1
-                                                ? _getFormattedText(
-                                                    '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)')
-                                                : _getFormattedText(
-                                                    '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs)'),
-                                            style: GoogleFonts.poppins(
-                                              fontSize: stockFontSize,
-                                              fontWeight: FontWeight.w600,
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 5,
+                                                right: 5,
+                                                top: 5,
+                                                bottom: 8),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  height: 12,
+                                                  width: 12,
+                                                  color: Colors.red,
+                                                ),
+                                                const Spacer(),
+                                                Image.asset(
+                                                  "assets/images/cart_box.png",
+                                                  height: 10,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  product.detail!.length > 1
+                                                      ? _getFormattedText(
+                                                          '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)')
+                                                      : _getFormattedText(
+                                                          '\$${firstTotal?.toStringAsFixed(2)}(${pieces} pcs)'),
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: stockFontSize,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
+                                  product.detail!.length>0 && lowstockItem==0?  Positioned(
+                                      top: 20,
+                                      right: -26,
+                                      child: Transform.rotate(
+                                        angle: 0.785398,
+                                        child: ClipPath(
+                                          clipper: RibbonClipper(),
+                                          child: Container(
+                                            width: 120,
+                                            color: Colors.red,
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 4),
+                                            child: Center(
+                                              child: Text(
+                                                "Not Available",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ):Container()
                                   ],
-                                ),
-                              ),
-                            );
+                                )
+                                );
                           },
                         );
                       },
@@ -400,3 +453,20 @@ class _ProductGridState extends State<ProductGrid> {
     );
   }
 }
+class RibbonClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.moveTo(0, size.height); 
+    path.lineTo(size.width * 0.22, 0);
+    path.lineTo(size.width * 0.78, 0);
+    path.lineTo(size.width, size.height);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+

@@ -1919,217 +1919,82 @@ void _showValueDialog(
 }
 
 List<DataRow> _buildDataRows(Collection collection, String title) {
-  switch (title) {
-    case 'Completed':
-      return collection.payment!.completedOrders!
-          .map((completedOrder) => DataRow(
-                cells: [
-                  DataCell(
-                    Center(
-                      child: Text(
-                        completedOrder.getFormattedOrderCreatAt(
-                            completedOrder.orderCreatAt),
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
+  return [
+    ...collection.payment!.completedOrders!
+        .map((completedOrder) => DataRow(
+              cells: [
+                DataCell(
+                  Center(
+                    child: Text(
+                      getFormattedOrderCreatAt(completedOrder.orderCreatAt),
+                      style: const TextStyle(
+                        color: secondaryTextColor,
+                        fontSize: 13.5,
                       ),
                     ),
                   ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        completedOrder.cartId,
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
+                ),
+                DataCell(
+                  Center(
+                    child: Text(
+                      completedOrder.cartId.toString(),
+                      style: const TextStyle(
+                        color: secondaryTextColor,
+                        fontSize: 13.5,
                       ),
                     ),
                   ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        completedOrder.transactionDetails,
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
+                ),
+                DataCell(
+                  Center(
+                    child: Text(
+                      getStatusName(completedOrder.orderStatus?.toInt() ?? 0),
+                      style: const TextStyle(
+                        color: secondaryTextColor,
+                        fontSize: 13.5,
                       ),
                     ),
                   ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        '\$${completedOrder.orderTotal}',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
+                ),
+                DataCell(
+                  Center(
+                    child: Text(
+                      formatAmount(completedOrder.orderTotal),
+                      style: const TextStyle(
+                        color: secondaryTextColor,
+                        fontSize: 13.5,
                       ),
                     ),
                   ),
-                ],
-              ))
-          .toList();
-    case 'Pending':
-      return collection.order!.pendingAmount!
-          .map((pendingAmount) => DataRow(
-                cells: [
-                  DataCell(
-                    Center(
-                      child: Text(
-                        getFormattedOrderCreatAt(
-                          pendingAmount.orderCreatAt,
-                        ),
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        pendingAmount.cartId ?? '',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        pendingAmount.transactionDetails ?? '',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        '\$${pendingAmount.orderTotal}',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ))
-          .toList();
-    case 'Due':
-      return collection.due!.dueAmount!
-          .map((dueAmount) => DataRow(
-                cells: [
-                  DataCell(
-                    Center(
-                      child: Text(
-                        getFormattedOrderCreatAt(dueAmount.orderCreatAt),
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        dueAmount.cartId,
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        dueAmount.transactionDetails,
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        '\$${dueAmount.orderTotal}',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ))
-          .toList();
-    case 'Overdue':
-      return collection.overdue!.overdueAmount!
-          .map((overdueAmount) => DataRow(
-                cells: [
-                  DataCell(
-                    Center(
-                      child: Text(
-                        getFormattedOrderCreatAt(overdueAmount.orderCreatAt),
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        overdueAmount.cartId ?? '',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        overdueAmount.transactionDetails ?? '',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: Text(
-                        '\$${overdueAmount.orderTotal}',
-                        style: const TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ))
-          .toList();
-    default:
-      return [];
-  }
+                ),
+              ],
+            ))
+        .toList(),
+    DataRow(
+      cells: [
+        const DataCell(
+          Center(
+            child: DialogTableHeaderText(
+              text: 'Total',
+              fontSize: 13,
+            ),
+          ),
+        ),
+        const DataCell(Text('')),
+        const DataCell(Text('')),
+        DataCell(
+          Center(
+            child: DialogTableHeaderText(
+              text: formatAmount(collection.payment!.completedOrders!
+                  .map((e) => e.orderTotal ?? 0.0)
+                  .reduce((a, b) => a + b)),
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ];
 }
 
 class DoughnutDefaultCustomerDash extends StatefulWidget {

@@ -14,6 +14,7 @@ class ProductGrid extends StatefulWidget {
   final ProductsController productsController;
   String id;
   final VoidCallback playAddToCartAnimation;
+
   ProductGrid({
     super.key,
     required this.optionName,
@@ -31,6 +32,7 @@ class _ProductGridState extends State<ProductGrid> {
   String? name;
   bool isLoading = true;
   bool hasInternet = true;
+
   @override
   void initState() {
     super.initState();
@@ -109,9 +111,10 @@ class _ProductGridState extends State<ProductGrid> {
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     const double desiredItemWidth = 250.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -120,7 +123,9 @@ class _ProductGridState extends State<ProductGrid> {
             final double fontSize =
                 (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
             return Text(
-              widget.optionName.isEmpty ? name ?? '' : widget.optionName,
+              widget.productsController.selectedSubCategoryName.value.isEmpty
+                  ? name ?? ''
+                  : widget.productsController.selectedSubCategoryName.value,
               style: GoogleFonts.poppins(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,

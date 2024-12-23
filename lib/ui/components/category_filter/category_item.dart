@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,14 @@ class CategoryList extends StatefulWidget {
   final List<CategoryData> categories;
   final Function(String) onOptionSelected;
   final VoidCallback onDrawerToggle;
+    final ProductsController productsController;
 
-  const CategoryList({super.key, required this.categories, required this.onOptionSelected, required this.onDrawerToggle});
+  const CategoryList(
+      {super.key,
+      required this.categories,
+      required this.onOptionSelected,
+      required this.productsController,
+      required this.onDrawerToggle});
 
   @override
   _CategoryListState createState() => _CategoryListState();
@@ -23,14 +30,14 @@ class _CategoryListState extends State<CategoryList> {
     super.initState();
     _expandedIndex = 0;
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width * 0.3,
       decoration: BoxDecoration(
-      color: Colors.white,
+        color: Colors.white,
         border: Border.all(color: Colors.grey.shade500),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -46,7 +53,7 @@ class _CategoryListState extends State<CategoryList> {
                   widget.onDrawerToggle();
                 },
               ),
-             // SizedBox(width:20),
+              // SizedBox(width:20),
               Text(
                 'Categories',
                 style: GoogleFonts.poppins(
@@ -90,7 +97,7 @@ class _CategoryListState extends State<CategoryList> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              category.categoryName??'',
+                              category.categoryName ?? '',
                               style: GoogleFonts.poppins(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w600,
@@ -119,6 +126,10 @@ class _CategoryListState extends State<CategoryList> {
                               onTap: () {
                                 widget.onOptionSelected(option.toString());
                                 widget.onDrawerToggle();
+                                
+                                   widget.productsController
+                                    .selectedSubCategoryName
+                                    .value = option.subCategory.toString();
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(
@@ -131,7 +142,7 @@ class _CategoryListState extends State<CategoryList> {
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                   child: Text(
-                                    option.subCategory??'',
+                                    option.subCategory ?? '',
                                     style: GoogleFonts.poppins(
                                       fontSize: 12.0,
                                       color: Colors.black,

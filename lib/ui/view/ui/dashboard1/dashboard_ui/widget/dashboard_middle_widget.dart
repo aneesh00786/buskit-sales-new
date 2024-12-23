@@ -1716,19 +1716,39 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageContent(Messages message) {
     if (message.image != null && message.image!.isNotEmpty) {
       if (message.image!.contains('chat')) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: Image.network(
-            '${ApiConstants.imageBaseUrlss}${message.image}',
-            width: MediaQuery.of(context).size.width * 0.25,
-            fit: BoxFit.fitWidth,
-            errorBuilder: (context, error, stackTrace) {
-              return Text(
-                'Failed to load image',
-                style: TextStyle(color: Colors.green),
-              );
-            },
-          ),
+        return  Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: message.source == 'salesman'
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              clipBehavior: Clip.antiAlias,
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.network(
+                '${ApiConstants.imageBaseUrlss}${message.image}',
+                width: MediaQuery.of(context).size.width * 0.3,
+                fit: BoxFit.fitWidth,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Text(
+                    'Failed to load image',
+                    style: TextStyle(color: Colors.green),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 5),
+            Text(
+              NKDateUtils.commonFullDateTimeFormat2(
+                NKDateUtils.formatStringUTCDateTime(
+                    message.updatedAt.toString()),
+              ),
+              style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black45,
+                  fontWeight: FontWeight.w500),
+            ),
+          ],
         );
       } else {
         try {
@@ -1757,9 +1777,24 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     }
-    return Text(
-      message.message ?? '',
-      style: TextStyle(fontSize: 16),
+    return Column(
+      crossAxisAlignment: message.source == 'salesman'
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          message.message ?? '',
+          style: const TextStyle(fontSize: 16),
+        ),
+        Text(
+          NKDateUtils.commonFullDateTimeFormat2(
+            NKDateUtils.formatStringUTCDateTime(message.updatedAt.toString()),
+          ),
+          style: const TextStyle(
+              fontSize: 11, color: Colors.black45, fontWeight: FontWeight.w500),
+        ),
+      ],
     );
   }
 
@@ -1846,7 +1881,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
                           padding: EdgeInsets.all(
-                              message.message.isEmpty || message.message == ''
+                              message.message!.isEmpty || message.message == ''
                                   ? 5
                                   : 10),
                           constraints: BoxConstraints(

@@ -125,6 +125,7 @@ class _OrderTakingState extends State<OrderTaking>
     CartDatabaseManager().removeListener(_updateCartCount);
     super.dispose();
   }
+
   void _selectFirstCategory() {
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
@@ -379,16 +380,17 @@ class _OrderTakingState extends State<OrderTaking>
           ),
         ),
         actions: [
-         SizedBox(
-          width: MediaQuery.of(context).size.width*0.85,
-           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-               Flexible(
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.85,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
                   child: Obx(() => Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          if (!widget.productsController.selectedCustomerName.isEmpty)
+                          if (!widget
+                              .productsController.selectedCustomerName.isEmpty)
                             CircleAvatar(
                               backgroundImage: widget.productsController
                                       .selectedCustomerImageUrl.isEmpty
@@ -409,40 +411,40 @@ class _OrderTakingState extends State<OrderTaking>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      widget.productsController.selectedCustomerName
-                                          .value,
+                                      widget.productsController
+                                          .selectedCustomerName.value,
                                     ),
-                                    MyRegularText(label: "Customer", fontSize: 9),
+                                    MyRegularText(
+                                        label: "Customer", fontSize: 9),
                                   ],
                                 ),
                           const SizedBox(width: 10),
                         ],
                       )),
                 ),
-            NotificationWidget(),
-            profiloe(),
-            ],
-           ),
-         )
-        
+                NotificationWidget(),
+                profiloe(),
+              ],
+            ),
+          )
         ],
       ),
       body: Obx(() {
         if (widget.productsController.categoryData.value == null) {
           return Center(
-              child: SpinKitFadingCube(
-                color: primaryColor,
-                size: 20.0,
-              ),
-            );
+            child: SpinKitFadingCube(
+              color: primaryColor,
+              size: 20.0,
+            ),
+          );
         }
         if (widget.productsController.categoryData.value.data == null) {
           return Center(
-              child: SpinKitFadingCube(
-                color: primaryColor,
-                size: 20.0,
-              ),
-            );
+            child: SpinKitFadingCube(
+              color: primaryColor,
+              size: 20.0,
+            ),
+          );
         }
         return Stack(
           alignment: Alignment.topCenter,
@@ -502,8 +504,7 @@ class _OrderTakingState extends State<OrderTaking>
                           Expanded(
                             child: isLoading
                                 ? const Center(
-                                    child: CircularProgressIndicator()
-                                    )
+                                    child: CircularProgressIndicator())
                                 : customerSearchController.text.isNotEmpty
                                     ? filteredCustomers.isEmpty
                                         ? const Center(
@@ -853,34 +854,37 @@ class _OrderTakingState extends State<OrderTaking>
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: IconButton(
-                                    icon: Text(
-                                      initial,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: primaryColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  icon: Text(
+                                    initial,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: primaryColor,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    onPressed: () {
-                                      log("CategoryName : $categoryName");
-                                      _selectCategory(categoryName);
-                                      CategoryData selectedCategory =
-                                          categories[index];
-                                      if (selectedCategory.subCategoryItem !=
-                                              null &&
+                                  ),
+                                  onPressed: () {
+                                    log("CategoryName : $categoryName");
+                                    _selectCategory(categoryName);
+                                    CategoryData selectedCategory =
+                                        categories[index];
+                                    if (selectedCategory.subCategoryItem !=
+                                            null &&
+                                        selectedCategory
+                                            .subCategoryItem!.isNotEmpty) {
+                                      String firstSubCategoryId =
                                           selectedCategory
-                                              .subCategoryItem!.isNotEmpty) {
-                                        String firstSubCategoryId =
-                                            selectedCategory.subCategoryItem!
-                                                    .first.id ??
-                                                '';
-                                        setState(() {
-                                          _selectedOption = categoryName;
-                                        });
-                                        _fetchProductsByCategory(
-                                            firstSubCategoryId);
-                                      }
-                                    }),
+                                                  .subCategoryItem!.first.id ??
+                                              '';
+                                      widget.productsController
+                                              .selectedSubCategoryName.value =
+                                          selectedCategory.subCategoryItem!.first
+                                              .subCategory
+                                              .toString();
+                                      _fetchProductsByCategory(
+                                          firstSubCategoryId);
+                                    }
+                                  },
+                                ),
                               );
                             },
                           ),

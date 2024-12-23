@@ -1369,35 +1369,42 @@ class SalesmanChat {
 }
 
 class Messages {
-  final String message;
-  final String source;
+  final String? message;
   final String? image;
+  final String source;
   final String salesman;
+  final DateTime? updatedAt;
+
   Messages({
-    required this.message,
+    this.message,
     this.image,
     required this.source,
     required this.salesman,
+    this.updatedAt,
   });
   Map<String, dynamic> toMap() {
     return {
       'message': message,
-      'source': source,
       'image': image,
+      'source': source,
       'salesman': salesman,
+      'updated_at': updatedAt!.toIso8601String(),
     };
   }
 
-  String get getMessage => message;
+  String? get getMessage => message;
+  String? get getImage => image;
   String get getSource => source;
   String get getSalesman => salesman;
-  String get getImage => image ?? '';
+  DateTime? get getUpdatedAt => updatedAt;
+
   factory Messages.fromJson(Map<String, dynamic> json) {
     return Messages(
       message: json['message'] ?? '',
-      source: json['source'] ?? '',
       image: json['image_url'] ?? '',
+      source: json['source'] ?? '',
       salesman: json['salesman'] ?? '',
+      updatedAt: DateTime.parse(json['updated_at'] ?? ''),
     );
   }
 }

@@ -162,11 +162,14 @@ class _CategoryListState extends State<CategoryList> {
                             children: category.subCategoryItem!.map((option) {
                               return GestureDetector(
                                 onTap: () {
-                                  widget.onOptionSelected(
-                                      option.subCategory ?? '');
-                                  widget.onDrawerToggle(); 
-                                  log(option.subCategory ?? '');
-                                },
+                                      widget.onOptionSelected(
+                                          option.subCategory ?? '');
+                                      widget.productsController
+                                              .selectedSubCategoryName.value =
+                                          option.subCategory.toString();
+                                      widget.onDrawerToggle();
+                                      log(option.subCategory ?? '');
+                                    },
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       bottom: 7.0, left: 10, right: 10),

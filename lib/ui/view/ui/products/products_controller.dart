@@ -65,6 +65,7 @@ class ProductsController extends GetxController {
   RxString selectedCategoryId = "".obs;
   RxBool isReached = false.obs;
   RxInt selectedSubCategoryIndex = 0.obs;
+    RxString selectedSubCategoryName = "".obs;
   RxInt selectedCategoryIndex = 0.obs;
   RxList<ProductModel> products = <ProductModel>[].obs;
   RxBool isLoading = false.obs;

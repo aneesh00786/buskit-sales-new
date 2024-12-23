@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -32,7 +33,7 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
   int _selectedSubCategoryIndex = 0;
   String _selectedSubCategoryName = "";
   int initialCategory = 0;
-
+  ProductsController productsController = Get.find<ProductsController>();
   @override
   void initState() {
     super.initState();
@@ -55,6 +56,7 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
             child: Expanded(
               child: CategoryList(
               categories: widget.categoryData ?? [],
+              productsController: productsController,
               onDrawerToggle: () {
                 
               },

@@ -184,6 +184,15 @@ class ApiWorker with ApiConstants {
         return null;
       }
     } on DioException catch (dioError) {
+      final requestPayloadss = {
+        "companyId": companyId,
+        "salesman_id": salesmanId,
+        "year": 2024,
+        "month": monthName,
+        "status_of_tile": tabStatus,
+      };
+
+      log('Request Body : $requestPayloadss');
       log("Dio Error: ${dioError.response?.data ?? dioError.message}");
       return null;
     } catch (e) {

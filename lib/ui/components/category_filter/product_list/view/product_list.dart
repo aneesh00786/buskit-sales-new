@@ -386,7 +386,7 @@ class _ProductGridState extends State<ProductGrid> {
                                         ],
                                       ),
                                     ),
-                                  product.detail!.length>0 && lowstockItem==0?  Positioned(
+                                  product.detail!.length==0 && lowstockItem==0?  Positioned(
                                       top: 20,
                                       right: -26,
                                       child: Transform.rotate(

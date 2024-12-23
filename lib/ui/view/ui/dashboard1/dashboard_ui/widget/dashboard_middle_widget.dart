@@ -250,10 +250,10 @@ class DashBoardMiddleWidget extends StatelessWidget {
                               Expanded(
                                 child: NestedPieChartj(
                                   completedOrdersCount:
-                                      totalCompletedAmount.toInt(),
-                                  pendingAmountCount: pendingAmountCount,
-                                  dueAmountCount: dueAmountCount,
-                                  overdueAmountCount: overdueAmountCount,
+                                      totalCompletedAmount,
+                                  pendingAmountCount: double.parse(pendingAmountCount.toString()),
+                                  dueAmountCount: double.parse(dueAmountCount.toString()),
+                                  overdueAmountCount: double.parse(overdueAmountCount.toString()),
                                   collection: responseModel.collection ??
                                       model1.Collection(),
                                 ),

@@ -1187,17 +1187,17 @@ class ChartData {
 
 class ChartData2 {
   final String label;
-  final int value;
+  final double value;
   final Color color;
 
   ChartData2(this.label, this.value, this.color);
 }
 
 class NestedPieChartj extends StatelessWidget {
-  final int completedOrdersCount;
-  final int pendingAmountCount;
-  final int dueAmountCount;
-  final int overdueAmountCount;
+  final double completedOrdersCount;
+  final double pendingAmountCount;
+  final double dueAmountCount;
+  final double overdueAmountCount;
   final Collection collection;
 
   const NestedPieChartj(
@@ -1210,15 +1210,66 @@ class NestedPieChartj extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Helper function to ensure minimum percentage
+    List<double> ensureMinimumPercentage(
+        List<double> values, double minPercentage) {
+      double total = values.reduce((a, b) => a + b);
+      double adjustedTotal = 0.0;
+
+      // Adjust values below minimum percentage
+      List<double> adjustedValues = values.map((value) {
+        double percentage = (value / total) * 100;
+        if (percentage < minPercentage) {
+          adjustedTotal += minPercentage;
+          return minPercentage;
+        } else {
+          adjustedTotal += percentage;
+          return percentage;
+        }
+      }).toList();
+
+      // Calculate scaling factor for remaining values
+      double scalingFactor = (100 -
+              adjustedValues.where((v) => v == minPercentage).length *
+                  minPercentage) /
+          (adjustedTotal -
+              adjustedValues.where((v) => v == minPercentage).length *
+                  minPercentage);
+
+      // Scale values to maintain total of 100%
+      return adjustedValues.map((value) {
+        return value == minPercentage ? value : value * scalingFactor;
+      }).toList();
+    }
+
+    double totalOuterSeries = completedOrdersCount + pendingAmountCount;
+    double totalInnerSeries = dueAmountCount + overdueAmountCount;
+
+    // Normalize percentages with minimum of 5%
+    List<double> outerSeriesPercentages = ensureMinimumPercentage(
+      [completedOrdersCount, pendingAmountCount],
+      5,
+    );
+    List<double> innerSeriesPercentages = ensureMinimumPercentage(
+      [dueAmountCount, overdueAmountCount],
+      5,
+    );
+
     return Center(
       child: SfCircularChart(
         series: <CircularSeries>[
           DoughnutSeries<ChartData2, String>(
             dataSource: [
               ChartData2(
-                  'Completed', completedOrdersCount, const Color(0xFF5A7725)),
+                'Completed',
+                outerSeriesPercentages[0],
+                const Color(0xFF5A7725),
+              ),
               ChartData2(
-                  'Pending', pendingAmountCount, const Color(0xFFA30C13)),
+                'Pending',
+                outerSeriesPercentages[1],
+                const Color(0xFFA30C13),
+              ),
             ],
             xValueMapper: (ChartData2 data, _) => data.label,
             yValueMapper: (ChartData2 data, _) => data.value,
@@ -1237,9 +1288,16 @@ class NestedPieChartj extends StatelessWidget {
           ),
           DoughnutSeries<ChartData2, String>(
             dataSource: [
-              ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
               ChartData2(
-                  'Overdue', overdueAmountCount, const Color(0xFFFF6584)),
+                'Due',
+                innerSeriesPercentages[0],
+                const Color(0xFFFFADB5),
+              ),
+              ChartData2(
+                'Overdue',
+                innerSeriesPercentages[1],
+                const Color(0xFFFF6584),
+              ),
             ],
             xValueMapper: (ChartData2 data, _) => data.label,
             yValueMapper: (ChartData2 data, _) => data.value,

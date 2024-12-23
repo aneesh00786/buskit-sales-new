@@ -1787,12 +1787,25 @@ class _ChatScreenState extends State<ChatScreen> {
           message.message ?? '',
           style: const TextStyle(fontSize: 16),
         ),
-        Text(
-          NKDateUtils.commonFullDateTimeFormat2(
-            NKDateUtils.formatStringUTCDateTime(message.updatedAt.toString()),
-          ),
-          style: const TextStyle(
-              fontSize: 11, color: Colors.black45, fontWeight: FontWeight.w500),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              NKDateUtils.commonFullDateTimeFormat2(
+                NKDateUtils.formatStringUTCDateTime(
+                    message.updatedAt.toString()),
+              ),
+              style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black45,
+                  fontWeight: FontWeight.w500),
+            ),
+            if (message.source == 'salesman') ...[
+              SizedBox(width: 4),
+              Icon(Icons.done_all, size: 11, color: Colors.black54),
+            ]
+          ],
         ),
       ],
     );

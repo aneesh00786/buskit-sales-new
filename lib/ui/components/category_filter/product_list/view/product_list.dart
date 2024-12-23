@@ -222,7 +222,6 @@ class _ProductGridState extends State<ProductGrid> {
                                 child: Stack(
                                   clipBehavior: Clip.none,
                                   children: [
-                                    // The main container
                                     Container(
                                       clipBehavior: Clip.antiAlias,
                                       decoration: BoxDecoration(

@@ -600,7 +600,7 @@ class _PendingPaymentBottomWidgetState
                                         horizontal: 5,
                                       ),
                                       child: Text(
-                                        getStatusLabel(payment.orderStatus),
+                                        getStatusName(payment.orderStatus),
                                         style: const TextStyle(
                                           color: Colors.white,
                                         ),
@@ -903,22 +903,7 @@ class _PendingPaymentBottomWidgetState
     );
   }
 
-  String getStatusLabel(int orderStatus) {
-    switch (orderStatus) {
-      case 5:
-        return 'Order Processing';
-      case 10:
-        return 'Packed for Delivery';
-      case 1:
-        return 'Out for Delivery';
-      case 2:
-        return 'Delivered';
-      case 0:
-        return 'Pre Order';
-      default:
-        return 'Unknown';
-    }
-  }
+
 
   String getFormattedOrderCreatAt(dynamic value) {
     if (value == null || value.toString().isEmpty) {

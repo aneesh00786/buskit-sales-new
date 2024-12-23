@@ -721,7 +721,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                 vertical: availableHeight / 100,
                                               ),
                                               child: Text(
-                                                getStatusLabel(
+                                                getStatusName(
                                                     order.orderStatus),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -955,7 +955,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       horizontal: 5,
                                     ),
                                     child: Text(
-                                      getStatusLabel(order.orderStatus),
+                                      getStatusName(order.orderStatus),
                                       style: TextStyle(
                                         color: Colors.white,
                                       ),
@@ -1232,7 +1232,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
   }
 
-  String getStatusLabel(int orderStatus) {
+  String getStatusName(int orderStatus) {
     switch (orderStatus) {
       case 5:
         return 'Order Processing';

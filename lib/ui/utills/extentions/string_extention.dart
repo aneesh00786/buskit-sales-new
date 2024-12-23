@@ -1,3 +1,6 @@
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+
 extension StringExtension on String {
   String get nkStringCapitalizeFirstCaracter {
     if (this.isEmpty) {
@@ -17,6 +20,16 @@ extension StringExtension on String {
 }
 
 String formatAmount(dynamic value) {
+    final currencySymbol = SessionHelper.settingsData
+          ?.firstWhere(
+            (setting) => setting.key == 'currency_symbol',
+            orElse: () => AllCompanySettingsData(
+              key: 'currency_symbol',
+              value: '',
+            ),
+          )
+          .value ??
+      '';
   double amount;
 
   try {
@@ -32,13 +45,44 @@ String formatAmount(dynamic value) {
       throw ArgumentError('Unsupported value type: ${value.runtimeType}');
     }
     String formattedAmount = amount.toStringAsFixed(2);
-    return '\$ ' + formattedAmount;
+    return currencySymbol + formattedAmount;
   } catch (e) {
     print('Error in formatAmount: $e');
     rethrow;
   }
 }
-
+String getStatusName(int status) {
+  switch (status) {
+    case 0:
+      return 'Pre-Order';
+    case 1:
+      return 'Out for Delivery';
+    case 2:
+      return 'Delivered';
+    case 3:
+      return 'Cancelled';
+    case 4:
+      return 'Draft';
+    case 5:
+      return 'Processing';
+    case 6:
+      return 'Pending';
+    case 7:
+      return 'Estimate';
+    case 10:
+      return 'Packed for Delivery';
+    case 11:
+      return 'New Order';
+    case 12:
+      return 'Waiting for Approval';
+    case 13:
+      return 'Rejected';
+    case 14:
+      return 'Quick Sale';
+    default:
+      return 'Unknown';
+  }
+}
 
 String addCurrencySymbol() {
   return '\$';

@@ -528,53 +528,79 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                           ),
                         ),
                       ],
-                      rows: categoryData.orderRevenueData!.map((item) {
-                        log('DATE ${item.orderCreatAt}');
-                        return DataRow(
+                      rows: [
+                        ...categoryData.orderRevenueData!.map((item) {
+                          return DataRow(
+                            cells: [
+                              DataCell(Center(
+                                child: Text(
+                                  getFormattedOrderCreatAt(item.orderCreatAt),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: secondaryTextColor,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              )),
+                              DataCell(Center(
+                                child: Text(
+                                  item.orderId ?? '',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: secondaryTextColor,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              )),
+                              DataCell(Center(
+                                child: Text(
+                                  getStatusName(item.orderStatus!.toInt()),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: secondaryTextColor,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              )),
+                              DataCell(Center(
+                                child: Text(
+                                  formatAmount(item.orderTotal),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: secondaryTextColor,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                        DataRow(
                           cells: [
-                            DataCell(Center(
-                              child: Text(
-                                getFormattedOrderCreatAt(item.orderCreatAt),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
+                            const DataCell(
+                              Center(
+                                child: DialogTableHeaderText(
+                                  text: 'Total',
                                   fontSize: 13,
                                 ),
                               ),
-                            )),
-                            DataCell(Center(
-                              child: Text(
-                                item.orderId ?? '',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
+                            ),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            DataCell(
+                              Center(
+                                child: DialogTableHeaderText(
+                                  text: formatAmount(categoryData
+                                      .orderRevenueData!
+                                      .map((e) => e.orderTotal ?? 0.0)
+                                      .reduce((a, b) => a + b)),
                                   fontSize: 13,
                                 ),
                               ),
-                            )),
-                            DataCell(Center(
-                              child: Text(
-                                item.status.toString(),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            )),
-                            DataCell(Center(
-                              child: Text(
-                                '\$${item.total}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            )),
+                            ),
                           ],
-                        );
-                      }).toList(),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -824,77 +850,104 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: DataTable(
-                    // ignore: deprecated_member_use
-                    dataRowHeight: 39,
-                    headingRowHeight: 41,
-                    columns: const [
-                      DataColumn(
-                        label: DialogTableHeaderText(
-                          text: 'Date',
-                          fontSize: 13,
+                      // ignore: deprecated_member_use
+                      dataRowHeight: 39,
+                      headingRowHeight: 41,
+                      columns: const [
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Date',
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                      DataColumn(
-                        label: DialogTableHeaderText(
-                          text: 'Invoice',
-                          fontSize: 13,
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Invoice',
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                      DataColumn(
-                        label: DialogTableHeaderText(
-                          text: 'Status',
-                          fontSize: 13,
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Status',
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                      DataColumn(
-                        label: DialogTableHeaderText(
-                          text: 'Amount',
-                          fontSize: 13,
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Amount',
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                    ],
-                    rows: filteredOrders.map((orderDetails) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Center(
-                            child: Text(
-                                getFormattedOrderCreatAt(
-                                    orderDetails.orderCreateAt ?? ''),
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
+                      ],
+                      rows: [
+                        ...filteredOrders.map((orderDetails) {
+                          return DataRow(
+                            cells: [
+                              DataCell(Center(
+                                child: Text(
+                                    getFormattedOrderCreatAt(
+                                        orderDetails.orderCreateAt ?? ''),
+                                    style: const TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.center),
+                              )),
+                              DataCell(Center(
+                                child: Text(orderDetails.orderId.toString(),
+                                    style: const TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.center),
+                              )),
+                              DataCell(Center(
+                                child: Text(
+                                    getStatusName(
+                                        orderDetails.orderStatus ?? 0),
+                                    style: const TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.center),
+                              )),
+                              DataCell(Center(
+                                child:
+                                    Text(formatAmount(orderDetails.orderTotal),
+                                        style: const TextStyle(
+                                          color: secondaryTextColor,
+                                          fontSize: 13,
+                                        ),
+                                        textAlign: TextAlign.center),
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                        DataRow(
+                          cells: [
+                            const DataCell(
+                              Center(
+                                child: DialogTableHeaderText(
+                                  text: 'Total',
                                   fontSize: 13,
                                 ),
-                                textAlign: TextAlign.center),
-                          )),
-                          DataCell(Center(
-                            child: Text(orderDetails.orderId ?? '',
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
+                              ),
+                            ),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            DataCell(
+                              Center(
+                                child: DialogTableHeaderText(
+                                  text: formatAmount(filteredOrders
+                                      .map((e) => e.orderTotal ?? 0.0)
+                                      .reduce((a, b) => a + b)),
                                   fontSize: 13,
                                 ),
-                                textAlign: TextAlign.center),
-                          )),
-                          DataCell(Center(
-                            child: Text(
-                                _getStatusName(orderDetails.orderStatus ?? 0),
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
-                                  fontSize: 13,
-                                ),
-                                textAlign: TextAlign.center),
-                          )),
-                          DataCell(Center(
-                            child: Text("\$${orderDetails.orderTotal}",
-                                style: const TextStyle(
-                                  color: secondaryTextColor,
-                                  fontSize: 13,
-                                ),
-                                textAlign: TextAlign.center),
-                          )),
-                        ],
-                      );
-                    }).toList(),
-                  ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
                 ),
               ],
             ),
@@ -1370,7 +1423,7 @@ class NestedPieChartj extends StatelessWidget {
                                       horizontal: 5,
                                     ),
                                     child: Text(
-                                      getStatusLabel(payment.orderStatus),
+                                      getStatusName(payment.orderStatus ?? 0),
                                       style: const TextStyle(
                                         color: Colors.white,
                                       ),
@@ -2093,7 +2146,7 @@ class _DoughnutDefaultCustomerDashState
                           response.touchedSection != null) {
                         final section = response.touchedSection!;
                         final PieChartSectionData touchedSectionData =
-                            section.touchedSection??PieChartSectionData();
+                            section.touchedSection ?? PieChartSectionData();
                         final isPaymentCompleted = touchedSectionData.value ==
                             paymentCompleted.toDouble();
                         final title =
@@ -2294,22 +2347,5 @@ class _DoughnutDefaultCustomerDashState
         );
       },
     );
-  }
-}
-
-String getStatusLabel(int? orderStatus) {
-  switch (orderStatus) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    case 0:
-      return 'Pre Order';
-    default:
-      return 'Unknown';
   }
 }

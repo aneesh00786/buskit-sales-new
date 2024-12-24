@@ -394,65 +394,304 @@ enum EventDays { EMPTY, FRIDAY, MONDAY }
 enum SalesmanName { B, N, RP, SALES6 }
 
 class TopSellingProductA {
-  String? variationId;
-  String? variationName;
-  String? productName;
-  String? price;
-  String? quantity;
-  String? totalPrice;
-  DateTime? createdAt;
-  List<Customer>? customers;
-  List<QuantityList>? quantityList;
+    String? cartIds;
+    String? orderIds;
+    String? eachPrice;
+    String? variationId;
+    String? variationName;
+    String? price;
+    String? productName;
+    DateTime? createdAt;
+    List<TopSellingCustomer>? customer;
+    List<TopSellingQuantityList>? quantityList;
+    String? topSellingProductATotalPrice;
+    List<TopSellingTotalPrice>? totalPrice;
+    int? quantity;
+    String? buyquantity;
 
-  TopSellingProductA({
-    this.variationId,
-    this.variationName,
-    this.price,
-    this.quantity,
-    this.totalPrice,
-    this.createdAt,
-    this.customers,
-    this.quantityList,
-    this.productName,
-  });
+    TopSellingProductA({
+        this.cartIds,
+        this.orderIds,
+        this.eachPrice,
+        this.variationId,
+        this.variationName,
+        this.price,
+        this.productName,
+        this.createdAt,
+        this.customer,
+        this.quantityList,
+        this.topSellingProductATotalPrice,
+        this.totalPrice,
+        this.quantity,
+        this.buyquantity,
+    });
 
-  factory TopSellingProductA.fromJson(Map<String, dynamic> json) {
-    var customersList = json['customer'] as List? ?? [];
-    List<Customer> customers =
-        customersList.map((json) => Customer.fromJson(json)).toList();
-
-    var quantityList = json['quantityList'] as List? ?? [];
-    List<QuantityList> quantityListItems =
-        quantityList.map((json) => QuantityList.fromJson(json)).toList();
-
-    return TopSellingProductA(
-      variationId: json['variation_id'],
-      variationName: json['variation_name'],
-      price: json['price'],
-      productName: json['product_name'],
-      quantity: json['quantity'],
-      totalPrice: json['total_price'],
-      createdAt: DateTime.parse(json['created_at']),
-      customers: customers,
-      quantityList: quantityListItems,
+    factory TopSellingProductA.fromJson(Map<String, dynamic> json) => TopSellingProductA(
+        cartIds: json["cart_ids"],
+        orderIds: json["order_ids"],
+        eachPrice: json["each_price"],
+        variationId: json["variation_id"],
+        variationName: json["variation_name"],
+        price: json["price"],
+        productName: json["product_name"],
+        createdAt: DateTime.parse(json["created_at"]),
+        customer: List<TopSellingCustomer>.from(json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
+        quantityList: List<TopSellingQuantityList>.from(json["quantityList"].map((x) => TopSellingQuantityList.fromJson(x))),
+        topSellingProductATotalPrice: json["total_price"],
+        totalPrice: List<TopSellingTotalPrice>.from(json["totalPrice"].map((x) => TopSellingTotalPrice.fromJson(x))),
+        quantity: json["quantity"],
+        buyquantity: json["buyquantity"],
     );
-  }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'variation_id': variationId,
-      'variation_name': variationName,
-      'price': price,
-      'quantity': quantity,
-      'total_price': totalPrice,
-      'product_name': productName,
-      'created_at': createdAt?.toIso8601String(),
-      'customer': customers?.map((customer) => customer.toJson()).toList(),
-      'quantityList':
-          quantityList?.map((quantity) => quantity.toJson()).toList(),
+    Map<String, dynamic> toJson() => {
+        "cart_ids": cartIds,
+        "order_ids": orderIds,
+        "each_price": eachPrice,
+        "variation_id": variationId,
+        "variation_name": variationName,
+        "price": price,
+        "product_name": productName,
+        "created_at": createdAt!.toIso8601String(),
+        "customer": List<dynamic>.from(customer!.map((x) => x.toJson())),
+        "quantityList": List<dynamic>.from(quantityList!.map((x) => x.toJson())),
+        "total_price": topSellingProductATotalPrice,
+        "totalPrice": List<dynamic>.from(totalPrice!.map((x) => x.toJson())),
+        "quantity": quantity,
+        "buyquantity": buyquantity,
     };
-  }
 }
+
+class TopSellingCustomer {
+    String? cartId;
+    String? customerId;
+
+    TopSellingCustomer({
+        this.cartId,
+        this.customerId,
+    });
+
+    factory TopSellingCustomer.fromJson(Map<String, dynamic> json) => TopSellingCustomer(
+        cartId: json["cart_id"],
+        customerId: json["customer_id"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "cart_id": cartId,
+        "customer_id": customerId,
+    };
+}
+
+class TopSellingQuantityList {
+    String? variationName;
+    int? quantity;
+    String? vprice;
+    DateTime? createdAt;
+
+    TopSellingQuantityList({
+        this.variationName,
+        this.quantity,
+        this.vprice,
+        this.createdAt,
+    });
+
+    factory TopSellingQuantityList.fromJson(Map<String, dynamic> json) => TopSellingQuantityList(
+        variationName: json["variation_name"],
+        quantity: json["quantity"],
+        vprice: json["vprice"],
+        createdAt: DateTime.parse(json["created_at"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "variation_name": variationName,
+        "quantity": quantity,
+        "vprice": vprice,
+        "created_at": createdAt!.toIso8601String(),
+    };
+}
+
+class TopSellingTotalPrice {
+    int? id;
+    String? cartId;
+    String? productId;
+    String? variationId;
+    String? price;
+    String? reason;
+    String? quantity;
+    int? pieces;
+    String? packType;
+    String? totalPrice;
+    int? status;
+    int? orderPlaceStatus;
+    DateTime? createdAt;
+    DateTime? updatedAt;
+    int? companyId;
+    String? inNo;
+    String? barcode;
+    String? variationName;
+    String? unitType;
+    String? sellPrice;
+    String? tax;
+    String? packtype;
+    int? stock;
+    int? lowstock;
+    int? fullstock;
+    String? imageUrl;
+    int? vStatus;
+    int? times;
+
+    TopSellingTotalPrice({
+        this.id,
+        this.cartId,
+        this.productId,
+        this.variationId,
+        this.price,
+        this.reason,
+        this.quantity,
+        this.pieces,
+        this.packType,
+        this.totalPrice,
+        this.status,
+        this.orderPlaceStatus,
+        this.createdAt,
+        this.updatedAt,
+        this.companyId,
+        this.inNo,
+        this.barcode,
+        this.variationName,
+        this.unitType,
+        this.sellPrice,
+        this.tax,
+        this.packtype,
+        this.stock,
+        this.lowstock,
+        this.fullstock,
+        this.imageUrl,
+        this.vStatus,
+        this.times,
+    });
+
+    factory TopSellingTotalPrice.fromJson(Map<String, dynamic> json) => TopSellingTotalPrice(
+        id: json["id"],
+        cartId: json["cart_id"],
+        productId: json["product_id"],
+        variationId: json["variation_id"],
+        price: json["price"],
+        reason: json["reason"],
+        quantity: json["quantity"],
+        pieces: json["pieces"],
+        packType: json["packType"],
+        totalPrice: json["total_price"],
+        status: json["status"],
+        orderPlaceStatus: json["order_place_status"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        companyId: json["company_id"],
+        inNo: json["in_no"],
+        barcode: json["barcode"],
+        variationName: json["variation_name"],
+        unitType: json["unitType"],
+        sellPrice: json["sell_price"],
+        tax: json["tax"],
+        packtype: json["packtype"],
+        stock: json["stock"],
+        lowstock: json["lowstock"],
+        fullstock: json["fullstock"],
+        imageUrl: json["image_url"],
+        vStatus: json["v_status"],
+        times: json["times"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "id": id,
+        "cart_id": cartId,
+        "product_id": productId,
+        "variation_id": variationId,
+        "price": price,
+        "reason": reason,
+        "quantity": quantity,
+        "pieces": pieces,
+        "packType": packType,
+        "total_price": totalPrice,
+        "status": status,
+        "order_place_status": orderPlaceStatus,
+        "created_at": createdAt!.toIso8601String(),
+        "updated_at": updatedAt!.toIso8601String(),
+        "company_id": companyId,
+        "in_no": inNo,
+        "barcode": barcode,
+        "variation_name": variationName,
+        "unitType": unitType,
+        "sell_price": sellPrice,
+        "tax": tax,
+        "packtype": packtype,
+        "stock": stock,
+        "lowstock": lowstock,
+        "fullstock": fullstock,
+        "image_url": imageUrl,
+        "v_status": vStatus,
+        "times": times,
+    };
+}
+// class TopSellingProductA {
+//   String? variationId;
+//   String? variationName;
+//   String? productName;
+//   String? price;
+//   String? quantity;
+//   String? totalPrice;
+//   DateTime? createdAt;
+//   List<Customer>? customers;
+//   List<QuantityList>? quantityList;
+
+//   TopSellingProductA({
+//     this.variationId,
+//     this.variationName,
+//     this.price,
+//     this.quantity,
+//     this.totalPrice,
+//     this.createdAt,
+//     this.customers,
+//     this.quantityList,
+//     this.productName,
+//   });
+
+//   factory TopSellingProductA.fromJson(Map<String, dynamic> json) {
+//     var customersList = json['customer'] as List? ?? [];
+//     List<Customer> customers =
+//         customersList.map((json) => Customer.fromJson(json)).toList();
+
+//     var quantityList = json['quantityList'] as List? ?? [];
+//     List<QuantityList> quantityListItems =
+//         quantityList.map((json) => QuantityList.fromJson(json)).toList();
+
+//     return TopSellingProductA(
+//       variationId: json['variation_id'],
+//       variationName: json['variation_name'],
+//       price: json['price'],
+//       productName: json['product_name'],
+//       quantity: json['quantity'],
+//       totalPrice: json['total_price'],
+//       createdAt: DateTime.parse(json['created_at']),
+//       customers: customers,
+//       quantityList: quantityListItems,
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'variation_id': variationId,
+//       'variation_name': variationName,
+//       'price': price,
+//       'quantity': quantity,
+//       'total_price': totalPrice,
+//       'product_name': productName,
+//       'created_at': createdAt?.toIso8601String(),
+//       'customer': customers?.map((customer) => customer.toJson()).toList(),
+//       'quantityList':
+//           quantityList?.map((quantity) => quantity.toJson()).toList(),
+//     };
+//   }
+// }
 
 class Customer {
   dynamic cartId;
@@ -793,101 +1032,53 @@ class DeliveryOrder {
 }
 
 class OrderDetails {
-  int? id; // Nullable
-  String? orderId; // Nullable
-  String? customerId; // Nullable
-  String? salesmanId; // Nullable
-  int? paymentStatus; // Nullable
-  int? paymentType; // Nullable
-  String? paymentDetail; // Nullable
-  int? orderStatus; // Nullable
-  String? cartId; // Nullable
-  String? orderCreateAt; // Nullable
-  int? orderTotal; // Nullable
-  int? receivedAmount; // Nullable
-  String? receivedAmountDate; // Nullable
-  String? checkDueDate; // Nullable
-  int? checkNumber; // Nullable
-  String? transactionDate; // Nullable
-  String? transactionDetails; // Nullable
-  int? orderProcessing; // Nullable
-  int? packedForDelivery; // Nullable
-  int? delivered; // Nullable
-  int? outForDelivery; // Nullable
+  String? orderId;
+  String? orderCreateAt;
+  int? orderTotal;
+  int? orderStatus;
+  int? orderProcessing;
+  int? packedForDelivery;
+  int? delivered;
+  int? outForDelivery;
+  int? quickSale;
 
   OrderDetails({
-    this.id,
     this.orderId,
-    this.customerId,
-    this.salesmanId,
-    this.paymentStatus,
-    this.paymentType,
-    this.paymentDetail,
-    this.orderStatus,
-    this.cartId,
     this.orderCreateAt,
     this.orderTotal,
-    this.receivedAmount,
-    this.receivedAmountDate,
-    this.checkDueDate,
-    this.checkNumber,
-    this.transactionDate,
-    this.transactionDetails,
+    this.orderStatus,
     this.orderProcessing,
     this.packedForDelivery,
     this.delivered,
     this.outForDelivery,
+    this.quickSale,
   });
 
   factory OrderDetails.fromJson(Map<String, dynamic> json) {
     return OrderDetails(
-      id: json['id'],
       orderId: json['order_id'],
-      customerId: json['customer_id'],
-      salesmanId: json['salesman_id'],
-      paymentStatus: json['payment_status'],
-      paymentType: json['payment_type'],
-      paymentDetail: json['payment_detail'],
-      orderStatus: json['order_status'],
-      cartId: json['cart_id'],
       orderCreateAt: json['order_creat_at']?.toString(),
       orderTotal: json['order_total'],
-      receivedAmount: json['received_amount'],
-      receivedAmountDate: json['received_amount_date']?.toString(),
-      checkDueDate: json['check_due_date']?.toString(),
-      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
-      transactionDate: json['transaction_date']?.toString(),
-      transactionDetails: json['transaction_details'],
+      orderStatus: json['order_status'],
       orderProcessing: json['order_processing'],
       packedForDelivery: json['packed_for_delivery'],
       delivered: json['deliverd'],
       outForDelivery: json['outForDelivery'],
+      quickSale: json['quickSale'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'order_id': orderId,
-      'customer_id': customerId,
-      'salesman_id': salesmanId,
-      'payment_status': paymentStatus,
-      'payment_type': paymentType,
-      'payment_detail': paymentDetail,
-      'order_status': orderStatus,
-      'cart_id': cartId,
       'order_creat_at': orderCreateAt,
       'order_total': orderTotal,
-      'received_amount': receivedAmount,
-      'received_amount_date': receivedAmountDate,
-      'check_due_date': checkDueDate,
-      'check_number': checkNumber,
-      'transaction_date': transactionDate,
-      'transaction_details': transactionDetails,
+      'order_status': orderStatus,
       'order_processing': orderProcessing,
       'packed_for_delivery': packedForDelivery,
       'deliverd': delivered,
       'outForDelivery': outForDelivery,
+      'quickSale': quickSale,
     };
   }
 }

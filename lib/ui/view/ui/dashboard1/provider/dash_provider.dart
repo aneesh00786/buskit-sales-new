@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
 import 'package:dio/dio.dart';
@@ -1917,11 +1918,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 );
               } else {
                 final orders = snapshot.data?.data ?? [];
-
-                // Filter orders based on selected order status
                 final filteredOrders = orders.where((order) {
                   if (_selectedOrderStatus == null) {
-                    return true; // Show all orders if no status filter is selected
+                    return true; 
                   } else {
                     return order.orderStatus == _selectedOrderStatus!.type;
                   }
@@ -1929,10 +1928,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
                 return Column(
                   children: [
-                    // Status filter buttons or checkboxes
                     _buildStatusFilterButtons(provider),
-
-                    // Orders list
                     Expanded(
                       child: ListView.builder(
                         itemCount: filteredOrders.length,
@@ -1948,7 +1944,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 Text(
                                     'Order Created At: ${order.orderCreatedAt}'),
                                 Text(
-                                    'Order Total: \$${order.orderTotal.toStringAsFixed(2)}'),
+                                    'Order Total: ${formatAmount(order.orderTotal.toStringAsFixed(2))}'),
                                 Text(
                                     'Order Status: ${getOrderStatusName(order.orderStatus)}'),
                                 // Add more fields as needed
@@ -2066,10 +2062,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
               padding: EdgeInsets.all(16.0),
               child: Text(
                 'Order Details',
-                // style: TextStyle(
-                //   fontSize: 18,
-                //   fontWeight: FontWeight.bold,
-                // ),
               ),
             ),
             ListTile(
@@ -2080,10 +2072,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   Text('Customer ID: ${order.customerId}'),
                   Text('Payment Type: ${order.paymentType}'),
                   Text('Order Created At: ${order.orderCreatedAt}'),
-                  Text('Order Total: \$${order.orderTotal.toStringAsFixed(2)}'),
+                  Text('Order Total: ${formatAmount(order.orderTotal.toStringAsFixed(2))}'),
                   Text(
                       'Order Status: ${getOrderStatusName(order.orderStatus)}'),
-                  // Add more fields as needed
+
                 ],
               ),
             ),
@@ -2184,354 +2176,354 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-class CategoryListScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => DashboardProvider(
-        apiService: ApiService(),
-        logger: Logger(),
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Category List'),
-        ),
-        body: Consumer<DashboardProvider>(
-          builder: (context, provider, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: DropdownButton<FilterDateEnum>(
-                    value: provider.selectedFilter,
-                    onChanged: provider.onFilterChanged,
-                    items: const [
-                      DropdownMenuItem(
-                        value: FilterDateEnum.thisMonth,
-                        child: Text('This Month'),
-                      ),
-                      DropdownMenuItem(
-                        value: FilterDateEnum.today,
-                        child: Text('Today'),
-                      ),
-                      DropdownMenuItem(
-                        value: FilterDateEnum.thisWeek,
-                        child: Text('This Week'),
-                      ),
-                      DropdownMenuItem(
-                        value: FilterDateEnum.thisYear,
-                        child: Text('This Year'),
-                      ),
-                      DropdownMenuItem(
-                        value: FilterDateEnum.range,
-                        child: Text('Range'),
-                      ),
-                    ],
-                  ),
-                ),
-                if (provider.selectedFilter == FilterDateEnum.range)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () => provider.selectDate(context, true),
-                          child: const Text('Select Start Date'),
-                        ),
-                        Text('Start Date: ${provider.selectedStartDate}'),
-                        ElevatedButton(
-                          onPressed: () => provider.selectDate(context, false),
-                          child: const Text('Select End Date'),
-                        ),
-                        Text('End Date: ${provider.selectedEndDate}'),
-                        ElevatedButton(
-                          onPressed: provider.fetchData,
-                          child: const Text('Load Data'),
-                        ),
-                      ],
-                    ),
-                  ),
-                Expanded(
-                  child: FutureBuilder<ResponseModell>(
-                    future: provider.futureResponseModel,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.hasData) {
-                        final categories = snapshot.data!.allCategory;
-                        final categoryPerformance =
-                            snapshot.data!.categoryPerformance;
-                        final revenu = snapshot.data!.revenue;
-                        final collection = snapshot.data!.collection;
-                        final delivery = snapshot.data!.delivery; // Added
-                        final topSellingProducts =
-                            snapshot.data!.topSellingProducts; // New
+// class CategoryListScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return ChangeNotifierProvider(
+//       create: (context) => DashboardProvider(
+//         apiService: ApiService(),
+//         logger: Logger(),
+//       ),
+//       child: Scaffold(
+//         appBar: AppBar(
+//           title: const Text('Category List'),
+//         ),
+//         body: Consumer<DashboardProvider>(
+//           builder: (context, provider, child) {
+//             return Column(
+//               crossAxisAlignment: CrossAxisAlignment.stretch,
+//               children: [
+//                 Padding(
+//                   padding: const EdgeInsets.all(8.0),
+//                   child: DropdownButton<FilterDateEnum>(
+//                     value: provider.selectedFilter,
+//                     onChanged: provider.onFilterChanged,
+//                     items: const [
+//                       DropdownMenuItem(
+//                         value: FilterDateEnum.thisMonth,
+//                         child: Text('This Month'),
+//                       ),
+//                       DropdownMenuItem(
+//                         value: FilterDateEnum.today,
+//                         child: Text('Today'),
+//                       ),
+//                       DropdownMenuItem(
+//                         value: FilterDateEnum.thisWeek,
+//                         child: Text('This Week'),
+//                       ),
+//                       DropdownMenuItem(
+//                         value: FilterDateEnum.thisYear,
+//                         child: Text('This Year'),
+//                       ),
+//                       DropdownMenuItem(
+//                         value: FilterDateEnum.range,
+//                         child: Text('Range'),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 if (provider.selectedFilter == FilterDateEnum.range)
+//                   Padding(
+//                     padding: const EdgeInsets.all(8.0),
+//                     child: Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceAround,
+//                       children: [
+//                         ElevatedButton(
+//                           onPressed: () => provider.selectDate(context, true),
+//                           child: const Text('Select Start Date'),
+//                         ),
+//                         Text('Start Date: ${provider.selectedStartDate}'),
+//                         ElevatedButton(
+//                           onPressed: () => provider.selectDate(context, false),
+//                           child: const Text('Select End Date'),
+//                         ),
+//                         Text('End Date: ${provider.selectedEndDate}'),
+//                         ElevatedButton(
+//                           onPressed: provider.fetchData,
+//                           child: const Text('Load Data'),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 Expanded(
+//                   child: FutureBuilder<ResponseModell>(
+//                     future: provider.futureResponseModel,
+//                     builder: (context, snapshot) {
+//                       if (snapshot.connectionState == ConnectionState.waiting) {
+//                         return const Center(child: CircularProgressIndicator());
+//                       } else if (snapshot.hasError) {
+//                         return Center(child: Text('Error: ${snapshot.error}'));
+//                       } else if (snapshot.hasData) {
+//                         final categories = snapshot.data!.allCategory;
+//                         final categoryPerformance =
+//                             snapshot.data!.categoryPerformance;
+//                         final revenu = snapshot.data!.revenue;
+//                         final collection = snapshot.data!.collection;
+//                         final delivery = snapshot.data!.delivery; // Added
+//                         final topSellingProducts =
+//                             snapshot.data!.topSellingProducts; // New
 
-                        return ListView.builder(
-                          itemCount: categories?.length,
-                          itemBuilder: (context, index) {
-                            final category = categories?[index];
-                            final categoryPerf =
-                                categoryPerformance!.firstWhere(
-                              (perf) => perf.category == category?.category,
-                              orElse: () => CategoryPerformancee(
-                                // salesmanId: '',
-                                cid: 0,
-                                category: category!.category,
-                                //   count: 0,
-                                actualProjection: 0.0,
-                                salesman: [], actualTarget: 0,
-                              ),
-                            );
+//                         return ListView.builder(
+//                           itemCount: categories?.length,
+//                           itemBuilder: (context, index) {
+//                             final category = categories?[index];
+//                             final categoryPerf =
+//                                 categoryPerformance!.firstWhere(
+//                               (perf) => perf.category == category?.category,
+//                               orElse: () => CategoryPerformancee(
+//                                 // salesmanId: '',
+//                                 cid: 0,
+//                                 category: category!.category,
+//                                 //   count: 0,
+//                                 actualProjection: 0.0,
+//                                 salesman: [], actualTarget: 0,
+//                               ),
+//                             );
 
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 8.0, vertical: 4.0),
-                              child: ExpansionTile(
-                                title: Text(category!.category!),
-                                children: [
-                                  ListTile(
-                                    title: const Text('Category Performance'),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            'Count: ${categoryPerf.actualProjection}'),
-                                        Text(
-                                            'Actual Projection: ${categoryPerf.actualProjection?.toStringAsFixed(2)}'),
-                                        const Divider(),
-                                        const Text('Salesmen:'),
-                                        ...categoryPerf.salesman!
-                                            .map((salesman) => ListTile(
-                                                  title: Text(
-                                                      salesman.fullname ?? ''),
-                                                  subtitle: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                          'Salesman ID: ${salesman.salesmanId}'),
-                                                      Text(
-                                                          'Projection Target: ${salesman.projectionTarget}'),
-                                                      Text(
-                                                          'Projection Price: ${salesman.projectionPrice?.toStringAsFixed(2)}'),
-                                                      Text(
-                                                          'Actual Price: ${salesman.actualPrice?.toStringAsFixed(2)}'),
-                                                    ],
-                                                  ),
-                                                )),
-                                      ],
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () {
-                                        // Open the edit dialog or screen
-                                        // After editing, call provider.updateCategory with the updated category
-                                      },
-                                    ),
-                                  ),
-                                  ListTile(
-                                    title: const Text('Revenue Data'),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            'Booking Revenue Data: ${revenu!.bookingRevenueData}'),
-                                        const Divider(),
-                                        Text('Order Revenue Data:'),
-                                        ...revenu.orderRevenueData!
-                                            .map((order) => ListTile(
-                                                  title:
-                                                      Text(order.orderId ?? ''),
-                                                  subtitle: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                          'Total: ${order.total}'),
-                                                      Text(
-                                                          'Discount: ${order.discount}'),
-                                                      Text(
-                                                          'Status: ${order.status}'),
-                                                      Text(
-                                                          'Created At: ${order.createdAt}'),
-                                                      // Add more fields as needed
-                                                    ],
-                                                  ),
-                                                )),
-                                      ],
-                                    ),
-                                  ),
-                                  ListTile(
-                                    title: const Text('Collection Data'),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            'Total Pending Amount: ${collection!.order!.pendingAmount?.length}'),
-                                        const Divider(),
-                                        Text('Completed Orders:'),
-                                        ...collection.payment!.completedOrders!
-                                            .map((order) => ListTile(
-                                                  title: Text(order.orderId),
-                                                  subtitle: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                          'Total: ${order.orderTotal}'),
-                                                      Text(
-                                                          'Received Amount: ${order.receivedAmount}'),
-                                                      Text(
-                                                          'Received Amount Date: ${order.receivedAmountDate}'),
-                                                      // Add more fields as needed
-                                                    ],
-                                                  ),
-                                                )),
-                                        const Divider(),
-                                        Text('Overdue Amount:'),
-                                        ...collection.overdue!.overdueAmount!
-                                            .map((order) => ListTile(
-                                                  title:
-                                                      Text(order.orderId ?? ''),
-                                                  subtitle: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                          'Total: ${order.amount}'),
-                                                      Text(
-                                                          'Due Date: ${order.dueDate}'),
-                                                      // Add more fields as needed
-                                                    ],
-                                                  ),
-                                                )),
-                                      ],
-                                    ),
-                                  ),
-                                  ListTile(
-                                    title: const Text(
-                                        'Delivery Data'), // New section for delivery data
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            'Order Count: ${delivery?.order?.totalOrders?.length}'),
-                                        const Divider(),
-                                        Text(
-                                            'Delivery Percentage: ${delivery?.deliveryOrder?.percentage}'),
-                                        ...delivery!.order!.totalOrders!
-                                            .map((orderDetails) => ListTile(
-                                                  title: Text('Order Details'),
-                                                  subtitle: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                          'Order ID: ${orderDetails.orderId}'),
-                                                      Text(
-                                                          'Status: ${orderDetails.orderStatus}'),
-                                                      Text(
-                                                          'Total: ${orderDetails.delivered}'),
-                                                      // Add more fields as needed
-                                                    ],
-                                                  ),
-                                                )),
-                                      ],
-                                    ),
-                                  ),
-                                  ListTile(
-                                    title: const Text('Top Selling Products'),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ...topSellingProducts!.map((product) =>
-                                            ListTile(
-                                              title: Text(
-                                                  'Product ID: ${product.variationId}'),
-                                              subtitle: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                      'Created At: ${product.createdAt}'),
-                                                  const Text('Customers:'),
-                                                  ...product.customers!.map(
-                                                      (customer) => ListTile(
-                                                            title: Text(customer
-                                                                    .fullname ??
-                                                                ''),
-                                                            subtitle: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                    'Customer ID: ${customer.customerId}'),
-                                                                Text(
-                                                                    'Email: ${customer.email}'),
-                                                                Text(
-                                                                    'Mobile No: ${customer.mobileno}'),
-                                                                // Add more fields as needed
-                                                              ],
-                                                            ),
-                                                          )),
-                                                  const Text('Quantity List:'),
-                                                  ...product.quantityList!.map(
-                                                      (quantity) => ListTile(
-                                                            title: Text(
-                                                                'Quantity ID: ${quantity.id}'),
-                                                            subtitle: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                    'Product ID: ${quantity.productId}'),
-                                                                Text(
-                                                                    'Quantity: ${quantity.quantity}'),
-                                                                Text(
-                                                                    'Price: ${quantity.price}'),
-                                                                // Add more fields as needed
-                                                              ],
-                                                            ),
-                                                          )),
-                                                ],
-                                              ),
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(child: Text('No data found'));
-                      }
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
+//                             return Card(
+//                               margin: const EdgeInsets.symmetric(
+//                                   horizontal: 8.0, vertical: 4.0),
+//                               child: ExpansionTile(
+//                                 title: Text(category!.category!),
+//                                 children: [
+//                                   ListTile(
+//                                     title: const Text('Category Performance'),
+//                                     subtitle: Column(
+//                                       crossAxisAlignment:
+//                                           CrossAxisAlignment.start,
+//                                       children: [
+//                                         Text(
+//                                             'Count: ${categoryPerf.actualProjection}'),
+//                                         Text(
+//                                             'Actual Projection: ${categoryPerf.actualProjection?.toStringAsFixed(2)}'),
+//                                         const Divider(),
+//                                         const Text('Salesmen:'),
+//                                         ...categoryPerf.salesman!
+//                                             .map((salesman) => ListTile(
+//                                                   title: Text(
+//                                                       salesman.fullname ?? ''),
+//                                                   subtitle: Column(
+//                                                     crossAxisAlignment:
+//                                                         CrossAxisAlignment
+//                                                             .start,
+//                                                     children: [
+//                                                       Text(
+//                                                           'Salesman ID: ${salesman.salesmanId}'),
+//                                                       Text(
+//                                                           'Projection Target: ${salesman.projectionTarget}'),
+//                                                       Text(
+//                                                           'Projection Price: ${salesman.projectionPrice?.toStringAsFixed(2)}'),
+//                                                       Text(
+//                                                           'Actual Price: ${salesman.actualPrice?.toStringAsFixed(2)}'),
+//                                                     ],
+//                                                   ),
+//                                                 )),
+//                                       ],
+//                                     ),
+//                                     trailing: IconButton(
+//                                       icon: const Icon(Icons.edit),
+//                                       onPressed: () {
+//                                         // Open the edit dialog or screen
+//                                         // After editing, call provider.updateCategory with the updated category
+//                                       },
+//                                     ),
+//                                   ),
+//                                   ListTile(
+//                                     title: const Text('Revenue Data'),
+//                                     subtitle: Column(
+//                                       crossAxisAlignment:
+//                                           CrossAxisAlignment.start,
+//                                       children: [
+//                                         Text(
+//                                             'Booking Revenue Data: ${revenu!.bookingRevenueData}'),
+//                                         const Divider(),
+//                                         Text('Order Revenue Data:'),
+//                                         ...revenu.orderRevenueData!
+//                                             .map((order) => ListTile(
+//                                                   title:
+//                                                       Text(order.orderId ?? ''),
+//                                                   subtitle: Column(
+//                                                     crossAxisAlignment:
+//                                                         CrossAxisAlignment
+//                                                             .start,
+//                                                     children: [
+//                                                       Text(
+//                                                           'Total: ${order.total}'),
+//                                                       Text(
+//                                                           'Discount: ${order.discount}'),
+//                                                       Text(
+//                                                           'Status: ${order.status}'),
+//                                                       Text(
+//                                                           'Created At: ${order.createdAt}'),
+//                                                       // Add more fields as needed
+//                                                     ],
+//                                                   ),
+//                                                 )),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                   ListTile(
+//                                     title: const Text('Collection Data'),
+//                                     subtitle: Column(
+//                                       crossAxisAlignment:
+//                                           CrossAxisAlignment.start,
+//                                       children: [
+//                                         Text(
+//                                             'Total Pending Amount: ${collection!.order!.pendingAmount?.length}'),
+//                                         const Divider(),
+//                                         Text('Completed Orders:'),
+//                                         ...collection.payment!.completedOrders!
+//                                             .map((order) => ListTile(
+//                                                   title: Text(order.orderId),
+//                                                   subtitle: Column(
+//                                                     crossAxisAlignment:
+//                                                         CrossAxisAlignment
+//                                                             .start,
+//                                                     children: [
+//                                                       Text(
+//                                                           'Total: ${order.orderTotal}'),
+//                                                       Text(
+//                                                           'Received Amount: ${order.receivedAmount}'),
+//                                                       Text(
+//                                                           'Received Amount Date: ${order.receivedAmountDate}'),
+//                                                       // Add more fields as needed
+//                                                     ],
+//                                                   ),
+//                                                 )),
+//                                         const Divider(),
+//                                         Text('Overdue Amount:'),
+//                                         ...collection.overdue!.overdueAmount!
+//                                             .map((order) => ListTile(
+//                                                   title:
+//                                                       Text(order.orderId ?? ''),
+//                                                   subtitle: Column(
+//                                                     crossAxisAlignment:
+//                                                         CrossAxisAlignment
+//                                                             .start,
+//                                                     children: [
+//                                                       Text(
+//                                                           'Total: ${order.amount}'),
+//                                                       Text(
+//                                                           'Due Date: ${order.dueDate}'),
+//                                                       // Add more fields as needed
+//                                                     ],
+//                                                   ),
+//                                                 )),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                   ListTile(
+//                                     title: const Text(
+//                                         'Delivery Data'), // New section for delivery data
+//                                     subtitle: Column(
+//                                       crossAxisAlignment:
+//                                           CrossAxisAlignment.start,
+//                                       children: [
+//                                         Text(
+//                                             'Order Count: ${delivery?.order?.totalOrders?.length}'),
+//                                         const Divider(),
+//                                         Text(
+//                                             'Delivery Percentage: ${delivery?.deliveryOrder?.percentage}'),
+//                                         ...delivery!.order!.totalOrders!
+//                                             .map((orderDetails) => ListTile(
+//                                                   title: Text('Order Details'),
+//                                                   subtitle: Column(
+//                                                     crossAxisAlignment:
+//                                                         CrossAxisAlignment
+//                                                             .start,
+//                                                     children: [
+//                                                       Text(
+//                                                           'Order ID: ${orderDetails.orderId}'),
+//                                                       Text(
+//                                                           'Status: ${orderDetails.orderStatus}'),
+//                                                       Text(
+//                                                           'Total: ${orderDetails.delivered}'),
+//                                                       // Add more fields as needed
+//                                                     ],
+//                                                   ),
+//                                                 )),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                   ListTile(
+//                                     title: const Text('Top Selling Products'),
+//                                     subtitle: Column(
+//                                       crossAxisAlignment:
+//                                           CrossAxisAlignment.start,
+//                                       children: [
+//                                         ...topSellingProducts!.map((product) =>
+//                                             ListTile(
+//                                               title: Text(
+//                                                   'Product ID: ${product.variationId}'),
+//                                               subtitle: Column(
+//                                                 crossAxisAlignment:
+//                                                     CrossAxisAlignment.start,
+//                                                 children: [
+//                                                   Text(
+//                                                       'Created At: ${product.createdAt}'),
+//                                                   const Text('Customers:'),
+//                                                   ...product.customers!.map(
+//                                                       (customer) => ListTile(
+//                                                             title: Text(customer
+//                                                                     .fullname ??
+//                                                                 ''),
+//                                                             subtitle: Column(
+//                                                               crossAxisAlignment:
+//                                                                   CrossAxisAlignment
+//                                                                       .start,
+//                                                               children: [
+//                                                                 Text(
+//                                                                     'Customer ID: ${customer.customerId}'),
+//                                                                 Text(
+//                                                                     'Email: ${customer.email}'),
+//                                                                 Text(
+//                                                                     'Mobile No: ${customer.mobileno}'),
+//                                                                 // Add more fields as needed
+//                                                               ],
+//                                                             ),
+//                                                           )),
+//                                                   const Text('Quantity List:'),
+//                                                   ...product.quantityList!.map(
+//                                                       (quantity) => ListTile(
+//                                                             title: Text(
+//                                                                 'Quantity ID: ${quantity.id}'),
+//                                                             subtitle: Column(
+//                                                               crossAxisAlignment:
+//                                                                   CrossAxisAlignment
+//                                                                       .start,
+//                                                               children: [
+//                                                                 Text(
+//                                                                     'Product ID: ${quantity.productId}'),
+//                                                                 Text(
+//                                                                     'Quantity: ${quantity.quantity}'),
+//                                                                 Text(
+//                                                                     'Price: ${quantity.price}'),
+//                                                                 // Add more fields as needed
+//                                                               ],
+//                                                             ),
+//                                                           )),
+//                                                 ],
+//                                               ),
+//                                             )),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ],
+//                               ),
+//                             );
+//                           },
+//                         );
+//                       } else {
+//                         return const Center(child: Text('No data found'));
+//                       }
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }

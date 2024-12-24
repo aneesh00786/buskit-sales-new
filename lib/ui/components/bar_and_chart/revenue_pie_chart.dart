@@ -619,8 +619,9 @@ class DoughnutDefaultDelivery extends StatefulWidget {
   final Color bColor;
   final Color cColor;
   final Color dColor;
-  final Widget sabik;
-  final Widget sabik1;
+  final Color eColor;
+  final Widget legend1;
+  final Widget legend2;
 
   const DoughnutDefaultDelivery({
     Key? key,
@@ -629,8 +630,9 @@ class DoughnutDefaultDelivery extends StatefulWidget {
     required this.bColor,
     required this.cColor,
     required this.dColor,
-    required this.sabik,
-    required this.sabik1,
+    required this.eColor,
+    required this.legend1,
+    required this.legend2,
   }) : super(key: key);
 
   @override
@@ -639,20 +641,17 @@ class DoughnutDefaultDelivery extends StatefulWidget {
 }
 
 class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
-  late TooltipBehavior _tooltip;
-
   @override
   void initState() {
-    _tooltip = TooltipBehavior(enable: true, format: 'point.x : point.y%');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final orderProcessingValue = _getOrderValueByStatus(5);
-    final packedForDeliveryValue = _getOrderValueByStatus(10);
     final outForDeliveryValue = _getOrderValueByStatus(1);
     final deliveredValue = _getOrderValueByStatus(2);
+    final quickSaleValue = _getOrderValueByStatus(14);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -662,19 +661,19 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
           flex: 3,
           child: fl_chart.PieChart(
             fl_chart.PieChartData(
-              startDegreeOffset: 250,
-              sectionsSpace: 0.6,
-              centerSpaceRadius: 60,
+              startDegreeOffset: -90,
+              sectionsSpace: 2,
+              centerSpaceRadius: 43,
               sections: [
                 fl_chart.PieChartSectionData(
-                  value: orderProcessingValue,
-                  color: widget.aColor,
+                  value: quickSaleValue,
+                  color: widget.eColor,
                   radius: 25,
                   showTitle: false,
                 ),
                 fl_chart.PieChartSectionData(
-                  value: packedForDeliveryValue,
-                  color: widget.bColor,
+                  value: orderProcessingValue,
+                  color: widget.aColor,
                   radius: 25,
                   showTitle: false,
                 ),
@@ -699,88 +698,70 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                       response.touchedSection != null) {
                     final section = response.touchedSection!;
                     final PieChartSectionData touchedSectionData =
-                        section.touchedSection ?? PieChartSectionData();
-
-                    // Check if the data is valid
-                    if (touchedSectionData.value == null ||
-                        touchedSectionData.value == 0) {
-                      return; // Exit early if the data is empty or null
-                    }
-
-                    final title = touchedSectionData.value ==
-                            orderProcessingValue
-                        ? 'Order Processing'
-                        : touchedSectionData.value == packedForDeliveryValue
-                            ? 'Packed for Delivery'
+                        section.touchedSection!;
+                    final title =
+                        touchedSectionData.value == orderProcessingValue
+                            ? 'Processing Orders'
                             : touchedSectionData.value == outForDeliveryValue
-                                ? 'Out for Delivery'
+                                ? 'Packed & Ready for Delivery'
                                 : touchedSectionData.value == deliveredValue
-                                    ? 'Delivered'
-                                    : 'Unknown';
-
-                    final status = touchedSectionData.value ==
-                            orderProcessingValue
-                        ? 5
-                        : touchedSectionData.value == packedForDeliveryValue
-                            ? 10
+                                    ? 'Delivered Orders'
+                                    : touchedSectionData.value == quickSaleValue
+                                        ? 'Quick Orders'
+                                        : 'Unknown';
+                    final status =
+                        touchedSectionData.value == orderProcessingValue
+                            ? 5
                             : touchedSectionData.value == outForDeliveryValue
                                 ? 1
                                 : touchedSectionData.value == deliveredValue
                                     ? 2
-                                    : -1;
+                                    : touchedSectionData.value == quickSaleValue
+                                        ? 14
+                                        : -1;
 
-                    if (status != -1 && title.isNotEmpty) {
-                      _showValueDialog(
-                          context, widget.deliveryData, title, status);
-                    }
+                    _showValueDialog(
+                        context, widget.deliveryData, title, status);
                   }
                 },
               ),
             ),
           ),
         ),
-        widget.sabik1,
+        const SizedBox(height: 5.7),
+        widget.legend1,
         const SizedBox(height: 2.5),
-        widget.sabik,
+        widget.legend2,
       ],
     );
   }
 
   double _getOrderValueByStatus(int status) {
-    final order = widget.deliveryData.order?.totalOrders?.lastWhere(
+    final order = widget.deliveryData.order!.totalOrders!.lastWhere(
       (orderDetails) => orderDetails.orderStatus == status,
       orElse: () => OrderDetails(
         orderId: '',
         orderStatus: status,
         orderTotal: 0,
-        transactionDate: '',
         orderProcessing: 0,
         packedForDelivery: 0,
         outForDelivery: 0,
         delivered: 0,
-        id: 0,
-        customerId: '',
-        salesmanId: '',
-        paymentStatus: 0,
-        paymentType: 0,
-        paymentDetail: '',
-        cartId: '',
+        quickSale: 0,
         orderCreateAt: '',
-        receivedAmount: 0,
-        checkDueDate: '',
-        transactionDetails: '',
-        checkNumber: 0,
       ),
     );
     return status == 5
-        ? order!.orderProcessing!.toDouble()
+        ? order.orderProcessing!.toDouble()
         : status == 10
-            ? order!.packedForDelivery!.toDouble()
+            ? order.packedForDelivery!.toDouble()
             : status == 1
-                ? order!.outForDelivery!.toDouble()
+                ? order.outForDelivery!.toDouble()
                 : status == 2
-                    ? order!.delivered!.toDouble()
-                    : 0.0;
+                    ? order.delivered!.toDouble()
+                    : status == 14
+                        ? order.quickSale!.toDouble()
+                        : 0.0;
   }
 
   void _showValueDialog(

@@ -947,7 +947,7 @@ class _PendingPaymentBottomWidgetState
             const Spacer(),
             if (totalValuesController.selectedTabIndex == 0)
               Text(
-                'Total:   \$${totalValuesController.totalAmount}  ',
+                'Total:   ${formatAmount(totalValuesController.totalAmount)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,
@@ -956,7 +956,7 @@ class _PendingPaymentBottomWidgetState
               )
             else if (totalValuesController.selectedTabIndex == 1)
               Text(
-                'Total:   \$${totalValuesController.nearlyDueAmount}  ',
+                'Total:   ${formatAmount(totalValuesController.nearlyDueAmount)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,
@@ -965,7 +965,7 @@ class _PendingPaymentBottomWidgetState
               )
             else if (totalValuesController.selectedTabIndex == 2)
               Text(
-                'Total:   \$${totalValuesController.dueAmount}  ',
+                'Total:   ${formatAmount(totalValuesController.dueAmount)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,
@@ -974,7 +974,7 @@ class _PendingPaymentBottomWidgetState
               )
             else if (totalValuesController.selectedTabIndex == 3)
               Text(
-                'Total:   \$${totalValuesController.overdueAmount}  ',
+                'Total:   ${formatAmount(totalValuesController.overdueAmount)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,

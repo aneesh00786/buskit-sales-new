@@ -328,7 +328,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
     );
   }
 
-  Widget orderDeliveryChart(BuildContext context) {
+ Widget orderDeliveryChart(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -336,7 +336,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
             blurRadius: 5,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 25,
@@ -364,146 +364,143 @@ class DashBoardMiddleWidget extends StatelessWidget {
               ),
             ),
             Expanded(
-                child: Padding(
-              padding: nkRegularPadding(),
-              child: Consumer<DashboardProvider>(
-                builder: (context, provider, child) {
-                  return FutureBuilder<model1.ResponseModell>(
-                    future: provider.futureResponseModel,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: SpinKitFadingCube(
-                            color: primaryColor,
-                            size: 20.0,
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.error_outline,
-                                  size: 50, color: Colors.red),
-                              SizedBox(height: 10),
-                              Text(
-                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                  textAlign: TextAlign.center),
-                            ],
-                          ),
-                        );
-                      } else if (snapshot.hasData) {
-                        final categories = snapshot.data!.allCategory;
-                        final categoryPerformance = snapshot.data!.delivery;
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Consumer<DashboardProvider>(
+                  builder: (context, provider, child) {
+                    return FutureBuilder<ResponseModell>(
+                      future: provider.futureResponseModel,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: SpinKitFadingCube(
+                              color: primaryColor,
+                              size: 20.0,
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.error_outline,
+                                    size: 50, color: Colors.red),
+                                SizedBox(height: 10),
+                                Text(
+                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
+                                    textAlign: TextAlign.center),
+                              ],
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          final categories = snapshot.data!.allCategory;
+                          final categoryPerformance = snapshot.data!.delivery;
 
-                        if (categoryPerformance == null ||
-                            categoryPerformance.order!.totalOrders!.isEmpty) {
+                          if (categoryPerformance == null ||
+                              categoryPerformance.order!.totalOrders!.isEmpty) {
+                            return const NodataWidget();
+                          }
+
+                          return Center(
+                            child: DoughnutDefaultDelivery(
+                              deliveryData: categoryPerformance,
+                              aColor: const Color(0xff142b33),
+                              bColor: const Color(0xff4455dd),
+                              eColor: const Color.fromARGB(255, 169, 202, 224),
+                              legend2: Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize
+                                        .min, // Ensures Row takes minimal space
+                                    children: [
+                                      const CircleAvatar(
+                                        radius: 6,
+                                        backgroundColor:
+                                            Color.fromARGB(255, 169, 202, 224),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MyRegularText(
+                                        label:
+                                            "Quick Sale : ${formatAmount(categoryPerformance.order!.totalOrders!.last.quickSale)}",
+                                        fontSize: 11.6,
+                                        fontWeight: FontWeight.w600,
+                                        color: secondaryTextColor,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize
+                                        .min, // Ensures Row takes minimal space
+                                    children: [
+                                      const CircleAvatar(
+                                        radius: 6,
+                                        backgroundColor: Color(0xff142b33),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MyRegularText(
+                                        label:
+                                            "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+                                        fontSize: 11.6,
+                                        fontWeight: FontWeight.w600,
+                                        color: secondaryTextColor,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const CircleAvatar(
+                                        radius: 6,
+                                        backgroundColor: Color(0xffc38a42),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MyRegularText(
+                                        label:
+                                            "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
+                                        fontSize: 11.6,
+                                        fontWeight: FontWeight.w600,
+                                        color: secondaryTextColor,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const CircleAvatar(
+                                        radius: 6,
+                                        backgroundColor: Color(0xff33b4a8),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MyRegularText(
+                                        label:
+                                            "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.delivered)}",
+                                        fontSize: 11.6,
+                                        fontWeight: FontWeight.w600,
+                                        color: secondaryTextColor,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              legend1: SizedBox.shrink(),
+                              cColor: const Color(0xffcc8f3d),
+                              dColor: const Color(0xff33b4a8),
+                            ),
+                          );
+                        } else {
                           return const NodataWidget();
                         }
-
-                        return Center(
-                          child: DoughnutDefaultDelivery(
-                            deliveryData: categoryPerformance,
-                            aColor: const Color(0xff142b33),
-                            bColor: const Color(0xff4455dd),
-                            sabik: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 11.5
-                                          : 11.9,
-                                  width:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 14.9
-                                          : 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xffc38a42),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                MyRegularText(
-                                  label:
-                                      "Out for delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
-                                ),
-                                const SizedBox(width: 8.3),
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff33b4a8),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                MyRegularText(
-                                  label:
-                                      "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.delivered)}",
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
-                                ),
-                              ],
-                            ),
-                            sabik1: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff142b33),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                MyRegularText(
-                                  label:
-                                      "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
-                                ),
-                                const SizedBox(width: 8.3),
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff4455dd),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                MyRegularText(
-                                  label:
-                                      "Packed : ${formatAmount(categoryPerformance.order!.totalOrders!.last.packedForDelivery)}",
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                  color: secondaryTextColor,
-                                ),
-                              ],
-                            ),
-                            cColor: const Color(0xffcc8f3d),
-                            dColor: const Color(0xff33b4a8),
-                          ),
-                        );
-                      } else {
-                        return const NodataWidget();
-                      }
-                    },
-                  );
-                },
+                      },
+                    );
+                  },
+                ),
               ),
-            ))
+            )
           ],
         ),
       ),
@@ -933,8 +930,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
         double fontSize = 11;
-        topSellingProducts
-            .sort((a, b) => b.quantity!.compareTo(a.quantity.toString()));
+       topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           width: availableWidth,
@@ -1099,7 +1095,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
               if (topSellingProducts.isEmpty)
                 Expanded(child: Center(child: NodataWidget()))
               else
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Row(
                     children: [
                       Expanded(
@@ -1117,7 +1114,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 label: Expanded(
                                   child: Center(
                                     child: MyRegularText(
-                                      label: "Produc",
+                                      label: "Product",
                                       fontWeight: FontWeight.w600,
                                       color: secondaryTextColor,
                                       align: TextAlign.center,
@@ -1184,10 +1181,11 @@ class DashBoardMiddleWidget extends StatelessWidget {
                               return DataRow(
                                 cells: <DataCell>[
                                   DataCell(
-                                    Text(
-                                      '${product.productName} - ${product.variationName}',
-                                      style: TextStyle(fontSize: fontSize),
-                                      maxLines: 2,
+                                    MyRegularText(
+                                      label:
+                                          '${product.productName} - ${product.variationName}',
+                                      fontSize: fontSize - 1,
+                                      maxlines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -1219,7 +1217,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                   child: Column(
                                                     children: [
                                                       Container(
-                                                        height: 45,
                                                         padding:
                                                             const EdgeInsets
                                                                 .all(10),
@@ -1241,20 +1238,25 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                               MainAxisAlignment
                                                                   .spaceBetween,
                                                           children: [
-                                                            Text(
-                                                              product
-                                                                  .variationName
-                                                                  .toString(),
-                                                              style:
-                                                                  const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 16,
-                                                                fontFamily:
-                                                                    'Poppins_Regular',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
+                                                            SizedBox(
+                                                              width: constraints
+                                                                  .maxWidth,
+                                                              child:
+                                                                  MyRegularText(
+                                                                label:
+                                                                    '${product.productName} - ${product.variationName}',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 16,
+                                                                  fontFamily:
+                                                                      'Poppins_Regular',
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                                maxlines: 2,
                                                               ),
                                                             ),
                                                             dialogCloseButton(
@@ -1305,16 +1307,16 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                           ],
                                                           rows: product
                                                               .quantityList!
-                                                              .map((quantity) {
-                                                            log('PRICE ${quantity.price}');
-                                                            return DataRow(
+                                                              .map(
+                                                            (quantity) {
+                                                              return DataRow(
                                                                 cells: [
                                                                   DataCell(
                                                                       Center(
                                                                     child: Text(
                                                                       // '1',
                                                                       formatAmount(
-                                                                          quantity
+                                                                          product
                                                                               .price),
                                                                       textAlign:
                                                                           TextAlign
@@ -1331,8 +1333,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                                   DataCell(
                                                                       Center(
                                                                     child: Text(
-                                                                      quantity
-                                                                          .quantity
+                                                                      product
+                                                                          .buyquantity
                                                                           .toString(),
                                                                       textAlign:
                                                                           TextAlign
@@ -1350,9 +1352,10 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                                     Center(
                                                                       child:
                                                                           Text(
-                                                                        quantity.price !=
+                                                                        quantity.vprice !=
                                                                                 null
-                                                                            ? '${formatAmount(quantity.price)}'
+                                                                            ? formatAmount(double.parse(product.price!) *
+                                                                                double.parse(product.buyquantity!))
                                                                             : 'N/A',
                                                                         textAlign:
                                                                             TextAlign.center,
@@ -1367,27 +1370,28 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                                                     ),
                                                                   ),
                                                                   DataCell(
-                                                                      Center(
-                                                                    child: Text(
-                                                                      DateFormat(
-                                                                              'dd-MM-yyyy')
-                                                                          .format(
-                                                                              quantity.createdAt!)
-                                                                          .toString(),
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                      style:
-                                                                          const TextStyle(
-                                                                        color:
-                                                                            secondaryTextColor,
-                                                                        fontSize:
-                                                                            13,
+                                                                    Center(
+                                                                      child:
+                                                                          Text(
+                                                                        DateFormat('dd-MM-yyyy')
+                                                                            .format(product.totalPrice!.first.createdAt!)
+                                                                            .toString(),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          color:
+                                                                              secondaryTextColor,
+                                                                          fontSize:
+                                                                              13,
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                  )),
-                                                                ]);
-                                                          }).toList(),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          ).toList(),
                                                         ),
                                                       ),
                                                     ],
@@ -1406,9 +1410,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                           ),
                                           child: Center(
                                             child: MyRegularText(
-                                              label: product
-                                                  .quantityList!.length
-                                                  .toString(),
+                                              label:
+                                                  product.quantity.toString(),
                                               color: buttonTextColor,
                                               align: TextAlign.center,
                                               fontSize: fontSize,
@@ -1421,7 +1424,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                   DataCell(
                                     Center(
                                       child: MyRegularText(
-                                        label: formatAmount(product.price),
+                                        label: formatAmount(product
+                                            .topSellingProductATotalPrice),
                                         color: secondaryTextColor,
                                         fontSize: fontSize,
                                         maxlines: 1,
@@ -1431,7 +1435,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                   DataCell(
                                     Center(
                                       child: MyRegularText(
-                                        label: "${product.quantity}",
+                                        label: "${product.buyquantity}",
                                         color: secondaryTextColor,
                                         fontSize: fontSize,
                                       ),
@@ -1445,7 +1449,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
+                ),
             ],
           ),
         );

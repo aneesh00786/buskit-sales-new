@@ -93,6 +93,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             await ApiWorker().fetchAllSettings(companyId);
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
+          await SessionHelper().getSettingsData();
           log('Settings data fetched and saved: ${settings.length}');
         }
       }

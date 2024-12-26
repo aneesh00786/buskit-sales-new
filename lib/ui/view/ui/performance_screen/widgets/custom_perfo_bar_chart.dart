@@ -365,13 +365,9 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
   Widget _buildLegend({required Color color, required String label}) {
     return Row(
       children: [
-        Container(
-          height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
-          width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(1.0),
-          ),
+                CircleAvatar(
+          radius: 6,
+          backgroundColor: color,
         ),
         const SizedBox(width: 2),
         MyRegularText(

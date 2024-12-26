@@ -55,10 +55,10 @@ class DashBoardMiddleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    bool isMobile = screenWidth < 600; 
+    bool isMobile = screenWidth < 600;
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height, 
+      height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: isMobile
           ? SingleChildScrollView(
@@ -145,7 +145,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-             Container(
+            Container(
               decoration: BoxDecoration(
                 color: primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.only(
@@ -342,7 +342,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
   Widget _buildLegendItem(Color color, String label) {
     return Row(
       children: [
-
         CircleAvatar(
           radius: 6,
           backgroundColor: color,
@@ -358,7 +357,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
     );
   }
 
- Widget orderDeliveryChart(BuildContext context) {
+  Widget orderDeliveryChart(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -734,14 +733,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             sabik1: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff1d3d63),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
-                                  ),
+                                CircleAvatar(
+                                  radius: 6,
+                                  backgroundColor: Color(0xff1d3d63),
                                 ),
                                 const SizedBox(width: 2),
                                 MyRegularText(
@@ -754,14 +748,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 const SizedBox(
                                   width: 8.3,
                                 ),
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
-                                  ),
+                                CircleAvatar(
+                                  radius: 6,
+                                  backgroundColor: Colors.blue,
                                 ),
                                 const SizedBox(width: 2),
                                 MyRegularText(
@@ -954,7 +943,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
     );
   }
 
-Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
+  Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
     return LayoutBuilder(
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
@@ -977,8 +966,7 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                   child: Row(
                     children: [
                       Expanded(
-                        child: 
-                        DataTable(
+                        child: DataTable(
                           horizontalMargin: 6,
                           headingRowHeight: 30,
                           dataRowHeight: 0,
@@ -1766,7 +1754,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageContent(Messages message) {
     if (message.image != null && message.image!.isNotEmpty) {
       if (message.image!.contains('chat')) {
-        return  Column(
+        return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: message.source == 'salesman'
               ? CrossAxisAlignment.end

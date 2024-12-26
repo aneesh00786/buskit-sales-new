@@ -103,7 +103,8 @@ Widget buildCustomersDialogContent(
         children: [
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               color: primaryColor,
             ),
             height: 60,

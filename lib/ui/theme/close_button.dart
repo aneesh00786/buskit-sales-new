@@ -4,8 +4,8 @@ Widget dialogCloseButton1(BuildContext context, Color color) {
   return CircleAvatar(
     backgroundColor: Colors.transparent,
     child: SizedBox(
-      width: 25.8,
-      height: 25.8,
+      width: 20.8,
+      height: 20.8,
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -19,7 +19,7 @@ Widget dialogCloseButton1(BuildContext context, Color color) {
             icon: Icon(
               Icons.close,
               color: color, // Use the passed color here
-              size: 16,
+              size: 12,
             ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),

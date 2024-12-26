@@ -5,6 +5,8 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/nodata_table_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/option/widgets/option_dialogues/estimate_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/option/widgets/option_dialogues/orders_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -14,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/datacolumn_and_row.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -327,545 +330,53 @@ class OptionWidget extends StatelessWidget {
     }
   }
 
-void _showOrderStatusDialog(BuildContext context, DashboardProvider provider,
+  void _showOrderStatusDialog(BuildContext context, DashboardProvider provider,
       OrderStatus selectedOrderStatus) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState) {
-          return Row(
-            // remove if dialog
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: white,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: FutureBuilder<OrderResponse>(
-                      future: provider.orderResponse,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const SizedBox.shrink();
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        } else {
-                          final orders = snapshot.data?.data ?? [];
-
-                          // Filter orders based on selected order status
-                          final filteredOrders = orders.where((order) {
-                            return order.orderStatus ==
-                                selectedOrderStatus.type;
-                          }).toList();
-
-                          return LayoutBuilder(
-                            builder: (BuildContext context,
-                                BoxConstraints constraints) {
-                              double availableWidth = constraints.maxWidth;
-                              // double fontSize = (availableWidth / 70).clamp(11, 14);
-                              double fontSize = 14.0;
-                              double padding = availableWidth / 100;
-                              double fixedIconSize = fontSize;
-                              double flexWidth = availableWidth / 10;
-
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Stack(
-                                  children: [
-                                    DataTable(
-                                      dataRowHeight: fontSize * 5.5,
-                                      headingRowHeight: 45,
-                                      headingRowColor: MaterialStateProperty
-                                          .resolveWith<Color>(
-                                        (states) => primaryColor,
-                                      ),
-                                      columnSpacing: padding * 1.5,
-                                      headingTextStyle: const TextStyle(
-                                          fontSize: 14,
-                                          color: white,
-                                          fontWeight: FontWeight.w700),
-                                      columns: const [
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Customer List',
-                                              maxLines: 2,
-                                              // textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Order Number',
-                                              maxLines: 2,
-                                              //  textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Order Created',
-                                              maxLines: 2,
-                                              //  textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Created By',
-                                              maxLines: 2,
-                                              //  textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Order Price',
-                                              maxLines: 2,
-                                              //  textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Invoice',
-                                              maxLines: 2,
-                                              //  textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Payment Status',
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              'Status',
-                                              maxLines: 2,
-                                              //  textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )),
-                                        DataColumn(
-                                            label: Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              '',
-                                            ),
-                                          ),
-                                        )),
-                                      ],
-                                      rows: filteredOrders.isEmpty
-                                          ? [
-                                              const DataRow(cells: [
-                                                DataCell(
-                                                    Text('Record Not Found')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                                DataCell(Text('')),
-                                              ])
-                                            ]
-                                          : filteredOrders.map((order) {
-                                              final customer =
-                                                  order.customer.isNotEmpty
-                                                      ? order.customer[0]
-                                                      : null;
-                                              return DataRow(
-                                                cells: [
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth *
-                                                          1.5, // Set an explicit width for each column
-                                                      child: Row(
-                                                        children: [
-                                                          CircleAvatar(
-                                                            radius:
-                                                                (fixedIconSize /
-                                                                        2) +
-                                                                    2,
-                                                            backgroundColor:
-                                                                const Color(
-                                                                    0xffe6ecff),
-                                                            child: Icon(
-                                                                Icons.person,
-                                                                size:
-                                                                    fixedIconSize,
-                                                                color: Colors
-                                                                    .blue),
-                                                          ),
-                                                          SizedBox(
-                                                              width: padding),
-                                                          Flexible(
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  customer !=
-                                                                          null
-                                                                      ? customer
-                                                                          .businessName
-                                                                      : 'N/A',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                ),
-                                                                Text(
-                                                                  customer !=
-                                                                          null
-                                                                      ? customer
-                                                                          .fullName
-                                                                      : 'N/A',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                ),
-                                                                Text(
-                                                                  customer !=
-                                                                          null
-                                                                      ? customer
-                                                                          .mobileNo
-                                                                      : 'N/A',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400),
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                ),
-                                                                Text(
-                                                                  customer !=
-                                                                          null
-                                                                      ? customer
-                                                                          .email
-                                                                      : 'N/A',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400),
-                                                                  maxLines:
-                                                                      1, // Control email to 1 line and ellipsis
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth *
-                                                          1, // Explicit width for this cell
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          _showDetailedOrderDialog(
-                                                              context,
-                                                              order,
-                                                              false);
-                                                        },
-                                                        child: Center(
-                                                          child: Text(
-                                                            order.orderId,
-                                                            style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    primaryColor,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth * 1,
-                                                      child: Center(
-                                                        child: Text(
-                                                          order.orderCreatedAt !=
-                                                                  null
-                                                              ? getFormattedOrderCreatAt(order
-                                                                  .orderCreatedAt
-                                                                  .toString())
-                                                              : 'N/A',
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth * 1,
-                                                      child: Center(
-                                                        child: Text(
-                                                          '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth * 0.8,
-                                                      child: Center(
-                                                        child: Text(
-                                                          formatAmount(
-                                                              order.orderTotal),
-                                                          maxLines: 1,
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth * 0.8,
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          _showDetailedOrderDialog(
-                                                              context,
-                                                              order,
-                                                              true);
-                                                        },
-                                                        child: Center(
-                                                          child: Text(
-                                                            order.invoice
-                                                                    .isEmpty
-                                                                ? 'Not Found'
-                                                                : order
-                                                                    .invoice[0]
-                                                                    .invoiceId,
-                                                            style: const TextStyle(
-                                                                color:
-                                                                    primaryColor,
-                                                                fontSize: 12),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth *
-                                                          1, // Explicit width for this cell
-                                                      child: Center(
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color:
-                                                                order.paymentStatus ==
-                                                                        0
-                                                                    ? Colors.red
-                                                                    : Colors
-                                                                        .green,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            border: Border.all(
-                                                                color: order.paymentStatus ==
-                                                                        0
-                                                                    ? Colors.red
-                                                                    : Colors
-                                                                        .green),
-                                                          ),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(1.0),
-                                                            child: Icon(
-                                                                order.paymentStatus ==
-                                                                        0
-                                                                    ? Icons
-                                                                        .close
-                                                                    : Icons
-                                                                        .done,
-                                                                color: white,
-                                                                size: 14.0),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: flexWidth *
-                                                          1.1, // Explicit width for this cell
-                                                      child: Center(
-                                                        child: Container(
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                            color: Color(
-                                                                0xffffdbb8),
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                    Radius.circular(
-                                                                        15.0)),
-                                                          ),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        8.0,
-                                                                    vertical:
-                                                                        4.0),
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                Text(
-                                                                  _getStatusName(
-                                                                      order
-                                                                          .orderStatus),
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          14.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400),
-                                                                ),
-                                                                if (order.orderStatus ==
-                                                                        2 &&
-                                                                    order.deliveryDate !=
-                                                                        null) ...[
-                                                                  Text(
-                                                                      NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order
-                                                                          .deliveryDate!
-                                                                          .toIso8601String())),
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                      maxLines:
-                                                                          2,
-                                                                      style:
-                                                                          const TextStyle(
-                                                                        fontSize:
-                                                                            10.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w400,
-                                                                      )),
-                                                                  // Text(
-                                                                  //     DateFormat(
-                                                                  //           'HH:MM XM')
-                                                                  //       .format(order.deliveryDate as DateTime)
-                                                                  //       .toString(),
-                                                                  //     maxLines: 1,
-                                                                  //     style:
-                                                                  //         const TextStyle(
-                                                                  //       fontSize:
-                                                                  //           10.0,
-                                                                  //       fontWeight:
-                                                                  //           FontWeight
-                                                                  //               .w400,
-                                                                  //     ))
-                                                                ]
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(Text('')),
-                                                ],
-                                              );
-                                            }).toList(),
-                                    ),
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: SizedBox(
-                                        height: 45,
-                                        width: 45,
-                                        child: Center(
-                                            child: dialogCloseButton1(
-                                                context, red)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ),
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: FutureBuilder<OrderResponse>(
+                  future: provider.orderResponse,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        height: 300,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      final orders = snapshot.data?.data ?? [];
+                      final filteredOrders = orders.where((order) {
+                        return order.orderStatus == selectedOrderStatus.type;
+                      }).toList();
+                      return Material(
+                        child: buildOrdersDialogueMainDash(
+                          context: context,
+                          filteredOrders: filteredOrders,
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
-            ],
+            ),
           );
         });
       },
@@ -908,382 +419,383 @@ void _showOrderStatusDialog(BuildContext context, DashboardProvider provider,
                             return order.orderStatus ==
                                 selectedOrderStatus.type;
                           }).toList();
+                          return Material(
+                              child: buildEstimateDialogueMainDash(
+                                  context: context,
+                                  filteredOrders: filteredOrders));
+                          // return LayoutBuilder(
+                          //   builder: (BuildContext context,
+                          //       BoxConstraints constraints) {
+                          //     double availableWidth = constraints.maxWidth;
+                          //     double fontSize = 14.0;
+                          //     double padding = availableWidth / 100;
+                          //     double fixedIconSize = fontSize;
+                          //     return SingleChildScrollView(
+                          //       scrollDirection: Axis.vertical,
+                          //       child: Stack(
+                          //         children: [
+                          //           Row(
+                          //             children: [
+                          //               Expanded(
+                          //                 child: DataTable(
+                          //                   dataRowHeight: fontSize * 5.5,
+                          //                   headingRowHeight: 45,
+                          //                   headingRowColor:
+                          //                       MaterialStateProperty
+                          //                           .resolveWith<Color>(
+                          //                     (states) => primaryColor,
+                          //                   ),
+                          //                   columnSpacing: padding * 1.5,
+                          //                   headingTextStyle: const TextStyle(
+                          //                       fontSize: 14,
+                          //                       color: white,
+                          //                       fontWeight: FontWeight.w700),
+                          //                   columns: const [
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           'Customer List',
+                          //                           maxLines: 2,
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           'Estimate Number',
+                          //                           maxLines: 2,
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           'Estimate Created',
+                          //                           maxLines: 2,
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           'Created By',
+                          //                           maxLines: 2,
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           'Estimate Price',
+                          //                           maxLines: 2,
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           'Status',
+                          //                           maxLines: 2,
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                     DataColumn(
+                          //                         label: Expanded(
+                          //                       child: Center(
+                          //                         child: Text(
+                          //                           '',
+                          //                         ),
+                          //                       ),
+                          //                     )),
+                          //                   ],
+                          //                   rows: filteredOrders.isEmpty
+                          //                       ? [
+                          //                           const DataRow(cells: [
+                          //                             DataCell(Text(
+                          //                                 'Record Not Found')),
+                          //                             DataCell(Text('')),
+                          //                             DataCell(Text('')),
+                          //                             DataCell(Text('')),
+                          //                             DataCell(Text('')),
+                          //                             DataCell(Text('')),
+                          //                             DataCell(Text('')),
+                          //                           ])
+                          //                         ]
+                          //                       : filteredOrders.map((order) {
+                          //                           final customer = order
+                          //                                   .customer.isNotEmpty
+                          //                               ? order.customer[0]
+                          //                               : null;
+                          //                           return DataRow(
+                          //                             cells: [
+                          //                               DataCell(
+                          //                                 Row(
+                          //                                   mainAxisAlignment:
+                          //                                       MainAxisAlignment
+                          //                                           .start,
+                          //                                   crossAxisAlignment:
+                          //                                       CrossAxisAlignment
+                          //                                           .center,
+                          //                                   children: [
+                          //                                     SizedBox(
+                          //                                       height:
+                          //                                           fixedIconSize *
+                          //                                               1.6,
+                          //                                       width:
+                          //                                           fixedIconSize *
+                          //                                               1.6,
+                          //                                       child:
+                          //                                           CircleAvatar(
+                          //                                         backgroundColor:
+                          //                                             const Color(
+                          //                                                 0xffe6ecff),
+                          //                                         child: Icon(
+                          //                                           Icons
+                          //                                               .person,
+                          //                                           size:
+                          //                                               fixedIconSize,
+                          //                                           color: Colors
+                          //                                               .blue,
+                          //                                         ),
+                          //                                       ),
+                          //                                     ),
+                          //                                     SizedBox(
+                          //                                         width:
+                          //                                             padding),
+                          //                                     Column(
+                          //                                       crossAxisAlignment:
+                          //                                           CrossAxisAlignment
+                          //                                               .start,
+                          //                                       mainAxisAlignment:
+                          //                                           MainAxisAlignment
+                          //                                               .center,
+                          //                                       children: [
+                          //                                         Text(
+                          //                                           customer !=
+                          //                                                   null
+                          //                                               ? customer
+                          //                                                   .businessName
+                          //                                               : 'N/A',
+                          //                                           style:
+                          //                                               const TextStyle(
+                          //                                             fontSize:
+                          //                                                 14,
+                          //                                             fontWeight:
+                          //                                                 FontWeight
+                          //                                                     .bold,
+                          //                                             // fontFamily: 'Poppins_Regular',
+                          //                                           ),
+                          //                                         ),
+                          //                                         SizedBox(
+                          //                                             height:
+                          //                                                 fontSize *
+                          //                                                     0.1),
+                          //                                         Text(
+                          //                                           customer !=
+                          //                                                   null
+                          //                                               ? customer
+                          //                                                   .fullName
+                          //                                               : 'N/A',
+                          //                                           style:
+                          //                                               const TextStyle(
+                          //                                             fontSize:
+                          //                                                 11,
+                          //                                             fontWeight:
+                          //                                                 FontWeight
+                          //                                                     .bold,
+                          //                                             // fontFamily: 'Poppins_Regular',
+                          //                                           ),
+                          //                                         ),
+                          //                                         Text(
+                          //                                           customer !=
+                          //                                                   null
+                          //                                               ? customer
+                          //                                                   .mobileNo
+                          //                                               : 'N/A',
+                          //                                           style:
+                          //                                               const TextStyle(
+                          //                                             fontSize:
+                          //                                                 11,
+                          //                                             color: Colors
+                          //                                                 .black,
+                          //                                             fontWeight:
+                          //                                                 FontWeight
+                          //                                                     .w400,
+                          //                                             // fontFamily: 'Poppins_Regular',
+                          //                                           ),
+                          //                                         ),
+                          //                                         Text(
+                          //                                           customer !=
+                          //                                                   null
+                          //                                               ? customer
+                          //                                                   .email
+                          //                                               : 'N/A',
+                          //                                           style:
+                          //                                               const TextStyle(
+                          //                                             fontSize:
+                          //                                                 11,
+                          //                                             color: Colors
+                          //                                                 .black,
+                          //                                             fontWeight:
+                          //                                                 FontWeight
+                          //                                                     .w400,
+                          //                                             // fontFamily: 'Poppins_Regular',
+                          //                                           ),
+                          //                                         ),
+                          //                                       ],
+                          //                                     ),
+                          //                                   ],
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(
+                          //                                 Center(
+                          //                                   child: InkWell(
+                          //                                       onTap: () {
+                          //                                         _showDetailedOrderDialog(
+                          //                                             context,
+                          //                                             order,
+                          //                                             false);
+                          //                                       },
+                          //                                       child: Center(
+                          //                                           child: Text(
+                          //                                               order
+                          //                                                   .orderId,
+                          //                                               style: const TextStyle(
+                          //                                                   fontSize:
+                          //                                                       14)))),
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(
+                          //                                 Center(
+                          //                                   child: Text(
+                          //                                     order.orderCreatedAt !=
+                          //                                             null
+                          //                                         ? getFormattedOrderCreatAt(order
+                          //                                             .orderCreatedAt
+                          //                                             .toString())
+                          //                                         : 'N/A',
+                          //                                     style:
+                          //                                         const TextStyle(
+                          //                                       fontSize: 14,
+                          //                                       fontWeight:
+                          //                                           FontWeight
+                          //                                               .w400,
 
-                          return LayoutBuilder(
-                            builder: (BuildContext context,
-                                BoxConstraints constraints) {
-                              double availableWidth = constraints.maxWidth;
-                              // double fontSize = (availableWidth / 70).clamp(11, 14);
-                              double fontSize = 14.0;
-                              double padding = availableWidth / 100;
-                              double fixedIconSize = fontSize;
-
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Stack(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: DataTable(
-                                            dataRowHeight: fontSize * 5.5,
-                                            headingRowHeight: 45,
-                                            headingRowColor:
-                                                MaterialStateProperty
-                                                    .resolveWith<Color>(
-                                              (states) => primaryColor,
-                                            ),
-                                            columnSpacing: padding * 1.5,
-                                            headingTextStyle: const TextStyle(
-                                                fontSize: 14,
-                                                color: white,
-                                                fontWeight: FontWeight.w700),
-                                            columns: const [
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'Customer List',
-                                                    maxLines: 2,
-                                                  ),
-                                                ),
-                                              )),
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'Estimate Number',
-                                                    maxLines: 2,
-                                                  ),
-                                                ),
-                                              )),
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'Estimate Created',
-                                                    maxLines: 2,
-                                                  ),
-                                                ),
-                                              )),
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'Created By',
-                                                    maxLines: 2,
-                                                  ),
-                                                ),
-                                              )),
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'Estimate Price',
-                                                    maxLines: 2,
-                                                  ),
-                                                ),
-                                              )),
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'Status',
-                                                    maxLines: 2,
-                                                  ),
-                                                ),
-                                              )),
-                                              DataColumn(
-                                                  label: Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    '',
-                                                  ),
-                                                ),
-                                              )),
-                                            ],
-                                            rows: filteredOrders.isEmpty
-                                                ? [
-                                                    const DataRow(cells: [
-                                                      DataCell(Text(
-                                                          'Record Not Found')),
-                                                      DataCell(Text('')),
-                                                      DataCell(Text('')),
-                                                      DataCell(Text('')),
-                                                      DataCell(Text('')),
-                                                      DataCell(Text('')),
-                                                      DataCell(Text('')),
-                                                    ])
-                                                  ]
-                                                : filteredOrders.map((order) {
-                                                    final customer = order
-                                                            .customer.isNotEmpty
-                                                        ? order.customer[0]
-                                                        : null;
-                                                    return DataRow(
-                                                      cells: [
-                                                        DataCell(
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              SizedBox(
-                                                                height:
-                                                                    fixedIconSize *
-                                                                        1.6,
-                                                                width:
-                                                                    fixedIconSize *
-                                                                        1.6,
-                                                                child:
-                                                                    CircleAvatar(
-                                                                  backgroundColor:
-                                                                      const Color(
-                                                                          0xffe6ecff),
-                                                                  child: Icon(
-                                                                    Icons
-                                                                        .person,
-                                                                    size:
-                                                                        fixedIconSize,
-                                                                    color: Colors
-                                                                        .blue,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                  width:
-                                                                      padding),
-                                                              Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Text(
-                                                                    customer !=
-                                                                            null
-                                                                        ? customer
-                                                                            .businessName
-                                                                        : 'N/A',
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      // fontFamily: 'Poppins_Regular',
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(
-                                                                      height:
-                                                                          fontSize *
-                                                                              0.1),
-                                                                  Text(
-                                                                    customer !=
-                                                                            null
-                                                                        ? customer
-                                                                            .fullName
-                                                                        : 'N/A',
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          11,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      // fontFamily: 'Poppins_Regular',
-                                                                    ),
-                                                                  ),
-                                                                  Text(
-                                                                    customer !=
-                                                                            null
-                                                                        ? customer
-                                                                            .mobileNo
-                                                                        : 'N/A',
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          11,
-                                                                      color: Colors
-                                                                          .black,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400,
-                                                                      // fontFamily: 'Poppins_Regular',
-                                                                    ),
-                                                                  ),
-                                                                  Text(
-                                                                    customer !=
-                                                                            null
-                                                                        ? customer
-                                                                            .email
-                                                                        : 'N/A',
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          11,
-                                                                      color: Colors
-                                                                          .black,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400,
-                                                                      // fontFamily: 'Poppins_Regular',
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Center(
-                                                            child: InkWell(
-                                                                onTap: () {
-                                                                  _showDetailedOrderDialog(
-                                                                      context,
-                                                                      order,
-                                                                      false);
-                                                                },
-                                                                child: Center(
-                                                                    child: Text(
-                                                                        order
-                                                                            .orderId,
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                14)))),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Center(
-                                                            child: Text(
-                                                              order.orderCreatedAt !=
-                                                                      null
-                                                                  ? getFormattedOrderCreatAt(order
-                                                                      .orderCreatedAt
-                                                                      .toString())
-                                                                  : 'N/A',
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                                // fontFamily: 'Poppins_Regular',
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Center(
-                                                            child: Text(
-                                                              order.salesmanId,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Center(
-                                                            child: Text(
-                                                              '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Center(
-                                                            child: Text(
-                                                              formatAmount(order
-                                                                  .orderTotal),
-                                                              maxLines: 1,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Center(
-                                                            child: Container(
-                                                              decoration:
-                                                                  const BoxDecoration(
-                                                                color: Color(
-                                                                    0xffffdbb8),
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            50.0)),
-                                                              ),
-                                                              child: Padding(
-                                                                padding: const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        8.0,
-                                                                    vertical:
-                                                                        4.0),
-                                                                child: Text(
-                                                                  _getStatusName(
-                                                                      order
-                                                                          .orderStatus),
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    fontSize:
-                                                                        14.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                    // fontFamily: 'Poppins_Regular',
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(Text('')),
-                                                      ],
-                                                    );
-                                                  }).toList(),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: SizedBox(
-                                        height: 45,
-                                        width: 45,
-                                        child: Center(
-                                            child: dialogCloseButton1(
-                                                context, red)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
+                          //                                     ),
+                          //                                   ),
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(
+                          //                                 Center(
+                          //                                   child: Text(
+                          //                                     order.salesmanId,
+                          //                                     style:
+                          //                                         const TextStyle(
+                          //                                       fontSize: 14,
+                          //                                       fontWeight:
+                          //                                           FontWeight
+                          //                                               .w400,
+                          //                                     ),
+                          //                                   ),
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(
+                          //                                 Center(
+                          //                                   child: Text(
+                          //                                     '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                          //                                     style:
+                          //                                         const TextStyle(
+                          //                                       fontSize: 14,
+                          //                                       fontWeight:
+                          //                                           FontWeight
+                          //                                               .w400,
+                          //                                     ),
+                          //                                   ),
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(
+                          //                                 Center(
+                          //                                   child: Text(
+                          //                                     formatAmount(order
+                          //                                         .orderTotal),
+                          //                                     maxLines: 1,
+                          //                                     style:
+                          //                                         const TextStyle(
+                          //                                       fontSize: 14,
+                          //                                       fontWeight:
+                          //                                           FontWeight
+                          //                                               .w400,
+                          //                                     ),
+                          //                                   ),
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(
+                          //                                 Center(
+                          //                                   child: Container(
+                          //                                     decoration:
+                          //                                         const BoxDecoration(
+                          //                                       color: Color(
+                          //                                           0xffffdbb8),
+                          //                                       borderRadius: BorderRadius
+                          //                                           .all(Radius
+                          //                                               .circular(
+                          //                                                   50.0)),
+                          //                                     ),
+                          //                                     child: Padding(
+                          //                                       padding: const EdgeInsets
+                          //                                           .symmetric(
+                          //                                           horizontal:
+                          //                                               8.0,
+                          //                                           vertical:
+                          //                                               4.0),
+                          //                                       child: Text(
+                          //                                         _getStatusName(
+                          //                                             order
+                          //                                                 .orderStatus),
+                          //                                         style:
+                          //                                             const TextStyle(
+                          //                                           fontSize:
+                          //                                               14.0,
+                          //                                           fontWeight:
+                          //                                               FontWeight
+                          //                                                   .w400,
+                          //                                           // fontFamily: 'Poppins_Regular',
+                          //                                         ),
+                          //                                       ),
+                          //                                     ),
+                          //                                   ),
+                          //                                 ),
+                          //                               ),
+                          //                               DataCell(Text('')),
+                          //                             ],
+                          //                           );
+                          //                         }).toList(),
+                          //                 ),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //           Positioned(
+                          //             top: 0,
+                          //             right: 0,
+                          //             child: SizedBox(
+                          //               height: 45,
+                          //               width: 45,
+                          //               child: Center(
+                          //                   child: dialogCloseButton1(
+                          //                       context, red)),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //     );
+                          //   },
+                          // );
                         }
                       },
                     ),
@@ -2934,7 +2446,7 @@ void _showDetailedOrderDialog(
                         );
                 }),
                 const SizedBox(height: 16),
-                 Text(
+                Text(
                   'Currency ${formatAmount('')}',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),

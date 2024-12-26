@@ -1085,7 +1085,6 @@ class OrderDetails {
     int? packedForDelivery;
     int? deliverd;
     int? outForDelivery;
-    int? quickSale;
 
     OrderDetails({
         this.orderTotal,
@@ -1098,7 +1097,6 @@ class OrderDetails {
         this.packedForDelivery,
         this.deliverd,
         this.outForDelivery,
-        this.quickSale,
     });
 
     factory OrderDetails.fromJson(Map<String, dynamic> json) => OrderDetails(
@@ -1112,7 +1110,6 @@ class OrderDetails {
         packedForDelivery: json["packed_for_delivery"],
         deliverd: json["deliverd"],
         outForDelivery: json["outForDelivery"],
-        quickSale: json["quickSale"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -1126,7 +1123,6 @@ class OrderDetails {
         "packed_for_delivery": packedForDelivery,
         "deliverd": deliverd,
         "outForDelivery": outForDelivery,
-        "quickSale": quickSale,
     };
 }
 

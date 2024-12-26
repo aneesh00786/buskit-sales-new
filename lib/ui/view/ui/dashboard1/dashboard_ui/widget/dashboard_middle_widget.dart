@@ -386,7 +386,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
               padding:
                   const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
-                "Order Status",
+                'Order Status',
                 style: cardHeadingTextStyle,
                 maxLines: 1,
                 softWrap: false,
@@ -434,9 +434,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           return Center(
                             child: DoughnutDefaultDelivery(
                               deliveryData: categoryPerformance,
-                              aColor: const Color(0xff142b33),
-                              bColor: const Color(0xff4455dd),
-                              eColor: const Color.fromARGB(255, 169, 202, 224),
+                              aColor: Colors.blue.shade300,
+                              bColor: const Color(0xffc38a42),
+                              cColor: const Color(0xff33b4a8),
                               legend2: Wrap(
                                 alignment: WrapAlignment.center,
                                 crossAxisAlignment: WrapCrossAlignment.center,
@@ -447,28 +447,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                     mainAxisSize: MainAxisSize
                                         .min, // Ensures Row takes minimal space
                                     children: [
-                                      const CircleAvatar(
+                                      CircleAvatar(
                                         radius: 6,
-                                        backgroundColor:
-                                            Color.fromARGB(255, 169, 202, 224),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      MyRegularText(
-                                        label:
-                                            "Quick Sale : ${formatAmount(categoryPerformance.order!.totalOrders!.last.quickSale)}",
-                                        fontSize: 11.6,
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize
-                                        .min, // Ensures Row takes minimal space
-                                    children: [
-                                      const CircleAvatar(
-                                        radius: 6,
-                                        backgroundColor: Color(0xff142b33),
+                                        backgroundColor: Colors.blue.shade300,
                                       ),
                                       const SizedBox(width: 5),
                                       MyRegularText(
@@ -517,8 +498,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                 ],
                               ),
                               legend1: SizedBox.shrink(),
-                              cColor: const Color(0xffcc8f3d),
-                              dColor: const Color(0xff33b4a8),
                             ),
                           );
                         } else {

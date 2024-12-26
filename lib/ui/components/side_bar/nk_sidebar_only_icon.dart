@@ -143,7 +143,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                             child: Text(
                               '${calculateNotificationCount(notificationController)}',
                               style:
-                                  TextStyle(fontSize: 10, color: Colors.white),
+                                  TextStyle(fontSize: 13, color: Colors.white),
                             ),
                           )
                         : SizedBox.shrink(), //

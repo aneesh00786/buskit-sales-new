@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/customer_order_status_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -325,7 +326,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const SizedBox.shrink();
                   } else if (snapshot.hasError) {
-                     return _buildTableLayout(context);
+                    return _buildTableLayout(context);
                   } else {
                     final orders = snapshot.data?.data ?? [];
                     final filteredOrders = orders.where((order) {
@@ -336,293 +337,9 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                       }
                     }).toList();
 
-                    return LayoutBuilder(
-                      builder:
-                          (BuildContext context, BoxConstraints constraints) {
-                        double availableWidth = constraints.maxWidth;
-                        double fontSize = 14;
-                        double padding = availableWidth / 100;
-                        double fixedIconSize = fontSize;
-
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Stack(
-                            children: [
-                              DataTable(
-                                dataRowHeight: fontSize * 5.5,
-                                headingRowHeight: 45,
-                                headingRowColor:
-                                    MaterialStateProperty.resolveWith<Color>(
-                                        (states) {
-                                  return primaryColor;
-                                }),
-                                columnSpacing: padding,
-                                columns: const [
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Customer List',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Order Number',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Order Created',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Order Price',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Invoice',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Payment Status',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogHeaderText(
-                                      text: 'Status',
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                                rows: filteredOrders.map((order) {
-                                  final customer = order.customer.isNotEmpty
-                                      ? order.customer[0]
-                                      : null;
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(
-                                        Center(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              SizedBox(
-                                                height: fixedIconSize * 1.6,
-                                                width: fixedIconSize * 1.6,
-                                                child: CircleAvatar(
-                                                  backgroundColor:
-                                                      const Color(0xffe6ecff),
-                                                  child: Icon(
-                                                    Icons.person,
-                                                    size: fixedIconSize,
-                                                    color: Colors.blue,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(width: padding),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    customer != null
-                                                        ? customer.businessName
-                                                        : 'N/A',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                      height: fontSize * 0.1),
-                                                  Text(
-                                                    customer != null
-                                                        ? customer.businessName
-                                                        : 'N/A',
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    customer != null
-                                                        ? customer.mobileNo
-                                                        : 'N/A',
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    customer != null
-                                                        ? customer.email
-                                                        : 'N/A',
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            order.orderId,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            order.orderCreatedAt != null
-                                                ? getFormattedOrderCreatAt(order
-                                                    .orderCreatedAt
-                                                    .toString())
-                                                : 'N/A',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            '\$${order.orderTotal.toStringAsFixed(2)}',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: InkWell(
-                                              onTap: () {
-                                                _showDetailedOrderDialog(
-                                                    context, order);
-                                              },
-                                              child: text(order.invoice, 14.0)),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: order.paymentStatus == 0
-                                                  ? Colors.red
-                                                  : Colors.green,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: order.paymentStatus == 0
-                                                    ? Colors.red
-                                                    : Colors.green,
-                                              ),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(1.0),
-                                              child: Icon(
-                                                order.paymentStatus == 0
-                                                    ? Icons.close
-                                                    : Icons.done,
-                                                color: Colors.white,
-                                                size: 14,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xffffdbb8),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(50)),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
-                                              child: Text(
-                                                _getStatusName(
-                                                    order.orderStatus),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: SizedBox(
-                                  height: 45,
-                                  width: 45,
-                                  child: Center(
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.transparent,
-                                      child: SizedBox(
-                                        width: 26.2,
-                                        height: 26.2,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.close,
-                                              color: Colors.red,
-                                              size: 10,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                    return buildOrdersTable(
+                      filteredOrders: filteredOrders,
+                      context: context,
                     );
                   }
                 },
@@ -988,56 +705,58 @@ void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
     },
   );
 }
-  Widget _buildTableLayout(BuildContext context) {
-    return Container(
-     height: MediaQuery.of(context).size.height * 0.2,
-      child: Column(
-        children: [
-          _buildTableHeader(),
-       SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-             Center(
-                  child: NodataWidget(),
-                )
-      
-        ],
-      ),
-    );
-  }
-    Widget _buildTableHeader() {
-    return Container(
-      color: primaryColor,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(width: 10),
-          Expanded(flex: 2, child: _buildHeaderText('Customer List', 13)),
-          Expanded(child: _buildHeaderText('Order Number', 13)),
-          Expanded(child: _buildHeaderText('Order Created', 13)),
-          Expanded(child: _buildHeaderText('Order Price', 13)),
-          Expanded(child: _buildHeaderText('Invoice', 13)),
-          Expanded(child: _buildHeaderText('Payment Status', 13)),
-          Expanded(child: _buildHeaderText('Status', 13)),
-          SizedBox(width: 10),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildHeaderText(String text, double fontSize) {
-    return Center(
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Poppins_Regular',
-        ),
+Widget _buildTableLayout(BuildContext context) {
+  return Container(
+    height: MediaQuery.of(context).size.height * 0.2,
+    child: Column(
+      children: [
+        _buildTableHeader(),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+        Center(
+          child: NodataWidget(),
+        )
+      ],
+    ),
+  );
+}
+
+Widget _buildTableHeader() {
+  return Container(
+    color: primaryColor,
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        SizedBox(width: 10),
+        Expanded(flex: 2, child: _buildHeaderText('Customer List', 13)),
+        Expanded(child: _buildHeaderText('Order Number', 13)),
+        Expanded(child: _buildHeaderText('Order Created', 13)),
+        Expanded(child: _buildHeaderText('Order Price', 13)),
+        Expanded(child: _buildHeaderText('Invoice', 13)),
+        Expanded(child: _buildHeaderText('Payment Status', 13)),
+        Expanded(child: _buildHeaderText('Status', 13)),
+        SizedBox(width: 10),
+      ],
+    ),
+  );
+}
+
+Widget _buildHeaderText(String text, double fontSize) {
+  return Center(
+    child: Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: fontSize,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Poppins_Regular',
       ),
-    );
-  }
+    ),
+  );
+}
+
 class OptionData {
   String title;
   String count;

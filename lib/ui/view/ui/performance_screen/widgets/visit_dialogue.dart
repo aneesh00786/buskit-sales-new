@@ -41,7 +41,6 @@ Widget buildVisitsDialogContent(
             visit.status.toString() ?? 'N/A',
           ];
         }).toList();
-
   return LayoutBuilder(
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;

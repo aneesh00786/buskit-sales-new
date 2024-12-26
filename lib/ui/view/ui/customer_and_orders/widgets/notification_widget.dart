@@ -209,12 +209,12 @@ class _NotificationWidgetState extends State<NotificationWidget> {
                 top: 4,
                 right: 4,
                 child: CircleAvatar(
-                  radius: 8,
+                  radius: 10,
                   backgroundColor: Colors.red,
                   child: Text(
                     '${calculateNotificationCount(notificationController)}',
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 13,
                       color: Colors.white,
                     ),
                   ),

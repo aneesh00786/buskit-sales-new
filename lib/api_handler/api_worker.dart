@@ -336,6 +336,7 @@ class ApiWorker with ApiConstants {
         .postbycustom(ApiConstants.fetch_specific_order,
             data: FormData.fromMap({
               "order_id": orderId,
+              "companyId":companyId,
             }))
         .onError((DioException error, stackTrace) {
       log(error.toString());
@@ -705,23 +706,34 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<LeadResponce> getLeadsData(String salesManId,
-      {PaginationModel? paginationModel}) async {
-    final response = await dio
-        .postbycustom(ApiConstants.fetch_leads,
-            data: FormData.fromMap({
-              "page": paginationModel?.currentPage ?? "",
-              "limit": paginationModel?.limit ?? '',
-              "salesman_id": salesManId,
-              "companyId": companyId,
-            }))
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
+Future<LeadResponce> getLeadsData(String salesManId,
+    {PaginationModel? paginationModel}) async {
+  // Create request data
+  final requestData = FormData.fromMap({
+    "page": paginationModel?.currentPage ?? "",
+    "limit": paginationModel?.limit ?? '',
+    "salesman_id": salesManId,
+    "companyId": companyId,
+  });
+
+  log('Request Body FetchData: ${requestData.fields}');
+
+  try {
+    final response = await dio.postbycustom(
+      ApiConstants.fetch_leads,
+      data: requestData,
+    );
+
+    log('Response Body Fetch Leads: ${response.data}');
 
     return LeadResponce.fromJson(response.data);
+  } on DioError catch (error) {
+    log('DioError: $error');
+    return Future.error(DioExceptionHandler.fromDioError(error));
   }
+}
+
+
 
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {

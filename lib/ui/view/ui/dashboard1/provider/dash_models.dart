@@ -394,39 +394,42 @@ enum EventDays { EMPTY, FRIDAY, MONDAY }
 enum SalesmanName { B, N, RP, SALES6 }
 
 class TopSellingProductA {
-    String? cartIds;
-    String? orderIds;
-    String? eachPrice;
-    String? variationId;
-    String? variationName;
-    String? price;
-    String? productName;
-    DateTime? createdAt;
-    List<TopSellingCustomer>? customer;
-    List<TopSellingQuantityList>? quantityList;
-    String? topSellingProductATotalPrice;
-    List<TopSellingTotalPrice>? totalPrice;
-    int? quantity;
-    String? buyquantity;
+  String? cartIds;
+  String? orderIds;
+  String? eachPrice;
+  String? variationId;
+  String? variationName;
+  String? price;
+  String? productName;
+  DateTime? createdAt;
+  List<TopSellingCustomer>? customer;
+  List<TopSellingQuantityList>? quantityList;
+  String? topSellingProductATotalPrice;
+  List<TopSellingTotalPrice>? totalPrice;
+  int? quantity;
+  String? buyquantity;
+  List<TopSellingGetTimesDatum>? getTimesData;
 
-    TopSellingProductA({
-        this.cartIds,
-        this.orderIds,
-        this.eachPrice,
-        this.variationId,
-        this.variationName,
-        this.price,
-        this.productName,
-        this.createdAt,
-        this.customer,
-        this.quantityList,
-        this.topSellingProductATotalPrice,
-        this.totalPrice,
-        this.quantity,
-        this.buyquantity,
-    });
+  TopSellingProductA({
+    this.cartIds,
+    this.orderIds,
+    this.eachPrice,
+    this.variationId,
+    this.variationName,
+    this.price,
+    this.productName,
+    this.createdAt,
+    this.customer,
+    this.quantityList,
+    this.topSellingProductATotalPrice,
+    this.totalPrice,
+    this.quantity,
+    this.buyquantity,
+    this.getTimesData,
+  });
 
-    factory TopSellingProductA.fromJson(Map<String, dynamic> json) => TopSellingProductA(
+  factory TopSellingProductA.fromJson(Map<String, dynamic> json) =>
+      TopSellingProductA(
         cartIds: json["cart_ids"],
         orderIds: json["order_ids"],
         eachPrice: json["each_price"],
@@ -435,15 +438,20 @@ class TopSellingProductA {
         price: json["price"],
         productName: json["product_name"],
         createdAt: DateTime.parse(json["created_at"]),
-        customer: List<TopSellingCustomer>.from(json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
-        quantityList: List<TopSellingQuantityList>.from(json["quantityList"].map((x) => TopSellingQuantityList.fromJson(x))),
+        customer: List<TopSellingCustomer>.from(
+            json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
+        quantityList: List<TopSellingQuantityList>.from(json["quantityList"]
+            .map((x) => TopSellingQuantityList.fromJson(x))),
         topSellingProductATotalPrice: json["total_price"],
-        totalPrice: List<TopSellingTotalPrice>.from(json["totalPrice"].map((x) => TopSellingTotalPrice.fromJson(x))),
+        totalPrice: List<TopSellingTotalPrice>.from(
+            json["totalPrice"].map((x) => TopSellingTotalPrice.fromJson(x))),
         quantity: json["quantity"],
         buyquantity: json["buyquantity"],
-    );
+        getTimesData: List<TopSellingGetTimesDatum>.from(json["getTimesData"]
+            .map((x) => TopSellingGetTimesDatum.fromJson(x))),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "cart_ids": cartIds,
         "order_ids": orderIds,
         "each_price": eachPrice,
@@ -453,124 +461,159 @@ class TopSellingProductA {
         "product_name": productName,
         "created_at": createdAt!.toIso8601String(),
         "customer": List<dynamic>.from(customer!.map((x) => x.toJson())),
-        "quantityList": List<dynamic>.from(quantityList!.map((x) => x.toJson())),
+        "quantityList":
+            List<dynamic>.from(quantityList!.map((x) => x.toJson())),
         "total_price": topSellingProductATotalPrice,
         "totalPrice": List<dynamic>.from(totalPrice!.map((x) => x.toJson())),
         "quantity": quantity,
         "buyquantity": buyquantity,
-    };
+        "getTimesData":
+            List<dynamic>.from(getTimesData!.map((x) => x.toJson())),
+      };
 }
 
 class TopSellingCustomer {
-    String? cartId;
-    String? customerId;
+  String? cartId;
+  String? customerId;
 
-    TopSellingCustomer({
-        this.cartId,
-        this.customerId,
-    });
+  TopSellingCustomer({
+    this.cartId,
+    this.customerId,
+  });
 
-    factory TopSellingCustomer.fromJson(Map<String, dynamic> json) => TopSellingCustomer(
+  factory TopSellingCustomer.fromJson(Map<String, dynamic> json) =>
+      TopSellingCustomer(
         cartId: json["cart_id"],
         customerId: json["customer_id"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "cart_id": cartId,
         "customer_id": customerId,
-    };
+      };
+}
+
+class TopSellingGetTimesDatum {
+  String? totalPrice;
+  DateTime? createdAt;
+  int? quantity;
+  String? price;
+
+  TopSellingGetTimesDatum({
+    this.totalPrice,
+    this.createdAt,
+    this.quantity,
+    this.price,
+  });
+
+  factory TopSellingGetTimesDatum.fromJson(Map<String, dynamic> json) =>
+      TopSellingGetTimesDatum(
+        totalPrice: json["total_price"],
+        createdAt: DateTime.parse(json["created_at"]),
+        quantity: json["quantity"],
+        price: json["price"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "total_price": totalPrice,
+        "created_at": createdAt!.toIso8601String(),
+        "quantity": quantity,
+        "price": price,
+      };
 }
 
 class TopSellingQuantityList {
-    String? variationName;
-    int? quantity;
-    String? vprice;
-    DateTime? createdAt;
+  String? variationName;
+  int? quantity;
+  String? vprice;
+  DateTime? createdAt;
 
-    TopSellingQuantityList({
-        this.variationName,
-        this.quantity,
-        this.vprice,
-        this.createdAt,
-    });
+  TopSellingQuantityList({
+    this.variationName,
+    this.quantity,
+    this.vprice,
+    this.createdAt,
+  });
 
-    factory TopSellingQuantityList.fromJson(Map<String, dynamic> json) => TopSellingQuantityList(
+  factory TopSellingQuantityList.fromJson(Map<String, dynamic> json) =>
+      TopSellingQuantityList(
         variationName: json["variation_name"],
         quantity: json["quantity"],
         vprice: json["vprice"],
         createdAt: DateTime.parse(json["created_at"]),
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "variation_name": variationName,
         "quantity": quantity,
         "vprice": vprice,
         "created_at": createdAt!.toIso8601String(),
-    };
+      };
 }
 
 class TopSellingTotalPrice {
-    int? id;
-    String? cartId;
-    String? productId;
-    String? variationId;
-    String? price;
-    String? reason;
-    String? quantity;
-    int? pieces;
-    String? packType;
-    String? totalPrice;
-    int? status;
-    int? orderPlaceStatus;
-    DateTime? createdAt;
-    DateTime? updatedAt;
-    int? companyId;
-    String? inNo;
-    String? barcode;
-    String? variationName;
-    String? unitType;
-    String? sellPrice;
-    String? tax;
-    String? packtype;
-    int? stock;
-    int? lowstock;
-    int? fullstock;
-    String? imageUrl;
-    int? vStatus;
-    int? times;
+  int? id;
+  String? cartId;
+  String? productId;
+  String? variationId;
+  String? price;
+  String? reason;
+  String? quantity;
+  int? pieces;
+  String? packType;
+  String? totalPrice;
+  int? status;
+  int? orderPlaceStatus;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? companyId;
+  String? inNo;
+  String? barcode;
+  String? variationName;
+  String? unitType;
+  String? sellPrice;
+  String? tax;
+  String? packtype;
+  int? stock;
+  int? lowstock;
+  int? fullstock;
+  String? imageUrl;
+  int? vStatus;
+  int? times;
 
-    TopSellingTotalPrice({
-        this.id,
-        this.cartId,
-        this.productId,
-        this.variationId,
-        this.price,
-        this.reason,
-        this.quantity,
-        this.pieces,
-        this.packType,
-        this.totalPrice,
-        this.status,
-        this.orderPlaceStatus,
-        this.createdAt,
-        this.updatedAt,
-        this.companyId,
-        this.inNo,
-        this.barcode,
-        this.variationName,
-        this.unitType,
-        this.sellPrice,
-        this.tax,
-        this.packtype,
-        this.stock,
-        this.lowstock,
-        this.fullstock,
-        this.imageUrl,
-        this.vStatus,
-        this.times,
-    });
+  TopSellingTotalPrice({
+    this.id,
+    this.cartId,
+    this.productId,
+    this.variationId,
+    this.price,
+    this.reason,
+    this.quantity,
+    this.pieces,
+    this.packType,
+    this.totalPrice,
+    this.status,
+    this.orderPlaceStatus,
+    this.createdAt,
+    this.updatedAt,
+    this.companyId,
+    this.inNo,
+    this.barcode,
+    this.variationName,
+    this.unitType,
+    this.sellPrice,
+    this.tax,
+    this.packtype,
+    this.stock,
+    this.lowstock,
+    this.fullstock,
+    this.imageUrl,
+    this.vStatus,
+    this.times,
+  });
 
-    factory TopSellingTotalPrice.fromJson(Map<String, dynamic> json) => TopSellingTotalPrice(
+  factory TopSellingTotalPrice.fromJson(Map<String, dynamic> json) =>
+      TopSellingTotalPrice(
         id: json["id"],
         cartId: json["cart_id"],
         productId: json["product_id"],
@@ -599,9 +642,9 @@ class TopSellingTotalPrice {
         imageUrl: json["image_url"],
         vStatus: json["v_status"],
         times: json["times"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
         "cart_id": cartId,
         "product_id": productId,
@@ -630,7 +673,7 @@ class TopSellingTotalPrice {
         "image_url": imageUrl,
         "v_status": vStatus,
         "times": times,
-    };
+      };
 }
 // class TopSellingProductA {
 //   String? variationId;
@@ -1032,62 +1075,66 @@ class DeliveryOrder {
 }
 
 class OrderDetails {
-  String? orderId;
-  String? orderCreateAt;
-  int? orderTotal;
-  int? orderStatus;
-  int? orderProcessing;
-  int? packedForDelivery;
-  int? delivered;
-  int? outForDelivery;
-  int? quickSale;
+    int? orderTotal;
+    DateTime? orderCreatAt;
+    String? orderId;
+    int? orderStatus;
+    String? businessName;
+    String? invoiceId;
+    int? orderProcessing;
+    int? packedForDelivery;
+    int? deliverd;
+    int? outForDelivery;
+    int? quickSale;
 
-  OrderDetails({
-    this.orderId,
-    this.orderCreateAt,
-    this.orderTotal,
-    this.orderStatus,
-    this.orderProcessing,
-    this.packedForDelivery,
-    this.delivered,
-    this.outForDelivery,
-    this.quickSale,
-  });
+    OrderDetails({
+        this.orderTotal,
+        this.orderCreatAt,
+        this.orderId,
+        this.orderStatus,
+        this.businessName,
+        this.invoiceId,
+        this.orderProcessing,
+        this.packedForDelivery,
+        this.deliverd,
+        this.outForDelivery,
+        this.quickSale,
+    });
 
-  factory OrderDetails.fromJson(Map<String, dynamic> json) {
-    return OrderDetails(
-      orderId: json['order_id'],
-      orderCreateAt: json['order_creat_at']?.toString(),
-      orderTotal: json['order_total'],
-      orderStatus: json['order_status'],
-      orderProcessing: json['order_processing'],
-      packedForDelivery: json['packed_for_delivery'],
-      delivered: json['deliverd'],
-      outForDelivery: json['outForDelivery'],
-      quickSale: json['quickSale'],
+    factory OrderDetails.fromJson(Map<String, dynamic> json) => OrderDetails(
+        orderTotal: json["order_total"],
+        orderCreatAt: DateTime.parse(json["order_creat_at"]),
+        orderId: json["order_id"],
+        orderStatus: json["order_status"],
+        businessName: json["business_name"],
+        invoiceId: json["invoice_id"],
+        orderProcessing: json["order_processing"],
+        packedForDelivery: json["packed_for_delivery"],
+        deliverd: json["deliverd"],
+        outForDelivery: json["outForDelivery"],
+        quickSale: json["quickSale"],
     );
-  }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'order_id': orderId,
-      'order_creat_at': orderCreateAt,
-      'order_total': orderTotal,
-      'order_status': orderStatus,
-      'order_processing': orderProcessing,
-      'packed_for_delivery': packedForDelivery,
-      'deliverd': delivered,
-      'outForDelivery': outForDelivery,
-      'quickSale': quickSale,
+    Map<String, dynamic> toJson() => {
+        "order_total": orderTotal,
+        "order_creat_at": orderCreatAt!.toIso8601String(),
+        "order_id": orderId,
+        "order_status": orderStatus,
+        "business_name": businessName,
+        "invoice_id": invoiceId,
+        "order_processing": orderProcessing,
+        "packed_for_delivery": packedForDelivery,
+        "deliverd": deliverd,
+        "outForDelivery": outForDelivery,
+        "quickSale": quickSale,
     };
-  }
 }
 
 class Collection {
-  Order? order;
-  Payment? payment;
-  Due? due;
-  Overdue? overdue;
+  final OrderCollection? order;
+  final PaymentCollection? payment;
+  final DueCollection? due;
+  final OverdueCollection? overdue;
 
   Collection({
     this.order,
@@ -1098,10 +1145,16 @@ class Collection {
 
   factory Collection.fromJson(Map<String, dynamic> json) {
     return Collection(
-      order: Order.fromJson(json['order']),
-      payment: Payment.fromJson(json['payment']),
-      due: Due.fromJson(json['due']),
-      overdue: Overdue.fromJson(json['overdue']),
+      order: json['order'] != null
+          ? OrderCollection.fromJson(json['order'])
+          : null,
+      payment: json['payment'] != null
+          ? PaymentCollection.fromJson(json['payment'])
+          : null,
+      due: json['due'] != null ? DueCollection.fromJson(json['due']) : null,
+      overdue: json['overdue'] != null
+          ? OverdueCollection.fromJson(json['overdue'])
+          : null,
     );
   }
 
@@ -1115,18 +1168,19 @@ class Collection {
   }
 }
 
-class Order {
-  List<PendingAmount>? pendingAmount;
-  Order({
-    this.pendingAmount,
-  });
-  factory Order.fromJson(Map<String, dynamic> json) {
-    var pendingAmountList = json['pending_amount'] as List;
-    return Order(
-      pendingAmount:
-          pendingAmountList.map((i) => PendingAmount.fromJson(i)).toList(),
-    );
+class OrderCollection {
+  final List<PendingAmount>? pendingAmount;
+
+  OrderCollection({this.pendingAmount});
+
+  factory OrderCollection.fromJson(Map<String, dynamic> json) {
+    var list = json['pending_amount'] as List?;
+    List<PendingAmount> pendingAmountList = list != null
+        ? list.map((item) => PendingAmount.fromJson(item)).toList()
+        : [];
+    return OrderCollection(pendingAmount: pendingAmountList);
   }
+
   Map<String, dynamic> toJson() {
     return {
       'pending_amount': pendingAmount?.map((e) => e.toJson()).toList(),
@@ -1134,21 +1188,102 @@ class Order {
   }
 }
 
-class Payment {
-  int? payedAmount;
-  List<CompletedOrder>? completedOrders;
+class PendingAmount {
+  final String? orderCreatAt;
+  final String? orderId;
+  final String? invoiceId;
+  final String? businessName;
+  final int? orderStatus;
+  final double? orderTotal;
+  final double? receivedAmount;
+  final double? receivableAmount;
+  final int? paymentStatus;
+  final int? creditPeriod;
+  final int? count;
+  final String? percentage;
+  final double? amount;
+  final double? dueAmount;
+  final double? overDue;
+  final List<dynamic>? dueDate;
 
-  Payment({
-    this.payedAmount,
-    this.completedOrders,
+  PendingAmount({
+    this.orderCreatAt,
+    this.orderId,
+    this.invoiceId,
+    this.businessName,
+    this.orderStatus,
+    this.orderTotal,
+    this.receivedAmount,
+    this.receivableAmount,
+    this.paymentStatus,
+    this.creditPeriod,
+    this.count,
+    this.percentage,
+    this.amount,
+    this.dueAmount,
+    this.overDue,
+    this.dueDate,
   });
 
-  factory Payment.fromJson(Map<String, dynamic> json) {
-    var completedOrdersList = json['completed_orders'] as List;
-    return Payment(
+  factory PendingAmount.fromJson(Map<String, dynamic> json) {
+    return PendingAmount(
+      orderCreatAt: json['order_creat_at'],
+      orderId: json['order_id'],
+      invoiceId: json['invoice_id'],
+      businessName: json['business_name'],
+      orderStatus: json['order_status'],
+      orderTotal: json['order_total']?.toDouble(),
+      receivedAmount: json['received_amount']?.toDouble(),
+      receivableAmount: json['receivable_amount']?.toDouble(),
+      paymentStatus: json['payment_status'],
+      creditPeriod: json['credit_period'],
+      count: json['count'],
+      percentage: json['percentage'],
+      amount: json['amount']?.toDouble(),
+      dueAmount: json['due_amount']?.toDouble(),
+      overDue: json['over_due']?.toDouble(),
+      dueDate: json['due_date'] != null
+          ? List<dynamic>.from(json['due_date'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'order_creat_at': orderCreatAt,
+      'order_id': orderId,
+      'invoice_id': invoiceId,
+      'business_name': businessName,
+      'order_status': orderStatus,
+      'order_total': orderTotal,
+      'received_amount': receivedAmount,
+      'receivable_amount': receivableAmount,
+      'payment_status': paymentStatus,
+      'credit_period': creditPeriod,
+      'count': count,
+      'percentage': percentage,
+      'amount': amount,
+      'due_amount': dueAmount,
+      'over_due': overDue,
+      'due_date': dueDate,
+    };
+  }
+}
+
+class PaymentCollection {
+  final int? payedAmount;
+  final List<CompletedOrder>? completedOrders;
+
+  PaymentCollection({this.payedAmount, this.completedOrders});
+
+  factory PaymentCollection.fromJson(Map<String, dynamic> json) {
+    var list = json['completed_orders'] as List?;
+    List<CompletedOrder> completedOrdersList = list != null
+        ? list.map((item) => CompletedOrder.fromJson(item)).toList()
+        : [];
+    return PaymentCollection(
       payedAmount: json['payed_amount'],
-      completedOrders:
-          completedOrdersList.map((i) => CompletedOrder.fromJson(i)).toList(),
+      completedOrders: completedOrdersList,
     );
   }
 
@@ -1161,142 +1296,6 @@ class Payment {
 }
 
 class CompletedOrder {
-  int id;
-  String orderId;
-  String customerId;
-  String salesmanId;
-  int paymentStatus;
-  int paymentType;
-  String paymentDetail;
-  int orderStatus;
-  String cartId;
-  String orderCreatAt;
-  int orderTotal;
-  int receivedAmount;
-  String? receivedAmountDate;
-  String checkDueDate;
-  int checkNumber;
-  String? transactionDate;
-  String transactionDetails;
-  // int? receivableAmount;
-  int count;
-
-  CompletedOrder({
-    required this.id,
-    required this.orderId,
-    required this.customerId,
-    required this.salesmanId,
-    required this.paymentStatus,
-    required this.paymentType,
-    required this.paymentDetail,
-    required this.orderStatus,
-    required this.cartId,
-    required this.orderCreatAt,
-    required this.orderTotal,
-    required this.receivedAmount,
-    this.receivedAmountDate,
-    required this.checkDueDate,
-    required this.checkNumber,
-    this.transactionDate,
-    required this.transactionDetails,
-    // this.receivableAmount,
-    required this.count,
-  });
-
-  factory CompletedOrder.fromJson(Map<String, dynamic> json) {
-    return CompletedOrder(
-      id: json['id'],
-      orderId: json['order_id'],
-      customerId: json['customer_id'],
-      salesmanId: json['salesman_id'],
-      paymentStatus: json['payment_status'],
-      paymentType: json['payment_type'],
-      paymentDetail: json['payment_detail'].toString(),
-      orderStatus: json['order_status'],
-      cartId: json['cart_id'],
-      orderCreatAt: json['order_creat_at'],
-      orderTotal: json['order_total'],
-      receivedAmount: json['received_amount'],
-      receivedAmountDate: json['received_amount_date'],
-      checkDueDate: json['check_due_date'],
-      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
-
-      transactionDate: json['transaction_date'],
-      transactionDetails: json['transaction_details'],
-      // receivableAmount: json['receivable_amount'],
-      count: json['count'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'order_id': orderId,
-      'customer_id': customerId,
-      'salesman_id': salesmanId,
-      'payment_status': paymentStatus,
-      'payment_type': paymentType,
-      'payment_detail': paymentDetail,
-      'order_status': orderStatus,
-      'cart_id': cartId,
-      'order_creat_at': orderCreatAt,
-      'order_total': orderTotal,
-      'received_amount': receivedAmount,
-      'received_amount_date': receivedAmountDate,
-      'check_due_date': checkDueDate,
-      'check_number': checkNumber,
-      'transaction_date': transactionDate,
-      'transaction_details': transactionDetails,
-      // 'receivable_amount': receivableAmount,
-      'count': count,
-    };
-  }
-
-  String getFormattedOrderCreatAt(dynamic value) {
-    DateTime parsedDate = DateTime.parse(value);
-    return DateFormat('yyyy-MM-dd').format(parsedDate);
-  }
-}
-
-class Due {
-  List<dynamic>? dueAmount;
-
-  Due({this.dueAmount});
-
-  factory Due.fromJson(Map<String, dynamic> json) {
-    return Due(
-      dueAmount: json['due_amount'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'due_amount': dueAmount,
-    };
-  }
-}
-
-class Overdue {
-  List<PendingAmount>? overdueAmount;
-
-  Overdue({this.overdueAmount});
-
-  factory Overdue.fromJson(Map<String, dynamic> json) {
-    var overdueAmountList = json['overdue_amount'] as List;
-    return Overdue(
-      overdueAmount:
-          overdueAmountList.map((i) => PendingAmount.fromJson(i)).toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'overdue_amount': overdueAmount?.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
-class PendingAmount {
   int? id;
   String? orderId;
   String? customerId;
@@ -1306,24 +1305,54 @@ class PendingAmount {
   String? paymentDetail;
   int? orderStatus;
   String? cartId;
-  String? orderCreatAt;
+  DateTime? orderCreatAt;
   int? orderTotal;
   int? receivedAmount;
-  dynamic receivableAmount;
-  String? receivedAmountDate;
-  String? checkDueDate;
+  DateTime? receivedAmountDate;
+  DateTime? checkDueDate;
   int? checkNumber;
-  String? transactionDate;
+  DateTime? transactionDate;
   String? transactionDetails;
+  String? rejectionReason;
+  DateTime? rejectedDate;
+  int? receivableAmount;
+  DateTime? deliveryDatetime;
+  int? notificationStatus;
+  dynamic orderCreatedStored;
+  int? companyId;
+  String? fullname;
+  String? mobileno;
+  String? email;
+  String? town;
+  String? state;
+  int? zipcode;
+  String? address;
+  String? latitude;
+  String? longitude;
+  String? businessName;
+  String? businessNo;
+  String? tfn;
+  String? addressCheckbox;
+  String? deliveryAddress;
+  String? deliveryTown;
+  String? deliveryState;
+  int? deliveryZipcode;
+  String? remark;
+  String? imageUrl;
+  int? status;
+  DateTime? createAt;
+  String? createdBy;
+  String? salesmanName;
+  String? discount;
+  int? eventType;
+  String? eventDays;
   int? creditPeriod;
+  String? invoiceId;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   int? count;
-  String? percentage;
-  int? amount;
-  int? dueAmount;
-  int? overDue;
-  List<dynamic>? dueDate;
 
-  PendingAmount({
+  CompletedOrder({
     this.id,
     this.orderId,
     this.customerId,
@@ -1336,83 +1365,557 @@ class PendingAmount {
     this.orderCreatAt,
     this.orderTotal,
     this.receivedAmount,
-    this.receivableAmount,
     this.receivedAmountDate,
     this.checkDueDate,
     this.checkNumber,
     this.transactionDate,
     this.transactionDetails,
+    this.rejectionReason,
+    this.rejectedDate,
+    this.receivableAmount,
+    this.deliveryDatetime,
+    this.notificationStatus,
+    this.orderCreatedStored,
+    this.companyId,
+    this.fullname,
+    this.mobileno,
+    this.email,
+    this.town,
+    this.state,
+    this.zipcode,
+    this.address,
+    this.latitude,
+    this.longitude,
+    this.businessName,
+    this.businessNo,
+    this.tfn,
+    this.addressCheckbox,
+    this.deliveryAddress,
+    this.deliveryTown,
+    this.deliveryState,
+    this.deliveryZipcode,
+    this.remark,
+    this.imageUrl,
+    this.status,
+    this.createAt,
+    this.createdBy,
+    this.salesmanName,
+    this.discount,
+    this.eventType,
+    this.eventDays,
     this.creditPeriod,
+    this.invoiceId,
+    this.createdAt,
+    this.updatedAt,
     this.count,
-    this.percentage,
-    this.amount,
-    this.dueAmount,
-    this.overDue,
-    this.dueDate,
   });
 
-  factory PendingAmount.fromJson(Map<String, dynamic> json) {
-    return PendingAmount(
-      id: json['id'],
-      orderId: json['order_id'],
-      customerId: json['customer_id'],
-      salesmanId: json['salesman_id'],
-      paymentStatus: json['payment_status'],
-      paymentType: json['payment_type'],
-      paymentDetail: json['payment_detail'].toString(),
-      orderStatus: json['order_status'],
-      cartId: json['cart_id'],
-      orderCreatAt: json['order_creat_at'],
-      orderTotal: json['order_total'],
-      receivedAmount: json['received_amount'],
-      receivableAmount: json['receivable_amount'] != null
-          ? (json['receivable_amount'] as num).toDouble()
-          : 0.0,
-      receivedAmountDate: json['received_amount_date'],
-      checkDueDate: json['check_due_date'],
-      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
-      transactionDate: json['transaction_date'],
-      transactionDetails: json['transaction_details'],
-      creditPeriod: json['credit_period'],
-      count: json['count'],
-      percentage: json['percentage'].toString(),
-      amount: json['amount'],
-      dueAmount: json['due_amount'],
-      overDue: json['over_due'],
-      dueDate: json['due_date'],
-    );
+  factory CompletedOrder.fromJson(Map<String, dynamic> json) => CompletedOrder(
+        id: json["id"] as int?,
+        orderId: json["order_id"] as String?,
+        customerId: json["customer_id"] as String?,
+        salesmanId: json["salesman_id"] as String?,
+        paymentStatus: json["payment_status"] as int?,
+        paymentType: json["payment_type"] as int?,
+        paymentDetail: json["payment_detail"] as String?,
+        orderStatus: json["order_status"] as int?,
+        cartId: json["cart_id"] as String?,
+        orderCreatAt: json["order_creat_at"] != null
+            ? DateTime.tryParse(json["order_creat_at"])
+            : null,
+        orderTotal: json["order_total"] as int?,
+        receivedAmount: json["received_amount"] as int?,
+        receivedAmountDate: json["received_amount_date"] != null
+            ? DateTime.tryParse(json["received_amount_date"])
+            : null,
+        checkDueDate: json["check_due_date"] != null
+            ? DateTime.tryParse(json["check_due_date"])
+            : null,
+        checkNumber: json["check_number"] as int?,
+        transactionDate: json["transaction_date"] != null
+            ? DateTime.tryParse(json["transaction_date"])
+            : null,
+        transactionDetails: json["transaction_details"] as String?,
+        rejectionReason: json["rejection_reason"] as String?,
+        rejectedDate: json["rejected_date"] != null
+            ? DateTime.tryParse(json["rejected_date"])
+            : null,
+        receivableAmount: json["receivable_amount"] as int?,
+        deliveryDatetime: json["delivery_datetime"] != null
+            ? DateTime.tryParse(json["delivery_datetime"])
+            : null,
+        notificationStatus: json["notification_status"] as int?,
+        orderCreatedStored: json["order_created_stored"],
+        companyId: json["company_id"] as int?,
+        fullname: json["fullname"] as String?,
+        mobileno: json["mobileno"] as String?,
+        email: json["email"] as String?,
+        town: json["town"] as String?,
+        state: json["state"] as String?,
+        zipcode: json["zipcode"] as int?,
+        address: json["address"] as String?,
+        latitude: json["latitude"] as String?,
+        longitude: json["longitude"] as String?,
+        businessName: json["business_name"] as String?,
+        businessNo: json["business_no"] as String?,
+        tfn: json["tfn"] as String?,
+        addressCheckbox: json["addressCheckbox"] as String?,
+        deliveryAddress: json["delivery_address"] as String?,
+        deliveryTown: json["delivery_town"] as String?,
+        deliveryState: json["delivery_state"] as String?,
+        deliveryZipcode: json["delivery_zipcode"] as int?,
+        remark: json["remark"] as String?,
+        imageUrl: json["image_url"] as String?,
+        status: json["status"] as int?,
+        createAt: json["create_at"] != null
+            ? DateTime.tryParse(json["create_at"])
+            : null,
+        createdBy: json["created_by"] as String?,
+        salesmanName: json["salesman_name"] as String?,
+        discount: json["discount"] as String?,
+        eventType: json["event_type"] as int?,
+        eventDays: json["event_days"] as String?,
+        creditPeriod: json["credit_period"] as int?,
+        invoiceId: json["invoice_id"] as String?,
+        createdAt: json["created_at"] != null
+            ? DateTime.tryParse(json["created_at"])
+            : null,
+        updatedAt: json["updated_at"] != null
+            ? DateTime.tryParse(json["updated_at"])
+            : null,
+        count: json["count"] as int?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "order_id": orderId,
+        "customer_id": customerId,
+        "salesman_id": salesmanId,
+        "payment_status": paymentStatus,
+        "payment_type": paymentType,
+        "payment_detail": paymentDetail,
+        "order_status": orderStatus,
+        "cart_id": cartId,
+        "order_creat_at": orderCreatAt!.toIso8601String(),
+        "order_total": orderTotal,
+        "received_amount": receivedAmount,
+        "received_amount_date": receivedAmountDate!.toIso8601String(),
+        "check_due_date": checkDueDate!.toIso8601String(),
+        "check_number": checkNumber,
+        "transaction_date": transactionDate!.toIso8601String(),
+        "transaction_details": transactionDetails,
+        "rejection_reason": rejectionReason,
+        "rejected_date": rejectedDate!.toIso8601String(),
+        "receivable_amount": receivableAmount,
+        "delivery_datetime": deliveryDatetime!.toIso8601String(),
+        "notification_status": notificationStatus,
+        "order_created_stored": orderCreatedStored,
+        "company_id": companyId,
+        "fullname": fullname,
+        "mobileno": mobileno,
+        "email": email,
+        "town": town,
+        "state": state,
+        "zipcode": zipcode,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "business_name": businessName,
+        "business_no": businessNo,
+        "tfn": tfn,
+        "addressCheckbox": addressCheckbox,
+        "delivery_address": deliveryAddress,
+        "delivery_town": deliveryTown,
+        "delivery_state": deliveryState,
+        "delivery_zipcode": deliveryZipcode,
+        "remark": remark,
+        "image_url": imageUrl,
+        "status": status,
+        "create_at": createAt!.toIso8601String(),
+        "created_by": createdBy,
+        "salesman_name": salesmanName,
+        "discount": discount,
+        "event_type": eventType,
+        "event_days": eventDays,
+        "credit_period": creditPeriod,
+        "invoice_id": invoiceId,
+        "created_at": createdAt!.toIso8601String(),
+        "updated_at": updatedAt!.toIso8601String(),
+        "count": count,
+      };
+}
+
+class DueCollection {
+  final List<PendingAmount>? dueAmount;
+
+  DueCollection({this.dueAmount});
+
+  factory DueCollection.fromJson(Map<String, dynamic> json) {
+    var list = json['due_amount'] as List?;
+    List<PendingAmount> dueAmountList = list != null
+        ? list.map((item) => PendingAmount.fromJson(item)).toList()
+        : [];
+    return DueCollection(dueAmount: dueAmountList);
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'order_id': orderId,
-      'customer_id': customerId,
-      'salesman_id': salesmanId,
-      'payment_status': paymentStatus,
-      'payment_type': paymentType,
-      'payment_detail': paymentDetail,
-      'order_status': orderStatus,
-      'cart_id': cartId,
-      'order_creat_at': orderCreatAt,
-      'order_total': orderTotal,
-      'received_amount': receivedAmount,
-      'receivable_amount': receivableAmount,
-      'received_amount_date': receivedAmountDate,
-      'check_due_date': checkDueDate,
-      'check_number': checkNumber,
-      'transaction_date': transactionDate,
-      'transaction_details': transactionDetails,
-      'credit_period': creditPeriod,
-      'count': count,
-      'percentage': percentage,
-      'amount': amount,
-      'due_amount': dueAmount,
-      'over_due': overDue,
-      'due_date': dueDate,
+      'due_amount': dueAmount?.map((e) => e.toJson()).toList(),
     };
   }
 }
+
+class OverdueCollection {
+  final List<PendingAmount>? overdueAmount;
+
+  OverdueCollection({this.overdueAmount});
+
+  factory OverdueCollection.fromJson(Map<String, dynamic> json) {
+    var list = json['overdue_amount'] as List?;
+    List<PendingAmount> overdueAmountList = list != null
+        ? list.map((item) => PendingAmount.fromJson(item)).toList()
+        : [];
+    return OverdueCollection(overdueAmount: overdueAmountList);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'overdue_amount': overdueAmount?.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+
+// class Collection {
+//   Order? order;
+//   Payment? payment;
+//   Due? due;
+//   Overdue? overdue;
+
+//   Collection({
+//     this.order,
+//     this.payment,
+//     this.due,
+//     this.overdue,
+//   });
+
+//   factory Collection.fromJson(Map<String, dynamic> json) {
+//     return Collection(
+//       order: Order.fromJson(json['order']),
+//       payment: Payment.fromJson(json['payment']),
+//       due: Due.fromJson(json['due']),
+//       overdue: Overdue.fromJson(json['overdue']),
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'order': order?.toJson(),
+//       'payment': payment?.toJson(),
+//       'due': due?.toJson(),
+//       'overdue': overdue?.toJson(),
+//     };
+//   }
+// }
+
+
+// class Order {
+//   List<PendingAmount>? pendingAmount;
+//   Order({
+//     this.pendingAmount,
+//   });
+//   factory Order.fromJson(Map<String, dynamic> json) {
+//     var pendingAmountList = json['pending_amount'] as List;
+//     return Order(
+//       pendingAmount:
+//           pendingAmountList.map((i) => PendingAmount.fromJson(i)).toList(),
+//     );
+//   }
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'pending_amount': pendingAmount?.map((e) => e.toJson()).toList(),
+//     };
+//   }
+// }
+
+// class Payment {
+//   int? payedAmount;
+//   List<CompletedOrder>? completedOrders;
+
+//   Payment({
+//     this.payedAmount,
+//     this.completedOrders,
+//   });
+
+//   factory Payment.fromJson(Map<String, dynamic> json) {
+//     var completedOrdersList = json['completed_orders'] as List;
+//     return Payment(
+//       payedAmount: json['payed_amount'],
+//       completedOrders:
+//           completedOrdersList.map((i) => CompletedOrder.fromJson(i)).toList(),
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'payed_amount': payedAmount,
+//       'completed_orders': completedOrders?.map((e) => e.toJson()).toList(),
+//     };
+//   }
+// }
+
+// class CompletedOrder {
+//   int id;
+//   String orderId;
+//   String customerId;
+//   String salesmanId;
+//   int paymentStatus;
+//   int paymentType;
+//   String paymentDetail;
+//   int orderStatus;
+//   String cartId;
+//   String orderCreatAt;
+//   int orderTotal;
+//   int receivedAmount;
+//   String? receivedAmountDate;
+//   String checkDueDate;
+//   int checkNumber;
+//   String? transactionDate;
+//   String transactionDetails;
+//   // int? receivableAmount;
+//   int count;
+
+//   CompletedOrder({
+//     required this.id,
+//     required this.orderId,
+//     required this.customerId,
+//     required this.salesmanId,
+//     required this.paymentStatus,
+//     required this.paymentType,
+//     required this.paymentDetail,
+//     required this.orderStatus,
+//     required this.cartId,
+//     required this.orderCreatAt,
+//     required this.orderTotal,
+//     required this.receivedAmount,
+//     this.receivedAmountDate,
+//     required this.checkDueDate,
+//     required this.checkNumber,
+//     this.transactionDate,
+//     required this.transactionDetails,
+//     // this.receivableAmount,
+//     required this.count,
+//   });
+
+//   factory CompletedOrder.fromJson(Map<String, dynamic> json) {
+//     return CompletedOrder(
+//       id: json['id'],
+//       orderId: json['order_id'],
+//       customerId: json['customer_id'],
+//       salesmanId: json['salesman_id'],
+//       paymentStatus: json['payment_status'],
+//       paymentType: json['payment_type'],
+//       paymentDetail: json['payment_detail'].toString(),
+//       orderStatus: json['order_status'],
+//       cartId: json['cart_id'],
+//       orderCreatAt: json['order_creat_at'],
+//       orderTotal: json['order_total'],
+//       receivedAmount: json['received_amount'],
+//       receivedAmountDate: json['received_amount_date'],
+//       checkDueDate: json['check_due_date'],
+//       checkNumber: json['check_number'] != null ? json['check_number'] : 0,
+
+//       transactionDate: json['transaction_date'],
+//       transactionDetails: json['transaction_details'],
+//       // receivableAmount: json['receivable_amount'],
+//       count: json['count'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'order_id': orderId,
+//       'customer_id': customerId,
+//       'salesman_id': salesmanId,
+//       'payment_status': paymentStatus,
+//       'payment_type': paymentType,
+//       'payment_detail': paymentDetail,
+//       'order_status': orderStatus,
+//       'cart_id': cartId,
+//       'order_creat_at': orderCreatAt,
+//       'order_total': orderTotal,
+//       'received_amount': receivedAmount,
+//       'received_amount_date': receivedAmountDate,
+//       'check_due_date': checkDueDate,
+//       'check_number': checkNumber,
+//       'transaction_date': transactionDate,
+//       'transaction_details': transactionDetails,
+//       // 'receivable_amount': receivableAmount,
+//       'count': count,
+//     };
+//   }
+
+//   String getFormattedOrderCreatAt(dynamic value) {
+//     DateTime parsedDate = DateTime.parse(value);
+//     return DateFormat('yyyy-MM-dd').format(parsedDate);
+//   }
+// }
+
+// class Due {
+//   List<dynamic>? dueAmount;
+
+//   Due({this.dueAmount});
+
+//   factory Due.fromJson(Map<String, dynamic> json) {
+//     return Due(
+//       dueAmount: json['due_amount'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'due_amount': dueAmount,
+//     };
+//   }
+// }
+
+// class Overdue {
+//   List<PendingAmount>? overdueAmount;
+
+//   Overdue({this.overdueAmount});
+
+//   factory Overdue.fromJson(Map<String, dynamic> json) {
+//     var overdueAmountList = json['overdue_amount'] as List;
+//     return Overdue(
+//       overdueAmount:
+//           overdueAmountList.map((i) => PendingAmount.fromJson(i)).toList(),
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'overdue_amount': overdueAmount?.map((e) => e.toJson()).toList(),
+//     };
+//   }
+// }
+
+// class PendingAmount {
+//   int? id;
+//   String? orderId;
+//   String? customerId;
+//   String? salesmanId;
+//   int? paymentStatus;
+//   int? paymentType;
+//   String? paymentDetail;
+//   int? orderStatus;
+//   String? cartId;
+//   String? orderCreatAt;
+//   int? orderTotal;
+//   int? receivedAmount;
+//   dynamic receivableAmount;
+//   String? receivedAmountDate;
+//   String? checkDueDate;
+//   int? checkNumber;
+//   String? transactionDate;
+//   String? transactionDetails;
+//   int? creditPeriod;
+//   int? count;
+//   String? percentage;
+//   int? amount;
+//   int? dueAmount;
+//   int? overDue;
+//   List<dynamic>? dueDate;
+
+//   PendingAmount({
+//     this.id,
+//     this.orderId,
+//     this.customerId,
+//     this.salesmanId,
+//     this.paymentStatus,
+//     this.paymentType,
+//     this.paymentDetail,
+//     this.orderStatus,
+//     this.cartId,
+//     this.orderCreatAt,
+//     this.orderTotal,
+//     this.receivedAmount,
+//     this.receivableAmount,
+//     this.receivedAmountDate,
+//     this.checkDueDate,
+//     this.checkNumber,
+//     this.transactionDate,
+//     this.transactionDetails,
+//     this.creditPeriod,
+//     this.count,
+//     this.percentage,
+//     this.amount,
+//     this.dueAmount,
+//     this.overDue,
+//     this.dueDate,
+//   });
+
+//   factory PendingAmount.fromJson(Map<String, dynamic> json) {
+//     return PendingAmount(
+//       id: json['id'],
+//       orderId: json['order_id'],
+//       customerId: json['customer_id'],
+//       salesmanId: json['salesman_id'],
+//       paymentStatus: json['payment_status'],
+//       paymentType: json['payment_type'],
+//       paymentDetail: json['payment_detail'].toString(),
+//       orderStatus: json['order_status'],
+//       cartId: json['cart_id'],
+//       orderCreatAt: json['order_creat_at'],
+//       orderTotal: json['order_total'],
+//       receivedAmount: json['received_amount'],
+//       receivableAmount: json['receivable_amount'] != null
+//           ? (json['receivable_amount'] as num).toDouble()
+//           : 0.0,
+//       receivedAmountDate: json['received_amount_date'],
+//       checkDueDate: json['check_due_date'],
+//       checkNumber: json['check_number'] != null ? json['check_number'] : 0,
+//       transactionDate: json['transaction_date'],
+//       transactionDetails: json['transaction_details'],
+//       creditPeriod: json['credit_period'],
+//       count: json['count'],
+//       percentage: json['percentage'].toString(),
+//       amount: json['amount'],
+//       dueAmount: json['due_amount'],
+//       overDue: json['over_due'],
+//       dueDate: json['due_date'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'order_id': orderId,
+//       'customer_id': customerId,
+//       'salesman_id': salesmanId,
+//       'payment_status': paymentStatus,
+//       'payment_type': paymentType,
+//       'payment_detail': paymentDetail,
+//       'order_status': orderStatus,
+//       'cart_id': cartId,
+//       'order_creat_at': orderCreatAt,
+//       'order_total': orderTotal,
+//       'received_amount': receivedAmount,
+//       'receivable_amount': receivableAmount,
+//       'received_amount_date': receivedAmountDate,
+//       'check_due_date': checkDueDate,
+//       'check_number': checkNumber,
+//       'transaction_date': transactionDate,
+//       'transaction_details': transactionDetails,
+//       'credit_period': creditPeriod,
+//       'count': count,
+//       'percentage': percentage,
+//       'amount': amount,
+//       'due_amount': dueAmount,
+//       'over_due': overDue,
+//       'due_date': dueDate,
+//     };
+//   }
+// }
 
 String getFormattedOrderCreatAt(dynamic value) {
   if (value == null || value.toString().isEmpty) {
@@ -2404,11 +2907,11 @@ class SpecificOrderData {
   String? longitude;
   String? businessName;
   String? businessNo;
-  dynamic tfn;
-  dynamic addressCheckbox;
-  dynamic deliveryAddress;
-  dynamic deliveryTown;
-  dynamic deliveryState;
+  String? tfn;
+  String? addressCheckbox;
+  String? deliveryAddress;
+  String? deliveryTown;
+  String? deliveryState;
   int? deliveryZipcode;
   String? remark;
   String? imageUrl;
@@ -2419,23 +2922,23 @@ class SpecificOrderData {
   String? salesmanName;
   String? discount;
   int? eventType;
-  dynamic eventDays;
+  String? eventDays;
   int? creditPeriod;
   int? companyId;
   String? orderId;
   int? paymentStatus;
   int? paymentType;
-  dynamic paymentDetail;
+  String? paymentDetail;
   int? orderStatus;
   DateTime? orderCreatAt;
   int? orderTotal;
   int? receivedAmount;
+  DateTime? receivedAmountDate;
   DateTime? checkDueDate;
-  dynamic receivedAmountDate;
-  dynamic checkNumber;
-  dynamic transactionDate;
-  dynamic transactionDetails;
-  dynamic rejectionReason;
+  int? checkNumber;
+  DateTime? transactionDate;
+  String? transactionDetails;
+  String? rejectionReason;
   dynamic rejectedDate;
   dynamic receivableAmount;
   DateTime? deliveryDatetime;
@@ -2502,81 +3005,75 @@ class SpecificOrderData {
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
       SpecificOrderData(
-        id: json["id"],
-        customerId: json["customer_id"],
-        cartId: json["cart_id"],
-        fullname: json["fullname"],
-        mobileno: json["mobileno"],
-        email: json["email"],
-        town: json["town"],
-        state: json["state"],
-        zipcode: json["zipcode"],
-        address: json["address"],
-        latitude: json["latitude"],
-        longitude: json["longitude"],
-        businessName: json["business_name"],
-        businessNo: json["business_no"],
-        tfn: json["tfn"],
-        addressCheckbox: json["addressCheckbox"],
-        deliveryAddress: json["delivery_address"],
-        deliveryTown: json["delivery_town"],
-        deliveryState: json["delivery_state"],
-        deliveryZipcode: json["delivery_zipcode"],
-        remark: json["remark"],
-        imageUrl: json["image_url"],
-        salesmanId: json["salesman_id"],
-        status: json["status"],
+        id: json["id"] as int?,
+        customerId: json["customer_id"]?.toString() ?? '',
+        cartId: json["cart_id"]?.toString() ?? '',
+        fullname: json["fullname"]?.toString() ?? '',
+        mobileno: json["mobileno"]?.toString() ?? '',
+        email: json["email"]?.toString() ?? '',
+        town: json["town"]?.toString() ?? '',
+        state: json["state"]?.toString() ?? '',
+        zipcode: json["zipcode"] as int?,
+        address: json["address"]?.toString() ?? '',
+        latitude: json["latitude"]?.toString() ?? '',
+        longitude: json["longitude"]?.toString() ?? '',
+        businessName: json["business_name"]?.toString() ?? '',
+        businessNo: json["business_no"]?.toString() ?? '',
+        tfn: json["tfn"]?.toString() ?? '',
+        addressCheckbox: json["addressCheckbox"]?.toString() ?? '',
+        deliveryAddress: json["delivery_address"]?.toString() ?? '',
+        deliveryTown: json["delivery_town"]?.toString() ?? '',
+        deliveryState: json["delivery_state"]?.toString() ?? '',
+        deliveryZipcode: json["delivery_zipcode"] as int?,
+        remark: json["remark"]?.toString() ?? '',
+        imageUrl: json["image_url"]?.toString() ?? '',
+        salesmanId: json["salesman_id"]?.toString() ?? '',
+        status: json["status"] as int?,
         createAt: json["create_at"] != null
-            ? DateTime.parse(json["create_at"])
+            ? DateTime.tryParse(json["create_at"])
             : null,
-        createdBy: json["created_by"],
-        salesmanName: json["salesman_name"],
-        discount: json["discount"],
-        eventType: json["event_type"],
-        eventDays: json["event_days"],
-        creditPeriod: json["credit_period"],
-        companyId: json["company_id"],
-        orderId: json["order_id"],
-        paymentStatus: json["payment_status"],
-        paymentType: json["payment_type"],
-        paymentDetail: json["payment_detail"],
-        orderStatus: json["order_status"],
+        createdBy: json["created_by"]?.toString() ?? '',
+        salesmanName: json["salesman_name"]?.toString() ?? '',
+        discount: json["discount"]?.toString() ?? '',
+        eventType: json["event_type"] as int?,
+        eventDays: json["event_days"] as String?,
+        creditPeriod: json["credit_period"] as int?,
+        companyId: json["company_id"] as int?,
+        orderId: json["order_id"]?.toString() ?? '',
+        paymentStatus: json["payment_status"] as int?,
+        paymentType: json["payment_type"] as int?,
+        paymentDetail: json["payment_detail"]?.toString() ?? '',
+        orderStatus: json["order_status"] as int?,
         orderCreatAt: json["order_creat_at"] != null
-            ? DateTime.parse(json["order_creat_at"])
+            ? DateTime.tryParse(json["order_creat_at"])
             : null,
-        orderTotal: json["order_total"],
-        receivedAmount: json["received_amount"],
+        orderTotal: json["order_total"] as int?,
+        receivedAmount: json["received_amount"] as int?,
         receivedAmountDate: json["received_amount_date"] != null
-            ? DateTime.parse(json["received_amount_date"])
+            ? DateTime.tryParse(json["received_amount_date"])
             : null,
         checkDueDate: json["check_due_date"] != null
-            ? DateTime.parse(json["check_due_date"])
+            ? DateTime.tryParse(json["check_due_date"])
             : null,
-        checkNumber: json['check_number'] != null ? json['check_number'] : 0,
+        checkNumber: json["check_number"] as int?,
         transactionDate: json["transaction_date"] != null
-            ? DateTime.parse(json["transaction_date"])
+            ? DateTime.tryParse(json["transaction_date"])
             : null,
-        transactionDetails: json["transaction_details"],
-        rejectionReason: json["rejection_reason"],
-        rejectedDate: json["rejected_date"] ?? 0,
-        receivableAmount: json['receivable_amount'] != null
-            ? (json['receivable_amount'] as num).toDouble()
-            : 0.0,
+        transactionDetails: json["transaction_details"]?.toString() ?? '',
+        rejectionReason: json["rejection_reason"]?.toString() ?? '',
+        rejectedDate: json["rejected_date"],
+        receivableAmount: json["receivable_amount"],
         deliveryDatetime: json["delivery_datetime"] != null
-            ? DateTime.parse(json["delivery_datetime"])
+            ? DateTime.tryParse(json["delivery_datetime"])
             : null,
-        notificationStatus: json["notification_status"],
-        orderCreatedStored: json["order_created_stored"] != null
-            ? json["order_created_stored"] as String
-            : '',
-        cart: json["cart"] != null
-            ? List<SpecificOrderCart>.from(
-                json["cart"].map((x) => SpecificOrderCart.fromJson(x)))
-            : [],
-        invoice: json["invoice"] != null
-            ? List<Invoice>.from(
-                json["invoice"].map((x) => Invoice.fromJson(x)))
-            : [],
+        notificationStatus: json["notification_status"] as int?,
+        orderCreatedStored: json["order_created_stored"],
+        cart: (json["cart"] as List<dynamic>?)
+            ?.map((e) => SpecificOrderCart.fromJson(e))
+            .toList(),
+        invoice: (json["invoice"] as List<dynamic>?)
+            ?.map((e) => Invoice.fromJson(e))
+            .toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2604,7 +3101,7 @@ class SpecificOrderData {
         "image_url": imageUrl,
         "salesman_id": salesmanId,
         "status": status,
-        "create_at": createAt,
+        "create_at": createAt!.toIso8601String(),
         "created_by": createdBy,
         "salesman_name": salesmanName,
         "discount": discount,
@@ -2617,18 +3114,18 @@ class SpecificOrderData {
         "payment_type": paymentType,
         "payment_detail": paymentDetail,
         "order_status": orderStatus,
-        "order_creat_at": orderCreatAt,
+        "order_creat_at": orderCreatAt!.toIso8601String(),
         "order_total": orderTotal,
         "received_amount": receivedAmount,
-        "received_amount_date": receivedAmountDate,
-        "check_due_date": checkDueDate,
+        "received_amount_date": receivedAmountDate!.toIso8601String(),
+        "check_due_date": checkDueDate!.toIso8601String(),
         "check_number": checkNumber,
-        "transaction_date": transactionDate,
+        "transaction_date": transactionDate!.toIso8601String(),
         "transaction_details": transactionDetails,
         "rejection_reason": rejectionReason,
         "rejected_date": rejectedDate,
         "receivable_amount": receivableAmount,
-        "delivery_datetime": deliveryDatetime,
+        "delivery_datetime": deliveryDatetime!.toIso8601String(),
         "notification_status": notificationStatus,
         "order_created_stored": orderCreatedStored,
         "cart": List<dynamic>.from(cart!.map((x) => x.toJson())),

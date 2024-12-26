@@ -13,10 +13,13 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
@@ -746,22 +749,20 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
         orderProcessing: 0,
         packedForDelivery: 0,
         outForDelivery: 0,
-        delivered: 0,
+        deliverd: 0,
         quickSale: 0,
-        orderCreateAt: '',
+        orderCreatAt: null,
       ),
     );
     return status == 5
         ? order.orderProcessing!.toDouble()
-        : status == 10
-            ? order.packedForDelivery!.toDouble()
-            : status == 1
-                ? order.outForDelivery!.toDouble()
-                : status == 2
-                    ? order.delivered!.toDouble()
-                    : status == 14
-                        ? order.quickSale!.toDouble()
-                        : 0.0;
+        : status == 1
+            ? order.outForDelivery!.toDouble()
+            : status == 2
+                ? order.deliverd!.toDouble()
+                : status == 14
+                    ? order.quickSale!.toDouble()
+                    : 0.0;
   }
 
   void _showValueDialog(
@@ -805,44 +806,23 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        child: SizedBox(
-                          width: 25.8,
-                          height: 25.8,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.red,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(3.5),
-                              child: IconButton(
-                                  icon: const Icon(
-                                    Icons.close,
-                                    color: Colors.red,
-                                    size: 16,
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  }),
-                            ),
-                          ),
-                        ),
-                      )
+                      dialogCloseButton1(context, red),
                     ],
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: DataTable(
+                      // ignore: deprecated_member_use
                       dataRowHeight: 39,
                       headingRowHeight: 41,
                       columns: const [
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Customer',
+                            fontSize: 13,
+                          ),
+                        ),
                         DataColumn(
                           label: DialogTableHeaderText(
                             text: 'Date',
@@ -873,9 +853,18 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                           return DataRow(
                             cells: [
                               DataCell(Center(
+                                child:
+                                    Text(orderDetails.businessName.toString(),
+                                        style: const TextStyle(
+                                          color: secondaryTextColor,
+                                          fontSize: 13,
+                                        ),
+                                        textAlign: TextAlign.center),
+                              )),
+                              DataCell(Center(
                                 child: Text(
                                     getFormattedOrderCreatAt(
-                                        orderDetails.orderCreateAt ?? ''),
+                                        orderDetails.orderCreatAt ?? ''),
                                     style: const TextStyle(
                                       color: secondaryTextColor,
                                       fontSize: 13,
@@ -883,12 +872,18 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                     textAlign: TextAlign.center),
                               )),
                               DataCell(Center(
-                                child: Text(orderDetails.orderId.toString(),
-                                    style: const TextStyle(
-                                      color: secondaryTextColor,
-                                      fontSize: 13,
-                                    ),
-                                    textAlign: TextAlign.center),
+                                child: InkWell(
+                                  onTap: () {
+                                    _showDetailedPaymentOrderDialog(
+                                        context, orderDetails, true);
+                                  },
+                                  child: Text(orderDetails.invoiceId.toString(),
+                                      style: const TextStyle(
+                                        color: primaryColor,
+                                        fontSize: 13,
+                                      ),
+                                      textAlign: TextAlign.center),
+                                ),
                               )),
                               DataCell(Center(
                                 child: Text(
@@ -911,28 +906,35 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                               )),
                             ],
                           );
-                        }).toList(),
+                        }),
                         DataRow(
                           cells: [
                             const DataCell(
                               Center(
-                                child: DialogTableHeaderText(
-                                  text: 'Total',
-                                  fontSize: 13,
+                                child: Text(
+                                  'Total',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Poppins_Regular'),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),
                             const DataCell(Text('')),
                             const DataCell(Text('')),
+                            const DataCell(Text('')),
                             DataCell(
                               Center(
-                                child: DialogTableHeaderText(
-                                  text: formatAmount(filteredOrders.isNotEmpty
-                                      ? filteredOrders
-                                          .map((e) => e.orderTotal ?? 0.0)
-                                          .reduce((a, b) => a + b)
-                                      : 0.0),
-                                  fontSize: 13,
+                                child: Text(
+                                  formatAmount(filteredOrders
+                                      .map((e) => e.orderTotal ?? 0.0)
+                                      .reduce((a, b) => a + b)),
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Poppins_Regular'),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),
@@ -946,21 +948,6 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
         );
       },
     );
-  }
-
-  String _getStatusName(int status) {
-    switch (status) {
-      case 5:
-        return 'Order Processing';
-      case 10:
-        return 'Packed for Delivery';
-      case 1:
-        return 'Out for Delivery';
-      case 2:
-        return 'Delivered';
-      default:
-        return 'Unknown';
-    }
   }
 }
 
@@ -1168,17 +1155,17 @@ class ChartData {
 
 class ChartData2 {
   final String label;
-  final double value;
+  final int value;
   final Color color;
 
   ChartData2(this.label, this.value, this.color);
 }
 
 class NestedPieChartj extends StatelessWidget {
-  final double completedOrdersCount;
-  final double pendingAmountCount;
-  final double dueAmountCount;
-  final double overdueAmountCount;
+  final int completedOrdersCount;
+  final int pendingAmountCount;
+  final int dueAmountCount;
+  final int overdueAmountCount;
   final Collection collection;
 
   const NestedPieChartj(
@@ -1191,66 +1178,16 @@ class NestedPieChartj extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Helper function to ensure minimum percentage
-    List<double> ensureMinimumPercentage(
-        List<double> values, double minPercentage) {
-      double total = values.reduce((a, b) => a + b);
-      double adjustedTotal = 0.0;
-
-      // Adjust values below minimum percentage
-      List<double> adjustedValues = values.map((value) {
-        double percentage = (value / total) * 100;
-        if (percentage < minPercentage) {
-          adjustedTotal += minPercentage;
-          return minPercentage;
-        } else {
-          adjustedTotal += percentage;
-          return percentage;
-        }
-      }).toList();
-
-      // Calculate scaling factor for remaining values
-      double scalingFactor = (100 -
-              adjustedValues.where((v) => v == minPercentage).length *
-                  minPercentage) /
-          (adjustedTotal -
-              adjustedValues.where((v) => v == minPercentage).length *
-                  minPercentage);
-
-      // Scale values to maintain total of 100%
-      return adjustedValues.map((value) {
-        return value == minPercentage ? value : value * scalingFactor;
-      }).toList();
-    }
-
-    double totalOuterSeries = completedOrdersCount + pendingAmountCount;
-    double totalInnerSeries = dueAmountCount + overdueAmountCount;
-
-    // Normalize percentages with minimum of 5%
-    List<double> outerSeriesPercentages = ensureMinimumPercentage(
-      [completedOrdersCount, pendingAmountCount],
-      5,
-    );
-    List<double> innerSeriesPercentages = ensureMinimumPercentage(
-      [dueAmountCount, overdueAmountCount],
-      5,
-    );
-
     return Center(
       child: SfCircularChart(
         series: <CircularSeries>[
+          // Outer Pie Chart
           DoughnutSeries<ChartData2, String>(
             dataSource: [
               ChartData2(
-                'Completed',
-                outerSeriesPercentages[0],
-                const Color(0xFF5A7725),
-              ),
+                  'Completed', completedOrdersCount, const Color(0xFF5A7725)),
               ChartData2(
-                'Pending',
-                outerSeriesPercentages[1],
-                const Color(0xFFA30C13),
-              ),
+                  'Pending', pendingAmountCount, const Color(0xFFA30C13)),
             ],
             xValueMapper: (ChartData2 data, _) => data.label,
             yValueMapper: (ChartData2 data, _) => data.value,
@@ -1263,22 +1200,17 @@ class NestedPieChartj extends StatelessWidget {
               if (details.pointIndex == 0) {
                 _showValueDialog(context, 'Completed', collection);
               } else if (details.pointIndex == 1) {
-                _pendingPaymentCollectionDialog(context, collection);
+                _pendingPaymentCollectionDialog(
+                    context, 'Pending Payment', collection);
               }
             },
           ),
+          // Inner Pie Chart
           DoughnutSeries<ChartData2, String>(
             dataSource: [
+              ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
               ChartData2(
-                'Due',
-                innerSeriesPercentages[0],
-                const Color(0xFFFFADB5),
-              ),
-              ChartData2(
-                'Overdue',
-                innerSeriesPercentages[1],
-                const Color(0xFFFF6584),
-              ),
+                  'Overdue', overdueAmountCount, const Color(0xFFFF6584)),
             ],
             xValueMapper: (ChartData2 data, _) => data.label,
             yValueMapper: (ChartData2 data, _) => data.value,
@@ -1289,9 +1221,11 @@ class NestedPieChartj extends StatelessWidget {
             strokeWidth: 0.5,
             onPointTap: (ChartPointDetails details) {
               if (details.pointIndex == 0) {
-                _pendingPaymentCollectionDialog(context, collection);
+                _pendingPaymentCollectionDialog(
+                    context, 'Due Payment', collection);
               } else if (details.pointIndex == 1) {
-                _pendingPaymentCollectionDialog(context, collection);
+                _pendingPaymentCollectionDialog(
+                    context, 'Over Due Payment', collection);
               }
             },
           ),
@@ -1301,9 +1235,24 @@ class NestedPieChartj extends StatelessWidget {
   }
 
   void _pendingPaymentCollectionDialog(
-      BuildContext context, Collection collection) {
+      BuildContext context, String title, Collection collection) {
+    // Ensure order and pendingAmount are not null
+    if (collection.order == null || collection.order!.pendingAmount == null) {
+      print("Order or pendingAmount is null.");
+      return; // Exit the function early if data is missing
+    }
+
     String selectedPaymentMethod = 'Cash';
     RxInt selectedPaymentMethodInt = 0.obs;
+
+    DateTime parseCustomDate(String date) {
+      final parts = date.split('/');
+      return DateTime(
+        int.parse(parts[2]), // Year
+        int.parse(parts[1]), // Month
+        int.parse(parts[0]), // Day
+      );
+    }
 
     RxList<bool> selectedItems = List<bool>.generate(
       collection.order!.pendingAmount!.length,
@@ -1319,6 +1268,35 @@ class NestedPieChartj extends StatelessWidget {
 
     updateSelectedItems();
 
+    List<PendingAmount> filteredPendingAmount = [];
+    if (title == 'Due Payment') {
+      filteredPendingAmount = collection.order!.pendingAmount!.where((item) {
+        if (item.dueDate == null || item.dueDate is! List) return false;
+        try {
+          String dateString = item.dueDate![0]; // Access the first element
+          DateTime dueDate = parseCustomDate(dateString);
+          return dueDate.isAfter(DateTime.now());
+        } catch (e) {
+          print("Error parsing dueDate: ${item.dueDate}, error: $e");
+          return false;
+        }
+      }).toList();
+    } else if (title == 'Over Due Payment') {
+      filteredPendingAmount = collection.order!.pendingAmount!.where((item) {
+        if (item.dueDate == null || item.dueDate is! List) return false;
+        try {
+          String dateString = item.dueDate![0]; // Access the first element
+          DateTime dueDate = parseCustomDate(dateString);
+          return dueDate.isBefore(DateTime.now());
+        } catch (e) {
+          print("Error parsing dueDate: ${item.dueDate}, error: $e");
+          return false;
+        }
+      }).toList();
+    } else if (title == 'Pending Payment') {
+      filteredPendingAmount = collection.order!.pendingAmount!.toList();
+    }
+
     double calculateTotalBalanceAmount() {
       double total = 0;
       for (int i = 0; i < selectedItems.length; i++) {
@@ -1326,7 +1304,9 @@ class NestedPieChartj extends StatelessWidget {
           final receivable =
               collection.order!.pendingAmount![i].receivableAmount;
           if (receivable == null) {
-            total += collection.order!.pendingAmount![i].orderTotal!.toDouble();
+            total +=
+                collection.order!.pendingAmount![i].orderTotal?.toDouble() ??
+                    0.0;
           } else {
             total += receivable;
           }
@@ -1358,140 +1338,209 @@ class NestedPieChartj extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Header of the dialog
-                Container(
-                  height: 45,
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff008000),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Payment',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'Poppins_Regular',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      dialogCloseButton1(context, red),
-                    ],
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 45,
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Color(0xff008000),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
                   ),
                 ),
-                // First table
-                Row(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DataTable(
-                          dataRowHeight: 30,
-                          headingRowHeight: 40,
-                          border: TableBorder.all(color: Colors.grey.shade300),
-                          columns: const [
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Date',
-                                fontSize: 13,
-                              ),
-                            ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Invoice',
-                                fontSize: 13,
-                              ),
-                            ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Amount',
-                                fontSize: 13,
-                              ),
-                            ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Status',
-                                fontSize: 13,
-                              ),
-                            ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Payment',
-                                fontSize: 13,
-                              ),
-                            ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Receivable',
-                                fontSize: 13,
-                              ),
-                            ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Select',
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                          rows: collection.order!.pendingAmount!
-                              .asMap()
-                              .entries
-                              .map<DataRow>((entry) {
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: 'Poppins_Regular',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    dialogCloseButton1(context, red),
+                  ],
+                ),
+              ),
+              // First table
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 1.3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columnSpacing: 30,
+                      horizontalMargin: 15,
+                      dataRowHeight: 30,
+                      headingRowHeight: 40,
+                      border:
+                          TableBorder.all(color: Colors.grey.shade300),
+                      columns: const [
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Customer',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Date',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Invoice',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Amount',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Status',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Invoice',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Due Date',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Payment',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Receivable',
+                            fontSize: 13,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Select',
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                      rows: [
+                        ...filteredPendingAmount
+                            .asMap()
+                            .entries
+                            .map<DataRow>(
+                          (entry) {
                             int index = entry.key;
                             var payment = entry.value;
                             return DataRow(cells: [
                               DataCell(Center(
+                                  child: Text(
+                                      payment.businessName.toString()))),
+                              DataCell(Center(
                                   child: Text(getFormattedOrderCreatAt(
                                       payment.orderCreatAt)))),
                               DataCell(Center(
-                                  child: Text(payment.orderId.toString()))),
-                              DataCell(Center(
                                   child:
-                                      Text(formatAmount(payment.orderTotal)))),
+                                      Text(payment.orderId.toString()))),
                               DataCell(Center(
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff008000),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4.0)),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                    ),
-                                    child: Text(
-                                      getStatusName(payment.orderStatus ?? 0),
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                  child: Text(
+                                      formatAmount(payment.orderTotal)))),
+                              DataCell(Center(
+                                  child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xff008000),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4.0)),
                                       ),
+                                      child: Padding(
+                                          padding:
+                                              const EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                          ),
+                                          child: Text(
+                                              getStatusName(payment
+                                                      .orderStatus
+                                                      ?.toInt() ??
+                                                  0),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              )))))),
+                              DataCell(Center(
+                                  child: InkWell(
+                                      onTap: () {
+                                        _showDetailedPaymentOrderDialog(
+                                            context, payment, true);
+                                      },
+                                      child: Text(
+                                        payment.invoiceId.toString(),
+                                        style: const TextStyle(
+                                            color: primaryColor),
+                                      )))),
+                              DataCell(
+                                Center(
+                                  child: Text(
+                                    payment.dueDate != null &&
+                                            payment.dueDate!.isNotEmpty
+                                        ? payment.dueDate!.first
+                                            .toString()
+                                            .replaceAll('/', '-')
+                                        : 'N/A',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: payment.dueDate != null &&
+                                              payment
+                                                  .dueDate!.isNotEmpty &&
+                                              _isDateBeforeToday(
+                                                  payment.dueDate!.first)
+                                          ? Colors.red
+                                          : Colors.green,
                                     ),
                                   ),
                                 ),
-                              )),
+                              ),
                               DataCell(
                                 Center(
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: payment.paymentStatus == 0
                                           ? Colors.red
-                                          : Colors.green,
+                                          : payment.paymentStatus == 1
+                                              ? Colors.green
+                                              : payment.paymentStatus == 3
+                                                  ? Colors.yellow
+                                                  : Colors.grey,
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: payment.paymentStatus == 0
                                             ? Colors.red
-                                            : Colors.green,
+                                            : payment.paymentStatus == 1
+                                                ? Colors.green
+                                                : payment.paymentStatus ==
+                                                        3
+                                                    ? Colors.yellow
+                                                    : Colors.grey,
                                       ),
                                     ),
                                     child: Padding(
@@ -1517,15 +1566,12 @@ class NestedPieChartj extends StatelessWidget {
                                           payment.orderTotal.toString(),
                                       index: index,
                                       orderId: payment.orderId.toString(),
-                                      orderTotal: payment.orderTotal!.toInt(),
-                                      receivable:
-                                          payment.receivableAmount != null
-                                              ? double.tryParse(payment
-                                                          .receivableAmount
-                                                          .toString())
-                                                      ?.toInt() ??
-                                                  0
-                                              : 0,
+                                      orderTotal:
+                                          payment.orderTotal?.toInt() ??
+                                              0,
+                                      receivable: payment.receivableAmount
+                                              ?.toInt() ??
+                                          payment.orderTotal?.toInt(),
                                       onValueChanged: (newValue, index) {
                                         // Handle editable cells if necessary
                                       },
@@ -1538,10 +1584,9 @@ class NestedPieChartj extends StatelessWidget {
                                   return Checkbox(
                                     value: selectedItems[index],
                                     onChanged: (bool? value) {
-                                      // Update selected items list when checkbox is toggled
-                                      selectedItems[index] = value ?? false;
-
-                                      // Recalculate total balance amount
+                                      selectedItems[index] =
+                                          value ?? false;
+                                
                                       totalBalanceAmount.value =
                                           calculateTotalBalanceAmount();
                                       balanceAmountController.text =
@@ -1552,237 +1597,296 @@ class NestedPieChartj extends StatelessWidget {
                                 })),
                               ),
                             ]);
-                          }).toList(),
+                          },
                         ),
-                      ),
+                        DataRow(cells: [
+                          const DataCell(
+                            Center(
+                              child: Text(
+                                'Total',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Poppins_Regular'),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          const DataCell(Text('')),
+                          const DataCell(Text('')),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                formatAmount(
+                                  filteredPendingAmount
+                                      .map((e) => e.orderTotal ?? 0.0)
+                                      .reduce((a, b) => a + b),
+                                ),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Poppins_Regular'),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          const DataCell(Text('')),
+                          const DataCell(Text('')),
+                          const DataCell(Text('')),
+                          const DataCell(Text('')),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                formatAmount(
+                                  filteredPendingAmount
+                                      .map((e) =>
+                                          e.receivableAmount ??
+                                          e.orderTotal!)
+                                      .reduce((a, b) => a + b),
+                                ),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Poppins_Regular'),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          const DataCell(Text('')),
+                        ]),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-                // Second table
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DataTable(
-                          dataRowHeight: 35,
-                          headingRowHeight: 30,
-                          columns: const [
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Payment Method',
-                                fontSize: 11,
-                                align: TextAlign.start,
-                              ),
+              ),
+              // Second table
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: DataTable(
+                        dataRowHeight: 35,
+                        headingRowHeight: 30,
+                        columns: const [
+                          DataColumn(
+                            label: DialogTableHeaderText(
+                              text: 'Payment Method',
+                              fontSize: 11,
+                              align: TextAlign.start,
                             ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Balance Amount',
-                                fontSize: 11,
-                                align: TextAlign.start,
-                              ),
+                          ),
+                          DataColumn(
+                            label: DialogTableHeaderText(
+                              text: 'Balance Amount',
+                              fontSize: 11,
+                              align: TextAlign.start,
                             ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Received Amount',
-                                fontSize: 11,
-                                align: TextAlign.start,
-                              ),
+                          ),
+                          DataColumn(
+                            label: DialogTableHeaderText(
+                              text: 'Received Amount',
+                              fontSize: 11,
+                              align: TextAlign.start,
                             ),
-                            DataColumn(
-                              label: DialogTableHeaderText(
-                                text: 'Remarks',
-                                fontSize: 11,
-                                align: TextAlign.start,
-                              ),
+                          ),
+                          DataColumn(
+                            label: DialogTableHeaderText(
+                              text: 'Remarks',
+                              fontSize: 11,
+                              align: TextAlign.start,
                             ),
-                            DataColumn(label: Text('')),
-                          ],
-                          rows: [
-                            DataRow(
-                              cells: [
-                                DataCell(
-                                  DropdownButtonFormField<String>(
-                                    value: selectedPaymentMethod,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade300),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
+                          ),
+                          DataColumn(label: Text('')),
+                        ],
+                        rows: [
+                          DataRow(
+                            cells: [
+                              DataCell(
+                                DropdownButtonFormField<String>(
+                                  value: selectedPaymentMethod,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    dropdownColor: Colors.white,
-                                    items: const [
-                                      DropdownMenuItem(
-                                          value: 'Cash', child: Text('Cash')),
-                                      DropdownMenuItem(
-                                          value: 'Cheque',
-                                          child: Text('Cheque')),
-                                      DropdownMenuItem(
-                                          value: 'Bank Transfer',
-                                          child: Text('Bank Transfer')),
-                                    ],
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        selectedPaymentMethod = value;
-                                        // Map the selected value to the corresponding integer
-                                        switch (value) {
-                                          case 'Cash':
-                                            selectedPaymentMethodInt.value = 0;
-                                            break;
-                                          case 'Cheque':
-                                            selectedPaymentMethodInt.value = 1;
-                                            break;
-                                          case 'Bank Transfer':
-                                            selectedPaymentMethodInt.value = 2;
-                                            break;
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                  ),
+                                  dropdownColor: Colors.white,
+                                  items: const [
+                                    DropdownMenuItem(
+                                        value: 'Cash', child: Text('Cash')),
+                                    DropdownMenuItem(
+                                        value: 'Cheque', child: Text('Cheque')),
+                                    DropdownMenuItem(
+                                        value: 'Bank Transfer',
+                                        child: Text('Bank Transfer')),
+                                  ],
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      selectedPaymentMethod = value;
+                                      // Map the selected value to the corresponding integer
+                                      switch (value) {
+                                        case 'Cash':
+                                          selectedPaymentMethodInt.value = 0;
+                                          break;
+                                        case 'Cheque':
+                                          selectedPaymentMethodInt.value = 1;
+                                          break;
+                                        case 'Bank Transfer':
+                                          selectedPaymentMethodInt.value = 2;
+                                          break;
+                                      }
+                                    }
+                                  },
+                                  hint: const Text('Select'),
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.black),
+                                  icon: const Icon(Icons.arrow_drop_down,
+                                      size: 24.0, color: Colors.black),
+                                  iconSize: 24.0,
+                                ),
+                              ),
+                              DataCell(
+                                Row(
+                                  children: [
+                                    Text(addCurrencySymbol()),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      child: TextField(
+                                        readOnly: true,
+                                        controller: balanceAmountController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 8.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              DataCell(
+                                Row(
+                                  children: [
+                                    Text(addCurrencySymbol()),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      child: TextField(
+                                        controller: receivedAmountController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Enter Amount',
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 8.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              DataCell(
+                                TextField(
+                                  controller: remarksController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Remarks',
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      int enteredAmount = int.tryParse(
+                                              receivedAmountController.text) ??
+                                          0;
+                                      if (enteredAmount > 0) {
+                                        // Gather selected items
+                                        List<PendingAmount> selectedItemsList =
+                                            [];
+                                        for (int i = 0;
+                                            i < selectedItems.length;
+                                            i++) {
+                                          if (selectedItems[i]) {
+                                            selectedItemsList.add(collection
+                                                .order!.pendingAmount![i]);
+                                          }
                                         }
+
+                                        processPayments(
+                                            selectedItemsList, enteredAmount);
+
+                                        updateSelectedItems();
+                                      } else {
+                                        print("Please enter a valid amount.");
                                       }
                                     },
-                                    hint: const Text('Select'),
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.black),
-                                    icon: const Icon(Icons.arrow_drop_down,
-                                        size: 24.0, color: Colors.black),
-                                    iconSize: 24.0,
-                                  ),
-                                ),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      Text(addCurrencySymbol()),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: TextField(
-                                          readOnly: true,
-                                          controller: balanceAmountController,
-                                          decoration: InputDecoration(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.grey.shade300),
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 8.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      Text(addCurrencySymbol()),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: TextField(
-                                          controller: receivedAmountController,
-                                          decoration: InputDecoration(
-                                            hintText: 'Enter Amount',
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.grey.shade300),
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 8.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                DataCell(
-                                  TextField(
-                                    controller: remarksController,
-                                    decoration: InputDecoration(
-                                      hintText: 'Remarks',
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade300),
+                                    style: ElevatedButton.styleFrom(
+                                      shadowColor: Colors.transparent,
+                                      backgroundColor:
+                                          primaryColor.withOpacity(0.2),
+                                      shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10.0),
                                       ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
                                     ),
+                                    child: const Text('Submit',
+                                        style: TextStyle(fontSize: 14)),
                                   ),
                                 ),
-                                DataCell(
-                                  Center(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        int enteredAmount = int.tryParse(
-                                                receivedAmountController
-                                                    .text) ??
-                                            0;
-                                        if (enteredAmount > 0) {
-                                          // Gather selected items
-                                          List<PendingAmount>
-                                              selectedItemsList = [];
-                                          for (int i = 0;
-                                              i < selectedItems.length;
-                                              i++) {
-                                            if (selectedItems[i]) {
-                                              selectedItemsList.add(collection
-                                                  .order!.pendingAmount![i]);
-                                            }
-                                          }
-
-                                          processPayments(
-                                              selectedItemsList, enteredAmount);
-
-                                          updateSelectedItems();
-                                        } else {
-                                          print("Please enter a valid amount.");
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        shadowColor: Colors.transparent,
-                                        backgroundColor:
-                                            primaryColor.withOpacity(0.2),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                        ),
-                                      ),
-                                      child: const Text('Submit',
-                                          style: TextStyle(fontSize: 14)),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
     );
+  }
+}
+
+bool _isDateBeforeToday(String dateString) {
+  try {
+    final dateFormat = DateFormat("dd/MM/yyyy");
+    final date = dateFormat.parse(dateString);
+    return date.isBefore(DateTime.now().toLocal());
+  } catch (e) {
+    return false;
   }
 }
 
@@ -1814,47 +1918,18 @@ void _showValueDialog(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
+                    const Text(
+                      'Received Payment',
+                      style: TextStyle(
                           fontSize: 15,
                           fontFamily: 'Poppins_Regular',
                           fontWeight: FontWeight.w600,
                           color: Colors.white),
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      child: SizedBox(
-                        width: 25.8,
-                        height: 25.8,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.red,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.5),
-                            child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                }),
-                          ),
-                        ),
-                      ),
-                    )
+                    dialogCloseButton1(context, red),
                   ],
                 ),
               ),
-              // Display DataTable of data based on the selected section
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: DataTable(
@@ -1863,6 +1938,12 @@ void _showValueDialog(
                   headingRowHeight: 40,
                   columnSpacing: 30,
                   columns: const [
+                    DataColumn(
+                      label: DialogTableHeaderText(
+                        text: 'Customer',
+                        fontSize: 13.5,
+                      ),
+                    ),
                     DataColumn(
                       label: DialogTableHeaderText(
                         text: 'Date',
@@ -1888,7 +1969,7 @@ void _showValueDialog(
                       ),
                     ),
                   ],
-                  rows: _buildDataRows(collection, title),
+                  rows: _buildDataRows(context, collection, title),
                 ),
               ),
             ],
@@ -1899,11 +1980,23 @@ void _showValueDialog(
   );
 }
 
-List<DataRow> _buildDataRows(Collection collection, String title) {
+List<DataRow> _buildDataRows(
+    BuildContext context, Collection collection, String title) {
   return [
     ...collection.payment!.completedOrders!
         .map((completedOrder) => DataRow(
               cells: [
+                DataCell(
+                  Center(
+                    child: Text(
+                      completedOrder.businessName ?? '',
+                      style: const TextStyle(
+                        color: secondaryTextColor,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                  ),
+                ),
                 DataCell(
                   Center(
                     child: Text(
@@ -1917,11 +2010,16 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                 ),
                 DataCell(
                   Center(
-                    child: Text(
-                      completedOrder.cartId.toString(),
-                      style: const TextStyle(
-                        color: secondaryTextColor,
-                        fontSize: 13.5,
+                    child: InkWell(
+                      onTap: () {
+                        _showDetailedPaymentOrderDialog(context, completedOrder, true);
+                      },
+                      child: Text(
+                        completedOrder.invoiceId ?? '',
+                        style: const TextStyle(
+                          color: primaryColor,
+                          fontSize: 13.5,
+                        ),
                       ),
                     ),
                   ),
@@ -1950,26 +2048,35 @@ List<DataRow> _buildDataRows(Collection collection, String title) {
                 ),
               ],
             ))
-        .toList(),
+        ,
     DataRow(
       cells: [
         const DataCell(
           Center(
-            child: DialogTableHeaderText(
-              text: 'Total',
-              fontSize: 13,
+            child: Text(
+              'Total',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins_Regular'),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
         const DataCell(Text('')),
         const DataCell(Text('')),
+        const DataCell(Text('')),
         DataCell(
           Center(
-            child: DialogTableHeaderText(
-              text: formatAmount(collection.payment!.completedOrders!
+            child: Text(
+              formatAmount(collection.payment!.completedOrders!
                   .map((e) => e.orderTotal ?? 0.0)
                   .reduce((a, b) => a + b)),
-              fontSize: 13,
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins_Regular'),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -2261,5 +2368,345 @@ class _DoughnutDefaultCustomerDashState
         );
       },
     );
+  }
+}
+
+void _showDetailedPaymentOrderDialog(
+  BuildContext context,
+  var orderData,
+  final bool invoice,
+) async {
+  DashBoardController dashBoardController = Get.put(DashBoardController());
+
+  var pendingOrderData = await dashBoardController.loadSpecificOrderInvoiceData(
+      orderId: orderData.orderId.toString());
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: white,
+        child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [const Spacer(), dialogCloseButton1(context, red)],
+                ),
+                const SizedBox(height: 16),
+                MyCommnonContainer(
+                  isCommonBorder: true,
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            invoice ? 'INVOICE' : 'CUSTOMER & ORDER',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            NKDateUtils.commonDayFormat2(
+                                NKDateUtils.formatStringUTCDateTime(
+                                    pendingOrderData.orderCreatAt.toString())),
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Divider(color: Colors.grey.shade300),
+                      Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Name : ${pendingOrderData.businessName}'),
+                              Text('Email : ${pendingOrderData.email}'),
+                              Text('Phone : ${pendingOrderData.mobileno}'),
+                              Text(
+                                  'Salesman : ${pendingOrderData.salesmanName}'),
+                            ],
+                          ),
+                          if (invoice) ...[
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                        text: 'Payment Status : ',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 12),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            (pendingOrderData.paymentStatus == 0
+                                                ? 'NOT PAID'
+                                                : 'COMPLETED'),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color:
+                                              pendingOrderData.paymentStatus ==
+                                                      0
+                                                  ? Colors.red
+                                                  : Colors.green,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                    'Payment Mode : ${_getPaymentTypeName(pendingOrderData.paymentStatus!)}'),
+                              ],
+                            ),
+                          ],
+                          const Spacer(),
+                          ClipOval(
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              color: Colors.lightBlue[100],
+                              child: pendingOrderData.imageUrl != null
+                                  ? Image.network(
+                                      '${pendingOrderData.imageUrl}',
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const Icon(Icons.person,
+                                      color: Colors.blue),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('ITEMS ORDERED',
+                            style: TextStyle(fontSize: 18))),
+                    const Spacer(),
+                    Text(
+                        'Order Status : ${getStatusName(pendingOrderData.orderStatus!)}',
+                        style: const TextStyle(fontSize: 18))
+                  ],
+                ),
+                const Divider(
+                  color: black,
+                ),
+                Obx(() {
+                  return dashBoardController.isInvoiceLoading.value
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DataTable(
+                                    dataRowHeight: 40,
+                                    headingRowHeight: 40,
+                                    horizontalMargin: 20,
+                                    headingTextStyle: const TextStyle(
+                                      color: black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    columns: const [
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'ITEMS NAME',
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'QUANTITY',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'PRICE',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'TOTAL',
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: dashBoardController
+                                        .fetchSpecificOrderData!.cart!
+                                        .map((item) {
+                                      return DataRow(cells: [
+                                        DataCell(
+                                            Text(item.productName.toString())),
+                                        DataCell(Center(
+                                            child: Text(
+                                                item.quantity.toString(),
+                                                maxLines: 1))),
+                                        DataCell(Center(
+                                            child: Text(
+                                          formatAmount(item.price),
+                                          maxLines: 1,
+                                        ))),
+                                        DataCell(Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                                formatAmount(item.price),
+                                                maxLines: 1))),
+                                      ]);
+                                    }).toList(),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Subtotal',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        formatAmount(dashBoardController
+                                            .fetchSpecificOrderData!
+                                            .orderTotal),
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  if (dashBoardController
+                                          .fetchSpecificOrderData!
+                                          .cart!
+                                          .first
+                                          .tax !=
+                                      null) ...[
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
+                                          style: const TextStyle(
+                                            color: black,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          formatAmount(
+                                              '${dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100}'),
+                                          // formatAmount(invoiceData.cart!.first.tax),
+                                          // taxAmount), // Use the calculated tax amount here
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  Divider(color: Colors.grey.shade400),
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Total',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        dashBoardController
+                                                    .fetchSpecificOrderData!
+                                                    .cart!
+                                                    .first
+                                                    .tax !=
+                                                null
+                                            ? formatAmount(
+                                                '${(dashBoardController.fetchSpecificOrderData!.orderTotal! + dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100)}')
+                                            : formatAmount(dashBoardController
+                                                .fetchSpecificOrderData!
+                                                .orderTotal),
+                                        maxLines: 1,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: red,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                }),
+                const SizedBox(height: 16),
+                const Text(
+                  'Currency  \$',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            )
+            // }),
+            ),
+      );
+    },
+  );
+}
+
+String _getPaymentTypeName(int paymentType) {
+  switch (paymentType) {
+    case 0:
+      return 'Cash';
+    case 1:
+      return 'Cheque';
+    case 2:
+      return 'Bank Transfer';
+    default:
+      return 'Unknown';
   }
 }

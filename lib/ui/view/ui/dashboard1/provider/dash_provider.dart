@@ -97,6 +97,7 @@ class ApiService {
       "start_date": startDate,
       "end_date": endDate,
       "companyId": companyId,
+     "targetType": 1
     };
     try {
       log('API URL: $url');

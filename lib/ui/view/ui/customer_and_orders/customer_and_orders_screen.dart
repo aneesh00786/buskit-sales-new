@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -2157,8 +2159,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     var customer =
                                         provider.filteredCustomers[index];
                                     return Container(
-                                      height:
-                                          fixedRowHeight,
+                                      height: fixedRowHeight,
                                       color: index.isEven
                                           ? Colors.grey[50]
                                           : Colors.white,
@@ -2807,226 +2808,667 @@ void _showOrderDataDialog(
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-            double availableWidth = constraints.maxWidth;
-            // double fontSize = availableWidth / 50.6;
-            double fontSize = 14;
-            double padding = availableWidth / 100;
-            double fixedIconSize = 13.0; // Fixed icon size
+      return Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: white,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LayoutBuilder(builder: (
+                  BuildContext context,
+                  BoxConstraints constraints,
+                ) {
+                  double availableWidth = constraints.maxWidth;
+                  double fontSize = 14;
+                  double padding = availableWidth / 100;
+                  double fixedIconSize = 13.0; // Fixed icon size
 
-            return SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              physics: const ClampingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: availableWidth),
-                child: Theme(
-                  data: NkGetXTheme.lightTheme,
-                  child: DataTable(
-                    // ignore: deprecated_member_use
-                    dataRowHeight: 64,
-                    headingRowColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      return primaryColor; // Set the background color for the headers
-                    }),
-                    columnSpacing:
-                        padding, // Adjust the spacing between columns
-                    columns: [
-                      DataColumn(
-                        label: Text(
-                          'Customer List',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Order Number',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Order Created',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Created By',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Order Price',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Invoice',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: MyRegularText(
-                          label: 'Status',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: dialogCloseButton(context, red),
-                      ),
-                    ],
-                    rows: orderData.totalSales.map((order) {
-                      return DataRow(
-                        cells: [
-                          DataCell(
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: fixedIconSize * 2.6,
-                                  width: fixedIconSize * 2.6,
-                                  child: CircleAvatar(
-                                    backgroundColor: const Color(0xffe6ecff),
-                                    child: Icon(
-                                      Icons.person,
-                                      size: fixedIconSize,
-                                      color: Colors.blue,
-                                    ),
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    physics: const ClampingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: availableWidth),
+                      child: Stack(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DataTable(
+                                  headingRowHeight: 45,
+                                  dataRowHeight: fontSize * 5.5,
+                                  headingRowColor:
+                                      MaterialStateProperty.resolveWith<Color>(
+                                          (states) {
+                                    return primaryColor; // Set the background color for the headers
+                                  }),
+                                  headingTextStyle: const TextStyle(
+                                    fontSize: 12,
+                                    color: white,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                ),
-                                SizedBox(width: padding),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      customer != null
-                                          ? customer.businessName
-                                          : 'N/A',
-                                      style: TextStyle(fontSize: fontSize),
-                                    ),
-                                    Text(
-                                      customer != null
-                                          ? customer.mobileno
-                                          : 'N/A',
-                                      style: TextStyle(
-                                        fontSize: fontSize * 0.6,
-                                        color: Colors.black,
+                                  columnSpacing:
+                                      padding, // Adjust the spacing between columns
+                                  columns: const [
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Customer List',
+                                            maxLines: 2,
+                                            textAlign: TextAlign
+                                                .center, // Align the text center
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    Text(
-                                      customer != null ? customer.email : 'N/A',
-                                      style: TextStyle(
-                                        fontSize: fontSize * 0.6,
-                                        color: Colors.black,
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Order Number',
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Order Created',
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Created By',
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Order Price',
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Invoice',
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Status',
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Center(
+                                        child: Text(''),
                                       ),
                                     ),
                                   ],
+                                  rows: orderData.totalSales.map((order) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: (fixedIconSize / 2) + 2,
+                                                backgroundColor:
+                                                    const Color(0xffe6ecff),
+                                                child: Icon(Icons.person,
+                                                    size: fixedIconSize,
+                                                    color: Colors.blue),
+                                              ),
+                                              SizedBox(width: padding),
+                                              Flexible(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      customer != null
+                                                          ? customer
+                                                              .businessName
+                                                          : 'N/A',
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Text(
+                                                      customer != null
+                                                          ? customer.fullname
+                                                          : 'N/A',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Text(
+                                                      customer != null
+                                                          ? customer.mobileno
+                                                          : 'N/A',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w400),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Text(
+                                                      customer != null
+                                                          ? customer.email
+                                                          : 'N/A',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w400),
+                                                      maxLines:
+                                                          1, // Control email to 1 line and ellipsis
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                _showDetailedOrderDialog(
+                                                    context, order, false);
+                                              },
+                                              child: Text(
+                                                order.orderId,
+                                                style: TextStyle(
+                                                    color: primaryColor,
+                                                    fontSize: fontSize),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: Text(
+                                              order.orderCreatAt != null
+                                                  ? getFormattedOrderCreatAt(
+                                                      order.orderCreatAt
+                                                          .toString())
+                                                  : 'N/A',
+                                              style:
+                                                  TextStyle(fontSize: fontSize),
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: Text(
+                                              '${order.fullname} ${order.lastname}',
+                                              style:
+                                                  TextStyle(fontSize: fontSize),
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: Text(
+                                              formatAmount(order.orderTotal),
+                                              style:
+                                                  TextStyle(fontSize: fontSize),
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                _showDetailedOrderDialog(
+                                                    context, order, true);
+                                              },
+                                              child: Text(
+                                                order.invoiceId.toString(),
+                                                style: TextStyle(
+                                                    fontSize: fontSize,
+                                                    color: primaryColor),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(padding),
+                                              child: SizedBox(
+                                                height: 31,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        const Color(0xffffdbb8),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.6),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            4.0),
+                                                    child: Text(getStatusName(
+                                                        order.orderStatus)),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const DataCell(Text('')),
+                                      ],
+                                    );
+                                  }).toList(),
                                 ),
-                              ],
+                              )
+                            ],
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: SizedBox(
+                              height: 45,
+                              width: 45,
+                              child: Center(
+                                  child: dialogCloseButton(context, red)),
                             ),
                           ),
-                          DataCell(
-                            Text(
-                              order.orderId,
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              order.orderCreatAt != null
-                                  ? getFormattedOrderCreatAt(
-                                      order.orderCreatAt.toString())
-                                  : 'N/A',
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              '${order.fullname!.nkStringCapitalizeFirstCaracter} ${order.lastname!.nkStringCapitalizeFirstCaracter}',
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              formatAmount(order.orderTotal),
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              '${order.orderId}',
-                              style: TextStyle(
-                                  fontSize: fontSize, color: primaryColor),
-                            ),
-                          ),
-                          DataCell(
-                            Padding(
-                              padding: EdgeInsets.all(padding),
-                              child: SizedBox(
-                                height: 31,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xffffdbb8),
-                                    borderRadius: BorderRadius.circular(4.6),
-                                  ),
-                                  //                                         child:
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child:
-                                        Text(_getStatusName(order.orderStatus)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const DataCell(Text('')),
                         ],
-                      );
-                    }).toList(),
-                  ),
-                ),
+                      ),
+                    ),
+                  );
+                }),
               ),
-            );
-          }),
-        ),
+            ),
+          ),
+        ],
       );
     },
   );
 }
 
-
-
 extension TakeLastExtension<E> on List<E> {
   List<E> takeLast(int n) => skip(length - n).toList();
+}
+
+void _showDetailedOrderDialog(
+  BuildContext context,
+  Order orderData,
+  final bool invoice,
+) {
+  DashBoardController dashBoardController = Get.put(DashBoardController());
+
+  dashBoardController.loadSpecificOrderInvoiceData(orderId: orderData.orderId);
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: white,
+        child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [const Spacer(), dialogCloseButton(context, red)],
+                ),
+                const SizedBox(height: 16),
+                MyCommnonContainer(
+                  isCommonBorder: true,
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            invoice ? 'INVOICE' : 'CUSTOMER & ORDER',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            NKDateUtils.commonDayFormat2(
+                                NKDateUtils.formatStringUTCDateTime(
+                                    orderData.orderCreatAt.toIso8601String())),
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Divider(color: Colors.grey.shade300),
+                      Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Name : ${orderData.fullname}'),
+                              Text('Email : ${orderData.email}'),
+                              Text('Phone : ${orderData.mobileNo}'),
+                              Text('Salesman : ${orderData.salesmanId}'),
+                            ],
+                          ),
+                          if (invoice) ...[
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                        text: 'Payment Status : ',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 12),
+                                      ),
+                                      TextSpan(
+                                        text: (orderData.paymentStatus == 0
+                                            ? 'NOT PAID'
+                                            : 'COMPLETED'),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: orderData.paymentStatus == 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                    'Payment Mode : ${_getPaymentTypeName(orderData.paymentStatus)}'),
+                              ],
+                            ),
+                          ],
+                          const Spacer(),
+                          ClipOval(
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              color: Colors.lightBlue[100],
+                              child: orderData.imageUrl != null
+                                  ? Image.network('${orderData.imageUrl}')
+                                  : const Icon(Icons.person,
+                                      color: Colors.blue),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('ITEMS ORDERED',
+                            style: TextStyle(fontSize: 18))),
+                    const Spacer(),
+                    Text(
+                        'Order Status : ${getStatusName(orderData.orderStatus)}',
+                        style: const TextStyle(fontSize: 18))
+                  ],
+                ),
+                const Divider(
+                  color: black,
+                ),
+                Obx(() {
+                  return dashBoardController.isInvoiceLoading.value
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DataTable(
+                                    dataRowHeight: 40,
+                                    headingRowHeight: 40,
+                                    horizontalMargin: 20,
+                                    headingTextStyle: const TextStyle(
+                                      color: black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    columns: const [
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'ITEMS NAME',
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'QUANTITY',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'PRICE',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'TOTAL',
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: dashBoardController
+                                        .fetchSpecificOrderData!.cart!
+                                        .map((item) {
+                                      return DataRow(cells: [
+                                        DataCell(
+                                            Text(item.productName.toString())),
+                                        DataCell(Center(
+                                            child: Text(
+                                                item.quantity.toString(),
+                                                maxLines: 1))),
+                                        DataCell(Center(
+                                            child: Text(
+                                          formatAmount(item.price),
+                                          maxLines: 1,
+                                        ))),
+                                        DataCell(Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                                formatAmount(item.price),
+                                                maxLines: 1))),
+                                      ]);
+                                    }).toList(),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Subtotal',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        formatAmount(dashBoardController
+                                            .fetchSpecificOrderData!
+                                            .orderTotal),
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  if (dashBoardController
+                                          .fetchSpecificOrderData!
+                                          .cart!
+                                          .first
+                                          .tax !=
+                                      null) ...[
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
+                                          style: const TextStyle(
+                                            color: black,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          formatAmount(
+                                              '${dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100}'),
+                                          // formatAmount(invoiceData.cart!.first.tax),
+                                          // taxAmount), // Use the calculated tax amount here
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  Divider(color: Colors.grey.shade400),
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Total',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        dashBoardController
+                                                    .fetchSpecificOrderData!
+                                                    .cart!
+                                                    .first
+                                                    .tax !=
+                                                null
+                                            ? formatAmount(
+                                                '${(dashBoardController.fetchSpecificOrderData!.orderTotal! + dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100)}')
+                                            : formatAmount(dashBoardController
+                                                .fetchSpecificOrderData!
+                                                .orderTotal),
+                                        maxLines: 1,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: red,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                }),
+                const SizedBox(height: 16),
+                const Text(
+                  'Currency  \$',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            )
+            // }),
+            ),
+      );
+    },
+  );
+}
+
+String _getPaymentTypeName(int paymentType) {
+  switch (paymentType) {
+    case 0:
+      return 'Cash';
+    case 1:
+      return 'Cheque';
+    case 2:
+      return 'Bank Transfer';
+    default:
+      return 'Unknown';
+  }
 }

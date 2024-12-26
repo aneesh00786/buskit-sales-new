@@ -439,7 +439,11 @@ class Order {
   final String transactionDetails;
   final String? fullname;
   final String? lastname;
-  final List<InvoiceDash> invoice;
+  final String? email;
+  final String? mobileNo;
+  final String? imageUrl;
+  final String? invoiceId;
+  // final List<InvoiceDash> invoice;
 
   Order({
     required this.id,
@@ -461,7 +465,11 @@ class Order {
     required this.transactionDetails,
     this.fullname,
     this.lastname,
-    required this.invoice,
+    this.email,
+    this.mobileNo,
+    this.imageUrl,
+    this.invoiceId,
+    // required this.invoice,
     // this.receivableAmount,
   });
 
@@ -492,9 +500,13 @@ class Order {
         transactionDetails: json['transaction_details'] ?? '',
         fullname: json['fullname'] ?? '',
         lastname: json['lastname'] ?? '',
-        invoice: (json['invoice'] as List? ?? [])
-            .map((item) => InvoiceDash.fromJson(item))
-            .toList(),
+        email: json['email'] ?? '',
+        mobileNo: json['mobileno'] ?? '',
+        imageUrl: json['image_url'] ?? '',
+        invoiceId: json['invoice_id'] ?? '',
+        // invoice: (json['invoice'] as List? ?? [])
+        //     .map((item) => InvoiceDash.fromJson(item))
+        //     .toList(),
         // receivableAmount: json['receivable_amount'] ?? 0,
       );
 
@@ -518,6 +530,10 @@ class Order {
         'transaction_details': transactionDetails,
         'fullname': fullname,
         'lastname': lastname,
+        'invoice_id': invoiceId,
+        'email': email,
+        'image_url': imageUrl,
+        'mobileno': mobileNo,
 
         // 'receivable_amount': receivableAmount,
       };

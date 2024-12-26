@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
@@ -55,34 +54,58 @@ void main() async {
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
 
   Get.lazyPut<HomeController>(() => HomeController());
-  if (SessionHelper.loginSavedData != null) {
-    List<AllCompanySettingsData>? settings =
-        await SessionHelper().getSettingsData();
-    if (settings == null) {
-      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-      log("Fetching settings after login...");
-      settings = await ApiWorker().fetchAllSettings(companyId);
-      if (settings != null) {
-        await SessionHelper().setSettingsData(settings);
-      }
-    }
-    runApp(MyApp(initialRout: AppRoutes.home));
-    log('Settings data fetched: ${settings?.length}');
-  } else {
-    runApp(MyApp(initialRout: AppRoutes.login));
-  }
+  runApp(MyApp(initialRout: SessionHelper.loginSavedData != null
+      ? AppRoutes.home
+      : AppRoutes.login));
 }
 
 class MyApp extends StatefulWidget {
   final String? initialRout;
-  MyApp({Key? key, this.initialRout}) : super(key: key);
+  const MyApp({Key? key, this.initialRout}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   final connectivityChecker = ConnectivityChecker();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _fetchAndSaveSettings();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _fetchAndSaveSettings();
+    }
+  }
+
+  Future<void> _fetchAndSaveSettings() async {
+    if (SessionHelper.loginSavedData != null) {
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      if (companyId != 0) {
+        log("Fetching settings...");
+        List<AllCompanySettingsData>? settings =
+            await ApiWorker().fetchAllSettings(companyId);
+        if (settings != null) {
+          await SessionHelper().setSettingsData(settings);
+          log('Settings data fetched and saved: ${settings.length}');
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    connectivityChecker.stopMonitoring();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(

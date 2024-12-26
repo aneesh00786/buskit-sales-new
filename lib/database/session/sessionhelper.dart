@@ -65,7 +65,6 @@ class SessionHelper {
         List<AllCompanySettingsData> settingsList = jsonList
             .map((item) => AllCompanySettingsData.fromJson(item))
             .toList();
-
         log('Fetched settings data: $settingsList');
         return settingsList;
       } catch (e) {

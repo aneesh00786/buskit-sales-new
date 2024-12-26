@@ -37,7 +37,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -56,11 +55,11 @@ class DashBoardMiddleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    bool isMobile = screenWidth < 600; // Adjust the breakpoint as needed
+    bool isMobile = screenWidth < 600; 
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height, // For larger screens
-      width: MediaQuery.of(context).size.width, // For larger screens
+      height: MediaQuery.of(context).size.height, 
+      width: MediaQuery.of(context).size.width,
       child: isMobile
           ? SingleChildScrollView(
               child: Column(

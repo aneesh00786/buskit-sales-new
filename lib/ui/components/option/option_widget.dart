@@ -1015,7 +1015,6 @@ class OptionWidget extends StatelessWidget {
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
-                                                                      // fontFamily: 'Poppins_Regular',
                                                                     ),
                                                                   ),
                                                                   SizedBox(

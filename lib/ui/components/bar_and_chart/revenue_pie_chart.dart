@@ -1401,286 +1401,313 @@ class NestedPieChartj extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 1.3,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columnSpacing: 30,
-                      horizontalMargin: 15,
-                      dataRowHeight: 30,
-                      headingRowHeight: 40,
-                      border:
-                          TableBorder.all(color: Colors.grey.shade300),
-                      columns: const [
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Customer',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Date',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Invoice',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Amount',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Status',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Invoice',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Due Date',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Payment',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Receivable',
-                            fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
-                            text: 'Select',
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                      rows: [
-                        ...filteredPendingAmount
-                            .asMap()
-                            .entries
-                            .map<DataRow>(
-                          (entry) {
-                            int index = entry.key;
-                            var payment = entry.value;
-                            return DataRow(cells: [
-                              DataCell(Center(
-                                  child: Text(
-                                      payment.businessName.toString()))),
-                              DataCell(Center(
-                                  child: Text(getFormattedOrderCreatAt(
-                                      payment.orderCreatAt)))),
-                              DataCell(Center(
-                                  child:
-                                      Text(payment.orderId.toString()))),
-                              DataCell(Center(
-                                  child: Text(
-                                      formatAmount(payment.orderTotal)))),
-                              DataCell(Center(
-                                  child: Container(
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xff008000),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(4.0)),
-                                      ),
-                                      child: Padding(
-                                          padding:
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                          ),
-                                          child: Text(
-                                              getStatusName(payment
-                                                      .orderStatus
-                                                      ?.toInt() ??
-                                                  0),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbColor:
+                          MaterialStateProperty.resolveWith<Color>((states) {
+                        if (states.contains(MaterialState.dragged)) {
+                          return Colors.blueAccent.shade700;
+                        }
+                        return Colors.blueAccent.shade400;
+                      }),
+                      trackColor:
+                          MaterialStateProperty.all(Colors.blue.shade50),
+                      trackBorderColor:
+                          MaterialStateProperty.all(Colors.blue.shade100),
+                      thickness: MaterialStateProperty.all(6),
+                      radius: const Radius.circular(10),
+                      minThumbLength: 50,
+                    ),
+                    child: Scrollbar(
+                      interactive: true,
+                      thumbVisibility: true,
+                      trackVisibility: true,
+                      thickness: 6,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columnSpacing: 30,
+                            horizontalMargin: 15,
+                            dataRowHeight: 30,
+                            headingRowHeight: 40,
+                            border:
+                                TableBorder.all(color: Colors.grey.shade300),
+                            columns: const [
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Customer',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Date',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Order No.',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Amount',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Status',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Invoice',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Due Date',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Payment',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Receivable',
+                                  fontSize: 13,
+                                ),
+                              ),
+                              DataColumn(
+                                label: DialogTableHeaderText(
+                                  text: 'Select',
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                            rows: [
+                              ...filteredPendingAmount
+                                  .asMap()
+                                  .entries
+                                  .map<DataRow>(
+                                (entry) {
+                                  int index = entry.key;
+                                  var payment = entry.value;
+                                  return DataRow(cells: [
+                                    DataCell(Center(
+                                        child: Text(
+                                            payment.businessName.toString()))),
+                                    DataCell(Center(
+                                        child: Text(getFormattedOrderCreatAt(
+                                            payment.orderCreatAt)))),
+                                    DataCell(Center(
+                                        child:
+                                            Text(payment.orderId.toString()))),
+                                    DataCell(Center(
+                                        child: Text(
+                                            formatAmount(payment.orderTotal)))),
+                                    DataCell(Center(
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xff008000),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(4.0)),
+                                            ),
+                                            child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 5,
+                                                ),
+                                                child: Text(
+                                                    getStatusName(payment
+                                                            .orderStatus
+                                                            ?.toInt() ??
+                                                        0),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    )))))),
+                                    DataCell(Center(
+                                        child: InkWell(
+                                            onTap: () {
+                                              _showDetailedPaymentOrderDialog(
+                                                  context, payment, true);
+                                            },
+                                            child: Text(
+                                              payment.invoiceId.toString(),
                                               style: const TextStyle(
-                                                color: Colors.white,
-                                              )))))),
-                              DataCell(Center(
-                                  child: InkWell(
-                                      onTap: () {
-                                        _showDetailedPaymentOrderDialog(
-                                            context, payment, true);
-                                      },
-                                      child: Text(
-                                        payment.invoiceId.toString(),
-                                        style: const TextStyle(
-                                            color: primaryColor),
-                                      )))),
-                              DataCell(
-                                Center(
-                                  child: Text(
-                                    payment.dueDate != null &&
-                                            payment.dueDate!.isNotEmpty
-                                        ? payment.dueDate!.first
-                                            .toString()
-                                            .replaceAll('/', '-')
-                                        : 'N/A',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: payment.dueDate != null &&
-                                              payment
-                                                  .dueDate!.isNotEmpty &&
-                                              _isDateBeforeToday(
-                                                  payment.dueDate!.first)
-                                          ? Colors.red
-                                          : Colors.green,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              DataCell(
-                                Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: payment.paymentStatus == 0
-                                          ? Colors.red
-                                          : payment.paymentStatus == 1
-                                              ? Colors.green
-                                              : payment.paymentStatus == 3
-                                                  ? Colors.yellow
-                                                  : Colors.grey,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: payment.paymentStatus == 0
-                                            ? Colors.red
-                                            : payment.paymentStatus == 1
-                                                ? Colors.green
-                                                : payment.paymentStatus ==
-                                                        3
-                                                    ? Colors.yellow
-                                                    : Colors.grey,
+                                                  color: primaryColor),
+                                            )))),
+                                    DataCell(
+                                      Center(
+                                        child: Text(
+                                          payment.dueDate != null &&
+                                                  payment.dueDate!.isNotEmpty
+                                              ? payment.dueDate!.first
+                                                  .toString()
+                                                  .replaceAll('/', '-')
+                                              : 'N/A',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: payment.dueDate != null &&
+                                                    payment
+                                                        .dueDate!.isNotEmpty &&
+                                                    _isDateBeforeToday(
+                                                        payment.dueDate!.first)
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(1.0),
-                                      child: Icon(
-                                        payment.paymentStatus == 0
-                                            ? Icons.close
-                                            : Icons.done,
-                                        color: Colors.white,
-                                        size: 14.0,
+                                    DataCell(
+                                      Center(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: payment.paymentStatus == 0
+                                                ? Colors.red
+                                                : payment.paymentStatus == 1
+                                                    ? Colors.green
+                                                    : payment.paymentStatus == 3
+                                                        ? Colors.yellow
+                                                        : Colors.grey,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: payment.paymentStatus == 0
+                                                  ? Colors.red
+                                                  : payment.paymentStatus == 1
+                                                      ? Colors.green
+                                                      : payment.paymentStatus ==
+                                                              3
+                                                          ? Colors.yellow
+                                                          : Colors.grey,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(1.0),
+                                            child: Icon(
+                                              payment.paymentStatus == 0
+                                                  ? Icons.close
+                                                  : Icons.done,
+                                              color: Colors.white,
+                                              size: 14.0,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
+                                    DataCell(
+                                      Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 3.0),
+                                          child: EditablePendingPaymentCell(
+                                            initialValue:
+                                                payment.orderTotal.toString(),
+                                            index: index,
+                                            orderId: payment.orderId.toString(),
+                                            orderTotal:
+                                                payment.orderTotal?.toInt() ??
+                                                    0,
+                                            receivable: payment.receivableAmount
+                                                    ?.toInt() ??
+                                                payment.orderTotal?.toInt(),
+                                            onValueChanged: (newValue, index) {
+                                               
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Center(child: Obx(() {
+                                        return Checkbox(
+                                          value: selectedItems[index],
+                                          onChanged: (bool? value) {
+                                            selectedItems[index] =
+                                                value ?? false;
+
+                                            totalBalanceAmount.value =
+                                                calculateTotalBalanceAmount();
+                                            balanceAmountController.text =
+                                                totalBalanceAmount.value
+                                                    .toStringAsFixed(2);
+                                          },
+                                        );
+                                      })),
+                                    ),
+                                  ]);
+                                },
                               ),
-                              DataCell(
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 3.0),
-                                    child: EditablePendingPaymentCell(
-                                      initialValue:
-                                          payment.orderTotal.toString(),
-                                      index: index,
-                                      orderId: payment.orderId.toString(),
-                                      orderTotal:
-                                          payment.orderTotal?.toInt() ??
-                                              0,
-                                      receivable: payment.receivableAmount
-                                              ?.toInt() ??
-                                          payment.orderTotal?.toInt(),
-                                      onValueChanged: (newValue, index) {
-                                        // Handle editable cells if necessary
-                                      },
+                              DataRow(cells: [
+                                const DataCell(
+                                  Center(
+                                    child: Text(
+                                      'Total',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Poppins_Regular'),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ),
-                              ),
-                              DataCell(
-                                Center(child: Obx(() {
-                                  return Checkbox(
-                                    value: selectedItems[index],
-                                    onChanged: (bool? value) {
-                                      selectedItems[index] =
-                                          value ?? false;
-                                
-                                      totalBalanceAmount.value =
-                                          calculateTotalBalanceAmount();
-                                      balanceAmountController.text =
-                                          totalBalanceAmount.value
-                                              .toStringAsFixed(2);
-                                    },
-                                  );
-                                })),
-                              ),
-                            ]);
-                          },
+                                const DataCell(Text('')),
+                                const DataCell(Text('')),
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      formatAmount(
+                                        filteredPendingAmount
+                                            .map((e) => e.orderTotal ?? 0.0)
+                                            .reduce((a, b) => a + b),
+                                      ),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Poppins_Regular'),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                const DataCell(Text('')),
+                                const DataCell(Text('')),
+                                const DataCell(Text('')),
+                                const DataCell(Text('')),
+                                DataCell(
+                                  Center(
+                                    child: Text(
+                                      formatAmount(
+                                        filteredPendingAmount
+                                            .map((e) =>
+                                                e.receivableAmount ??
+                                                e.orderTotal!)
+                                            .reduce((a, b) => a + b),
+                                      ),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Poppins_Regular'),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                const DataCell(Text('')),
+                              ]),
+                            ],
+                          ),
                         ),
-                        DataRow(cells: [
-                          const DataCell(
-                            Center(
-                              child: Text(
-                                'Total',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins_Regular'),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          const DataCell(Text('')),
-                          const DataCell(Text('')),
-                          DataCell(
-                            Center(
-                              child: Text(
-                                formatAmount(
-                                  filteredPendingAmount
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b),
-                                ),
-                                style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins_Regular'),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          const DataCell(Text('')),
-                          const DataCell(Text('')),
-                          const DataCell(Text('')),
-                          const DataCell(Text('')),
-                          DataCell(
-                            Center(
-                              child: Text(
-                                formatAmount(
-                                  filteredPendingAmount
-                                      .map((e) =>
-                                          e.receivableAmount ??
-                                          e.orderTotal!)
-                                      .reduce((a, b) => a + b),
-                                ),
-                                style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins_Regular'),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          const DataCell(Text('')),
-                        ]),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -2009,72 +2036,71 @@ void _showValueDialog(
 List<DataRow> _buildDataRows(
     BuildContext context, Collection collection, String title) {
   return [
-    ...collection.payment!.completedOrders!
-        .map((completedOrder) => DataRow(
-              cells: [
-                DataCell(
-                  Center(
-                    child: Text(
-                      completedOrder.businessName ?? '',
-                      style: const TextStyle(
-                        color: secondaryTextColor,
-                        fontSize: 13.5,
-                      ),
+    ...collection.payment!.completedOrders!.map((completedOrder) => DataRow(
+          cells: [
+            DataCell(
+              Center(
+                child: Text(
+                  completedOrder.businessName ?? '',
+                  style: const TextStyle(
+                    color: secondaryTextColor,
+                    fontSize: 13.5,
+                  ),
+                ),
+              ),
+            ),
+            DataCell(
+              Center(
+                child: Text(
+                  getFormattedOrderCreatAt(completedOrder.orderCreatAt),
+                  style: const TextStyle(
+                    color: secondaryTextColor,
+                    fontSize: 13.5,
+                  ),
+                ),
+              ),
+            ),
+            DataCell(
+              Center(
+                child: InkWell(
+                  onTap: () {
+                    _showDetailedPaymentOrderDialog(
+                        context, completedOrder, true);
+                  },
+                  child: Text(
+                    completedOrder.invoiceId ?? '',
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontSize: 13.5,
                     ),
                   ),
                 ),
-                DataCell(
-                  Center(
-                    child: Text(
-                      getFormattedOrderCreatAt(completedOrder.orderCreatAt),
-                      style: const TextStyle(
-                        color: secondaryTextColor,
-                        fontSize: 13.5,
-                      ),
-                    ),
+              ),
+            ),
+            DataCell(
+              Center(
+                child: Text(
+                  getStatusName(completedOrder.orderStatus?.toInt() ?? 0),
+                  style: const TextStyle(
+                    color: secondaryTextColor,
+                    fontSize: 13.5,
                   ),
                 ),
-                DataCell(
-                  Center(
-                    child: InkWell(
-                      onTap: () {
-                        _showDetailedPaymentOrderDialog(context, completedOrder, true);
-                      },
-                      child: Text(
-                        completedOrder.invoiceId ?? '',
-                        style: const TextStyle(
-                          color: primaryColor,
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ),
+              ),
+            ),
+            DataCell(
+              Center(
+                child: Text(
+                  formatAmount(completedOrder.orderTotal),
+                  style: const TextStyle(
+                    color: secondaryTextColor,
+                    fontSize: 13.5,
                   ),
                 ),
-                DataCell(
-                  Center(
-                    child: Text(
-                      getStatusName(completedOrder.orderStatus?.toInt() ?? 0),
-                      style: const TextStyle(
-                        color: secondaryTextColor,
-                        fontSize: 13.5,
-                      ),
-                    ),
-                  ),
-                ),
-                DataCell(
-                  Center(
-                    child: Text(
-                      formatAmount(completedOrder.orderTotal),
-                      style: const TextStyle(
-                        color: secondaryTextColor,
-                        fontSize: 13.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ))
-        ,
+              ),
+            ),
+          ],
+        )),
     DataRow(
       cells: [
         const DataCell(

@@ -475,6 +475,11 @@ class CartOrderModel {
   String cartId;
   int? orderStatus;
   int? companyId;
+  int? paymentType;
+  double? orderPrice;
+  String? transactionNumber; // General field for both cheque_number and transaction_number
+  String? transactionDate;
+  String? paymentDetail;
 
   CartOrderModel({
     this.customerId,
@@ -482,16 +487,28 @@ class CartOrderModel {
     required this.cartId,
     this.orderStatus,
     this.companyId,
+    this.paymentType,
+    this.orderPrice,
+    this.transactionNumber,
+    this.transactionDate,
+    this.paymentDetail,
   });
+
   factory CartOrderModel.fromJson(Map<String, dynamic> json) {
     return CartOrderModel(
       customerId: json['customer_id'],
       salesmanId: json['salesman_id'],
       cartId: json['cart_id'],
       orderStatus: json['order_status'],
-      companyId:json['companyId']
+      companyId: json['companyId'],
+      paymentType: json['payment_type'],
+      orderPrice: json['order_price']?.toDouble(), // Convert to double if needed
+      transactionNumber: json['cheque_number'] ?? json['transaction_number'], // Handle either key
+      transactionDate: json['cheque_date'] ?? json['transaction_date'], // Handle either key
+      paymentDetail: json['payment_detail'],
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'customer_id': customerId,
@@ -499,9 +516,19 @@ class CartOrderModel {
       'cart_id': cartId,
       'order_status': orderStatus,
       'companyId': companyId,
+      'payment_type': paymentType,
+      'order_price': orderPrice,
+      // Dynamically decide the key to use based on the value
+      if (transactionNumber != null)
+        paymentType == 1 ? 'cheque_number' : 'transaction_number': transactionNumber,
+      if (transactionDate != null)
+        paymentType == 1 ? 'cheque_date' : 'transaction_date': transactionDate,
+      'payment_detail': paymentDetail,
     };
   }
 }
+
+
 
 class BuyProductResponce {
   String customerId;

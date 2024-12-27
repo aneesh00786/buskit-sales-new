@@ -27,9 +27,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../../utills/nk_common_function.dart';
-import '../../../../../utills/nk_date_utils.dart';
 import '../../dashboard_controller.dart';
 
 class DashboardTopWidget extends StatefulWidget {

@@ -8,19 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 
-Widget buildEstimateDialogueMainDash({
+Widget buildDialogueMainDash({
   required List<OrdersDash> filteredOrders,
   required BuildContext context,
+  required String headers1,
+  required String headers2,
+  required String headers3,
+  required String headers4,
+  required String headers5,
+  required String headers6,
 }) {
   List<String> headers = [
-    'Customer List',
-    'Estimate Number',
-    'Estimate Created',
-    'Created By',
-    'Estimate Price',
-    'Status',
+    headers1,
+    headers2,
+    headers3,
+    headers4,
+    headers5,
+    headers6,
     ''
   ];
+
   List<TableViewRow> rows = filteredOrders.isEmpty
       ? [
           const TableViewRow(
@@ -293,6 +300,7 @@ Widget buildEstimateDialogueMainDash({
     },
   );
 }
+
 String _getStatusName(int status) {
   switch (status) {
     case 5:

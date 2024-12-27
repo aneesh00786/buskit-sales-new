@@ -13,7 +13,7 @@ void showDetailedOrderDialog(
   OrdersDash orderData,
   final bool invoice,
 ) {
-  DashBoardController dashBoardController = Get.find<DashBoardController>();
+  DashBoardController dashBoardController = Get.put(DashBoardController());
 
   dashBoardController.loadSpecificOrderInvoiceData(orderId: orderData.orderId);
 

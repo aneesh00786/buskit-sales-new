@@ -10,7 +10,7 @@ Widget dialogCloseButton1(BuildContext context, Color color) {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: color, // Use the passed color here
+            color: color,
           ),
         ),
         child: Padding(
@@ -18,7 +18,7 @@ Widget dialogCloseButton1(BuildContext context, Color color) {
           child: IconButton(
             icon: Icon(
               Icons.close,
-              color: color, // Use the passed color here
+              color: color,
               size: 12,
             ),
             padding: EdgeInsets.zero,

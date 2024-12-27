@@ -2155,7 +2155,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               children: [
                                 Text(
                                   'Salesman ID: ${chat.salesmanId}',
-                                  //   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 Text('Message: ${chat.message}'),
                                 Text('Message: ${chat.email}'),

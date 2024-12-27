@@ -14,8 +14,8 @@ Widget buildOrdersDialogueMainDash({
 }) {
   List<String> headers = [
     "Customer List",
-    "Order Number",
-    "Order Created",
+    "Order NO",
+    "Created",
     "Created By",
     "Order Amount",
     "Invoice",
@@ -200,7 +200,7 @@ Widget buildOrdersDialogueMainDash({
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                                 style: const TextStyle(
-                                  fontSize: 10.0,
+                                  fontSize: 8.0,
                                   fontWeight: FontWeight.w400,
                                 )),
                           ]
@@ -217,9 +217,9 @@ Widget buildOrdersDialogueMainDash({
   return LayoutBuilder(
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;
-      double maxDialogHeight = 500;
+      double maxDialogHeight = 600;
       double rowHeight = 60;
-      int maxVisibleRows = 3;
+      int maxVisibleRows = 4;
       double calculatedHeight =
           (rows.length * rowHeight).clamp(0, maxDialogHeight);
       return ConstrainedBox(
@@ -234,7 +234,12 @@ Widget buildOrdersDialogueMainDash({
               child: Column(
                 children: [
                   Container(
-                    color: primaryColor,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15)),
+                      color: primaryColor,
+                    ),
                     height: 60,
                     child: Row(
                       children: [
@@ -245,9 +250,9 @@ Widget buildOrdersDialogueMainDash({
                             child: Text(
                               headers[0],
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -262,9 +267,9 @@ Widget buildOrdersDialogueMainDash({
                                   child: Text(
                                     label,
                                     style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),

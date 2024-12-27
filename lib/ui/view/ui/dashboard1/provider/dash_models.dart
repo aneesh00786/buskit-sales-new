@@ -2063,7 +2063,7 @@ class Messages {
   final String? image;
   final String source;
   final String salesman;
-  final DateTime? updatedAt;
+  final dynamic updatedAt;
 
   Messages({
     this.message,
@@ -2078,7 +2078,7 @@ class Messages {
       'image': image,
       'source': source,
       'salesman': salesman,
-      'updated_at': updatedAt!.toIso8601String(),
+      'updated_at': updatedAt!,
     };
   }
 
@@ -2094,7 +2094,7 @@ class Messages {
       image: json['image_url'] ?? '',
       source: json['source'] ?? '',
       salesman: json['salesman'] ?? '',
-      updatedAt: DateTime.parse(json['updated_at'] ?? ''),
+      updatedAt: json['updated_at'] ?? '',
     );
   }
 }

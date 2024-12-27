@@ -377,334 +377,334 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
       ));
 }
 
-void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(9),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.red,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(3.2),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.red,
-                        size: 15,
-                      ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Divider(),
-                        //     Text('${order.cart[0]}'),
-                        MyRegularText(
-                            label: order.customer.isNotEmpty
-                                ? '${order.customer[0].fullName}'
-                                : 'N/A',
-                            style: const TextStyle(fontSize: 20)),
-                        MyRegularText(
-                            label: order.invoice.isNotEmpty &&
-                                    order.invoice[0].createdAt != null
-                                ? 'Invoice Date: ${getFormattedOrderCreatAt(order.invoice[0].createdAt)}'
-                                : 'Invoice Date: N/A'),
-                        MyRegularText(
-                            label: order.invoice.isNotEmpty
-                                ? 'Invoice N0: ${order.invoice[0].invoiceId}'
-                                : 'Invoice N0: N/A'),
-                      ],
-                    ),
-                  ),
-                  //VerticalDivider(),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Divider(),
-                        MyRegularText(
-                            label: order.customer[0].businessName,
-                            style: const TextStyle(fontSize: 16)),
-                        MyRegularText(label: order.customer[0].fullName),
-                        MyRegularText(label: order.customer[0].email),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Divider(),
-                  LayoutBuilder(builder: (context, constraints) {
-                    return ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minWidth: constraints.maxWidth),
-                      child: SingleChildScrollView(
-                          child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                    color: secondaryTextColor, width: 0.7),
-                              ),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'QTY',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'Description',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'Price',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'Sub Total',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ...order.cart.map((item) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: item.quantity.toString()),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: item.variationName),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: item.price.toStringAsFixed(2)),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: (item.price).toStringAsFixed(2)),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ],
-                      )),
-                    );
-                  }),
-                ],
-              ),
-              const Divider(),
-              LayoutBuilder(builder: (context, constraints) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                                color: secondaryTextColor, width: 0.7),
-                          ),
-                        ),
-                        child: const Row(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: MyRegularText(
-                                  label: 'Payment Info',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: MyRegularText(
-                                  label: 'Due By',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: MyRegularText(
-                                  label: 'Total Due',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MyRegularText(
-                                  label: order.paymentDetail.toString()),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MyRegularText(
-                                  label: getFormattedOrderCreatAt(
-                                      order.checkDueDate)),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MyRegularText(
-                                  label: order.orderTotal.toStringAsFixed(2)),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+// void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return Dialog(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(10),
+//         ),
+//         child: Container(
+//           padding: const EdgeInsets.all(9),
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.end,
+//             children: [
+//               CircleAvatar(
+//                 backgroundColor: Colors.transparent,
+//                 child: Container(
+//                   decoration: BoxDecoration(
+//                     shape: BoxShape.circle,
+//                     border: Border.all(
+//                       color: Colors.red,
+//                     ),
+//                   ),
+//                   child: Padding(
+//                     padding: const EdgeInsets.all(3.2),
+//                     child: IconButton(
+//                       icon: const Icon(
+//                         Icons.close,
+//                         color: Colors.red,
+//                         size: 15,
+//                       ),
+//                       padding: EdgeInsets.zero,
+//                       constraints: const BoxConstraints(),
+//                       onPressed: () => Navigator.of(context).pop(),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                 children: [
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         // Divider(),
+//                         //     Text('${order.cart[0]}'),
+//                         MyRegularText(
+//                             label: order.customer.isNotEmpty
+//                                 ? '${order.customer[0].fullName}'
+//                                 : 'N/A',
+//                             style: const TextStyle(fontSize: 20)),
+//                         MyRegularText(
+//                             label: order.invoice.isNotEmpty &&
+//                                     order.invoice[0].createdAt != null
+//                                 ? 'Invoice Date: ${getFormattedOrderCreatAt(order.invoice[0].createdAt)}'
+//                                 : 'Invoice Date: N/A'),
+//                         MyRegularText(
+//                             label: order.invoice.isNotEmpty
+//                                 ? 'Invoice N0: ${order.invoice[0].invoiceId}'
+//                                 : 'Invoice N0: N/A'),
+//                       ],
+//                     ),
+//                   ),
+//                   //VerticalDivider(),
+//                   Expanded(
+//                     flex: 1,
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.end,
+//                       children: [
+//                         const Divider(),
+//                         MyRegularText(
+//                             label: order.customer[0].businessName,
+//                             style: const TextStyle(fontSize: 16)),
+//                         MyRegularText(label: order.customer[0].fullName),
+//                         MyRegularText(label: order.customer[0].email),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   const Divider(),
+//                   LayoutBuilder(builder: (context, constraints) {
+//                     return ConstrainedBox(
+//                       constraints:
+//                           BoxConstraints(minWidth: constraints.maxWidth),
+//                       child: SingleChildScrollView(
+//                           child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Container(
+//                             decoration: const BoxDecoration(
+//                               border: Border(
+//                                 bottom: BorderSide(
+//                                     color: secondaryTextColor, width: 0.7),
+//                               ),
+//                             ),
+//                             child: const Row(
+//                               mainAxisAlignment: MainAxisAlignment.start,
+//                               children: [
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                       label: 'QTY',
+//                                       style:
+//                                           TextStyle(color: secondaryTextColor),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                       label: 'Description',
+//                                       style:
+//                                           TextStyle(color: secondaryTextColor),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                       label: 'Price',
+//                                       style:
+//                                           TextStyle(color: secondaryTextColor),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                       label: 'Sub Total',
+//                                       style:
+//                                           TextStyle(color: secondaryTextColor),
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                           ...order.cart.map((item) {
+//                             return Row(
+//                               mainAxisAlignment: MainAxisAlignment.start,
+//                               children: [
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: const EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                         label: item.quantity.toString()),
+//                                   ),
+//                                 ),
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: const EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                         label: item.variationName),
+//                                   ),
+//                                 ),
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: const EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                         label: item.price.toStringAsFixed(2)),
+//                                   ),
+//                                 ),
+//                                 Expanded(
+//                                   child: Padding(
+//                                     padding: const EdgeInsets.all(8.0),
+//                                     child: MyRegularText(
+//                                         label: (item.price).toStringAsFixed(2)),
+//                                   ),
+//                                 ),
+//                               ],
+//                             );
+//                           }).toList(),
+//                         ],
+//                       )),
+//                     );
+//                   }),
+//                 ],
+//               ),
+//               const Divider(),
+//               LayoutBuilder(builder: (context, constraints) {
+//                 return ConstrainedBox(
+//                   constraints: BoxConstraints(minWidth: constraints.maxWidth),
+//                   child: Column(
+//                     children: [
+//                       Container(
+//                         decoration: const BoxDecoration(
+//                           border: Border(
+//                             bottom: BorderSide(
+//                                 color: secondaryTextColor, width: 0.7),
+//                           ),
+//                         ),
+//                         child: const Row(
+//                           children: [
+//                             Expanded(
+//                               child: Padding(
+//                                 padding: EdgeInsets.all(8.0),
+//                                 child: MyRegularText(
+//                                   label: 'Payment Info',
+//                                   style: TextStyle(color: secondaryTextColor),
+//                                 ),
+//                               ),
+//                             ),
+//                             Expanded(
+//                               child: Padding(
+//                                 padding: EdgeInsets.all(8.0),
+//                                 child: MyRegularText(
+//                                   label: 'Due By',
+//                                   style: TextStyle(color: secondaryTextColor),
+//                                 ),
+//                               ),
+//                             ),
+//                             Expanded(
+//                               child: Padding(
+//                                 padding: EdgeInsets.all(8.0),
+//                                 child: MyRegularText(
+//                                   label: 'Total Due',
+//                                   style: TextStyle(color: secondaryTextColor),
+//                                 ),
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       Row(
+//                         children: [
+//                           Expanded(
+//                             child: Padding(
+//                               padding: const EdgeInsets.all(8.0),
+//                               child: MyRegularText(
+//                                   label: order.paymentDetail.toString()),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             child: Padding(
+//                               padding: const EdgeInsets.all(8.0),
+//                               child: MyRegularText(
+//                                   label: getFormattedOrderCreatAt(
+//                                       order.checkDueDate)),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             child: Padding(
+//                               padding: const EdgeInsets.all(8.0),
+//                               child: MyRegularText(
+//                                   label: order.orderTotal.toStringAsFixed(2)),
+//                             ),
+//                           ),
+//                         ],
+//                       )
+//                     ],
+//                   ),
 
-                  // DataTable(
-                  //   columns: [
-                  //     DataColumn(label: Text('Payment Info')),
-                  //     DataColumn(label: Text('Due By')),
-                  //     DataColumn(label: Text('Total Due')),
-                  //   ],
-                  //   rows: [
-                  //     DataRow(cells: [
-                  //       DataCell(Text(order.paymentDetail)),
-                  //       DataCell(Text(order.checkDueDate.toString())),
-                  //       DataCell(Text(order.orderTotal.toStringAsFixed(2))),
-                  //     ]),
-                  //   ],
-                  // ),
-                );
-              }),
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(primaryColor),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              4.0), // Adjust the radius value as needed
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Handle reject action
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Reject',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    //  style: ElevatedButton.styleFrom(primary: Colors.red),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(primaryColor),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              4.0), // Adjust the radius value as needed
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Handle accept action
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Accept',
-                        style: const TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
+//                   // DataTable(
+//                   //   columns: [
+//                   //     DataColumn(label: Text('Payment Info')),
+//                   //     DataColumn(label: Text('Due By')),
+//                   //     DataColumn(label: Text('Total Due')),
+//                   //   ],
+//                   //   rows: [
+//                   //     DataRow(cells: [
+//                   //       DataCell(Text(order.paymentDetail)),
+//                   //       DataCell(Text(order.checkDueDate.toString())),
+//                   //       DataCell(Text(order.orderTotal.toStringAsFixed(2))),
+//                   //     ]),
+//                   //   ],
+//                   // ),
+//                 );
+//               }),
+//               const Divider(),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   ElevatedButton(
+//                     style: ButtonStyle(
+//                       backgroundColor: MaterialStateProperty.all(primaryColor),
+//                       shape: MaterialStateProperty.all(
+//                         RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(
+//                               4.0), // Adjust the radius value as needed
+//                         ),
+//                       ),
+//                     ),
+//                     onPressed: () {
+//                       // Handle reject action
+//                       Navigator.of(context).pop();
+//                     },
+//                     child: const Text(
+//                       'Reject',
+//                       style: TextStyle(color: Colors.white),
+//                     ),
+//                     //  style: ElevatedButton.styleFrom(primary: Colors.red),
+//                   ),
+//                   const SizedBox(width: 16),
+//                   ElevatedButton(
+//                     style: ButtonStyle(
+//                       backgroundColor: MaterialStateProperty.all(primaryColor),
+//                       shape: MaterialStateProperty.all(
+//                         RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(
+//                               4.0), // Adjust the radius value as needed
+//                         ),
+//                       ),
+//                     ),
+//                     onPressed: () {
+//                       // Handle accept action
+//                       Navigator.of(context).pop();
+//                     },
+//                     child: const Text('Accept',
+//                         style: const TextStyle(color: Colors.white)),
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
 
 Widget _buildTableLayout(BuildContext context) {
   return Container(

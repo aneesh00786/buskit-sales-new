@@ -502,6 +502,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                           SizedBox(
                                             width: 150,
                                             child: TextFormField(
+                                              controller: chequeOrTransactionNumberController,
                                               decoration: InputDecoration(
                                                 contentPadding:
                                                     const EdgeInsets.symmetric(
@@ -549,6 +550,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                           SizedBox(
                                             width: 200,
                                             child: TextFormField(
+                                              controller: remarkController,
                                               decoration: InputDecoration(
                                                 contentPadding:
                                                     const EdgeInsets.symmetric(
@@ -668,7 +670,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                           SizedBox(
                                             width: 250,
                                             child: TextFormField(
+                                              controller: remarkController,
                                               decoration: InputDecoration(
+                                                
                                                 contentPadding:
                                                     const EdgeInsets.symmetric(
                                                         vertical: 10,
@@ -887,10 +891,9 @@ class _CartDialogueState extends State<CartDialogue> {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     await processSaveAndSend(
-                                        finalAmount: finalAmount,
-                                        paymentType: paymentType,
-                                        
-                                        );
+                                      finalAmount: finalAmount,
+                                      paymentType: paymentType,
+                                    );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -1002,7 +1005,7 @@ class _CartDialogueState extends State<CartDialogue> {
       log('CartId :${cartOrder?.cartId}');
 
       if (cartOrder != null) {
-        final companyId = SessionHelper.loginSavedData?.company_id??0;
+        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         int orderStatus = 0;
         if (_selectedValue == 'Sale Order') {
           orderStatus = 11;
@@ -1025,8 +1028,7 @@ class _CartDialogueState extends State<CartDialogue> {
           transactionNumber: chequeOrTransactionNumberController.text.trim(),
           companyId: companyId,
           paymentDetail: remarkController.text.trim(),
-          transactionDate: dateController.text.trim(), 
-
+          transactionDate: dateController.text.trim(),
         );
         log('CartId :${cartOrder.cartId}');
         await placeOrder(order, (statusCode, message) {

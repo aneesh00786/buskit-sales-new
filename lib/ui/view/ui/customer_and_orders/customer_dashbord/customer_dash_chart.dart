@@ -102,7 +102,6 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           color: Color.fromARGB(255, 55, 74, 134),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.delivered);
-
             provider.fetchOrdersForCustomDash(
                 OrderStatus.delivered, customerId, '');
           },
@@ -115,7 +114,6 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           color: Color.fromARGB(255, 36, 108, 44),
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.estimates);
-
             provider.fetchOrdersForCustomDash(
                 OrderStatus.estimates, customerId, 7);
           },
@@ -308,48 +306,63 @@ class OptionWidgetCustomerDash extends StatelessWidget {
     }
   }
 
-  void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
-      OrderStatus _selectedOrderStatus) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
+    OrderStatus _selectedOrderStatus) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return Dialog(
+          insetPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: Colors.white,
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: FutureBuilder<OrderResponse>(
-                future: provider.orderResponse,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox.shrink();
-                  } else if (snapshot.hasError) {
-                    return _buildTableLayout(context);
-                  } else {
-                    final orders = snapshot.data?.data ?? [];
-                    final filteredOrders = orders.where((order) {
-                      if (_selectedOrderStatus == null) {
-                        return true;
+            child: Row(
+              children: [
+                Expanded(
+                  child: FutureBuilder<OrderResponse>(
+                    future: provider.orderResponse,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SizedBox(
+                          height: 300,
+                          child: const Center(child: CircularProgressIndicator()));
+                      } else if (snapshot.hasError) {
+                        return _buildTableLayout(context);
                       } else {
-                        return order.orderStatus == _selectedOrderStatus.type;
-                      }
-                    }).toList();
+                        final orders = snapshot.data?.data ?? [];
+                        final filteredOrders = orders.where((order) {
+                          if (_selectedOrderStatus == null) {
+                            return true;
+                          } else {
+                            return order.orderStatus ==
+                                _selectedOrderStatus.type;
+                          }
+                        }).toList();
 
-                    return buildOrdersTable(
-                      filteredOrders: filteredOrders,
-                      context: context,
-                    );
-                  }
-                },
-              ),
+                        return buildOrdersTable(
+                          filteredOrders: filteredOrders,
+                          context: context,
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
-          );
-        });
-      },
-    );
-  }
+          ),
+        );
+      });
+    },
+  );
+}
+
 }
 
 String _getStatusName(int status) {

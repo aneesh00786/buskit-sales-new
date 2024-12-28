@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -134,14 +137,30 @@ Widget buildOrdersTable(
                     borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                      _getStatusName(order.orderStatus),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _getStatusName(order.orderStatus),
+                          style: const TextStyle(
+                              fontSize: 12.0, fontWeight: FontWeight.w400),
+                        ),
+                        if (order.orderStatus == 2 &&
+                            order.deliveryDate != null) ...[
+                          Text(
+                              NKDateUtils.commonFullDateTimeFormat(
+                                  NKDateUtils.formatStringUTCDateTime(
+                                      order.deliveryDate!.toIso8601String())),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              style: const TextStyle(
+                                fontSize: 8.0,
+                                fontWeight: FontWeight.w400,
+                              )),
+                        ]
+                      ],
                     ),
                   ),
                 ),
@@ -171,7 +190,11 @@ Widget buildOrdersTable(
               child: Column(
                 children: [
                   Container(
-                    color: primaryColor,
+                    decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15))),
                     height: 60,
                     child: Row(
                       children: [
@@ -212,50 +235,54 @@ Widget buildOrdersTable(
                     ),
                   ),
                   Flexible(
-                    child: ListView.builder(
-                      itemCount: rows.length,
-                      shrinkWrap: true,
-                      physics: rows.length > maxVisibleRows
-                          ? const AlwaysScrollableScrollPhysics()
-                          : const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey.shade300,
-                                width: 0.5,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: rows[index].cells[0].child,
+                    child: Container(
+                      height: 100,
+                      child: ListView.builder(
+                        itemCount: rows.length,
+                        shrinkWrap: true,
+                        physics: rows.length > maxVisibleRows
+                            ? const AlwaysScrollableScrollPhysics()
+                            : const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          log('Length of the rows ${rows.length}');
+                          return Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 0.5,
                                 ),
                               ),
-                              ...rows[index]
-                                  .cells
-                                  .sublist(1)
-                                  .map(
-                                    (cell) => Expanded(
-                                      flex: 1,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: cell.child,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: rows[index].cells[0].child,
+                                  ),
+                                ),
+                                ...rows[index]
+                                    .cells
+                                    .sublist(1)
+                                    .map(
+                                      (cell) => Expanded(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: cell.child,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ],
-                          ),
-                        );
-                      },
+                                    )
+                                    .toList(),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),

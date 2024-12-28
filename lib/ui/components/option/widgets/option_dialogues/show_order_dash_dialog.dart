@@ -36,9 +36,7 @@ void showOrderStatusDialog(BuildContext context, DashboardProvider provider,
                         );
                       } else {
                         final orders = snapshot.data?.data ?? [];
-                        final filteredOrders = orders.where((order) {
-                          return order.orderStatus == selectedOrderStatus.type;
-                        }).toList();
+                        final filteredOrders = orders.toList();
                         return buildOrdersDialogueMainDash(
                           context: context,
                           filteredOrders: filteredOrders,

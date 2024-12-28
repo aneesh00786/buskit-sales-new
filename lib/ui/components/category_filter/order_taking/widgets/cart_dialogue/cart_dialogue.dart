@@ -502,7 +502,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                           SizedBox(
                                             width: 150,
                                             child: TextFormField(
-                                              controller: chequeOrTransactionNumberController,
+                                              controller:
+                                                  chequeOrTransactionNumberController,
                                               decoration: InputDecoration(
                                                 contentPadding:
                                                     const EdgeInsets.symmetric(
@@ -672,7 +673,6 @@ class _CartDialogueState extends State<CartDialogue> {
                                             child: TextFormField(
                                               controller: remarkController,
                                               decoration: InputDecoration(
-                                                
                                                 contentPadding:
                                                     const EdgeInsets.symmetric(
                                                         vertical: 10,
@@ -1025,11 +1025,14 @@ class _CartDialogueState extends State<CartDialogue> {
           orderStatus: orderStatus,
           orderPrice: finalAmount,
           paymentType: paymentType,
-          transactionNumber: chequeOrTransactionNumberController.text.trim(),
           companyId: companyId,
           paymentDetail: remarkController.text.trim(),
-          transactionDate: dateController.text.trim(),
+          transactionNumber: paymentType == 0
+              ? null
+              : chequeOrTransactionNumberController.text.trim(),
+          transactionDate: paymentType == 0 ? null : dateController.text.trim(),
         );
+
         log('CartId :${cartOrder.cartId}');
         await placeOrder(order, (statusCode, message) {
           Navigator.pop(context);

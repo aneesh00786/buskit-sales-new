@@ -477,7 +477,7 @@ class CartOrderModel {
   int? companyId;
   int? paymentType;
   double? orderPrice;
-  String? transactionNumber; // General field for both cheque_number and transaction_number
+  String? transactionNumber; 
   String? transactionDate;
   String? paymentDetail;
 
@@ -527,6 +527,7 @@ class CartOrderModel {
     };
   }
 }
+
 
 
 

@@ -75,6 +75,7 @@ class CustomerModelxx {
   final int sales;
   final int? salesPrice;
   final int delivery;
+  final int? deliveryPrice;
   final int payment;
   final int? paymentPrice;
   final int estimates;
@@ -114,6 +115,7 @@ class CustomerModelxx {
     required this.sales,
     required this.salesPrice,
     required this.delivery,
+    required this.deliveryPrice,
     required this.payment,
     required this.paymentPrice,
     required this.estimates,
@@ -159,6 +161,7 @@ class CustomerModelxx {
       sales: json['sales'] ?? 0,
       salesPrice: _parseToInt(json['sales_price']),
       delivery: json['delivery'] ?? 0,
+      deliveryPrice: _parseToInt(json['delivery_price']),
       payment: json['payment'] ?? 0,
       paymentPrice: _parseToInt(json['payment_price']),
       estimates: json['estimates'] ?? 0,
@@ -201,6 +204,7 @@ class CustomerModelxx {
         'sales': sales,
         'sales_price': salesPrice,
         'delivery': delivery,
+        'delivery_price': deliveryPrice,
         'payment': payment,
         'payment_price': paymentPrice,
         'estimates': estimates,
@@ -434,6 +438,7 @@ class Order {
   final int receivedAmount;
   final DateTime? receivedAmountDate;
   final DateTime? checkDueDate;
+  final DateTime? deliveryDate;
   final int? checkNumber;
   final DateTime? transactionDate;
   final String transactionDetails;
@@ -460,6 +465,7 @@ class Order {
     required this.receivedAmount,
     this.receivedAmountDate,
     this.checkDueDate,
+    this.deliveryDate,
     this.checkNumber,
     this.transactionDate,
     required this.transactionDetails,
@@ -493,6 +499,9 @@ class Order {
         checkDueDate: json['check_due_date'] != null
             ? DateTime.parse(json['check_due_date'])
             : null,
+        deliveryDate: json['delivery_datetime'] != null
+            ? DateTime.parse(json['delivery_datetime'])
+            : null,
         checkNumber: json['check_number'] ?? 0,
         transactionDate: json['transaction_date'] != null
             ? DateTime.parse(json['transaction_date'])
@@ -504,10 +513,6 @@ class Order {
         mobileNo: json['mobileno'] ?? '',
         imageUrl: json['image_url'] ?? '',
         invoiceId: json['invoice_id'] ?? '',
-        // invoice: (json['invoice'] as List? ?? [])
-        //     .map((item) => InvoiceDash.fromJson(item))
-        //     .toList(),
-        // receivableAmount: json['receivable_amount'] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -525,6 +530,7 @@ class Order {
         'received_amount': receivedAmount,
         'received_amount_date': receivedAmountDate?.toIso8601String(),
         'check_due_date': checkDueDate?.toIso8601String(),
+        'delivery_datetime': deliveryDate?.toIso8601String(),
         'check_number': checkNumber,
         'transaction_date': transactionDate?.toIso8601String(),
         'transaction_details': transactionDetails,
@@ -538,7 +544,6 @@ class Order {
         // 'receivable_amount': receivableAmount,
       };
 }
-
 class Paginationxx {
   Paginationxx({
     required this.nextPage,

@@ -110,12 +110,8 @@ class OptionWidget extends StatelessWidget {
                   context: context,
                   provider: provider,
                   selectedOrderStatus: OrderStatus.estimates,
-                  headers1: "Customer List",
-                  headers2: "Estimates NO",
-                  headers3: "Created",
-                  headers4: "Created By",
-                  headers5: "Estimates Amount",
-                  headers6: "Status");
+                  option: "Estimates"
+                  );
             }),
         OptionData(
             title: 'Pre-Orders',
@@ -129,12 +125,7 @@ class OptionWidget extends StatelessWidget {
                   context: context,
                   provider: provider,
                   selectedOrderStatus: OrderStatus.preOrder,
-                  headers1: "Customer List",
-                  headers2: "Pre-Orders NO",
-                  headers3: "Created",
-                  headers4: "Created By",
-                  headers5: "Pre-Orders Amount",
-                  headers6: "Status");
+                  option: "Pre-Order");
             }),
         OptionData(
             title: 'Draft',
@@ -148,12 +139,7 @@ class OptionWidget extends StatelessWidget {
                   context: context,
                   provider: provider,
                   selectedOrderStatus: OrderStatus.draft,
-                  headers1: "Customer List",
-                  headers2: "Draft NO",
-                  headers3: "Created",
-                  headers4: "Created By",
-                  headers5: "Draft Amount",
-                  headers6: "Status");
+                  option: "Draft");
             }),
         OptionData(
             title: 'Cancelled',
@@ -167,12 +153,7 @@ class OptionWidget extends StatelessWidget {
                   context: context,
                   provider: provider,
                   selectedOrderStatus: OrderStatus.cancelled,
-                  headers1: "Customer List",
-                  headers2: "Cancelled NO",
-                  headers3: "Created",
-                  headers4: "Created By",
-                  headers5: "Cancelled Amount",
-                  headers6: "Status");
+                  option: "Cancelled");
             }),
       ];
 

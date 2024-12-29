@@ -402,6 +402,7 @@ class ApiService {
     required String startDate,
     required String endDate,
     OrderStatus? orderStatus,
+    required dynamic orderType,
   }) async {
     final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
@@ -409,7 +410,7 @@ class ApiService {
     final requestBody = {
       "customer_id": "",
       "salesman_id": salesmanId,
-      "order_type": "",
+      "order_type": orderType,
       "payment_type": 1,
       "start_date": startDate,
       "end_date": endDate,
@@ -519,28 +520,29 @@ class ApiService {
     required String salesmanId,
     required String startDate,
     required String endDate,
+    required dynamic orderType,
     OrderStatus? orderStatus, // New parameter for filtering by order status
   }) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
 
     // Determine order_status based on orderStatus parameter
-    String orderStatusString = '';
-    if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString(); // Convert int to String
-    }
+    // String orderStatusString = '';
+    // if (orderStatus != null) {
+    //   orderStatusString = orderStatus.type.toString(); // Convert int to String
+    // }
 
     final requestBody = {
       "customer_id": cusId,
       "salesman_id": salesmanId,
-      "order_type": orderStatusString,
+      "order_type": orderType,
       "companyId": companyId,
-      "payment_type": "3",
+      "payment_type": 1,
       "start_date": startDate,
       "end_date": endDate,
-      "limit": 10,
+      "limit": 1000,
       "page": 1,
     };
-    log("Customer ID $cusId");
+    log("Customer IDssssss $requestBody");
 
     try {
       final response = await http.post(
@@ -1335,75 +1337,29 @@ class DashboardProvider with ChangeNotifier {
   String get selectedEndDate => _selectedEndDate;
   SalesmanChat? selectedChat;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId) async {
-    try {
-      final now = DateTime.now();
-      String startDate;
-      String endDate;
-
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          startDate = DateTime(now.year, now.month, 1)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = DateTime(now.year, now.month + 1, 0)
-              .toIso8601String()
-              .substring(0, 10);
-          break;
-        case FilterDateEnum.today:
-          startDate = DateTime(now.year, now.month, now.day)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = startDate;
-          break;
-        case FilterDateEnum.thisWeek:
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startDate = startOfWeek.toIso8601String().substring(0, 10);
-          endDate = now.toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.thisYear:
-          startDate =
-              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-          endDate =
-              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.range:
-          startDate = _selectedStartDate;
-          endDate = _selectedEndDate;
-          break;
-      }
-
-      if (_selectedFilter == FilterDateEnum.range &&
-          (startDate.isEmpty || endDate.isEmpty)) {
-        throw Exception('Select both start and end dates');
-      }
-      _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
-        return _apiService.fetchCustomerDashOrders(
-            cusId: custId,
-            salesmanId: salesmanId,
-            startDate: startDate,
-            endDate: endDate,
-            orderStatus: s);
-      });
-      print("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
-
-      notifyListeners();
-
-      print(
-          "sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .${_orderResponse}");
-
-      notifyListeners();
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-      rethrow;
-    }
-  }
 
   Future<void> fetchOrdersSabik(OrderStatus s) async {
     try {
       final now = DateTime.now();
       String startDate;
       String endDate;
+
+      var orderType;
+
+      switch (s) {
+        case OrderStatus.delivered:
+          orderType = '';
+        case OrderStatus.estimates:
+          orderType = 7;
+        case OrderStatus.preOrder:
+          orderType = 0;
+        case OrderStatus.draft:
+          orderType = 4;
+        case OrderStatus.cancelled:
+          orderType = 3;
+        default:
+          orderType = '';
+      }
 
       switch (_selectedFilter) {
         case FilterDateEnum.thisMonth:
@@ -1445,7 +1401,7 @@ class DashboardProvider with ChangeNotifier {
       // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-            startDate: startDate, endDate: endDate, orderStatus: s);
+            startDate: startDate, endDate: endDate, orderStatus: s,orderType: orderType,);
       });
       log("Order Response Type : ${s.type}");
       log("Order Response : ${_orderResponse}");

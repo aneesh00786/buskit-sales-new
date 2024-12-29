@@ -5,12 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 Container nodataDialogueTable({
-    required String head_1,
-    required String head_2,
-    required String head_3,
-    required String head_4,
-    required String head_5,
-    required String head_6,
+    required String option,
   }) {
     return Container(
       height: 300,
@@ -35,12 +30,12 @@ Container nodataDialogueTable({
                   children: [
                     TableRow(
                       children: [
-                        _buildTableHeader1(head_1),
-                        _buildTableHeader1(head_2),
-                        _buildTableHeader1(head_3),
-                        _buildTableHeader1(head_4),
-                        _buildTableHeader1(head_5),
-                        _buildTableHeader1(head_5),
+                        _buildTableHeader1('Customer List'),
+                        _buildTableHeader1('$option NO'),
+                        _buildTableHeader1("Created"),
+                        _buildTableHeader1("Created By"),
+                        _buildTableHeader1("$option Amount"),
+                        _buildTableHeader1("Status"),
                       ],
                     ),
                   ],

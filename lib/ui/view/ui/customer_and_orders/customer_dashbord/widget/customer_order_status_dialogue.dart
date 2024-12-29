@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +144,7 @@ Widget buildOrdersTable(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _getStatusName(order.orderStatus),
+                          getStatusName(order.orderStatus),
                           style: const TextStyle(
                               fontSize: 12.0, fontWeight: FontWeight.w400),
                         ),
@@ -173,7 +174,7 @@ Widget buildOrdersTable(
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;
       double maxDialogHeight = 500;
-      double rowHeight = 140;
+      double rowHeight = rows.length==1? 140:80;
       int maxVisibleRows = 6;
       double calculatedHeight =
           (rows.length * rowHeight).clamp(0, maxDialogHeight);
@@ -310,20 +311,7 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
       ));
 }
 
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    default:
-      return 'Unknown';
-  }
-}
+
 
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';

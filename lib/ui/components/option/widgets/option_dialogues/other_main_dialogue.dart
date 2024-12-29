@@ -13,21 +13,16 @@ import 'package:scrollable_table_view/scrollable_table_view.dart';
 Widget buildDialogueMainDash({
   required List<OrdersDash> filteredOrders,
   required BuildContext context,
-  required String headers1,
-  required String headers2,
-  required String headers3,
-  required String headers4,
-  required String headers5,
-  required String headers6,
+  required String option,
 }) {
   List<String> headers = [
-    headers1,
-    headers2,
-    headers3,
-    headers4,
-    headers5,
-    headers6,
-    ''
+    "Customer List",
+    "$option NO",
+    "Created",
+    "Created By",
+    "$option Amount",
+   // "Invoice",
+    "Status",
   ];
 
   List<TableViewRow> rows = filteredOrders.isEmpty
@@ -123,16 +118,16 @@ Widget buildDialogueMainDash({
                   textAlign: TextAlign.center,
                 ),
               ),
-              TableViewCell(
-                child: Text(
-                  order.salesmanId,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              // TableViewCell(
+              //   child: Text(
+              //     order.salesmanId,
+              //     style: const TextStyle(
+              //       fontSize: 14,
+              //       fontWeight: FontWeight.w400,
+              //     ),
+              //     textAlign: TextAlign.center,
+              //   ),
+              // ),
               TableViewCell(
                 child: Text(
                   '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
@@ -165,7 +160,7 @@ Widget buildDialogueMainDash({
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8.0, vertical: 4.0),
                       child: Text(
-                        _getStatusName(order.orderStatus),
+                        getStatusName(order.orderStatus),
                         style: const TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w400,
@@ -183,141 +178,145 @@ Widget buildDialogueMainDash({
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;
       double maxDialogHeight = 500;
-      double rowHeight = 60;
-      int maxVisibleRows = 3;
-      double calculatedHeight =
-          (rows.length * rowHeight).clamp(0, maxDialogHeight);
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: calculatedHeight,
-          maxWidth: availableWidth,
-        ),
-        child: Stack(
-          children: [
-            Container(
-              width: availableWidth,
-              child: Column(
-                children: [
-                  Container(
+      double headerHeight = 60;
+      double rowHeight = 90;
+      double contentHeight = headerHeight + (rows.length * rowHeight);
+      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+
+      return Stack(
+        children: [
+          Container(
+            width: availableWidth,
+            height: containerHeight,
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15),
+                    ),
                     color: primaryColor,
-                    height: 60,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              headers[0],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                  ),
+                  height: headerHeight,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            headers[0],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      ...headers
+                          .sublist(1)
+                          .map(
+                            (label) => Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  label,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
+                            ),
+                          )
+                          .toList(),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: rows.length,
+                    shrinkWrap: true,
+                    physics: contentHeight > maxDialogHeight
+                        ? const AlwaysScrollableScrollPhysics()
+                        : const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 0.5,
                             ),
                           ),
                         ),
-                        ...headers
-                            .sublist(1)
-                            .map(
-                              (label) => Expanded(
-                                flex: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    label,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: ListView.builder(
-                      itemCount: rows.length,
-                      shrinkWrap: true,
-                      physics: rows.length >= maxVisibleRows
-                          ? const AlwaysScrollableScrollPhysics()
-                          : const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        log('Dashboard Option Widget Tables : ${rows.length}');
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey.shade300,
-                                width: 0.5,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: rows[index].cells[0].child,
                               ),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: rows[index].cells[0].child,
-                                ),
-                              ),
-                              ...rows[index]
-                                  .cells
-                                  .sublist(1)
-                                  .map(
-                                    (cell) => Expanded(
-                                      flex: 1,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: cell.child,
-                                      ),
+                            ...rows[index]
+                                .cells
+                                .sublist(1)
+                                .map(
+                                  (cell) => Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: cell.child,
                                     ),
-                                  )
-                                  .toList(),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: SizedBox(
-                height: 30,
-                width: 30,
-                child: Center(child: dialogCloseButton1(context, red)),
-              ),
+          ),
+          // Close Button
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SizedBox(
+              height: 30,
+              width: 30,
+              child: Center(child: dialogCloseButton1(context, red)),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     },
   );
 }
 
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    default:
-      return 'Unknown';
-  }
-}
+// String _getStatusName(int status) {
+//   switch (status) {
+//     case 5:
+//       return 'Order Processing';
+//     case 10:
+//       return 'Packed for Delivery';
+//     case 1:
+//       return 'Out for Delivery';
+//     case 2:
+//       return 'Delivered';
+//     default:
+//       return 'Unknown';
+//   }
+// }
 
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';

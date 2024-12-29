@@ -9,12 +9,7 @@ void showMainDashDialog({
   required BuildContext context,
   required DashboardProvider provider,
   required OrderStatus selectedOrderStatus,
-  required String headers1,
-  required String headers2,
-  required String headers3,
-  required String headers4,
-  required String headers5,
-  required String headers6,
+  required String option,
 }) {
   showDialog(
     context: context,
@@ -41,12 +36,7 @@ void showMainDashDialog({
                             ));
                       } else if (snapshot.hasError || !snapshot.hasData) {
                         return nodataDialogueTable(
-                          head_1: headers1,
-                          head_2: headers2,
-                          head_3: headers3,
-                          head_4: headers4,
-                          head_5: headers5,
-                          head_6: headers6,
+                          option: option
                         );
                       } else {
                         final orders = snapshot.data?.data ?? [];
@@ -56,23 +46,16 @@ void showMainDashDialog({
 
                         if (filteredOrders.isEmpty) {
                           return nodataDialogueTable(
-                            head_1: headers1,
-                            head_2: headers2,
-                            head_3: headers3,
-                            head_4: headers4,
-                            head_5: headers5,
-                            head_6: headers6,
+                            option: option
                           );
                         } else {
-                          return buildDialogueMainDash(
-                            context: context,
-                            filteredOrders: filteredOrders,
-                            headers1: headers1,
-                            headers2: headers2,
-                            headers3: headers3,
-                            headers4: headers4,
-                            headers5: headers5,
-                            headers6: headers6,
+                          return Material(
+                            child: buildDialogueMainDash(
+                              context: context,
+                              filteredOrders: filteredOrders,
+                              option: option
+
+                            ),
                           );
                         }
                       }

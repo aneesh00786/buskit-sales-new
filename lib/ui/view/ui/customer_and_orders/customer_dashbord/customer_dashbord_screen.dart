@@ -300,7 +300,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       children: [
                         OptionWidgetCustomerDash(
                           customerId:
-                              productsController.selectedCategoryId.value,
+                              productsController.selectedCustomerId.value,
                           customType: "",
                           customOrderStatusType: OrderStatus.preOrder,
                           userType: UserType.customer,

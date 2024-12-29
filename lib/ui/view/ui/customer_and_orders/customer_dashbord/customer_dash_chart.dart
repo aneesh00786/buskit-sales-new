@@ -103,7 +103,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.delivered);
             provider.fetchOrdersForCustomDash(
-                OrderStatus.delivered, customerId, '');
+                OrderStatus.delivered, customerId,);
           },
         ),
         OptionData(
@@ -115,7 +115,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.estimates);
             provider.fetchOrdersForCustomDash(
-                OrderStatus.estimates, customerId, 7);
+                OrderStatus.estimates, customerId,);
           },
         ),
         OptionData(
@@ -128,7 +128,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.preOrder, customerId, 0);
+                OrderStatus.preOrder, customerId,);
           },
         ),
         OptionData(
@@ -140,7 +140,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           onTap: () {
             _showOrderStatusDialog(context, provider, OrderStatus.draft);
 
-            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId, 4);
+            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId,);
           },
         ),
         OptionData(
@@ -153,7 +153,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
             _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.cancelled, customerId, 3);
+                OrderStatus.cancelled, customerId, );
           },
         ),
       ];
@@ -331,15 +331,20 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return SizedBox(
-                              height: 300,
-                              child: const Center(
-                                  child: CircularProgressIndicator()));
+                          return const SizedBox.shrink();
                         } else if (snapshot.hasError) {
                           return _buildTableLayout(context);
                         } else {
                           final orders = snapshot.data?.data ?? [];
-                          final filteredOrders = orders.toList();
+                          final dynamic filteredOrders;
+                          if (_selectedOrderStatus == '') {
+                            filteredOrders = orders.toList();
+                          } else {
+                            filteredOrders = orders.where((order) {
+                              return order.orderStatus ==
+                                  _selectedOrderStatus.type;
+                            }).toList();
+                          }
 
                           return buildOrdersTable(
                             filteredOrders: filteredOrders,

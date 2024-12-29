@@ -254,12 +254,28 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchOrdersForCustomDash(
-      OrderStatus s, String custId, dynamic orderType) async {
+      OrderStatus s, String custId) async {
     // this is for customer dashboard
     try {
       final now = DateTime.now();
       String startDate;
       String endDate;
+      dynamic orderType;
+
+      switch (s) {
+        case OrderStatus.delivered:
+          orderType = '';
+        case OrderStatus.estimates:
+          orderType = 7;
+        case OrderStatus.preOrder:
+          orderType = 0;
+        case OrderStatus.draft:
+          orderType = 4;
+        case OrderStatus.cancelled:
+          orderType = 3;
+        default:
+          orderType = '';
+      }
 
       switch (_selectedFilter) {
         case FilterDateEnum.thisMonth:
@@ -304,6 +320,7 @@ class CustomersProvider with ChangeNotifier {
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
             salesmanId: salesmanId,
+            orderType: orderType,
             startDate: startDate,
             endDate: endDate,
             orderStatus: s);

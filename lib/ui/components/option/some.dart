@@ -864,12 +864,7 @@ class OptionWidget extends StatelessWidget {
                           return const SizedBox.shrink();
                         } else if (snapshot.hasError || !snapshot.hasData) {
                           return nodataDialogueTable(
-                              head_1: 'Customer List',
-                              head_2: 'Estimate Number',
-                              head_3: 'Estimate Created',
-                              head_4: 'Created By',
-                              head_5: 'Estimate Price',
-                              head_6: 'Status');
+                              option: "Estimates");
                         } else {
                           final orders = snapshot.data?.data ?? [];
                           final filteredOrders = orders.where((order) {
@@ -1292,12 +1287,7 @@ class OptionWidget extends StatelessWidget {
                           return const SizedBox.shrink();
                         } else if (snapshot.hasError || !snapshot.hasData) {
                           return nodataDialogueTable(
-                              head_1: 'Customer List',
-                              head_2: 'Pre-Order Number',
-                              head_3: 'Pre-Order Created',
-                              head_4: 'Created By',
-                              head_5: 'Pre-Order Price',
-                              head_6: 'Status');
+                              option: "Pre-Order");
                         } else {
                           final orders = snapshot.data?.data ?? [];
                           final filteredOrders = orders.where((order) {
@@ -1712,12 +1702,7 @@ class OptionWidget extends StatelessWidget {
                           return const SizedBox.shrink();
                         } else if (snapshot.hasError || !snapshot.hasData) {
                           return nodataDialogueTable(
-                              head_1: 'Customer List',
-                              head_2: 'Draft Number',
-                              head_3: 'Draft Created',
-                              head_4: 'Created By',
-                              head_5: 'Draft Price',
-                              head_6: 'Status');
+                              option: "Draft");
                         } else {
                           final orders = snapshot.data?.data ?? [];
 
@@ -2129,12 +2114,7 @@ class OptionWidget extends StatelessWidget {
                           return const SizedBox.shrink();
                         } else if (snapshot.hasError || !snapshot.hasData) {
                           return nodataDialogueTable(
-                              head_1: 'Customer List',
-                              head_2: 'Cancelled Order Number',
-                              head_3: 'Cancelled Order Created',
-                              head_4: 'Created By',
-                              head_5: 'Cancelled Order Price',
-                              head_6: 'Status');
+                              option: "Cancelled");
                         } else {
                           final orders = snapshot.data?.data ?? [];
                           final filteredOrders = orders.where((order) {

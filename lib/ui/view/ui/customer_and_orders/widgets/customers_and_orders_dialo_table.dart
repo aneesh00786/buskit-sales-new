@@ -1,19 +1,22 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 
-Widget buildOrdersDialogueMainDash({
-  required List<OrdersDash> filteredOrders,
+Widget customerOrderDialogueMainDash({
+  required List<Order> filteredOrders,
   required BuildContext context,
+  required CustomerModelxx customer,
 }) {
   List<String> headers = [
-    "Customer List",
+    'Customer List',
     "Order NO",
     "Created",
     "Created By",
@@ -39,7 +42,6 @@ Widget buildOrdersDialogueMainDash({
           ),
         ]
       : filteredOrders.map((order) {
-          final customer = order.customer.isNotEmpty ? order.customer[0] : null;
           return TableViewRow(
             height: 80,
             cells: [
@@ -47,11 +49,11 @@ Widget buildOrdersDialogueMainDash({
                 child: Row(
                   children: [
                     CircleAvatar(
-                      radius: 20,
+                      radius: 25,
                       backgroundColor: const Color(0xffe6ecff),
-                      child: Icon(Icons.person, size: 14, color: Colors.blue),
+                      child: Icon(Icons.person, size: 14.0, color: Colors.blue),
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 5),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,14 +67,14 @@ Widget buildOrdersDialogueMainDash({
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            customer != null ? customer.fullName : 'N/A',
+                            customer != null ? customer.fullname : 'N/A',
                             style: const TextStyle(
                                 fontSize: 12, fontWeight: FontWeight.bold),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            customer != null ? customer.mobileNo : 'N/A',
+                            customer != null ? customer.mobileno : 'N/A',
                             style: const TextStyle(
                                 fontSize: 12, fontWeight: FontWeight.w400),
                             maxLines: 1,
@@ -94,7 +96,7 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderDialog(context, order, false);
+                    showDetailedOrderInvoiceDialog(context, order, false);
                   },
                   child: Text(
                     order.orderId,
@@ -108,9 +110,8 @@ Widget buildOrdersDialogueMainDash({
               ),
               TableViewCell(
                 child: Text(
-                  order.orderCreatedAt != null
-                      ? getFormattedOrderCreatAt(
-                          order.orderCreatedAt.toString())
+                  order.orderCreatAt != null
+                      ? getFormattedOrderCreatAt(order.orderCreatAt.toString())
                       : 'N/A',
                   style: const TextStyle(
                       fontSize: 12, fontWeight: FontWeight.w400),
@@ -121,7 +122,7 @@ Widget buildOrdersDialogueMainDash({
               ),
               TableViewCell(
                 child: Text(
-                  '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                  '${order.fullname} ${order.lastname}',
                   style: const TextStyle(
                       fontSize: 12, fontWeight: FontWeight.w400),
                   textAlign: TextAlign.center,
@@ -139,13 +140,11 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderDialog(context, order, true);
+                    showDetailedOrderInvoiceDialog(context, order, true);
                   },
                   child: Center(
                     child: Text(
-                      order.invoice.isEmpty
-                          ? 'Not Found'
-                          : order.invoice[0].invoiceId,
+                      order.invoiceId.toString(),
                       style: const TextStyle(color: primaryColor, fontSize: 12),
                     ),
                   ),
@@ -187,22 +186,24 @@ Widget buildOrdersDialogueMainDash({
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _getStatusName(order.orderStatus),
+                            getStatusName(order.orderStatus),
                             style: const TextStyle(
-                                fontSize: 12.0, fontWeight: FontWeight.w400),
+                                fontSize: 14.0, fontWeight: FontWeight.w400),
+                            textAlign: TextAlign.center,
                           ),
                           if (order.orderStatus == 2 &&
                               order.deliveryDate != null) ...[
                             Text(
-                                NKDateUtils.commonFullDateTimeFormat(
-                                    NKDateUtils.formatStringUTCDateTime(
-                                        order.deliveryDate!.toIso8601String())),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                style: const TextStyle(
-                                  fontSize: 8.0,
-                                  fontWeight: FontWeight.w400,
-                                )),
+                              NKDateUtils.commonFullDateTimeFormat(
+                                  NKDateUtils.formatStringUTCDateTime(
+                                      order.deliveryDate!.toIso8601String())),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              style: const TextStyle(
+                                fontSize: 10.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                           ]
                         ],
                       ),
@@ -217,129 +218,127 @@ Widget buildOrdersDialogueMainDash({
 return LayoutBuilder(
   builder: (BuildContext context, BoxConstraints constraints) {
     double availableWidth = constraints.maxWidth;
-    double maxDialogHeight = 600;
-    double rowHeight = rows.length==1?150:90; 
-    int maxVisibleRows = 4; 
-    double calculatedHeight = (rows.length * rowHeight).clamp(0, maxDialogHeight);
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: calculatedHeight,
-        maxWidth: availableWidth,
-      ),
-      child: Stack(
-        children: [
-          Container(
-            width: availableWidth,
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
-                    ),
-                    color: primaryColor,
+    double maxDialogHeight = 500;
+    double headerHeight = 60;
+    double rowHeight = 90; 
+    double contentHeight = headerHeight + (rows.length * rowHeight);
+    double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+
+    return Stack(
+      children: [
+        Container(
+          width: availableWidth,
+          height: containerHeight,
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
                   ),
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            headers[0],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                  color: primaryColor,
+                ),
+                height: headerHeight,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          headers[0],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    ...headers
+                        .sublist(1)
+                        .map(
+                          (label) => Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
+                          ),
+                        )
+                        .toList(),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  itemCount: rows.length,
+                  shrinkWrap: true,
+                  physics: contentHeight > maxDialogHeight
+                      ? const AlwaysScrollableScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 0.5,
                           ),
                         ),
                       ),
-                      ...headers
-                          .sublist(1)
-                          .map(
-                            (label) => Expanded(
-                              flex: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  label,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: ListView.builder(
-                    itemCount: rows.length,
-                    shrinkWrap: true,
-                    physics: rows.length >= maxVisibleRows
-                        ? const AlwaysScrollableScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.shade300,
-                              width: 0.5,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: rows[index].cells[0].child,
                             ),
                           ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: rows[index].cells[0].child,
-                              ),
-                            ),
-                            ...rows[index]
-                                .cells
-                                .sublist(1)
-                                .map(
-                                  (cell) => Expanded(
-                                    flex: 1,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: cell.child,
-                                    ),
+                          ...rows[index]
+                              .cells
+                              .sublist(1)
+                              .map(
+                                (cell) => Expanded(
+                                  flex: 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: cell.child,
                                   ),
-                                )
-                                .toList(),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                                ),
+                              )
+                              .toList(),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              height: 30,
-              width: 30,
-              child: Center(child: dialogCloseButton1(context, red)),
-            ),
+        ),
+        // Close Button
+        Positioned(
+          top: 0,
+          right: 0,
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: Center(child: dialogCloseButton1(context, red)),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   },
 );

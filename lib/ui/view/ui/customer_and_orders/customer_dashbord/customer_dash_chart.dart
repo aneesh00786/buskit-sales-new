@@ -306,63 +306,57 @@ class OptionWidgetCustomerDash extends StatelessWidget {
     }
   }
 
-void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
-    OrderStatus _selectedOrderStatus) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(builder: (context, setState) {
-        return Dialog(
-          insetPadding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
+  void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
+      OrderStatus _selectedOrderStatus) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
-              color: Colors.white,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FutureBuilder<OrderResponse>(
-                    future: provider.orderResponse,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SizedBox(
-                          height: 300,
-                          child: const Center(child: CircularProgressIndicator()));
-                      } else if (snapshot.hasError) {
-                        return _buildTableLayout(context);
-                      } else {
-                        final orders = snapshot.data?.data ?? [];
-                        final filteredOrders = orders.where((order) {
-                          if (_selectedOrderStatus == null) {
-                            return true;
-                          } else {
-                            return order.orderStatus ==
-                                _selectedOrderStatus.type;
-                          }
-                        }).toList();
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FutureBuilder<OrderResponse>(
+                      future: provider.orderResponse,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return SizedBox(
+                              height: 300,
+                              child: const Center(
+                                  child: CircularProgressIndicator()));
+                        } else if (snapshot.hasError) {
+                          return _buildTableLayout(context);
+                        } else {
+                          final orders = snapshot.data?.data ?? [];
+                          final filteredOrders = orders.toList();
 
-                        return buildOrdersTable(
-                          filteredOrders: filteredOrders,
-                          context: context,
-                        );
-                      }
-                    },
+                          return buildOrdersTable(
+                            filteredOrders: filteredOrders,
+                            context: context,
+                          );
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      });
-    },
-  );
-}
-
+          );
+        });
+      },
+    );
+  }
 }
 
 String _getStatusName(int status) {

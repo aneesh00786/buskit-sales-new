@@ -300,9 +300,10 @@ class CustomersProvider with ChangeNotifier {
 
       // Debouncing network requests
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
+        final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
-            salesmanId: "SALES1",
+            salesmanId: salesmanId,
             startDate: startDate,
             endDate: endDate,
             orderStatus: s);

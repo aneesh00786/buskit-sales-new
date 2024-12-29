@@ -173,7 +173,7 @@ Widget buildOrdersTable(
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;
       double maxDialogHeight = 500;
-      double rowHeight = 60;
+      double rowHeight = 140;
       int maxVisibleRows = 6;
       double calculatedHeight =
           (rows.length * rowHeight).clamp(0, maxDialogHeight);
@@ -235,52 +235,49 @@ Widget buildOrdersTable(
                     ),
                   ),
                   Flexible(
-                    child: Container(
-                      height: 100,
-                      child: ListView.builder(
-                        itemCount: rows.length,
-                        shrinkWrap: true,
-                        physics: rows.length > maxVisibleRows
-                            ? const AlwaysScrollableScrollPhysics()
-                            : const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          log('Length of the rows ${rows.length}');
-                          return Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.grey.shade300,
-                                  width: 0.5,
-                                ),
+                    child: ListView.builder(
+                      itemCount: rows.length,
+                      shrinkWrap: true,
+                      physics: rows.length > maxVisibleRows
+                          ? const AlwaysScrollableScrollPhysics()
+                          : const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        log('Length of the rows ${rows.length}');
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey.shade300,
+                                width: 0.5,
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: rows[index].cells[0].child,
-                                  ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: rows[index].cells[0].child,
                                 ),
-                                ...rows[index]
-                                    .cells
-                                    .sublist(1)
-                                    .map(
-                                      (cell) => Expanded(
-                                        flex: 1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: cell.child,
-                                        ),
+                              ),
+                              ...rows[index]
+                                  .cells
+                                  .sublist(1)
+                                  .map(
+                                    (cell) => Expanded(
+                                      flex: 1,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: cell.child,
                                       ),
-                                    )
-                                    .toList(),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   )
                 ],

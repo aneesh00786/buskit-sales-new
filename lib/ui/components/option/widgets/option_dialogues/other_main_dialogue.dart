@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -245,6 +247,7 @@ Widget buildDialogueMainDash({
                           ? const AlwaysScrollableScrollPhysics()
                           : const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
+                        log('Dashboard Option Widget Tables : ${rows.length}');
                         return Container(
                           decoration: BoxDecoration(
                             border: Border(

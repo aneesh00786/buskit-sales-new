@@ -410,14 +410,14 @@ class ApiService {
       "customer_id": "",
       "salesman_id": salesmanId,
       "order_type": "",
-      "payment_type": 0,
+      "payment_type": 1,
       "start_date": startDate,
       "end_date": endDate,
       "limit": 1000,
       "page": 1,
       "companyId": companyId,
     };
-
+    log("Request body of Order : ${requestBody}");
     try {
       final response = await http.post(
         url,

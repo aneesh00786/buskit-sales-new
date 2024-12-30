@@ -1773,19 +1773,47 @@ class _ChatScreenState extends State<ChatScreen> {
         try {
           final base64String = message.image!.split(',').last;
           final imageBytes = base64Decode(base64String);
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.memory(
-              imageBytes,
-              width: MediaQuery.of(context).size.width * 0.25,
-              fit: BoxFit.fitWidth,
-              errorBuilder: (context, error, stackTrace) {
-                return Text(
-                  'Failed to load image',
-                  style: TextStyle(color: Colors.red),
-                );
-              },
-            ),
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: message.source == 'salesman'
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.memory(
+                  imageBytes,
+                  width: MediaQuery.of(context).size.width * 0.25,
+                  fit: BoxFit.fitWidth,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Text(
+                      'Failed to load image',
+                      style: TextStyle(color: Colors.red),
+                    );
+                  },
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    NKDateUtils.commonFullDateTimeFormat2(
+                      NKDateUtils.formatStringUTCDateTime(
+                          message.updatedAt.toString()),
+                    ),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.black45,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  if (message.source == 'admin') ...[
+                    const SizedBox(width: 4),
+                    const Icon(Icons.done_all, size: 11, color: Colors.black54),
+                  ]
+                ],
+              ),
+            ],
           );
         } catch (e) {
           debugPrint("Error decoding image: $e");

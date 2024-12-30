@@ -156,18 +156,7 @@ class _OrderTakingState extends State<OrderTaking>
     setState(() {
       _isDrawerOpen = !_isDrawerOpen;
     });
-    if (_isDrawerOpen) {
-      animationController.forward();
-      Future.delayed(const Duration(milliseconds: 300), () {
-        _selectFirstCategory();
-      });
-    } else {
-      animationController.reverse();
-      setState(() {
-        _selectedCategory = '';
-        _expandedIndex = -1;
-      });
-    }
+  
   }
 
   Future<void> _fetchProductsByCategory(String categoryId) async {

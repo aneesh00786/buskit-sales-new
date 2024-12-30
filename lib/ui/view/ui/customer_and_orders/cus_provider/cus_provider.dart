@@ -156,10 +156,10 @@ class CustomersProvider with ChangeNotifier {
   //   }
   // }
 
-  Future<void> fetchCustomerDashboardCountData(String customerId) async {
+  Future<void> fetchCustomerDashboardCountData(String customerId,) async {
     try {
       // Update _countFuture with the result of fetchOrderCount
-      _countFuture = _apiService.fetchOrderCount(customerId);
+      _countFuture = _apiService.fetchOrderCount(customerId,_selectedStartDate,_selectedEndDate);
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching customer dashboard data',

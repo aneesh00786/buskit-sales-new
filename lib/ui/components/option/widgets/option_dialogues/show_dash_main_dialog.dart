@@ -20,7 +20,7 @@ void showMainDashDialog({
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                   color: Colors.white,
                 ),
                 child: ClipRRect(

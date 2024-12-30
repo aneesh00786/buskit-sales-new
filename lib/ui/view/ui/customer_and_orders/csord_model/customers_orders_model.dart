@@ -2067,69 +2067,70 @@ class Revenue {
 }
 
 class BookingRevenueDatum {
-    int id;
-    String cartId;
-    String customerId;
-    String salesmanId;
-    int total;
-    String discount;
-    int status;
-    DateTime createdAt;
-    DateTime updatedAt;
-    String orderId;
-    int paymentStatus;
-    int paymentType;
-    String paymentDetail;
-    int orderStatus;
-    DateTime orderCreatAt;
-    int orderTotal;
-    int receivedAmount;
-    DateTime? receivedAmountDate;
-    DateTime checkDueDate;
-    int checkNumber;
-    DateTime? transactionDate;
-    String transactionDetails;
-    String rejectionReason;
-    dynamic rejectedDate;
-    dynamic receivableAmount;
-    dynamic deliveryDatetime;
-    int notificationStatus;
-    dynamic orderCreatedStored;
-    int totalBookingRevenue;
+  int id;
+  String cartId;
+  String customerId;
+  String salesmanId;
+  int total;
+  String discount;
+  int status;
+  DateTime createdAt;
+  DateTime updatedAt;
+  String orderId;
+  int paymentStatus;
+  int paymentType;
+  String paymentDetail;
+  int orderStatus;
+  DateTime orderCreatAt;
+  int orderTotal;
+  int receivedAmount;
+  DateTime? receivedAmountDate;
+  DateTime checkDueDate;
+  int? checkNumber; // Nullable
+  DateTime? transactionDate;
+  String transactionDetails;
+  String rejectionReason;
+  dynamic rejectedDate;
+  dynamic receivableAmount;
+  dynamic deliveryDatetime;
+  int notificationStatus;
+  dynamic orderCreatedStored;
+  int totalBookingRevenue;
 
-    BookingRevenueDatum({
-        required this.id,
-        required this.cartId,
-        required this.customerId,
-        required this.salesmanId,
-        required this.total,
-        required this.discount,
-        required this.status,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.orderId,
-        required this.paymentStatus,
-        required this.paymentType,
-        required this.paymentDetail,
-        required this.orderStatus,
-        required this.orderCreatAt,
-        required this.orderTotal,
-        required this.receivedAmount,
-        required this.receivedAmountDate,
-        required this.checkDueDate,
-        required this.checkNumber,
-        required this.transactionDate,
-        required this.transactionDetails,
-        required this.rejectionReason,
-        required this.rejectedDate,
-        required this.receivableAmount,
-        required this.deliveryDatetime,
-        required this.notificationStatus,
-        required this.orderCreatedStored,
-        required this.totalBookingRevenue,
-    });
+  BookingRevenueDatum({
+    required this.id,
+    required this.cartId,
+    required this.customerId,
+    required this.salesmanId,
+    required this.total,
+    required this.discount,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.orderId,
+    required this.paymentStatus,
+    required this.paymentType,
+    required this.paymentDetail,
+    required this.orderStatus,
+    required this.orderCreatAt,
+    required this.orderTotal,
+    required this.receivedAmount,
+    this.receivedAmountDate,
+    required this.checkDueDate,
+    this.checkNumber, // Nullable
+    this.transactionDate,
+    required this.transactionDetails,
+    required this.rejectionReason,
+    required this.rejectedDate,
+    required this.receivableAmount,
+    required this.deliveryDatetime,
+    required this.notificationStatus,
+    required this.orderCreatedStored,
+    required this.totalBookingRevenue,
+  });
 
-    factory BookingRevenueDatum.fromJson(Map<String, dynamic> json) => BookingRevenueDatum(
+  factory BookingRevenueDatum.fromJson(Map<String, dynamic> json) =>
+      BookingRevenueDatum(
         id: json["id"],
         cartId: json["cart_id"],
         customerId: json["customer_id"],
@@ -2147,10 +2148,14 @@ class BookingRevenueDatum {
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
         orderTotal: json["order_total"],
         receivedAmount: json["received_amount"],
-        receivedAmountDate: json["received_amount_date"] == null ? null : DateTime.parse(json["received_amount_date"]),
+        receivedAmountDate: json["received_amount_date"] == null
+            ? null
+            : DateTime.parse(json["received_amount_date"]),
         checkDueDate: DateTime.parse(json["check_due_date"]),
-        checkNumber: json["check_number"],
-        transactionDate: json["transaction_date"] == null ? null : DateTime.parse(json["transaction_date"]),
+        checkNumber: json["check_number"], // Handle null
+        transactionDate: json["transaction_date"] == null
+            ? null
+            : DateTime.parse(json["transaction_date"]),
         transactionDetails: json["transaction_details"],
         rejectionReason: json["rejection_reason"],
         rejectedDate: json["rejected_date"],
@@ -2159,9 +2164,9 @@ class BookingRevenueDatum {
         notificationStatus: json["notification_status"],
         orderCreatedStored: json["order_created_stored"],
         totalBookingRevenue: json["total_booking_revenue"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
         "cart_id": cartId,
         "customer_id": customerId,
@@ -2181,7 +2186,7 @@ class BookingRevenueDatum {
         "received_amount": receivedAmount,
         "received_amount_date": receivedAmountDate?.toIso8601String(),
         "check_due_date": checkDueDate.toIso8601String(),
-        "check_number": checkNumber,
+        "check_number": checkNumber, // Nullable
         "transaction_date": transactionDate?.toIso8601String(),
         "transaction_details": transactionDetails,
         "rejection_reason": rejectionReason,
@@ -2191,8 +2196,9 @@ class BookingRevenueDatum {
         "notification_status": notificationStatus,
         "order_created_stored": orderCreatedStored,
         "total_booking_revenue": totalBookingRevenue,
-    };
+      };
 }
+
 
 class OrderRevenueDatum {
   int orderTotal;

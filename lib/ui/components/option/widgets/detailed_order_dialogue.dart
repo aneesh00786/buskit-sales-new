@@ -156,7 +156,7 @@ void showDetailedOrderDialog(
                             style: TextStyle(fontSize: 18))),
                     const Spacer(),
                     Text(
-                        'Order Status : ${_getStatusName(orderData.orderStatus)}',
+                        'Order Status : ${getStatusName(orderData.orderStatus)}',
                         style: const TextStyle(fontSize: 18))
                   ],
                 ),
@@ -357,20 +357,6 @@ String getPaymentTypeName(int paymentType) {
       return 'Cheque';
     case 2:
       return 'Bank Transfer';
-    default:
-      return 'Unknown';
-  }
-}
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
     default:
       return 'Unknown';
   }

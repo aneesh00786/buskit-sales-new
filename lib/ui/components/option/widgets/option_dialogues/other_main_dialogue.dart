@@ -21,7 +21,7 @@ Widget buildDialogueMainDash({
     "Created",
     "Created By",
     "$option Amount",
-   // "Invoice",
+    // "Invoice",
     "Status",
   ];
 
@@ -177,7 +177,7 @@ Widget buildDialogueMainDash({
   return LayoutBuilder(
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;
-      double maxDialogHeight = 500;
+      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
       double headerHeight = 60;
       double rowHeight = 90;
       double contentHeight = headerHeight + (rows.length * rowHeight);
@@ -193,8 +193,8 @@ Widget buildDialogueMainDash({
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
                     ),
                     color: primaryColor,
                   ),
@@ -302,21 +302,6 @@ Widget buildDialogueMainDash({
     },
   );
 }
-
-// String _getStatusName(int status) {
-//   switch (status) {
-//     case 5:
-//       return 'Order Processing';
-//     case 10:
-//       return 'Packed for Delivery';
-//     case 1:
-//       return 'Out for Delivery';
-//     case 2:
-//       return 'Delivered';
-//     default:
-//       return 'Unknown';
-//   }
-// }
 
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';

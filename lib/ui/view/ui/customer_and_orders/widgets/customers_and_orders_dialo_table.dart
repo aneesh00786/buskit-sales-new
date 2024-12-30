@@ -356,20 +356,7 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
       ));
 }
 
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    default:
-      return 'Unknown';
-  }
-}
+
 
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';

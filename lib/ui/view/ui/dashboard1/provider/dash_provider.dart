@@ -97,7 +97,7 @@ class ApiService {
       "start_date": startDate,
       "end_date": endDate,
       "companyId": companyId,
-     "targetType": 1
+      "targetType": 1
     };
     try {
       log('API URL: $url');
@@ -208,7 +208,7 @@ class ApiService {
       'enddate': endDate,
       'targetType': '1',
       'salesman_id': salesmanId,
-      'companyId':companyId
+      'companyId': companyId
     };
 
     try {
@@ -521,29 +521,21 @@ class ApiService {
     required String startDate,
     required String endDate,
     required dynamic orderType,
-    OrderStatus? orderStatus, // New parameter for filtering by order status
+    OrderStatus? orderStatus,
   }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
-
-    // Determine order_status based on orderStatus parameter
-    // String orderStatusString = '';
-    // if (orderStatus != null) {
-    //   orderStatusString = orderStatus.type.toString(); // Convert int to String
-    // }
-
+    final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
     final requestBody = {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": cusId,
       "salesman_id": salesmanId,
       "order_type": orderType,
-      "companyId": companyId,
-      "payment_type": 1,
+      "payment_type": "1",
       "start_date": startDate,
       "end_date": endDate,
       "limit": 1000,
       "page": 1,
     };
-    log("Customer IDssssss $requestBody");
-
+    log("Request Body Of ${requestBody}");
     try {
       final response = await http.post(
         url,
@@ -553,11 +545,12 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        print('Fetch All Orders Response: $jsonResponse');
+        log('Fetch All Orders Response: $jsonResponse');
 
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
+        log('Fetch All Orders Customer Pagination: ${pagination.totalRecord}');
 
         List<OrdersDash> orders = [];
         if (orderData != null) {
@@ -930,16 +923,18 @@ class ApiService {
 
   Future<ApiResponsees> fetchOrderCount(
     String customerId,
+    String startDate,
+    String endDate,
   ) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchOrderCount}');
     final requestBody = {
-      "salesman_id": "",
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId,
       "customer_id": customerId,
-      "start_date": '',
-      "end_date": '',
+      "start_date": startDate,
+      "end_date": endDate,
       "companyId": companyId,
     };
-
+    log("Count Request Body : $requestBody");
     try {
       final response = await http.post(
         url,
@@ -1401,7 +1396,11 @@ class DashboardProvider with ChangeNotifier {
       // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-            startDate: startDate, endDate: endDate, orderStatus: s,orderType: orderType,);
+          startDate: startDate,
+          endDate: endDate,
+          orderStatus: s,
+          orderType: orderType,
+        );
       });
       log("Order Response Type : ${s.type}");
       log("Order Response : ${_orderResponse}");
@@ -1877,7 +1876,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 final orders = snapshot.data?.data ?? [];
                 final filteredOrders = orders.where((order) {
                   if (_selectedOrderStatus == null) {
-                    return true; 
+                    return true;
                   } else {
                     return order.orderStatus == _selectedOrderStatus!.type;
                   }
@@ -2029,10 +2028,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   Text('Customer ID: ${order.customerId}'),
                   Text('Payment Type: ${order.paymentType}'),
                   Text('Order Created At: ${order.orderCreatedAt}'),
-                  Text('Order Total: ${formatAmount(order.orderTotal.toStringAsFixed(2))}'),
+                  Text(
+                      'Order Total: ${formatAmount(order.orderTotal.toStringAsFixed(2))}'),
                   Text(
                       'Order Status: ${getOrderStatusName(order.orderStatus)}'),
-
                 ],
               ),
             ),

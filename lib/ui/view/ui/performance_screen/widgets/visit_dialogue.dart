@@ -41,97 +41,139 @@ Widget buildVisitsDialogContent(
             visit.status.toString() ?? 'N/A',
           ];
         }).toList();
-  return LayoutBuilder(
-    builder: (BuildContext context, BoxConstraints constraints) {
-      double availableWidth = constraints.maxWidth;
-      TextStyle titleStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.bold,);
-      TextStyle eventIdStyle = TextStyle(fontSize: 14, );
-      TextStyle typeStyle = TextStyle(fontSize: 14,);
-      TextStyle customerIdStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.blueGrey);
-      TextStyle dateStyle = TextStyle(fontSize: 14,);
-      TextStyle statusStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.bold,);
+return LayoutBuilder(
+  builder: (BuildContext context, BoxConstraints constraints) {
+    double availableWidth = constraints.maxWidth;
+    double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+    double headerHeight = 60;
+    double rowHeight = 60;
+    double contentHeight = headerHeight + (rows.length * rowHeight);
+    double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-      return Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-              color: primaryColor,
-            ),
-            height: 60,
-          ),
-          Container(
-            width: availableWidth,
-            height: 600,
-            child: ScrollableTableView(
-              headerBackgroundColor: primaryColor,
-              headerHeight: 50,
-              headers: headers.map((label) {
-                return TableViewHeader(
-                  alignment: Alignment.center,
-                  label: label,
-                  width: 150,
-                  textStyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+    return Stack(
+      children: [
+        Container(
+          width: availableWidth,
+          height: containerHeight,
+          child: Column(
+            children: [
+              // Header
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
                   ),
-                );
-              }).toList(),
-              rows: rows.map((record) {
-                return TableViewRow(
-                  height: 60,
-                  cells: record.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    String value = entry.value;
-                    TextStyle cellStyle;
-                    switch (index) {
-                      case 0:
-                        cellStyle = titleStyle;
-                        break;
-                      case 1:
-                        cellStyle = eventIdStyle;
-                        break;
-                      case 2:
-                        cellStyle = typeStyle;
-                        break;
-                      case 3:
-                        cellStyle = customerIdStyle;
-                        break;
-                      case 4:
-                        cellStyle = dateStyle;
-                        break;
-                      case 5:
-                        cellStyle = statusStyle;
-                        break;
-                      default:
-                        cellStyle = TextStyle(fontSize: 14, color: Colors.black87);
-                    }
-
-                    return TableViewCell(
-                      child: Text(
-                        value,
-                        style: cellStyle,
+                  color: primaryColor,
+                ),
+                height: headerHeight,
+                child: Row(
+                  children: headers.map((label) {
+                    return Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     );
                   }).toList(),
-                );
-              }).toList(),
-            ),
+                ),
+              ),
+              // Rows
+              Flexible(
+                child: ListView.builder(
+                  itemCount: rows.length,
+                  shrinkWrap: true,
+                  physics: contentHeight > maxDialogHeight
+                      ? const AlwaysScrollableScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: rows[index].asMap().entries.map((entry) {
+                          int columnIndex = entry.key;
+                          String cellValue = entry.value;
+                          TextStyle cellStyle;
+
+                          // Assign specific styles based on column index
+                          switch (columnIndex) {
+                            case 0:
+                              cellStyle = TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              );
+                              break;
+                            case 3:
+                              cellStyle = TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blueGrey,
+                              );
+                              break;
+                            case 5:
+                              cellStyle = TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              );
+                              break;
+                            default:
+                              cellStyle = TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                              );
+                          }
+
+                          return Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                cellValue,
+                                style: cellStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              height: 45,
-              width: 45,
-              child: Center(child: dialogCloseButton1(context, red)),
-            ),
+        ),
+        // Close Button
+        Positioned(
+          top: 0,
+          right: 0,
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: Center(child: dialogCloseButton1(context, red)),
           ),
-        ],
-      );
-    },
-  );
+        ),
+      ],
+    );
+  },
+);
+
 }
 
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {

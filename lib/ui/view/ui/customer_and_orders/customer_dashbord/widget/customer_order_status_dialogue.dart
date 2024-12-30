@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -88,10 +89,19 @@ Widget buildOrdersTable(
                 ),
               ),
               TableViewCell(
-                child: Text(
-                  order.orderId,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.center,
+                child: InkWell(
+                  onTap: () {
+                    _showDetailedOrderDialog(
+                      context,
+                      order,
+                    );
+                  },
+                  child: Text(
+                    order.orderId,
+                    style: TextStyle(fontWeight: FontWeight.w600,color: primaryColor),
+                    textAlign: TextAlign.center,
+                    
+                  ),
                 ),
               ),
               TableViewCell(
@@ -173,128 +183,127 @@ Widget buildOrdersTable(
   return LayoutBuilder(
     builder: (BuildContext context, BoxConstraints constraints) {
       double availableWidth = constraints.maxWidth;
-      double maxDialogHeight = 500;
-      double rowHeight = rows.length==1? 140:80;
-      int maxVisibleRows = 6;
-      double calculatedHeight =
-          (rows.length * rowHeight).clamp(0, maxDialogHeight);
+      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+      double headerHeight = 60;
+      double rowHeight = 90;
+      double contentHeight = headerHeight + (rows.length * rowHeight);
+      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: calculatedHeight,
-          maxWidth: availableWidth,
-        ),
-        child: Stack(
-          children: [
-            Container(
-              width: availableWidth,
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15))),
-                    height: 60,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              headers[0],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+      return Stack(
+        children: [
+          Container(
+            width: availableWidth,
+            height: containerHeight,
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15),
+                    ),
+                    color: primaryColor,
+                  ),
+                  height: headerHeight,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            headers[0],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      ...headers
+                          .sublist(1)
+                          .map(
+                            (label) => Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  label,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
+                            ),
+                          )
+                          .toList(),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: rows.length,
+                    shrinkWrap: true,
+                    physics: contentHeight > maxDialogHeight
+                        ? const AlwaysScrollableScrollPhysics()
+                        : const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 0.5,
                             ),
                           ),
                         ),
-                        ...headers
-                            .sublist(1)
-                            .map(
-                              (label) => Expanded(
-                                flex: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    label,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: ListView.builder(
-                      itemCount: rows.length,
-                      shrinkWrap: true,
-                      physics: rows.length > maxVisibleRows
-                          ? const AlwaysScrollableScrollPhysics()
-                          : const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        log('Length of the rows ${rows.length}');
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey.shade300,
-                                width: 0.5,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: rows[index].cells[0].child,
                               ),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: rows[index].cells[0].child,
-                                ),
-                              ),
-                              ...rows[index]
-                                  .cells
-                                  .sublist(1)
-                                  .map(
-                                    (cell) => Expanded(
-                                      flex: 1,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: cell.child,
-                                      ),
+                            ...rows[index]
+                                .cells
+                                .sublist(1)
+                                .map(
+                                  (cell) => Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: cell.child,
                                     ),
-                                  )
-                                  .toList(),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                ],
-              ),
+                                  ),
+                                )
+                                .toList(),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: SizedBox(
-                height: 30,
-                width: 30,
-                child: Center(child: dialogCloseButton1(context, red)),
-              ),
+          ),
+          // Close Button
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SizedBox(
+              height: 30,
+              width: 30,
+              child: Center(child: dialogCloseButton1(context, red)),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     },
   );
@@ -311,8 +320,6 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
       ));
 }
 
-
-
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';
   return DateFormat(format).format(date);
@@ -324,316 +331,282 @@ void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
     builder: (BuildContext context) {
       return Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Container(
-          padding: const EdgeInsets.all(9),
+        backgroundColor: white,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.red,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(3.2),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.red,
-                        size: 15,
-                      ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Divider(),
-                        //     Text('${order.cart[0]}'),
-                        MyRegularText(
-                            label: order.customer.isNotEmpty
-                                ? '${order.customer[0].fullName}'
-                                : 'N/A',
-                            style: const TextStyle(fontSize: 20)),
-                        MyRegularText(
-                            label: order.invoice.isNotEmpty &&
-                                    order.invoice[0].createdAt != null
-                                ? 'Invoice Date: ${getFormattedOrderCreatAt(order.invoice[0].createdAt)}'
-                                : 'Invoice Date: N/A'),
-                        MyRegularText(
-                            label: order.invoice.isNotEmpty
-                                ? 'Invoice N0: ${order.invoice[0].invoiceId}'
-                                : 'Invoice N0: N/A'),
-                      ],
-                    ),
-                  ),
-                  //VerticalDivider(),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Divider(),
-                        MyRegularText(
-                            label: order.customer[0].businessName,
-                            style: const TextStyle(fontSize: 16)),
-                        MyRegularText(label: order.customer[0].fullName),
-                        MyRegularText(label: order.customer[0].email),
-                      ],
-                    ),
-                  ),
+                  const Spacer(),
+                  dialogCloseButton1(context, red),
                 ],
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Divider(),
-                  LayoutBuilder(builder: (context, constraints) {
-                    return ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minWidth: constraints.maxWidth),
-                      child: SingleChildScrollView(
-                          child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                    color: secondaryTextColor, width: 0.7),
-                              ),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'QTY',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'Description',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'Price',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                      label: 'Sub Total',
-                                      style:
-                                          TextStyle(color: secondaryTextColor),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ...order.cart.map((item) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: item.quantity.toString()),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: item.variationName),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: item.price.toStringAsFixed(2)),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: MyRegularText(
-                                        label: (item.price).toStringAsFixed(2)),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ],
-                      )),
-                    );
-                  }),
-                ],
-              ),
-              const Divider(),
-              LayoutBuilder(builder: (context, constraints) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                                color: secondaryTextColor, width: 0.7),
+              const SizedBox(height: 16),
+              MyCommnonContainer(
+                isCommonBorder: true,
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'INVOICE',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: const Row(
+                        const Spacer(),
+                        Text(
+                          NKDateUtils.commonDayFormat2(
+                              NKDateUtils.formatStringUTCDateTime(
+                                  order.orderCreatedAt.toIso8601String())),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(color: Colors.grey.shade300),
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: MyRegularText(
-                                  label: 'Payment Info',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ),
+                            Text(
+                              order.customer.isNotEmpty
+                                  ? 'Name : ${order.customer[0].fullName}'
+                                  : 'N/A',
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: MyRegularText(
-                                  label: 'Due By',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ),
+                            Text(
+                              order.customer.isNotEmpty
+                                  ? 'Email : ${order.customer[0].email}'
+                                  : 'N/A',
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: MyRegularText(
-                                  label: 'Total Due',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ),
+                            Text(
+                              order.customer.isNotEmpty
+                                  ? 'Phone : ${order.customer[0].mobileNo}'
+                                  : 'N/A',
+                            ),
+                            Text(
+                              order.customer.isNotEmpty
+                                  ? 'Salesman : ${order.customer[0].salesmanName}'
+                                  : 'N/A',
                             ),
                           ],
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MyRegularText(
-                                  label: order.paymentDetail.toString()),
+                        const Spacer(),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text:
+                                        'Payment Status : ', // This part is always black
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 12),
+                                  ),
+                                  TextSpan(
+                                    text: order.customer.isNotEmpty
+                                        ? (order.paymentStatus == 0
+                                            ? 'NOT PAID'
+                                            : 'COMPLETED')
+                                        : 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: order.paymentStatus == 0
+                                          ? Colors.red
+                                          : Colors.green, // Dynamic color
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MyRegularText(
-                                  label: getFormattedOrderCreatAt(
-                                      order.checkDueDate)),
+                            Text(
+                              order.customer.isNotEmpty
+                                  ? 'Payment Mode : ${_getPaymentTypeName(order.paymentStatus)}'
+                                  : 'N/A',
                             ),
+                          ],
+                        ),
+                        const Spacer(),
+                        ClipOval(
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            color: Colors.lightBlue[100],
+                            child: order.customer.isNotEmpty
+                                ? Image.network(
+                                    'uploads/${order.customer[0].imageUrl}')
+                                : const Icon(Icons.person, color: Colors.blue),
                           ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MyRegularText(
-                                  label: order.orderTotal.toStringAsFixed(2)),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  // DataTable(
-                  //   columns: [
-                  //     DataColumn(label: Text('Payment Info')),
-                  //     DataColumn(label: Text('Due By')),
-                  //     DataColumn(label: Text('Total Due')),
-                  //   ],
-                  //   rows: [
-                  //     DataRow(cells: [
-                  //       DataCell(Text(order.paymentDetail)),
-                  //       DataCell(Text(order.checkDueDate.toString())),
-                  //       DataCell(Text(order.orderTotal.toStringAsFixed(2))),
-                  //     ]),
-                  //   ],
-                  // ),
-                );
-              }),
-              const Divider(),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(primaryColor),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Reject',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(primaryColor),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              4.0), // Adjust the radius value as needed
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Handle accept action
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Accept',
-                        style: const TextStyle(color: Colors.white)),
-                  ),
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('ITEMS ORDERED',
+                          style: TextStyle(fontSize: 18))),
+                  const Spacer(),
+                  Text('Order Status : ${getStatusName(order.orderStatus)}',
+                      style: const TextStyle(fontSize: 18))
                 ],
+              ),
+              const Divider(
+                color: black,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: DataTable(
+                      dataRowHeight: 40,
+                      headingRowHeight: 40,
+                      horizontalMargin: 20,
+                      headingTextStyle: const TextStyle(
+                        color: black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      columns: const [
+                        DataColumn(
+                          label: Expanded(
+                            flex: 2,
+                            child: Text(
+                              'ITEMS NAME',
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            flex: 2,
+                            child: Text(
+                              'UNIT PRICE',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            flex: 2,
+                            child: Text(
+                              'QUANTITY',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            flex: 2,
+                            child: Text(
+                              'TOTAL',
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows: order.cart.map((item) {
+                        return DataRow(cells: [
+                          DataCell(Text(item.productName)),
+                          DataCell(Center(child: Text(item.price.toString()))),
+                          DataCell(Center(
+                              child: Text(
+                                  item.packType == 'Pack'
+                                      ? '${item.pieces} (${item.quantity} ${item.packType})'
+                                      : item.quantity.toString(),
+                                  maxLines: 1))),
+                          DataCell(Align(
+                              alignment: Alignment.centerRight,
+                              child:
+                                  Text(formatAmount(item.price), maxLines: 1))),
+                        ]);
+                      }).toList(),
+                    ),
+                  )
+                ],
+              ),
+              // const Divider(),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Subtotal',
+                          style: TextStyle(
+                            color: black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          formatAmount(order.orderTotal),
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
+                    // const Row(
+                    //   children: [
+                    //     Text(
+                    //       'Tax Amount',
+                    //       style: TextStyle(
+                    //         color: black,
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w500,
+                    //       ),
+                    //     ),
+                    //     Spacer(),
+                    //     Text('10%'),
+                    //   ],
+                    // ),
+                    Divider(color: Colors.grey.shade400),
+                    Row(
+                      children: [
+                        const Text(
+                          'Total',
+                          style: TextStyle(
+                            color: black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          formatAmount(order.orderTotal),
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: red,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Currency  \$',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ],
           ),
@@ -641,4 +614,16 @@ void _showDetailedOrderDialog(BuildContext context, OrdersDash order) {
       );
     },
   );
+}
+String _getPaymentTypeName(int paymentType) {
+  switch (paymentType) {
+    case 0:
+      return 'Cash';
+    case 1:
+      return 'Cheque';
+    case 2:
+      return 'Bank Transfer';
+    default:
+      return 'Unknown';
+  }
 }

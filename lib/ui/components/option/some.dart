@@ -760,7 +760,7 @@ class OptionWidget extends StatelessWidget {
                                                                             .min,
                                                                     children: [
                                                                       Text(
-                                                                        _getStatusName(
+                                                                        getStatusName(
                                                                             order.orderStatus),
                                                                         style: const TextStyle(
                                                                             fontSize:
@@ -1209,7 +1209,7 @@ class OptionWidget extends StatelessWidget {
                                                                     vertical:
                                                                         4.0),
                                                                 child: Text(
-                                                                  _getStatusName(
+                                                                  getStatusName(
                                                                       order
                                                                           .orderStatus),
                                                                   style:
@@ -1625,7 +1625,7 @@ class OptionWidget extends StatelessWidget {
                                                                               4.0),
                                                                       child:
                                                                           Text(
-                                                                        _getStatusName(
+                                                                        getStatusName(
                                                                             order.orderStatus),
                                                                         style:
                                                                             const TextStyle(
@@ -2037,7 +2037,7 @@ class OptionWidget extends StatelessWidget {
                                                                               4.0),
                                                                       child:
                                                                           Text(
-                                                                        _getStatusName(
+                                                                        getStatusName(
                                                                             order.orderStatus),
                                                                         style:
                                                                             const TextStyle(
@@ -2446,7 +2446,7 @@ class OptionWidget extends StatelessWidget {
                                                                     vertical:
                                                                         4.0),
                                                                 child: Text(
-                                                                  _getStatusName(
+                                                                  getStatusName(
                                                                       order
                                                                           .orderStatus),
                                                                   style:
@@ -2518,20 +2518,6 @@ class OptionWidget extends StatelessWidget {
   }
 }
 
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    default:
-      return 'Unknown';
-  }
-}
 
 String _getPaymentTypeName(int paymentType) {
   switch (paymentType) {
@@ -2705,7 +2691,7 @@ void _showDetailedOrderDialog(
                             style: TextStyle(fontSize: 18))),
                     const Spacer(),
                     Text(
-                        'Order Status : ${_getStatusName(orderData.orderStatus)}',
+                        'Order Status : ${getStatusName(orderData.orderStatus)}',
                         style: const TextStyle(fontSize: 18))
                   ],
                 ),

@@ -187,7 +187,7 @@ Widget buildOrdersDialogueMainDash({
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _getStatusName(order.orderStatus),
+                            getStatusName(order.orderStatus),
                             style: const TextStyle(
                                 fontSize: 12.0, fontWeight: FontWeight.w400),
                           ),
@@ -217,7 +217,7 @@ Widget buildOrdersDialogueMainDash({
 return LayoutBuilder(
   builder: (BuildContext context, BoxConstraints constraints) {
     double availableWidth = constraints.maxWidth;
-    double maxDialogHeight = 500;
+    double maxDialogHeight = MediaQuery.of(context).size.height*0.8;
     double headerHeight = 60;
     double rowHeight = 90; 
     double contentHeight = headerHeight + (rows.length * rowHeight);
@@ -355,20 +355,7 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
       ));
 }
 
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    default:
-      return 'Unknown';
-  }
-}
+
 
 String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';

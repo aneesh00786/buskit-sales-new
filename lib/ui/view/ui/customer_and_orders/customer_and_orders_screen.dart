@@ -1996,21 +1996,6 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
   }
 }
 
-String _getStatusName(int status) {
-  switch (status) {
-    case 5:
-      return 'Order Processing';
-    case 10:
-      return 'Packed for Delivery';
-    case 1:
-      return 'Out for Delivery';
-    case 2:
-      return 'Delivered';
-    default:
-      return 'Unknown';
-  }
-}
-
 class FrozenHeaderTable extends StatefulWidget {
   final ScrollController scrollController;
 

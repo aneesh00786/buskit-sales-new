@@ -1,6 +1,8 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_customer_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -11,6 +13,7 @@ import 'package:scrollable_table_view/scrollable_table_view.dart';
 Widget buildOrdersDialogueMainDash({
   required List<OrdersDash> filteredOrders,
   required BuildContext context,
+  required bool isCustomer,
 }) {
   List<String> headers = [
     "Customer List",
@@ -94,7 +97,10 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderDialog(context, order, false);
+                   isCustomer? showDetailedOrderDialog(context, order, false):showDetailedCustomerOrderDialog(
+                    context,
+                    order,
+                   );
                   },
                   child: Text(
                     order.orderId,
@@ -139,7 +145,10 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderDialog(context, order, true);
+                   isCustomer? showDetailedOrderDialog(context, order, true):showDetailedCustomerOrderDialog(
+                    context,
+                    order,
+                   );
                   },
                   child: Center(
                     child: Text(
@@ -346,22 +355,4 @@ return LayoutBuilder(
   },
 );
 
-}
-
-Text text(List<InvoiceDash> invoices, dynamic s) {
-  String invoiceIds = invoices.map((invoice) => invoice.invoiceId).join(', ');
-  return Text(invoiceIds,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: s,
-        color: primaryColor,
-        fontWeight: FontWeight.w400,
-      ));
-}
-
-
-
-String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
-  if (date == null) return 'N/A';
-  return DateFormat(format).format(date);
 }

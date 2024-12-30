@@ -40,6 +40,7 @@ void showOrderStatusDialog(BuildContext context, DashboardProvider provider,
                         return buildOrdersDialogueMainDash(
                           context: context,
                           filteredOrders: filteredOrders,
+                          isCustomer: true,
                         );
                       }
                     },

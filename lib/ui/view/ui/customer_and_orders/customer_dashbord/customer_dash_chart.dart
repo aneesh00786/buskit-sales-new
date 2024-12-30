@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/option/widgets/option_dialogues/orders_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -52,7 +53,9 @@ class OptionWidgetCustomerDash extends StatelessWidget {
       builder: (context, provider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (provider.countFuture == null) {
-            provider.fetchCustomerDashboardCountData(customerId,);
+            provider.fetchCustomerDashboardCountData(
+              customerId,
+            );
           }
         });
 
@@ -101,9 +104,11 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
           color: Color.fromARGB(255, 55, 74, 134),
           onTap: () {
-            _showOrderStatusDialog(context, provider, OrderStatus.delivered);
+            _showOrderStatusDialog(context, provider, OrderStatus.delivered,true);
             provider.fetchOrdersForCustomDash(
-                OrderStatus.delivered, customerId,);
+              OrderStatus.delivered,
+              customerId,
+            );
           },
         ),
         OptionData(
@@ -113,9 +118,11 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           svgBgColor: const Color.fromARGB(255, 226, 249, 243),
           color: Color.fromARGB(255, 36, 108, 44),
           onTap: () {
-            _showOrderStatusDialog(context, provider, OrderStatus.estimates);
+            _showOrderStatusDialog(context, provider, OrderStatus.estimates,false);
             provider.fetchOrdersForCustomDash(
-                OrderStatus.estimates, customerId,);
+              OrderStatus.estimates,
+              customerId,
+            );
           },
         ),
         OptionData(
@@ -125,10 +132,12 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           svgBgColor: const Color.fromARGB(255, 230, 247, 251),
           color: Color.fromARGB(255, 45, 104, 116),
           onTap: () {
-            _showOrderStatusDialog(context, provider, OrderStatus.preOrder);
+            _showOrderStatusDialog(context, provider, OrderStatus.preOrder,false);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.preOrder, customerId,);
+              OrderStatus.preOrder,
+              customerId,
+            );
           },
         ),
         OptionData(
@@ -138,9 +147,12 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           svgBgColor: const Color.fromARGB(255, 255, 227, 255),
           color: Color.fromARGB(255, 100, 43, 109),
           onTap: () {
-            _showOrderStatusDialog(context, provider, OrderStatus.draft);
+            _showOrderStatusDialog(context, provider, OrderStatus.draft,false);
 
-            provider.fetchOrdersForCustomDash(OrderStatus.draft, customerId,);
+            provider.fetchOrdersForCustomDash(
+              OrderStatus.draft,
+              customerId,
+            );
           },
         ),
         OptionData(
@@ -150,10 +162,12 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           svgBgColor: const Color.fromARGB(255, 255, 228, 228),
           color: Color.fromARGB(255, 139, 27, 27),
           onTap: () {
-            _showOrderStatusDialog(context, provider, OrderStatus.cancelled);
+            _showOrderStatusDialog(context, provider, OrderStatus.cancelled,false);
 
             provider.fetchOrdersForCustomDash(
-                OrderStatus.cancelled, customerId, );
+              OrderStatus.cancelled,
+              customerId,
+            );
           },
         ),
       ];
@@ -307,7 +321,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
   }
 
   void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
-      OrderStatus _selectedOrderStatus) {
+      OrderStatus _selectedOrderStatus, bool isOrder) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -338,10 +352,18 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                           final orders = snapshot.data?.data ?? [];
                           final dynamic filteredOrders;
                           filteredOrders = orders.toList();
-                          return buildOrdersTable(
-                            filteredOrders: filteredOrders,
-                            context: context,
-                          );
+                          if (isOrder == true) {
+                            return buildOrdersDialogueMainDash(
+                              filteredOrders: filteredOrders,
+                              context: context,
+                              isCustomer: false,
+                            );
+                          } else {
+                            return buildOrdersTable(
+                              filteredOrders: filteredOrders,
+                              context: context,
+                            );
+                          }
                         }
                       },
                     ),
@@ -355,7 +377,6 @@ class OptionWidgetCustomerDash extends StatelessWidget {
     );
   }
 }
-
 
 Text text(List<InvoiceDash> invoices, dynamic s) {
   String invoiceIds = invoices.map((invoice) => invoice.invoiceId).join(', ');
@@ -435,27 +456,4 @@ class OptionData {
     this.color,
   });
 }
-class YourWidget extends StatelessWidget {
-  final OrderStatus selectedOrderStatus;
-  final void Function(OrderStatus?)? onChanged; // Adjusted callback type
 
-  const YourWidget({
-    Key? key,
-    required this.selectedOrderStatus,
-    this.onChanged,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<OrderStatus>(
-      value: selectedOrderStatus,
-      onChanged: onChanged,
-      items: OrderStatus.values.map((status) {
-        return DropdownMenuItem<OrderStatus>(
-          value: status,
-          child: Text(status.name),
-        );
-      }).toList(),
-    );
-  }
-}

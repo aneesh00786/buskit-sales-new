@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import '../../view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import '../../view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 class MyAppssss extends StatelessWidget {
   const MyAppssss({super.key});
   @override
@@ -198,6 +199,7 @@ class BarChartSample extends StatelessWidget {
     );
   }
 }
+
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
@@ -256,14 +258,14 @@ class _CustomBarChartState extends State<CustomBarChart> {
             color: const Color(0xff15396a),
             width: 8,
             borderRadius: BorderRadius.zero,
-            borderSide: BorderSide.none, 
+            borderSide: BorderSide.none,
           ),
           BarChartRodData(
             toY: actual,
             color: const Color(0xff7a8f3d),
             width: 8,
             borderRadius: BorderRadius.zero,
-            borderSide: BorderSide.none, 
+            borderSide: BorderSide.none,
           ),
         ],
       );
@@ -393,7 +395,6 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                           style: TextStyle(
                                             color: secondaryTextColor,
                                             fontSize: 13,
-
                                           ),
                                         ),
                                       ),
@@ -495,8 +496,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                               leftTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
-                                  getTitlesWidget:
-                                      getLeftTitles,
+                                  getTitlesWidget: getLeftTitles,
                                   reservedSize: 40,
                                 ),
                               ),
@@ -565,13 +565,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
   Widget _buildLegend({required Color color, required String label}) {
     return Row(
       children: [
-        Container(
-          height: ResponsiveInfo.isMobileDimension(context) ? 11.5 : 11.9,
-          width: ResponsiveInfo.isMobileDimension(context) ? 14.9 : 14.9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(1.0),
-          ),
+        CircleAvatar(
+          radius: ResponsiveInfo.isMobileDimension(context) ? 5.45 : 6.10,
+          backgroundColor: color,
         ),
         const SizedBox(width: 2),
         MyRegularText(
@@ -805,12 +801,11 @@ class _CustomBarChartCustomerDashState
           totalPrice: '0',
         ),
       );
-      double target = 0.0; 
+      double target = 0.0;
       try {
-        target = double.tryParse(perf.totalPrice) ??
-            0.0; 
+        target = double.tryParse(perf.totalPrice) ?? 0.0;
       } catch (e) {
-        target = 0.0; 
+        target = 0.0;
       }
 
       return BarChartGroupData(
@@ -827,6 +822,7 @@ class _CustomBarChartCustomerDashState
       );
     }).toList();
   }
+
   Widget getBottomTitles(double value, TitleMeta meta) {
     const style = TextStyle(
       color: Colors.black,

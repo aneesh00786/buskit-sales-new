@@ -109,7 +109,6 @@ return LayoutBuilder(
 
     return Stack(
       children: [
-        // Header Background
         Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
@@ -120,13 +119,11 @@ return LayoutBuilder(
           ),
           height: headerHeight,
         ),
-        // Table Container
         Container(
           width: availableWidth,
           height: containerHeight,
           child: Column(
             children: [
-              // Header
               Container(
                 height: headerHeight,
                 decoration: BoxDecoration(
@@ -155,7 +152,6 @@ return LayoutBuilder(
                   }).toList(),
                 ),
               ),
-              // Rows
               Flexible(
                 child: ListView.builder(
                   itemCount: rows.length,
@@ -190,7 +186,6 @@ return LayoutBuilder(
             ],
           ),
         ),
-        // Close Button
         Positioned(
           top: 0,
           right: 0,

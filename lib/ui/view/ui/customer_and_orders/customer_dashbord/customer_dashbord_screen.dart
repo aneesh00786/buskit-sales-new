@@ -254,8 +254,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 ),
                               ),
                             ),
-                          )
-                          ),
+                          )),
                       const SizedBox(
                         width: 4.5,
                       ),
@@ -389,7 +388,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         height: 300,
         width: double.infinity,
         isCommonBorder: true,
-        padding: nkRegularPadding(),
         child: Consumer<CustomersProvider>(builder: (context, provider, child) {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,9 +406,22 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       y: '2024',
                                     )));
                       },
-                      child: const Text(
-                        'Category Sales',
-                        style: cardHeadingTextStyle,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            bottomRight: Radius.circular(25),
+                          ),
+                        ),
+                        padding: const EdgeInsets.only(
+                            right: 20, left: 20, top: 5, bottom: 5),
+                        child: Text(
+                          'Category Sales',
+                          style: cardHeadingTextStyle,
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -527,53 +538,61 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: nkRegularPadding(),
-              child: Row(
-                children: [
-                  const Text(
+            Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(
+                      right: 20, left: 20, top: 5, bottom: 5),
+                  child: Text(
                     'Orders & Payment/s',
                     style: cardHeadingTextStyle,
+                    maxLines: 1,
+                    softWrap: false,
                   ),
-                  nkSmallSizeBox(),
-                  SizedBox(
-                    height: 25,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        List<RecentOrder> selectedOrders = [];
-
-                        // Collect selected orders
-                        for (var order in recentOrders) {
-                          if (context
-                              .read<CustomersProvider>()
-                              .isOrderSelected(order)) {
-                            selectedOrders.add(order);
-                          }
+                ),
+                nkSmallSizeBox(),
+                SizedBox(
+                  height: 25,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      List<RecentOrder> selectedOrders = [];
+                      for (var order in recentOrders) {
+                        if (context
+                            .read<CustomersProvider>()
+                            .isOrderSelected(order)) {
+                          selectedOrders.add(order);
                         }
+                      }
 
-                        // Show the appropriate dialog or toast based on the selection
-                        if (selectedOrders.isNotEmpty) {
-                          _paymentCollectionDialog(context, selectedOrders);
-                        } else {
-                          showCustomToast(context);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff5bc0de),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'Collection',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                      // Show the appropriate dialog or toast based on the selection
+                      if (selectedOrders.isNotEmpty) {
+                        _paymentCollectionDialog(context, selectedOrders);
+                      } else {
+                        showCustomToast(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff5bc0de),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
                     ),
-                  )
-                ],
-              ),
+                    child: const Text(
+                      'Collection',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
             nkSmallSizeBox(),
             Expanded(
@@ -1656,11 +1675,21 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: nkRegularPadding(),
-            child: const Text(
+          Container(
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.2),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                bottomRight: Radius.circular(25),
+              ),
+            ),
+            padding:
+                const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
+            child: Text(
               'Frequently Bought Products',
               style: cardHeadingTextStyle,
+              maxLines: 1,
+              softWrap: false,
             ),
           ),
           Expanded(
@@ -1671,7 +1700,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      // Header Table (Fixed Header Row)
                       SizedBox(
                         height: 30,
                         child: Row(

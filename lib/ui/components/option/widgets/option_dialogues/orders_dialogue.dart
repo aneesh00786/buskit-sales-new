@@ -247,10 +247,12 @@ return LayoutBuilder(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           headers[0],
-                          style: const TextStyle(
+                          style:  TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                            fontSize: MediaQuery.of(context).size.width <= 800
+                                  ? 12.3
+                                  : 13,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -265,10 +267,12 @@ return LayoutBuilder(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 label,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                                  fontSize: MediaQuery.of(context).size.width <= 800
+                                  ? 12.3
+                                  : 13,
                                 ),
                                 textAlign: TextAlign.center,
                               ),

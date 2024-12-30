@@ -1796,9 +1796,6 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
             decoration: const BoxDecoration(
                 color: Color(0xffdddefc),
                 borderRadius: BorderRadius.all(Radius.circular(5))),
-            //  width: (MediaQuery.of(context).orientation == Orientation.portrait)
-            // ? (ResponsiveInfo.isMobileDimension(context) ? 55 : 55)
-            // : (ResponsiveInfo.isMobileDimension(context) ? 55 : 55),
             height: 38,
             width: 90,
             child: Padding(
@@ -1926,18 +1923,18 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            const Color(0xffdcdefc), // Background color
+                            const Color(0xffdcdefc),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                              4.0), // Curved border radius
+                              4.0),
                         ),
                       ),
                       child: const Text(
                         'Cancel',
-                        style: TextStyle(color: primaryColor), // Text color
+                        style: TextStyle(color: primaryColor),
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop(); // Close the dialog
+                        Navigator.of(context).pop();
                       },
                     ),
                     const SizedBox(
@@ -1945,25 +1942,24 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor, // Background color
+                        backgroundColor: primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                              4.0), // Curved border radius
+                              4.0),
                         ),
                       ),
                       child: const Text(
                         'Add To Calender',
-                        style: TextStyle(color: Colors.white), // Text color
+                        style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () {
-                        // Call the provider method to add the event
                         provider.addEvent(
                           cusID,
                           eventSt,
                           selectedDays,
                         );
                         provider.fetchCustomerData();
-                        Navigator.of(context).pop(); // Close the dialog
+                        Navigator.of(context).pop(); 
                       },
                     ),
                   ],
@@ -2043,7 +2039,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   Widget build(BuildContext context) {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
-    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 140 + 100;
+    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
     double fixedRowHeight = isLandscape
         ? MediaQuery.of(context).size.height / 9.05
         : MediaQuery.of(context).size.height / 9 -
@@ -2784,7 +2780,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 provider: provider,
                                               ),
                                             ),
-                                            140,
+                                            160,
                                           ),
                                           _buildTableCell(
                                             Padding(

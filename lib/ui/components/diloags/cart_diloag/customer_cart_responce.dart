@@ -475,7 +475,7 @@ class CartOrderModel {
   String cartId;
   int? orderStatus;
   int? companyId;
-  int? paymentType;
+  String? paymentType;
   double? orderPrice;
   String? transactionNumber; 
   String? transactionDate;
@@ -518,11 +518,10 @@ class CartOrderModel {
       'companyId': companyId,
       'payment_type': paymentType,
       'order_price': orderPrice,
-      // Dynamically decide the key to use based on the value
       if (transactionNumber != null)
-        paymentType == 1 ? 'cheque_number' : 'transaction_number': transactionNumber,
+        paymentType == "1" ? 'cheque_number' : 'transaction_number': transactionNumber,
       if (transactionDate != null)
-        paymentType == 1 ? 'cheque_date' : 'transaction_date': transactionDate,
+        paymentType == "1" ? 'cheque_date' : 'transaction_date': transactionDate,
       'payment_detail': paymentDetail,
     };
   }

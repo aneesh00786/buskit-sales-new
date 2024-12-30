@@ -1024,13 +1024,11 @@ class _CartDialogueState extends State<CartDialogue> {
           cartId: cartOrder.cartId,
           orderStatus: orderStatus,
           orderPrice: finalAmount,
-          paymentType: paymentType,
+          paymentType: paymentType.toString(),
           companyId: companyId,
           paymentDetail: remarkController.text.trim(),
-          transactionNumber: paymentType == 0
-              ? null
-              : chequeOrTransactionNumberController.text.trim(),
-          transactionDate: paymentType == 0 ? null : dateController.text.trim(),
+          transactionNumber: chequeOrTransactionNumberController.text.trim(),
+          transactionDate: dateController.text.trim(),
         );
 
         log('CartId :${cartOrder.cartId}');

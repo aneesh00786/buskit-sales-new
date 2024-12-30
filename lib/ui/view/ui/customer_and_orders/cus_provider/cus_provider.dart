@@ -255,7 +255,6 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchOrdersForCustomDash(
       OrderStatus s, String custId) async {
-    // this is for customer dashboard
     try {
       final now = DateTime.now();
       String startDate;
@@ -276,7 +275,6 @@ class CustomersProvider with ChangeNotifier {
         default:
           orderType = '';
       }
-
       switch (_selectedFilter) {
         case FilterDateEnum.thisMonth:
           startDate = DateTime(now.year, now.month, 1)
@@ -308,13 +306,10 @@ class CustomersProvider with ChangeNotifier {
           endDate = _selectedEndDate;
           break;
       }
-
       if (_selectedFilter == FilterDateEnum.range &&
           (startDate.isEmpty || endDate.isEmpty)) {
         throw Exception('Select both start and end dates');
       }
-
-      // Debouncing network requests
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
         return _apiService.fetchCustomerDashOrders(

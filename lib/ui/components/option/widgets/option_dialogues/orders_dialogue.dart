@@ -217,129 +217,127 @@ Widget buildOrdersDialogueMainDash({
 return LayoutBuilder(
   builder: (BuildContext context, BoxConstraints constraints) {
     double availableWidth = constraints.maxWidth;
-    double maxDialogHeight = 600;
-    double rowHeight = rows.length==1?150:90; 
-    int maxVisibleRows = 4; 
-    double calculatedHeight = (rows.length * rowHeight).clamp(0, maxDialogHeight);
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: calculatedHeight,
-        maxWidth: availableWidth,
-      ),
-      child: Stack(
-        children: [
-          Container(
-            width: availableWidth,
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
-                    ),
-                    color: primaryColor,
+    double maxDialogHeight = 500;
+    double headerHeight = 60;
+    double rowHeight = 90; 
+    double contentHeight = headerHeight + (rows.length * rowHeight);
+    double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+
+    return Stack(
+      children: [
+        Container(
+          width: availableWidth,
+          height: containerHeight,
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
                   ),
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            headers[0],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                  color: primaryColor,
+                ),
+                height: headerHeight,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          headers[0],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    ...headers
+                        .sublist(1)
+                        .map(
+                          (label) => Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
+                          ),
+                        )
+                        .toList(),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  itemCount: rows.length,
+                  shrinkWrap: true,
+                  physics: contentHeight > maxDialogHeight
+                      ? const AlwaysScrollableScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 0.5,
                           ),
                         ),
                       ),
-                      ...headers
-                          .sublist(1)
-                          .map(
-                            (label) => Expanded(
-                              flex: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  label,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: ListView.builder(
-                    itemCount: rows.length,
-                    shrinkWrap: true,
-                    physics: rows.length >= maxVisibleRows
-                        ? const AlwaysScrollableScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.shade300,
-                              width: 0.5,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: rows[index].cells[0].child,
                             ),
                           ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: rows[index].cells[0].child,
-                              ),
-                            ),
-                            ...rows[index]
-                                .cells
-                                .sublist(1)
-                                .map(
-                                  (cell) => Expanded(
-                                    flex: 1,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: cell.child,
-                                    ),
+                          ...rows[index]
+                              .cells
+                              .sublist(1)
+                              .map(
+                                (cell) => Expanded(
+                                  flex: 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: cell.child,
                                   ),
-                                )
-                                .toList(),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                                ),
+                              )
+                              .toList(),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              height: 30,
-              width: 30,
-              child: Center(child: dialogCloseButton1(context, red)),
-            ),
+        ),
+        // Close Button
+        Positioned(
+          top: 0,
+          right: 0,
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: Center(child: dialogCloseButton1(context, red)),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   },
 );

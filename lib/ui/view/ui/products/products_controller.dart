@@ -316,7 +316,7 @@ class ProductsController extends GetxController {
 
     try {
       log('Assigned companyId: ${cartOrder.companyId}');
-      log('Place Order Payload: ${cartOrder.toJson()}');
+      log('Place Order Payloadssss: ${cartOrder.toJson()}');
 
       final response = await Dio().post(
         "http://16.50.232.153:3000/place_order",

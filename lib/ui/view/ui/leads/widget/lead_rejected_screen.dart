@@ -18,7 +18,7 @@ class LeadRejectedScreen extends StatefulWidget {
 }
 
 class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
-    final ScrollController vertical = ScrollController();
+  final ScrollController vertical = ScrollController();
   final ScrollController vertical1 = ScrollController();
 
   @override
@@ -41,14 +41,15 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
 
   @override
   Widget build(BuildContext context) {
-        bool isLandscape =
+    bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
         ? MediaQuery.of(context).size.height / 7.09
         : MediaQuery.of(context).size.height / 7 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
-        padding: EdgeInsets.zero, child: _buildTableLayout(context,fixedRowHeight));
+        padding: EdgeInsets.zero,
+        child: _buildTableLayout(context, fixedRowHeight));
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
@@ -74,11 +75,12 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                                       scrollDirection: Axis.vertical,
+                    scrollDirection: Axis.vertical,
                     controller: vertical,
-                    physics: const ClampingScrollPhysics(),
+                    physics:  ClampingScrollPhysics(),
                     child: Column(
-                      children: widget.rejectedLeadsController.rejectedLeadsDataList
+                      children: widget
+                          .rejectedLeadsController.rejectedLeadsDataList
                           .asMap()
                           .entries
                           .map((entry) {
@@ -139,7 +141,6 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                     ),
                   ),
                 ),
-               
               ],
             ),
           ),
@@ -150,31 +151,35 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                 width: totalTableWidth,
                 child: Column(
                   children: [
-                     SizedBox(child: _buildTableHeader()),
-                      widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
-                          ? SizedBox(height: MediaQuery.of(context).size.height * 0.4)
-                          : Container(),
-                      widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
-                          ? Center(
-                              child: NodataWidget(),
-                            )
-                          : Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                              physics: const ClampingScrollPhysics(),
+                    SizedBox(child: _buildTableHeader()),
+                    widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                        ? SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.4)
+                        : Container(),
+                    widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                        ? Center(
+                            child: NodataWidget(),
+                          )
+                        : Expanded(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              physics:  ClampingScrollPhysics(),
                               controller: vertical1,
-                                child: Column(
-                                  children: widget.rejectedLeadsController.rejectedLeadsDataList
-                                      .asMap()
-                                      .entries
-                                      .map((entry) {
-                                    int index = entry.key;
-                                    LeadCustomerData leadCustomerData = entry.value;
-                                    return _buildTableRow(leadCustomerData, context, index);
-                                  }).toList(),
-                                ),
+                              child: Column(
+                                children: widget.rejectedLeadsController
+                                    .rejectedLeadsDataList
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  LeadCustomerData leadCustomerData =
+                                      entry.value;
+                                  return _buildTableRow(
+                                      leadCustomerData, context, index);
+                                }).toList(),
                               ),
                             ),
+                          ),
                   ],
                 ),
               ),
@@ -272,7 +277,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                 child: CustomText(
                     content: leadCustomerData.email ?? '',
                     // 'Email',
-                   fontSize: 11)),
+                    fontSize: 11)),
           ),
           Expanded(
             child: Center(
@@ -293,7 +298,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
     );
   }
 
-    Widget _buildTableHeader1(Widget child, double width) {
+  Widget _buildTableHeader1(Widget child, double width) {
     return Container(
       width: width,
       alignment: Alignment.center,

@@ -59,7 +59,9 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
 
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
-      child: _buildTableLayout(context, fixedRowHeight),
+      child: Obx(() {
+        return _buildTableLayout(context, fixedRowHeight);
+      }),
     );
   }
 

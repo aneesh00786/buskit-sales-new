@@ -44,8 +44,8 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 7.09
-        : MediaQuery.of(context).size.height / 7 -
+        ? MediaQuery.of(context).size.height / 9.09
+        : MediaQuery.of(context).size.height / 9 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
         padding: EdgeInsets.zero,
@@ -206,10 +206,38 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
           Expanded(child: _buildHeaderText('Email', 12)),
           Expanded(child: _buildHeaderText('Contact Person', 12)),
           Expanded(child: _buildHeaderText('Contact Number', 12)),
-          Expanded(child: _buildHeaderText('Status', 12)),
+          Expanded(child: _buildHeaderText('Status', 13)),
           SizedBox(width: 10),
         ],
       ),
+    );
+  }
+  Widget _defaultNoadata() {
+    return Column(
+      children: [
+        Container(
+          color: primaryColor,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(width: 10),
+              Expanded(child: _buildHeaderText('Customers', 13)),
+              Expanded(child: _buildHeaderText('Address', 13)),
+              Expanded(child: _buildHeaderText('Mobile No.', 13)),
+              Expanded(child: _buildHeaderText('Town', 12)),
+              Expanded(child: _buildHeaderText('State', 12)),
+              Expanded(child: _buildHeaderText('Zip Code', 12)),
+              Expanded(child: _buildHeaderText('Email', 12)),
+              Expanded(child: _buildHeaderText('Contact Person', 12)),
+              Expanded(child: _buildHeaderText('Contact Number', 12)),
+              Expanded(child: _buildHeaderText('Status', 13)),
+              SizedBox(width: 10),
+            ],
+          ),
+        ),
+        NodataWidget(),
+      ],
     );
   }
 

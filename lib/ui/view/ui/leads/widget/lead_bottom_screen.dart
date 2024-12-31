@@ -53,8 +53,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 7.09
-        : MediaQuery.of(context).size.height / 7 -
+        ? MediaQuery.of(context).size.height / 9.09
+        : MediaQuery.of(context).size.height / 9 -
             MediaQuery.of(context).size.height * 0.032;
 
     return MyCommnonContainer(
@@ -66,7 +66,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
+    double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     return Container(
       child: Row(
         children: [
@@ -101,7 +101,13 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
 
                         return Container(
                           height: fixedRowHeight,
-                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.grey, width: 0.3),
+                            ),
+                            color:
+                                index.isEven ? Colors.grey[50] : Colors.white,
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -255,49 +261,51 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: CustomText(
-              content: leadCustomerData.address ?? '',
-              fontSize: 12,
-              maxLine: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.address ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.town ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.state ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.zipcode.toString() ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.businessNo ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.email ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.fullname ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.mobileno ?? '',
           ),
           Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.town ?? '',
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.state ?? '',
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.zipcode.toString(),
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.businessNo ?? '',
-                      fontSize: 12))),
-          SizedBox(width: 10),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.email ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.fullname ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.mobileno ?? '', fontSize: 12))),
-          Expanded(
-              child: LeadsStatusSelect(customerId: leadCustomerData.id ?? 0)),
+              child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(color: Colors.grey, width: 0.3),
+                    ),
+                  ),
+                  child: Center(
+                      child: Padding(
+                    padding: const EdgeInsets.only(left: 9, right: 9),
+                    child:
+                        LeadsStatusSelect(customerId: leadCustomerData.id ?? 0),
+                  )))),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -339,17 +347,44 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
   }
 }
 
+class LeadTableText extends StatelessWidget {
+  LeadCustomerData leadCustomerData;
+  String content;
+
+  LeadTableText({
+    super.key,
+    required this.leadCustomerData,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+      decoration: BoxDecoration(
+        border: Border(
+          right: BorderSide(color: Colors.grey, width: 0.3),
+        ),
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 9, right: 9),
+          child: CustomText(
+            textAlign: TextAlign.center,
+            content: content,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    ));
+  }
+}
+
 class EditLeadsDialog extends StatelessWidget {
   final LeadCustomerData leadCustomerData;
-
-  // final String leadName;
-  // final String leadDetails;
-  // final Function(String name, String details) onSave;
-
   EditLeadsDialog({
     required this.leadCustomerData,
   });
-
   @override
   Widget build(BuildContext context) {
     final TextEditingController nameController =

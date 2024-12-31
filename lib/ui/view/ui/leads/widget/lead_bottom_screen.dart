@@ -103,47 +103,50 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                           height: fixedRowHeight,
                           color: index.isEven ? Colors.grey[50] : Colors.white,
                           
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Row(
-                                  children: [
-                                    ClipOval(
-                                      child: Container(
-                                        height: 40,
-                                        width: 40,
-                                        color: Colors.grey[200],
-                                        child: Image.network(
-                                          'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
-                                          fit: BoxFit.cover,
-                                          width: 25,
-                                          height: 25,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return Container(
-                                              color: Colors.grey[200],
-                                              child: const Icon(
-                                                Icons.person,
-                                                color: Colors.blue,
-                                                size: 34,
-                                              ),
-                                            );
-                                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Row(
+                                    children: [
+                                      ClipOval(
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          color: Colors.grey[200],
+                                          child: Image.network(
+                                            'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                            fit: BoxFit.cover,
+                                            width: 25,
+                                            height: 25,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.person,
+                                                  color: Colors.blue,
+                                                  size: 34,
+                                                ),
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    CustomText(
-                                      content:
-                                          leadCustomerData.businessName ?? '',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                      const SizedBox(width: 10),
+                                      CustomText(
+                                        content:
+                                            leadCustomerData.businessName ?? '',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),

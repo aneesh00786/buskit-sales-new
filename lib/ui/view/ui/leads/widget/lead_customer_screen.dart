@@ -16,7 +16,7 @@ class LeadCustomerScreen extends StatefulWidget {
 }
 
 class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
-      final ScrollController vertical = ScrollController();
+  final ScrollController vertical = ScrollController();
   final ScrollController vertical1 = ScrollController();
 
   @override
@@ -36,6 +36,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     bool isLandscape =
@@ -50,7 +51,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-    double totalTableWidth = 110 + 340 + 130 + 130 + 130 + 130 + 150 + 90;
+    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
     return Container(
       child: Row(
         children: [
@@ -162,8 +163,8 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                               physics: const ClampingScrollPhysics(),
                               controller: vertical1,
                               child: Column(
-                                children: widget.leadsCustomerController
-                                    .customersDataList
+                                children: widget
+                                    .leadsCustomerController.customersDataList
                                     .asMap()
                                     .entries
                                     .map((entry) {
@@ -204,7 +205,10 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(child: _buildHeaderText('Address', 13)),
-          Expanded(child: _buildHeaderText('Mobile', 13)),
+          Expanded(child: _buildHeaderText('Town', 13)),
+          Expanded(child: _buildHeaderText('State', 13)),
+          Expanded(child: _buildHeaderText('Zip Code', 13)),
+          Expanded(child: _buildHeaderText('Mobile No.', 13)),
           Expanded(child: _buildHeaderText('Email', 13)),
           Expanded(child: _buildHeaderText('Contact Person', 13)),
           Expanded(child: _buildHeaderText('Contact Number', 13)),
@@ -234,68 +238,51 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
     return Container(
       color: index.isEven ? Colors.grey[50] : Colors.white,
       height: fixedRowHeight,
-      padding: const EdgeInsets.all(10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomText(
-                  content: leadCustomerData.address ?? '',
-                  fontSize: 12,
-                  maxLine: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.town ?? '',
-                  fontSize: 12,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.state ?? '',
-                  fontSize: 12,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.zipcode?.toString() ?? '',
-                  fontSize: 12,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          Expanded(
             child: CustomText(
-              content: leadCustomerData.businessNo ?? '',
+              content: leadCustomerData.address ?? '',
               fontSize: 12,
-              textAlign: TextAlign.center,
+              maxLine: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.email ?? '', fontSize: 12)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.town ?? '',
+                      fontSize: 12))),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.fullname ?? '',
-                    // 'Fullname',
-                    fontSize: 12)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.state ?? '',
+                      fontSize: 12))),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.mobileno ?? '',
-                    // 'Mobileno',
-                    fontSize: 12)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.zipcode.toString(),
+                      fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.businessNo ?? '',
+                      fontSize: 12))),
+          SizedBox(width: 10),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.email ?? '', fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.fullname ?? '', fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.mobileno ?? '', fontSize: 12))),
+
         ],
       ),
     );

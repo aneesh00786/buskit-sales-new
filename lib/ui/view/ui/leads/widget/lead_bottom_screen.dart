@@ -66,7 +66,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-    double totalTableWidth = 110 + 340 + 130 + 130 + 130 + 130 + 150 + 90;
+    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
     return Container(
       child: Row(
         children: [
@@ -218,6 +218,9 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(child: _buildHeaderText('Address', 12)),
+          Expanded(child: _buildHeaderText('Town', 12)),
+          Expanded(child: _buildHeaderText('State', 12)),
+          Expanded(child: _buildHeaderText('Zip Code', 12)),
           Expanded(child: _buildHeaderText('Mobile', 12)),
           Expanded(child: _buildHeaderText('Email', 12)),
           Expanded(child: _buildHeaderText('Contact Person', 12)),
@@ -253,37 +256,28 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomText(
-                  content: leadCustomerData.address ?? '',
-                  fontSize: 11,
-                  maxLine: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.town ?? '',
-                  fontSize: 11,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.state ?? '',
-                  fontSize: 11,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.zipcode?.toString() ?? '',
-                  fontSize: 11,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            child: CustomText(
+              content: leadCustomerData.address ?? '',
+              fontSize: 12,
+              maxLine: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.town ?? '',
+                      fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.state ?? '',
+                      fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.zipcode.toString(),
+                      fontSize: 12))),
           Expanded(
               child: Center(
                   child: CustomText(

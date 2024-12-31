@@ -77,7 +77,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     controller: vertical,
-                    physics:  ClampingScrollPhysics(),
+                    physics: const ClampingScrollPhysics(),
                     child: Column(
                       children: widget
                           .rejectedLeadsController.rejectedLeadsDataList
@@ -163,7 +163,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                         : Expanded(
                             child: SingleChildScrollView(
                               scrollDirection: Axis.vertical,
-                              physics:  ClampingScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               controller: vertical1,
                               child: Column(
                                 children: widget.rejectedLeadsController
@@ -174,8 +174,8 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                                   int index = entry.key;
                                   LeadCustomerData leadCustomerData =
                                       entry.value;
-                                  return _buildTableRow(
-                                      leadCustomerData, context, index);
+                                  return _buildTableRow(leadCustomerData,
+                                      context, index, fixedRowHeight);
                                 }).toList(),
                               ),
                             ),
@@ -199,11 +199,14 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
         children: [
           SizedBox(width: 10),
           Expanded(child: _buildHeaderText('Address', 13)),
-          Expanded(child: _buildHeaderText('Mobile', 13)),
-          Expanded(child: _buildHeaderText('Email', 13)),
-          Expanded(child: _buildHeaderText('C. Person', 13)),
-          Expanded(child: _buildHeaderText('C. Number', 13)),
-          Expanded(child: _buildHeaderText('Status', 13)),
+          Expanded(child: _buildHeaderText('Mobile No.', 13)),
+          Expanded(child: _buildHeaderText('Town', 12)),
+          Expanded(child: _buildHeaderText('State', 12)),
+          Expanded(child: _buildHeaderText('Zip Code', 12)),
+          Expanded(child: _buildHeaderText('Email', 12)),
+          Expanded(child: _buildHeaderText('Contact Person', 12)),
+          Expanded(child: _buildHeaderText('Contact Number', 12)),
+          Expanded(child: _buildHeaderText('Status', 12)),
           SizedBox(width: 10),
         ],
       ),
@@ -225,70 +228,53 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
     );
   }
 
-  Widget _buildTableRow(
-      LeadCustomerData leadCustomerData, BuildContext context, int index) {
+  Widget _buildTableRow(LeadCustomerData leadCustomerData, BuildContext context,
+      int index, double fixedRowHeight) {
     return Container(
       color: index.isEven ? Colors.grey[50] : Colors.white,
-      padding: const EdgeInsets.all(10.0),
+      height: fixedRowHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomText(
-                  content: leadCustomerData.address ?? '',
-                  fontSize: 12,
-                  maxLine: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.town ?? '',
-                  fontSize: 12,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.state ?? '',
-                  fontSize: 12,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                CustomText(
-                  content: leadCustomerData.zipcode?.toString() ?? '',
-                  fontSize: 12,
-                  maxLine: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            child: CustomText(
+              content: leadCustomerData.address ?? '',
+              fontSize: 12,
+              maxLine: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.businessNo ?? '',
-                    // 'Business No',
-                    fontSize: 11)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.town ?? '', fontSize: 12))),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.email ?? '',
-                    // 'Email',
-                    fontSize: 11)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.state ?? '', fontSize: 12))),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.fullname ?? '', fontSize: 11)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.zipcode.toString(),
+                      fontSize: 12))),
           Expanded(
-            child: Center(
-                child: CustomText(
-                    content: leadCustomerData.mobileno ?? '', fontSize: 11)),
-          ),
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.businessNo ?? '',
+                      fontSize: 12))),
+          SizedBox(width: 10),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.email ?? '', fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.fullname ?? '', fontSize: 12))),
+          Expanded(
+              child: Center(
+                  child: CustomText(
+                      content: leadCustomerData.mobileno ?? '', fontSize: 12))),
           Expanded(
             child:
                 LeadsRejectedStatusSelect(customerId: leadCustomerData.id ?? 0),

@@ -18,55 +18,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LeadBottomScreen extends StatefulWidget {
+class LeadBottomScreen extends StatelessWidget {
   final LeadsController leadsController;
   const LeadBottomScreen({super.key, required this.leadsController});
-
-  @override
-  State<LeadBottomScreen> createState() => _LeadBottomScreenState();
-}
-
-class _LeadBottomScreenState extends State<LeadBottomScreen> {
-  final ScrollController vertical = ScrollController();
-  final ScrollController vertical1 = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    vertical.addListener(() {
-      if (vertical1.hasClients &&
-          vertical.position.pixels != vertical1.position.pixels) {
-        vertical1.jumpTo(vertical.position.pixels);
-      }
-    });
-
-    vertical1.addListener(() {
-      if (vertical.hasClients &&
-          vertical1.position.pixels != vertical.position.pixels) {
-        vertical.jumpTo(vertical1.position.pixels);
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 9.05
-        : MediaQuery.of(context).size.height / 9 -
+        ? MediaQuery.of(context).size.height / 7.09
+        : MediaQuery.of(context).size.height / 7 -
             MediaQuery.of(context).size.height * 0.032;
 
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
-      child: Obx(() {
-        return _buildTableLayout(context, fixedRowHeight);
-      }),
+      child: _buildTableLayout(context, fixedRowHeight),
     );
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
+    double totalTableWidth = 110 + 340 + 130 + 130 + 130 + 130 + 150 + 90;
     return Container(
       child: Row(
         children: [
@@ -79,7 +51,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                     child: CustomText(
                       content: "Leads",
                       textAlign: TextAlign.center,
-                      fontSize: 12,
+                      fontSize: 12.5,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -89,10 +61,9 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
-                    controller: vertical,
                     physics: const ClampingScrollPhysics(),
                     child: Column(
-                      children: widget.leadsController.leadsCustomerDataList
+                      children: leadsController.leadsCustomerDataList
                           .asMap()
                           .entries
                           .map((entry) {
@@ -102,7 +73,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                         return Container(
                           height: fixedRowHeight,
                           color: index.isEven ? Colors.grey[50] : Colors.white,
-                          
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -121,7 +91,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                             fit: BoxFit.cover,
                                             width: 25,
                                             height: 25,
-                                            errorBuilder: (context, error, stackTrace) {
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
                                               return Container(
                                                 color: Colors.grey[200],
                                                 child: const Icon(
@@ -164,27 +135,24 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                 child: Column(
                   children: [
                     SizedBox(child: _buildTableHeader()),
-                    widget.leadsController.leadsCustomerDataList.isEmpty
+                    leadsController.leadsCustomerDataList.isEmpty
                         ? SizedBox(
                             height: MediaQuery.of(context).size.height * 0.4)
                         : Container(),
-                    widget.leadsController.leadsCustomerDataList.isEmpty
+                    leadsController.leadsCustomerDataList.isEmpty
                         ? Center(child: NodataWidget())
-                        : SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.8,
+                        : Expanded(
                             child: SingleChildScrollView(
-                              controller: vertical1,
-                              scrollDirection: Axis.vertical,
                               child: Column(
-                                children: widget
-                                    .leadsController.leadsCustomerDataList
+                                children: leadsController.leadsCustomerDataList
                                     .asMap()
                                     .entries
                                     .map((entry) {
                                   int index = entry.key;
-                                  LeadCustomerData leadCustomerData = entry.value;
-                                  return _buildTableRow(
-                                      leadCustomerData, context, index,fixedRowHeight);
+                                  LeadCustomerData leadCustomerData =
+                                      entry.value;
+                                  return _buildTableRow(leadCustomerData,
+                                      context, index, fixedRowHeight);
                                 }).toList(),
                               ),
                             ),
@@ -216,7 +184,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(flex: 2, child: _buildHeaderText('Address', 12)),
+          Expanded(child: _buildHeaderText('Address', 12)),
           Expanded(child: _buildHeaderText('Mobile', 12)),
           Expanded(child: _buildHeaderText('Email', 12)),
           Expanded(child: _buildHeaderText('Contact Person', 12)),
@@ -230,18 +198,21 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
 
   Widget _buildHeaderText(String text, double fontSize) {
     return Center(
-      child: CustomText(
-        content: text,
+      child: Text(
+        text,
         textAlign: TextAlign.center,
-        fontSize: fontSize,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
+        style: TextStyle(
+          fontSize: fontSize,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins_Regular',
+        ),
       ),
     );
   }
 
-  Widget _buildTableRow(
-      LeadCustomerData leadCustomerData, BuildContext context, int index,double fixedRowHeight) {
+  Widget _buildTableRow(LeadCustomerData leadCustomerData, BuildContext context,
+      int index, double fixedRowHeight) {
     return Container(
       color: index.isEven ? Colors.grey[50] : Colors.white,
       height: fixedRowHeight,
@@ -249,13 +220,36 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            flex: 2,
-            child: CustomText(
-                content: '${leadCustomerData.address ?? ''} , ${leadCustomerData.town ?? ''} , ${leadCustomerData.state ?? ''} , ${leadCustomerData.zipcode?.toString() ?? ''}',
-                fontSize: 12,
-                maxLine: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomText(
+                  content: leadCustomerData.address ?? '',
+                  fontSize: 11,
+                  maxLine: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                CustomText(
+                  content: leadCustomerData.town ?? '',
+                  fontSize: 11,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                CustomText(
+                  content: leadCustomerData.state ?? '',
+                  fontSize: 11,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                CustomText(
+                  content: leadCustomerData.zipcode?.toString() ?? '',
+                  fontSize: 11,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
           Expanded(
               child: Center(
@@ -281,7 +275,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SizedBox(
-                height: fixedRowHeight-10,
+                height: fixedRowHeight - 10,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -317,7 +311,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     );
   }
 }
-
 
 class EditLeadsDialog extends StatelessWidget {
   final LeadCustomerData leadCustomerData;

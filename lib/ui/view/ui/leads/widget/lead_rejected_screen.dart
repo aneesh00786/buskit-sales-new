@@ -15,36 +15,143 @@ class LeadRejectedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        bool isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    double fixedRowHeight = isLandscape
+        ? MediaQuery.of(context).size.height / 7.09
+        : MediaQuery.of(context).size.height / 7 -
+            MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
-        padding: EdgeInsets.zero, child: _buildTableLayout(context));
+        padding: EdgeInsets.zero, child: _buildTableLayout(context,fixedRowHeight));
   }
 
-  Widget _buildTableLayout(BuildContext context) {
-    return Column(
-      children: [
-        _buildTableHeader(),
-        rejectedLeadsController.rejectedLeadsDataList.isEmpty
-            ? SizedBox(height: MediaQuery.of(context).size.height * 0.4)
-            : Container(),
-        rejectedLeadsController.rejectedLeadsDataList.isEmpty
-            ? Center(
-                child: NodataWidget(),
-              )
-            : Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: rejectedLeadsController.rejectedLeadsDataList
-                        .asMap()
-                        .entries
-                        .map((entry) {
-                      int index = entry.key;
-                      LeadCustomerData leadCustomerData = entry.value;
-                      return _buildTableRow(leadCustomerData, context, index);
-                    }).toList(),
+  Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
+    double totalTableWidth = 110 + 340 + 130 + 130 + 130 + 130 + 150 + 90;
+    return Container(
+      child: Row(
+        children: [
+          SizedBox(
+            width: 270,
+            child: Column(
+              children: [
+                _buildTableHeader1(
+                  Center(
+                    child: CustomText(
+                      content: "Customers",
+                      textAlign: TextAlign.center,
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  270,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      children: rejectedLeadsController.rejectedLeadsDataList
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                        int index = entry.key;
+                        LeadCustomerData leadCustomerData = entry.value;
+
+                        return Container(
+                          height: fixedRowHeight,
+                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Row(
+                                    children: [
+                                      ClipOval(
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          color: Colors.grey[200],
+                                          child: Image.network(
+                                            'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                            fit: BoxFit.cover,
+                                            width: 25,
+                                            height: 25,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.person,
+                                                  color: Colors.blue,
+                                                  size: 34,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      CustomText(
+                                        content:
+                                            leadCustomerData.businessName ?? '',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
+               
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: totalTableWidth,
+                child: Column(
+                  children: [
+                     SizedBox(child: _buildTableHeader()),
+                      rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                          ? SizedBox(height: MediaQuery.of(context).size.height * 0.4)
+                          : Container(),
+                      rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                          ? Center(
+                              child: NodataWidget(),
+                            )
+                          : Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: rejectedLeadsController.rejectedLeadsDataList
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    int index = entry.key;
+                                    LeadCustomerData leadCustomerData = entry.value;
+                                    return _buildTableRow(leadCustomerData, context, index);
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                  ],
+                ),
               ),
-      ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -56,7 +163,6 @@ class LeadRejectedScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(width: 10),
-          Expanded(flex: 2, child: _buildHeaderText('Customers', 13)),
           Expanded(child: _buildHeaderText('Address', 13)),
           Expanded(child: _buildHeaderText('Mobile', 13)),
           Expanded(child: _buildHeaderText('Email', 13)),
@@ -71,13 +177,15 @@ class LeadRejectedScreen extends StatelessWidget {
 
   Widget _buildHeaderText(String text, double fontSize) {
     return Center(
-      child: CustomText(
-        content: text,
+      child: Text(
+        text,
         textAlign: TextAlign.center,
-        fontSize: fontSize,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Poppins_Regular',
+        style: TextStyle(
+          fontSize: fontSize,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins_Regular',
+        ),
       ),
     );
   }
@@ -91,65 +199,30 @@ class LeadRejectedScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                ClipOval(
-                  child: Container(
-                    color: Colors.grey[200],
-                    child: Image.network(
-                      // 'http://16.50.232.153:3000/uploads/customer/1721390223201.jpg' ?? '',
-                      'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
-                      fit: BoxFit.cover,
-                      width: 25,
-                      height: 25,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.person,
-                              color: Colors.blue, size: 34),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: CustomText(
-                    content: leadCustomerData.businessName ?? '',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
                   content: leadCustomerData.address ?? '',
-                  fontSize: 11,
+                  fontSize: 12,
                   maxLine: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 CustomText(
                   content: leadCustomerData.town ?? '',
-                  fontSize: 11,
+                  fontSize: 12,
                   maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 CustomText(
                   content: leadCustomerData.state ?? '',
-                  fontSize: 11,
+                  fontSize: 12,
                   maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 CustomText(
                   content: leadCustomerData.zipcode?.toString() ?? '',
-                  fontSize: 11,
+                  fontSize: 12,
                   maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -186,6 +259,15 @@ class LeadRejectedScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+    Widget _buildTableHeader1(Widget child, double width) {
+    return Container(
+      width: width,
+      alignment: Alignment.center,
+      color: primaryColor,
+      padding: const EdgeInsets.symmetric(vertical: 11),
+      child: child,
     );
   }
 }

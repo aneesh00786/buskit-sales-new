@@ -7,50 +7,25 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controlle
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:flutter/material.dart';
 
-class LeadCustomerScreen extends StatefulWidget {
+class LeadCustomerScreen extends StatelessWidget {
   final CustomersController leadsCustomerController;
-
   const LeadCustomerScreen({super.key, required this.leadsCustomerController});
 
   @override
-  State<LeadCustomerScreen> createState() => _LeadCustomerScreenState();
-}
-
-class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
-    final ScrollController vertical = ScrollController();
-  final ScrollController vertical1 = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    vertical.addListener(() {
-      if (vertical1.hasClients &&
-          vertical.position.pixels != vertical1.position.pixels) {
-        vertical1.jumpTo(vertical.position.pixels);
-      }
-    });
-
-    vertical1.addListener(() {
-      if (vertical.hasClients &&
-          vertical1.position.pixels != vertical.position.pixels) {
-        vertical.jumpTo(vertical1.position.pixels);
-      }
-    });
-  }
-  @override
   Widget build(BuildContext context) {
-        bool isLandscape =
+    bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 9.05
-        : MediaQuery.of(context).size.height / 9 -
+        ? MediaQuery.of(context).size.height / 7.09
+        : MediaQuery.of(context).size.height / 7 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
-        padding: EdgeInsets.zero, child: _buildTableLayout(context,fixedRowHeight));
+        padding: EdgeInsets.zero,
+        child: _buildTableLayout(context, fixedRowHeight));
   }
 
-  Widget _buildTableLayout(BuildContext context,double fixedRowHeight) {
-    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
+  Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
+    double totalTableWidth = 110 + 340 + 130 + 130 + 130 + 130 + 150 + 90;
     return Container(
       child: Row(
         children: [
@@ -73,10 +48,9 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
-                    controller: vertical,
                     physics: const ClampingScrollPhysics(),
                     child: Column(
-                      children: widget.leadsCustomerController.customersDataList
+                      children: leadsCustomerController.customersDataList
                           .asMap()
                           .entries
                           .map((entry) {
@@ -86,7 +60,6 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                         return Container(
                           height: fixedRowHeight,
                           color: index.isEven ? Colors.grey[50] : Colors.white,
-                          
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -105,7 +78,8 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                                             fit: BoxFit.cover,
                                             width: 25,
                                             height: 25,
-                                            errorBuilder: (context, error, stackTrace) {
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
                                               return Container(
                                                 color: Colors.grey[200],
                                                 child: const Icon(
@@ -148,27 +122,31 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                 child: Column(
                   children: [
                     SizedBox(child: _buildTableHeader()),
-                widget.leadsCustomerController.customersDataList.isEmpty
-                    ? SizedBox(height: MediaQuery.of(context).size.height * 0.4)
-                    : Container(),
-                widget.leadsCustomerController.customersDataList.isEmpty
-                    ? Center(
-                        child: NodataWidget(),
-                      )
-                    : Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: widget.leadsCustomerController.customersDataList
-                                .asMap()
-                                .entries
-                                .map((entry) {
-                              int index = entry.key;
-                              LeadCustomerData leadCustomerData = entry.value;
-                              return _buildTableRow(leadCustomerData, context, index,fixedRowHeight);
-                            }).toList(),
+                    leadsCustomerController.customersDataList.isEmpty
+                        ? SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.4)
+                        : Container(),
+                    leadsCustomerController.customersDataList.isEmpty
+                        ? Center(
+                            child: NodataWidget(),
+                          )
+                        : Expanded(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: leadsCustomerController
+                                    .customersDataList
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  LeadCustomerData leadCustomerData =
+                                      entry.value;
+                                  return _buildTableRow(leadCustomerData,
+                                      context, index, fixedRowHeight);
+                                }).toList(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -179,7 +157,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
     );
   }
 
-    Widget _buildTableHeader1(Widget child, double width) {
+  Widget _buildTableHeader1(Widget child, double width) {
     return Container(
       width: width,
       alignment: Alignment.center,
@@ -196,7 +174,6 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(width: 10),
           Expanded(child: _buildHeaderText('Address', 13)),
           Expanded(child: _buildHeaderText('Mobile', 13)),
           Expanded(child: _buildHeaderText('Email', 13)),
@@ -223,8 +200,8 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
     );
   }
 
-  Widget _buildTableRow(
-      LeadCustomerData leadCustomerData, BuildContext context, int index,double fixedRowHeight) {
+  Widget _buildTableRow(LeadCustomerData leadCustomerData, BuildContext context,
+      int index, double fixedRowHeight) {
     return Container(
       color: index.isEven ? Colors.grey[50] : Colors.white,
       height: fixedRowHeight,
@@ -233,36 +210,61 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: CustomText(
-              content: '${leadCustomerData.address ?? ''} , ${leadCustomerData.town ?? ''} , ${leadCustomerData.state ?? ''} , ${leadCustomerData.zipcode?.toString() ?? ''} , ',
-              fontSize: 11,
-              maxLine: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  content: leadCustomerData.address ?? '',
+                  fontSize: 12,
+                  maxLine: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                CustomText(
+                  content: leadCustomerData.town ?? '',
+                  fontSize: 12,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                CustomText(
+                  content: leadCustomerData.state ?? '',
+                  fontSize: 12,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                CustomText(
+                  content: leadCustomerData.zipcode?.toString() ?? '',
+                  fontSize: 12,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
           Expanded(
             child: CustomText(
-                content: leadCustomerData.businessNo ?? '', fontSize: 11,textAlign: TextAlign.center,),
+              content: leadCustomerData.businessNo ?? '',
+              fontSize: 12,
+              textAlign: TextAlign.center,
+            ),
           ),
           Expanded(
             child: Center(
                 child: CustomText(
-                    content: leadCustomerData.email ?? '', fontSize: 11)),
+                    content: leadCustomerData.email ?? '', fontSize: 12)),
           ),
           Expanded(
             child: Center(
                 child: CustomText(
                     content: leadCustomerData.fullname ?? '',
                     // 'Fullname',
-                    fontSize: 11)),
+                    fontSize: 12)),
           ),
           Expanded(
             child: Center(
                 child: CustomText(
                     content: leadCustomerData.mobileno ?? '',
                     // 'Mobileno',
-                    fontSize: 11)),
+                    fontSize: 12)),
           ),
         ],
       ),

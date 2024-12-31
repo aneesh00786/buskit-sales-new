@@ -231,6 +231,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CustomText(
                   content: leadCustomerData.address ?? '',

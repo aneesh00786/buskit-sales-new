@@ -8,10 +8,36 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
 import 'package:flutter/material.dart';
 
-class LeadRejectedScreen extends StatelessWidget {
+class LeadRejectedScreen extends StatefulWidget {
   final RejectedLeadsController rejectedLeadsController;
 
   const LeadRejectedScreen({super.key, required this.rejectedLeadsController});
+
+  @override
+  State<LeadRejectedScreen> createState() => _LeadRejectedScreenState();
+}
+
+class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
+    final ScrollController vertical = ScrollController();
+  final ScrollController vertical1 = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    vertical.addListener(() {
+      if (vertical1.hasClients &&
+          vertical.position.pixels != vertical1.position.pixels) {
+        vertical1.jumpTo(vertical.position.pixels);
+      }
+    });
+
+    vertical1.addListener(() {
+      if (vertical.hasClients &&
+          vertical1.position.pixels != vertical.position.pixels) {
+        vertical.jumpTo(vertical1.position.pixels);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +74,11 @@ class LeadRejectedScreen extends StatelessWidget {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
+                                       scrollDirection: Axis.vertical,
+                    controller: vertical,
                     physics: const ClampingScrollPhysics(),
                     child: Column(
-                      children: rejectedLeadsController.rejectedLeadsDataList
+                      children: widget.rejectedLeadsController.rejectedLeadsDataList
                           .asMap()
                           .entries
                           .map((entry) {
@@ -124,17 +151,20 @@ class LeadRejectedScreen extends StatelessWidget {
                 child: Column(
                   children: [
                      SizedBox(child: _buildTableHeader()),
-                      rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                      widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
                           ? SizedBox(height: MediaQuery.of(context).size.height * 0.4)
                           : Container(),
-                      rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                      widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
                           ? Center(
                               child: NodataWidget(),
                             )
                           : Expanded(
                               child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                              physics: const ClampingScrollPhysics(),
+                              controller: vertical1,
                                 child: Column(
-                                  children: rejectedLeadsController.rejectedLeadsDataList
+                                  children: widget.rejectedLeadsController.rejectedLeadsDataList
                                       .asMap()
                                       .entries
                                       .map((entry) {
@@ -261,6 +291,7 @@ class LeadRejectedScreen extends StatelessWidget {
       ),
     );
   }
+
     Widget _buildTableHeader1(Widget child, double width) {
     return Container(
       width: width,

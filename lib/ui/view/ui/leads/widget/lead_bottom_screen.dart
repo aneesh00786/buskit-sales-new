@@ -18,9 +18,35 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LeadBottomScreen extends StatelessWidget {
+class LeadBottomScreen extends StatefulWidget {
   final LeadsController leadsController;
   const LeadBottomScreen({super.key, required this.leadsController});
+
+  @override
+  State<LeadBottomScreen> createState() => _LeadBottomScreenState();
+}
+
+class _LeadBottomScreenState extends State<LeadBottomScreen> {
+  final ScrollController vertical = ScrollController();
+  final ScrollController vertical1 = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    vertical.addListener(() {
+      if (vertical1.hasClients &&
+          vertical.position.pixels != vertical1.position.pixels) {
+        vertical1.jumpTo(vertical.position.pixels);
+      }
+    });
+
+    vertical1.addListener(() {
+      if (vertical.hasClients &&
+          vertical1.position.pixels != vertical.position.pixels) {
+        vertical.jumpTo(vertical1.position.pixels);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +87,10 @@ class LeadBottomScreen extends StatelessWidget {
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
+                    controller: vertical,
                     physics: const ClampingScrollPhysics(),
                     child: Column(
-                      children: leadsController.leadsCustomerDataList
+                      children: widget.leadsController.leadsCustomerDataList
                           .asMap()
                           .entries
                           .map((entry) {
@@ -135,16 +162,20 @@ class LeadBottomScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(child: _buildTableHeader()),
-                    leadsController.leadsCustomerDataList.isEmpty
+                    widget.leadsController.leadsCustomerDataList.isEmpty
                         ? SizedBox(
                             height: MediaQuery.of(context).size.height * 0.4)
                         : Container(),
-                    leadsController.leadsCustomerDataList.isEmpty
+                    widget.leadsController.leadsCustomerDataList.isEmpty
                         ? Center(child: NodataWidget())
                         : Expanded(
                             child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              physics: const ClampingScrollPhysics(),
+                              controller: vertical1,
                               child: Column(
-                                children: leadsController.leadsCustomerDataList
+                                children: widget
+                                    .leadsController.leadsCustomerDataList
                                     .asMap()
                                     .entries
                                     .map((entry) {

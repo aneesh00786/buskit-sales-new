@@ -7,10 +7,35 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controlle
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:flutter/material.dart';
 
-class LeadCustomerScreen extends StatelessWidget {
+class LeadCustomerScreen extends StatefulWidget {
   final CustomersController leadsCustomerController;
   const LeadCustomerScreen({super.key, required this.leadsCustomerController});
 
+  @override
+  State<LeadCustomerScreen> createState() => _LeadCustomerScreenState();
+}
+
+class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
+      final ScrollController vertical = ScrollController();
+  final ScrollController vertical1 = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    vertical.addListener(() {
+      if (vertical1.hasClients &&
+          vertical.position.pixels != vertical1.position.pixels) {
+        vertical1.jumpTo(vertical.position.pixels);
+      }
+    });
+
+    vertical1.addListener(() {
+      if (vertical.hasClients &&
+          vertical1.position.pixels != vertical.position.pixels) {
+        vertical.jumpTo(vertical1.position.pixels);
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     bool isLandscape =
@@ -48,9 +73,10 @@ class LeadCustomerScreen extends StatelessWidget {
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
+                    controller: vertical,
                     physics: const ClampingScrollPhysics(),
                     child: Column(
-                      children: leadsCustomerController.customersDataList
+                      children: widget.leadsCustomerController.customersDataList
                           .asMap()
                           .entries
                           .map((entry) {
@@ -122,18 +148,21 @@ class LeadCustomerScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(child: _buildTableHeader()),
-                    leadsCustomerController.customersDataList.isEmpty
+                    widget.leadsCustomerController.customersDataList.isEmpty
                         ? SizedBox(
                             height: MediaQuery.of(context).size.height * 0.4)
                         : Container(),
-                    leadsCustomerController.customersDataList.isEmpty
+                    widget.leadsCustomerController.customersDataList.isEmpty
                         ? Center(
                             child: NodataWidget(),
                           )
                         : Expanded(
                             child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              physics: const ClampingScrollPhysics(),
+                              controller: vertical1,
                               child: Column(
-                                children: leadsCustomerController
+                                children: widget.leadsCustomerController
                                     .customersDataList
                                     .asMap()
                                     .entries

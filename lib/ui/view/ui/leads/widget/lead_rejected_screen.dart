@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
 
 class LeadRejectedScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-    double totalTableWidth = 110 + 340 + 130 + 130 + 130 + 130 + 150 + 90;
+    double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     return Container(
       child: Row(
         children: [
@@ -264,49 +265,15 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: CustomText(
-              content: leadCustomerData.address ?? '',
-              fontSize: 12,
-              maxLine: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.town ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.state ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.zipcode.toString(),
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.businessNo ?? '',
-                      fontSize: 12))),
-          SizedBox(width: 10),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.email ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.fullname ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.mobileno ?? '', fontSize: 12))),
-          Expanded(
-            child:
-                LeadsRejectedStatusSelect(customerId: leadCustomerData.id ?? 0),
-          ),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.address ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.town ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.state ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.zipcode.toString() ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.businessNo ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.email ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.fullname ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.mobileno ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.id.toString() ?? '',),
         ],
       ),
     );

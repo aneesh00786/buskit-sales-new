@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
 
 class LeadCustomerScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-    double totalTableWidth = 120 + 350 + 140 + 140 + 140 + 140 + 160 + 100;
+    double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     return Container(
       child: Row(
         children: [
@@ -86,7 +87,13 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
 
                         return Container(
                           height: fixedRowHeight,
-                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.grey, width: 0.3),
+                            ),
+                            color:
+                                index.isEven ? Colors.grey[50] : Colors.white,
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -241,47 +248,14 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: CustomText(
-              content: leadCustomerData.address ?? '',
-              fontSize: 12,
-              maxLine: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.town ?? '',
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.state ?? '',
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.zipcode.toString(),
-                      fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.businessNo ?? '',
-                      fontSize: 12))),
-          SizedBox(width: 10),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.email ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.fullname ?? '', fontSize: 12))),
-          Expanded(
-              child: Center(
-                  child: CustomText(
-                      content: leadCustomerData.mobileno ?? '', fontSize: 12))),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.address ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.town ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.state ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.zipcode.toString() ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.businessNo ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.email ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.fullname ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.mobileno ?? '',),
 
         ],
       ),

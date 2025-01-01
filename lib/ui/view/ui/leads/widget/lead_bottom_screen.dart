@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_mode
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -347,38 +348,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
   }
 }
 
-class LeadTableText extends StatelessWidget {
-  LeadCustomerData leadCustomerData;
-  String content;
-
-  LeadTableText({
-    super.key,
-    required this.leadCustomerData,
-    required this.content,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Container(
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(color: Colors.grey, width: 0.3),
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 9, right: 9),
-          child: CustomText(
-            textAlign: TextAlign.center,
-            content: content,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    ));
-  }
-}
 
 class EditLeadsDialog extends StatelessWidget {
   final LeadCustomerData leadCustomerData;

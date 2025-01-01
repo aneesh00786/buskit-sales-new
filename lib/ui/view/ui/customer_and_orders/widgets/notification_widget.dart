@@ -37,7 +37,8 @@ class _NotificationWidgetState extends State<NotificationWidget> {
           final RenderBox box = context.findRenderObject() as RenderBox;
           final Offset position = box.localToGlobal(Offset.zero);
           final notifi =
-              notificationController.recentOrderCountData.mainNotification??MainNotification();
+              notificationController.recentOrderCountData.mainNotification ??
+                  MainNotification();
 
           await showMenu(
             context: context,
@@ -226,19 +227,18 @@ class _NotificationWidgetState extends State<NotificationWidget> {
       );
     });
   }
-
 }
-  int calculateNotificationCount(NotificationController controller) {
-    final mainNotification =
-        controller.recentOrderCountData.mainNotification;
 
-    if (mainNotification == null) {
-      return 0; // Return 0 if `mainNotification` is null.
-    }
+int calculateNotificationCount(NotificationController controller) {
+  final mainNotification = controller.recentOrderCountData.mainNotification;
 
-    return (mainNotification.recentOrders ?? 0) +
-        (mainNotification.waitingForApproval ?? 0) +
-        (mainNotification.quickSale ?? 0) +
-        (mainNotification.processingOrders ?? 0) +
-        (mainNotification.packedAndReadyForDelivery ?? 0);
+  if (mainNotification == null) {
+    return 0;
   }
+
+  return (mainNotification.recentOrders ?? 0) +
+      (mainNotification.waitingForApproval ?? 0) +
+      (mainNotification.quickSale ?? 0) +
+      (mainNotification.processingOrders ?? 0) +
+      (mainNotification.packedAndReadyForDelivery ?? 0);
+}

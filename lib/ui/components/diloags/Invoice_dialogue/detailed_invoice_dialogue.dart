@@ -219,13 +219,13 @@ void showDetailedOrderInvoiceDialog(
                                         DataCell(Center(
                                             child: Text(
                                                 item.packType == 'Pack'
-                                                    ? '${item.pieces} (${item.quantity} ${item.packType})'
+                                                    ? '${(item.pieces! * item.quantity!)} (${item.quantity} ${item.packType})'
                                                     : item.quantity.toString(),
                                                 maxLines: 1))),
                                         DataCell(Align(
                                             alignment: Alignment.centerRight,
                                             child: Text(
-                                                formatAmount(item.price),
+                                                formatAmount(item.totalPrice),
                                                 maxLines: 1))),
                                       ]);
                                     }).toList(),
@@ -327,10 +327,6 @@ void showDetailedOrderInvoiceDialog(
                   CustomButton(text: 'Convert to Order', onPressed: () {}),
                 ],
                 const SizedBox(height: 16),
-                const Text(
-                  'Currency  \$',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
               ],
             )
             // }),

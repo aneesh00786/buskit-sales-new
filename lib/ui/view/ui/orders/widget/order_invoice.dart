@@ -132,13 +132,26 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Invoice Details',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      children: [
+                        const Text(
+                          'Invoice Details',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          'Created At : ${isSpecificData ? (NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.specificData!.orderCreatAt.toString()))) : (NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt!.toIso8601String())))}',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                     Divider(color: Colors.grey.shade300),
                     Row(
@@ -281,7 +294,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                       const EdgeInsets.all(8),
                                                   border: OutlineInputBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(8),
+                                                        BorderRadius.circular(
+                                                            8),
                                                     borderSide: BorderSide.none,
                                                   ),
                                                 ),
@@ -294,7 +308,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                       .cart![index]
                                                       .price;
                                                   if (value !=
-                                                      originalPrice?.toString()) {
+                                                      originalPrice
+                                                          ?.toString()) {
                                                     setState(() {
                                                       isChanged = true;
                                                     });
@@ -305,8 +320,10 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                   _updateTotalPrice(index);
                                                 },
                                               )
-                                            : Text(formatAmount(widget.invoiceData
-                                                    ?.cart?[index].price
+                                            : Text(formatAmount(widget
+                                                    .invoiceData
+                                                    ?.cart?[index]
+                                                    .price
                                                     ?.toString() ??
                                                 '0')),
                                       ),
@@ -327,7 +344,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                       const EdgeInsets.all(8),
                                                   border: OutlineInputBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(8),
+                                                        BorderRadius.circular(
+                                                            8),
                                                     borderSide: BorderSide.none,
                                                   ),
                                                 ),
@@ -335,10 +353,11 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                 keyboardType:
                                                     TextInputType.number,
                                                 onChanged: (value) {
-                                                  final originalQuantity = widget
-                                                      .specificData!
-                                                      .cart![index]
-                                                      .quantity;
+                                                  final originalQuantity =
+                                                      widget
+                                                          .specificData!
+                                                          .cart![index]
+                                                          .quantity;
                                                   if (value !=
                                                       originalQuantity
                                                           ?.toString()) {
@@ -387,9 +406,12 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                         alignment: Alignment.centerRight,
                                         child: Text(
                                           isSpecificData
-                                              ? formatAmount(_totalPrices[index])
-                                              : formatAmount((widget.invoiceData!
-                                                      .cart![index].price) ??
+                                              ? formatAmount(
+                                                  _totalPrices[index])
+                                              : formatAmount((widget
+                                                      .invoiceData!
+                                                      .cart![index]
+                                                      .price) ??
                                                   0 *
                                                       (widget
                                                           .invoiceData!
@@ -487,7 +509,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     : widget.invoiceData!.orderTotal ?? 0) +
                                 ((_getTaxValue(isSpecificData
                                         ? widget.specificData!.cart!.first.tax
-                                        : widget.invoiceData!.cart!.first.tax)) *
+                                        : widget
+                                            .invoiceData!.cart!.first.tax)) *
                                     (isSpecificData
                                         ? widget.specificData!.orderTotal ?? 0
                                         : widget.invoiceData!.orderTotal ?? 0) /
@@ -532,22 +555,23 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                   });
                                 }
                               }
-          
+
                               String jsonOrder = jsonEncode(_updatedOrder
                                   .map((order) => order.toJson())
                                   .toList());
                               log("JSON Order: $jsonOrder");
-          
+
                               // log(jsonOrder);
-          
+
                               // Call the existing action for accepting the order
                               widget.orderController.acceptButtonAction(
                                 context: context,
-                                orderId: widget.specificData!.orderId.toString(),
+                                orderId:
+                                    widget.specificData!.orderId.toString(),
                                 updatedOrders:
                                     _updatedOrder, // Pass the list directly
                               );
-          
+
                               // Pop the screen after the action is completed
                               Navigator.pop(context);
                             },
@@ -575,13 +599,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                       // Update price and quantity in specificData's cart
                                       widget.specificData!.cart![i].price =
                                           _priceControllers[i].text ??
-                                              widget.specificData!.cart![i].price;
+                                              widget
+                                                  .specificData!.cart![i].price;
                                       widget.specificData!.cart![i]
                                           .quantity = int.tryParse(
                                               _quantityControllers[i].text) ??
-                                          widget.specificData!.cart![i].quantity;
+                                          widget
+                                              .specificData!.cart![i].quantity;
                                     }
-          
+
                                     // Add the updated specificData to _updatedOrder
                                     setState(() {
                                       _updatedOrder.add(widget.specificData!);
@@ -589,14 +615,14 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     });
                                   }
                                 }
-          
+
                                 String jsonOrder = jsonEncode(_updatedOrder
                                     .map((order) => order.toJson())
                                     .toList());
                                 log("JSON Order: $jsonOrder");
-          
+
                                 // log(jsonOrder);
-          
+
                                 // Call the existing action for accepting the order
                                 widget.orderController
                                     .sendForCustomerApprovalButtonAction(
@@ -606,7 +632,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                   updatedOrders:
                                       _updatedOrder, // Pass the list directly
                                 );
-          
+
                                 // Pop the screen after the action is completed
                                 Navigator.pop(context);
                               },
@@ -629,7 +655,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             onPressed: () {
                               widget.orderController.rejectButtonAction(
                                 context: context,
-                                orderId: widget.specificData!.orderId.toString(),
+                                orderId:
+                                    widget.specificData!.orderId.toString(),
                                 reason: rejectionController.text,
                               );
                               String rejectionReason =
@@ -781,8 +808,9 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           Text(widget.invoiceData!.rejectionReason.toString()),
                           nkMediumSizeBox(),
                           Text(NKDateUtils.commonDayFormat2(
-                              NKDateUtils.formatStringUTCDateTime(
-                                  widget.invoiceData!.rejectedDate.toString()))),
+                              NKDateUtils.formatStringUTCDateTime(widget
+                                  .invoiceData!.rejectedDate
+                                  .toString()))),
                         ],
                       ],
                     )

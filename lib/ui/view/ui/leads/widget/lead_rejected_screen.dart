@@ -90,7 +90,13 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
 
                         return Container(
                           height: fixedRowHeight,
-                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.grey, width: 0.3),
+                            ),
+                            color:
+                                index.isEven ? Colors.grey[50] : Colors.white,
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(

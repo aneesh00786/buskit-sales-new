@@ -97,16 +97,14 @@ class DialogTableHeaderText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Text(
-        text,
-        textAlign: align,
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.w600,
-          fontSize: fontSize,
-          fontFamily: 'Poppins_Regular',
-        ),
+    return Text(
+      text,
+      textAlign: align,
+      style: TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.w600,
+        fontSize: fontSize,
+        fontFamily: 'Poppins_Regular',
       ),
     );
   }

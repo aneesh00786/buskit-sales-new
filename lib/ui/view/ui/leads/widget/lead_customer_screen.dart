@@ -43,8 +43,8 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 7.09
-        : MediaQuery.of(context).size.height / 7 -
+        ? MediaQuery.of(context).size.height / 9.09
+        : MediaQuery.of(context).size.height / 9 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
         padding: EdgeInsets.zero,

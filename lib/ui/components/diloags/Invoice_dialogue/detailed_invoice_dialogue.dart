@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
@@ -8,10 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 void showDetailedOrderInvoiceDialog(
-  BuildContext context,
-  var orderData,
-  final bool invoice,
-) async {
+    BuildContext context, var orderData, final bool invoice,
+    {bool isButtonNeeded = false}) async {
   DashBoardController dashBoardController = Get.put(DashBoardController());
 
   var orderInvoiceData = await dashBoardController.loadSpecificOrderInvoiceData(
@@ -32,7 +31,7 @@ void showDetailedOrderInvoiceDialog(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  children: [const Spacer(), dialogCloseButton1(context, red)],
+                  children: [const Spacer(), dialogCloseButton(context, red)],
                 ),
                 const SizedBox(height: 16),
                 MyCommnonContainer(
@@ -323,6 +322,10 @@ void showDetailedOrderInvoiceDialog(
                           ],
                         );
                 }),
+                const SizedBox(height: 12),
+                if (isButtonNeeded == true) ...[
+                  CustomButton(text: 'Convert to Order', onPressed: () {}),
+                ],
                 const SizedBox(height: 16),
                 const Text(
                   'Currency  \$',

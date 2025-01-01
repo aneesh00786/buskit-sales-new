@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 const String fontFamilyName = 'Poppins_Regular';
 
+const String myFont = 'Poppins_Regular';
+
 const TextStyle cardHeadingTextStyle = TextStyle(
   fontFamily: fontFamilyName,
   fontWeight: FontWeight.bold,

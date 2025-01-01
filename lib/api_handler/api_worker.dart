@@ -708,7 +708,6 @@ class ApiWorker with ApiConstants {
 
 Future<LeadResponce> getLeadsData(String salesManId,
     {PaginationModel? paginationModel}) async {
-  // Create request data
   final requestData = FormData.fromMap({
     "page": paginationModel?.currentPage ?? "",
     "limit": paginationModel?.limit ?? '',
@@ -781,7 +780,8 @@ Future<LeadResponce> getLeadsData(String salesManId,
     final response = await dio
         .postbycustom(ApiConstants.handle_lead,
             data: FormData.fromMap(
-                {"customer_id": customerId, "status": statusResponce}))
+                {
+                  "customer_id": customerId, "status": statusResponce, "companyId": companyId,}))
         .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));

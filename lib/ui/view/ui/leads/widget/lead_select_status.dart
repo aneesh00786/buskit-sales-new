@@ -123,19 +123,10 @@ class LeadsRejectedStatusSelect extends StatefulWidget {
 class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
   late String _selectedValue = 'Rejected';
   final RejectedLeadsController _rejectedLeadsController = Get.put(RejectedLeadsController());
-  // final RejectedLeadsController _rejectedLeadsController =
-  //     Get.put(RejectedLeadsController());
 
   @override
   void initState() {
     super.initState();
-
-    // Set the initial dropdown value based on screenType
-    // if (widget.screenType == 'leads') {
-    //   _selectedValue = 'Select';
-    // } else if (widget.screenType == 'rejects') {
-    //   _selectedValue = 'Rejected';
-    // }
   }
 
   void _onDropdownChanged(String? newValue) {

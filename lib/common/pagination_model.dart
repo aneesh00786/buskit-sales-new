@@ -23,7 +23,7 @@ class PaginationModel {
   PaginationModel(
       {this.currentPage = 1,
       this.totalPage = 0,
-      this.limit = 10,
+      this.limit = 100,
       this.totalItems});
 
   static bool onScrollNotification(ScrollNotification notification) {

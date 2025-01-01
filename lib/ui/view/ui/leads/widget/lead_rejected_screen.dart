@@ -273,7 +273,12 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.email ?? '',),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.fullname ?? '',),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.mobileno ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.id.toString() ?? '',),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10,right: 10),
+              child: LeadsRejectedStatusSelect(customerId: leadCustomerData.id!.toInt(),),
+            ),
+          )
         ],
       ),
     );

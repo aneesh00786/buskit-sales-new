@@ -374,43 +374,59 @@ class _tableeeState extends State<tableee> {
     bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
     return Consumer<CustomersProvider>(builder: (context, provider, child) {
       return FutureBuilder<CustomerResponse>(
-          future: provider.customerResponse,
-          builder: (context, snapshot) {
-            final customer = snapshot.data?.data.first;
+        future: provider.customerResponse,
+        builder: (context, snapshot) {
+          final customer = snapshot.data?.data.first;
 
-            TextEditingController nameController = TextEditingController();
-            TextEditingController phoneController = TextEditingController();
-            TextEditingController emailController = TextEditingController();
-            TextEditingController townController = TextEditingController();
-            TextEditingController stateController = TextEditingController();
-            TextEditingController zipcodeController = TextEditingController();
-            TextEditingController addressController = TextEditingController();
+          TextEditingController nameController = TextEditingController();
+          TextEditingController phoneController = TextEditingController();
+          TextEditingController emailController = TextEditingController();
+          TextEditingController telephoneController = TextEditingController();
+          TextEditingController townController = TextEditingController();
+          TextEditingController stateController = TextEditingController();
+          TextEditingController zipcodeController = TextEditingController();
+          TextEditingController addressController = TextEditingController();
 
-            TextEditingController bsNameController = TextEditingController();
-            TextEditingController bsNumController = TextEditingController();
+          TextEditingController bsNameController = TextEditingController();
+          TextEditingController bsNumController = TextEditingController();
 
-            TextEditingController remarkController = TextEditingController();
+          TextEditingController contactPersonNameController =
+              TextEditingController();
+          TextEditingController contactNumController = TextEditingController();
 
-            return CustomButton(
+          TextEditingController deliveryAddressController =
+              TextEditingController();
+          TextEditingController deliveryTownController =
+              TextEditingController();
+          TextEditingController deliveryStateController =
+              TextEditingController();
+          TextEditingController deliveryZipcodeController =
+              TextEditingController();
+
+          TextEditingController remarkController = TextEditingController();
+
+          bool sameAsAbove = false;
+
+          return SizedBox(
+            height: isSmallScreen ? 29 : 38,
+            width: isSmallScreen ? 87 : 100,
+            child: CustomButton(
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return SizedBox(
-                      height: 300,
-                      child: SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Dialog(
-                            insetPadding: EdgeInsets.zero,
-                            backgroundColor: Colors.grey[200],
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                              side: BorderSide.none,
-                            ),
-                            elevation: 24.0,
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return Dialog(
+                          insetPadding: EdgeInsets.zero,
+                          backgroundColor: Colors.grey[200],
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            side: BorderSide.none,
+                          ),
+                          elevation: 24.0,
+                          child: SingleChildScrollView(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -435,362 +451,256 @@ class _tableeeState extends State<tableee> {
                                           fontSize: 17.5,
                                         ),
                                       ),
-                                      dialogCloseButton(context, red)
+                                      dialogCloseButton(context, Colors.red),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 16.0),
+                                // const SizedBox(height: 16.0),
                                 Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4.0),
-                                      border: Border.all(color: Colors.grey),
-                                    ),
-                                    child: TextField(
-                                      controller: nameController,
-                                      decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 12.0,
-                                          vertical: 16.0,
-                                        ),
-                                        labelText: 'Full Name',
-                                        prefixIcon: Icon(Icons.person),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    children: [
+                                      buildInputField(bsNameController,
+                                          'Business Name', Icons.business),
+                                      buildInputField(addressController,
+                                          'Address', Icons.home),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: buildInputField(
+                                                townController,
+                                                'Town',
+                                                Icons.location_city),
                                           ),
-                                          child: TextField(
-                                            controller: phoneController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Mobile Number',
-                                              prefixIcon: Icon(Icons.phone),
-                                              border: InputBorder.none,
+                                          const SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: buildInputField(
+                                                stateController,
+                                                'State',
+                                                Icons.map),
+                                          ),
+                                          const SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: buildInputField(
+                                                zipcodeController,
+                                                'Zip Code',
+                                                Icons.pin_drop),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: buildInputField(
+                                                phoneController,
+                                                'Mobile Number',
+                                                Icons.phone),
+                                          ),
+                                          const SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: buildInputField(
+                                                emailController,
+                                                'Email',
+                                                Icons.email),
+                                          ),
+                                          const SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: buildInputField(
+                                                telephoneController,
+                                                'Telephone',
+                                                Icons.phone_in_talk),
+                                          ),
+                                        ],
+                                      ),
+                                      const Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 6.0),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Contact Details',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: buildInputField(
+                                                contactPersonNameController,
+                                                'Contact Person',
+                                                Icons.person),
+                                          ),
+                                          const SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: buildInputField(
+                                                contactNumController,
+                                                'Contact Number',
+                                                Icons.phone),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 6.0),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'Delivery Address    ',
+                                              style: TextStyle(fontSize: 18),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: emailController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Email',
-                                              prefixIcon: Icon(Icons.email),
-                                              border: InputBorder.none,
+                                            Checkbox(
+                                              value: sameAsAbove,
+                                              onChanged: (bool? value) {
+                                                setState(() {
+                                                  sameAsAbove = value ?? false;
+                                                  if (sameAsAbove) {
+                                                    deliveryAddressController
+                                                            .text =
+                                                        addressController.text;
+                                                    deliveryTownController
+                                                            .text =
+                                                        townController.text;
+                                                    deliveryStateController
+                                                            .text =
+                                                        stateController.text;
+                                                    deliveryZipcodeController
+                                                            .text =
+                                                        zipcodeController.text;
+                                                  } else {
+                                                    deliveryAddressController
+                                                        .clear();
+                                                    deliveryTownController
+                                                        .clear();
+                                                    deliveryStateController
+                                                        .clear();
+                                                    deliveryZipcodeController
+                                                        .clear();
+                                                  }
+                                                });
+                                              },
                                             ),
-                                          ),
+                                            const SizedBox(width: 5),
+                                            const Text('Same as Above'),
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: townController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Town',
-                                              prefixIcon:
-                                                  Icon(Icons.location_city),
-                                              border: InputBorder.none,
+                                      if (!sameAsAbove) ...[
+                                        buildInputField(
+                                            deliveryAddressController,
+                                            'Delivery Address',
+                                            Icons.location_on),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryTownController,
+                                                  'Delivery Town',
+                                                  Icons.location_city),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: stateController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'State',
-                                              prefixIcon:
-                                                  Icon(Icons.location_city),
-                                              border: InputBorder.none,
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryStateController,
+                                                  'Delivery State',
+                                                  Icons.map),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: zipcodeController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Zip Code',
-                                              prefixIcon: Icon(Icons.map),
-                                              border: InputBorder.none,
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryZipcodeController,
+                                                  'Delivery Zip Code',
+                                                  Icons.pin_drop),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12.0),
-                                // Fourth row - Address
-                                Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4.0),
-                                      border: Border.all(color: Colors.grey),
-                                    ),
-                                    child: TextField(
-                                      controller: addressController,
-                                      decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 12.0,
-                                          vertical: 16.0,
-                                        ),
-                                        labelText: 'Address',
-                                        prefixIcon: Icon(Icons.home),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12.0),
-                                // Second row - Mobile Number and Email
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: bsNameController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Busniness Name',
-                                              prefixIcon: Icon(Icons.phone),
-                                              border: InputBorder.none,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: bsNumController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Business Contact',
-                                              prefixIcon:
-                                                  Icon(Icons.phone_callback),
-                                              border: InputBorder.none,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12.0),
-                                // Fifth row - Image Picker
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                          ),
-                                          child: TextField(
-                                            controller: remarkController,
-                                            decoration: const InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              labelText: 'Remark',
-                                              prefixIcon: Icon(Icons.phone),
-                                              border: InputBorder.none,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: GestureDetector(
-                                          onTap: provider.pickImage,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
+                                      ],
+                                      Row(
+                                        children: [
+                                          Expanded(
                                             child: Padding(
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 16.0,
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      const Icon(Icons.image,
-                                                          color: Colors.grey),
-                                                      const SizedBox(
-                                                          height: 12.0),
-                                                      Text(
-                                                        provider.imageFile ==
-                                                                null
-                                                            ? 'Pick an image from gallery'
-                                                            : 'Image selected',
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .grey[700]),
-                                                      ),
-                                                    ],
+                                                  const EdgeInsets.all(4.0),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          4.0),
+                                                  border: Border.all(
+                                                      color: Colors.grey),
+                                                ),
+                                                child: TextField(
+                                                  controller: remarkController,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: 12.0,
+                                                      vertical: 16.0,
+                                                    ),
+                                                    labelText: 'Remark',
+                                                    prefixIcon:
+                                                        Icon(Icons.phone),
+                                                    border: InputBorder.none,
                                                   ),
-                                                ],
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12.0),
-                                if (provider.imageFile != null) ...[
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      height: 100.0,
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(4.0),
-                                        border: Border.all(color: Colors.grey),
-                                      ),
-                                      child: kIsWeb
-                                          ? Image.network(
-                                              provider.imageFile!.path,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.file(
-                                              File(provider.imageFile!.path),
-                                              fit: BoxFit.cover,
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(4.0),
+                                              child: GestureDetector(
+                                                onTap: provider.pickImage,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.0),
+                                                    border: Border.all(
+                                                        color: Colors.grey),
+                                                  ),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 12.0,
+                                                      vertical: 16.0,
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Column(
+                                                          children: [
+                                                            const Icon(
+                                                                Icons.image,
+                                                                color: Colors
+                                                                    .grey),
+                                                            const SizedBox(
+                                                                height: 12.0),
+                                                            Text(
+                                                              provider.imageFile ==
+                                                                      null
+                                                                  ? 'Pick an image from gallery'
+                                                                  : 'Image selected',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      700]),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                    ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ],
-
-                                const SizedBox(height: 16.0),
+                                ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(
@@ -798,9 +708,33 @@ class _tableeeState extends State<tableee> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-                                          final updatedAdmin = CustomerDashMo(
-                                            // cartId:
-                                            //     widget.cusId, // Provide default or empty values if not applicable
+                                          final updatedAdmin = 
+                                          // {
+                                          //   "userid": "ADMIN",
+                                          //   "businessname": bsNameController.text,
+                                          //   "address": addressController.text,
+                                          //   "town": townController.text,
+                                          //   "state": stateController.text,
+                                          //   "zipcode": zipcodeController.text,
+                                          //   "mobileno": phoneController.text,
+                                          //   "email": emailController.text,
+                                          //   "tfn": telephoneController.text,
+                                          //   "fullname": contactPersonNameController.text,
+                                          //   "businesscontact": contactNumController.text,
+                                          //   "addressCheckbox": "ON",
+                                          //   "delivery_address": deliveryAddressController.text,
+                                          //   "delivery_town": deliveryTownController.text,
+                                          //   "delivery_state": deliveryStateController.text,
+                                          //   "delivery_zipcode": deliveryZipcodeController.text,
+                                          //   "remark": remarkController.text,
+                                          //   "customerpicture": '',
+                                          //   "company_id": SessionHelper.loginSavedData?.companyId ?? 0,
+                                          //   "salesman_id": null,
+                                          //   "salesman_name": null,
+                                          //   "status_type": 1
+                                          // };
+
+                                          CustomerDashMo(
                                             fullname: nameController.text,
                                             mobileno: phoneController.text,
                                             email: emailController.text,
@@ -810,8 +744,7 @@ class _tableeeState extends State<tableee> {
                                                 zipcodeController.text),
                                             address: addressController.text,
                                             businessName: bsNameController.text,
-                                            businessNo: bsNumController
-                                                .text, // Provide default or empty values if not applicable
+                                            businessNo: bsNumController.text,
                                           );
 
                                           try {
@@ -819,18 +752,16 @@ class _tableeeState extends State<tableee> {
                                                 admin: updatedAdmin,
                                                 salsmanId: customer!.salesmanId
                                                     .toString());
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
+                                            Navigator.of(context).pop();
                                           } catch (error) {
-                                            // Handle error (e.g., show a message to the user)
+                                            log(error.toString());
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              primaryColor, // Background color
+                                          backgroundColor: primaryColor,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                4.0), // Border radius
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
                                           ),
                                         ),
                                         child: const Text(
@@ -844,16 +775,41 @@ class _tableeeState extends State<tableee> {
                               ],
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     );
                   },
                 );
               },
               text: 'Customer',
-            );
-          });
+            ),
+          );
+        },
+      );
     });
+  }
+
+  Widget buildInputField(
+      TextEditingController controller, String labelText, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4.0),
+          border: Border.all(color: Colors.grey),
+        ),
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+            labelText: labelText,
+            prefixIcon: Icon(icon),
+            border: InputBorder.none,
+          ),
+        ),
+      ),
+    );
   }
 }
 

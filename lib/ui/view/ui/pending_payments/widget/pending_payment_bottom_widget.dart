@@ -324,24 +324,43 @@ class _PendingPaymentBottomWidgetState
     );
   }
 
-  Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
-    return Container(
-      height: fontSize * 3.0,
-      // padding: const EdgeInsets.all(4.0),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFDBB8),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Center(
-        child: Text(
-          OrderHandlingClass.fromType(customerData.orderStatus!).name,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontFamily: 'Poppins_Regular',
-            fontWeight: FontWeight.w700
+ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: IntrinsicHeight(
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xffffdbb8),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomText(
+                  content: OrderHandlingClass.fromType(customerData.orderStatus)
+                      .name,
+                  textAlign: TextAlign.center,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+                if (customerData.orderStatus == 2 &&
+                    customerData.deliveryDate != null) ...[
+                  Text(
+                    NKDateUtils.commonFullDateTimeFormat(
+                        NKDateUtils.formatStringUTCDateTime(
+                            customerData.deliveryDate!.toIso8601String())),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: const TextStyle(
+                      fontSize: 10.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ]
+              ],
+            ),
           ),
         ),
       ),

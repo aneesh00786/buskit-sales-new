@@ -1190,16 +1190,16 @@ class PendingAmount {
   final String? invoiceId;
   final String? businessName;
   final int? orderStatus;
-  final double? orderTotal;
-  final double? receivedAmount;
-  final double? receivableAmount;
+  final int? orderTotal;
+  final int? receivedAmount;
+  final int? receivableAmount;
   final int? paymentStatus;
   final int? creditPeriod;
   final int? count;
   final String? percentage;
-  final double? amount;
-  final double? dueAmount;
-  final double? overDue;
+  final int? amount;
+  final int? dueAmount;
+  final int? overDue;
   final List<dynamic>? dueDate;
 
   PendingAmount({
@@ -1228,16 +1228,16 @@ class PendingAmount {
       invoiceId: json['invoice_id'],
       businessName: json['business_name'],
       orderStatus: json['order_status'],
-      orderTotal: json['order_total']?.toDouble(),
-      receivedAmount: json['received_amount']?.toDouble(),
-      receivableAmount: json['receivable_amount']?.toDouble(),
+      orderTotal: json['order_total'],
+      receivedAmount: json['received_amount'],
+      receivableAmount: json['receivable_amount'],
       paymentStatus: json['payment_status'],
       creditPeriod: json['credit_period'],
       count: json['count'],
       percentage: json['percentage'],
-      amount: json['amount']?.toDouble(),
-      dueAmount: json['due_amount']?.toDouble(),
-      overDue: json['over_due']?.toDouble(),
+      amount: json['amount'],
+      dueAmount: json['due_amount'],
+      overDue: json['over_due'],
       dueDate: json['due_date'] != null
           ? List<dynamic>.from(json['due_date'])
           : null,

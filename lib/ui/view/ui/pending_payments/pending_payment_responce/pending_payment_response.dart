@@ -93,6 +93,7 @@ class CustomerData {
     String orderId;
     String customerId;
     DateTime orderCreatAt;
+    DateTime? deliveryDate;
     int creditPeriod;
     String fullname;
     String businessName;
@@ -107,6 +108,7 @@ class CustomerData {
         required this.orderId,
         required this.customerId,
         required this.orderCreatAt,
+        this.deliveryDate,
         required this.creditPeriod,
         required this.fullname,
         required this.businessName,
@@ -122,6 +124,9 @@ class CustomerData {
         orderId: json["order_id"],
         customerId: json["customer_id"],
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
+        deliveryDate: json["delivery_datetime"] != null
+            ? DateTime.parse(json["delivery_datetime"])
+            : null,
         creditPeriod: json["credit_period"],
         fullname: json["fullname"],
         businessName: json["business_name"],
@@ -137,6 +142,7 @@ class CustomerData {
         "order_id": orderId,
         "customer_id": customerId,
         "order_creat_at": orderCreatAt.toIso8601String(),
+        "delivery_datetime": deliveryDate?.toIso8601String(),
         "credit_period": creditPeriod,
         "fullname": fullname,
         "business_name": businessName,

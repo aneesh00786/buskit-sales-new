@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -1260,8 +1261,9 @@ class NestedPieChartj extends StatelessWidget {
     );
   }
 
-  void _pendingPaymentCollectionDialog(
+ void _pendingPaymentCollectionDialog(
       BuildContext context, String title, Collection collection) {
+    final ScrollController scrollController = ScrollController();
     // Ensure order and pendingAmount are not null
     if (collection.order == null || collection.order!.pendingAmount == null) {
       print("Order or pendingAmount is null.");
@@ -1294,14 +1296,26 @@ class NestedPieChartj extends StatelessWidget {
 
     updateSelectedItems();
 
+    bool isWithinThreeDays(DateTime date) {
+      final now = DateTime.now();
+      final startOfToday = DateTime(now.year, now.month, now.day);
+      final endOfThreeDaysFromNow = startOfToday
+          .add(Duration(days: 3, hours: 23, minutes: 59, seconds: 59));
+      return date.isAtSameMomentAs(startOfToday) ||
+          (date.isAfter(startOfToday) &&
+              date.isBefore(endOfThreeDaysFromNow)) ||
+          date.isAtSameMomentAs(endOfThreeDaysFromNow);
+    }
+
     List<PendingAmount> filteredPendingAmount = [];
     if (title == 'Due Payment') {
       filteredPendingAmount = collection.order!.pendingAmount!.where((item) {
         if (item.dueDate == null || item.dueDate is! List) return false;
         try {
-          String dateString = item.dueDate![0]; // Access the first element
+          String dateString = item.dueDate![0];
           DateTime dueDate = parseCustomDate(dateString);
-          return dueDate.isAfter(DateTime.now());
+          return isWithinThreeDays(
+              dueDate); // Check for due dates within 3 days
         } catch (e) {
           print("Error parsing dueDate: ${item.dueDate}, error: $e");
           return false;
@@ -1311,9 +1325,9 @@ class NestedPieChartj extends StatelessWidget {
       filteredPendingAmount = collection.order!.pendingAmount!.where((item) {
         if (item.dueDate == null || item.dueDate is! List) return false;
         try {
-          String dateString = item.dueDate![0]; // Access the first element
+          String dateString = item.dueDate![0];
           DateTime dueDate = parseCustomDate(dateString);
-          return dueDate.isBefore(DateTime.now());
+          return dueDate.isBefore(DateTime.now()); // Only overdue items
         } catch (e) {
           print("Error parsing dueDate: ${item.dueDate}, error: $e");
           return false;
@@ -1321,6 +1335,26 @@ class NestedPieChartj extends StatelessWidget {
       }).toList();
     } else if (title == 'Pending Payment') {
       filteredPendingAmount = collection.order!.pendingAmount!.toList();
+    }
+
+    Color getDueDateColor(String dueDateStr) {
+      try {
+        DateTime dueDate = parseCustomDate(dueDateStr);
+
+        // Update: Check if the due date is today
+        if (_isDateToday(dueDate)) {
+          return Colors.amber; // Today
+        } else if (_isDateBeforeToday(dueDate.toString())) {
+          return Colors.red; // Overdue
+        } else if (isWithinThreeDays(dueDate)) {
+          return Colors.amber; // Within 3 days (includes today)
+        } else {
+          return Colors.green; // Future due dates
+        }
+      } catch (e) {
+        print("Error parsing dueDate: $dueDateStr, error: $e");
+        return Colors.grey; // Default color for invalid date or error
+      }
     }
 
     double calculateTotalBalanceAmount() {
@@ -1342,12 +1376,10 @@ class NestedPieChartj extends StatelessWidget {
     }
 
     void processPayments(List<PendingAmount> selectedItems, int enteredAmount) {
-      // Your processing logic for payments, without the controller
       print("Processing payments with amount: $enteredAmount");
       for (var item in selectedItems) {
         print(
             "Processing item: ${item.orderId} with amount: ${item.orderTotal}");
-        // Add further logic to adjust amounts, mark items as paid, etc.
       }
     }
 
@@ -1396,7 +1428,6 @@ class NestedPieChartj extends StatelessWidget {
                   ],
                 ),
               ),
-              // First table
               SizedBox(
                 width: MediaQuery.of(context).size.width * 1.3,
                 child: Padding(
@@ -1419,6 +1450,7 @@ class NestedPieChartj extends StatelessWidget {
                       minThumbLength: 50,
                     ),
                     child: Scrollbar(
+                      controller: scrollController,
                       interactive: true,
                       thumbVisibility: true,
                       trackVisibility: true,
@@ -1426,6 +1458,7 @@ class NestedPieChartj extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
                         child: SingleChildScrollView(
+                          controller: scrollController,
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
                             columnSpacing: 30,
@@ -1540,7 +1573,7 @@ class NestedPieChartj extends StatelessWidget {
                                     DataCell(Center(
                                         child: InkWell(
                                             onTap: () {
-                                              _showDetailedPaymentOrderDialog(
+                                              showDetailedOrderInvoiceDialog(
                                                   context, payment, true);
                                             },
                                             child: Text(
@@ -1556,16 +1589,15 @@ class NestedPieChartj extends StatelessWidget {
                                               ? payment.dueDate!.first
                                                   .toString()
                                                   .replaceAll('/', '-')
-                                              : 'N/A',
+                                              : 'N/A', // Empty string for null or empty dueDate
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             color: payment.dueDate != null &&
-                                                    payment
-                                                        .dueDate!.isNotEmpty &&
-                                                    _isDateBeforeToday(
-                                                        payment.dueDate!.first)
-                                                ? Colors.red
-                                                : Colors.green,
+                                                    payment.dueDate!.isNotEmpty
+                                                ? getDueDateColor(
+                                                    payment.dueDate!.first)
+                                                : Colors
+                                                    .grey, // Set color to grey for null or empty dueDate
                                           ),
                                         ),
                                       ),
@@ -1612,18 +1644,25 @@ class NestedPieChartj extends StatelessWidget {
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0),
                                           child: EditablePendingPaymentCell(
-                                            initialValue:
-                                                payment.orderTotal.toString(),
+                                            initialValue: (payment.orderTotal! -
+                                                            payment
+                                                                .receivedAmount! ==
+                                                        payment.orderTotal
+                                                    ? payment.orderTotal
+                                                    : payment.orderTotal! -
+                                                        payment.receivedAmount!)
+                                                .toString(),
                                             index: index,
                                             orderId: payment.orderId.toString(),
                                             orderTotal:
                                                 payment.orderTotal?.toInt() ??
                                                     0,
-                                            receivable: payment.receivableAmount
-                                                    ?.toInt() ??
-                                                payment.orderTotal?.toInt(),
+                                            receivable:
+                                                payment.receivableAmount ??
+                                                    payment.orderTotal! -
+                                                        payment.receivedAmount!,
                                             onValueChanged: (newValue, index) {
-                                               
+                                              // Handle editable cells if necessary
                                             },
                                           ),
                                         ),
@@ -1670,7 +1709,7 @@ class NestedPieChartj extends StatelessWidget {
                                       formatAmount(
                                         filteredPendingAmount
                                             .map((e) => e.orderTotal ?? 0.0)
-                                            .reduce((a, b) => a + b),
+                                            .fold(0.0, (a, b) => a + b),
                                       ),
                                       style: const TextStyle(
                                           fontSize: 12,
@@ -1691,8 +1730,9 @@ class NestedPieChartj extends StatelessWidget {
                                         filteredPendingAmount
                                             .map((e) =>
                                                 e.receivableAmount ??
-                                                e.orderTotal!)
-                                            .reduce((a, b) => a + b),
+                                                e.orderTotal ??
+                                                0.0)
+                                            .fold(0.0, (a, b) => a + b),
                                       ),
                                       style: const TextStyle(
                                           fontSize: 12,
@@ -1782,7 +1822,6 @@ class NestedPieChartj extends StatelessWidget {
                                   onChanged: (value) {
                                     if (value != null) {
                                       selectedPaymentMethod = value;
-                                      // Map the selected value to the corresponding integer
                                       switch (value) {
                                         case 'Cash':
                                           selectedPaymentMethodInt.value = 0;
@@ -1883,7 +1922,6 @@ class NestedPieChartj extends StatelessWidget {
                                               receivedAmountController.text) ??
                                           0;
                                       if (enteredAmount > 0) {
-                                        // Gather selected items
                                         List<PendingAmount> selectedItemsList =
                                             [];
                                         for (int i = 0;
@@ -1941,6 +1979,16 @@ bool _isDateBeforeToday(String dateString) {
   } catch (e) {
     return false;
   }
+}
+
+bool _isDateToday(DateTime date) {
+  final now = DateTime.now();
+  final startOfToday = DateTime(now.year, now.month, now.day);
+  final endOfToday = startOfToday
+      .add(const Duration(days: 1))
+      .subtract(const Duration(seconds: 1));
+  return date.isAtSameMomentAs(startOfToday) ||
+      (date.isAfter(startOfToday) && date.isBefore(endOfToday));
 }
 
 void _showValueDialog(

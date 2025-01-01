@@ -25,6 +25,7 @@ import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart'
     as model;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
@@ -927,544 +928,350 @@ class DashBoardMiddleWidget extends StatelessWidget {
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
         double fontSize = 11;
-
-        // Sort products by quantity
         topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
 
         if (topSellingProducts.isEmpty) {
           return const NodataWidget();
         } else {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            width: availableWidth,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  color: Colors.white, // Background color for headers
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: DataTable(
-                          horizontalMargin: 6,
-                          headingRowHeight: 30,
-                          dataRowHeight: 0,
-                          dividerThickness: 0,
-                          headingRowColor:
-                              WidgetStatePropertyAll(Colors.grey.shade100),
-                          border:
-                              TableBorder.all(width: 0, color: Colors.white),
-                          columns: const [
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Product",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Last Purchase",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    maxlines: 2,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Times",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Price",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: "Qty",
-                                    fontWeight: FontWeight.w600,
-                                    color: secondaryTextColor,
-                                    align: TextAlign.center,
-                                    fontSize: 11.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          rows: topSellingProducts.map((product) {
-                            return DataRow(
-                              cells: <DataCell>[
-                                DataCell(
-                                  MyRegularText(
-                                    label:
-                                        '${product.productName} - ${product.variationName}',
-                                    fontSize: fontSize - 1,
-                                    maxlines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: MyRegularText(
-                                      label: DateFormat('dd-MM-yyyy')
-                                          .format(product.createdAt!),
-                                      color: secondaryTextColor,
-                                      fontSize: fontSize,
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        height: 20,
-                                        width: 20,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.blue,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: MyRegularText(
-                                            label: product.quantity.toString(),
-                                            color: buttonTextColor,
-                                            align: TextAlign.center,
-                                            fontSize: fontSize,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: MyRegularText(
-                                      label: formatAmount(
-                                          product.topSellingProductATotalPrice),
-                                      color: secondaryTextColor,
-                                      fontSize: fontSize,
-                                      maxlines: 1,
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: MyRegularText(
-                                      label: "${product.buyquantity}",
-                                      color: secondaryTextColor,
-                                      fontSize: fontSize,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (topSellingProducts.isEmpty)
-                  Expanded(child: Center(child: NodataWidget()))
-                else
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: DataTable(
-                              horizontalMargin: 6,
-                              headingRowHeight: 0,
-                              dataRowHeight: 35,
-                              dividerThickness: 0,
-                              border: TableBorder.all(
-                                  width: 0, color: Colors.white),
-                              columns: const [
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: "Product",
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                        align: TextAlign.center,
-                                        fontSize: 11.3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: "Last Purchase",
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                        maxlines: 2,
-                                        align: TextAlign.center,
-                                        fontSize: 11.3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: "Times",
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                        align: TextAlign.center,
-                                        fontSize: 11.3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: "Price",
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                        align: TextAlign.center,
-                                        fontSize: 11.3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Center(
-                                      child: MyRegularText(
-                                        label: "Qty",
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                        align: TextAlign.center,
-                                        fontSize: 11.3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              rows: topSellingProducts.map((product) {
-                                return DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(
-                                      MyRegularText(
-                                        label:
-                                            '${product.productName} - ${product.variationName}',
-                                        fontSize: fontSize - 1,
-                                        maxlines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: MyRegularText(
-                                          label: DateFormat('dd-MM-yyyy')
-                                              .format(product.createdAt!),
-                                          color: secondaryTextColor,
-                                          fontSize: fontSize,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: InkWell(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  contentPadding:
-                                                      EdgeInsets.zero,
-                                                  titlePadding: EdgeInsets.zero,
-                                                  content:
-                                                      SingleChildScrollView(
-                                                    child: Column(
-                                                      children: [
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(10),
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                            color: primaryColor,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topLeft: Radius
-                                                                  .circular(10),
-                                                              topRight: Radius
-                                                                  .circular(10),
-                                                            ),
-                                                          ),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              SizedBox(
-                                                                width: constraints
-                                                                    .maxWidth,
-                                                                child:
-                                                                    MyRegularText(
-                                                                  label:
-                                                                      '${product.productName} - ${product.variationName}',
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontFamily:
-                                                                        'Poppins_Regular',
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                                  maxlines: 5,
-                                                                ),
-                                                              ),
-                                                              dialogCloseButton(
-                                                                  context, red),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: DataTable(
-                                                            dataRowHeight: 30,
-                                                            headingRowHeight:
-                                                                35,
-                                                            columnSpacing: 30,
-                                                            // horizontalMargin: 0,
-                                                            columns: const [
-                                                              DataColumn(
-                                                                label:
-                                                                    DialogTableHeaderText(
-                                                                  text: 'Price',
-                                                                  fontSize: 13,
-                                                                ),
-                                                              ),
-                                                              DataColumn(
-                                                                label:
-                                                                    DialogTableHeaderText(
-                                                                  text:
-                                                                      'Quantity',
-                                                                  fontSize: 13,
-                                                                ),
-                                                              ),
-                                                              DataColumn(
-                                                                label:
-                                                                    DialogTableHeaderText(
-                                                                  text:
-                                                                      'Amount',
-                                                                  fontSize: 13,
-                                                                ),
-                                                              ),
-                                                              DataColumn(
-                                                                label:
-                                                                    DialogTableHeaderText(
-                                                                  text:
-                                                                      'Purchased At',
-                                                                  fontSize: 13,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                            rows: product
-                                                                .getTimesData!
-                                                                .map(
-                                                              (timesData) {
-                                                                return DataRow(
-                                                                  cells: [
-                                                                    DataCell(
-                                                                        Center(
-                                                                      child:
-                                                                          Text(
-                                                                        // '1',
-                                                                        formatAmount(
-                                                                            timesData.price),
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                        style:
-                                                                            const TextStyle(
-                                                                          color:
-                                                                              secondaryTextColor,
-                                                                          fontSize:
-                                                                              13,
-                                                                        ),
-                                                                      ),
-                                                                    )),
-                                                                    DataCell(
-                                                                        Center(
-                                                                      child:
-                                                                          Text(
-                                                                        timesData
-                                                                            .quantity
-                                                                            .toString(),
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                        style:
-                                                                            const TextStyle(
-                                                                          color:
-                                                                              secondaryTextColor,
-                                                                          fontSize:
-                                                                              13,
-                                                                        ),
-                                                                      ),
-                                                                    )),
-                                                                    DataCell(
-                                                                      Center(
-                                                                        child:
-                                                                            Text(
-                                                                          timesData.totalPrice != null
-                                                                              ? formatAmount(timesData.totalPrice)
-                                                                              : 'N/A',
-                                                                          textAlign:
-                                                                              TextAlign.center,
-                                                                          style:
-                                                                              const TextStyle(
-                                                                            color:
-                                                                                secondaryTextColor,
-                                                                            fontSize:
-                                                                                13,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    DataCell(
-                                                                      Center(
-                                                                        child:
-                                                                            Text(
-                                                                          DateFormat('dd-MM-yyyy')
-                                                                              .format(timesData.createdAt!)
-                                                                              .toString(),
-                                                                          textAlign:
-                                                                              TextAlign.center,
-                                                                          style:
-                                                                              const TextStyle(
-                                                                            color:
-                                                                                secondaryTextColor,
-                                                                            fontSize:
-                                                                                13,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                );
-                                                              },
-                                                            ).toList(),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                          child: Container(
-                                            height: 20,
-                                            width: 20,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.blue,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Center(
-                                              child: MyRegularText(
-                                                label:
-                                                    product.quantity.toString(),
-                                                color: buttonTextColor,
-                                                align: TextAlign.center,
-                                                fontSize: fontSize,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: MyRegularText(
-                                          label: formatAmount(product
-                                              .topSellingProductATotalPrice),
-                                          color: secondaryTextColor,
-                                          fontSize: fontSize,
-                                          maxlines: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: MyRegularText(
-                                          label: product.getTimesData!
-                                              .fold<int>(
-                                                0,
-                                                (previousValue, element) =>
-                                                    previousValue +
-                                                    element.quantity!,
-                                              )
-                                              .toString(),
-                                          color: secondaryTextColor,
-                                          fontSize: fontSize,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-              ],
-            ),
+          return frequentlyBoughtTable(
+           constraints: constraints,
+           context: context,
+           topSellingProducts: topSellingProducts
           );
+          // return Container(
+          //   padding: const EdgeInsets.symmetric(horizontal: 10),
+          //   width: availableWidth,
+          //   child: Column(
+          //     mainAxisAlignment: MainAxisAlignment.start,
+          //     children: [
+          //       Container(
+          //         color: Colors.white, // Background color for headers
+          //         child: Row(
+          //           children: [
+          //             Expanded(
+          //               child: DataTable(
+          //                 horizontalMargin: 6,
+          //                 headingRowHeight: 30,
+          //                 dataRowHeight: 0,
+          //                 dividerThickness: 0,
+          //                 headingRowColor:
+          //                     WidgetStatePropertyAll(Colors.grey.shade100),
+          //                 border:
+          //                     TableBorder.all(width: 0, color: Colors.white),
+          //                 columns: const [
+          //                   DataColumn(
+          //                     label: Expanded(
+          //                       child: Center(
+          //                         child: MyRegularText(
+          //                           label: "Product",
+          //                           fontWeight: FontWeight.w600,
+          //                           color: secondaryTextColor,
+          //                           align: TextAlign.center,
+          //                           fontSize: 11.3,
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   DataColumn(
+          //                     label: Expanded(
+          //                       child: Center(
+          //                         child: MyRegularText(
+          //                           label: "Last Purchase",
+          //                           fontWeight: FontWeight.w600,
+          //                           color: secondaryTextColor,
+          //                           maxlines: 2,
+          //                           align: TextAlign.center,
+          //                           fontSize: 11.3,
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   DataColumn(
+          //                     label: Expanded(
+          //                       child: Center(
+          //                         child: MyRegularText(
+          //                           label: "Times",
+          //                           fontWeight: FontWeight.w600,
+          //                           color: secondaryTextColor,
+          //                           align: TextAlign.center,
+          //                           fontSize: 11.3,
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   DataColumn(
+          //                     label: Expanded(
+          //                       child: Center(
+          //                         child: MyRegularText(
+          //                           label: "Price",
+          //                           fontWeight: FontWeight.w600,
+          //                           color: secondaryTextColor,
+          //                           align: TextAlign.center,
+          //                           fontSize: 11.3,
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   DataColumn(
+          //                     label: Expanded(
+          //                       child: Center(
+          //                         child: MyRegularText(
+          //                           label: "Qty",
+          //                           fontWeight: FontWeight.w600,
+          //                           color: secondaryTextColor,
+          //                           align: TextAlign.center,
+          //                           fontSize: 11.3,
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                 ],
+          //                 rows: topSellingProducts.map((product) {
+          //                   return DataRow(
+          //                     cells: <DataCell>[
+          //                       DataCell(
+          //                         MyRegularText(
+          //                           label:
+          //                               '${product.productName} - ${product.variationName}',
+                                    // fontSize: fontSize - 1,
+                                    // maxlines: 2,
+                                    // overflow: TextOverflow.ellipsis,
+          //                         ),
+          //                       ),
+          //                       DataCell(
+          //                         Center(
+          //                           child: MyRegularText(
+          //                             label: DateFormat('dd-MM-yyyy')
+          //                                 .format(product.createdAt!),
+          //                             color: secondaryTextColor,
+          //                             fontSize: fontSize,
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataCell(
+          //                         Center(
+          //                           child: InkWell(
+          //                             onTap: () {},
+          //                             child: Container(
+          //                               height: 20,
+          //                               width: 20,
+          //                               decoration: const BoxDecoration(
+          //                                 color: Colors.blue,
+          //                                 shape: BoxShape.circle,
+          //                               ),
+          //                               child: Center(
+          //                                 child: MyRegularText(
+          //                                   label: product.quantity.toString(),
+          //                                   color: buttonTextColor,
+          //                                   align: TextAlign.center,
+          //                                   fontSize: fontSize,
+          //                                 ),
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataCell(
+          //                         Center(
+          //                           child: MyRegularText(
+          //                             label: formatAmount(
+          //                                 product.topSellingProductATotalPrice),
+          //                             color: secondaryTextColor,
+          //                             fontSize: fontSize,
+          //                             maxlines: 1,
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataCell(
+          //                         Center(
+          //                           child: MyRegularText(
+          //                             label: "${product.buyquantity}",
+          //                             color: secondaryTextColor,
+          //                             fontSize: fontSize,
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   );
+          //                 }).toList(),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       if (topSellingProducts.isEmpty)
+          //         Expanded(child: Center(child: NodataWidget()))
+          //       else
+          //         Flexible(
+          //           fit: FlexFit.loose,
+          //           child: Row(
+          //             children: [
+          //               Expanded(
+          //                 child: SingleChildScrollView(
+          //                   scrollDirection: Axis.vertical,
+          //                   child: DataTable(
+          //                     horizontalMargin: 6,
+          //                     headingRowHeight: 0,
+          //                     dataRowHeight: 35,
+                              
+          //                     dividerThickness: 0,
+          //                     border: TableBorder.all(
+          //                         width: 0, color: Colors.white),
+          //                     columns: const [
+          //                       DataColumn(
+          //                         label: Expanded(
+          //                           child: Center(
+          //                             child: MyRegularText(
+          //                               label: "Product",
+          //                               fontWeight: FontWeight.w600,
+          //                               color: secondaryTextColor,
+          //                               align: TextAlign.center,
+          //                               fontSize: 11.3,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataColumn(
+          //                         label: Expanded(
+          //                           child: Center(
+          //                             child: MyRegularText(
+          //                               label: "Last Purchase",
+          //                               fontWeight: FontWeight.w600,
+          //                               color: secondaryTextColor,
+          //                               maxlines: 2,
+          //                               align: TextAlign.center,
+          //                               fontSize: 11.3,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataColumn(
+          //                         label: Expanded(
+          //                           child: Center(
+          //                             child: MyRegularText(
+          //                               label: "Times",
+          //                               fontWeight: FontWeight.w600,
+          //                               color: secondaryTextColor,
+          //                               align: TextAlign.center,
+          //                               fontSize: 11.3,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataColumn(
+          //                         label: Expanded(
+          //                           child: Center(
+          //                             child: MyRegularText(
+          //                               label: "Price",
+          //                               fontWeight: FontWeight.w600,
+          //                               color: secondaryTextColor,
+          //                               align: TextAlign.center,
+          //                               fontSize: 11.3,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       DataColumn(
+          //                         label: Expanded(
+          //                           child: Center(
+          //                             child: MyRegularText(
+          //                               label: "Qty",
+          //                               fontWeight: FontWeight.w600,
+          //                               color: secondaryTextColor,
+          //                               align: TextAlign.center,
+          //                               fontSize: 11.3,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     ],
+          //                     rows: topSellingProducts.map((product) {
+          //                       return DataRow(
+          //                         cells: <DataCell>[
+          //                           DataCell(
+          //                             MyRegularText(
+          //                               label:
+          //                                   '${product.productName} - ${product.variationName}',
+          //                               fontSize: fontSize - 1,
+          //                               maxlines: 2,
+          //                               overflow: TextOverflow.ellipsis,
+          //                             ),
+          //                           ),
+          //                           DataCell(
+          //                             Center(
+          //                               child: MyRegularText(
+          //                                 label: DateFormat('dd-MM-yyyy')
+          //                                     .format(product.createdAt!),
+          //                                 color: secondaryTextColor,
+          //                                 fontSize: fontSize,
+          //                               ),
+          //                             ),
+          //                           ),
+          //                           DataCell(
+          //                             Center(
+          //                               child: InkWell(
+          //                                 onTap: () {
+                                            
+          //                                 },
+          //                                 child: Container(
+          //                                   height: 20,
+          //                                   width: 20,
+          //                                   decoration: const BoxDecoration(
+          //                                     color: Colors.blue,
+          //                                     shape: BoxShape.circle,
+          //                                   ),
+          //                                   child: Center(
+          //                                     child: MyRegularText(
+          //                                       label:
+          //                                           product.quantity.toString(),
+          //                                       color: buttonTextColor,
+          //                                       align: TextAlign.center,
+          //                                       fontSize: fontSize,
+          //                                     ),
+          //                                   ),
+          //                                 ),
+          //                               ),
+          //                             ),
+          //                           ),
+          //                           DataCell(
+          //                             Center(
+          //                               child: MyRegularText(
+          //                                 label: formatAmount(product
+          //                                     .topSellingProductATotalPrice),
+          //                                 color: secondaryTextColor,
+          //                                 fontSize: fontSize,
+          //                                 maxlines: 1,
+          //                               ),
+          //                             ),
+          //                           ),
+          //                           DataCell(
+          //                             Center(
+          //                               child: MyRegularText(
+          //                                 label: product.getTimesData!
+          //                                     .fold<int>(
+          //                                       0,
+          //                                       (previousValue, element) =>
+          //                                           previousValue +
+          //                                           element.quantity!,
+          //                                     )
+          //                                     .toString(),
+          //                                 color: secondaryTextColor,
+          //                                 fontSize: fontSize,
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ],
+          //                       );
+          //                     }).toList(),
+          //                   ),
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         )
+          //     ],
+          //   ),
+          // );
         }
       },
     );

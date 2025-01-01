@@ -45,8 +45,8 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 9.09
-        : MediaQuery.of(context).size.height / 9 -
+        ? MediaQuery.of(context).size.height / 10.09
+        : MediaQuery.of(context).size.height / 10 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
         padding: EdgeInsets.zero,
@@ -91,9 +91,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                         return Container(
                           height: fixedRowHeight,
                           decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(color: Colors.grey, width: 0.3),
-                            ),
+                         
                             color:
                                 index.isEven ? Colors.grey[50] : Colors.white,
                           ),

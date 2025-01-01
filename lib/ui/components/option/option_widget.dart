@@ -272,7 +272,7 @@ class OptionWidget extends StatelessWidget {
                                 children: [
                                   SizedBox(
                                     width: MediaQuery.of(context).size.width,
-                                    height: filteredOrders.length < 10
+                                    height: filteredOrders.length <= 10
                                             ? null
                                             : MediaQuery.of(context).size.height * 0.8,
                                     child: SingleChildScrollView(

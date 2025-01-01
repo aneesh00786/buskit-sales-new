@@ -54,8 +54,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 9.09
-        : MediaQuery.of(context).size.height / 9 -
+        ? MediaQuery.of(context).size.height / 10.09
+        : MediaQuery.of(context).size.height / 10 -
             MediaQuery.of(context).size.height * 0.032;
 
     return MyCommnonContainer(
@@ -103,9 +103,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                         return Container(
                           height: fixedRowHeight,
                           decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(color: Colors.grey, width: 0.3),
-                            ),
                             color:
                                 index.isEven ? Colors.grey[50] : Colors.white,
                           ),
@@ -297,9 +294,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
           Expanded(
               child: Container(
                   decoration: BoxDecoration(
-                    border: Border(
-                      right: BorderSide(color: Colors.grey, width: 0.3),
-                    ),
                   ),
                   child: Center(
                       child: Padding(
@@ -347,7 +341,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     );
   }
 }
-
 
 class EditLeadsDialog extends StatelessWidget {
   final LeadCustomerData leadCustomerData;

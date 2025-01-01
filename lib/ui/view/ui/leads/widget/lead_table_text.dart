@@ -17,11 +17,6 @@ class LeadTableText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
         child: Container(
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(color: Colors.grey, width: 0.3),
-        ),
-      ),
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(left: 9, right: 9),
@@ -29,6 +24,8 @@ class LeadTableText extends StatelessWidget {
             textAlign: TextAlign.center,
             content: content,
             fontSize: 12,
+            overflow: TextOverflow.ellipsis,
+            maxLine: 3,
           ),
         ),
       ),

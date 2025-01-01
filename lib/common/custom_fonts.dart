@@ -118,8 +118,10 @@ class CustomText extends StatelessWidget {
   double? fontSize;
   FontWeight? fontWeight;
   TextAlign? textAlign;
+  int? maxLine;
+  TextOverflow? overflow;
 
-   CustomText({
+  CustomText({
     super.key,
     this.color,
     this.fontFamily,
@@ -127,19 +129,22 @@ class CustomText extends StatelessWidget {
     this.fontSize,
     this.fontWeight,
     this.textAlign,
+    this.maxLine,
+    this.overflow
   });
 
   @override
   Widget build(BuildContext context) {
-    return Text(content??'',
-    textAlign: textAlign,
-    style: TextStyle(
-      color: color ?? Colors.black,
-      fontFamily:fontFamily ?? 'Poppins_Regular',
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      
-    ),
+    return Text(
+      content ?? '',
+      style: TextStyle(
+          color: color != null ? color : Colors.black,
+          fontFamily: fontFamily != null ? fontFamily : 'Poppins_Regular',
+          fontSize: fontSize,
+          fontWeight: fontWeight),
+      textAlign: textAlign != null ? textAlign : null,
+      maxLines: maxLine == null ? null : maxLine,
+      overflow: overflow == null ? null : overflow,
     );
   }
 }

@@ -12,16 +12,11 @@ import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DashBoardScreen extends StatefulWidget {
+class DashBoardScreen extends StatelessWidget {
   final HomeController homeController;
-  const DashBoardScreen({super.key, required this.homeController});
-
-  @override
-  State<DashBoardScreen> createState() => _DashBoardScreenState();
-}
-
-class _DashBoardScreenState extends State<DashBoardScreen> {
+  DashBoardScreen({super.key, required this.homeController});
   final DashBoardController controller = Get.put(DashBoardController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +27,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
           children: [
             DashboardTopWidget(
               dashBoardController: controller,
-              homeController: widget.homeController,
+              homeController: homeController,
             ),
             nkSmallSizeBox(),
             Flexible(

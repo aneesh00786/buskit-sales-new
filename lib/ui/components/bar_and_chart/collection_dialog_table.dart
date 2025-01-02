@@ -1,7 +1,6 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -248,17 +247,5 @@ void showValueCollectionDialog(
         ),
       );
     },
-  );
-}
-
-
-Widget buildHeader(String label) {
-  return Center(
-    child: CustomText(
-      content: label,
-      color: black,
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-    ),
   );
 }

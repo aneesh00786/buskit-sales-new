@@ -964,7 +964,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 15, top: 2),
+                  padding: const EdgeInsets.only(right: 20, top: 2),
                   child: InkWell(
                     onTap: () {
                       if (topSellingProducts.isNotEmpty) {
@@ -977,7 +977,15 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         );
                       }
                     },
-                    child: const Icon(Icons.open_in_new, size: 25,color: primaryColor,),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: primaryColor.withOpacity(0.3)
+                      ),
+                      child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: const Icon(Icons.open_in_new, size: 17,color: primaryColor,),
+                    )),
                   ),
                 ),
               ],

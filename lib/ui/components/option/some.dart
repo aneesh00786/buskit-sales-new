@@ -2871,11 +2871,11 @@ void _showDetailedOrderDialog(
                           ],
                         );
                 }),
-                const SizedBox(height: 16),
-                 Text(
-                  'Currency ${formatAmount('')}',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
+                // const SizedBox(height: 16),
+                //  Text(
+                //   'Currency ${formatAmount('')}',
+                //   style: TextStyle(color: Colors.grey, fontSize: 14),
+                // ),
               ],
             )
             // }),

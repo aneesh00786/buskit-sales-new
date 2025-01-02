@@ -20,37 +20,38 @@ extension StringExtension on String {
 }
 
 String formatAmount(dynamic value) {
-    final currencySymbol = SessionHelper.settingsData
-          ?.firstWhere(
-            (setting) => setting.key == 'currency_symbol',
-            orElse: () => AllCompanySettingsData(
-              key: 'currency_symbol',
-              value: '',
-            ),
-          )
-          .value ??
-      '';
+  final currencySymbol = (SessionHelper.settingsData
+            ?.firstWhere(
+              (setting) => setting.key == 'currency_symbol',
+              orElse: () => AllCompanySettingsData(
+                key: 'currency_symbol',
+                value: '',
+              ),
+            )
+            .value ?? '')
+        .trim(); // Trim extra spaces from the symbol
   double amount;
 
   try {
     if (value == null) {
       amount = 0.0;
     } else if (value is String) {
-      amount = double.tryParse(value) ?? 0.0; 
+      amount = double.tryParse(value) ?? 0.0;
     } else if (value is int) {
-      amount = value.toDouble(); 
+      amount = value.toDouble();
     } else if (value is double) {
-      amount = value; 
+      amount = value;
     } else {
       throw ArgumentError('Unsupported value type: ${value.runtimeType}');
     }
     String formattedAmount = amount.toStringAsFixed(2);
-    return currencySymbol + formattedAmount;
+    return "$currencySymbol $formattedAmount"; 
   } catch (e) {
     print('Error in formatAmount: $e');
     rethrow;
   }
 }
+
 String getStatusName(int status) {
   switch (status) {
     case 0:

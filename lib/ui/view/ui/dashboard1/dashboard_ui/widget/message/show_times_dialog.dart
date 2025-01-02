@@ -36,7 +36,6 @@ Future<dynamic> showDashTimesDialogue(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Dialog Heading
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
@@ -66,7 +65,6 @@ Future<dynamic> showDashTimesDialogue(
                         ],
                       ),
                     ),
-                    // Table Header (Fixed)
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
@@ -139,8 +137,6 @@ Future<dynamic> showDashTimesDialogue(
     },
   );
 }
-
-
 
 Widget buildHeader(String title) {
   return Center(

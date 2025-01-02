@@ -12,6 +12,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersstatus_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
@@ -1286,7 +1287,7 @@ class NestedPieChartj extends StatelessWidget {
             strokeWidth: 2,
             onPointTap: (ChartPointDetails details) {
               if (details.pointIndex == 0) {
-                _showValueDialog(context, 'Completed', collection);
+                showValueCollectionDialog(context, collection, 'Recieved Payment');
               } else if (details.pointIndex == 1) {
                 _pendingPaymentCollectionDialog(
                     context, 'Pending Payment', collection);

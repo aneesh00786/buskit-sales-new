@@ -977,7 +977,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         );
                       }
                     },
-                    child: const Icon(Icons.width_wide_outlined, size: 30),
+                    child: const Icon(Icons.open_in_new, size: 25,color: primaryColor,),
                   ),
                 ),
               ],

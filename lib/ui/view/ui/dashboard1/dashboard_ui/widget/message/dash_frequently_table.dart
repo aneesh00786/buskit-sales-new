@@ -46,11 +46,10 @@ Widget frequentlyBoughtTable({
               TableViewCell(
                 child: Text(
                   '${product.productName} - ${product.variationName}',
-
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w400),
+                      fontSize: 10.5, fontWeight: FontWeight.w400),
                 ),
               ),
               TableViewCell(
@@ -60,7 +59,7 @@ Widget frequentlyBoughtTable({
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w400),
+                      fontSize: 10, fontWeight: FontWeight.w400),
                 ),
               ),
               TableViewCell(
@@ -93,7 +92,7 @@ Widget frequentlyBoughtTable({
                   formatAmount(product.topSellingProductATotalPrice),
                   maxLines: 1,
                   style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w400),
+                      fontSize: 10.5, fontWeight: FontWeight.w400),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -107,6 +106,9 @@ Widget frequentlyBoughtTable({
                               previousValue + element.quantity!,
                         )
                         .toString(),
+                    style: const TextStyle(
+                        fontSize: 10.5, fontWeight: FontWeight.w400),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -123,15 +125,12 @@ Widget frequentlyBoughtTable({
           children: [
             Expanded(
               flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  headers[0],
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              child: Text(
+                headers[0],
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             ...headers
@@ -139,13 +138,10 @@ Widget frequentlyBoughtTable({
                 .map(
                   (label) => Expanded(
                     flex: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 11),
-                      ),
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 11),
                     ),
                   ),
                 )
@@ -197,8 +193,6 @@ Widget frequentlyBoughtTable({
     ],
   );
 }
-
-
 
 Text text(List<InvoiceDash> invoices, dynamic s) {
   String invoiceIds = invoices.map((invoice) => invoice.invoiceId).join(', ');

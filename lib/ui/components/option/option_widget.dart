@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -263,7 +264,8 @@ class OptionWidget extends StatelessWidget {
                             builder: (BuildContext context,
                                 BoxConstraints constraints) {
                               double availableWidth = constraints.maxWidth;
-                              double fontSize = 14.0;
+                              // double fontSize = 14.0;
+                              double fontSize = availableWidth * 0.017;
                               double padding = availableWidth / 100;
                               double fixedIconSize = fontSize;
                               double flexWidth = availableWidth / 10;
@@ -272,19 +274,19 @@ class OptionWidget extends StatelessWidget {
                                 children: [
                                   SizedBox(
                                     width: MediaQuery.of(context).size.width,
-                                    height: filteredOrders.length <= 10
-                                            ? null
-                                            : MediaQuery.of(context).size.height * 0.8,
+                                    height: filteredOrders.length < 10
+                                        ? null
+                                        : fullScreenHeight(context) * 0.8,
                                     child: SingleChildScrollView(
                                       child: DataTable(
                                         dataRowHeight: fontSize * 5.5,
+                                        headingRowHeight: 45,
                                         headingRowColor:
                                             const WidgetStatePropertyAll(
                                                 primaryColor),
-                                        headingRowHeight: 45,
                                         columnSpacing: 10,
-                                        headingTextStyle: const TextStyle(
-                                            fontSize: 15,
+                                        headingTextStyle: TextStyle(
+                                            fontSize: fontSize + 1,
                                             color: white,
                                             fontWeight: FontWeight.w700),
                                         columns: const [
@@ -357,11 +359,9 @@ class OptionWidget extends StatelessWidget {
                                                                         ? customer
                                                                             .businessName
                                                                         : 'N/A',
-                                                                    style: const TextStyle(
-                                                                        fontFamily:
-                                                                            myFont,
+                                                                    style: TextStyle(
                                                                         fontSize:
-                                                                            11,
+                                                                            fontSize,
                                                                         fontWeight:
                                                                             FontWeight.bold),
                                                                     maxLines: 1,
@@ -375,11 +375,10 @@ class OptionWidget extends StatelessWidget {
                                                                         ? customer
                                                                             .fullName
                                                                         : 'N/A',
-                                                                    style: const TextStyle(
-                                                                        fontFamily:
-                                                                            myFont,
+                                                                    style: TextStyle(
                                                                         fontSize:
-                                                                            10,
+                                                                            fontSize -
+                                                                                2,
                                                                         fontWeight:
                                                                             FontWeight.bold),
                                                                     maxLines: 1,
@@ -393,11 +392,10 @@ class OptionWidget extends StatelessWidget {
                                                                         ? customer
                                                                             .mobileNo
                                                                         : 'N/A',
-                                                                    style: const TextStyle(
-                                                                        fontFamily:
-                                                                            myFont,
+                                                                    style: TextStyle(
                                                                         fontSize:
-                                                                            10,
+                                                                            fontSize -
+                                                                                2,
                                                                         fontWeight:
                                                                             FontWeight.w400),
                                                                     maxLines: 1,
@@ -411,11 +409,10 @@ class OptionWidget extends StatelessWidget {
                                                                         ? customer
                                                                             .email
                                                                         : 'N/A',
-                                                                    style: const TextStyle(
-                                                                        fontFamily:
-                                                                            myFont,
+                                                                    style: TextStyle(
                                                                         fontSize:
-                                                                            10,
+                                                                            fontSize -
+                                                                                2,
                                                                         fontWeight:
                                                                             FontWeight.w400),
                                                                     maxLines: 1,
@@ -443,13 +440,11 @@ class OptionWidget extends StatelessWidget {
                                                           child: Center(
                                                             child: Text(
                                                               order.orderId,
-                                                              style: const TextStyle(
+                                                              style: TextStyle(
                                                                   color:
                                                                       primaryColor,
-                                                                  fontFamily:
-                                                                      myFont,
                                                                   fontSize:
-                                                                      11.0,
+                                                                      fontSize,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w600),
@@ -469,11 +464,9 @@ class OptionWidget extends StatelessWidget {
                                                                     .orderCreatedAt
                                                                     .toString())
                                                                 : 'N/A',
-                                                            style:
-                                                                const TextStyle(
-                                                              fontFamily:
-                                                                  myFont,
-                                                              fontSize: 11.0,
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  fontSize,
                                                             ),
                                                             maxLines: 1,
                                                             overflow:
@@ -489,11 +482,9 @@ class OptionWidget extends StatelessWidget {
                                                         child: Center(
                                                           child: Text(
                                                             '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                            style:
-                                                                const TextStyle(
-                                                              fontFamily:
-                                                                  myFont,
-                                                              fontSize: 11.0,
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  fontSize,
                                                             ),
                                                             maxLines: 2,
                                                           ),
@@ -508,11 +499,9 @@ class OptionWidget extends StatelessWidget {
                                                             formatAmount(order
                                                                 .orderTotal),
                                                             maxLines: 1,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontFamily:
-                                                                  myFont,
-                                                              fontSize: 11.0,
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  fontSize,
                                                             ),
                                                           ),
                                                         ),
@@ -520,7 +509,7 @@ class OptionWidget extends StatelessWidget {
                                                     ),
                                                     DataCell(
                                                       SizedBox(
-                                                        width: flexWidth * 0.8,
+                                                        width: flexWidth * 0.9,
                                                         child: InkWell(
                                                           onTap: () {
                                                             showDetailedOrderInvoiceDialog(
@@ -537,13 +526,11 @@ class OptionWidget extends StatelessWidget {
                                                                       .invoice[
                                                                           0]
                                                                       .invoiceId,
-                                                              style: const TextStyle(
+                                                              style: TextStyle(
                                                                   color:
                                                                       primaryColor,
-                                                                  fontFamily:
-                                                                      myFont,
                                                                   fontSize:
-                                                                      11.0,
+                                                                      fontSize,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w600),
@@ -624,11 +611,9 @@ class OptionWidget extends StatelessWidget {
                                                                     getStatusName(
                                                                         order
                                                                             .orderStatus),
-                                                                    style: const TextStyle(
-                                                                        fontFamily:
-                                                                            myFont,
+                                                                    style: TextStyle(
                                                                         fontSize:
-                                                                            11.0,
+                                                                            fontSize,
                                                                         fontWeight:
                                                                             FontWeight.w600),
                                                                     textAlign:
@@ -649,9 +634,10 @@ class OptionWidget extends StatelessWidget {
                                                                       maxLines:
                                                                           2,
                                                                       style:
-                                                                          const TextStyle(
+                                                                          TextStyle(
                                                                         fontSize:
-                                                                            10.0,
+                                                                            fontSize -
+                                                                                2,
                                                                         fontWeight:
                                                                             FontWeight.w400,
                                                                       ),
@@ -671,137 +657,143 @@ class OptionWidget extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                    top: 0,
-                                    child: DataTable(
-                                        dataRowHeight: fontSize * 5.5,
-                                        headingRowHeight: 45,
-                                        headingRowColor:
-                                            const WidgetStatePropertyAll(
-                                                primaryColor),
-                                        columnSpacing: 10,
-                                        headingTextStyle: const TextStyle(
-                                            fontSize: 15,
-                                            color: white,
-                                            fontWeight: FontWeight.w700),
-                                        columns: const [
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Customer List',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Order No.',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Order Created',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Created By',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Order Amount',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Invoice',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Payment Status',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                'Status',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                '',
-                                              ),
-                                            ),
-                                          )),
-                                        ],
-                                        rows: [
-                                          DataRow(
-                                            cells: [
-                                              DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1.5),
-                                              ),
-                                              DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 0.9),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 0.8),
-                                              ),
-                                              DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1.1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1.1),
-                                              ),
-                                              const DataCell(Text('')),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: DataTable(
+                                            dataRowHeight: fontSize * 5.5,
+                                            headingRowHeight: 45,
+                                            headingRowColor:
+                                                const WidgetStatePropertyAll(
+                                                    primaryColor),
+                                            columnSpacing: 10,
+                                            headingTextStyle: TextStyle(
+                                                fontSize: fontSize + 1,
+                                                color: white,
+                                                fontWeight: FontWeight.w700),
+                                            columns: const [
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Customer List',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Order No.',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Created',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Created By',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Amount',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Invoice',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Payment Status',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'Status',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    '',
+                                                  ),
+                                                ),
+                                              )),
                                             ],
-                                          ),
-                                        ]),
+                                            rows: [
+                                              DataRow(
+                                                cells: [
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1.5),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 0.9),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 0.9),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1.1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1.1),
+                                                  ),
+                                                  const DataCell(Text('')),
+                                                ],
+                                              ),
+                                            ]),
+                                      ),
+                                    ],
                                   ),
                                   Positioned(
                                     top: 0,
@@ -868,7 +860,8 @@ class OptionWidget extends StatelessWidget {
                               builder: (BuildContext context,
                                   BoxConstraints constraints) {
                                 double availableWidth = constraints.maxWidth;
-                                double fontSize = 14.0;
+                                // double fontSize = 14.0;
+                                double fontSize = availableWidth * 0.017;
                                 double padding = availableWidth / 100;
                                 double fixedIconSize = fontSize;
                                 double flexWidth = availableWidth / 9;
@@ -876,18 +869,17 @@ class OptionWidget extends StatelessWidget {
                                 return Stack(
                                   children: [
                                     SizedBox(
-                                      width:
-                                          MediaQuery.of(context).size.width,
+                                      width: MediaQuery.of(context).size.width,
                                       height: filteredOrders.length < 10
                                           ? null
-                                          : MediaQuery.of(context).size.height * 0.8,
+                                          : fullScreenHeight(context) * 0.8,
                                       child: SingleChildScrollView(
                                         child: DataTable(
                                           dataRowHeight: fontSize * 5.5,
                                           headingRowHeight: 45,
                                           columnSpacing: 10,
-                                          headingTextStyle: const TextStyle(
-                                              fontSize: 15,
+                                          headingTextStyle: TextStyle(
+                                              fontSize: fontSize + 1,
                                               color: white,
                                               fontWeight: FontWeight.w700),
                                           columns: [
@@ -978,10 +970,10 @@ class OptionWidget extends StatelessWidget {
                                                   ])
                                                 ]
                                               : filteredOrders.map((order) {
-                                                  final customer = order
-                                                          .customer.isNotEmpty
-                                                      ? order.customer[0]
-                                                      : null;
+                                                  final customer =
+                                                      order.customer.isNotEmpty
+                                                          ? order.customer[0]
+                                                          : null;
                                                   return DataRow(
                                                     cells: [
                                                       DataCell(
@@ -1021,70 +1013,70 @@ class OptionWidget extends StatelessWidget {
                                                                     Text(
                                                                       customer !=
                                                                               null
-                                                                          ? customer.businessName
+                                                                          ? customer
+                                                                              .businessName
                                                                           : 'N/A',
-                                                                      style: const TextStyle(
-                                                                          fontFamily:
-                                                                              myFont,
+                                                                      style: TextStyle(
                                                                           fontSize:
-                                                                              11,
+                                                                              fontSize,
                                                                           fontWeight:
                                                                               FontWeight.bold),
                                                                       maxLines:
                                                                           1,
                                                                       overflow:
-                                                                          TextOverflow.ellipsis,
+                                                                          TextOverflow
+                                                                              .ellipsis,
                                                                     ),
                                                                     Text(
                                                                       customer !=
                                                                               null
-                                                                          ? customer.fullName
+                                                                          ? customer
+                                                                              .fullName
                                                                           : 'N/A',
-                                                                      style: const TextStyle(
-                                                                          fontFamily:
-                                                                              myFont,
-                                                                          fontSize:
-                                                                              10,
+                                                                      style: TextStyle(
+                                                                          fontSize: fontSize -
+                                                                              2,
                                                                           fontWeight:
                                                                               FontWeight.bold),
                                                                       maxLines:
                                                                           1,
                                                                       overflow:
-                                                                          TextOverflow.ellipsis,
+                                                                          TextOverflow
+                                                                              .ellipsis,
                                                                     ),
                                                                     Text(
                                                                       customer !=
                                                                               null
-                                                                          ? customer.mobileNo
+                                                                          ? customer
+                                                                              .mobileNo
                                                                           : 'N/A',
-                                                                      style: const TextStyle(
-                                                                          fontFamily:
-                                                                              myFont,
-                                                                          fontSize:
-                                                                              10,
+                                                                      style: TextStyle(
+                                                                          fontSize: fontSize -
+                                                                              2,
                                                                           fontWeight:
                                                                               FontWeight.w400),
                                                                       maxLines:
                                                                           1,
                                                                       overflow:
-                                                                          TextOverflow.ellipsis,
+                                                                          TextOverflow
+                                                                              .ellipsis,
                                                                     ),
                                                                     Text(
                                                                       customer !=
                                                                               null
-                                                                          ? customer.email
+                                                                          ? customer
+                                                                              .email
                                                                           : 'N/A',
-                                                                      style: const TextStyle(
-                                                                          fontFamily:
-                                                                              myFont,
-                                                                          fontSize:
-                                                                              10,
+                                                                      style: TextStyle(
+                                                                          fontSize: fontSize -
+                                                                              2,
                                                                           fontWeight:
                                                                               FontWeight.w400),
                                                                       maxLines:
                                                                           1,
                                                                       overflow:
-                                                                          TextOverflow.ellipsis,
+                                                                          TextOverflow
+                                                                              .ellipsis,
                                                                     ),
                                                                   ],
                                                                 ),
@@ -1107,13 +1099,11 @@ class OptionWidget extends StatelessWidget {
                                                             child: Center(
                                                               child: Text(
                                                                 order.orderId,
-                                                                style: const TextStyle(
+                                                                style: TextStyle(
                                                                     color:
                                                                         primaryColor,
-                                                                    fontFamily:
-                                                                        myFont,
                                                                     fontSize:
-                                                                        11.0,
+                                                                        fontSize,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w600),
@@ -1124,8 +1114,7 @@ class OptionWidget extends StatelessWidget {
                                                       ),
                                                       DataCell(
                                                         SizedBox(
-                                                          width:
-                                                              flexWidth * 1,
+                                                          width: flexWidth * 1,
                                                           child: Center(
                                                             child: Text(
                                                               order.orderCreatedAt !=
@@ -1134,12 +1123,9 @@ class OptionWidget extends StatelessWidget {
                                                                       .orderCreatedAt
                                                                       .toString())
                                                                   : 'N/A',
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontFamily:
-                                                                    myFont,
+                                                              style: TextStyle(
                                                                 fontSize:
-                                                                    11.0,
+                                                                    fontSize,
                                                               ),
                                                               maxLines: 1,
                                                               overflow:
@@ -1151,17 +1137,13 @@ class OptionWidget extends StatelessWidget {
                                                       ),
                                                       DataCell(
                                                         SizedBox(
-                                                          width:
-                                                              flexWidth * 1,
+                                                          width: flexWidth * 1,
                                                           child: Center(
                                                             child: Text(
                                                               '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontFamily:
-                                                                    myFont,
+                                                              style: TextStyle(
                                                                 fontSize:
-                                                                    11.0,
+                                                                    fontSize,
                                                               ),
                                                               maxLines: 2,
                                                             ),
@@ -1170,19 +1152,15 @@ class OptionWidget extends StatelessWidget {
                                                       ),
                                                       DataCell(
                                                         SizedBox(
-                                                          width:
-                                                              flexWidth * 1,
+                                                          width: flexWidth * 1,
                                                           child: Center(
                                                             child: Text(
                                                               formatAmount(order
                                                                   .orderTotal),
                                                               maxLines: 1,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontFamily:
-                                                                    myFont,
+                                                              style: TextStyle(
                                                                 fontSize:
-                                                                    11.0,
+                                                                    fontSize,
                                                               ),
                                                             ),
                                                           ),
@@ -1198,10 +1176,11 @@ class OptionWidget extends StatelessWidget {
                                                                   context,
                                                                   order,
                                                                   true,
-                                                                  isButtonNeeded: orderType ==
-                                                                          'Cancelled'
-                                                                      ? false
-                                                                      : true);
+                                                                  isButtonNeeded:
+                                                                      orderType ==
+                                                                              'Cancelled'
+                                                                          ? false
+                                                                          : true);
                                                             },
                                                             child: Center(
                                                               child: Text(
@@ -1212,13 +1191,11 @@ class OptionWidget extends StatelessWidget {
                                                                         .invoice[
                                                                             0]
                                                                         .invoiceId,
-                                                                style: const TextStyle(
+                                                                style: TextStyle(
                                                                     color:
                                                                         primaryColor,
-                                                                    fontFamily:
-                                                                        myFont,
                                                                     fontSize:
-                                                                        11.0,
+                                                                        fontSize,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w600),
@@ -1237,9 +1214,9 @@ class OptionWidget extends StatelessWidget {
                                                                   const BoxDecoration(
                                                                 color: Color(
                                                                     0xffffdbb8),
-                                                                borderRadius:
-                                                                    BorderRadius.all(
-                                                                        Radius.circular(
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
                                                                             15.0)),
                                                               ),
                                                               child: Padding(
@@ -1256,16 +1233,16 @@ class OptionWidget extends StatelessWidget {
                                                                   children: [
                                                                     Text(
                                                                       getStatusName(
-                                                                          order.orderStatus),
-                                                                      style: const TextStyle(
-                                                                          fontFamily:
-                                                                              myFont,
+                                                                          order
+                                                                              .orderStatus),
+                                                                      style: TextStyle(
                                                                           fontSize:
-                                                                              11.0,
+                                                                              fontSize,
                                                                           fontWeight:
                                                                               FontWeight.w600),
                                                                       textAlign:
-                                                                          TextAlign.center,
+                                                                          TextAlign
+                                                                              .center,
                                                                     ),
                                                                     if (order.orderStatus ==
                                                                             2 &&
@@ -1296,8 +1273,7 @@ class OptionWidget extends StatelessWidget {
                                                         ),
                                                       ),
                                                       DataCell(SizedBox(
-                                                        width:
-                                                            flexWidth * 0.5,
+                                                        width: flexWidth * 0.5,
                                                         child: IconButton(
                                                             onPressed: () {
                                                               showDetailedOrderInvoiceDialog(
@@ -1308,8 +1284,7 @@ class OptionWidget extends StatelessWidget {
                                                                       true);
                                                             },
                                                             icon: const Icon(
-                                                              Icons
-                                                                  .visibility,
+                                                              Icons.visibility,
                                                               size: 15,
                                                               color:
                                                                   primaryColor,
@@ -1331,12 +1306,10 @@ class OptionWidget extends StatelessWidget {
                                                   const WidgetStatePropertyAll(
                                                       primaryColor),
                                               columnSpacing: 10,
-                                              headingTextStyle:
-                                                  const TextStyle(
-                                                      fontSize: 15,
-                                                      color: white,
-                                                      fontWeight:
-                                                          FontWeight.w700),
+                                              headingTextStyle: TextStyle(
+                                                  fontSize: fontSize + 1,
+                                                  color: white,
+                                                  fontWeight: FontWeight.w700),
                                               columns: [
                                                 const DataColumn(
                                                     label: Expanded(
@@ -1412,43 +1385,40 @@ class OptionWidget extends StatelessWidget {
                                                   cells: [
                                                     DataCell(
                                                       SizedBox(
-                                                          width: flexWidth *
-                                                              1.5),
-                                                    ),
-                                                    DataCell(
-                                                      SizedBox(
-                                                          width: flexWidth *
-                                                              0.9),
+                                                          width:
+                                                              flexWidth * 1.5),
                                                     ),
                                                     DataCell(
                                                       SizedBox(
                                                           width:
-                                                              flexWidth * 1),
+                                                              flexWidth * 0.9),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width: flexWidth * 1),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width: flexWidth * 1),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width: flexWidth * 1),
                                                     ),
                                                     DataCell(
                                                       SizedBox(
                                                           width:
-                                                              flexWidth * 1),
+                                                              flexWidth * 0.8),
                                                     ),
                                                     DataCell(
                                                       SizedBox(
                                                           width:
-                                                              flexWidth * 1),
+                                                              flexWidth * 1.1),
                                                     ),
                                                     DataCell(
                                                       SizedBox(
-                                                          width: flexWidth *
-                                                              0.8),
-                                                    ),
-                                                    DataCell(
-                                                      SizedBox(
-                                                          width: flexWidth *
-                                                              1.1),
-                                                    ),
-                                                    DataCell(
-                                                      SizedBox(
-                                                          width: flexWidth *
-                                                              0.5),
+                                                          width:
+                                                              flexWidth * 0.5),
                                                     ),
                                                     // const DataCell(Text('')),
                                                   ],

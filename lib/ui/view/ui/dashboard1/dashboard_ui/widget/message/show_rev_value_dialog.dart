@@ -25,7 +25,6 @@ void showValueDialog(
                 (categoryData.orderRevenueData?.length ?? 0) * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,

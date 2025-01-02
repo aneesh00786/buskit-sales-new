@@ -12,6 +12,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersstatus_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -738,7 +739,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                     ? 2
                                     : -1;
 
-                    _showValueDialog(
+                    showValueOrderDialog(
                         context, widget.deliveryData, title, status);
                   }
                 },
@@ -792,190 +793,250 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                 : 0.0;
   }
 
-  void _showValueDialog(
-      BuildContext context, Delivery deliveryData, String title, int status) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        // Filter orders based on status
-        final filteredOrders = deliveryData.order!.totalOrders!
-            .where((orderDetails) => orderDetails.orderStatus == status)
-            .toList();
+void _showValueDialog(
+    BuildContext context, Delivery deliveryData, String title, int status) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      // Filter orders based on status
+      final filteredOrders = deliveryData.order!.totalOrders!
+          .where((orderDetails) => orderDetails.orderStatus == status)
+          .toList();
 
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          contentPadding: EdgeInsets.zero,
-          titlePadding: EdgeInsets.zero,
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  height: 45,
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'Poppins_Regular',
-                          fontWeight: FontWeight.w600,
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+            double maxDialogHeight = constraints.maxHeight * 0.7;
+            double rowHeight = 40.0;
+            double headerHeight = 41.0;
+            double listHeight = filteredOrders.length * rowHeight;
+            double contentHeight =
+                listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: maxDialogHeight,
+              ),
+              child: Container(
+                width: dialogWidth,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 45,
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
                         ),
                       ),
-                      dialogCloseButton1(context, red),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: DataTable(
-                      // ignore: deprecated_member_use
-                      dataRowHeight: 39,
-                      headingRowHeight: 41,
-                      columns: const [
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Poppins_Regular',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          dialogCloseButton1(context, red),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      color: const Color.fromARGB(255, 247, 247, 247),
+                      height: headerHeight,
+                      child: Row(
+                        children: const [
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Customer',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Date',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Invoice',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Status',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Amount',
                             fontSize: 13,
-                          ),
-                        ),
-                      ],
-                      rows: [
-                        ...filteredOrders.map((orderDetails) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Center(
-                                child:
-                                    Text(orderDetails.businessName.toString(),
-                                        style: const TextStyle(
-                                          color: secondaryTextColor,
-                                          fontSize: 13,
-                                        ),
-                                        textAlign: TextAlign.center),
-                              )),
-                              DataCell(Center(
-                                child: Text(
-                                    getFormattedOrderCreatAt(
-                                        orderDetails.orderCreatAt ?? ''),
-                                    style: const TextStyle(
-                                      color: secondaryTextColor,
-                                      fontSize: 13,
+                          )),
+                        ],
+                      ),
+                    ),
+                    // Table Content
+                    Flexible(
+                      child: Container(
+                        height: contentHeight,
+                        child: ListView.builder(
+                          itemCount: filteredOrders.isEmpty
+                              ? 1
+                              : filteredOrders.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == filteredOrders.length) {
+                              // Total Row
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: Colors.grey,
+                                      width: 0.5,
                                     ),
-                                    textAlign: TextAlign.center),
-                              )),
-                              DataCell(Center(
-                                child: InkWell(
-                                  onTap: () {
-                                    _showDetailedPaymentOrderDialog(
-                                        context, orderDetails, true);
-                                  },
-                                  child: Text(orderDetails.invoiceId.toString(),
-                                      style: const TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 13,
+                                  ),
+                                ),
+                                height: rowHeight,
+                                child: Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Poppins_Regular',
+                                          ),
+                                        ),
                                       ),
-                                      textAlign: TextAlign.center),
-                                ),
-                              )),
-                              DataCell(Center(
-                                child: Text(
-                                    getStatusName(
-                                        orderDetails.orderStatus ?? 0),
-                                    style: const TextStyle(
-                                      color: secondaryTextColor,
-                                      fontSize: 13,
                                     ),
-                                    textAlign: TextAlign.center),
-                              )),
-                              DataCell(Center(
-                                child:
-                                    Text(formatAmount(orderDetails.orderTotal),
-                                        style: const TextStyle(
-                                          color: secondaryTextColor,
-                                          fontSize: 13,
+                                    const Expanded(child: SizedBox.shrink()),
+                                    const Expanded(child: SizedBox.shrink()),
+                                    const Expanded(child: SizedBox.shrink()),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          formatAmount(filteredOrders
+                                              .map((e) => e.orderTotal ?? 0.0)
+                                              .reduce((a, b) => a + b)),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Poppins_Regular',
+                                          ),
                                         ),
-                                        textAlign: TextAlign.center),
-                              )),
-                            ],
-                          );
-                        }),
-                        DataRow(
-                          cells: [
-                            const DataCell(
-                              Center(
-                                child: Text(
-                                  'Total',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Poppins_Regular'),
-                                  textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            final orderDetails = filteredOrders[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 0.5,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const DataCell(Text('')),
-                            const DataCell(Text('')),
-                            const DataCell(Text('')),
-                            DataCell(
-                              Center(
-                                child: Text(
-                                  formatAmount(filteredOrders
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b)),
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Poppins_Regular'),
-                                  textAlign: TextAlign.center,
-                                ),
+                              height: rowHeight,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        orderDetails.businessName ?? '',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: secondaryTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        getFormattedOrderCreatAt(
+                                            orderDetails.orderCreatAt ?? ''),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: secondaryTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: InkWell(
+                                        onTap: () {
+                                          showDetailedOrderInvoiceDialog(
+                                              context, orderDetails, true);
+                                        },
+                                        child: Text(
+                                          orderDetails.invoiceId ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        getStatusName(
+                                            orderDetails.orderStatus ?? 0),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: secondaryTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        formatAmount(
+                                            orderDetails.orderTotal ?? 0.0),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: secondaryTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      ]),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
 }
 
 // class ChartSampleData {
@@ -1273,13 +1334,9 @@ class NestedPieChartj extends StatelessWidget {
     String selectedPaymentMethod = 'Cash';
     RxInt selectedPaymentMethodInt = 0.obs;
 
-    DateTime parseCustomDate(String date) {
-      final parts = date.split('/');
-      return DateTime(
-        int.parse(parts[2]), // Year
-        int.parse(parts[1]), // Month
-        int.parse(parts[0]), // Day
-      );
+    DateTime parseCustomDate(String dateStr) {
+      final dateFormat = DateFormat("dd/MM/yyyy");
+      return dateFormat.parse(dateStr);
     }
 
     RxList<bool> selectedItems = List<bool>.generate(
@@ -1341,10 +1398,9 @@ class NestedPieChartj extends StatelessWidget {
       try {
         DateTime dueDate = parseCustomDate(dueDateStr);
 
-        // Update: Check if the due date is today
         if (_isDateToday(dueDate)) {
           return Colors.amber; // Today
-        } else if (_isDateBeforeToday(dueDate.toString())) {
+        } else if (_isDateBeforeToday(dueDate)) {
           return Colors.red; // Overdue
         } else if (isWithinThreeDays(dueDate)) {
           return Colors.amber; // Within 3 days (includes today)
@@ -1971,14 +2027,13 @@ class NestedPieChartj extends StatelessWidget {
   }
 }
 
-bool _isDateBeforeToday(String dateString) {
-  try {
-    final dateFormat = DateFormat("dd/MM/yyyy");
-    final date = dateFormat.parse(dateString);
-    return date.isBefore(DateTime.now().toLocal());
-  } catch (e) {
-    return false;
-  }
+DateTime normalizeDate(DateTime date) =>
+    DateTime(date.year, date.month, date.day);
+
+bool _isDateBeforeToday(DateTime date) {
+  final today = normalizeDate(DateTime.now());
+  final normalizedDate = normalizeDate(date);
+  return normalizedDate.isBefore(today);
 }
 
 bool _isDateToday(DateTime date) {
@@ -2112,7 +2167,7 @@ List<DataRow> _buildDataRows(
               Center(
                 child: InkWell(
                   onTap: () {
-                    _showDetailedPaymentOrderDialog(
+                    showDetailedOrderInvoiceDialog(
                         context, completedOrder, true);
                   },
                   child: Text(
@@ -2471,342 +2526,342 @@ class _DoughnutDefaultCustomerDashState
   }
 }
 
-void _showDetailedPaymentOrderDialog(
-  BuildContext context,
-  var orderData,
-  final bool invoice,
-) async {
-  DashBoardController dashBoardController = Get.put(DashBoardController());
+// void _showDetailedPaymentOrderDialog(
+//   BuildContext context,
+//   var orderData,
+//   final bool invoice,
+// ) async {
+//   DashBoardController dashBoardController = Get.put(DashBoardController());
 
-  var pendingOrderData = await dashBoardController.loadSpecificOrderInvoiceData(
-      orderId: orderData.orderId.toString());
+//   var pendingOrderData = await dashBoardController.loadSpecificOrderInvoiceData(
+//       orderId: orderData.orderId.toString());
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        backgroundColor: white,
-        child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [const Spacer(), dialogCloseButton1(context, red)],
-                ),
-                const SizedBox(height: 16),
-                MyCommnonContainer(
-                  isCommonBorder: true,
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            invoice ? 'INVOICE' : 'CUSTOMER & ORDER',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            NKDateUtils.commonDayFormat2(
-                                NKDateUtils.formatStringUTCDateTime(
-                                    pendingOrderData.orderCreatAt.toString())),
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Divider(color: Colors.grey.shade300),
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Name : ${pendingOrderData.businessName}'),
-                              Text('Email : ${pendingOrderData.email}'),
-                              Text('Phone : ${pendingOrderData.mobileno}'),
-                              Text(
-                                  'Salesman : ${pendingOrderData.salesmanName}'),
-                            ],
-                          ),
-                          if (invoice) ...[
-                            const Spacer(),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      const TextSpan(
-                                        text: 'Payment Status : ',
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 12),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            (pendingOrderData.paymentStatus == 0
-                                                ? 'NOT PAID'
-                                                : 'COMPLETED'),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color:
-                                              pendingOrderData.paymentStatus ==
-                                                      0
-                                                  ? Colors.red
-                                                  : Colors.green,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                    'Payment Mode : ${_getPaymentTypeName(pendingOrderData.paymentStatus!)}'),
-                              ],
-                            ),
-                          ],
-                          const Spacer(),
-                          ClipOval(
-                            child: Container(
-                              height: 50,
-                              width: 50,
-                              color: Colors.lightBlue[100],
-                              child: pendingOrderData.imageUrl != null
-                                  ? Image.network(
-                                      '${pendingOrderData.imageUrl}',
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const Icon(Icons.person,
-                                      color: Colors.blue),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text('ITEMS ORDERED',
-                            style: TextStyle(fontSize: 18))),
-                    const Spacer(),
-                    Text(
-                        'Order Status : ${getStatusName(pendingOrderData.orderStatus!)}',
-                        style: const TextStyle(fontSize: 18))
-                  ],
-                ),
-                const Divider(
-                  color: black,
-                ),
-                Obx(() {
-                  return dashBoardController.isInvoiceLoading.value
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: DataTable(
-                                    dataRowHeight: 40,
-                                    headingRowHeight: 40,
-                                    horizontalMargin: 20,
-                                    headingTextStyle: const TextStyle(
-                                      color: black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    columns: const [
-                                      DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'ITEMS NAME',
-                                            textAlign: TextAlign.left,
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'QUANTITY',
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'PRICE',
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'TOTAL',
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    rows: dashBoardController
-                                        .fetchSpecificOrderData!.cart!
-                                        .map((item) {
-                                      return DataRow(cells: [
-                                        DataCell(
-                                            Text(item.productName.toString())),
-                                        DataCell(Center(
-                                            child: Text(
-                                                item.quantity.toString(),
-                                                maxLines: 1))),
-                                        DataCell(Center(
-                                            child: Text(
-                                          formatAmount(item.price),
-                                          maxLines: 1,
-                                        ))),
-                                        DataCell(Align(
-                                            alignment: Alignment.centerRight,
-                                            child: Text(
-                                                formatAmount(item.price),
-                                                maxLines: 1))),
-                                      ]);
-                                    }).toList(),
-                                  ),
-                                )
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        'Subtotal',
-                                        style: TextStyle(
-                                          color: black,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        formatAmount(dashBoardController
-                                            .fetchSpecificOrderData!
-                                            .orderTotal),
-                                        maxLines: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  if (dashBoardController
-                                          .fetchSpecificOrderData!
-                                          .cart!
-                                          .first
-                                          .tax !=
-                                      null) ...[
-                                    Row(
-                                      children: [
-                                        Text(
-                                          '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
-                                          style: const TextStyle(
-                                            color: black,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                          formatAmount(
-                                              '${dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100}'),
-                                          // formatAmount(invoiceData.cart!.first.tax),
-                                          // taxAmount), // Use the calculated tax amount here
-                                          maxLines: 1,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                  Divider(color: Colors.grey.shade400),
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        'Total',
-                                        style: TextStyle(
-                                          color: black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        dashBoardController
-                                                    .fetchSpecificOrderData!
-                                                    .cart!
-                                                    .first
-                                                    .tax !=
-                                                null
-                                            ? formatAmount(
-                                                '${(dashBoardController.fetchSpecificOrderData!.orderTotal! + dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100)}')
-                                            : formatAmount(dashBoardController
-                                                .fetchSpecificOrderData!
-                                                .orderTotal),
-                                        maxLines: 1,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: red,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                }),
-                const SizedBox(height: 16),
-                const Text(
-                  'Currency  \$',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            )
-            // }),
-            ),
-      );
-    },
-  );
-}
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return Dialog(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(20),
+//         ),
+//         backgroundColor: white,
+//         child: Padding(
+//             padding: const EdgeInsets.all(16),
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 Row(
+//                   children: [const Spacer(), dialogCloseButton1(context, red)],
+//                 ),
+//                 const SizedBox(height: 16),
+//                 MyCommnonContainer(
+//                   isCommonBorder: true,
+//                   padding: const EdgeInsets.all(15),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Row(
+//                         children: [
+//                           Text(
+//                             invoice ? 'INVOICE' : 'CUSTOMER & ORDER',
+//                             style: const TextStyle(
+//                               color: Colors.black,
+//                               fontSize: 18,
+//                               fontWeight: FontWeight.w600,
+//                             ),
+//                           ),
+//                           const Spacer(),
+//                           Text(
+//                             NKDateUtils.commonDayFormat2(
+//                                 NKDateUtils.formatStringUTCDateTime(
+//                                     pendingOrderData.orderCreatAt.toString())),
+//                             style: const TextStyle(
+//                               color: Colors.black,
+//                               fontSize: 18,
+//                               fontWeight: FontWeight.w600,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                       Divider(color: Colors.grey.shade300),
+//                       Row(
+//                         children: [
+//                           Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Text('Name : ${pendingOrderData.businessName}'),
+//                               Text('Email : ${pendingOrderData.email}'),
+//                               Text('Phone : ${pendingOrderData.mobileno}'),
+//                               Text(
+//                                   'Salesman : ${pendingOrderData.salesmanName}'),
+//                             ],
+//                           ),
+//                           if (invoice) ...[
+//                             const Spacer(),
+//                             Column(
+//                               crossAxisAlignment: CrossAxisAlignment.start,
+//                               children: [
+//                                 RichText(
+//                                   text: TextSpan(
+//                                     children: [
+//                                       const TextSpan(
+//                                         text: 'Payment Status : ',
+//                                         style: TextStyle(
+//                                             color: Colors.black, fontSize: 12),
+//                                       ),
+//                                       TextSpan(
+//                                         text:
+//                                             (pendingOrderData.paymentStatus == 0
+//                                                 ? 'NOT PAID'
+//                                                 : 'COMPLETED'),
+//                                         style: TextStyle(
+//                                           fontSize: 12,
+//                                           color:
+//                                               pendingOrderData.paymentStatus ==
+//                                                       0
+//                                                   ? Colors.red
+//                                                   : Colors.green,
+//                                         ),
+//                                       ),
+//                                     ],
+//                                   ),
+//                                 ),
+//                                 Text(
+//                                     'Payment Mode : ${_getPaymentTypeName(pendingOrderData.paymentStatus!)}'),
+//                               ],
+//                             ),
+//                           ],
+//                           const Spacer(),
+//                           ClipOval(
+//                             child: Container(
+//                               height: 50,
+//                               width: 50,
+//                               color: Colors.lightBlue[100],
+//                               child: pendingOrderData.imageUrl != null
+//                                   ? Image.network(
+//                                       '${pendingOrderData.imageUrl}',
+//                                       fit: BoxFit.cover,
+//                                     )
+//                                   : const Icon(Icons.person,
+//                                       color: Colors.blue),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 const SizedBox(height: 16),
+//                 Row(
+//                   children: [
+//                     const Align(
+//                         alignment: Alignment.centerLeft,
+//                         child: Text('ITEMS ORDERED',
+//                             style: TextStyle(fontSize: 18))),
+//                     const Spacer(),
+//                     Text(
+//                         'Order Status : ${getStatusName(pendingOrderData.orderStatus!)}',
+//                         style: const TextStyle(fontSize: 18))
+//                   ],
+//                 ),
+//                 const Divider(
+//                   color: black,
+//                 ),
+//                 Obx(() {
+//                   return dashBoardController.isInvoiceLoading.value
+//                       ? const Center(
+//                           child: CircularProgressIndicator(),
+//                         )
+//                       : Column(
+//                           mainAxisSize: MainAxisSize.min,
+//                           children: [
+//                             Row(
+//                               children: [
+//                                 Expanded(
+//                                   child: DataTable(
+//                                     dataRowHeight: 40,
+//                                     headingRowHeight: 40,
+//                                     horizontalMargin: 20,
+//                                     headingTextStyle: const TextStyle(
+//                                       color: black,
+//                                       fontSize: 16,
+//                                       fontWeight: FontWeight.w600,
+//                                     ),
+//                                     columns: const [
+//                                       DataColumn(
+//                                         label: Expanded(
+//                                           flex: 2,
+//                                           child: Text(
+//                                             'ITEMS NAME',
+//                                             textAlign: TextAlign.left,
+//                                           ),
+//                                         ),
+//                                       ),
+//                                       DataColumn(
+//                                         label: Expanded(
+//                                           flex: 2,
+//                                           child: Text(
+//                                             'QUANTITY',
+//                                             textAlign: TextAlign.center,
+//                                           ),
+//                                         ),
+//                                       ),
+//                                       DataColumn(
+//                                         label: Expanded(
+//                                           flex: 2,
+//                                           child: Text(
+//                                             'PRICE',
+//                                             textAlign: TextAlign.center,
+//                                           ),
+//                                         ),
+//                                       ),
+//                                       DataColumn(
+//                                         label: Expanded(
+//                                           flex: 2,
+//                                           child: Text(
+//                                             'TOTAL',
+//                                             textAlign: TextAlign.right,
+//                                           ),
+//                                         ),
+//                                       ),
+//                                     ],
+//                                     rows: dashBoardController
+//                                         .fetchSpecificOrderData!.cart!
+//                                         .map((item) {
+//                                       return DataRow(cells: [
+//                                         DataCell(
+//                                             Text(item.productName.toString())),
+//                                         DataCell(Center(
+//                                             child: Text(
+//                                                 item.quantity.toString(),
+//                                                 maxLines: 1))),
+//                                         DataCell(Center(
+//                                             child: Text(
+//                                           formatAmount(item.price),
+//                                           maxLines: 1,
+//                                         ))),
+//                                         DataCell(Align(
+//                                             alignment: Alignment.centerRight,
+//                                             child: Text(
+//                                                 formatAmount(item.price),
+//                                                 maxLines: 1))),
+//                                       ]);
+//                                     }).toList(),
+//                                   ),
+//                                 )
+//                               ],
+//                             ),
+//                             Padding(
+//                               padding: const EdgeInsets.all(20.0),
+//                               child: Column(
+//                                 children: [
+//                                   Row(
+//                                     children: [
+//                                       const Text(
+//                                         'Subtotal',
+//                                         style: TextStyle(
+//                                           color: black,
+//                                           fontSize: 15,
+//                                           fontWeight: FontWeight.w500,
+//                                         ),
+//                                       ),
+//                                       const Spacer(),
+//                                       Text(
+//                                         formatAmount(dashBoardController
+//                                             .fetchSpecificOrderData!
+//                                             .orderTotal),
+//                                         maxLines: 1,
+//                                       ),
+//                                     ],
+//                                   ),
+//                                   if (dashBoardController
+//                                           .fetchSpecificOrderData!
+//                                           .cart!
+//                                           .first
+//                                           .tax !=
+//                                       null) ...[
+//                                     Row(
+//                                       children: [
+//                                         Text(
+//                                           '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
+//                                           style: const TextStyle(
+//                                             color: black,
+//                                             fontSize: 15,
+//                                             fontWeight: FontWeight.w500,
+//                                           ),
+//                                         ),
+//                                         const Spacer(),
+//                                         Text(
+//                                           formatAmount(
+//                                               '${dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100}'),
+//                                           // formatAmount(invoiceData.cart!.first.tax),
+//                                           // taxAmount), // Use the calculated tax amount here
+//                                           maxLines: 1,
+//                                         ),
+//                                       ],
+//                                     ),
+//                                   ],
+//                                   Divider(color: Colors.grey.shade400),
+//                                   Row(
+//                                     children: [
+//                                       const Text(
+//                                         'Total',
+//                                         style: TextStyle(
+//                                           color: black,
+//                                           fontSize: 16,
+//                                           fontWeight: FontWeight.w600,
+//                                         ),
+//                                       ),
+//                                       const Spacer(),
+//                                       Text(
+//                                         dashBoardController
+//                                                     .fetchSpecificOrderData!
+//                                                     .cart!
+//                                                     .first
+//                                                     .tax !=
+//                                                 null
+//                                             ? formatAmount(
+//                                                 '${(dashBoardController.fetchSpecificOrderData!.orderTotal! + dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100)}')
+//                                             : formatAmount(dashBoardController
+//                                                 .fetchSpecificOrderData!
+//                                                 .orderTotal),
+//                                         maxLines: 1,
+//                                         style: const TextStyle(
+//                                           fontSize: 16,
+//                                           color: red,
+//                                           fontWeight: FontWeight.w600,
+//                                         ),
+//                                       ),
+//                                     ],
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                           ],
+//                         );
+//                 }),
+//                 const SizedBox(height: 16),
+//                 const Text(
+//                   'Currency  \$',
+//                   style: TextStyle(color: Colors.grey, fontSize: 14),
+//                 ),
+//               ],
+//             )
+//             // }),
+//             ),
+//       );
+//     },
+//   );
+// }
 
-String _getPaymentTypeName(int paymentType) {
-  switch (paymentType) {
-    case 0:
-      return 'Cash';
-    case 1:
-      return 'Cheque';
-    case 2:
-      return 'Bank Transfer';
-    default:
-      return 'Unknown';
-  }
-}
+// String _getPaymentTypeName(int paymentType) {
+//   switch (paymentType) {
+//     case 0:
+//       return 'Cash';
+//     case 1:
+//       return 'Cheque';
+//     case 2:
+//       return 'Bank Transfer';
+//     default:
+//       return 'Unknown';
+//   }
+// }

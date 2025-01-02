@@ -922,25 +922,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
       ),
     );
   }
-
-  // Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
-  //   return LayoutBuilder(
-  //     builder: (context, constraints) {
-  //       double availableWidth = constraints.maxWidth;
-  //       double fontSize = 11;
-  //       topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
-
-  //       if (topSellingProducts.isEmpty) {
-  //         return const NodataWidget();
-  //       } else {
-  //         return topSellingProductList(topSellingProducts);
-
-  //       }
-  //     },
-  //   );
-  // }
-
   Widget topSellingProductWidget() {
+    List<TopSellingProductA> topSellingProducts=[];
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -959,22 +942,45 @@ class DashBoardMiddleWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                  ),
+                  padding:
+                      const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
+                  child: Text(
+                    "Frequently Bought Products",
+                    style: cardHeadingTextStyle,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                 ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-              child: Text(
-                "Frequently Bought Products",
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 15, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      if (topSellingProducts.isNotEmpty) {
+                        return showTopSellingProductListDialog(context,topSellingProducts);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("No data available"),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Icon(Icons.width_wide_outlined, size: 30),
+                  ),
+                ),
+              ],
             ),
             nkSmallSizeBox(),
             Consumer<DashboardProvider>(
@@ -994,7 +1000,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                         child: Text('Error: ${snapshot.error}'),
                       );
                     } else if (snapshot.hasData) {
-                      final topSellingProducts =
+                      topSellingProducts =
                           snapshot.data!.topSellingProducts ?? [];
                       return Expanded(
                           child: topSellingProductList(topSellingProducts));

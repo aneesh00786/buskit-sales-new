@@ -209,24 +209,36 @@ void showDetailedOrderInvoiceDialog(
                                         .fetchSpecificOrderData!.cart!
                                         .map((item) {
                                       return DataRow(cells: [
-                                        DataCell(
-                                            Text(item.productName.toString())),
-                                        DataCell(Center(
+                                        DataCell(Expanded(
+                                            flex: 2,
                                             child: Text(
-                                          formatAmount(item.price),
-                                          maxLines: 1,
-                                        ))),
-                                        DataCell(Center(
-                                            child: Text(
-                                                item.packType == 'Pack'
-                                                    ? '${(item.pieces! * item.quantity!)} (${item.quantity} ${item.packType})'
-                                                    : item.quantity.toString(),
-                                                maxLines: 1))),
-                                        DataCell(Align(
-                                            alignment: Alignment.centerRight,
-                                            child: Text(
-                                                formatAmount(item.totalPrice),
-                                                maxLines: 1))),
+                                                item.productName.toString()))),
+                                        DataCell(Expanded(
+                                          flex: 2,
+                                          child: Center(
+                                              child: Text(
+                                            formatAmount(item.price),
+                                            maxLines: 1,
+                                          )),
+                                        )),
+                                        DataCell(Expanded(
+                                          flex: 2,
+                                          child: Center(
+                                              child: Text(
+                                                  item.packType == 'Pack'
+                                                      ? '${(item.pieces! * item.quantity!)} (${item.quantity} ${item.packType})'
+                                                      : item.quantity
+                                                          .toString(),
+                                                  maxLines: 1)),
+                                        )),
+                                        DataCell(Expanded(
+                                          flex: 2,
+                                          child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                  formatAmount(item.totalPrice),
+                                                  maxLines: 1)),
+                                        )),
                                       ]);
                                     }).toList(),
                                   ),
@@ -326,7 +338,11 @@ void showDetailedOrderInvoiceDialog(
                 if (isButtonNeeded == true) ...[
                   CustomButton(text: 'Convert to Order', onPressed: () {}),
                 ],
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
+                // const Text(
+                //   'Currency  \$',
+                //   style: TextStyle(color: Colors.grey, fontSize: 14),
+                // ),
               ],
             )
             // }),

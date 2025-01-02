@@ -410,27 +410,6 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
       ],
     );
   }
-
-//   void _showValueDialog(BuildContext context, Revenue categoryData, String title) {
-//     // Implement your dialog here
-//     showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         title: Text(title),
-//         content: Text(title == 'Order Revenue'
-//             ? 'Total Order Revenue: \$${categoryData.orderRevenueData?.fold(0.0, (sum, item) => sum + (item.totalOrderRevenue?.toDouble() ?? 0.0)).toStringAsFixed(2)}'
-//             : 'Total Booking Revenue: \$${categoryData.bookingRevenueData?.fold(0.0, (sum, item) => sum + (item.total ?? 0.0)).toStringAsFixed(2)}'),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.pop(context),
-//             child: const Text('Close'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
   void _showValueDialog(
       BuildContext context, Revenuee categoryData, String title) {
     showDialog(

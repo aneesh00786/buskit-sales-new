@@ -23,7 +23,7 @@ class MyRegularText extends StatelessWidget {
     this.color,
     this.fontSize,
     this.fontWeight,
-    this.align = TextAlign.center,
+    this.align,
     this.maxlines,
     this.decoration = TextDecoration.none,
     this.overflow = TextOverflow.ellipsis,

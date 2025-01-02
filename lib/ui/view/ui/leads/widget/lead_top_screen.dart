@@ -34,7 +34,8 @@ class LeadTopScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            AddLeadsBt(),
+            // AddLeadsBt(),
+            addLeads(context),
             Spacer(),
             NotificationWidget(),
             profiloe(),
@@ -44,40 +45,40 @@ class LeadTopScreen extends StatelessWidget {
     );
   }
 
-  Widget get leadTopLeadsWidget {
-    return GestureDetector(
-      onTap: () => Get.dialog(AddLeadsDiloag(
-        leadsController: leadsController,
-      )),
-      child: Container(
-        width: 90,
-        height: 40,
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
-          borderRadius: BorderRadius.circular(4.0), // Border radius
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              leads,
-              style: TextStyle(
-                color: primaryColor,
-                fontSize: 13,
-              ),
-            ),
-            SizedBox(width: 10),
-            Icon(
-              Icons.add_circle_outline,
-              color: Colors.black,
-              size: 14,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget get leadTopLeadsWidget {
+  //   return GestureDetector(
+  //     onTap: () => Get.dialog(AddLeadsDiloag(
+  //       leadsController: leadsController,
+  //     )),
+  //     child: Container(
+  //       width: 90,
+  //       height: 40,
+  //       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+  //       decoration: BoxDecoration(
+  //         border: Border.all(color: Colors.blue),
+  //         borderRadius: BorderRadius.circular(4.0), // Border radius
+  //       ),
+  //       child: const Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Text(
+  //             leads,
+  //             style: TextStyle(
+  //               color: primaryColor,
+  //               fontSize: 13,
+  //             ),
+  //           ),
+  //           SizedBox(width: 10),
+  //           Icon(
+  //             Icons.add_circle_outline,
+  //             color: Colors.black,
+  //             size: 14,
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }
   Widget profiloe() {
     return Consumer<DashboardProvider>(builder: (context, provider, child) {

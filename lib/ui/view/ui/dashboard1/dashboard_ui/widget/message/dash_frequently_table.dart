@@ -140,7 +140,7 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                   child: Center(
                                     child: InkWell(
                                       onTap: () {
-                                        showDashTimesDialogue(context,constraints,product,topSellingProducts);
+                                        showDashTimesDialogue(context,product);
                                       },
                                       child: Container(
                                         height: 20,

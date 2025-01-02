@@ -14,8 +14,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
         double flexWidth = availableWidth * 1.2;
-
-        // Split flexWidth based on the given ratio (3:2:1:2:1)
         double colWidth1 = flexWidth * 3 / 9;
         double colWidth2 = flexWidth * 2 / 9;
         double colWidth3 = flexWidth * 1 / 9;
@@ -24,7 +22,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
 
         double fontSize = 11;
 
-        // Sort products by quantity
         topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
 
         if (topSellingProducts.isEmpty) {
@@ -143,7 +140,7 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                   child: Center(
                                     child: InkWell(
                                       onTap: () {
-                                        showDashTimesDialogue(context,constraints,product);
+                                        showDashTimesDialogue(context,constraints,product,topSellingProducts);
                                       },
                                       child: Container(
                                         height: 20,

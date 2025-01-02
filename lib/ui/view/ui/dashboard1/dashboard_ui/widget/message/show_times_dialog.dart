@@ -9,7 +9,17 @@ import 'package:intl/intl.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 
 Future<dynamic> showDashTimesDialogue(
-    BuildContext context, BoxConstraints constraints, TopSellingProductA product) {
+  BuildContext context,
+  BoxConstraints constraints,
+  TopSellingProductA product,
+  List<TopSellingProductA> topSellingProducts,
+) {
+  double maxDialogHeight = constraints.maxHeight * 0.9; // Maximum allowable height
+  double calculatedHeight = 50.0 + topSellingProducts.length * 80.0; // Header + rows
+  double dialogHeight = calculatedHeight > maxDialogHeight
+      ? maxDialogHeight
+      : calculatedHeight; // Use calculated height or max height
+
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -17,54 +27,61 @@ Future<dynamic> showDashTimesDialogue(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        contentPadding: EdgeInsets.zero, 
-        titlePadding: EdgeInsets.zero,   
+        contentPadding: EdgeInsets.zero,
+        titlePadding: EdgeInsets.zero,
         content: SizedBox(
-          width: constraints.maxWidth * 0.9, 
+          width: constraints.maxWidth * 0.9, // Width of dialog
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min, 
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+            physics: dialogHeight == maxDialogHeight
+                ? const ScrollPhysics() // Enable scrolling if height is max
+                : const NeverScrollableScrollPhysics(), // Disable scrolling
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: dialogHeight, // Restrict height dynamically
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header Section
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: MyRegularText(
+                            label:
+                                '${product.productName} - ${product.variationName}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Poppins_Regular',
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxlines: 5,
+                          ),
+                        ),
+                        dialogCloseButton1(context, red),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: MyRegularText(
-                          label:
-                              '${product.productName} - ${product.variationName}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontFamily: 'Poppins_Regular',
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxlines: 5,
-                        ),
-                      ),
-                      dialogCloseButton1(context, red),
-                    ],
+                  // Table Section
+                  Expanded(
+                    child: frequentlyBoughtTable(
+                      context: context,
+                      constraints: constraints,
+                      product: product,
+                    ),
                   ),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 300,
-                  ),
-                  child: frequentlyBoughtTable(
-                    context: context,
-                    constraints: constraints,
-                    product: product,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -72,6 +89,9 @@ Future<dynamic> showDashTimesDialogue(
     },
   );
 }
+
+
+
 
 
 Widget frequentlyBoughtTable({

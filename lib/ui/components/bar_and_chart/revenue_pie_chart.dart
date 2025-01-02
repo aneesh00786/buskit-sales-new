@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
@@ -397,7 +398,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                     final title = touchedSectionData == totalOrderRevenue
                         ? 'Order Revenue'
                         : 'Booking Revenue';
-                    _showValueDialog(context, widget.categoryData, title);
+                    showValueDialog(context, widget.categoryData, title);
                   }
                 },
               ),
@@ -410,49 +411,59 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
       ],
     );
   }
-  void _showValueDialog(
-      BuildContext context, Revenuee categoryData, String title) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return ClipRRect(
+void _showValueDialog(
+    BuildContext context, Revenuee categoryData, String title) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          child: AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            contentPadding: EdgeInsets.zero,
-            titlePadding: EdgeInsets.zero,
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    height: 45,
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontFamily: 'Poppins_Regular',
-                            fontWeight: FontWeight.w600,
-                          ),
+        ),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+            double maxDialogHeight = constraints.maxHeight * 0.5;
+            double rowHeight = 30.0;
+            double headerHeight = 40.0;
+            double contentHeight = rowHeight *
+                (categoryData.orderRevenueData?.length ?? 0) +
+                rowHeight;
+
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: maxDialogHeight,
+              ),
+              child: Container(
+                width: dialogWidth,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Dialog Header
+                    Container(
+                      height: 45,
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
                         ),
-                        CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: SizedBox(
-                            width: 25.8,
-                            height: 25.8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Poppins_Regular',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          CircleAvatar(
+                            backgroundColor: Colors.transparent,
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -460,140 +471,150 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                                   color: Colors.red,
                                 ),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(3.5),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.close,
-                                    color: Colors.red,
-                                    size: 16,
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () => Navigator.of(context).pop(),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                  size: 16,
                                 ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () => Navigator.of(context).pop(),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: DataTable(
-                      dataRowHeight: 30,
-                      headingRowHeight: 40,
-                      columnSpacing: 30,
-                      columns: const [
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                    // Table Header (Fixed)
+                    Container(
+                      color: const Color.fromARGB(255, 247, 247, 247),
+                      height: headerHeight,
+                      child: Row(
+                        children: const [
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Date',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Invoice',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Status',
                             fontSize: 13,
-                          ),
-                        ),
-                        DataColumn(
-                          label: DialogTableHeaderText(
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
                             text: 'Amount',
                             fontSize: 13,
-                          ),
-                        ),
-                      ],
-                      rows: [
-                        ...categoryData.orderRevenueData!.map((item) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Center(
-                                child: Text(
-                                  getFormattedOrderCreatAt(item.orderCreatAt),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: secondaryTextColor,
-                                    fontSize: 13,
+                          )),
+                        ],
+                      ),
+                    ),
+                    // Table Content (Scrollable)
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: DataTable(
+                          dataRowHeight: rowHeight,
+                          headingRowHeight: 0, // Header already defined above
+                          columnSpacing: 30,
+                          columns: const [
+                            DataColumn(label: SizedBox.shrink()),
+                            DataColumn(label: SizedBox.shrink()),
+                            DataColumn(label: SizedBox.shrink()),
+                            DataColumn(label: SizedBox.shrink()),
+                          ],
+                          rows: [
+                            ...categoryData.orderRevenueData!.map((item) {
+                              return DataRow(
+                                cells: [
+                                  DataCell(Center(
+                                    child: Text(
+                                      getFormattedOrderCreatAt(
+                                          item.orderCreatAt),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: secondaryTextColor,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  )),
+                                  DataCell(Center(
+                                    child: Text(
+                                      item.orderId ?? '',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: secondaryTextColor,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  )),
+                                  DataCell(Center(
+                                    child: Text(
+                                      getStatusName(item.orderStatus!.toInt()),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: secondaryTextColor,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  )),
+                                  DataCell(Center(
+                                    child: Text(
+                                      formatAmount(item.orderTotal),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: secondaryTextColor,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  )),
+                                ],
+                              );
+                            }).toList(),
+                            DataRow(
+                              cells: [
+                                const DataCell(
+                                  Center(
+                                    child: DialogTableHeaderText(
+                                      text: 'Total',
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
-                              )),
-                              DataCell(Center(
-                                child: Text(
-                                  item.orderId ?? '',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: secondaryTextColor,
-                                    fontSize: 13,
+                                const DataCell(Text('')),
+                                const DataCell(Text('')),
+                                DataCell(
+                                  Center(
+                                    child: DialogTableHeaderText(
+                                      text: formatAmount(categoryData
+                                          .orderRevenueData!
+                                          .map((e) => e.orderTotal ?? 0.0)
+                                          .reduce((a, b) => a + b)),
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
-                              )),
-                              DataCell(Center(
-                                child: Text(
-                                  getStatusName(item.orderStatus!.toInt()),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: secondaryTextColor,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Center(
-                                child: Text(
-                                  formatAmount(item.orderTotal),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: secondaryTextColor,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              )),
-                            ],
-                          );
-                        }).toList(),
-                        DataRow(
-                          cells: [
-                            const DataCell(
-                              Center(
-                                child: DialogTableHeaderText(
-                                  text: 'Total',
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            const DataCell(Text('')),
-                            const DataCell(Text('')),
-                            DataCell(
-                              Center(
-                                child: DialogTableHeaderText(
-                                  text: formatAmount(categoryData
-                                      .orderRevenueData!
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b)),
-                                  fontSize: 13,
-                                ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+            );
+          },
+        ),
+      );
+    },
+  );
+}
 }
 
 class DoughnutDefaultDelivery extends StatefulWidget {

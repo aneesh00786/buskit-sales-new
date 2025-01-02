@@ -1,17 +1,14 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-Future<dynamic> showDashTimesDialogue(
-  BuildContext context,
-  TopSellingProductA product,
-) {
-  return showDialog(
+void showValueDialog(
+    BuildContext context, Revenuee categoryData, String title) {
+  showDialog(
     context: context,
     builder: (BuildContext context) {
       return Dialog(
@@ -24,19 +21,20 @@ Future<dynamic> showDashTimesDialogue(
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;
-            double listHeight = (product.getTimesData?.length ?? 0) * rowHeight;
+            double listHeight =
+                (categoryData.orderRevenueData?.length ?? 0) * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,
               ),
-              child: Container(
+              child: SizedBox(
                 width: dialogWidth,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Dialog Heading
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
@@ -50,49 +48,64 @@ Future<dynamic> showDashTimesDialogue(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: MyRegularText(
-                              label:
-                                  '${product.productName} - ${product.variationName}',
+                            child: Text(
+                              title,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontFamily: 'Poppins_Regular',
                                 fontWeight: FontWeight.w600,
                               ),
-                              maxlines: 5,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           dialogCloseButton1(context, red),
                         ],
                       ),
                     ),
-                    // Table Header (Fixed)
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
-                      child: Row(
+                      child: const Row(
                         children: [
-                          Expanded(child: buildHeader('Price')),
-                          Expanded(child: buildHeader('Quantity')),
-                          Expanded(child: buildHeader('Amount')),
-                          Expanded(child: buildHeader('Purchased At')),
+                          Expanded(
+                              child: DialogTableHeaderText(
+                            text: 'Date',
+                            fontSize: 13,
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
+                            text: 'Invoice',
+                            fontSize: 13,
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
+                            text: 'Status',
+                            fontSize: 13,
+                          )),
+                          Expanded(
+                              child: DialogTableHeaderText(
+                            text: 'Amount',
+                            fontSize: 13,
+                          )),
                         ],
                       ),
                     ),
                     Flexible(
-                      child: Container(
+                      child: SizedBox(
                         height: contentHeight,
                         child: ListView.builder(
-                          itemCount: product.getTimesData!.isEmpty
+                          itemCount: categoryData.orderRevenueData?.isEmpty ?? true
                               ? 1
-                              : product.getTimesData!.length,
+                              : categoryData.orderRevenueData?.length ?? 0,
                           physics: const ClampingScrollPhysics(),
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
-                            if (product.getTimesData!.isEmpty) {
+                            if (categoryData.orderRevenueData?.isEmpty ?? true) {
                               return buildEmptyRow();
                             } else {
-                              var timesData = product.getTimesData![index];
+                              var item = categoryData.orderRevenueData![index];
                               return Container(
                                 decoration: BoxDecoration(
                                   border: Border(
@@ -107,26 +120,60 @@ Future<dynamic> showDashTimesDialogue(
                                   children: [
                                     Expanded(
                                         child: buildRowData(
-                                            formatAmount(timesData.price))),
+                                            getFormattedOrderCreatAt(
+                                                item.orderCreatAt))),
                                     Expanded(
                                         child: buildRowData(
-                                            timesData.quantity.toString())),
-                                    Expanded(
-                                        child: buildRowData(timesData
-                                                    .totalPrice !=
-                                                null
-                                            ? formatAmount(timesData.totalPrice)
-                                            : 'N/A')),
+                                            item.orderId ?? 'N/A')),
                                     Expanded(
                                         child: buildRowData(
-                                            DateFormat('dd-MM-yyyy')
-                                                .format(timesData.createdAt!))),
+                                            getStatusName(
+                                                item.orderStatus!.toInt()))),
+                                    Expanded(
+                                        child: buildRowData(
+                                            formatAmount(item.orderTotal))),
                                   ],
                                 ),
                               );
                             }
                           },
                         ),
+                      ),
+                    ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey,
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      height: rowHeight,
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            child: Center(
+                              child: DialogTableHeaderText(
+                                text: 'Total',
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: SizedBox.shrink()),
+                          const Expanded(child: SizedBox.shrink()),
+                          Expanded(
+                            child: Center(
+                              child: DialogTableHeaderText(
+                                text: formatAmount(categoryData
+                                    .orderRevenueData!
+                                    .map((e) => e.orderTotal ?? 0.0)
+                                    .reduce((a, b) => a + b)),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -139,20 +186,4 @@ Future<dynamic> showDashTimesDialogue(
     },
   );
 }
-
-
-
-Widget buildHeader(String title) {
-  return Center(
-    child: Text(
-      title,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-      ),
-      textAlign: TextAlign.center,
-    ),
-  );
-}
-
 

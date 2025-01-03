@@ -141,7 +141,18 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                 child: Center(
                                   child: InkWell(
                                     onTap: () {
-                                      showDashTimesDialogue(context, product);
+                                      showDashTimesDialogue(
+                                        context,
+                                        product,
+                                        (p) => p.getTimesData ?? [],
+                                        (data) => formatAmount(data.price),
+                                        (data) => data.quantity.toString(),
+                                        (data) => data.totalPrice != null
+                                            ? formatAmount(data.totalPrice)
+                                            : 'N/A',
+                                        (data) => DateFormat('dd-MM-yyyy')
+                                            .format(data.createdAt!),
+                                      );
                                     },
                                     child: Container(
                                       height: 20,
@@ -200,218 +211,223 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
   );
 }
 
-void showTopSellingProductListDialog(
-    BuildContext context, List<TopSellingProductA> topSellingProducts) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            double dialogWidth = constraints.maxWidth * 0.9;
-            double maxDialogHeight = constraints.maxHeight * 0.9;
-            double rowHeight = 40.0;
-            double headerHeight = 50.0;
-            int visibleRows = topSellingProducts.length.clamp(1, 10);
-            double listHeight = visibleRows * rowHeight;
-            double contentHeight =
-                listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-            double colWidth1 = dialogWidth * 3 / 9;
-            double colWidth2 = dialogWidth * 2 / 9;
-            double colWidth3 = dialogWidth * 1 / 9;
-            double colWidth5 = dialogWidth * 1 / 9;
 
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: dialogWidth,
-                maxHeight: maxDialogHeight,
-              ),
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10)),
-                          color: primaryColor,
-                        ),
-                        height: headerHeight,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: colWidth1,
-                              child: const Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Product",
-                                  fontSize: 13,
-                                  
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: colWidth2,
-                              child: const Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Last Purchase",
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: colWidth3,
-                              child: const Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Times",
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: const Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Price",
-                                  fontSize: 13,
-                                  
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: colWidth5,
-                              child: const Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Qty",
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: dialogCloseButton2(context, red))
-                    ],
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              maxDialogHeight, // Maximum height for scroll
-                        ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: topSellingProducts.length,
-                          physics: const ClampingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            var product = topSellingProducts[index];
-                            return Container(
-                              height: rowHeight,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: colWidth1,
-                                      child: MyRegularText(
-                                        label:
-                                            '${product.productName} - ${product.variationName}',
-                                        fontSize: 12,
-                                        maxlines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth2,
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: DateFormat('dd-MM-yyyy')
-                                              .format(product.createdAt!),
-                                          color: secondaryTextColor,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth3,
-                                      child: Center(
-                                        child: InkWell(
-                                          onTap: () {
-                                            showDashTimesDialogue(
-                                                context, product);
-                                          },
-                                          child: Container(
-                                            height: 20,
-                                            width: 20,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.blue,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Center(
-                                              child: MyRegularText(
-                                                label:
-                                                    product.quantity.toString(),
-                                                color: buttonTextColor,
-                                                align: TextAlign.center,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: formatAmount(product
-                                              .topSellingProductATotalPrice),
-                                          color: secondaryTextColor,
-                                          fontSize: 12,
-                                          maxlines: 1,
-                                          
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth5,
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "${product.buyquantity}",
-                                          color: secondaryTextColor,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
+
+// void showTopSellingProductListDialog(
+//     BuildContext context, List<TopSellingProductA> topSellingProducts) {
+//   showDialog(
+//     context: context,
+//     builder: (context) {
+//       return Dialog(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(10),
+//         ),
+//         child: LayoutBuilder(
+//           builder: (context, constraints) {
+//             double dialogWidth = constraints.maxWidth * 0.9;
+//             double maxDialogHeight = constraints.maxHeight * 0.95; 
+//             double rowHeight = 40.0;
+//             double headerHeight = 50.0;
+//             double contentHeight =
+//                 (topSellingProducts.length * rowHeight) + headerHeight;
+//             contentHeight = contentHeight > maxDialogHeight
+//                 ? maxDialogHeight
+//                 : contentHeight;
+
+//             double colWidth1 = dialogWidth * 3 / 9;
+//             double colWidth2 = dialogWidth * 2 / 9;
+//             double colWidth3 = dialogWidth * 1 / 9;
+//             double colWidth5 = dialogWidth * 1 / 9;
+
+//             return ConstrainedBox(
+//               constraints: BoxConstraints(
+//                 maxWidth: dialogWidth,
+//                 maxHeight: contentHeight,
+//               ),
+//               child: Column(
+//                 children: [
+//                   Stack(
+//                     children: [
+//                       Container(
+//                         decoration: const BoxDecoration(
+//                           borderRadius: BorderRadius.only(
+//                               topLeft: Radius.circular(10),
+//                               topRight: Radius.circular(10)),
+//                           color: primaryColor,
+//                         ),
+//                         height: headerHeight,
+//                         child: Row(
+//                           children: [
+//                             SizedBox(
+//                               width: colWidth1,
+//                               child: const Center(
+//                                 child: DialogTableHeaderTextWhite(
+//                                   text: "Product",
+//                                   fontSize: 13,
+//                                 ),
+//                               ),
+//                             ),
+//                             SizedBox(
+//                               width: colWidth2,
+//                               child: const Center(
+//                                 child: DialogTableHeaderTextWhite(
+//                                   text: "Last Purchase",
+//                                   fontSize: 13,
+//                                 ),
+//                               ),
+//                             ),
+//                             SizedBox(
+//                               width: colWidth3,
+//                               child: const Center(
+//                                 child: DialogTableHeaderTextWhite(
+//                                   text: "Times",
+//                                   fontSize: 13,
+//                                 ),
+//                               ),
+//                             ),
+//                             Expanded(
+//                               child: const Center(
+//                                 child: DialogTableHeaderTextWhite(
+//                                   text: "Price",
+//                                   fontSize: 13,
+//                                 ),
+//                               ),
+//                             ),
+//                             SizedBox(
+//                               width: colWidth5,
+//                               child: const Center(
+//                                 child: DialogTableHeaderTextWhite(
+//                                   text: "Qty",
+//                                   fontSize: 13,
+//                                 ),
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       Positioned(
+//                         top: 0,
+//                         right: 0,
+//                         child: dialogCloseButton2(context, red),
+//                       )
+//                     ],
+//                   ),
+//                   Expanded(
+//                     child: SingleChildScrollView(
+//                       child: ConstrainedBox(
+//                         constraints: BoxConstraints(
+//                           maxHeight:
+//                               contentHeight - headerHeight,
+//                         ),
+//                         child: ListView.builder(
+//                           shrinkWrap: true,
+//                           itemCount: topSellingProducts.length,
+//                           physics: topSellingProducts.length * rowHeight <=
+//                                   contentHeight - headerHeight
+//                               ? const NeverScrollableScrollPhysics()
+//                               : const ClampingScrollPhysics(),
+//                           itemBuilder: (context, index) {
+//                             var product = topSellingProducts[index];
+//                             return Container(
+//                               height: rowHeight,
+//                               decoration: BoxDecoration(
+//                                 border: Border(
+//                                   bottom: BorderSide(
+//                                     color: Colors.grey.shade300,
+//                                     width: 0.5,
+//                                   ),
+//                                 ),
+//                               ),
+//                               child: Padding(
+//                                 padding: const EdgeInsets.only(left: 12),
+//                                 child: Row(
+//                                   children: [
+//                                     SizedBox(
+//                                       width: colWidth1,
+//                                       child: MyRegularText(
+//                                         label:
+//                                             '${product.productName} - ${product.variationName}',
+//                                         fontSize: 12,
+//                                         maxlines: 2,
+//                                         overflow: TextOverflow.ellipsis,
+//                                       ),
+//                                     ),
+//                                     SizedBox(
+//                                       width: colWidth2,
+//                                       child: Center(
+//                                         child: MyRegularText(
+//                                           label: DateFormat('dd-MM-yyyy')
+//                                               .format(product.createdAt!),
+//                                           color: secondaryTextColor,
+//                                           fontSize: 12,
+//                                         ),
+//                                       ),
+//                                     ),
+//                                     SizedBox(
+//                                       width: colWidth3,
+//                                       child: Center(
+//                                         child: InkWell(
+//                                           onTap: () {
+//                                             showDashTimesDialogue(
+//                                                 context, product);
+//                                           },
+//                                           child: Container(
+//                                             height: 20,
+//                                             width: 20,
+//                                             decoration: const BoxDecoration(
+//                                               color: Colors.blue,
+//                                               shape: BoxShape.circle,
+//                                             ),
+//                                             child: Center(
+//                                               child: MyRegularText(
+//                                                 label:
+//                                                     product.quantity.toString(),
+//                                                 color: buttonTextColor,
+//                                                 align: TextAlign.center,
+//                                                 fontSize: 12,
+//                                                 fontWeight: FontWeight.w800,
+//                                               ),
+//                                             ),
+//                                           ),
+//                                         ),
+//                                       ),
+//                                     ),
+//                                     Expanded(
+//                                       child: Center(
+//                                         child: MyRegularText(
+//                                           label: formatAmount(product
+//                                               .topSellingProductATotalPrice),
+//                                           color: secondaryTextColor,
+//                                           fontSize: 12,
+//                                           maxlines: 1,
+//                                         ),
+//                                       ),
+//                                     ),
+//                                     SizedBox(
+//                                       width: colWidth5,
+//                                       child: Center(
+//                                         child: MyRegularText(
+//                                           label: "${product.buyquantity}",
+//                                           color: secondaryTextColor,
+//                                           fontSize: 12,
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ],
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             );
+//           },
+//         ),
+//       );
+//     },
+//   );
+// }

@@ -1,16 +1,22 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-Future<dynamic> showDashTimesDialogue(
+Future<dynamic> showDashTimesDialogue<T>(
   BuildContext context,
-  TopSellingProductA product,
+  T product,
+  List<dynamic> Function(T product) getTimesData,
+  String Function(dynamic timesData) getPrice,
+  String Function(dynamic timesData) getQuantity,
+  String Function(dynamic timesData) getTotalPrice,
+  String Function(dynamic timesData) getPurchasedAt,
 ) {
+  List<dynamic> timesDataList = getTimesData(product);
+
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -24,15 +30,15 @@ Future<dynamic> showDashTimesDialogue(
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;
-            double listHeight = (product.getTimesData?.length ?? 0) * rowHeight;
+            double listHeight = timesDataList.length * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,
               ),
               child: Container(
-                
                 width: dialogWidth,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -51,8 +57,11 @@ Future<dynamic> showDashTimesDialogue(
                         children: [
                           Expanded(
                             child: MyRegularText(
-                              label:
-                                  '${product.productName} - ${product.variationName}',
+                              label: product is TopSellingProductA
+                                  ? '${product.productName} - ${product.variationName}'
+                                  : product is FrequantliyProductList
+                                      ? product.productName
+                                      : '',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -82,16 +91,14 @@ Future<dynamic> showDashTimesDialogue(
                       child: Container(
                         height: contentHeight,
                         child: ListView.builder(
-                          itemCount: product.getTimesData!.isEmpty
-                              ? 1
-                              : product.getTimesData!.length,
+                          itemCount: timesDataList.isEmpty ? 1 : timesDataList.length,
                           physics: const ClampingScrollPhysics(),
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
-                            if (product.getTimesData!.isEmpty) {
+                            if (timesDataList.isEmpty) {
                               return buildEmptyRow();
                             } else {
-                              var timesData = product.getTimesData![index];
+                              var timesData = timesDataList[index];
                               return Container(
                                 decoration: BoxDecoration(
                                   border: Border(
@@ -104,22 +111,10 @@ Future<dynamic> showDashTimesDialogue(
                                 height: rowHeight,
                                 child: Row(
                                   children: [
-                                    Expanded(
-                                        child: buildRowData(
-                                            formatAmount(timesData.price))),
-                                    Expanded(
-                                        child: buildRowData(
-                                            timesData.quantity.toString())),
-                                    Expanded(
-                                        child: buildRowData(timesData
-                                                    .totalPrice !=
-                                                null
-                                            ? formatAmount(timesData.totalPrice)
-                                            : 'N/A')),
-                                    Expanded(
-                                        child: buildRowData(
-                                            DateFormat('dd-MM-yyyy')
-                                                .format(timesData.createdAt!))),
+                                    Expanded(child: buildRowData(getPrice(timesData))),
+                                    Expanded(child: buildRowData(getQuantity(timesData))),
+                                    Expanded(child: buildRowData(getTotalPrice(timesData))),
+                                    Expanded(child: buildRowData(getPurchasedAt(timesData))),
                                   ],
                                 ),
                               );
@@ -138,6 +133,7 @@ Future<dynamic> showDashTimesDialogue(
     },
   );
 }
+
 
 Widget buildHeader(String title) {
   return Center(

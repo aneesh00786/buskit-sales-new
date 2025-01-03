@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
@@ -26,6 +27,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart'
     as model;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
@@ -922,8 +924,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
       ),
     );
   }
+
   Widget topSellingProductWidget() {
-    List<TopSellingProductA> topSellingProducts=[];
+    List<TopSellingProductA> topSellingProducts = [];
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -954,8 +957,8 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       bottomRight: Radius.circular(25),
                     ),
                   ),
-                  padding:
-                      const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
+                  padding: const EdgeInsets.only(
+                      right: 20, left: 20, top: 5, bottom: 5),
                   child: Text(
                     "Frequently Bought Products",
                     style: cardHeadingTextStyle,
@@ -968,7 +971,36 @@ class DashBoardMiddleWidget extends StatelessWidget {
                   child: InkWell(
                     onTap: () {
                       if (topSellingProducts.isNotEmpty) {
-                        return showTopSellingProductListDialog(context,topSellingProducts);
+                        return showProductListDialog<TopSellingProductA>(
+                          context: context,
+                          productList: topSellingProducts,
+                          getQuantity: (product) =>
+                              product.quantity?.toDouble() ?? 0.0,
+                          getProductName: (product) =>
+                              product.productName ?? '',
+                          getVariationName: (product) =>
+                              product.variationName ?? '',
+                          getFormattedDate: (product) =>
+                              DateFormat('dd-MM-yyyy')
+                                  .format(product.createdAt!),
+                          getPrice: (product) => formatAmount(
+                              product.topSellingProductATotalPrice),
+                          getBuyQuantity: (product) =>
+                              int.tryParse(product.buyquantity ?? '0') ?? 0,
+                          onQuantityTap: (context, product) =>
+                              showDashTimesDialogue(
+                            context,
+                            product,
+                            (p) => p.getTimesData ?? [],
+                            (data) => formatAmount(data.price),
+                            (data) => data.quantity.toString(),
+                            (data) => data.totalPrice != null
+                                ? formatAmount(data.totalPrice)
+                                : 'N/A',
+                            (data) => DateFormat('dd-MM-yyyy')
+                                .format(data.createdAt!),
+                          ),
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -978,14 +1010,17 @@ class DashBoardMiddleWidget extends StatelessWidget {
                       }
                     },
                     child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: primaryColor.withOpacity(0.3)
-                      ),
-                      child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: const Icon(Icons.open_in_new, size: 17,color: primaryColor,),
-                    )),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: primaryColor.withOpacity(0.3)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: const Icon(
+                            Icons.open_in_new,
+                            size: 17,
+                            color: primaryColor,
+                          ),
+                        )),
                   ),
                 ),
               ],

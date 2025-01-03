@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
@@ -25,6 +26,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/custom_toast.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dash_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/editabledatacell_new.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -1675,22 +1678,82 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25),
-                bottomRight: Radius.circular(25),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    bottomRight: Radius.circular(25),
+                  ),
+                ),
+                padding: const EdgeInsets.only(
+                    right: 20, left: 20, top: 5, bottom: 5),
+                child: Text(
+                  "Frequently Bought Products",
+                  style: cardHeadingTextStyle,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
               ),
-            ),
-            padding:
-                const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-            child: Text(
-              'Frequently Bought Products',
-              style: cardHeadingTextStyle,
-              maxLines: 1,
-              softWrap: false,
-            ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, top: 2),
+                child: InkWell(
+                  onTap: () {
+                    if (frequentProductLists.isNotEmpty) {
+                      return showProductListDialog<FrequantliyProductList>(
+                        context: context,
+                        productList: frequentProductLists,
+                        getQuantity: (product) => product.quantity.toDouble(),
+                        getProductName: (product) => product.productName,
+                        getVariationName: (product) => product.variationName,
+                        getFormattedDate: (product) =>
+                            DateFormat('dd-MM-yyyy').format(product.createdAt),
+                        getPrice: (product) => formatAmount(product.totalPrice),
+                        getBuyQuantity: (product) => product.quantity,
+                        onQuantityTap: (context, product) =>
+                            showDashTimesDialogue(
+                          context,
+                          product,
+                          (p) =>
+                              p.quantityList, // Replace with appropriate field
+                          (data) => formatAmount(data
+                              .price), // Assuming 'price' is a field in QuantityList
+                          (data) => data.quantity
+                              .toString(), // Assuming 'quantity' is a field in QuantityList
+                          (data) => data.totalPrice != null
+                              ? formatAmount(data.totalPrice)
+                              : 'N/A', // Adapt as needed
+                          (data) => DateFormat('dd-MM-yyyy')
+                              .format(data.createdAt!), // Adapt as needed
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("No data available"),
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: const Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
+                        ),
+                      )),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: LayoutBuilder(
@@ -2148,7 +2211,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                                                 fontSize: 13,
                                                                               ),
                                                                             ),
-                                                                          )), // Format this date as needed
+                                                                          )),
                                                                         ]);
                                                                   }).toList(),
                                                                 ),

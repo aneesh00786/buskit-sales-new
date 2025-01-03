@@ -928,15 +928,7 @@ class OptionWidget extends StatelessWidget {
                                                 ),
                                               ),
                                             )),
-                                            const DataColumn(
-                                                label: Expanded(
-                                              child: Center(
-                                                child: Text(
-                                                  'Invoice',
-                                                  maxLines: 2,
-                                                ),
-                                              ),
-                                            )),
+                                           
                                             const DataColumn(
                                                 label: Expanded(
                                               child: Center(
@@ -1161,44 +1153,6 @@ class OptionWidget extends StatelessWidget {
                                                               style: TextStyle(
                                                                 fontSize:
                                                                     fontSize,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DataCell(
-                                                        SizedBox(
-                                                          width:
-                                                              flexWidth * 0.8,
-                                                          child: InkWell(
-                                                            onTap: () {
-                                                              showDetailedOrderInvoiceDialog(
-                                                                  context,
-                                                                  order,
-                                                                  true,
-                                                                  isButtonNeeded:
-                                                                      orderType ==
-                                                                              'Cancelled'
-                                                                          ? false
-                                                                          : true);
-                                                            },
-                                                            child: Center(
-                                                              child: Text(
-                                                                order.invoice
-                                                                        .isEmpty
-                                                                    ? ''
-                                                                    : order
-                                                                        .invoice[
-                                                                            0]
-                                                                        .invoiceId,
-                                                                style: TextStyle(
-                                                                    color:
-                                                                        primaryColor,
-                                                                    fontSize:
-                                                                        fontSize,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600),
                                                               ),
                                                             ),
                                                           ),
@@ -1684,7 +1638,7 @@ Widget noDataFoundWidget(String type) {
                             label: Expanded(
                           child: Center(
                             child: Text(
-                              '$type Price',
+                              '$type Amount',
                               maxLines: 2,
                             ),
                           ),

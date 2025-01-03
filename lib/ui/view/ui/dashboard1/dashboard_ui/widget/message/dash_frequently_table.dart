@@ -231,62 +231,72 @@ void showTopSellingProductListDialog(
               ),
               child: Column(
                 children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15)),
-                      color: Color.fromARGB(255, 247, 247, 247),
-                    ),
-                    height: headerHeight,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: colWidth1,
-                          child: const Center(
-                            child: DialogTableHeaderText(
-                              text: "Product",
-                              fontSize: 13,
-                            ),
-                          ),
+                  Stack(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
+                          color: primaryColor,
                         ),
-                        SizedBox(
-                          width: colWidth2,
-                          child: const Center(
-                            child: DialogTableHeaderText(
-                              text: "Last Purchase",
-                              fontSize: 13,
+                        height: headerHeight,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: colWidth1,
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "Product",
+                                  fontSize: 13,
+                                  
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: colWidth3,
-                          child: const Center(
-                            child: DialogTableHeaderText(
-                              text: "Times",
-                              fontSize: 13,
+                            SizedBox(
+                              width: colWidth2,
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "Last Purchase",
+                                  fontSize: 13,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        Expanded(
-                          child: const Center(
-                            child: DialogTableHeaderText(
-                              text: "Price",
-                              fontSize: 13,
+                            SizedBox(
+                              width: colWidth3,
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "Times",
+                                  fontSize: 13,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: colWidth5,
-                          child: const Center(
-                            child: DialogTableHeaderText(
-                              text: "Qty",
-                              fontSize: 13,
+                            Expanded(
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "Price",
+                                  fontSize: 13,
+                                  
+                                ),
+                              ),
                             ),
-                          ),
+                            SizedBox(
+                              width: colWidth5,
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "Qty",
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: dialogCloseButton2(context, red))
+                    ],
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -312,7 +322,7 @@ void showTopSellingProductListDialog(
                                 ),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.only(left: 12),
                                 child: Row(
                                   children: [
                                     SizedBox(
@@ -320,7 +330,7 @@ void showTopSellingProductListDialog(
                                       child: MyRegularText(
                                         label:
                                             '${product.productName} - ${product.variationName}',
-                                        fontSize: 11,
+                                        fontSize: 12,
                                         maxlines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -332,7 +342,7 @@ void showTopSellingProductListDialog(
                                           label: DateFormat('dd-MM-yyyy')
                                               .format(product.createdAt!),
                                           color: secondaryTextColor,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                         ),
                                       ),
                                     ),
@@ -357,7 +367,8 @@ void showTopSellingProductListDialog(
                                                     product.quantity.toString(),
                                                 color: buttonTextColor,
                                                 align: TextAlign.center,
-                                                fontSize: 11,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w800,
                                               ),
                                             ),
                                           ),
@@ -370,8 +381,9 @@ void showTopSellingProductListDialog(
                                           label: formatAmount(product
                                               .topSellingProductATotalPrice),
                                           color: secondaryTextColor,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                           maxlines: 1,
+                                          
                                         ),
                                       ),
                                     ),
@@ -381,7 +393,7 @@ void showTopSellingProductListDialog(
                                         child: MyRegularText(
                                           label: "${product.buyquantity}",
                                           color: secondaryTextColor,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                         ),
                                       ),
                                     ),

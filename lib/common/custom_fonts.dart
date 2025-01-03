@@ -109,6 +109,32 @@ class DialogTableHeaderText extends StatelessWidget {
     );
   }
 }
+class DialogTableHeaderTextWhite extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final TextAlign align;
+
+  const DialogTableHeaderTextWhite(
+      {Key? key,
+      required this.text,
+      this.fontSize = 12.0,
+      this.align = TextAlign.center})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      textAlign: align,
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+        fontSize: fontSize,
+        fontFamily: 'Poppins_Regular',
+      ),
+    );
+  }
+}
 class CustomText extends StatelessWidget {
   Color? color;
   String? fontFamily;

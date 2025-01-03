@@ -19,11 +19,7 @@ class ConnectivityChecker extends ChangeNotifier {
   ConnectivityResult get connectivityResult => _connectivityResult;
 
   void startMonitoring() {
-    // _connectivitySubscription = Connectivity().onConnectivityChanged.listen((result) {
-    //   log("Connection Status :: $result");
-    //   _connectivityResult = result;
-    //   notifyListeners();
-    // });
+
   }
 
   void stopMonitoring() {

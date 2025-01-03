@@ -34,7 +34,6 @@ class DatabaseHelper {
         'CREATE TABLE IF NOT EXISTS ${SqlDatabaseKey.buyProduct} (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)');
   }
 
-  // Insert an item into the database
   static Future<void> insertItem(Map<String, Object?> item,
       {required String collumName}) async {
     if (await checkItemExists(item['name'].toString(),

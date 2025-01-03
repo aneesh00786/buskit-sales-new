@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {
-  // set string values in shared pref
   static Future<void> setStringValue(String key, String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     log('Shared Pref 1: ${prefs}');

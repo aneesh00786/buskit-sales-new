@@ -397,9 +397,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                     final section = response.touchedSection!;
                     final fl_chart.PieTouchedSection touchedSectionData =
                         section;
-                    final title = touchedSectionData == totalOrderRevenue
-                        ? 'Order Revenue'
-                        : 'Booking Revenue';
+                    final title = 'Revenue';
                     showValueDialog(context, widget.categoryData, title);
                   }
                 },

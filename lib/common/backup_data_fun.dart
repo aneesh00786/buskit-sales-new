@@ -12,6 +12,6 @@ class BackupDataFunction extends ChangeNotifier {
   /// This [categoryAndProductBackup] is only Use for data backup
   static set categoryAndProductBackup(CategoryModel value) {
     _categoryAndProductBackup = value;
-    //log('categoryAndProductBackup: ${value.data?.map((e) => e.subCategoryItem?.map((e) => e.productList?.map((e) => e.variant?.map((e) => e.toJson()))))}');
+    
   }
 }

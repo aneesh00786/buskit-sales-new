@@ -13,18 +13,14 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
   return LayoutBuilder(
     builder: (context, constraints) {
       double availableWidth = constraints.maxWidth;
-      // double flexWidth = availableWidth * 1.2;
       double flexWidth = availableWidth - 20;
       double colWidth1 = flexWidth * 3 / 9;
       double colWidth2 = flexWidth * 2 / 9;
       double colWidth3 = flexWidth * 1 / 9;
       double colWidth4 = flexWidth * 2 / 9;
       double colWidth5 = flexWidth * 1 / 9;
-
       double fontSize = 11;
-
       topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
-
       if (topSellingProducts.isEmpty) {
         return const NodataWidget();
       } else {
@@ -36,7 +32,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fixed Header
                 Container(
                   height: 35,
                   color: Colors.grey.shade100,
@@ -105,7 +100,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                     ],
                   ),
                 ),
-                // Scrollable Content
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,

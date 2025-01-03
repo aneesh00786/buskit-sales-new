@@ -26,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/custom_toast.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dash_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/editabledatacell_new.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/order_payment_enlarge_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -542,8 +543,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
+                Row(
+                  children: [
+                    Container(
                   decoration: BoxDecoration(
                     color: primaryColor.withOpacity(0.2),
                     borderRadius: BorderRadius.only(
@@ -594,7 +598,29 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       ),
                     ),
                   ),
-                )
+                ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      showCustomDialog(context,recentOrders);
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: primaryColor.withOpacity(0.3)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: const Icon(
+                            Icons.open_in_new,
+                            size: 17,
+                            color: primaryColor,
+                          ),
+                        )),
+                  ),
+                ),
               ],
             ),
             nkSmallSizeBox(),
@@ -605,9 +631,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   builder: (context, constraints) {
                     double availableWidth = constraints.maxWidth;
                     double availableHeight = constraints.maxHeight;
-
                     double fontSize = 11;
-
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [

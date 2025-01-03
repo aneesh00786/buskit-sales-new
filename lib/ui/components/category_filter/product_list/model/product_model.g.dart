@@ -29,14 +29,15 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       scid: fields[9] as String?,
       catId: fields[10] as int?,
       companyId: fields[11] as int?,
-      detail: (fields[12] as List?)?.cast<Detail>(),
+      stock: fields[12] as String?,
+      detail: (fields[13] as List?)?.cast<Detail>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,6 +63,8 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       ..writeByte(11)
       ..write(obj.companyId)
       ..writeByte(12)
+      ..write(obj.stock)
+      ..writeByte(13)
       ..write(obj.detail);
   }
 

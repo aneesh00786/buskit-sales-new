@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,7 @@ class _ProductGridState extends State<ProductGrid> {
     }
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     const double desiredItemWidth = 250.0;
 
@@ -317,7 +318,8 @@ class _ProductGridState extends State<ProductGrid> {
                                                 Text(
                                                   product.detail!.length > 1
                                                       ? '${formatAmount(firstSellPrice)} - $lastSellPrice'
-                                                      : formatAmount(firstSellPrice),
+                                                      : formatAmount(
+                                                          firstSellPrice),
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w600,
@@ -354,72 +356,119 @@ class _ProductGridState extends State<ProductGrid> {
                                             ),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 5,
-                                                right: 5,
-                                                top: 5,
-                                                bottom: 8),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  height: 12,
-                                                  width: 12,
-                                                  color: Colors.red,
-                                                ),
-                                                const Spacer(),
-                                                Image.asset(
-                                                  "assets/images/cart_box.png",
-                                                  height: 10,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  product.detail!.length > 1
-                                                      ? _getFormattedText(
-                                                          '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)')
-                                                      : _getFormattedText(
-                                                          '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs)'),
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: stockFontSize,
-                                                    fontWeight: FontWeight.w600,
+                                              padding: const EdgeInsets.only(
+                                                  left: 5,
+                                                  right: 5,
+                                                  top: 5,
+                                                  bottom: 8),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    height: 12,
+                                                    width: 12,
+                                                    color: Colors.red,
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                                  const SizedBox(width: 5),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              100),
+                                                      color: Colors.green,
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 6,
+                                                              vertical: 3),
+                                                      child: Text(
+                                                        'Stock : ${product.stock}',
+                                                        style: TextStyle(
+                                                          fontSize: 7,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                          FontWeight.w600
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Expanded(
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
+                                                      children: [
+                                                        Image.asset(
+                                                          "assets/images/cart_box.png",
+                                                          height: 10,
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Flexible(
+                                                          child: Text(
+                                                            product.detail!
+                                                                        .length >
+                                                                    1
+                                                                ? '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)'
+                                                                : '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs)',
+                                                            style: GoogleFonts
+                                                                .poppins(
+                                                              fontSize:
+                                                                  stockFontSize,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                            textAlign:
+                                                                TextAlign.right,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              )),
                                         ],
                                       ),
                                     ),
-                                  product.detail!.length==0 && lowstockItem==0?  Positioned(
-                                      top: 20,
-                                      right: -26,
-                                      child: Transform.rotate(
-                                        angle: 0.785398,
-                                        child: ClipPath(
-                                          clipper: RibbonClipper(),
-                                          child: Container(
-                                            width: 120,
-                                            color: Colors.red,
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 4),
-                                            child: Center(
-                                              child: Text(
-                                                "Not Available",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12,
+                                    product.detail!.length == 0 &&
+                                            lowstockItem == 0
+                                        ? Positioned(
+                                            top: 20,
+                                            right: -26,
+                                            child: Transform.rotate(
+                                              angle: 0.785398,
+                                              child: ClipPath(
+                                                clipper: RibbonClipper(),
+                                                child: Container(
+                                                  width: 120,
+                                                  color: Colors.red,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 4),
+                                                  child: Center(
+                                                    child: Text(
+                                                      "Not Available",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ):Container()
+                                          )
+                                        : Container()
                                   ],
-                                )
-                                );
+                                ));
                           },
                         );
                       },
@@ -458,11 +507,12 @@ class _ProductGridState extends State<ProductGrid> {
     );
   }
 }
+
 class RibbonClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path = Path();
-    path.moveTo(0, size.height); 
+    path.moveTo(0, size.height);
     path.lineTo(size.width * 0.22, 0);
     path.lineTo(size.width * 0.78, 0);
     path.lineTo(size.width, size.height);
@@ -473,5 +523,3 @@ class RibbonClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-
-

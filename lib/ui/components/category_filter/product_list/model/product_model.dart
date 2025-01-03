@@ -39,8 +39,11 @@ class ProductModel {
 
   @HiveField(11)
   int? companyId;
-
+  
   @HiveField(12)
+  String? stock;
+
+  @HiveField(13)
   List<Detail>? detail;
 
   ProductModel({
@@ -56,6 +59,7 @@ class ProductModel {
     this.scid,
     this.catId,
     this.companyId,
+    this.stock,
     this.detail,
   });
 
@@ -72,6 +76,7 @@ class ProductModel {
     scid = json['scid'];
     catId = json['catId'];
     companyId = json['company_id'];
+    stock = json['stock'];
     if (json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {
@@ -94,6 +99,7 @@ class ProductModel {
     data['scid'] = this.scid;
     data['catId'] = this.catId;
     data['company_id'] = this.companyId;
+    data['stock'] = this.stock;
     if (this.detail != null) {
       data['detail'] = this.detail!.map((v) => v.toJson()).toList();
     }

@@ -17,7 +17,7 @@ void showValueOrderDialog(
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+              double dialogWidth = MediaQuery.of(context).size.width * 0.6;
               double maxDialogHeight = constraints.maxHeight * 0.7;
               double rowHeight = 40.0;
               double headerHeight = 30.0;

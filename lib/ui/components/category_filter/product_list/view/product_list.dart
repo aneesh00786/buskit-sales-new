@@ -411,8 +411,8 @@ class _ProductGridState extends State<ProductGrid> {
                                                             product.detail!
                                                                         .length >
                                                                     1
-                                                                ? '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs) - ${lastTotal?.toStringAsFixed(2)}(${pieces} pcs)'
-                                                                : '${formatAmount(firstTotal?.toStringAsFixed(2))}(${pieces} pcs)',
+                                                                ? '${formatAmount(firstTotal)}(${pieces} pcs) - ${lastTotal}(${pieces} pcs)'
+                                                                : '${formatAmount(firstTotal)}(${pieces} pcs)',
                                                             style: GoogleFonts
                                                                 .poppins(
                                                               fontSize:

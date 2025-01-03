@@ -15,6 +15,7 @@ class CustomerResponseModelxx {
   final Paginationxx pagination;
   final List<CustomerModelxx> data;
   final List<OrderTotalxx> orderTotal;
+  final List<YearsListOfAll> yearsListOfAll;
 
   CustomerResponseModelxx({
     required this.statusCode,
@@ -23,6 +24,7 @@ class CustomerResponseModelxx {
     required this.pagination,
     required this.data,
     required this.orderTotal,
+    required this.yearsListOfAll,
   });
 
   factory CustomerResponseModelxx.fromJson(Map<String, dynamic> json) =>
@@ -31,10 +33,13 @@ class CustomerResponseModelxx {
         status: json['status'] ?? false,
         message: json['message'] ?? '',
         pagination: Paginationxx.fromJson(
-            json['pagination'] ?? {}), // Handle null case with {}
+            json['pagination'] ?? {}),
         data: List<CustomerModelxx>.from(
             (json['data'] ?? []).map((x) => CustomerModelxx.fromJson(x))),
-        orderTotal: List<OrderTotalxx>.from((json['orderTotal'] ?? []).map((x)=> OrderTotalxx.fromJson(x)))
+        orderTotal: List<OrderTotalxx>.from(
+            (json['orderTotal'] ?? []).map((x) => OrderTotalxx.fromJson(x))),
+        yearsListOfAll: List<YearsListOfAll>.from(
+            (json['years_list_of_all'] ?? []).map((x) => YearsListOfAll.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +49,7 @@ class CustomerResponseModelxx {
         'pagination': pagination.toJson(),
         'data': data.map((x) => x.toJson()).toList(),
         'orderTotal': orderTotal.map((x) => x.toJson()).toList(),
+        "years_list_of_all": yearsListOfAll.map((x) => x.toJson()).toList(),
       };
 }
 
@@ -71,6 +77,7 @@ class CustomerModelxx {
   final List<String> eventDays;
   final List<CreditPeriodxx> creditPeriod;
   final int companyId;
+  final int? previousYearSales;
   final int? totalSales;
   final int sales;
   final int? salesPrice;
@@ -111,6 +118,7 @@ class CustomerModelxx {
     required this.eventDays,
     required this.creditPeriod,
     required this.companyId,
+    required this.previousYearSales,
     required this.totalSales,
     required this.sales,
     required this.salesPrice,
@@ -157,6 +165,7 @@ class CustomerModelxx {
       creditPeriod: List<CreditPeriodxx>.from(
           (json['credit_period'] ?? []).map((x) => CreditPeriodxx.fromJson(x))),
       companyId: json['company_id'] ?? 0,
+      previousYearSales: _parseToInt(json['previous_year_sales']),
       totalSales: _parseToInt(json['total_sales']),
       sales: json['sales'] ?? 0,
       salesPrice: _parseToInt(json['sales_price']),
@@ -200,6 +209,7 @@ class CustomerModelxx {
         'event_days': jsonEncode(eventDays),
         'credit_period': creditPeriod.map((x) => x.toJson()).toList(),
         'company_id': companyId,
+        'previous_year_sales': previousYearSales,
         'total_sales': totalSales,
         'sales': sales,
         'sales_price': salesPrice,
@@ -364,6 +374,7 @@ class OrderDataxx {
   final List<Order> estimate;
   final List<Order> payment;
   final List<Order> deliver;
+  final List<Order> previousYearSales;
 
   OrderDataxx({
     required this.totalSales,
@@ -374,6 +385,7 @@ class OrderDataxx {
     required this.estimate,
     required this.payment,
     required this.deliver,
+    required this.previousYearSales,
   });
 
   factory OrderDataxx.fromJson(Map<String, dynamic> json) => OrderDataxx(
@@ -409,6 +421,10 @@ class OrderDataxx {
                 ?.map((item) => Order.fromJson(item))
                 .toList() ??
             [],
+        previousYearSales: (json['previous_year_sales'] as List<dynamic>?)
+                ?.map((item) => Order.fromJson(item))
+                .toList() ??
+            [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -420,6 +436,8 @@ class OrderDataxx {
         'estimate': estimate.map((order) => order.toJson()).toList(),
         'payment': payment.map((order) => order.toJson()).toList(),
         'deliver': deliver.map((order) => order.toJson()).toList(),
+        'previous_year_sales':
+            previousYearSales.map((order) => order.toJson()).toList(),
       };
 }
 
@@ -620,6 +638,22 @@ class OrderTotalxx {
       'cancelled': cancelled,
     };
   }
+}
+
+class YearsListOfAll {
+  int? orderYears;
+
+  YearsListOfAll({
+    this.orderYears,
+  });
+
+  factory YearsListOfAll.fromJson(Map<String, dynamic> json) => YearsListOfAll(
+        orderYears: json["order_years"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "order_years": orderYears,
+      };
 }
 
 

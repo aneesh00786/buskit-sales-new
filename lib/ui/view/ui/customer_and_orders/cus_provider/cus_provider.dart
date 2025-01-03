@@ -86,8 +86,10 @@ class CustomersProvider with ChangeNotifier {
   List<CustomerModelxx> _customers = [];
   List<CustomerModelxx> _filteredCustomers = [];
   List<OrderTotalxx> _orderTotalList = [];
+  List<YearsListOfAll> _yearsListOfAllList = [];
 
   List<OrderTotalxx> get orderTotalList => _orderTotalList;
+  List<YearsListOfAll> get yearsListOfAllList => _yearsListOfAllList;
 
   List<CustomerModelxx> get filteredCustomers => _filteredCustomers;
   int get currentPage => _currentPage;
@@ -141,6 +143,10 @@ class CustomersProvider with ChangeNotifier {
   void setOrderTotal(List<OrderTotalxx> orderTotals) {
     _orderTotalList = orderTotals;
     notifyListeners();
+  }
+
+    void setYearList(List<YearsListOfAll> yearsListOfAll) {
+    _yearsListOfAllList = yearsListOfAll;
   }
 
   // Future<void> fetchcustomersDash() async {
@@ -466,6 +472,7 @@ class CustomersProvider with ChangeNotifier {
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
+          setYearList(value.yearsListOfAll);
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {

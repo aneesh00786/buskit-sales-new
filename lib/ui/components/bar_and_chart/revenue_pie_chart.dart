@@ -411,210 +411,6 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
       ],
     );
   }
-void _showValueDialog(
-    BuildContext context, Revenuee categoryData, String title) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
-            double maxDialogHeight = constraints.maxHeight * 0.5;
-            double rowHeight = 30.0;
-            double headerHeight = 40.0;
-            double contentHeight = rowHeight *
-                (categoryData.orderRevenueData?.length ?? 0) +
-                rowHeight;
-
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: maxDialogHeight,
-              ),
-              child: Container(
-                width: dialogWidth,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Dialog Header
-                    Container(
-                      height: 45,
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    // Table Header (Fixed)
-                    Container(
-                      color: const Color.fromARGB(255, 247, 247, 247),
-                      height: headerHeight,
-                      child: Row(
-                        children: const [
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Date',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Invoice',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Status',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Amount',
-                            fontSize: 13,
-                          )),
-                        ],
-                      ),
-                    ),
-                    // Table Content (Scrollable)
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: DataTable(
-                          dataRowHeight: rowHeight,
-                          headingRowHeight: 0, // Header already defined above
-                          columnSpacing: 30,
-                          columns: const [
-                            DataColumn(label: SizedBox.shrink()),
-                            DataColumn(label: SizedBox.shrink()),
-                            DataColumn(label: SizedBox.shrink()),
-                            DataColumn(label: SizedBox.shrink()),
-                          ],
-                          rows: [
-                            ...categoryData.orderRevenueData!.map((item) {
-                              return DataRow(
-                                cells: [
-                                  DataCell(Center(
-                                    child: Text(
-                                      getFormattedOrderCreatAt(
-                                          item.orderCreatAt),
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: secondaryTextColor,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  )),
-                                  DataCell(Center(
-                                    child: Text(
-                                      item.orderId ?? '',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: secondaryTextColor,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  )),
-                                  DataCell(Center(
-                                    child: Text(
-                                      getStatusName(item.orderStatus!.toInt()),
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: secondaryTextColor,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  )),
-                                  DataCell(Center(
-                                    child: Text(
-                                      formatAmount(item.orderTotal),
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: secondaryTextColor,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  )),
-                                ],
-                              );
-                            }).toList(),
-                            DataRow(
-                              cells: [
-                                const DataCell(
-                                  Center(
-                                    child: DialogTableHeaderText(
-                                      text: 'Total',
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                                const DataCell(Text('')),
-                                const DataCell(Text('')),
-                                DataCell(
-                                  Center(
-                                    child: DialogTableHeaderText(
-                                      text: formatAmount(categoryData
-                                          .orderRevenueData!
-                                          .map((e) => e.orderTotal ?? 0.0)
-                                          .reduce((a, b) => a + b)),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
 }
 
 class DoughnutDefaultDelivery extends StatefulWidget {
@@ -666,8 +462,6 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
     final deliveredPercentage = totalValue > 0
         ? (deliveredValue / totalValue * 100).clamp(0, 100)
         : 0.0;
-
-    // Apply minimum percentage rule (5% for non-zero values)
     final adjustedPercentages = _adjustPercentages(
       [
         orderProcessingPercentage.toDouble(),
@@ -792,114 +586,161 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                 : 0.0;
   }
 
-void _showValueDialog(
-    BuildContext context, Delivery deliveryData, String title, int status) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      // Filter orders based on status
-      final filteredOrders = deliveryData.order!.totalOrders!
-          .where((orderDetails) => orderDetails.orderStatus == status)
-          .toList();
+  void _showValueDialog(
+      BuildContext context, Delivery deliveryData, String title, int status) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // Filter orders based on status
+        final filteredOrders = deliveryData.order!.totalOrders!
+            .where((orderDetails) => orderDetails.orderStatus == status)
+            .toList();
 
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
-            double maxDialogHeight = constraints.maxHeight * 0.7;
-            double rowHeight = 40.0;
-            double headerHeight = 41.0;
-            double listHeight = filteredOrders.length * rowHeight;
-            double contentHeight =
-                listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+              double maxDialogHeight = constraints.maxHeight * 0.7;
+              double rowHeight = 40.0;
+              double headerHeight = 41.0;
+              double listHeight = filteredOrders.length * rowHeight;
+              double contentHeight =
+                  listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
 
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: maxDialogHeight,
-              ),
-              child: Container(
-                width: dialogWidth,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 45,
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: maxDialogHeight,
+                ),
+                child: Container(
+                  width: dialogWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 45,
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            dialogCloseButton1(context, red),
+                          ],
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          dialogCloseButton1(context, red),
-                        ],
+                      Container(
+                        color: const Color.fromARGB(255, 247, 247, 247),
+                        height: headerHeight,
+                        child: Row(
+                          children: const [
+                            Expanded(
+                                child: DialogTableHeaderText(
+                              text: 'Customer',
+                              fontSize: 13,
+                            )),
+                            Expanded(
+                                child: DialogTableHeaderText(
+                              text: 'Date',
+                              fontSize: 13,
+                            )),
+                            Expanded(
+                                child: DialogTableHeaderText(
+                              text: 'Invoice',
+                              fontSize: 13,
+                            )),
+                            Expanded(
+                                child: DialogTableHeaderText(
+                              text: 'Status',
+                              fontSize: 13,
+                            )),
+                            Expanded(
+                                child: DialogTableHeaderText(
+                              text: 'Amount',
+                              fontSize: 13,
+                            )),
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      color: const Color.fromARGB(255, 247, 247, 247),
-                      height: headerHeight,
-                      child: Row(
-                        children: const [
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Customer',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Date',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Invoice',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Status',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Amount',
-                            fontSize: 13,
-                          )),
-                        ],
-                      ),
-                    ),
-                    // Table Content
-                    Flexible(
-                      child: Container(
-                        height: contentHeight,
-                        child: ListView.builder(
-                          itemCount: filteredOrders.isEmpty
-                              ? 1
-                              : filteredOrders.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == filteredOrders.length) {
-                              // Total Row
+                      // Table Content
+                      Flexible(
+                        child: Container(
+                          height: contentHeight,
+                          child: ListView.builder(
+                            itemCount: filteredOrders.isEmpty
+                                ? 1
+                                : filteredOrders.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == filteredOrders.length) {
+                                // Total Row
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: Colors.grey,
+                                        width: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                  height: rowHeight,
+                                  child: Row(
+                                    children: [
+                                      const Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Total',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Poppins_Regular',
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const Expanded(child: SizedBox.shrink()),
+                                      const Expanded(child: SizedBox.shrink()),
+                                      const Expanded(child: SizedBox.shrink()),
+                                      Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            formatAmount(filteredOrders
+                                                .map((e) => e.orderTotal ?? 0.0)
+                                                .reduce((a, b) => a + b)),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Poppins_Regular',
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+
+                              final orderDetails = filteredOrders[index];
                               return Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   border: Border(
-                                    top: BorderSide(
-                                      color: Colors.grey,
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
                                       width: 0.5,
                                     ),
                                   ),
@@ -907,31 +748,66 @@ void _showValueDialog(
                                 height: rowHeight,
                                 child: Row(
                                   children: [
-                                    const Expanded(
+                                    Expanded(
                                       child: Center(
                                         child: Text(
-                                          'Total',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: 'Poppins_Regular',
+                                          orderDetails.businessName ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const Expanded(child: SizedBox.shrink()),
-                                    const Expanded(child: SizedBox.shrink()),
-                                    const Expanded(child: SizedBox.shrink()),
                                     Expanded(
                                       child: Center(
                                         child: Text(
-                                          formatAmount(filteredOrders
-                                              .map((e) => e.orderTotal ?? 0.0)
-                                              .reduce((a, b) => a + b)),
+                                          getFormattedOrderCreatAt(
+                                              orderDetails.orderCreatAt ?? ''),
                                           style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: 'Poppins_Regular',
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: InkWell(
+                                          onTap: () {
+                                            showDetailedOrderInvoiceDialog(
+                                                context, orderDetails, true);
+                                          },
+                                          child: Text(
+                                            orderDetails.invoiceId ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: primaryColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          getStatusName(
+                                              orderDetails.orderStatus ?? 0),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          formatAmount(
+                                              orderDetails.orderTotal ?? 0.0),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
                                           ),
                                         ),
                                       ),
@@ -939,103 +815,20 @@ void _showValueDialog(
                                   ],
                                 ),
                               );
-                            }
-
-                            final orderDetails = filteredOrders[index];
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              height: rowHeight,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        orderDetails.businessName ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        getFormattedOrderCreatAt(
-                                            orderDetails.orderCreatAt ?? ''),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          showDetailedOrderInvoiceDialog(
-                                              context, orderDetails, true);
-                                        },
-                                        child: Text(
-                                          orderDetails.invoiceId ?? '',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        getStatusName(
-                                            orderDetails.orderStatus ?? 0),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        formatAmount(
-                                            orderDetails.orderTotal ?? 0.0),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
-
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 }
 
 // class ChartSampleData {
@@ -1285,7 +1078,8 @@ class NestedPieChartj extends StatelessWidget {
             strokeWidth: 2,
             onPointTap: (ChartPointDetails details) {
               if (details.pointIndex == 0) {
-                showValueCollectionDialog(context, collection, 'Recieved Payment');
+                showValueCollectionDialog(
+                    context, collection, 'Recieved Payment');
               } else if (details.pointIndex == 1) {
                 _pendingPaymentCollectionDialog(
                     context, 'Pending Payment', collection);
@@ -1321,7 +1115,7 @@ class NestedPieChartj extends StatelessWidget {
     );
   }
 
- void _pendingPaymentCollectionDialog(
+  void _pendingPaymentCollectionDialog(
       BuildContext context, String title, Collection collection) {
     final ScrollController scrollController = ScrollController();
     // Ensure order and pendingAmount are not null

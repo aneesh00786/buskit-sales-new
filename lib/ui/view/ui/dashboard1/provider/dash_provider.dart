@@ -694,13 +694,20 @@ class ApiService {
 
         var dataList = jsonResponse['data'] as List?;
         var orderTotalList = jsonResponse['orderTotal'] as List?;
+        var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
+
         List<CustomerModelxx> customers = [];
         List<OrderTotalxx> orderTotal = [];
+        List<YearsListOfAll> yearList = [];
+
         if (dataList != null) {
           customers =
               dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
           orderTotal = orderTotalList!
               .map((json) => OrderTotalxx.fromJson(json))
+              .toList();
+          yearList = yearListOfAll!
+              .map((json) => YearsListOfAll.fromJson(json))
               .toList();
         }
         log('Customer List Length : ${customers.length}');
@@ -710,7 +717,12 @@ class ApiService {
           message: jsonResponse['message'] ?? '',
           data: customers,
           orderTotal: orderTotal,
-          pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
+          pagination: Paginationxx.fromJson(
+            jsonResponse['pagination'] ?? {},
+            
+          
+          ),
+          yearsListOfAll: yearList,
         );
       } else {
         print('Request failed with status: ${response.statusCode}');

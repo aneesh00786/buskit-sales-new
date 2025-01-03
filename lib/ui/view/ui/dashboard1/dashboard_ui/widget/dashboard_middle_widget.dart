@@ -848,7 +848,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           width: AppDimensions.instance!.height * 0.05,
                         )),
                         Text(
-                          // ignore: prefer_interpolation_to_compose_strings
                           "   " + data["name"],
                           style: const TextStyle(fontSize: 12),
                         )

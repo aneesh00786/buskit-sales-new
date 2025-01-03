@@ -38,6 +38,7 @@ void showProductListDialog<T>({
             double colWidth2 = dialogWidth * 2 / 9;
             double colWidth3 = dialogWidth * 1 / 9;
             double colWidth5 = dialogWidth * 1 / 9;
+            double colWidth6 = dialogWidth * 1 / 24;
 
             return ConstrainedBox(
               constraints: BoxConstraints(
@@ -102,13 +103,22 @@ void showProductListDialog<T>({
                                 ),
                               ),
                             ),
+                            SizedBox(
+                              width: colWidth6,
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "",
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       Positioned(
                         top: 0,
                         right: 0,
-                        child: dialogCloseButton2(context, red),
+                        child: dialogCloseButton1(context, red),
                       ),
                     ],
                   ),
@@ -208,6 +218,9 @@ void showProductListDialog<T>({
                                           fontSize: 12,
                                         ),
                                       ),
+                                    ),
+                                    SizedBox(
+                                      width: colWidth6,
                                     ),
                                   ],
                                 ),

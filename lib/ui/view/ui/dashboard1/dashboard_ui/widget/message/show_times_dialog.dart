@@ -32,6 +32,7 @@ Future<dynamic> showDashTimesDialogue(
                 maxHeight: maxDialogHeight,
               ),
               child: Container(
+                
                 width: dialogWidth,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

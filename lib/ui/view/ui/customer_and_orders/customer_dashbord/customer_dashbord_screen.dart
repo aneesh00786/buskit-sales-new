@@ -550,64 +550,64 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 Row(
                   children: [
                     Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.2),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
+                        ),
+                      ),
+                      padding: const EdgeInsets.only(
+                          right: 20, left: 20, top: 5, bottom: 5),
+                      child: Text(
+                        'Orders & Payment/s',
+                        style: cardHeadingTextStyle,
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
-                  ),
-                  padding: const EdgeInsets.only(
-                      right: 20, left: 20, top: 5, bottom: 5),
-                  child: Text(
-                    'Orders & Payment/s',
-                    style: cardHeadingTextStyle,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
-                nkSmallSizeBox(),
-                SizedBox(
-                  height: 25,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      List<RecentOrder> selectedOrders = [];
-                      for (var order in recentOrders) {
-                        if (context
-                            .read<CustomersProvider>()
-                            .isOrderSelected(order)) {
-                          selectedOrders.add(order);
-                        }
-                      }
+                    nkSmallSizeBox(),
+                    SizedBox(
+                      height: 25,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          List<RecentOrder> selectedOrders = [];
+                          for (var order in recentOrders) {
+                            if (context
+                                .read<CustomersProvider>()
+                                .isOrderSelected(order)) {
+                              selectedOrders.add(order);
+                            }
+                          }
 
-                      // Show the appropriate dialog or toast based on the selection
-                      if (selectedOrders.isNotEmpty) {
-                        paymentCollectionDialog(context, selectedOrders);
-                      } else {
-                        showCustomToast(context);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff5bc0de),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0),
+                          // Show the appropriate dialog or toast based on the selection
+                          if (selectedOrders.isNotEmpty) {
+                            paymentCollectionDialog(context, selectedOrders);
+                          } else {
+                            showCustomToast(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff5bc0de),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Collection',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      'Collection',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
                   ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 20, top: 2),
                   child: InkWell(
                     onTap: () {
-                      showCustomDialog(context,recentOrders);
+                      showCustomDialog(context, recentOrders);
                     },
                     child: Container(
                         decoration: BoxDecoration(
@@ -836,10 +836,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ),
     );
   }
-
-
-
-
 
   String getStatusName(int orderStatus) {
     switch (orderStatus) {
@@ -1308,8 +1304,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             showDashTimesDialogue(
                           context,
                           product,
-                          (p) =>
-                              p.count, // Replace with appropriate field
+                          (p) => p.count, // Replace with appropriate field
                           (data) => formatAmount(data
                               .price), // Assuming 'price' is a field in QuantityList
                           (data) => data.quantity
@@ -1628,189 +1623,23 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                             Center(
                                               child: InkWell(
                                                 onTap: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                        contentPadding:
-                                                            EdgeInsets.zero,
-                                                        titlePadding:
-                                                            EdgeInsets.zero,
-                                                        content:
-                                                            SingleChildScrollView(
-                                                          child: Column(
-                                                            children: [
-                                                              Container(
-                                                                height: 45,
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        10),
-                                                                decoration:
-                                                                    const BoxDecoration(
-                                                                  color:
-                                                                      primaryColor,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .only(
-                                                                    topLeft: Radius
-                                                                        .circular(
-                                                                            10),
-                                                                    topRight: Radius
-                                                                        .circular(
-                                                                            10),
-                                                                  ),
-                                                                ),
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    Text(
-                                                                      product
-                                                                          .variationName
-                                                                          .toString(),
-                                                                      style:
-                                                                          const TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            16,
-                                                                        fontFamily:
-                                                                            'Poppins_Regular',
-                                                                        fontWeight:
-                                                                            FontWeight.w600,
-                                                                      ),
-                                                                    ),
-                                                                    dialogCloseButton1(
-                                                                        context,
-                                                                        red),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        8.0),
-                                                                child:
-                                                                    DataTable(
-                                                                  dataRowHeight:
-                                                                      30,
-                                                                  headingRowHeight:
-                                                                      35,
-                                                                  columnSpacing:
-                                                                      30,
-                                                                  // horizontalMargin: 0,
-                                                                  columns: const [
-                                                                    DataColumn(
-                                                                      label:
-                                                                          DialogTableHeaderText(
-                                                                        text:
-                                                                            'Price',
-                                                                        fontSize:
-                                                                            13,
-                                                                      ),
-                                                                    ),
-                                                                    DataColumn(
-                                                                      label:
-                                                                          DialogTableHeaderText(
-                                                                        text:
-                                                                            'Quantity',
-                                                                        fontSize:
-                                                                            13,
-                                                                      ),
-                                                                    ),
-                                                                    DataColumn(
-                                                                      label:
-                                                                          DialogTableHeaderText(
-                                                                        text:
-                                                                            'Amount',
-                                                                        fontSize:
-                                                                            13,
-                                                                      ),
-                                                                    ),
-                                                                    DataColumn(
-                                                                      label:
-                                                                          DialogTableHeaderText(
-                                                                        text:
-                                                                            'Created At',
-                                                                        fontSize:
-                                                                            13,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                  rows: product
-                                                                      .count
-                                                                      .map(
-                                                                          (quantity) {
-                                                                    return DataRow(
-                                                                        cells: [
-                                                                          DataCell(
-                                                                              Center(
-                                                                            child:
-                                                                                Text(
-                                                                              // '1',
-                                                                              formatAmount(quantity.price),
-                                                                              textAlign: TextAlign.center,
-                                                                              style: const TextStyle(
-                                                                                color: secondaryTextColor,
-                                                                                fontSize: 13,
-                                                                              ),
-                                                                            ),
-                                                                          )),
-                                                                          DataCell(
-                                                                              Center(
-                                                                            child:
-                                                                                Text(
-                                                                              quantity.quantity.toString(),
-                                                                              textAlign: TextAlign.center,
-                                                                              style: const TextStyle(
-                                                                                color: secondaryTextColor,
-                                                                                fontSize: 13,
-                                                                              ),
-                                                                            ),
-                                                                          )),
-                                                                          DataCell(
-                                                                            Center(
-                                                                              child: Text(
-                                                                                formatAmount(quantity.totalPrice),
-                                                                                textAlign: TextAlign.center,
-                                                                                style: const TextStyle(
-                                                                                  color: secondaryTextColor,
-                                                                                  fontSize: 13,
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          DataCell(
-                                                                              Center(
-                                                                            child:
-                                                                                Text(
-                                                                              DateFormat('dd-MM-yyyy').format(quantity.createdAt).toString(),
-                                                                              textAlign: TextAlign.center,
-                                                                              style: const TextStyle(
-                                                                                color: secondaryTextColor,
-                                                                                fontSize: 13,
-                                                                              ),
-                                                                            ),
-                                                                          )),
-                                                                        ]);
-                                                                  }).toList(),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
+                                                  showDashTimesDialogue(
+                                                    context,
+                                                    product,
+                                                    (p) => p.count ,
+                                                    (data) => formatAmount(
+                                                        data.price),
+                                                    (data) => data.quantity
+                                                        .toString(),
+                                                    (data) =>
+                                                        data.totalPrice != null
+                                                            ? formatAmount(
+                                                                data.totalPrice)
+                                                            : 'N/A',
+                                                    (data) => DateFormat(
+                                                            'dd-MM-yyyy')
+                                                        .format(
+                                                            data.createdAt!),
                                                   );
                                                 },
                                                 child: Container(

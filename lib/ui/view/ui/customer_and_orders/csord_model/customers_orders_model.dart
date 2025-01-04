@@ -835,7 +835,6 @@ class FrequantliyProductList {
   final double totalPrice;
   final String productName;
   final DateTime createdAt;
-
   final List<QuantityList> quantityList;
   final List<Count> count;
 

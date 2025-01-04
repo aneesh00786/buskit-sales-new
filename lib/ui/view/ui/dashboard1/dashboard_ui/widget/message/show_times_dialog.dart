@@ -58,10 +58,10 @@ Future<dynamic> showDashTimesDialogue<T>(
                           Expanded(
                             child: MyRegularText(
                               label: product is TopSellingProductA
-                                  ? '${product.productName} - ${product.variationName}'
+                                  ? '${product.productName ?? "Unknown"} - ${product.variationName ?? "Unknown"}'
                                   : product is FrequantliyProductList
-                                      ? product.productName
-                                      : '',
+                                      ? '${product.productName ?? "Unknown"} - ${product.variationName ?? "Unknown"}'
+                                      : 'No Product Data',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -91,7 +91,8 @@ Future<dynamic> showDashTimesDialogue<T>(
                       child: Container(
                         height: contentHeight,
                         child: ListView.builder(
-                          itemCount: timesDataList.isEmpty ? 1 : timesDataList.length,
+                          itemCount:
+                              timesDataList.isEmpty ? 1 : timesDataList.length,
                           physics: const ClampingScrollPhysics(),
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
@@ -111,10 +112,18 @@ Future<dynamic> showDashTimesDialogue<T>(
                                 height: rowHeight,
                                 child: Row(
                                   children: [
-                                    Expanded(child: buildRowData(getPrice(timesData))),
-                                    Expanded(child: buildRowData(getQuantity(timesData))),
-                                    Expanded(child: buildRowData(getTotalPrice(timesData))),
-                                    Expanded(child: buildRowData(getPurchasedAt(timesData))),
+                                    Expanded(
+                                        child:
+                                            buildRowData(getPrice(timesData))),
+                                    Expanded(
+                                        child: buildRowData(
+                                            getQuantity(timesData))),
+                                    Expanded(
+                                        child: buildRowData(
+                                            getTotalPrice(timesData))),
+                                    Expanded(
+                                        child: buildRowData(
+                                            getPurchasedAt(timesData))),
                                   ],
                                 ),
                               );
@@ -134,7 +143,6 @@ Future<dynamic> showDashTimesDialogue<T>(
   );
 }
 
-
 Widget buildHeader(String title) {
   return Center(
     child: Text(
@@ -147,5 +155,3 @@ Widget buildHeader(String title) {
     ),
   );
 }
-
-

@@ -6,9 +6,9 @@ import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,7 +34,7 @@ class OrderController extends GetxController {
 Future<void> loadOrderCountData() async {
   isCountLoading(true);
   try {
-    var notificationData = await Get.find<NotificationController>().loadNotificationData();
+    var notificationData = await Get.find<NotificationController>().loadNotificationData('','');
     if (notificationData.mainNotification != null) {
       var mainNotification = notificationData.mainNotification!;
       receivedCount.value = mainNotification.recentOrders ?? 0;

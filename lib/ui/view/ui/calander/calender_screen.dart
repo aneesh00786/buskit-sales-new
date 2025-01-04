@@ -1,10 +1,10 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/widget/calender_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/widget/calender_top_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,7 +35,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
         child: Scaffold(
           appBar: AppBar(
             actions: [
-              NotificationWidget(),
+             NotificationWidget(startDate: '', endDate: '',),
               profiloe(),
             ],
           ),

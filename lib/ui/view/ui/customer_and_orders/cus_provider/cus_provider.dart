@@ -1,11 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -491,6 +493,7 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
+  
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: isStartDate
@@ -518,11 +521,14 @@ class CustomersProvider with ChangeNotifier {
           _selectedEndDate.isNotEmpty) {
         // fetchData(); // Fetch data after selecting both dates
       }
+
       notifyListeners();
     }
   }
 
   void onFilterChanged(FilterDateEnum? selectedFilter) {
+        NotificationController notificationController =
+        Get.find<NotificationController>();
     print('dropdown changed $selectedFilter');
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
@@ -575,7 +581,7 @@ class CustomersProvider with ChangeNotifier {
           }
           break;
       }
-
+      notificationController.loadNotificationData(_selectedStartDate, _selectedEndDate);
       notifyListeners();
     }
   }

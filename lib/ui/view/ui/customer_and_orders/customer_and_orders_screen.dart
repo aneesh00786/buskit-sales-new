@@ -2,32 +2,22 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
-import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/customers_and_orders_dialo_table.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../../components/color/colors.dart';
-import '../../../components/widgets/my_regular_text.dart';
 import '../../../theme/custom_fonts.dart';
 import '../../../utills/enum/filter_date_enum.dart';
 import '../dashboard1/provider/dash_models.dart';
@@ -35,7 +25,6 @@ import '../products/staff_controller.dart';
 import 'csord_model/customers_orders_model.dart';
 import 'cus_provider/cus_provider.dart';
 import 'customer_dashbord/customer_dashbord_screen.dart';
-import 'widgets/notification_widget.dart';
 
 class tableee extends StatefulWidget {
   @override
@@ -364,7 +353,10 @@ class _tableeeState extends State<tableee> {
               },
             ),
           ),
-          NotificationWidget(),
+          NotificationWidget(
+            startDate: provider.selectedStartDate,
+            endDate: provider.selectedEndDate,
+          ),
           profiloe(),
         ],
       );

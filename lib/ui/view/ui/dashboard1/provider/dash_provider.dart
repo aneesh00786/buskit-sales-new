@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -1553,20 +1554,63 @@ class DashboardProvider with ChangeNotifier {
 //     }
 //   }
 // }
+
   void onFilterChanged(FilterDateEnum? selectedFilter) {
+    NotificationController notificationController =
+        Get.find<NotificationController>();
     log('on filter changed');
+
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
+
       if (_selectedFilter != FilterDateEnum.range) {
         _selectedStartDate = '';
         _selectedEndDate = '';
       }
+
       if (_selectedFilter != FilterDateEnum.range) {
         fetchData();
-        // come back
-        // fetchOrders();
       }
 
+      final now = DateTime.now();
+      String startDate;
+      String endDate;
+
+      switch (_selectedFilter) {
+        case FilterDateEnum.thisMonth:
+          startDate = DateTime(now.year, now.month, 1)
+              .toIso8601String()
+              .substring(0, 10);
+          endDate = DateTime(now.year, now.month + 1, 0)
+              .toIso8601String()
+              .substring(0, 10);
+          break;
+        case FilterDateEnum.today:
+          startDate = DateTime(now.year, now.month, now.day)
+              .toIso8601String()
+              .substring(0, 10);
+          endDate = startDate;
+          break;
+        case FilterDateEnum.thisWeek:
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          startDate = startOfWeek.toIso8601String().substring(0, 10);
+          endDate = now.toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.thisYear:
+          startDate =
+              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+          endDate =
+              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.range:
+          startDate = _selectedStartDate;
+          endDate = _selectedEndDate;
+          if (startDate.isEmpty || endDate.isEmpty) {
+            return;
+          }
+          break;
+      }
+      notificationController.loadNotificationData(startDate, endDate);
       notifyListeners();
     }
   }
@@ -1582,7 +1626,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> refreshChatData(String salesmanId) async {
-    // Call the API to refresh the chat data
     await fetchChatData(
         salesmanId); // Or any method that fetches the latest chat data
     notifyListeners(); // Notify listeners to rebuild the UI
@@ -1647,7 +1690,6 @@ class DashboardProvider with ChangeNotifier {
       if (_selectedFilter != FilterDateEnum.range) {
         //fetchOrders();
       }
-
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching data', error: e, stackTrace: stackTrace);
@@ -1655,7 +1697,9 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  Future<void> selectDate(BuildContext context, bool isStartDate) async {
+ Future<void> selectDate(BuildContext context, bool isStartDate) async {
+    NotificationController notificationController =
+        Get.find<NotificationController>();
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: isStartDate
@@ -1676,9 +1720,12 @@ class DashboardProvider with ChangeNotifier {
       } else {
         _selectedEndDate = formattedDate;
       }
+
       if (_selectedFilter == FilterDateEnum.range &&
           _selectedStartDate.isNotEmpty &&
           _selectedEndDate.isNotEmpty) {}
+      notificationController.loadNotificationData(
+          _selectedStartDate, _selectedEndDate);
       notifyListeners();
     }
   }

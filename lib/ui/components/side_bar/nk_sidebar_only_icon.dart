@@ -1,8 +1,7 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -141,7 +140,10 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                             radius: 10,
                             backgroundColor: Colors.red,
                             child: Text(
-                              '${calculateNotificationCount(notificationController)}',
+                              notificationController
+                                      .recentOrderCountData.notificationCreated
+                                      ?.toString() ??
+                                  '0',
                               style:
                                   TextStyle(fontSize: 13, color: Colors.white),
                             ),

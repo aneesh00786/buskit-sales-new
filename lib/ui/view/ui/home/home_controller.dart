@@ -5,12 +5,12 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
@@ -211,22 +211,6 @@ class HomeController extends GetxController {
           context: context),
     ];
   }
-  // List<SidebarXItem> drawSidebarItems(BuildContext context) {
-  //   return [
-  //     sideBarComponent(sidebarName[0], Icons.dashboard),
-  //     sideBarComponent(sidebarName[1], SIdeBarIcon.ic_customer_and_orders),
-  //     sideBarComponent(sidebarName[2], SIdeBarIcon.ic_products),
-  //     sideBarComponent(sidebarName[3], SIdeBarIcon.ic_pending_payment),
-  //     sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
-  //     sideBarComponent(sidebarName[5], Icons.bar_chart),
-  //     sideBarComponent(sidebarName[6], SIdeBarIcon.ic_calender),
-  //     sideBarComponent(sidebarName[7], SIdeBarIcon.ic_today_order),
-  //     sideBarComponent(sidebarName[8], SIdeBarIcon.ic_setting),
-  //     sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out,
-  //         context: context),
-  //   ];
-  // }
-
   SidebarXItem sideBarComponent(
     String barTitle,
     IconData iconData, {
@@ -236,7 +220,6 @@ class HomeController extends GetxController {
         Get.put(NotificationController());
 
     bool isLogout = (barTitle == logOut);
-    bool isSettings = (barTitle == setting);
     bool isRecentOrders = (barTitle == orders);
 
     return SidebarXItem(

@@ -5,11 +5,11 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/notification_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
@@ -155,7 +155,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     ],
                   ),
                 ),
-                NotificationWidget(),
+                NotificationWidget(
+                  startDate: '',
+                  endDate: '',
+                ),
                 profiloe(),
               ],
             ),
@@ -384,12 +387,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     staffController.checkInOutData.value, staffController);
                 break;
               case 3:
-                dialogContent =
-                    buildVisitsDialogContent(staffController.visitData.value,staffController);
+                dialogContent = buildVisitsDialogContent(
+                    staffController.visitData.value, staffController);
                 break;
               case 4:
                 dialogContent = buildCustomersDialogContent(
-                    staffController.customerDatas.value,staffController);
+                    staffController.customerDatas.value, staffController);
                 break;
               default:
                 dialogContent = const Text('Unknown data.');
@@ -432,7 +435,4 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 //     ],
 //   );
 // }
-
 }
-
-

@@ -69,6 +69,8 @@ class MainNotification {
   int? quickSale;
   int? processingOrders;
   int? packedAndReadyForDelivery;
+  int? delivered;
+  int? rejected;
 
   MainNotification({
     this.recentOrders,
@@ -76,6 +78,8 @@ class MainNotification {
     this.quickSale,
     this.processingOrders,
     this.packedAndReadyForDelivery,
+    this.delivered,
+    this.rejected,
   });
 
   factory MainNotification.fromJson(Map<String, dynamic> json) =>
@@ -85,6 +89,8 @@ class MainNotification {
         quickSale: json["quick_sale"]  ?? 0,
         processingOrders: json["processing_orders"]   ?? 0,
         packedAndReadyForDelivery: json["packed_and_ready_for_delivery"]  ?? 0,
+        delivered: json["delivered"]  ?? 0,
+        rejected: json["rejected"]  ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -93,5 +99,7 @@ class MainNotification {
         "quick_sale": quickSale,
         "processing_orders": processingOrders,
         "packed_and_ready_for_delivery": packedAndReadyForDelivery,
+        "delivered": delivered,
+        "rejected": rejected,
       };
 }

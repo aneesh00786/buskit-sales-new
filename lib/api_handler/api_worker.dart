@@ -9,8 +9,8 @@ import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
@@ -24,12 +24,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/checkin_checkout_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +34,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../common/pagination_model.dart';
 import '../ui/view/ui/auth/auth_model/login_responce.dart';
-import '../ui/view/ui/customer_and_orders/csord_model/recent_count_response.dart';
 
 class ApiWorker with ApiConstants {
   late DioClient dio;
@@ -381,16 +376,26 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<RecentOrderCountResponse> fetchRecentOrderCount() async {
+  Future<RecentOrderCountResponse> fetchRecentOrderCount(
+    {String? startDate,
+    String? endDate,}
+  ) async {
+    final Map<String, dynamic> requestData = {
+      'companyId': companyId,
+      "salesman_id":salesmanId,
+    };
+
+    if (startDate != null) {
+      requestData['start_date'] = startDate;
+    }
+    if (endDate != null) {
+      requestData['end_date'] = endDate;
+    }
+
     final response = await dio
         .postbycustom(
-      '${ApiConstants.recent_order_count}',
-      data: {"companyId": companyId, "salesman_id": salesmanId},
-      options: Options(
-        headers: {
-          "Content-Type": "application/json",
-        },
-      ),
+      ApiConstants.recent_order_count,
+      data: requestData,
     )
         .onError((DioException error, stackTrace) {
       log(error.toString());

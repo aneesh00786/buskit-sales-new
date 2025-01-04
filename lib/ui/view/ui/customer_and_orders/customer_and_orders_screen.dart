@@ -39,7 +39,7 @@ class _tableeeState extends State<tableee> {
   void initState() {
     super.initState();
     _scrollController1.addListener(() {
-      if (_scrollController2.hasClients &&
+      if (_scrollController2.hasClients &&  
           _scrollController1.position.pixels !=
               _scrollController2.position.pixels) {
         _scrollController2.jumpTo(_scrollController1.position.pixels);

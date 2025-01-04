@@ -1698,8 +1698,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
  Future<void> selectDate(BuildContext context, bool isStartDate) async {
-    NotificationController notificationController =
-        Get.find<NotificationController>();
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: isStartDate
@@ -1724,8 +1722,6 @@ class DashboardProvider with ChangeNotifier {
       if (_selectedFilter == FilterDateEnum.range &&
           _selectedStartDate.isNotEmpty &&
           _selectedEndDate.isNotEmpty) {}
-      notificationController.loadNotificationData(
-          _selectedStartDate, _selectedEndDate);
       notifyListeners();
     }
   }

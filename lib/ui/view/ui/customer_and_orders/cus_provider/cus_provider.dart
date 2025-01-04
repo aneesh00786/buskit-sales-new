@@ -414,6 +414,8 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
+            NotificationController notificationController =
+        Get.find<NotificationController>();
     final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     if (_selectedFilter == FilterDateEnum.thisMonth ||
         _selectedFilter == FilterDateEnum.today ||
@@ -475,6 +477,7 @@ class CustomersProvider with ChangeNotifier {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
           setYearList(value.yearsListOfAll);
+          notificationController.loadNotificationData(startDate,endDate);
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {

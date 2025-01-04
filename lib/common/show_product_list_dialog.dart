@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 void showProductListDialog<T>({
   required BuildContext context,
   required List<T> productList,
-  required double Function(T) getQuantity,
+  required int Function(T) getQuantity,
   required String Function(T) getProductName,
   required String Function(T) getVariationName,
   required String Function(T) getFormattedDate,
@@ -187,7 +187,7 @@ void showProductListDialog<T>({
                                             child: Center(
                                               child: MyRegularText(
                                                 label:
-                                                    '${getQuantity(product).toInt()}',
+                                                    '${getQuantity(product)}',
                                                 color: buttonTextColor,
                                                 align: TextAlign.center,
                                                 fontSize: 12,

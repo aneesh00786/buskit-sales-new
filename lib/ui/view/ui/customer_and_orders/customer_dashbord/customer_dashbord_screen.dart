@@ -1297,7 +1297,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       return showProductListDialog<FrequantliyProductList>(
                         context: context,
                         productList: frequentProductLists,
-                        getQuantity: (product) => product.quantity.toDouble(),
+                        getQuantity: (product) => product.count.length,
                         getProductName: (product) => product.productName,
                         getVariationName: (product) => product.variationName,
                         getFormattedDate: (product) =>
@@ -1309,7 +1309,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           context,
                           product,
                           (p) =>
-                              p.quantityList, // Replace with appropriate field
+                              p.count, // Replace with appropriate field
                           (data) => formatAmount(data
                               .price), // Assuming 'price' is a field in QuantityList
                           (data) => data.quantity
@@ -1748,7 +1748,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                                     ),
                                                                   ],
                                                                   rows: product
-                                                                      .quantityList
+                                                                      .count
                                                                       .map(
                                                                           (quantity) {
                                                                     return DataRow(
@@ -1781,7 +1781,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                                           DataCell(
                                                                             Center(
                                                                               child: Text(
-                                                                                formatAmount(quantity.price),
+                                                                                formatAmount(quantity.totalPrice),
                                                                                 textAlign: TextAlign.center,
                                                                                 style: const TextStyle(
                                                                                   color: secondaryTextColor,

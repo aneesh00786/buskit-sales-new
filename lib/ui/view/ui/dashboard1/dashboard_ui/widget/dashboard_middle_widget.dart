@@ -974,7 +974,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           context: context,
                           productList: topSellingProducts,
                           getQuantity: (product) =>
-                              product.quantity?.toDouble() ?? 0.0,
+                              product.quantity??0,
                           getProductName: (product) =>
                               product.productName ?? '',
                           getVariationName: (product) =>

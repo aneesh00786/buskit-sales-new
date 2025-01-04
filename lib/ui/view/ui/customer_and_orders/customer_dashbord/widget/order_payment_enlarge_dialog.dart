@@ -1,8 +1,12 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/custom_toast.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,16 +21,11 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
         ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            // Adjust the dialog's width and height
             double dialogWidth = MediaQuery.of(context).size.width * 0.7;
             double maxDialogHeight = constraints.maxHeight * 0.7;
-            double rowHeight = 40.0; // Height of each row
-            double headerHeight = 30.0; // Height of header row
-
-            // Calculate the list height based on the number of items
+            double rowHeight = 40.0;
+            double headerHeight = 30.0;
             double listHeight = recentOrders.length * rowHeight;
-
-            // Ensure content height doesn't exceed the max dialog height
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
 
@@ -40,60 +39,122 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                      color: primaryColor,
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
                       ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Order & Payments",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          nkSmallSizeBox(),
+                          SizedBox(
+                            height: 25,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                List<RecentOrder> selectedOrders = [];
+                                for (var order in recentOrders) {
+                                  if (context
+                                      .read<CustomersProvider>()
+                                      .isOrderSelected(order)) {
+                                    selectedOrders.add(order);
+                                  }
+                                }
+
+                                // Show the appropriate dialog or toast based on the selection
+                                if (selectedOrders.isNotEmpty) {
+                                  paymentCollectionDialog(
+                                      context, selectedOrders);
+                                } else {
+                                  showCustomToast(context);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff5bc0de),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                              ),
+                              child: const Text(
+                                'Collection',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          dialogCloseButton1(context, red),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      color: const Color.fromARGB(255, 248, 248, 249),
                       height: headerHeight,
                       child: Row(
                         children: [
                           Expanded(
                             child: Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Date",
-                                  fontSize: 13,
-                                ),
+                              child: DialogTableHeaderText(
+                                text: "Date",
+                                fontSize: 13,
                               ),
+                            ),
                           ),
                           Expanded(
                             child: Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Invoice",
-                                  fontSize: 13,
-                                ),
+                              child: DialogTableHeaderText(
+                                text: "Invoice",
+                                fontSize: 13,
                               ),
+                            ),
                           ),
                           Expanded(
                             child: Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Status",
-                                  fontSize: 13,
-                                ),
+                              child: DialogTableHeaderText(
+                                text: "Status",
+                                fontSize: 13,
                               ),
+                            ),
                           ),
                           Expanded(
                             child: Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Amount",
-                                  fontSize: 13,
-                                ),
+                              child: DialogTableHeaderText(
+                                text: "Amount",
+                                fontSize: 13,
                               ),
+                            ),
                           ),
                           Expanded(
                             child: Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Due By",
-                                  fontSize: 13,
-                                ),
+                              child: DialogTableHeaderText(
+                                text: "Due By",
+                                fontSize: 13,
                               ),
+                            ),
                           ),
                           Expanded(
                             child: Center(
-                                child: DialogTableHeaderTextWhite(
-                                  text: "Select",
-                                  fontSize: 13,
-                                ),
+                              child: DialogTableHeaderText(
+                                text: "Select",
+                                fontSize: 13,
                               ),
+                            ),
                           ),
                         ],
                       ),
@@ -135,34 +196,32 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                         child:
                                             Center(child: Text(order.orderId))),
                                     Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                              decoration: const BoxDecoration(
-                                                color: Color(0xff008000),
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(4.0)),
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal:10,
-                                                  vertical: 2
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    getStatusName(
-                                                        order.orderStatus),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      
-                                                    ),
-                                                  ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xff008000),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(4.0)),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 2),
+                                            child: Center(
+                                              child: Text(
+                                                getStatusName(
+                                                    order.orderStatus),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.white,
                                                 ),
                                               ),
                                             ),
-                                        ),),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                     Expanded(
                                         child: Center(
                                             child: Text(formatAmount(

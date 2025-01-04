@@ -108,7 +108,6 @@ class CustomersProvider with ChangeNotifier {
         catId: catId,
         selectedYearCategory: selectedYearCategory,
       );
-
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
       rethrow;
@@ -147,7 +146,7 @@ class CustomersProvider with ChangeNotifier {
     notifyListeners();
   }
 
-    void setYearList(List<YearsListOfAll> yearsListOfAll) {
+  void setYearList(List<YearsListOfAll> yearsListOfAll) {
     _yearsListOfAllList = yearsListOfAll;
   }
 
@@ -164,10 +163,13 @@ class CustomersProvider with ChangeNotifier {
   //   }
   // }
 
-  Future<void> fetchCustomerDashboardCountData(String customerId,) async {
+  Future<void> fetchCustomerDashboardCountData(
+    String customerId,
+  ) async {
     try {
       // Update _countFuture with the result of fetchOrderCount
-      _countFuture = _apiService.fetchOrderCount(customerId,_selectedStartDate,_selectedEndDate);
+      _countFuture = _apiService.fetchOrderCount(
+          customerId, _selectedStartDate, _selectedEndDate);
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching customer dashboard data',
@@ -261,8 +263,7 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchOrdersForCustomDash(
-      OrderStatus s, String custId) async {
+  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId) async {
     try {
       final now = DateTime.now();
       String startDate;
@@ -319,7 +320,7 @@ class CustomersProvider with ChangeNotifier {
         throw Exception('Select both start and end dates');
       }
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
-        final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
+        final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
             salesmanId: salesmanId,
@@ -375,7 +376,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(
-              customerId, specifiedYear, startDate??'', endDate??'')
+              customerId, specifiedYear, startDate ?? '', endDate ?? '')
           .then((response) {
         _yearList = response.data.yearList;
         notifyListeners();
@@ -414,9 +415,9 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
-            NotificationController notificationController =
+    NotificationController notificationController =
         Get.find<NotificationController>();
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     if (_selectedFilter == FilterDateEnum.thisMonth ||
         _selectedFilter == FilterDateEnum.today ||
         _selectedFilter == FilterDateEnum.thisWeek ||
@@ -457,7 +458,7 @@ class CustomersProvider with ChangeNotifier {
             startDate = _selectedStartDate;
             endDate = _selectedEndDate;
             if (startDate.isEmpty || endDate.isEmpty) {
-              return; 
+              return;
             }
             break;
         }
@@ -466,8 +467,8 @@ class CustomersProvider with ChangeNotifier {
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: salesmanId,
           customerName: '',
-          startDate: '',
-          endDate: '',
+          startDate: "",
+          endDate: "",
           limit: 10,
           page: page,
           valueFromDw: _selectedFilter.name,
@@ -477,7 +478,7 @@ class CustomersProvider with ChangeNotifier {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
           setYearList(value.yearsListOfAll);
-          notificationController.loadNotificationData(startDate,endDate);
+          notificationController.loadNotificationData(startDate, endDate);
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {
@@ -495,56 +496,60 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> selectDate(BuildContext context, bool isStartDate) async {
-  
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: isStartDate
-          ? (_selectedStartDate.isNotEmpty
-              ? DateTime.parse(_selectedStartDate)
-              : DateTime.now())
-          : (_selectedEndDate.isNotEmpty
-              ? DateTime.parse(_selectedEndDate)
-              : DateTime.now()),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
+Future<void> selectDate(BuildContext context, bool isStartDate) async {
+  final DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: isStartDate
+        ? (_selectedStartDate.isNotEmpty
+            ? DateTime.parse(_selectedStartDate)
+            : DateTime.now())
+        : (_selectedEndDate.isNotEmpty
+            ? DateTime.parse(_selectedEndDate)
+            : DateTime.now()),
+    firstDate: DateTime(2020),
+    lastDate: DateTime(2100),
+  );
 
-    if (pickedDate != null) {
-      final formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
-      if (isStartDate) {
-        _selectedStartDate = formattedDate;
-      } else {
-        _selectedEndDate = formattedDate;
-      }
+  if (pickedDate != null) {
+    final formattedDate = pickedDate.toIso8601String().substring(0, 10);
 
-      // Only fetch data if both dates are set when range is selected
-      if (_selectedFilter == FilterDateEnum.range &&
-          _selectedStartDate.isNotEmpty &&
-          _selectedEndDate.isNotEmpty) {
-        // fetchData(); // Fetch data after selecting both dates
-      }
-
-      notifyListeners();
+    if (isStartDate) {
+      _selectedStartDate = formattedDate;
+    } else {
+      _selectedEndDate = formattedDate;
     }
+    if (_selectedFilter == FilterDateEnum.range &&
+        _selectedStartDate.isNotEmpty &&
+        _selectedEndDate.isNotEmpty) {
+      // fetchData(); // Uncomment if you want to fetch data immediately
+    }
+
+    notifyListeners();
   }
+}
+
 
   void onFilterChanged(FilterDateEnum? selectedFilter) {
-        NotificationController notificationController =
+    
+    NotificationController notificationController =
         Get.find<NotificationController>();
     print('dropdown changed $selectedFilter');
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
-
-      // Reset dates if not in range
       if (_selectedFilter != FilterDateEnum.range) {
         _selectedStartDate = '';
         _selectedEndDate = '';
-      }
-
-      // Fetch data only if the filter is not a range
-      if (_selectedFilter != FilterDateEnum.range) {
-        fetchCustomerData();
+      } else {
+        if (_selectedStartDate.isEmpty) {
+          _selectedStartDate = DateTime.now()
+              .toIso8601String()
+              .substring(0, 10);
+        }
+        if (_selectedEndDate.isEmpty) {
+          _selectedEndDate = DateTime.now()
+              .toIso8601String()
+              .substring(0, 10);
+        }
       }
 
       final now = DateTime.now();
@@ -576,15 +581,14 @@ class CustomersProvider with ChangeNotifier {
               DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
           break;
         case FilterDateEnum.range:
-          _selectedStartDate = _selectedStartDate;
-          _selectedEndDate = _selectedEndDate;
-          // Check if start and end dates are both set before fetching
-          if (_selectedStartDate.isEmpty || _selectedEndDate.isEmpty) {
-            return; // Exit if either date is not set
-          }
           break;
       }
-      notificationController.loadNotificationData(_selectedStartDate, _selectedEndDate);
+
+      if (selectedFilter != FilterDateEnum.range) {
+        fetchCustomerData();
+        notificationController.loadNotificationData(
+            _selectedStartDate, _selectedEndDate);
+      }
       notifyListeners();
     }
   }

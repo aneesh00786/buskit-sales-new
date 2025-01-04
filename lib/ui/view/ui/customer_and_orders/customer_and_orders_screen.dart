@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../components/color/colors.dart';
 import '../../../theme/custom_fonts.dart';
@@ -39,7 +40,7 @@ class _tableeeState extends State<tableee> {
   void initState() {
     super.initState();
     _scrollController1.addListener(() {
-      if (_scrollController2.hasClients &&  
+      if (_scrollController2.hasClients &&
           _scrollController1.position.pixels !=
               _scrollController2.position.pixels) {
         _scrollController2.jumpTo(_scrollController1.position.pixels);
@@ -245,7 +246,10 @@ class _tableeeState extends State<tableee> {
                                             Text(
                                               provider.selectedStartDate.isEmpty
                                                   ? 'DD-MM-YYYY'
-                                                  : provider.selectedStartDate,
+                                                  : DateFormat('dd-MM-yyyy')
+                                                      .format(DateTime.parse(
+                                                          provider
+                                                              .selectedStartDate)),
                                               style: TextStyle(
                                                   fontSize: isSmallScreen
                                                       ? 7.7
@@ -297,7 +301,10 @@ class _tableeeState extends State<tableee> {
                                             Text(
                                               provider.selectedEndDate.isEmpty
                                                   ? 'DD-MM-YYYY'
-                                                  : provider.selectedEndDate,
+                                                  : DateFormat('dd-MM-yyyy')
+                                                      .format(DateTime.parse(
+                                                          provider
+                                                              .selectedEndDate)),
                                               style: TextStyle(
                                                   fontSize: isSmallScreen
                                                       ? 7.7
@@ -323,6 +330,8 @@ class _tableeeState extends State<tableee> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           provider.fetchCustomerData();
+                                          log('Selected Start Date : ${provider.selectedStartDate}');
+                                          log('Selected End Date : ${provider.selectedEndDate}');
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: primaryColor,
@@ -2089,7 +2098,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                         children: [
                                           Expanded(
                                             child: Container(
-                                              padding: const EdgeInsets.all(4.0),
+                                              padding:
+                                                  const EdgeInsets.all(4.0),
                                               child: Row(
                                                 children: [
                                                   ClipOval(
@@ -2103,11 +2113,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         errorBuilder: (context,
                                                             error, stackTrace) {
                                                           return Container(
-                                                            color:
-                                                                Colors.grey[200],
+                                                            color: Colors
+                                                                .grey[200],
                                                             child: const Icon(
                                                               Icons.person,
-                                                              color: Colors.grey,
+                                                              color:
+                                                                  Colors.grey,
                                                               size: 30,
                                                             ),
                                                           );
@@ -2118,8 +2129,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   const SizedBox(width: 8),
                                                   Expanded(
                                                     child: GestureDetector(
-                                                      behavior:
-                                                          HitTestBehavior.opaque,
+                                                      behavior: HitTestBehavior
+                                                          .opaque,
                                                       onTap: () {
                                                         customerAndOrderController
                                                             .setCustomerId(
@@ -2130,7 +2141,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         prodController
                                                                 .selectedCustomerName
                                                                 .value =
-                                                            customer.businessName;
+                                                            customer
+                                                                .businessName;
                                                         prodController
                                                                 .selectedCustomerId
                                                                 .value =
@@ -2160,7 +2172,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             ),
                                                           ),
                                                         );
-                              
+
                                                         provider
                                                             .fetchCustomerDashboardData(
                                                           customer.customerId,
@@ -2193,17 +2205,20 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .center,
                                                         children: [
                                                           Text(
-                                                            customer.businessName,
+                                                            customer
+                                                                .businessName,
                                                             style:
                                                                 const TextStyle(
                                                               fontSize: 12,
                                                               fontWeight:
-                                                                  FontWeight.bold,
+                                                                  FontWeight
+                                                                      .bold,
                                                               fontFamily:
                                                                   'Poppins_Regular',
                                                             ),
-                                                            overflow: TextOverflow
-                                                                .ellipsis,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                             maxLines: 1,
                                                           ),
                                                           Text(
@@ -2214,15 +2229,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               fontFamily:
                                                                   'Poppins_Regular',
                                                             ),
-                                                            overflow: TextOverflow
-                                                                .ellipsis,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                             maxLines: 1,
                                                           ),
                                                           Text(
                                                             customer.email,
                                                             maxLines: 1,
-                                                            overflow: TextOverflow
-                                                                .ellipsis,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                             style:
                                                                 const TextStyle(
                                                               fontSize: 10,
@@ -2329,10 +2346,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       String>(
                                                     value: value,
                                                     child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 
-                                                              4.0),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 4.0),
                                                       child: Text(
                                                         value,
                                                         style: const TextStyle(
@@ -2499,12 +2515,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   padding: const EdgeInsets.only(bottom: 58),
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: provider.filteredCustomers.length,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount:
+                                        provider.filteredCustomers.length,
                                     itemBuilder: (context, index) {
                                       var customer =
                                           provider.filteredCustomers[index];
-                                  
+
                                       return Container(
                                         height: fixedRowHeight,
                                         color: index.isEven
@@ -2523,8 +2541,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             .previousYearSales);
                                                   },
                                                   child: CustomText(
-                                                    content: formatAmount(customer
-                                                        .previousYearSales),
+                                                    content: formatAmount(
+                                                        customer
+                                                            .previousYearSales),
                                                     fontSize: 12,
                                                   ),
                                                 ),
@@ -2556,7 +2575,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       }
                                                     },
                                                     child: _buildDataCell(
-                                                        customer.sales.toString(),
+                                                        customer.sales
+                                                            .toString(),
                                                         customer.totalSales
                                                                 ?.toString() ??
                                                             '0',
@@ -2609,7 +2629,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: Center(
                                                   child: InkWell(
                                                     onTap: () {
-                                                      if (customer.payment == 0) {
+                                                      if (customer.payment ==
+                                                          0) {
                                                         showCustomToastDisplay(
                                                             context,
                                                             'Record Not Found',
@@ -2663,8 +2684,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             .toString(),
                                                         customer
                                                             .orderData.preOrder
-                                                            .takeLast(
-                                                                customer.preOrder)
+                                                            .takeLast(customer
+                                                                .preOrder)
                                                             .fold(
                                                                 0.0,
                                                                 (a, b) =>
@@ -2678,9 +2699,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor:
-                                                  Color.fromRGBO(239, 240, 207, 1)
-                                                      .withOpacity(0.4),
+                                              bgColor: Color.fromRGBO(
+                                                      239, 240, 207, 1)
+                                                  .withOpacity(0.4),
                                               padding: EdgeInsets.zero,
                                             ),
                                             _buildTableCell(
@@ -2718,9 +2739,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor:
-                                                  Color.fromRGBO(239, 240, 207, 1)
-                                                      .withOpacity(0.4),
+                                              bgColor: Color.fromRGBO(
+                                                      239, 240, 207, 1)
+                                                  .withOpacity(0.4),
                                             ),
                                             _buildTableCell(
                                               Padding(
@@ -2729,7 +2750,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: Center(
                                                   child: InkWell(
                                                     onTap: () {
-                                                      if (customer.drafts == 0) {
+                                                      if (customer.drafts ==
+                                                          0) {
                                                         showCustomToastDisplay(
                                                             context,
                                                             'Record Not Found',
@@ -2739,8 +2761,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         _showOrderDataDialog(
                                                             context,
                                                             customer,
-                                                            customer
-                                                                .orderData.draft);
+                                                            customer.orderData
+                                                                .draft);
                                                       }
                                                     },
                                                     child: _buildDataCell(
@@ -2762,9 +2784,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor:
-                                                  Color.fromRGBO(239, 240, 207, 1)
-                                                      .withOpacity(0.4),
+                                              bgColor: Color.fromRGBO(
+                                                      239, 240, 207, 1)
+                                                  .withOpacity(0.4),
                                             ),
                                             _buildTableCell(
                                               Padding(
@@ -2792,8 +2814,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       customer.cancelled
                                                           .toString(),
                                                       customer.orderData.cancel
-                                                          .takeLast(
-                                                              customer.cancelled)
+                                                          .takeLast(customer
+                                                              .cancelled)
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>
@@ -2808,9 +2830,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor:
-                                                  Color.fromRGBO(239, 240, 207, 1)
-                                                      .withOpacity(0.4),
+                                              bgColor: Color.fromRGBO(
+                                                      239, 240, 207, 1)
+                                                  .withOpacity(0.4),
                                             ),
                                             _buildTableCell(
                                               Padding(
@@ -2819,15 +2841,18 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         horizontal: 6,
                                                         vertical: 4),
                                                 child: EventTypeDropdown(
-                                                  initialValue: EventTypeExtension
-                                                      .fromValue(
-                                                          customer.eventType),
+                                                  initialValue:
+                                                      EventTypeExtension
+                                                          .fromValue(customer
+                                                              .eventType),
                                                   onChanged:
                                                       (EventType newType) {},
                                                   defaultEventDays:
                                                       customer.eventDays,
-                                                  customerId: customer.customerId,
-                                                  eventStatus: customer.eventType,
+                                                  customerId:
+                                                      customer.customerId,
+                                                  eventStatus:
+                                                      customer.eventType,
                                                   provider: provider,
                                                 ),
                                               ),

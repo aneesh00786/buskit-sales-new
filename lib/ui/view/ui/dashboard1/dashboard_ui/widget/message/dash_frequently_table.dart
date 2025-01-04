@@ -13,7 +13,7 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
   return LayoutBuilder(
     builder: (context, constraints) {
       double availableWidth = constraints.maxWidth;
-      double flexWidth = availableWidth - 20;
+      double flexWidth = availableWidth * 1.2;
       double colWidth1 = flexWidth * 3 / 9;
       double colWidth2 = flexWidth * 2 / 9;
       double colWidth3 = flexWidth * 1 / 9;

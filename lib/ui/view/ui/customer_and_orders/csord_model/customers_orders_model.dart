@@ -602,6 +602,8 @@ class OrderTotalxx {
   String? preOrder;
   String? draft;
   String? cancelled;
+  String? previousYearSale;
+
 
   OrderTotalxx({
     this.sales,
@@ -611,6 +613,7 @@ class OrderTotalxx {
     this.preOrder,
     this.draft,
     this.cancelled,
+    this.previousYearSale,
   });
 
   // Factory constructor to create an instance from a JSON map
@@ -623,10 +626,9 @@ class OrderTotalxx {
       preOrder: json['preOrder'] != null ? json['preOrder'] as String? : '',
       draft: json['draft'] != null ? json['draft'] as String? : '',
       cancelled: json['cancelled'] != null ? json['cancelled'] as String? : '',
+      previousYearSale: json['previous_year_sale_price'] != null ? json['previous_year_sale_price'] as String? : '',
     );
   }
-
-  // Method to convert an instance to JSON map
   Map<String, dynamic> toJson() {
     return {
       'sales': sales,
@@ -636,6 +638,7 @@ class OrderTotalxx {
       'preOrder': preOrder,
       'draft': draft,
       'cancelled': cancelled,
+      'previous_year_sale_price': previousYearSale,
     };
   }
 }

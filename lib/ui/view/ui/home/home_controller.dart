@@ -202,7 +202,7 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[1], EneftyIcons.profile_2user_bold),
       sideBarComponent(sidebarName[2], EneftyIcons.a_3d_cube_bold),
       sideBarComponent(sidebarName[3], EneftyIcons.moneys_bold),
-      sideBarComponent(sidebarName[4], EneftyIcons.arrow_circle_up_bold),
+      sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
       sideBarComponent(sidebarName[5], EneftyIcons.chart_square_bold),
       sideBarComponent(sidebarName[6], EneftyIcons.calendar_bold),
       sideBarComponent(sidebarName[7], EneftyIcons.shopping_cart_bold),

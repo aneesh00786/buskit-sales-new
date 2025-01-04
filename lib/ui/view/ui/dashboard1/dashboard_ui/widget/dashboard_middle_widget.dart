@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/doughnut_default_delivery.dart';
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -218,8 +219,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           return const NodataWidget();
                         } else {
                           final responseModel = snapshot.data!;
-
-                          // Calculate the total amounts
                           final totalCompletedAmount = responseModel
                               .collection!.payment!.completedOrders!
                               .fold(
@@ -231,7 +230,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                                   .collection!.order!.pendingAmount!.isNotEmpty
                               ? 'Pending : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.amount)}'
                               : 'Pending : \$ 0.00';
-
                           final dueAmountLabel = responseModel
                                   .collection!.order!.pendingAmount!.isNotEmpty
                               ? 'Due : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.dueAmount)}'

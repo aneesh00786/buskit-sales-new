@@ -232,7 +232,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ),
             ),
             SizedBox(
-              width: 110,
+              width: 130,
               child: Container(
                 height: 44,
                 width: double.infinity,
@@ -240,45 +240,54 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      const Spacer(),
                       CircleAvatar(
-                          backgroundColor: const Color(0xffe6ecff),
-                          radius: 15,
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                'http://16.50.232.153:3000/uploads/${customerImage}',
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                            imageBuilder: (context, imageProvider) => Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
-                                ),
+                        backgroundColor: const Color(0xffe6ecff),
+                        radius: 15,
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              'http://16.50.232.153:3000/uploads/${customerImage}',
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                          imageBuilder: (context, imageProvider) => Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: imageProvider,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                       const SizedBox(
                         width: 4.5,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyRegularText(label: customerName, fontSize: 8.8),
-                          // SizedBox(
-                          //   height: 2.5,
-                          // ),
-                          const MyRegularText(label: "Customer", fontSize: 9),
-                        ],
-                      )
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ConstrainedBox(
+                              constraints:
+                                  BoxConstraints(maxWidth: double.infinity),
+                              child: MyRegularText(
+                                label: customerName,
+                                fontSize: 8.8,
+                                maxlines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const MyRegularText(label: "Customer", fontSize: 9),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-            ),
+            )
+
             //UpdateCustomer(widget: widget),
           ],
         ),
@@ -1626,7 +1635,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                   showDashTimesDialogue(
                                                     context,
                                                     product,
-                                                    (p) => p.count ,
+                                                    (p) => p.count,
                                                     (data) => formatAmount(
                                                         data.price),
                                                     (data) => data.quantity

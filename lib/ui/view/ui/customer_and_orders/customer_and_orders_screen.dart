@@ -334,7 +334,6 @@ class _tableeeState extends State<tableee> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           provider.fetchCustomerData();
-                                          
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: primaryColor,
@@ -2014,6 +2013,20 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         vertical.jumpTo(vertical1.position.pixels);
       }
     });
+WidgetsBinding.instance.addPostFrameCallback((_) {
+  final provider = context.read<CustomersProvider>();
+  if (provider.yearsListOfAllList.isNotEmpty) {
+    customerAndOrderController.selectedYear.value =
+        provider.yearsListOfAllList.first.orderYears?.toString() ?? '';
+    customerAndOrderController.years.value = provider.yearsListOfAllList
+        .map((yearItem) => yearItem.orderYears?.toString() ?? '')
+        .toList();
+  } else {
+    customerAndOrderController.selectedYear.value = '';
+    customerAndOrderController.years.value = [];
+  }
+});
+
   }
 
   @override

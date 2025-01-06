@@ -197,7 +197,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<PerformanceData?> fetchSalesmanPerformanceData(
-      String monthName) async {
+      String monthName,int year) async {
     try {
       String apiUrl =
           '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
@@ -206,7 +206,7 @@ class ApiWorker with ApiConstants {
       final requestPayload = {
         "companyId": companyId,
         "salesman_id": salesmanId,
-        "year": 2024,
+        "year": year,
         "month": monthName,
         "targetType": targetType
       };

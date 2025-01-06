@@ -49,7 +49,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   final int currentMonth = DateTime.now().month;
   String? _selectedMonthName;
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-
+  String selectedValue = "2024";
   @override
   void initState() {
     super.initState();
@@ -59,7 +59,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         staffController.loadSalesmanTargetForSelectedTab(
-          currentYear: currentYear.toString(),
+          currentYear: selectedValue,
           selectedTabIndex: _tabController.index + 1,
           staffId: salesmanId,
         );
@@ -88,7 +88,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     }
   }
 
-  String selectedValue = "2024";
   @override
   Widget build(BuildContext context) {
     bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
@@ -118,7 +117,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   color: Colors.black.withOpacity(0.1),
                                   spreadRadius: 1,
                                   blurRadius: 3,
-                                  offset: Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
@@ -143,6 +142,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                     setState(() {
                                       selectedValue = newValue;
                                     });
+                                    staffController
+                                        .loadSalesmanTargetForSelectedTab(
+                                      currentYear: selectedValue,
+                                      selectedTabIndex:
+                                          _tabController.index + 1,
+                                      staffId: salesmanId,
+                                    );
                                   }
                                 },
                                 underline: SizedBox(),
@@ -203,7 +209,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         _selectedMonthName = monthName;
                       });
                       staffController.loadSalesmanTargetForSelectedTab(
-                        currentYear: currentYear.toString(),
+                        currentYear: selectedValue,
                         selectedTabIndex: _tabController.index + 1,
                         staffId: salesmanId,
                       );

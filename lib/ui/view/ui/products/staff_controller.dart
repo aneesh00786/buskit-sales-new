@@ -75,7 +75,7 @@ class StaffController extends GetxController {
   Future<void> loadSalesmanTarget(
       String salesmanId, String month, String year, String monthName) async {
     try {
-      var response = await ApiWorker().fetchSalesmanPerformanceData(monthName);
+      var response = await ApiWorker().fetchSalesmanPerformanceData(monthName,int.parse(year));
       if (response != null) {
         log('Response contains categoryPerformance: ${response}');
         salesmanTargetList.update((list) {

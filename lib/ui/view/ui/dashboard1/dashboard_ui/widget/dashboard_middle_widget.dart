@@ -569,7 +569,6 @@ class DashBoardMiddleWidget extends StatelessWidget {
                             ),
                           );
                         } else if (snapshot.hasError || !snapshot.hasData) {
-                          final errorMessage = snapshot.error.toString();
                           return const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,

@@ -211,6 +211,7 @@ class HomeController extends GetxController {
           context: context),
     ];
   }
+
   SidebarXItem sideBarComponent(
     String barTitle,
     IconData iconData, {
@@ -220,7 +221,7 @@ class HomeController extends GetxController {
         Get.put(NotificationController());
 
     bool isLogout = (barTitle == logOut);
-    bool isRecentOrders = (barTitle == orders);
+    bool isRecentOrders = (barTitle == todayOrders);
 
     return SidebarXItem(
       icon: iconData,
@@ -275,7 +276,9 @@ class HomeController extends GetxController {
       },
       iconBuilder: (context, extended) {
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 3.0,),
+          padding: const EdgeInsets.symmetric(
+            vertical: 3.0,
+          ),
           child: Row(
             children: [
               Icon(
@@ -283,7 +286,6 @@ class HomeController extends GetxController {
                 size: 20,
                 color: Colors.black.withOpacity(0.7),
                 weight: 700,
-                
               ),
               const SizedBox(width: 20),
               Stack(
@@ -292,11 +294,10 @@ class HomeController extends GetxController {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: CustomText(
-                     content: barTitle,
-                        color: Colors.black.withOpacity(0.7),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      
+                      content: barTitle,
+                      color: Colors.black.withOpacity(0.7),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   if (isRecentOrders)
@@ -304,7 +305,7 @@ class HomeController extends GetxController {
                       top: -15,
                       left: 200,
                       child: notificationController.isNotificationLoading.value
-                          ? SizedBox.shrink() 
+                          ? SizedBox.shrink()
                           : notificationController
                                       .recentOrderCountData.mainNotification !=
                                   null
@@ -317,7 +318,8 @@ class HomeController extends GetxController {
                                             ?.toString() ??
                                         '0',
                                     style: TextStyle(
-                                        fontSize: 10, color: Colors.white),
+                                        fontSize: 10, color: Colors.white,fontWeight: FontWeight.w700),
+                                    textAlign: TextAlign.center,
                                   ),
                                 )
                               : SizedBox.shrink(),
@@ -335,15 +337,15 @@ class HomeController extends GetxController {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Center(
-        child: InkResponse(
-            onTap: () => {
-                  homeScaffoldKey.currentState?.openDrawer(),
-                },
-            child: const Icon(
-              EneftyIcons.menu_outline,size: 30,),
-              
-            )),
-      );
-    
+          child: InkResponse(
+        onTap: () => {
+          homeScaffoldKey.currentState?.openDrawer(),
+        },
+        child: const Icon(
+          EneftyIcons.menu_outline,
+          size: 30,
+        ),
+      )),
+    );
   }
 }

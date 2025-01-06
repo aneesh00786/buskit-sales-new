@@ -1279,10 +1279,8 @@ class DashboardProvider with ChangeNotifier {
       final now = DateTime.now();
       String startDate;
       String endDate;
-
-      // Iterate over each OrderStatus enum value
       for (OrderStatus status in OrderStatus.values) {
-        _selectedStatus = status; // Set current status
+        _selectedStatus = status;
 
         switch (_selectedFilter) {
           case FilterDateEnum.thisMonth:
@@ -1334,10 +1332,8 @@ class DashboardProvider with ChangeNotifier {
       rethrow;
     }
   }
-
   Future<SalesmenResponse>? get salesmenResponse => _salesmenResponse;
   Future<ResponseModell>? get futureResponseModel => _futureResponseModel;
-
   Future<MessagesResponse>? get individualChatResponse =>
       _individualChatResponse;
   FilterDateEnum get selectedFilter => _selectedFilter;

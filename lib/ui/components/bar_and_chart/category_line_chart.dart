@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/bar_chart_table_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -279,150 +280,40 @@ class _CustomBarChartState extends State<CustomBarChart> {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
             provider.fetchchartCategoryPerformmenc(cid);
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              contentPadding: EdgeInsets.zero,
-              titlePadding: EdgeInsets.zero,
-              content: FutureBuilder<ResponseModelCp>(
-                future: provider.responseModelCp,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox.shrink();
-                  } else if (snapshot.hasError) {
-                    return Center(
+            return FutureBuilder<ResponseModelCp>(
+              future: provider.responseModelCp,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    content: Center(
                       child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    final categories = snapshot.data!.data;
-
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            height: 45,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: const BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                )),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  category,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                dialogCloseButton1(context, red)
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: DataTable(
-                              headingRowHeight: 40,
-                              dataRowHeight: 30,
-                              columnSpacing: 40,
-                              headingRowColor: WidgetStatePropertyAll(
-                                  Colors.blueGrey.shade50),
-                              border:
-                                  TableBorder.all(color: Colors.grey, width: 1),
-                              columns: const [
-                                DataColumn(
-                                  label: DialogTableHeaderText(
-                                    text: 'Name',
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: DialogTableHeaderText(
-                                    text: 'Target',
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: DialogTableHeaderText(
-                                    text: 'Projection',
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: DialogTableHeaderText(
-                                    text: 'Actual',
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                              rows: categories!.map((s) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          s.fullname,
-                                          style: TextStyle(
-                                            color: secondaryTextColor,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          formatAmount(s.targetTotal),
-                                          style: TextStyle(
-                                            color: secondaryTextColor,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          formatAmount(s.projectionTotal),
-                                          style: TextStyle(
-                                            color: secondaryTextColor,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          formatAmount(s.orderTotal),
-                                          style: TextStyle(
-                                            color: secondaryTextColor,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    return NodataWidget();
-                  }
-                },
-              ),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  final categories = snapshot.data!.data;
+                  Navigator.of(context).pop();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showBarchartDialog(context, category, categories ?? []);
+                  });
+                  return const SizedBox.shrink();
+                } else {
+                  return const AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    content: Center(
+                      child: Text('No data available'),
+                    ),
+                  );
+                }
+              },
             );
           },
         );

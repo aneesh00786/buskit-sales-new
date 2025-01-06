@@ -126,7 +126,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
                               child: DropdownButton<String>(
                                 value: selectedValue,
-                                items: ['2024', '2023'].map((String year) {
+                                items: ['2025','2024', '2023'].map((String year) {
                                   return DropdownMenuItem<String>(
                                     value: year,
                                     child: Text(

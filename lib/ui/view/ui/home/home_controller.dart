@@ -318,7 +318,9 @@ class HomeController extends GetxController {
                                             ?.toString() ??
                                         '0',
                                     style: TextStyle(
-                                        fontSize: 10, color: Colors.white,fontWeight: FontWeight.w700),
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700),
                                     textAlign: TextAlign.center,
                                   ),
                                 )

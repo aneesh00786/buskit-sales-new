@@ -134,7 +134,11 @@ class _tableeeState extends State<tableee> {
                                 left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
                             child: DropdownButton<FilterDateEnum>(
                               value: provider.selectedFilter,
-                              onChanged: provider.onFilterChanged,
+                              onChanged: (newValue) {
+                                if (newValue != null) {
+                                  provider.onFilterChanged(newValue);
+                                }
+                              },
                               items: [
                                 DropdownMenuItem(
                                   value: FilterDateEnum.thisMonth,
@@ -330,8 +334,7 @@ class _tableeeState extends State<tableee> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           provider.fetchCustomerData();
-                                          log('Selected Start Date : ${provider.selectedStartDate}');
-                                          log('Selected End Date : ${provider.selectedEndDate}');
+                                          
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: primaryColor,

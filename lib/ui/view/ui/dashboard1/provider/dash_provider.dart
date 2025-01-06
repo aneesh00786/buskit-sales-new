@@ -679,7 +679,7 @@ class ApiService {
 
     try {
       log('API URL: $url');
-      print('Request Body: $requestBody');
+      log('Request Body: $requestBody');
 
       final response = await http.post(
         url,
@@ -1570,9 +1570,7 @@ class DashboardProvider with ChangeNotifier {
 
       if (_selectedFilter != FilterDateEnum.range) {
         fetchData();
-      }
-
-      final now = DateTime.now();
+        final now = DateTime.now();
       String startDate;
       String endDate;
 
@@ -1611,27 +1609,32 @@ class DashboardProvider with ChangeNotifier {
           break;
       }
       notificationController.loadNotificationData(startDate, endDate);
+      }
+
+      
       notifyListeners();
     }
   }
 
   void selectAllChats(List<SalesmanChat> chatData) {
-    selectedChats = List.from(chatData); // Select all
+    selectedChats = List.from(chatData);
     notifyListeners();
   }
 
   void clearAllSelections() {
-    selectedChats.clear(); // Deselect all
+    selectedChats.clear();
     notifyListeners();
   }
 
   Future<void> refreshChatData(String salesmanId) async {
     await fetchChatData(
-        salesmanId); // Or any method that fetches the latest chat data
-    notifyListeners(); // Notify listeners to rebuild the UI
+        salesmanId); 
+    notifyListeners();
   }
 
   Future<void> fetchData() async {
+        NotificationController notificationController =
+        Get.find<NotificationController>();
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
@@ -1690,6 +1693,7 @@ class DashboardProvider with ChangeNotifier {
       if (_selectedFilter != FilterDateEnum.range) {
         //fetchOrders();
       }
+      notificationController.loadNotificationData(startDate, endDate);
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching data', error: e, stackTrace: stackTrace);
@@ -1712,7 +1716,7 @@ class DashboardProvider with ChangeNotifier {
     );
 
     if (pickedDate != null) {
-      final formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
+      final formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
       if (isStartDate) {
         _selectedStartDate = formattedDate;
       } else {

@@ -596,19 +596,19 @@ Future<void> selectDate(BuildContext context, bool isStartDate) async {
   void goToNextPage() {
     if (_currentPage < _totalPages) {
       _currentPage++;
-      fetchCustomerData(page: _currentPage); // Fetch next page data
+      fetchCustomerData(page: _currentPage); 
     }
   }
 
   void goToPreviousPage() {
     if (_currentPage > 1) {
       _currentPage--;
-      fetchCustomerData(page: _currentPage); // Fetch previous page data
+      fetchCustomerData(page: _currentPage); 
     }
   }
 
   void refreshCurrentPage() {
-    fetchCustomerData(page: _currentPage); // Refresh data on current page
+    fetchCustomerData(page: _currentPage); 
   }
 
   Future<void> addEvent(
@@ -618,10 +618,8 @@ Future<void> selectDate(BuildContext context, bool isStartDate) async {
     if (success) {
       print(success);
       print(daysList);
-      // Handle success case (e.g., show a message, update UI)
       print('Event added successfully');
     } else {
-      // Handle failure case (e.g., show an error message)
       print('Failed to add event');
     }
     notifyListeners();

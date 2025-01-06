@@ -151,26 +151,18 @@ void showValueDialog(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          const Expanded(
-                            child: Center(
-                              child: DialogTableHeaderText(
-                                text: 'Total',
-                                fontSize: 13,
-                              ),
-                            ),
+                          DialogTableHeaderText(
+                            text: 'Total',
+                            fontSize: 13,
                           ),
                           const Expanded(child: SizedBox.shrink()),
                           const Expanded(child: SizedBox.shrink()),
-                          Expanded(
-                            child: Center(
-                              child: DialogTableHeaderText(
-                                text: formatAmount(categoryData
-                                    .orderRevenueData!
-                                    .map((e) => e.orderTotal ?? 0.0)
-                                    .reduce((a, b) => a + b)),
-                                fontSize: 13,
-                              ),
-                            ),
+                          DialogTableHeaderText(
+                            text: formatAmount(categoryData
+                                .orderRevenueData!
+                                .map((e) => e.orderTotal ?? 0.0)
+                                .reduce((a, b) => a + b)),
+                            fontSize: 13,
                           ),
                         ],
                       ),
@@ -330,25 +322,17 @@ void showValueDialogCusDash(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          const Expanded(
-                            child: Center(
-                              child: DialogTableHeaderText(
-                                text: 'Total',
-                                fontSize: 13,
-                              ),
-                            ),
+                          DialogTableHeaderText(
+                            text: 'Total',
+                            fontSize: 13,
                           ),
                           const Expanded(child: SizedBox.shrink()),
                           const Expanded(child: SizedBox.shrink()),
-                          Expanded(
-                            child: Center(
-                              child: DialogTableHeaderText(
-                                text: formatAmount(orderDetails
-                                    .map((e) => e.orderTotal ?? 0.0)
-                                    .reduce((a, b) => a + b)),
-                                fontSize: 13,
-                              ),
-                            ),
+                          DialogTableHeaderText(
+                            text: formatAmount(orderDetails
+                                .map((e) => e.orderTotal ?? 0.0)
+                                .reduce((a, b) => a + b)),
+                            fontSize: 13,
                           ),
                         ],
                       ),

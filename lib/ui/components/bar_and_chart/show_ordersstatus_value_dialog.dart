@@ -223,26 +223,18 @@ void showValueOrderDialog(
                         height: rowHeight,
                         child: Row(
                           children: [
-                            const Expanded(
-                              child: Center(
-                                child: DialogTableHeaderText(
-                                  text: 'Total',
-                                  fontSize: 13,
-                                ),
-                              ),
+                            DialogTableHeaderText(
+                              text: 'Total',
+                              fontSize: 13,
                             ),
                             const Expanded(child: SizedBox.shrink()),
                             const Expanded(child: SizedBox.shrink()),
                             const Expanded(child: SizedBox.shrink()),
-                            Expanded(
-                              child: Center(
-                                child: DialogTableHeaderText(
-                                  text: formatAmount(filteredOrders
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b)),
-                                  fontSize: 13,
-                                ),
-                              ),
+                            DialogTableHeaderText(
+                              text: formatAmount(filteredOrders
+                                  .map((e) => e.orderTotal ?? 0.0)
+                                  .reduce((a, b) => a + b)),
+                              fontSize: 13,
                             ),
                           ],
                         ),

@@ -1313,7 +1313,7 @@ class _CartDialogueState extends State<CartDialogue> {
           cartItem.totalPrice = (price * cartItem.detail.count).toInt();
         }
         total += cartItem.totalPrice;
-        double? itemTax = double.tryParse(cartItem.detail.tax ?? '');
+        double? itemTax = double.tryParse(cartItem.detail.tax.toString() ?? '');
         if (itemTax != null) {
           tax += itemTax * cartItem.detail.count;
         }

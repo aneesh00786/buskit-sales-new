@@ -30,9 +30,12 @@ void main() async {
   Hive.registerAdapter(CartItemAdapter());
   Hive.registerAdapter(ProductModelAdapter());
   Hive.registerAdapter(CategoryModelAdapter());
+  Hive.registerAdapter(CategoryTaxAdapter());
   Hive.registerAdapter(CategoryDataAdapter());
   Hive.registerAdapter(SubCategoryItemAdapter());
   await Hive.openBox<CartItem>('cartBox');
+  await Hive.openBox('dashboardBox');
+  await Hive.openBox('customerBox');
   DatabaseHelper.database;
 
   SystemChrome.setPreferredOrientations([

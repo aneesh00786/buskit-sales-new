@@ -326,7 +326,8 @@ class _ProductGridState extends State<ProductGrid> {
                                                   ),
                                                 ),
                                                 const SizedBox(width: 3),
-                                                product.inclTax!.isNotEmpty
+                                                product.inclTax != '' &&
+                                                      product.inclTax != null
                                                     ? Container(
                                                         padding:
                                                             const EdgeInsets

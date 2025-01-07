@@ -63,13 +63,14 @@ class CategoryDataAdapter extends TypeAdapter<CategoryData> {
       categoryName: fields[0] as String?,
       id: fields[1] as String?,
       subCategoryItem: (fields[2] as List?)?.cast<SubCategoryItem>(),
+      categoryTax: (fields[4] as List?)?.cast<CategoryTax>(),
     )..isExpand = fields[3] as bool;
   }
 
   @override
   void write(BinaryWriter writer, CategoryData obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.categoryName)
       ..writeByte(1)
@@ -77,7 +78,9 @@ class CategoryDataAdapter extends TypeAdapter<CategoryData> {
       ..writeByte(2)
       ..write(obj.subCategoryItem)
       ..writeByte(3)
-      ..write(obj.isExpand);
+      ..write(obj.isExpand)
+      ..writeByte(4)
+      ..write(obj.categoryTax);
   }
 
   @override
@@ -126,6 +129,46 @@ class SubCategoryItemAdapter extends TypeAdapter<SubCategoryItem> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SubCategoryItemAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class CategoryTaxAdapter extends TypeAdapter<CategoryTax> {
+  @override
+  final int typeId = 6;
+
+  @override
+  CategoryTax read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return CategoryTax(
+      taxId: fields[0] as int?,
+      taxName: fields[1] as String?,
+      tax: fields[2] as num?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, CategoryTax obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.taxId)
+      ..writeByte(1)
+      ..write(obj.taxName)
+      ..writeByte(2)
+      ..write(obj.tax);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CategoryTaxAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

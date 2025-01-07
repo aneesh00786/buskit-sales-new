@@ -38,7 +38,7 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               content:
-                  '${double.parse(groupedItem.detail.tax ?? '0').toStringAsFixed(2)}')),
+                  '${double.parse(groupedItem.detail.tax.toString() ?? '0').toStringAsFixed(2)}')),
           DataCell(
             Center(
               child: ConstrainedBox(

@@ -61,35 +61,48 @@ class CategoryData extends HiveObject {
   @HiveField(3)
   bool isExpand = false;
 
+  @HiveField(4)
+  List<CategoryTax>? categoryTax;
+
   CategoryData({
     this.categoryName,
     this.id,
     this.subCategoryItem,
+    this.categoryTax,
   });
 
   CategoryData.fromJson(dynamic json) {
-    categoryName = json['categoryName'];
-    id = json['id'];
+    categoryName = json['categoryName'] ?? '';
+    id = json['id'] ?? '';
     if (json['categoryItem'] != null) {
       subCategoryItem = [];
       json['categoryItem'].forEach((v) {
-        subCategoryItem?.add(SubCategoryItem.fromJson(v));
+        subCategoryItem?.add(SubCategoryItem.fromJson(v ?? {}));
       });
+    } else {
+      subCategoryItem = [];
+    }
+    if (json['categoryTax'] != null) {
+      categoryTax = [];
+      json['categoryTax'].forEach((v) {
+        categoryTax?.add(CategoryTax.fromJson(v ?? {}));
+      });
+    } else {
+      categoryTax = [];
     }
   }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['categoryName'] = categoryName;
-    map['id'] = id;
-    if (subCategoryItem != null) {
-      map['categoryItem'] = subCategoryItem?.map((v) => v.toJson()).toList();
-    }
+    map['categoryName'] = categoryName ?? '';
+    map['id'] = id ?? '';
+    map['categoryItem'] = subCategoryItem?.map((v) => v.toJson()).toList() ?? [];
+    map['categoryTax'] = categoryTax?.map((v) => v.toJson()).toList() ?? [];
     return map;
   }
 }
 
-@HiveType(typeId: 5)  
+@HiveType(typeId: 5)
 class SubCategoryItem extends HiveObject {
   @HiveField(0)
   String? subCategory;
@@ -106,16 +119,46 @@ class SubCategoryItem extends HiveObject {
   });
 
   SubCategoryItem.fromJson(dynamic json) {
-    subCategory = json['sub_category'];
-    id = json['id'];
+    subCategory = json['sub_category'] ?? '';
+    id = json['id'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['sub_category'] = subCategory;
-    map['id'] = id;
+    map['sub_category'] = subCategory ?? '';
+    map['id'] = id ?? '';
     return map;
   }
+}
+
+@HiveType(typeId: 6)
+class CategoryTax extends HiveObject {
+  @HiveField(0)
+  int? taxId;
+
+  @HiveField(1)
+  String? taxName;
+
+  @HiveField(2)
+  num? tax;
+
+  CategoryTax({
+    this.taxId,
+    this.taxName,
+    this.tax,
+  });
+
+  factory CategoryTax.fromJson(Map<String, dynamic> json) => CategoryTax(
+        taxId: json["tax_id"] ?? 0,
+        taxName: json["tax_name"] ?? '',
+        tax: json["tax"] ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        "tax_id": taxId ?? 0,
+        "tax_name": taxName ?? '',
+        "tax": tax ?? 0,
+      };
 }
 
 

@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -84,10 +85,7 @@ class ApiService {
   }
 
   Future<ResponseModell> fetchDashboardData(
-      {String? salesmanId,
-      String? startDate,
-      String? endDate,
-      String? createdToken}) async {
+      {String? salesmanId, String? startDate, String? endDate}) async {
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
@@ -100,10 +98,8 @@ class ApiService {
       "companyId": companyId,
       "targetType": 1
     };
+    final dashboardBox = Hive.box('dashboardBox');
     try {
-      log('API URL: $url');
-      log('Request Body DashbOrad : $requestBody');
-      log("Created Token: $createdToken");
       final response = await Dio().post(
         url,
         options: Options(
@@ -113,10 +109,64 @@ class ApiService {
         ),
         data: jsonEncode(requestBody),
       );
-      log("fetchDashboardData Code: ${response.statusCode}");
-      log('fetchDashboardData Body: ${response.data['status']}');
+
       if (response.statusCode == 200) {
-        var jsonResponse = response.data;
+        final jsonResponse = response.data;
+        await dashboardBox.put('dashboardData', jsonResponse);
+        var allCategoryList = jsonResponse['data']['all_category'] as List;
+        List<Category> allCategory =
+            allCategoryList.map((json) => Category.fromJson(json)).toList();
+
+        var performanceList =
+            jsonResponse['data']['category_performance'] as List;
+        List<CategoryPerformancee> categoryPerformance = performanceList
+            .map((json) => CategoryPerformancee.fromJson(json))
+            .toList();
+
+        final revenueJson =
+            jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
+        final Revenuee revenue = Revenuee.fromJson(revenueJson);
+
+        var collectionJson = jsonResponse['data']['collection'];
+        Collection collection = Collection.fromJson(collectionJson ?? {});
+
+        var deliveryJson = jsonResponse['data']['delivery'];
+        Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
+
+        var topSellingList =
+            jsonResponse['data']['top_selling_product'] as List;
+        List<TopSellingProductA> topSellingProducts = topSellingList
+            .map((json) => TopSellingProductA.fromJson(json))
+            .toList();
+
+        var orderCountListJson = jsonResponse['data']['order_count_list'];
+        OrderCountListt orderCountList =
+            OrderCountListt.fromJson(orderCountListJson ?? {});
+
+        return ResponseModell(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? '',
+          allCategory: allCategory,
+          categoryPerformance: categoryPerformance,
+          revenue: revenue,
+          collection: collection,
+          delivery: delivery,
+          topSellingProducts: topSellingProducts,
+          orderCountList: orderCountList,
+        );
+      } else if (response.statusCode == 400 || response.statusCode == 401) {
+        _handleTokenExpiration();
+        throw Exception('Session expired');
+      } else {
+        throw Exception(
+            'Failed to load data with status code: ${response.statusCode}');
+      }
+    } on DioError catch (e) {
+      final cachedData = dashboardBox.get('dashboardData');
+      if (cachedData != null) {
+        log('Using cached data from Hive');
+        final jsonResponse = cachedData;
         var allCategoryList = jsonResponse['data']['all_category'] as List;
         List<Category> allCategory =
             allCategoryList.map((json) => Category.fromJson(json)).toList();
@@ -152,26 +202,9 @@ class ApiService {
           topSellingProducts: topSellingProducts,
           orderCountList: orderCountList,
         );
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
       } else {
-        throw Exception(
-            'Failed to load data with status code: ${response.statusCode}');
+        throw Exception('DioError: ${e.message}');
       }
-    } on DioError catch (e) {
-      log('DioError: ${e.response?.statusCode} - ${e.message}');
-      if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
-        await SessionHelper().clearAll();
-        Get.offAllNamed(AppRoutes.login);
-        await Future.delayed(Duration(milliseconds: 500));
-        _handleTokenExpiration();
-        throw Exception('Session expired');
-      }
-      throw Exception('DioError: ${e.message}');
-    } catch (e) {
-      log('Error fetching dashboard data: $e');
-      throw Exception('Failed to fetch data: $e');
     }
   }
 
@@ -656,84 +689,139 @@ class ApiService {
     }
   }
 
-  Future<CustomerResponseModelxx> fetchCustomer({
-    required String salesmanId,
-    required String customerName,
-    required String startDate,
-    required String endDate,
-    required int limit,
-    required int page,
-    required String valueFromDw,
-  }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
-    final requestBody = {
-      "salesman_id": salesmanId,
-      "business_name": customerName,
-      "start_date": startDate,
-      "end_date": endDate,
-      "companyId": companyId,
-      "limit": limit,
-      "page": page,
-      "valueFromDw": valueFromDw,
-    };
+Future<CustomerResponseModelxx> fetchCustomer({
+  required String salesmanId,
+  required String customerName,
+  required String startDate,
+  required String endDate,
+  required int limit,
+  required int page,
+  required String valueFromDw,
+}) async {
+  final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
+  final requestBody = {
+    "salesman_id": salesmanId,
+    "business_name": customerName,
+    "start_date": startDate,
+    "end_date": endDate,
+    "companyId": companyId,
+    "limit": limit,
+    "page": page,
+    "valueFromDw": valueFromDw,
+  };
 
-    try {
-      log('API URL: $url');
-      log('Request Body: $requestBody');
+  final customerBox = Hive.box('customerBox');
 
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
+  try {
+    log('API URL: $url');
+    log('Request Body: $requestBody');
+
+    // Make API call
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(requestBody),
+    );
+
+    log('fetchCustomer : ${response.statusCode}');
+    print('fetchCustomer Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+
+      // Parse data
+      var dataList = jsonResponse['data'] as List?;
+      var orderTotalList = jsonResponse['orderTotal'] as List?;
+      var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
+
+      List<CustomerModelxx> customers = [];
+      List<OrderTotalxx> orderTotal = [];
+      List<YearsListOfAll> yearList = [];
+
+      if (dataList != null) {
+        customers =
+            dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+        orderTotal = orderTotalList!
+            .map((json) => OrderTotalxx.fromJson(json))
+            .toList();
+        yearList = yearListOfAll!
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
+      }
+
+      // Save response to Hive
+      await customerBox.put(
+        'fetchCustomerData',
+        {
+          'statusCode': jsonResponse['status_code'],
+          'status': jsonResponse['status'],
+          'message': jsonResponse['message'],
+          'data': dataList,
+          'orderTotal': orderTotalList,
+          'pagination': jsonResponse['pagination'],
+          'yearsListOfAll': yearListOfAll,
+        },
       );
 
-      log('fetchCustomer : ${response.statusCode}');
-      print('fetchCustomer Body: ${response.body}');
+      log('Customer List Length : ${customers.length}');
 
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
+      // Return parsed response
+      return CustomerResponseModelxx(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        data: customers,
+        orderTotal: orderTotal,
+        pagination: Paginationxx.fromJson(
+          jsonResponse['pagination'] ?? {},
+        ),
+        yearsListOfAll: yearList,
+      );
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+      throw Exception('Failed to load data');
+    }
+  } catch (e) {
+    print('Exception occurred: $e');
+    final cachedData = customerBox.get('fetchCustomerData');
+    if (cachedData != null) {
+      log('Using cached customer data from Hive');
+      var dataList = cachedData['data'] as List?;
+      var orderTotalList = cachedData['orderTotal'] as List?;
+      var yearListOfAll = cachedData['yearsListOfAll'] as List?;
 
-        var dataList = jsonResponse['data'] as List?;
-        var orderTotalList = jsonResponse['orderTotal'] as List?;
-        var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
+      List<CustomerModelxx> customers = [];
+      List<OrderTotalxx> orderTotal = [];
+      List<YearsListOfAll> yearList = [];
 
-        List<CustomerModelxx> customers = [];
-        List<OrderTotalxx> orderTotal = [];
-        List<YearsListOfAll> yearList = [];
-
-        if (dataList != null) {
-          customers =
-              dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
-          orderTotal = orderTotalList!
-              .map((json) => OrderTotalxx.fromJson(json))
-              .toList();
-          yearList = yearListOfAll!
-              .map((json) => YearsListOfAll.fromJson(json))
-              .toList();
-        }
-        log('Customer List Length : ${customers.length}');
-        return CustomerResponseModelxx(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: customers,
-          orderTotal: orderTotal,
-          pagination: Paginationxx.fromJson(
-            jsonResponse['pagination'] ?? {},
-            
-          
-          ),
-          yearsListOfAll: yearList,
-        );
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-        throw Exception('Failed to load data');
+      if (dataList != null) {
+        customers =
+            dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+        orderTotal = orderTotalList!
+            .map((json) => OrderTotalxx.fromJson(json))
+            .toList();
+        yearList = yearListOfAll!
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
       }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw Exception(e);
+
+      return CustomerResponseModelxx(
+        statusCode: cachedData['statusCode'] ?? 0,
+        status: cachedData['status'] ?? false,
+        message: cachedData['message'] ?? '',
+        data: customers,
+        orderTotal: orderTotal,
+        pagination: Paginationxx.fromJson(
+          cachedData['pagination'] ?? {},
+        ),
+        yearsListOfAll: yearList,
+      );
+    } else {
+      throw Exception('No cached data available');
     }
   }
+}
+
 
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
@@ -1332,6 +1420,7 @@ class DashboardProvider with ChangeNotifier {
       rethrow;
     }
   }
+
   Future<SalesmenResponse>? get salesmenResponse => _salesmenResponse;
   Future<ResponseModell>? get futureResponseModel => _futureResponseModel;
   Future<MessagesResponse>? get individualChatResponse =>
@@ -1567,47 +1656,46 @@ class DashboardProvider with ChangeNotifier {
       if (_selectedFilter != FilterDateEnum.range) {
         fetchData();
         final now = DateTime.now();
-      String startDate;
-      String endDate;
+        String startDate;
+        String endDate;
 
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          startDate = DateTime(now.year, now.month, 1)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = DateTime(now.year, now.month + 1, 0)
-              .toIso8601String()
-              .substring(0, 10);
-          break;
-        case FilterDateEnum.today:
-          startDate = DateTime(now.year, now.month, now.day)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = startDate;
-          break;
-        case FilterDateEnum.thisWeek:
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startDate = startOfWeek.toIso8601String().substring(0, 10);
-          endDate = now.toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.thisYear:
-          startDate =
-              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-          endDate =
-              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.range:
-          startDate = _selectedStartDate;
-          endDate = _selectedEndDate;
-          if (startDate.isEmpty || endDate.isEmpty) {
-            return;
-          }
-          break;
-      }
-      notificationController.loadNotificationData(startDate, endDate);
+        switch (_selectedFilter) {
+          case FilterDateEnum.thisMonth:
+            startDate = DateTime(now.year, now.month, 1)
+                .toIso8601String()
+                .substring(0, 10);
+            endDate = DateTime(now.year, now.month + 1, 0)
+                .toIso8601String()
+                .substring(0, 10);
+            break;
+          case FilterDateEnum.today:
+            startDate = DateTime(now.year, now.month, now.day)
+                .toIso8601String()
+                .substring(0, 10);
+            endDate = startDate;
+            break;
+          case FilterDateEnum.thisWeek:
+            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+            startDate = startOfWeek.toIso8601String().substring(0, 10);
+            endDate = now.toIso8601String().substring(0, 10);
+            break;
+          case FilterDateEnum.thisYear:
+            startDate =
+                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+            endDate =
+                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+            break;
+          case FilterDateEnum.range:
+            startDate = _selectedStartDate;
+            endDate = _selectedEndDate;
+            if (startDate.isEmpty || endDate.isEmpty) {
+              return;
+            }
+            break;
+        }
+        notificationController.loadNotificationData(startDate, endDate);
       }
 
-      
       notifyListeners();
     }
   }
@@ -1623,13 +1711,12 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> refreshChatData(String salesmanId) async {
-    await fetchChatData(
-        salesmanId); 
+    await fetchChatData(salesmanId);
     notifyListeners();
   }
 
   Future<void> fetchData() async {
-        NotificationController notificationController =
+    NotificationController notificationController =
         Get.find<NotificationController>();
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
@@ -1681,7 +1768,6 @@ class DashboardProvider with ChangeNotifier {
           salesmanId: salesmanId,
           startDate: startDate,
           endDate: endDate,
-          createdToken: createdToken,
         );
         //log('Future response :++++++++++${api}');
         return api;
@@ -1697,7 +1783,7 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
- Future<void> selectDate(BuildContext context, bool isStartDate) async {
+  Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: isStartDate

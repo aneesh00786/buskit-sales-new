@@ -2,7 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'product_model.g.dart';
 
-@HiveType(typeId: 2)  
+@HiveType(typeId: 2)
 class ProductModel {
   @HiveField(0)
   int? id;
@@ -39,7 +39,7 @@ class ProductModel {
 
   @HiveField(11)
   int? companyId;
-  
+
   @HiveField(12)
   String? stock;
 
@@ -140,13 +140,13 @@ class Detail {
   String? sellPrice;
 
   @HiveField(10)
-  String? tax;
+  num? tax;
 
   @HiveField(11)
   String? packtype;
 
   @HiveField(12)
-  int? pieces;
+  num? pieces;
 
   @HiveField(13)
   num? stock;
@@ -179,7 +179,10 @@ class Detail {
   String? saleBy = 'Pack';
 
   @HiveField(23)
-  double? totalPrice = 0.0;
+  num? totalPrice = 0.0;
+
+  @HiveField(24)
+  num? sellingPrice;
 
   Detail({
     this.id,
@@ -206,6 +209,7 @@ class Detail {
     this.count = 0,
     this.saleBy,
     this.totalPrice,
+    this.sellingPrice,
   });
 
   Detail.fromJson(Map<String, dynamic> json)
@@ -230,9 +234,10 @@ class Detail {
         vStatus = json['v_status'],
         createdAt = json['created_at'],
         updatedAt = json['updated_at'],
-        count = json['count']??0.0,
+        count = json['count'] ?? 0.0,
         saleBy = json['saleBy'],
-        totalPrice = json['totalPrice'];
+        totalPrice = json['totalPrice'],
+        sellingPrice = json['selling_price'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -260,6 +265,7 @@ class Detail {
     data['count'] = this.count;
     data['saleBy'] = this.saleBy;
     data['totalPrice'] = this.totalPrice;
+    data['selling_price'] = this.sellingPrice;
     return data;
   }
 }

@@ -100,9 +100,9 @@ class DetailAdapter extends TypeAdapter<Detail> {
       unitType: fields[7] as String?,
       price: fields[8] as String?,
       sellPrice: fields[9] as String?,
-      tax: fields[10] as String?,
+      tax: fields[10] as num?,
       packtype: fields[11] as String?,
-      pieces: fields[12] as int?,
+      pieces: fields[12] as num?,
       stock: fields[13] as num?,
       lowstock: fields[14] as num?,
       fullstock: fields[15] as num?,
@@ -113,14 +113,15 @@ class DetailAdapter extends TypeAdapter<Detail> {
       updatedAt: fields[20] as String?,
       count: fields[21] as double,
       saleBy: fields[22] as String?,
-      totalPrice: fields[23] as double?,
+      totalPrice: fields[23] as num?,
+      sellingPrice: fields[24] as num?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Detail obj) {
     writer
-      ..writeByte(24)
+      ..writeByte(25)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -168,7 +169,9 @@ class DetailAdapter extends TypeAdapter<Detail> {
       ..writeByte(22)
       ..write(obj.saleBy)
       ..writeByte(23)
-      ..write(obj.totalPrice);
+      ..write(obj.totalPrice)
+      ..writeByte(24)
+      ..write(obj.sellingPrice);
   }
 
   @override

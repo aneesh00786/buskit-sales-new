@@ -104,14 +104,11 @@ Future<void> loadOrderCountData() async {
     print('444++${searchData.endDate}');
   }
 
-  // Function to update the selected tab and load respective data
   void updateTabIndex(int newIndex) {
     selectedTabIndex.value = newIndex;
-    loadOrderCountData(); // Reload counts based on new tab
-    loadOrderData(selectedIndex: newIndex); // Load corresponding order data
+    loadOrderCountData(); 
+    loadOrderData(selectedIndex: newIndex);
   }
-
-  // Function to create a widget for displaying order status with color
   Widget orderStatusWidget(String status, Color color) {
     return Container(
       padding: nkRegularPadding(),
@@ -138,21 +135,17 @@ Future<void> loadOrderCountData() async {
       orderId: orderId,
       orderStatus: orderStatus,
     );
-
-    // Update process invoice data if response is valid
     if (data.data != null && data.data!.isNotEmpty) {
       orderProcessInvoiceData = data.data!.first;
     }
 
-    isLoading(false); // Stop loading
+    isLoading(false); 
     return orderProcessInvoiceData;
   }
-
-  // Function to load specific invoice data by order ID
   Future<FetchSpecificOrderData?> loadSpecificOrderInvoiceData({
     required String orderId,
   }) async {
-    isLoading(true); // Start loading
+    isLoading(true);
     log("Loading Specific Order Invoice Data");
 
     var data = await _apiWorker.fetchSpecificOrder(
@@ -163,15 +156,13 @@ Future<void> loadOrderCountData() async {
       fetchSpecificOrderData = data.data!;
     }
 
-    isLoading(false); // Stop loading
+    isLoading(false); 
     return fetchSpecificOrderData;
   }
-
-  // Function to load approval invoice data for an order
   Future<OrderProcessInvoiceData?> loadOrderApprovalInvoiceData({
     required String orderId,
   }) async {
-    isLoading(true); // Start loading
+    isLoading(true); 
     log("Loading Waiting for Approval Invoice Data");
 
     var data = await _apiWorker.loadWaitingForApproval(
@@ -182,21 +173,17 @@ Future<void> loadOrderCountData() async {
       orderProcessInvoiceData = data.data.first;
     }
 
-    isLoading(false); // Stop loading
+    isLoading(false); 
     return orderProcessInvoiceData;
   }
-
-  // Loading indicator for button actions
   RxBool isButtonActionLoading = false.obs;
-
-  // Function to handle reject button action
   Future<ButtonActionData?> rejectButtonAction({
     required BuildContext context,
     required String orderId,
     required String reason,
   }) async {
     try {
-      isButtonActionLoading(true); // Start loading
+      isButtonActionLoading(true);
       log("Reject Button Action");
 
       var data = await _apiWorker.orderReject(
@@ -205,7 +192,7 @@ Future<void> loadOrderCountData() async {
       );
 
       log("${data.message}");
-      isButtonActionLoading(false); // Stop loading
+      isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -216,7 +203,7 @@ Future<void> loadOrderCountData() async {
 
       return data.data!.first;
     } catch (e) {
-      isButtonActionLoading(false); // Stop loading
+      isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -267,8 +254,6 @@ Future<void> loadOrderCountData() async {
       return null;
     }
   }
-
-  // Function to send order for customer approval
   Future<void> sendForCustomerApprovalButtonAction({
     required BuildContext context,
     required String orderId,
@@ -282,8 +267,6 @@ Future<void> loadOrderCountData() async {
 
       log("${response.statusMessage}");
       isButtonActionLoading(false);
-
-      // Show success SnackBar if the mail was sent successfully
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Order sent for approval successfully!'),
@@ -291,7 +274,7 @@ Future<void> loadOrderCountData() async {
         ),
       );
     } catch (e) {
-      isButtonActionLoading(false); // Stop loading
+      isButtonActionLoading(false);
 
       log('Failed to send for approval: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -302,8 +285,6 @@ Future<void> loadOrderCountData() async {
       );
     }
   }
-
-  // Function to add order to "Packed and Ready" status
   Future<void> addToPackedAndReady({
     required BuildContext context,
     required String orderId,
@@ -329,14 +310,12 @@ Future<void> loadOrderCountData() async {
       );
     }
   }
-
-  // Function to handle the deliver button action
   Future<ButtonActionData?> deliverButtonAction({
     required BuildContext context,
     required String orderId,
   }) async {
     try {
-      isButtonActionLoading(true); // Start loading
+      isButtonActionLoading(true); 
       log("Deliver Button Action");
 
       var data = await _apiWorker.orderDeliver(
@@ -344,7 +323,7 @@ Future<void> loadOrderCountData() async {
       );
 
       log("${data.message}");
-      isButtonActionLoading(false); // Stop loading
+      isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -356,7 +335,7 @@ Future<void> loadOrderCountData() async {
       return data.data!.first;
     } catch (e) {
       log("$e");
-      isButtonActionLoading(false); // Stop loading
+      isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -296,7 +296,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: double.parse(detail.tax ?? '')
+                                  content: double.parse(detail.tax.toString() ?? '')
                                       .toStringAsFixed(2),
                                   fontSize: fontSize,
                                 ))),

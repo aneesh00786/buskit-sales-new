@@ -153,7 +153,6 @@ class DashBoardController extends GetxController {
         salesmanId: salesmanId,
         startDate: startDate,
         endDate: endDate,
-        createdToken: createdToken,
       );
 
       log('Api Response: $apiResponse');

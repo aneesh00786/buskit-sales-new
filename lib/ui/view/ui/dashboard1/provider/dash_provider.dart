@@ -107,34 +107,34 @@ class ApiService {
     try {
       final connectivity = await Connectivity().checkConnectivity();
       if (connectivity == ConnectivityResult.none) {
-        log('No internet connection. Attempting to use cached data from Hive.');
+        //log('No internet connection. Attempting to use cached data from Hive.');
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
-          log('Cached data type: ${cachedData.runtimeType}');
-          log('Cached data: $cachedData');
+          // log('Cached data type: ${cachedData.runtimeType}');
+          // log('Cached data: $cachedData');
           try {
             if (cachedData is Map<String, dynamic>) {
-              log('Using valid cached data from Hive.');
+              //log('Using valid cached data from Hive.');
               return _mapJsonToResponseModel(cachedData);
             } else if (cachedData is List<dynamic>) {
-              log('Cached data is a List<dynamic>. Converting to Map...');
+              //log('Cached data is a List<dynamic>. Converting to Map...');
               final Map<String, dynamic> wrappedData = {'data': cachedData};
               return _mapJsonToResponseModel(wrappedData);
             } else {
               throw Exception('Invalid cached data format.');
             }
           } catch (e) {
-            log('Error processing cached data: $e');
+            // log('Error processing cached data: $e');
             throw Exception(
                 'Failed to process cached data due to type mismatch.');
           }
         } else {
-          log('No valid cached data found.');
+          // log('No valid cached data found.');
           throw Exception('No cached data available.');
         }
       }
 
-      log('Internet available. Fetching data from API.');
+      //  log('Internet available. Fetching data from API.');
       final response = await Dio().post(
         url,
         options: Options(
@@ -145,8 +145,8 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        log('jsonResponse type: ${jsonResponse.runtimeType}');
-        log('jsonResponse: $jsonResponse');
+        // log('jsonResponse type: ${jsonResponse.runtimeType}');
+        // log('jsonResponse: $jsonResponse');
         await dashboardBox.put(
             'dashboardData', Map<String, dynamic>.from(jsonResponse));
 
@@ -159,26 +159,26 @@ class ApiService {
             'Failed to load data with status code: ${response.statusCode}');
       }
     } on DioError catch (e) {
-      log('DioError: ${e.message}');
+      // log('DioError: ${e.message}');
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
-        log('Cached data type before casting: ${cachedData.runtimeType}');
+        // log('Cached data type before casting: ${cachedData.runtimeType}');
         try {
           if (cachedData is Map) {
             final safeCachedData =
                 castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-            log('Cached data type after casting: ${safeCachedData.runtimeType}');
+            // log('Cached data type after casting: ${safeCachedData.runtimeType}');
             return _mapJsonToResponseModel(safeCachedData);
           } else {
             throw Exception('Invalid cached data format.');
           }
         } catch (e) {
-          log('Error processing cached data: $e');
+          // log('Error processing cached data: $e');
           throw Exception(
               'Failed to process cached data due to type mismatch.');
         }
       } else {
-        log('No cached data found.');
+        // log('No cached data found.');
         throw Exception('No cached data available.');
       }
     }
@@ -398,17 +398,40 @@ class ApiService {
     }
   }
 
-  Future<MessagesResponse> fetch_individual_chatApi(
+  Future<MessagesResponse> fetchIndividualChatApi(
       String chatId, int page) async {
-    log('Fetching Individual Chats for Page $page');
+    log('Fetching Individual Chats for Chat ID: $chatId, Page: $page');
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchIndividualChat}');
     final requestBody = {
       "salesman_id": chatId,
       "limit": 20,
       "page": page,
     };
-
+    final chatBox = Hive.box('chatBox');
+    final cacheKey = 'chat_${chatId}_page_$page';
     try {
+      final connectivity = await Connectivity().checkConnectivity();
+      log('Connectivity status: $connectivity');
+      if (connectivity == ConnectivityResult.none) {
+        log('No internet connection. Fetching cached data from Hive.');
+        final cachedData = chatBox.get(cacheKey);
+        if (cachedData != null) {
+          try {
+            final castedData = castToStringDynamic(cachedData);
+            return _parseCachedChatData(
+                castedData); 
+          } catch (e) {
+            log('Error processing cached data: $e');
+            throw Exception(
+                'Failed to process cached data due to type mismatch.');
+          }
+        } else {
+          log('No cached data found for key $cacheKey.');
+          throw Exception('No cached data available.');
+        }
+      }
+
+      log('Internet available. Fetching data from API.');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -417,53 +440,67 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
-        final serverPage = jsonResponse['current_page'];
-        if (serverPage != page) {
-          log('Mismatch: Requested Page $page, but got $serverPage');
-        }
+        log('API Response: $jsonResponse');
 
-        log('Page from Response: $serverPage');
+        final wrappedResponse = {
+          'status_code': jsonResponse['status_code'],
+          'status': jsonResponse['status'],
+          'message': jsonResponse['message'],
+          'data': jsonResponse['data'],
+        };
 
-        var messagesList = jsonResponse['data'] as List;
-        List<Messages> messages = messagesList
-            .map((messageJson) => Messages.fromJson(messageJson))
-            .toList();
-        log('Image Path  : ${messages.last.getImage}');
+        await chatBox.put(cacheKey, wrappedResponse);
+        log('Saved data to Hive for key: $cacheKey.');
+
         return MessagesResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
           message: jsonResponse['message'] ?? '',
-          data: messages,
+          data: (jsonResponse['data'] as List)
+              .map((messageJson) => Messages.fromJson(messageJson))
+              .toList(),
         );
       } else {
         throw Exception(
             'Failed to fetch individual chat data - ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch individual chat data: $e');
+      log('Error occurred: $e');
+      final cachedData = chatBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Error fetching from API. Returning cached data from Hive.');
+        final castedData = castToStringDynamic(cachedData);
+        return _parseCachedChatData(
+            castedData); 
+      } else {
+        throw Exception(
+            'Failed to fetch chat data and no cached data available.');
+      }
     }
   }
 
-  Future<void> postAdminMessage({
-    required String salesmanId,
-    required String message,
-  }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.postAdminMessage}');
-
+  MessagesResponse _parseCachedChatData(dynamic cachedData) {
+    log('Cached data type: ${cachedData.runtimeType}');
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'salesman_id': salesmanId, 'message': message}),
-      );
-
-      if (response.statusCode == 200) {
-        print('Admin message posted successfully');
+      log('Parsing cached data.');
+      if (cachedData is Map<String, dynamic>) {
+        final messagesList = cachedData['data'] as List;
+        final messages = messagesList
+            .map((messageJson) =>
+                Messages.fromJson(Map<String, dynamic>.from(messageJson)))
+            .toList();
+        return MessagesResponse(
+          statusCode: cachedData['status_code'] ?? 0,
+          status: cachedData['status'] ?? false,
+          message: cachedData['message'] ?? '',
+          data: messages,
+        );
       } else {
-        throw Exception('Failed to post admin message: ${response.statusCode}');
+        throw Exception('Cached data is not in the expected format.');
       }
     } catch (e) {
-      throw Exception('Failed to post admin message: $e');
+      log('Error parsing cached data: $e');
+      throw Exception('Failed to parse cached data: $e');
     }
   }
 
@@ -523,67 +560,6 @@ class ApiService {
     }
   }
 
-  // Future<OrderResponse> fetchAllOrders({
-  //   required String startDate,
-  //   required String endDate,
-  //   OrderStatus? orderStatus,
-  // }) async {
-  //   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  //   final url = Uri.parse('$_baseUrl${ApiConstants.fetchAllOrders}');
-  //   String orderStatusString = '';
-  //   if (orderStatus != null) {
-  //     orderStatusString = orderStatus.type.toString();
-  //   }
-
-  //   final requestBody = {
-  //     "customer_id": '',
-  //     "salesman_id": salesmanId,
-  //     "order_type": orderStatusString,
-  //     "payment_type": "3",
-  //     "start_date": startDate,
-  //     "end_date": endDate,
-  //     "limit": 10,
-  //     "page": 1,
-  //   };
-
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode(requestBody),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       print('Fetch All Orders Response: $jsonResponse');
-
-  //       Pagination pagination =
-  //           Pagination.fromJson(jsonResponse['pagination'] ?? {});
-  //       List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
-
-  //       List<OrdersDash> orders = [];
-  //       if (orderData != null) {
-  //         orders = orderData
-  //             .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
-  //             .toList();
-  //       }
-
-  //       return OrderResponse(
-  //         statusCode: jsonResponse['status_code'] ?? 0,
-  //         status: jsonResponse['status'] ?? false,
-  //         message: jsonResponse['message'] ?? '',
-  //         data: orders,
-  //         pagination: pagination,
-  //       );
-  //     } else {
-  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Failed to fetch orders: $e');
-  //     throw Exception('Failed to fetch orders: $e');
-  //   }
-  // }
-
   Future<OrderResponse> fetchCustomerDashOrders({
     required String cusId,
     required String salesmanId,
@@ -627,7 +603,6 @@ class ApiService {
               .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
               .toList();
         }
-
         return OrderResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -1872,7 +1847,7 @@ class DashboardProvider with ChangeNotifier {
       String chatId, int page) async {
     try {
       if (_noMoreData && page > 1) return MessagesResponse(data: []);
-      final chatData = await _apiService.fetch_individual_chatApi(chatId, page);
+      final chatData = await _apiService.fetchIndividualChatApi(chatId, page);
 
       if (chatData.data.isEmpty && page > 1) {
         _noMoreData = true;

@@ -14,7 +14,6 @@ class SessionManager {
     log('Shared Pref 2: ${prefs}');
     prefs.setStringList(key, value);
   }
-
   static Future<List<String>> getStringList(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     log('Shared Pref 3: ${pref}');
@@ -23,7 +22,7 @@ class SessionManager {
   static Future<String> getStringValue(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     final loginData = pref.getString(key) ?? "";
-    log('Shared Pref 4: ${loginData}');
+  //  log('Shared Pref 4: ${loginData}');
     return loginData;
   }
   static Future<void> setBoolValue(String key, bool value) async {

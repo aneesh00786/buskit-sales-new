@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -84,77 +85,72 @@ class ApiService {
     }
   }
 
-  Future<ResponseModell> fetchDashboardData(
-      {String? salesmanId, String? startDate, String? endDate}) async {
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    String createdToken = jsonMap['createdToken'];
-    final url = '$_baseUrl${ApiConstants.dashboard_list}';
-    final requestBody = {
+  Future<ResponseModell> fetchDashboardData({
+    String? salesmanId,
+    String? startDate,
+    String? endDate,
+  }) async {
+    final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final String jsonString =
+        await SessionManager.getStringValue(SpString.spLogin);
+    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    final String createdToken = jsonMap['createdToken'];
+    const String url = '$_baseUrl${ApiConstants.dashboard_list}';
+    final Map<String, dynamic> requestBody = {
       "salesman_id": salesmanId,
       "start_date": startDate,
       "end_date": endDate,
       "companyId": companyId,
-      "targetType": 1
+      "targetType": 1,
     };
     final dashboardBox = Hive.box('dashboardBox');
     try {
+      final connectivity = await Connectivity().checkConnectivity();
+      if (connectivity == ConnectivityResult.none) {
+        log('No internet connection. Attempting to use cached data from Hive.');
+        final cachedData = dashboardBox.get('dashboardData');
+        if (cachedData != null) {
+          log('Cached data type: ${cachedData.runtimeType}');
+          log('Cached data: $cachedData');
+          try {
+            if (cachedData is Map<String, dynamic>) {
+              log('Using valid cached data from Hive.');
+              return _mapJsonToResponseModel(cachedData);
+            } else if (cachedData is List<dynamic>) {
+              log('Cached data is a List<dynamic>. Converting to Map...');
+              final Map<String, dynamic> wrappedData = {'data': cachedData};
+              return _mapJsonToResponseModel(wrappedData);
+            } else {
+              throw Exception('Invalid cached data format.');
+            }
+          } catch (e) {
+            log('Error processing cached data: $e');
+            throw Exception(
+                'Failed to process cached data due to type mismatch.');
+          }
+        } else {
+          log('No valid cached data found.');
+          throw Exception('No cached data available.');
+        }
+      }
+
+      log('Internet available. Fetching data from API.');
       final response = await Dio().post(
         url,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $createdToken',
-          },
+          headers: {'Authorization': 'Bearer $createdToken'},
         ),
         data: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        await dashboardBox.put('dashboardData', jsonResponse);
-        var allCategoryList = jsonResponse['data']['all_category'] as List;
-        List<Category> allCategory =
-            allCategoryList.map((json) => Category.fromJson(json)).toList();
+        log('jsonResponse type: ${jsonResponse.runtimeType}');
+        log('jsonResponse: $jsonResponse');
+        await dashboardBox.put(
+            'dashboardData', Map<String, dynamic>.from(jsonResponse));
 
-        var performanceList =
-            jsonResponse['data']['category_performance'] as List;
-        List<CategoryPerformancee> categoryPerformance = performanceList
-            .map((json) => CategoryPerformancee.fromJson(json))
-            .toList();
-
-        final revenueJson =
-            jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
-        final Revenuee revenue = Revenuee.fromJson(revenueJson);
-
-        var collectionJson = jsonResponse['data']['collection'];
-        Collection collection = Collection.fromJson(collectionJson ?? {});
-
-        var deliveryJson = jsonResponse['data']['delivery'];
-        Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
-
-        var topSellingList =
-            jsonResponse['data']['top_selling_product'] as List;
-        List<TopSellingProductA> topSellingProducts = topSellingList
-            .map((json) => TopSellingProductA.fromJson(json))
-            .toList();
-
-        var orderCountListJson = jsonResponse['data']['order_count_list'];
-        OrderCountListt orderCountList =
-            OrderCountListt.fromJson(orderCountListJson ?? {});
-
-        return ResponseModell(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          allCategory: allCategory,
-          categoryPerformance: categoryPerformance,
-          revenue: revenue,
-          collection: collection,
-          delivery: delivery,
-          topSellingProducts: topSellingProducts,
-          orderCountList: orderCountList,
-        );
+        return _mapJsonToResponseModel(jsonResponse);
       } else if (response.statusCode == 400 || response.statusCode == 401) {
         _handleTokenExpiration();
         throw Exception('Session expired');
@@ -163,49 +159,88 @@ class ApiService {
             'Failed to load data with status code: ${response.statusCode}');
       }
     } on DioError catch (e) {
+      log('DioError: ${e.message}');
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
-        log('Using cached data from Hive');
-        final jsonResponse = cachedData;
-        var allCategoryList = jsonResponse['data']['all_category'] as List;
-        List<Category> allCategory =
-            allCategoryList.map((json) => Category.fromJson(json)).toList();
-        var performanceList =
-            jsonResponse['data']['category_performance'] as List;
-        List<CategoryPerformancee> categoryPerformance = performanceList
-            .map((json) => CategoryPerformancee.fromJson(json))
-            .toList();
-        final revenueJson =
-            jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
-        final Revenuee revenue = Revenuee.fromJson(revenueJson);
-        var collectionJson = jsonResponse['data']['collection'];
-        Collection collection = Collection.fromJson(collectionJson ?? {});
-        var deliveryJson = jsonResponse['data']['delivery'];
-        Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
-        var topSellingList =
-            jsonResponse['data']['top_selling_product'] as List;
-        List<TopSellingProductA> topSellingProducts = topSellingList
-            .map((json) => TopSellingProductA.fromJson(json))
-            .toList();
-        var orderCountListJson = jsonResponse['data']['order_count_list'];
-        OrderCountListt orderCountList =
-            OrderCountListt.fromJson(orderCountListJson ?? {});
-        return ResponseModell(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          allCategory: allCategory,
-          categoryPerformance: categoryPerformance,
-          revenue: revenue,
-          collection: collection,
-          delivery: delivery,
-          topSellingProducts: topSellingProducts,
-          orderCountList: orderCountList,
-        );
+        log('Cached data type before casting: ${cachedData.runtimeType}');
+        try {
+          if (cachedData is Map) {
+            final safeCachedData =
+                castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+            log('Cached data type after casting: ${safeCachedData.runtimeType}');
+            return _mapJsonToResponseModel(safeCachedData);
+          } else {
+            throw Exception('Invalid cached data format.');
+          }
+        } catch (e) {
+          log('Error processing cached data: $e');
+          throw Exception(
+              'Failed to process cached data due to type mismatch.');
+        }
       } else {
-        throw Exception('DioError: ${e.message}');
+        log('No cached data found.');
+        throw Exception('No cached data available.');
       }
     }
+  }
+
+  Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
+    return input.map((key, value) {
+      final newKey = key is String ? key : key.toString();
+      final newValue = value is Map
+          ? castToStringDynamic(Map<dynamic, dynamic>.from(value))
+          : (value is List
+              ? value
+                  .map((e) => e is Map
+                      ? castToStringDynamic(Map<dynamic, dynamic>.from(e))
+                      : e)
+                  .toList()
+              : value);
+      return MapEntry(newKey, newValue);
+    });
+  }
+
+  ResponseModell _mapJsonToResponseModel(Map<String, dynamic> jsonResponse) {
+    var allCategoryList = jsonResponse['data']['all_category'] as List;
+    List<Category> allCategory =
+        allCategoryList.map((json) => Category.fromJson(json)).toList();
+
+    var performanceList = jsonResponse['data']['category_performance'] as List;
+    List<CategoryPerformancee> categoryPerformance = performanceList
+        .map((json) => CategoryPerformancee.fromJson(json))
+        .toList();
+
+    final revenueJson =
+        jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
+    final Revenuee revenue = Revenuee.fromJson(revenueJson);
+
+    var collectionJson = jsonResponse['data']['collection'];
+    Collection collection = Collection.fromJson(collectionJson ?? {});
+
+    var deliveryJson = jsonResponse['data']['delivery'];
+    Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
+
+    var topSellingList = jsonResponse['data']['top_selling_product'] as List;
+    List<TopSellingProductA> topSellingProducts = topSellingList
+        .map((json) => TopSellingProductA.fromJson(json))
+        .toList();
+
+    var orderCountListJson = jsonResponse['data']['order_count_list'];
+    OrderCountListt orderCountList =
+        OrderCountListt.fromJson(orderCountListJson ?? {});
+
+    return ResponseModell(
+      statusCode: jsonResponse['status_code'] ?? 0,
+      status: jsonResponse['status'] ?? false,
+      message: jsonResponse['message'] ?? '',
+      allCategory: allCategory,
+      categoryPerformance: categoryPerformance,
+      revenue: revenue,
+      collection: collection,
+      delivery: delivery,
+      topSellingProducts: topSellingProducts,
+      orderCountList: orderCountList,
+    );
   }
 
   void _handleTokenExpiration() async {
@@ -689,139 +724,138 @@ class ApiService {
     }
   }
 
-Future<CustomerResponseModelxx> fetchCustomer({
-  required String salesmanId,
-  required String customerName,
-  required String startDate,
-  required String endDate,
-  required int limit,
-  required int page,
-  required String valueFromDw,
-}) async {
-  final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
-  final requestBody = {
-    "salesman_id": salesmanId,
-    "business_name": customerName,
-    "start_date": startDate,
-    "end_date": endDate,
-    "companyId": companyId,
-    "limit": limit,
-    "page": page,
-    "valueFromDw": valueFromDw,
-  };
+  Future<CustomerResponseModelxx> fetchCustomer({
+    required String salesmanId,
+    required String customerName,
+    required String startDate,
+    required String endDate,
+    required int limit,
+    required int page,
+    required String valueFromDw,
+  }) async {
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
+    final requestBody = {
+      "salesman_id": salesmanId,
+      "business_name": customerName,
+      "start_date": startDate,
+      "end_date": endDate,
+      "companyId": companyId,
+      "limit": limit,
+      "page": page,
+      "valueFromDw": valueFromDw,
+    };
 
-  final customerBox = Hive.box('customerBox');
+    final customerBox = Hive.box('customerBox');
 
-  try {
-    log('API URL: $url');
-    log('Request Body: $requestBody');
+    try {
+      log('API URL: $url');
+      log('Request Body: $requestBody');
 
-    // Make API call
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
+      // Make API call
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
 
-    log('fetchCustomer : ${response.statusCode}');
-    print('fetchCustomer Body: ${response.body}');
+      log('fetchCustomer : ${response.statusCode}');
+      print('fetchCustomer Body: ${response.body}');
 
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
 
-      // Parse data
-      var dataList = jsonResponse['data'] as List?;
-      var orderTotalList = jsonResponse['orderTotal'] as List?;
-      var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
+        // Parse data
+        var dataList = jsonResponse['data'] as List?;
+        var orderTotalList = jsonResponse['orderTotal'] as List?;
+        var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
 
-      List<CustomerModelxx> customers = [];
-      List<OrderTotalxx> orderTotal = [];
-      List<YearsListOfAll> yearList = [];
+        List<CustomerModelxx> customers = [];
+        List<OrderTotalxx> orderTotal = [];
+        List<YearsListOfAll> yearList = [];
 
-      if (dataList != null) {
-        customers =
-            dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
-        orderTotal = orderTotalList!
-            .map((json) => OrderTotalxx.fromJson(json))
-            .toList();
-        yearList = yearListOfAll!
-            .map((json) => YearsListOfAll.fromJson(json))
-            .toList();
+        if (dataList != null) {
+          customers =
+              dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+          orderTotal = orderTotalList!
+              .map((json) => OrderTotalxx.fromJson(json))
+              .toList();
+          yearList = yearListOfAll!
+              .map((json) => YearsListOfAll.fromJson(json))
+              .toList();
+        }
+
+        // Save response to Hive
+        await customerBox.put(
+          'fetchCustomerData',
+          {
+            'statusCode': jsonResponse['status_code'],
+            'status': jsonResponse['status'],
+            'message': jsonResponse['message'],
+            'data': dataList,
+            'orderTotal': orderTotalList,
+            'pagination': jsonResponse['pagination'],
+            'yearsListOfAll': yearListOfAll,
+          },
+        );
+
+        log('Customer List Length : ${customers.length}');
+
+        // Return parsed response
+        return CustomerResponseModelxx(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? '',
+          data: customers,
+          orderTotal: orderTotal,
+          pagination: Paginationxx.fromJson(
+            jsonResponse['pagination'] ?? {},
+          ),
+          yearsListOfAll: yearList,
+        );
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+        throw Exception('Failed to load data');
       }
+    } catch (e) {
+      print('Exception occurred: $e');
+      final cachedData = customerBox.get('fetchCustomerData');
+      if (cachedData != null) {
+        log('Using cached customer data from Hive');
+        var dataList = cachedData['data'] as List?;
+        var orderTotalList = cachedData['orderTotal'] as List?;
+        var yearListOfAll = cachedData['yearsListOfAll'] as List?;
 
-      // Save response to Hive
-      await customerBox.put(
-        'fetchCustomerData',
-        {
-          'statusCode': jsonResponse['status_code'],
-          'status': jsonResponse['status'],
-          'message': jsonResponse['message'],
-          'data': dataList,
-          'orderTotal': orderTotalList,
-          'pagination': jsonResponse['pagination'],
-          'yearsListOfAll': yearListOfAll,
-        },
-      );
+        List<CustomerModelxx> customers = [];
+        List<OrderTotalxx> orderTotal = [];
+        List<YearsListOfAll> yearList = [];
 
-      log('Customer List Length : ${customers.length}');
+        if (dataList != null) {
+          customers =
+              dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+          orderTotal = orderTotalList!
+              .map((json) => OrderTotalxx.fromJson(json))
+              .toList();
+          yearList = yearListOfAll!
+              .map((json) => YearsListOfAll.fromJson(json))
+              .toList();
+        }
 
-      // Return parsed response
-      return CustomerResponseModelxx(
-        statusCode: jsonResponse['status_code'] ?? 0,
-        status: jsonResponse['status'] ?? false,
-        message: jsonResponse['message'] ?? '',
-        data: customers,
-        orderTotal: orderTotal,
-        pagination: Paginationxx.fromJson(
-          jsonResponse['pagination'] ?? {},
-        ),
-        yearsListOfAll: yearList,
-      );
-    } else {
-      print('Request failed with status: ${response.statusCode}');
-      throw Exception('Failed to load data');
-    }
-  } catch (e) {
-    print('Exception occurred: $e');
-    final cachedData = customerBox.get('fetchCustomerData');
-    if (cachedData != null) {
-      log('Using cached customer data from Hive');
-      var dataList = cachedData['data'] as List?;
-      var orderTotalList = cachedData['orderTotal'] as List?;
-      var yearListOfAll = cachedData['yearsListOfAll'] as List?;
-
-      List<CustomerModelxx> customers = [];
-      List<OrderTotalxx> orderTotal = [];
-      List<YearsListOfAll> yearList = [];
-
-      if (dataList != null) {
-        customers =
-            dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
-        orderTotal = orderTotalList!
-            .map((json) => OrderTotalxx.fromJson(json))
-            .toList();
-        yearList = yearListOfAll!
-            .map((json) => YearsListOfAll.fromJson(json))
-            .toList();
+        return CustomerResponseModelxx(
+          statusCode: cachedData['statusCode'] ?? 0,
+          status: cachedData['status'] ?? false,
+          message: cachedData['message'] ?? '',
+          data: customers,
+          orderTotal: orderTotal,
+          pagination: Paginationxx.fromJson(
+            cachedData['pagination'] ?? {},
+          ),
+          yearsListOfAll: yearList,
+        );
+      } else {
+        throw Exception('No cached data available');
       }
-
-      return CustomerResponseModelxx(
-        statusCode: cachedData['statusCode'] ?? 0,
-        status: cachedData['status'] ?? false,
-        message: cachedData['message'] ?? '',
-        data: customers,
-        orderTotal: orderTotal,
-        pagination: Paginationxx.fromJson(
-          cachedData['pagination'] ?? {},
-        ),
-        yearsListOfAll: yearList,
-      );
-    } else {
-      throw Exception('No cached data available');
     }
   }
-}
-
 
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {

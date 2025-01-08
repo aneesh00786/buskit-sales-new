@@ -831,7 +831,6 @@ Future<CustomerResponseModelxx> fetchCustomer({
     }
   }
 }
-
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
     final String daysJson = jsonEncode(daysList);
@@ -1002,35 +1001,6 @@ Future<CustomerResponseModelxx> fetchCustomer({
       throw Exception('Failed to fetch customer total sale data: $e');
     }
   }
-
-  // Future<ApiResponseModel> fetchCustomerDashboardData() async {
-  //   final url = Uri.parse('$_baseUrl${ApiConstants.customer_dashboard_list}');
-  //   final id = SessionHelper.loginSavedData?.company_id ?? 0;
-  //   final body = {
-  //     'customer_id': 'CUSTO42',
-  //     'specifiedYear': 2024,
-  //     'companyId': id
-  //   };
-
-  //   try {
-  //     final response = await http.post(url, body: body);
-  //     print(
-  //         " sabik k k k k kresponse k k k k  k k k  k kresponse k k kkresponse k k kresponse k k k  ${response}");
-  //     if (response.statusCode == 200) {
-  //       final jsonData = json.decode(response.body);
-
-  //       print(
-  //           " sabik k k k k k k k k k  k k k  k k k k kk k k k k k k  ${jsonData['data']}");
-
-  //       return ApiResponseModel.fromJson(jsonData);
-  //     } else {
-  //       throw Exception('Failed to load data');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Failed to connect to server');
-  //   }
-  // }
-
   Future<ApiResponsees> fetchOrderCount(
     String customerId,
     String startDate,
@@ -1055,8 +1025,6 @@ Future<CustomerResponseModelxx> fetchCustomer({
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         print("Response Data: ${jsonResponse['data']}");
-
-        // Parse the data field from JSON
         OrderDataas orderData = OrderDataas.fromJson(jsonResponse['data']);
 
         print("Response sabik k k k  kk : ${jsonResponse['data']}");

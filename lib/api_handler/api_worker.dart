@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_total_sale_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -895,24 +896,33 @@ Future<LeadResponce> getLeadsData(String salesManId,
   }
 
   /// ******************** PENDING PAYMENT ******************/
-  Future<PendingPaymentResponse> getPendingPaymentData({
-    SearchModel? searchModel,
-    PaginationModel? paginationModel,
-    required int chartIndex,
-    String? salesmanId,
-  }) async {
-    final requestData = {
-      "chart_index": chartIndex,
-      "start_date": searchModel?.startDate,
-      "end_date": searchModel?.endDate,
-      "limit": paginationModel?.limit.toString() ?? '',
-      "page": paginationModel?.currentPage.toString() ?? '',
-      "salesman_id": salesmanId,
-      "companyId": companyId,
-    };
+Future<PendingPaymentResponse> getPendingPaymentData({
+  SearchModel? searchModel,
+  PaginationModel? paginationModel,
+  required int chartIndex,
+  String? salesmanId,
+}) async {
+  final requestData = {
+    "chart_index": chartIndex,
+    "start_date": searchModel?.startDate,
+    "end_date": searchModel?.endDate,
+    "limit": paginationModel?.limit.toString() ?? '',
+    "page": paginationModel?.currentPage.toString() ?? '',
+    "salesman_id": salesmanId,
+    "companyId": companyId,
+  };
 
-    log("Sending request with data: $requestData");
+  log("Sending request with data: $requestData");
+  final cacheKey = 'pending_payment_${chartIndex}_${salesmanId ?? ''}_${paginationModel?.currentPage ?? ''}';
+  final pendingPaymentBox = Hive.box('pendingPaymentBox');
 
+  try {
+    final cachedData = pendingPaymentBox.get(cacheKey);
+    if (cachedData != null) {
+      log("Using cached data for key: $cacheKey");
+      final castedData =ApiService(). castToStringDynamic(cachedData);
+      return PendingPaymentResponse.fromJson(castedData);
+    }
     final response = await dio
         .postbycustom(
       ApiConstants.fetch_pending_payments,
@@ -923,9 +933,21 @@ Future<LeadResponce> getLeadsData(String salesManId,
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
 
+    log("API response received: ${response.data}");
+    await pendingPaymentBox.put(cacheKey, response.data);
     return PendingPaymentResponse.fromJson(response.data);
+  } catch (e) {
+    log("Error occurred: $e");
+    final cachedData = pendingPaymentBox.get(cacheKey);
+    if (cachedData != null) {
+      log("Using cached data after API failure for key: $cacheKey");
+      final castedData =ApiService().castToStringDynamic(cachedData);
+      return PendingPaymentResponse.fromJson(castedData);
+    } else {
+      throw Exception('Failed to fetch data and no cached data available.');
+    }
   }
-
+}
   Future<IndividualPendingPaymentResponse> getAllPendingPaymentIndividual(
       {String? customerId}) async {
     final response = await dio

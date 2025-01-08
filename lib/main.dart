@@ -38,6 +38,7 @@ void main() async {
   await Hive.openBox('customerBox');
   await Hive.openBox('chatBox');
   await Hive.openBox('pendingPaymentBox');
+  await Hive.openBox('performanceBox');
   DatabaseHelper.database;
 
   SystemChrome.setPreferredOrientations([

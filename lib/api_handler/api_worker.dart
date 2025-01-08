@@ -197,46 +197,60 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<PerformanceData?> fetchSalesmanPerformanceData(
-      String monthName,int year) async {
-    try {
-      String apiUrl =
-          '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
-      log('Api url of performance : $apiUrl');
-
-      final requestPayload = {
-        "companyId": companyId,
-        "salesman_id": salesmanId,
-        "year": year,
-        "month": monthName,
-        "targetType": targetType
-      };
-      log('Request body fetchsalesman chat : $requestPayload');
-      Response response = await dio1.post(
-        apiUrl,
-        data: requestPayload,
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = response.data['data'];
-        log('Performance Response : $jsonData');
-        return PerformanceData.fromJson(jsonData);
-      } else {
-        log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
-        return null;
-      }
-    } on DioException catch (dioError) {
-      if (dioError.response != null) {
-        log("Dio error response: ${dioError.response?.data}");
-        log("Dio error status code: ${dioError.response?.statusCode}");
-      } else {
-        log("Dio error without response: ${dioError.message}");
-      }
-      return null;
-    } catch (e) {
-      log("Error fetching salesman Performance: $e");
+Future<PerformanceData?> fetchSalesmanPerformanceData(
+    String monthName, int year) async {
+  const apiUrl = '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
+  final requestPayload = {
+    "companyId": companyId,
+    "salesman_id": salesmanId,
+    "year": year,
+    "month": monthName,
+    "targetType": targetType,
+  };
+  final cacheKey = 'performance_data_${salesmanId}_${year}_$monthName';
+  final performanceBox = Hive.box('performanceBox');
+  log('Api URL for performance: $apiUrl');
+  log('Request body fetchSalesmanPerformance: $requestPayload');
+  try {
+    final cachedData = performanceBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data for key: $cacheKey');
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return PerformanceData.fromJson(castedData);
+    }
+    Response response = await dio1.post(
+      apiUrl,
+      data: requestPayload,
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = response.data['data'];
+      log('Performance Response: $jsonData');
+      await performanceBox.put(cacheKey, jsonData);
+      return PerformanceData.fromJson(jsonData);
+    } else {
+      log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
       return null;
     }
+  } on DioException catch (dioError) {
+    log("Dio error occurred: ${dioError.message}");
+    if (dioError.response != null) {
+      log("Dio error response: ${dioError.response?.data}");
+      log("Dio error status code: ${dioError.response?.statusCode}");
+    }
+    final cachedData = performanceBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data after API failure for key: $cacheKey');
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return PerformanceData.fromJson(castedData);
+    } else {
+      log("No cached data available.");
+      return null;
+    }
+  } catch (e) {
+    log("Error fetching salesman Performance: $e");
+    return null;
   }
+}
 
   Future<Response> updateCategoryTargetValue(
     String salesmanId,
@@ -712,7 +726,7 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-Future<LeadResponce> getLeadsData(String salesManId,
+Future<LeadResponce> getLeadsData(String salesManId, 
     {PaginationModel? paginationModel}) async {
   final requestData = FormData.fromMap({
     "page": paginationModel?.currentPage ?? "",
@@ -722,24 +736,34 @@ Future<LeadResponce> getLeadsData(String salesManId,
   });
 
   log('Request Body FetchData: ${requestData.fields}');
-
+  final cacheKey = 'leads_data_${salesManId}_${paginationModel?.currentPage ?? ''}';
+  final leadsBox = Hive.box('leadsBox');
   try {
+    final cachedData = leadsBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data for key: $cacheKey');
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return LeadResponce.fromJson(castedData);
+    }
     final response = await dio.postbycustom(
       ApiConstants.fetch_leads,
       data: requestData,
     );
-
     log('Response Body Fetch Leads: ${response.data}');
-
+    await leadsBox.put(cacheKey, response.data);
     return LeadResponce.fromJson(response.data);
   } on DioError catch (error) {
     log('DioError: $error');
-    return Future.error(DioExceptionHandler.fromDioError(error));
+    final cachedData = leadsBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data after API failure for key: $cacheKey');
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return LeadResponce.fromJson(castedData);
+    } else {
+      throw Exception('Failed to fetch data and no cached data available.');
+    }
   }
 }
-
-
-
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {
     final response = await dio

@@ -699,138 +699,138 @@ class ApiService {
     }
   }
 
-  Future<CustomerResponseModelxx> fetchCustomer({
-    required String salesmanId,
-    required String customerName,
-    required String startDate,
-    required String endDate,
-    required int limit,
-    required int page,
-    required String valueFromDw,
-  }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
-    final requestBody = {
-      "salesman_id": salesmanId,
-      "business_name": customerName,
-      "start_date": startDate,
-      "end_date": endDate,
-      "companyId": companyId,
-      "limit": limit,
-      "page": page,
-      "valueFromDw": valueFromDw,
-    };
+Future<CustomerResponseModelxx> fetchCustomer({
+  required String salesmanId,
+  required String customerName,
+  required String startDate,
+  required String endDate,
+  required int limit,
+  required int page,
+  required String valueFromDw,
+}) async {
+  final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
+  final requestBody = {
+    "salesman_id": salesmanId,
+    "business_name": customerName,
+    "start_date": startDate,
+    "end_date": endDate,
+    "companyId": companyId,
+    "limit": limit,
+    "page": page,
+    "valueFromDw": valueFromDw,
+  };
 
-    final customerBox = Hive.box('customerBox');
+  final customerBox = Hive.box('customerBox');
 
-    try {
-      log('API URL: $url');
-      log('Request Body: $requestBody');
+  try {
+    log('API URL: $url');
+    log('Request Body: $requestBody');
 
-      // Make API call
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
+    // Make API call
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(requestBody),
+    );
+
+    log('fetchCustomer : ${response.statusCode}');
+    print('fetchCustomer Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+
+      // Parse data
+      var dataList = jsonResponse['data'] as List?;
+      var orderTotalList = jsonResponse['orderTotal'] as List?;
+      var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
+
+      List<CustomerModelxx> customers = [];
+      List<OrderTotalxx> orderTotal = [];
+      List<YearsListOfAll> yearList = [];
+
+      if (dataList != null) {
+        customers =
+            dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+        orderTotal = orderTotalList!
+            .map((json) => OrderTotalxx.fromJson(json))
+            .toList();
+        yearList = yearListOfAll!
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
+      }
+
+      // Save response to Hive
+      await customerBox.put(
+        'fetchCustomerData',
+        {
+          'statusCode': jsonResponse['status_code'],
+          'status': jsonResponse['status'],
+          'message': jsonResponse['message'],
+          'data': dataList,
+          'orderTotal': orderTotalList,
+          'pagination': jsonResponse['pagination'],
+          'yearsListOfAll': yearListOfAll,
+        },
       );
 
-      log('fetchCustomer : ${response.statusCode}');
-      print('fetchCustomer Body: ${response.body}');
+      log('Customer List Length : ${customers.length}');
 
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
+      // Return parsed response
+      return CustomerResponseModelxx(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        data: customers,
+        orderTotal: orderTotal,
+        pagination: Paginationxx.fromJson(
+          jsonResponse['pagination'] ?? {},
+        ),
+        yearsListOfAll: yearList,
+      );
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+      throw Exception('Failed to load data');
+    }
+  } catch (e) {
+    print('Exception occurred: $e');
+    final cachedData = customerBox.get('fetchCustomerData');
+    if (cachedData != null) {
+      log('Using cached customer data from Hive');
+      final castedData = castToStringDynamic(cachedData);
+      var dataList = castedData['data'] as List?;
+      var orderTotalList = castedData['orderTotal'] as List?;
+      var yearListOfAll = castedData['yearsListOfAll'] as List?;
+      List<CustomerModelxx> customers = [];
+      List<OrderTotalxx> orderTotal = [];
+      List<YearsListOfAll> yearList = [];
 
-        // Parse data
-        var dataList = jsonResponse['data'] as List?;
-        var orderTotalList = jsonResponse['orderTotal'] as List?;
-        var yearListOfAll = jsonResponse['years_list_of_all'] as List?;
-
-        List<CustomerModelxx> customers = [];
-        List<OrderTotalxx> orderTotal = [];
-        List<YearsListOfAll> yearList = [];
-
-        if (dataList != null) {
-          customers =
-              dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
-          orderTotal = orderTotalList!
-              .map((json) => OrderTotalxx.fromJson(json))
-              .toList();
-          yearList = yearListOfAll!
-              .map((json) => YearsListOfAll.fromJson(json))
-              .toList();
-        }
-
-        // Save response to Hive
-        await customerBox.put(
-          'fetchCustomerData',
-          {
-            'statusCode': jsonResponse['status_code'],
-            'status': jsonResponse['status'],
-            'message': jsonResponse['message'],
-            'data': dataList,
-            'orderTotal': orderTotalList,
-            'pagination': jsonResponse['pagination'],
-            'yearsListOfAll': yearListOfAll,
-          },
-        );
-
-        log('Customer List Length : ${customers.length}');
-
-        // Return parsed response
-        return CustomerResponseModelxx(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: customers,
-          orderTotal: orderTotal,
-          pagination: Paginationxx.fromJson(
-            jsonResponse['pagination'] ?? {},
-          ),
-          yearsListOfAll: yearList,
-        );
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-        throw Exception('Failed to load data');
+      if (dataList != null) {
+        customers =
+            dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
+        orderTotal = orderTotalList!
+            .map((json) => OrderTotalxx.fromJson(json))
+            .toList();
+        yearList = yearListOfAll!
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
       }
-    } catch (e) {
-      print('Exception occurred: $e');
-      final cachedData = customerBox.get('fetchCustomerData');
-      if (cachedData != null) {
-        log('Using cached customer data from Hive');
-        var dataList = cachedData['data'] as List?;
-        var orderTotalList = cachedData['orderTotal'] as List?;
-        var yearListOfAll = cachedData['yearsListOfAll'] as List?;
 
-        List<CustomerModelxx> customers = [];
-        List<OrderTotalxx> orderTotal = [];
-        List<YearsListOfAll> yearList = [];
-
-        if (dataList != null) {
-          customers =
-              dataList.map((json) => CustomerModelxx.fromJson(json)).toList();
-          orderTotal = orderTotalList!
-              .map((json) => OrderTotalxx.fromJson(json))
-              .toList();
-          yearList = yearListOfAll!
-              .map((json) => YearsListOfAll.fromJson(json))
-              .toList();
-        }
-
-        return CustomerResponseModelxx(
-          statusCode: cachedData['statusCode'] ?? 0,
-          status: cachedData['status'] ?? false,
-          message: cachedData['message'] ?? '',
-          data: customers,
-          orderTotal: orderTotal,
-          pagination: Paginationxx.fromJson(
-            cachedData['pagination'] ?? {},
-          ),
-          yearsListOfAll: yearList,
-        );
-      } else {
-        throw Exception('No cached data available');
-      }
+      return CustomerResponseModelxx(
+        statusCode: castedData['statusCode'] ?? 0,
+        status: castedData['status'] ?? false,
+        message: castedData['message'] ?? '',
+        data: customers,
+        orderTotal: orderTotal,
+        pagination: Paginationxx.fromJson(
+          castedData['pagination'] ?? {},
+        ),
+        yearsListOfAll: yearList,
+      );
+    } else {
+      throw Exception('No cached data available');
     }
   }
+}
 
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {

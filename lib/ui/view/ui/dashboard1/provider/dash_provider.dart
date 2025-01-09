@@ -66,7 +66,6 @@ class ApiService {
       "start_date": startDate,
       "year": specifiedYear,
     };
-
     try {
       final response = await http.post(
         url,

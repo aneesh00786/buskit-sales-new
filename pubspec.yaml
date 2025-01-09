@@ -23,7 +23,7 @@ environment:
 dependencies:
   add_to_cart_animation: ^2.0.4
   animated_custom_dropdown: ^3.1.1
-  cached_network_image: ^3.2.3
+  cached_network_image: 3.3.1
   calendar_view: ^1.0.3
   collection: 1.18.0
   connectivity_plus: ^6.0.5

@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,7 +31,7 @@ class ProductGrid extends StatefulWidget {
 }
 
 class _ProductGridState extends State<ProductGrid> {
-  List<ProductModel> products=[];
+  List<ProductModel> products = [];
   String? name;
   bool isLoading = true;
   bool hasInternet = true;
@@ -41,6 +42,7 @@ class _ProductGridState extends State<ProductGrid> {
     _fetchInitialProducts();
     log('Option name : ${widget.optionName}');
   }
+
   @override
   void didUpdateWidget(covariant ProductGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -86,7 +88,6 @@ class _ProductGridState extends State<ProductGrid> {
   @override
   Widget build(BuildContext context) {
     const double desiredItemWidth = 250.0;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -211,10 +212,24 @@ class _ProductGridState extends State<ProductGrid> {
                                             height: imageHeight,
                                             width: double.maxFinite,
                                             child: product.imageUrl != null
-                                                ? Image.network(
-                                                    '${ApiConstants.imageBaseUrl}/${product.imageUrl}')
+                                                ? CachedNetworkImage(
+                                                    imageUrl:
+                                                        '${ApiConstants.imageBaseUrl}/${product.imageUrl}',
+                                                    placeholder: (context,
+                                                            url) =>
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(15.0),
+                                                          child: CircleAvatar(
+                                                            radius: 10,
+                                                            child: const CircularProgressIndicator()),
+                                                        ),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        Image.asset(
+                                                            'assets/images/Image-not-found.png'),
+                                                  )
                                                 : Image.asset(
-                                                    'assets/images/otp.png'),
+                                                    'assets/images/Image-not-found.png'),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -297,7 +312,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                 ),
                                                 const SizedBox(width: 3),
                                                 product.inclTax != '' &&
-                                                      product.inclTax != null
+                                                        product.inclTax != null
                                                     ? Container(
                                                         padding:
                                                             const EdgeInsets
@@ -357,11 +372,11 @@ class _ProductGridState extends State<ProductGrid> {
                                                       child: Text(
                                                         'Stock : ${product.stock}',
                                                         style: TextStyle(
-                                                          fontSize: 7,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                          FontWeight.w600
-                                                        ),
+                                                            fontSize: 7,
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
                                                     ),
                                                   ),

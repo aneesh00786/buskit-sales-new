@@ -30,7 +30,7 @@ class ProductGrid extends StatefulWidget {
 }
 
 class _ProductGridState extends State<ProductGrid> {
-  late List<ProductModel> products;
+  List<ProductModel> products=[];
   String? name;
   bool isLoading = true;
   bool hasInternet = true;

@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -28,6 +29,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:lottie/lottie.dart';
 import '../../category_list.dart';
 import '../../product_list/view/product_list.dart';
+
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
@@ -121,6 +123,7 @@ class _OrderTakingState extends State<OrderTaking>
     CartDatabaseManager().removeListener(_updateCartCount);
     super.dispose();
   }
+
   void _selectFirstCategory() {
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
@@ -151,7 +154,6 @@ class _OrderTakingState extends State<OrderTaking>
     setState(() {
       _isDrawerOpen = !_isDrawerOpen;
     });
-  
   }
 
   Future<void> _fetchProductsByCategory(String categoryId) async {
@@ -370,42 +372,73 @@ class _OrderTakingState extends State<OrderTaking>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
-                  child: Obx(() => Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          if (!widget
-                              .productsController.selectedCustomerName.isEmpty)
-                            CircleAvatar(
-                              backgroundImage: widget.productsController
-                                      .selectedCustomerImageUrl.isEmpty
-                                  ? null
-                                  : NetworkImage(
-                                      '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
-                                    ),
-                              backgroundColor: widget.productsController
-                                      .selectedCustomerImageUrl.isEmpty
-                                  ? Colors.blueGrey
-                                  : const Color.fromARGB(123, 194, 192, 192),
-                            ),
-                          const SizedBox(width: 8),
-                          widget.productsController.selectedCustomerName.isEmpty
-                              ? Container()
-                              : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.productsController
-                                          .selectedCustomerName.value,
-                                    ),
-                                    MyRegularText(
-                                        label: "Customer", fontSize: 9),
-                                  ],
-                                ),
-                          const SizedBox(width: 10),
-                        ],
-                      )),
-                ),
+                    child: Obx(() => Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            if (!widget.productsController.selectedCustomerName
+                                .isEmpty)
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: widget.productsController
+                                        .selectedCustomerImageUrl.isEmpty
+                                    ? Colors.blueGrey
+                                    : const Color.fromARGB(123, 194, 192, 192),
+                                child: widget.productsController
+                                        .selectedCustomerImageUrl.isEmpty
+                                    ? Icon(Icons.person,
+                                        color: Colors
+                                            .white) // Default fallback icon
+                                    : CachedNetworkImage(
+                                        imageUrl:
+                                            '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
+                                        imageBuilder:
+                                            (context, imageProvider) =>
+                                                CircleAvatar(
+                                          radius: 20,
+                                          backgroundImage: imageProvider,
+                                        ),
+                                        placeholder: (context, url) =>
+                                            CircleAvatar(
+                                          radius: 20,
+                                          backgroundColor: Colors.grey[300],
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) {
+                                          log('Failed to load image');
+                                          return CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.blueGrey,
+                                            child: Icon(Icons.person,
+                                                color: Colors.white),
+                                          );
+                                        },
+                                      ),
+                              ),
+                            const SizedBox(width: 8),
+                            widget.productsController.selectedCustomerName
+                                    .isEmpty
+                                ? Container()
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.productsController
+                                            .selectedCustomerName.value,
+                                      ),
+                                      MyRegularText(
+                                        label: "Customer",
+                                        fontSize: 9,
+                                      ),
+                                    ],
+                                  ),
+                            const SizedBox(width: 10),
+                          ],
+                        ))),
                 NotificationWidget(startDate: '', endDate: ''),
                 profiloe(),
               ],
@@ -861,8 +894,8 @@ class _OrderTakingState extends State<OrderTaking>
                                               '';
                                       widget.productsController
                                               .selectedSubCategoryName.value =
-                                          selectedCategory.subCategoryItem!.first
-                                              .subCategory
+                                          selectedCategory.subCategoryItem!
+                                              .first.subCategory
                                               .toString();
                                       _fetchProductsByCategory(
                                           firstSubCategoryId);

@@ -116,6 +116,8 @@ class ProductsController extends GetxController {
     isLoading.value = true;
     List<ProductModel> fetchedProducts =
         await ApiWorker().getTempProduct(subCatId);
+    log('Fetched stock value ${fetchedProducts.first.stock??''}');
+    log('Fetched detail stock value ${fetchedProducts.first.detail?.map((e) => e.stock,)??''}');
     products.value = fetchedProducts;
     isLoading.value = false;
     log('Final Products Length: ${products.length}');

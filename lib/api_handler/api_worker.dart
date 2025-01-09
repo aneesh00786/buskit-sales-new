@@ -636,31 +636,13 @@ Future<CustomerAndOrderResponce?> retrieveCustomerData() async {
     });
     return response;
   }
-
-  // Future<Response> setPaymentDetails(Map<String, dynamic> sendData) async {
-  //   log("Send DATA: ${FormData.fromMap(sendData).fields}");
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.payment_add_detail,
-  //           data: FormData.fromMap(sendData))
-  //       .onError((DioError error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return response;
-  // }
-
   /// ************************ CATEGORY SECTION ***************** ///
 Future<CategoryModel> getCategory() async {
   final List<ConnectivityResult> connectivityResult =
       await (Connectivity().checkConnectivity());
-
-  // If no internet connection
   if (connectivityResult.contains(ConnectivityResult.none)) {
-    // Open the Hive box to retrieve the saved data
     final box = await Hive.openBox('categoriesBox');
     final savedCategory = box.get('categoryItem');
-
-    // Check if the data exists in Hive
     if (savedCategory != null) {
       try {
         final convertedData = ApiService().castToStringDynamic(
@@ -684,9 +666,8 @@ Future<CategoryModel> getCategory() async {
     });
     final category = CategoryModel.fromJson(response.data);
     final box = await Hive.openBox('categoriesBox');
-    await box.put('categoryItem', category.toJson());  // Save as a JSON map
+    await box.put('categoryItem', category.toJson());
     log('Category Data : $category');
-    // Return the fetched category data
     return category;
   }
 }

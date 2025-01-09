@@ -277,7 +277,6 @@ class ProductsController extends GetxController {
 
   Future<CustomerCartData?> getCustomerCartData(String customerId) async {
     var data = await ApiWorker().getCustomerCart(customerId: customerId);
-
     if (data.data != null && data.data!.isNotEmpty) {
       return data.data!.first;
     }
@@ -288,7 +287,6 @@ class ProductsController extends GetxController {
       String customerId) async {
     var data =
         await ApiWorker().getSingleCustomerOrderHistory(customerId: customerId);
-
     if (data.data != null && data.data!.isNotEmpty) {
       return data;
     }

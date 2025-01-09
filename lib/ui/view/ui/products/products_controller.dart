@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -65,7 +66,7 @@ class ProductsController extends GetxController {
   RxString selectedCategoryId = "".obs;
   RxBool isReached = false.obs;
   RxInt selectedSubCategoryIndex = 0.obs;
-    RxString selectedSubCategoryName = "".obs;
+  RxString selectedSubCategoryName = "".obs;
   RxInt selectedCategoryIndex = 0.obs;
   RxList<ProductModel> products = <ProductModel>[].obs;
   RxBool isLoading = false.obs;
@@ -79,6 +80,7 @@ class ProductsController extends GetxController {
     super.onInit();
     fetchCategoryData();
   }
+
   void closeDialog() {
     showDialog.value = false;
   }
@@ -172,8 +174,17 @@ class ProductsController extends GetxController {
   Future<CategoryModel?> retrieveCategoryData() async {
     final box = await Hive.openBox('categoriesBox');
     final jsonString = box.get('categoryData');
+
     if (jsonString != null) {
-      return CategoryModel.fromJson(jsonString);
+      try {
+        final convertedData = ApiService().castToStringDynamic(
+          Map<String, dynamic>.from(jsonString),
+        );
+        return CategoryModel.fromJson(convertedData);
+      } catch (e) {
+        log("Error converting category data: $e");
+        return null;
+      }
     }
     return null;
   }
@@ -196,8 +207,6 @@ class ProductsController extends GetxController {
   Future<Set<CategoryModel>> get loadDataOfCategory async => {
         categoryData.value = await ApiWorker().getCategory(),
       };
-
-  /// FUNCTIONS
   void updateProductList(List<ProductList> newData,
       {bool isBackupUpdate = false}) {
     if (isBackupUpdate) {
@@ -211,15 +220,11 @@ class ProductsController extends GetxController {
     log("Product List ⬆⬆⬆⬆⬆⬆⬆ ${productList.length} ---- ${productListBackup.length}");
     log("Product List ⬆⬆⬆⬆⬆⬆⬆ ${productList.map((element) => element.variant?.map((e) => e.toJson()["quantity"]))} --BACKUP--> ${productListBackup.map((element) => element.variant?.map((e) => e.toJson()["quantity"]))}");
 
-    // Update the backup list as well
-
     refresh();
   }
-
   updateVariantData(int productListIndex, int variantIndex) {
     refresh();
   }
-
   changeCrossFadeState(CrossFadeState state) {
     crossFadeState = state;
     refresh();
@@ -268,27 +273,7 @@ class ProductsController extends GetxController {
     categoryData.value =
         BackupDataFunction.getCategoryAndProductBackup ?? CategoryModel();
     refresh();
-    //log('CHANGEDDDDDD: ${categoryData.value.data?.map((e) => e.subCategoryItem?.map((e) => e.productList?.map((e) => e.variant?.map((e) => e.toJson()))))}');
-
-    if (categoryData.value.data != null) {
-      // updateProductList(
-      //     categoryData
-      //             .value
-      //             .data![selectedCategoryIndex.value]
-      //             .subCategoryItem?[selectedSubCategoryIndex.value]
-      //             .productList ??
-      //         [],
-      //     isBackupUpdate: true
-      //     );
-    }
-    refresh();
   }
-
-  /// API OPRATION
-
-  /*Future<StaffResponce> getSalesmanData(String salesmanId) async {
-    return await _apiWorker.getSingleSaleManData(salesmanId);
-  }*/
 
   Future<CustomerCartData?> getCustomerCartData(String customerId) async {
     var data = await ApiWorker().getCustomerCart(customerId: customerId);

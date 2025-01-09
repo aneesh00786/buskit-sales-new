@@ -374,8 +374,14 @@ Future<PerformanceData?> fetchSalesmanPerformanceData(
   }
 
   /// ************************ CUSTOMER AND ORDER SECTION ***************** ///
-  Future<CustomerAndOrderResponce> getCustomer() async {
-    try {
+Future<CustomerAndOrderResponce> getCustomer() async {
+  try {
+    // Check for internet connectivity
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    bool hasInternet = !connectivityResult.contains(ConnectivityResult.none);
+
+    if (hasInternet) {
+      // If connected to the internet, fetch data from the API
       final response = await dio.postbycustom(
         ApiConstants.fetchcustomer,
         data: FormData.fromMap({
@@ -384,12 +390,44 @@ Future<PerformanceData?> fetchSalesmanPerformanceData(
         }),
       );
       log('Company Id === $companyId');
-      return CustomerAndOrderResponce.fromJson(response.data);
-    } catch (error) {
-      return Future.error(
-          'Failed to fetch customer data From API Worker: $error');
+      final customerData = CustomerAndOrderResponce.fromJson(response.data);
+      await storeCustomerData(customerData);  // Ensure to store this data in Hive
+      return customerData;
+
+    } else {
+      log('No internet, fetching customer data from Hive...');
+      final customerData = await retrieveCustomerData();
+      if (customerData != null) {
+        log('Loaded customer data from Hive');
+        return customerData;
+      } else {
+        throw Exception('No customer data available offline');
+      }
+    }
+  } catch (error) {
+    return Future.error('Failed to fetch customer data From API Worker: $error');
+  }
+}
+Future<void> storeCustomerData(CustomerAndOrderResponce customerData) async {
+  final box = await Hive.openBox('customerBox');
+  await box.put('customerData', customerData.toJson());
+  log('Customer data stored in Hive');
+}
+Future<CustomerAndOrderResponce?> retrieveCustomerData() async {
+  final box = await Hive.openBox('customerBox');
+  final jsonString = box.get('customerData');
+  
+  if (jsonString != null) {
+    try {
+      final convertedData = ApiService().castToStringDynamic(Map<String, dynamic>.from(jsonString));
+      return CustomerAndOrderResponce.fromJson(convertedData);
+    } catch (e) {
+      log("Error converting customer data: $e");
+      return null;
     }
   }
+  return null;
+}
 
   Future<RecentOrderCountResponse> fetchRecentOrderCount(
     {String? startDate,
@@ -612,95 +650,95 @@ Future<PerformanceData?> fetchSalesmanPerformanceData(
   // }
 
   /// ************************ CATEGORY SECTION ***************** ///
-  Future<CategoryModel> getCategory() async {
-    final List<ConnectivityResult> connectivityResult =
-        await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      final box = await Hive.openBox('categoriesBox');
-      final savedCategory = box.get('categoryItem') as CategoryModel?;
-      if (savedCategory != null) {
-        return savedCategory;
-      } else {
-        throw Exception('No data available offline');
+Future<CategoryModel> getCategory() async {
+  final List<ConnectivityResult> connectivityResult =
+      await (Connectivity().checkConnectivity());
+
+  // If no internet connection
+  if (connectivityResult.contains(ConnectivityResult.none)) {
+    // Open the Hive box to retrieve the saved data
+    final box = await Hive.openBox('categoriesBox');
+    final savedCategory = box.get('categoryItem');
+
+    // Check if the data exists in Hive
+    if (savedCategory != null) {
+      try {
+        final convertedData = ApiService().castToStringDynamic(
+            Map<String, dynamic>.from(savedCategory));
+        return CategoryModel.fromJson(convertedData);
+      } catch (e) {
+        log("Error converting category data: $e");
+        throw Exception('Failed to convert offline data');
       }
     } else {
-      log('$companyId');
-      final response = await dio.getbycustom(ApiConstants.fetchcategories,
-          queryParameters: {
-            "company_id": companyId
-          }).onError((DioError error, stackTrace) {
-        log(error.toString());
-        return Future.error(DioExceptionHandler.fromDioError(error));
-      });
-      final category = CategoryModel.fromJson(response.data);
-      final box = await Hive.openBox('categoriesBox');
-      await box.put('categoryData', category);
-
-      return category;
+      throw Exception('No data available offline');
     }
+  } else {
+    log('$companyId');
+    final response = await dio.getbycustom(
+      ApiConstants.fetchcategories,
+      queryParameters: {"company_id": companyId},
+    ).onError((DioError error, stackTrace) {
+      log(error.toString());
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
+    final category = CategoryModel.fromJson(response.data);
+    final box = await Hive.openBox('categoriesBox');
+    await box.put('categoryItem', category.toJson());  // Save as a JSON map
+    log('Category Data : $category');
+    // Return the fetched category data
+    return category;
   }
+}
+
+
+
 
   /// ************************ PRODUCT SECTION ***************** ///
-  Future<List<ProductModel>> getTempProduct(String subCatId) async {
-    log('Company ID: $companyId');
-    final List<ConnectivityResult> connectivityResult =
-        await (Connectivity().checkConnectivity());
-    bool hasInternet = !connectivityResult.contains(ConnectivityResult.none);
-    log('Has Internet: $hasInternet');
-    if (hasInternet) {
-      try {
-        final response = await dio.getbycustom(ApiConstants.fetchproduct,
-            queryParameters: {"company_id": companyId, "sub_catid": subCatId});
-        if (response.statusCode == 200) {
-          final responseData = response.data;
-          log('Response Data: $responseData');
-          if (responseData['data'] is List) {
-            List<ProductModel> productList = [];
-            for (var item in responseData['data']) {
-              if (item['product'] is List) {
-                List<dynamic> productsJsonList = item['product'];
-                productList.addAll(productsJsonList
-                    .map((productJson) => ProductModel.fromJson(productJson))
-                    .toList());
-              }
+Future<List<ProductModel>> getTempProduct(String subCatId) async {
+  log('Company ID: $companyId');
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasInternet = connectivityResult != ConnectivityResult.none;
+  log('Has Internet: $hasInternet');
+  if (hasInternet) {
+    try {
+      final response = await dio.getbycustom(
+        ApiConstants.fetchproduct,
+        queryParameters: {"company_id": companyId, "sub_catid": subCatId},
+      );
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        log('Response Data: $responseData');
+        if (responseData['data'] is List) {
+          List<ProductModel> productList = [];
+          for (var item in responseData['data']) {
+            if (item['product'] is List) {
+              List<dynamic> productsJsonList = item['product'];
+              productList.addAll(productsJsonList
+                  .map((productJson) => ProductModel.fromJson(productJson))
+                  .toList());
             }
-
-            log('Fetched Products: ${productList.length}');
-            var productBox = Hive.isBoxOpen('products')
-                ? Hive.box<ProductModel>('products')
-                : await Hive.openBox<ProductModel>('products');
-            log('The box Values ${productBox.values.length}');
-            await productBox.clear();
-            log('Hive box cleared');
-            await productBox.addAll(productList);
-            log('Added new products to Hive');
-
-            return productList;
-          } else {
-            log("Unexpected response format: 'data' is not a list");
-            return [];
           }
+          log('Fetched Products: ${productList.length}');
+          return productList;
         } else {
-          log("Failed to load products, status code: ${response.statusCode}");
+          log("Unexpected response format: 'data' is not a list");
           return [];
         }
-      } catch (e) {
-        log("Error fetching products: $e");
-        return [];
-      }
-    } else {
-      // Load products from local storage (Hive) when offline
-      var productBox = Hive.box<ProductModel>('products');
-      if (productBox.isNotEmpty) {
-        List<ProductModel> offlineProducts = productBox.values.toList();
-        log("Loaded products from local storage");
-        return offlineProducts;
       } else {
-        log("No products available offline");
+        log("Failed to load products, status code: ${response.statusCode}");
         return [];
       }
+    } catch (e) {
+      log("Error fetching products: $e");
+      return [];
     }
+  } else {
+    log("No internet connection, unable to fetch products");
+    return [];
   }
+}
+
 
   /// ************************ LEADS SECTION ***************** ///
   Future<Response> addCustomer(Map<String, dynamic> sendData) async {

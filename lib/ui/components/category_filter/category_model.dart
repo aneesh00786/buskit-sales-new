@@ -85,7 +85,7 @@ class CategoryData extends HiveObject {
     if (json['categoryTax'] != null) {
       categoryTax = [];
       json['categoryTax'].forEach((v) {
-        categoryTax?.add(CategoryTax.fromJson(v ?? {}));
+        categoryTax?.add(CategoryTax.fromJson(Map<String, dynamic>.from(v ?? {})));
       });
     } else {
       categoryTax = [];

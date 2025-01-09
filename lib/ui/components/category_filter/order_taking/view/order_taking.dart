@@ -28,7 +28,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:lottie/lottie.dart';
 import '../../category_list.dart';
 import '../../product_list/view/product_list.dart';
-
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
@@ -62,7 +61,6 @@ class _OrderTakingState extends State<OrderTaking>
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   HomeController homeController = Get.find<HomeController>();
-
   bool isLoading = true;
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
@@ -70,12 +68,10 @@ class _OrderTakingState extends State<OrderTaking>
   int cartItemCount = 0;
   String _selectedCategory = '';
   int _expandedIndex = -1;
-  //bool _showDialog = false;
   String _dialogMessage = '';
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
-
   @override
   void initState() {
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
@@ -125,7 +121,6 @@ class _OrderTakingState extends State<OrderTaking>
     CartDatabaseManager().removeListener(_updateCartCount);
     super.dispose();
   }
-
   void _selectFirstCategory() {
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];

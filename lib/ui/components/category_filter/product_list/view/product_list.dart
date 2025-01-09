@@ -38,39 +38,9 @@ class _ProductGridState extends State<ProductGrid> {
   @override
   void initState() {
     super.initState();
-    _checkInternetConnection();
+    _fetchInitialProducts();
     log('Option name : ${widget.optionName}');
   }
-
-  Future<void> _checkInternetConnection() async {
-    final List<ConnectivityResult> connectivityResult =
-        await (Connectivity().checkConnectivity());
-    hasInternet = !connectivityResult.contains(ConnectivityResult.none);
-    log('Has Internet: $hasInternet');
-
-    if (hasInternet) {
-      _fetchInitialProducts();
-    } else {
-      _loadProductsFromHive();
-    }
-  }
-
-  Future<void> _loadProductsFromHive() async {
-    var productBox = Hive.isBoxOpen('products')
-        ? Hive.box<ProductModel>('products')
-        : await Hive.openBox<ProductModel>('products');
-    if (productBox.isNotEmpty) {
-      setState(() {
-        products = productBox.values.toList();
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
   @override
   void didUpdateWidget(covariant ProductGrid oldWidget) {
     super.didUpdateWidget(oldWidget);

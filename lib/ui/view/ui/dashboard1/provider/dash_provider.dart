@@ -58,7 +58,6 @@ class ApiService {
       int specifiedYear, String startDate, String endDate) async {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
-    log('${startDate}, ${endDate}');
     final requestBody = {
       "companyId": companyId,
       "customer_id": customerId,
@@ -106,34 +105,25 @@ class ApiService {
     try {
       final connectivity = await Connectivity().checkConnectivity();
       if (connectivity == ConnectivityResult.none) {
-        //log('No internet connection. Attempting to use cached data from Hive.');
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
-          // log('Cached data type: ${cachedData.runtimeType}');
-          // log('Cached data: $cachedData');
           try {
             if (cachedData is Map<String, dynamic>) {
-              //log('Using valid cached data from Hive.');
               return _mapJsonToResponseModel(cachedData);
             } else if (cachedData is List<dynamic>) {
-              //log('Cached data is a List<dynamic>. Converting to Map...');
               final Map<String, dynamic> wrappedData = {'data': cachedData};
               return _mapJsonToResponseModel(wrappedData);
             } else {
               throw Exception('Invalid cached data format.');
             }
           } catch (e) {
-            // log('Error processing cached data: $e');
             throw Exception(
                 'Failed to process cached data due to type mismatch.');
           }
         } else {
-          // log('No valid cached data found.');
           throw Exception('No cached data available.');
         }
       }
-
-      //  log('Internet available. Fetching data from API.');
       final response = await Dio().post(
         url,
         options: Options(
@@ -144,8 +134,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        // log('jsonResponse type: ${jsonResponse.runtimeType}');
-        // log('jsonResponse: $jsonResponse');
         await dashboardBox.put(
             'dashboardData', Map<String, dynamic>.from(jsonResponse));
 
@@ -158,26 +146,21 @@ class ApiService {
             'Failed to load data with status code: ${response.statusCode}');
       }
     } on DioError catch (e) {
-      // log('DioError: ${e.message}');
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
-        // log('Cached data type before casting: ${cachedData.runtimeType}');
         try {
           if (cachedData is Map) {
             final safeCachedData =
                 castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-            // log('Cached data type after casting: ${safeCachedData.runtimeType}');
             return _mapJsonToResponseModel(safeCachedData);
           } else {
             throw Exception('Invalid cached data format.');
           }
         } catch (e) {
-          // log('Error processing cached data: $e');
           throw Exception(
               'Failed to process cached data due to type mismatch.');
         }
       } else {
-        // log('No cached data found.');
         throw Exception('No cached data available.');
       }
     }

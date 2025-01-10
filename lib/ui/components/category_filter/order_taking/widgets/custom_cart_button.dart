@@ -17,7 +17,7 @@ class CustomCartButton extends StatelessWidget {
     return Expanded(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor:color==null? Colors.grey:color,
+          backgroundColor:color ?? Colors.grey,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),

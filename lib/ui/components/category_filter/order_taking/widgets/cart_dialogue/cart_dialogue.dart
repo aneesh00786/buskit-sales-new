@@ -91,35 +91,6 @@ class _CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  Future<void> placeOrder(
-    CartOrderModel cartOrder,
-    Function(int statusCode, String message) onResponse,
-  ) async {
-    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    cartOrder.companyId = companyId;
-    try {
-      log('Assigned companyId: ${cartOrder.companyId}');
-      log('Place Order Payload: ${cartOrder.toJson()}');
-
-      final response = await Dio().post(
-        "http://16.50.232.153:3000/place_order",
-        data: cartOrder.toJson(),
-      );
-
-      log('Response status code: ${response.statusCode}');
-      if (response.statusCode == 200) {
-        log('Order placed successfully: ${response.data}');
-        onResponse(200, 'Your order has been successfully placed.');
-      } else {
-        log('Failed to place order: ${response.data}');
-        onResponse(response.statusCode ?? 500, 'Failed to place your order.');
-      }
-    } catch (e) {
-      log('Error placing order: $e');
-      onResponse(500, 'An error occurred while placing the order.');
-    }
-  }
-
   Map<String, List<CartItem>> groupCartItemsByName(List<CartItem> cartItems) {
     return groupBy(cartItems, (CartItem item) => item.productName);
   }
@@ -1216,16 +1187,14 @@ class _CartDialogueState extends State<CartDialogue> {
           var detailItem = parsedProduct.detail?.firstWhereOrNull(
             (item) => item.productId == productId,
           );
-
           if (detailItem != null) {
-            // Use 'pieces' directly as it's a 'num?' type
             int piecesValue = (detailItem.pieces ?? 1).toInt();
             return piecesValue * quantity;
           }
         }
       }
     }
-    return quantity; // Default to the raw quantity if no pieces value is found
+    return quantity;
   }
 
   void showSuccessDialog(BuildContext context, String message) {
@@ -1301,18 +1270,29 @@ class _CartDialogueState extends State<CartDialogue> {
 
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final orderData = {
-      'customerId': customeController.customerId.isNotEmpty
+      'customer_id': customeController.customerId.isNotEmpty
           ? customeController.customerId.value
           : widget.productsController.selectedCustomerId.value,
-      'finalAmount': finalAmount,
+      'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
+      'order_price': finalAmount,
       'paymentType': paymentType,
-      'cartItems': cartItems.map((e) => e.detail.toJson()).toList(),
+      'cart_list': cartItems
+          .map((e) => {
+                'product_id': e.detail.productId,
+                'variant_id': e.detail.variationId,
+                'pack': e.detail.saleBy == 'Pack'
+                    ? e.detail.count.toString()
+                    : e.detail.count.toString(),
+                'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                'price': e.detail.price.toString(),
+                'discount': '0',
+                'quantity': e.detail.count.toInt(),
+              })
+          .toList(),
     };
-
     var offlineBox = await Hive.openBox('offlineOrders');
     await offlineBox.add(orderData);
-
-    log('Order saved locally: $orderData');
+    log('[saveOrderOffline] Order saved locally: $orderData');
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
@@ -1529,9 +1509,6 @@ class _CartDialogueState extends State<CartDialogue> {
         }
       }
     }
-
-    // log("Total price for all items: \$${total.toStringAsFixed(2)}");
-    // log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
 
   void _clearCartItem(List<CartItem> cartItem) {
@@ -1600,5 +1577,96 @@ class CartTextFields extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Future<void> syncOfflineOrders() async {
+//   var offlineOrdersBox = await Hive.openBox('offlineOrders');
+//   var orders = offlineOrdersBox.values.toList();
+
+//   for (var order in orders) {
+//     try {
+//       log('[syncOfflineOrders] Processing offline order: $order');
+//       final AddToCartModel productBYData = AddToCartModel(
+//         customerId: order['customerId'],
+//         salesmanId: order['salesmanId'],
+//         cartId: '',
+//         cartList: (order['cartItems'] as List).map((e) {
+//           return SendCartData(
+//             productId: e['product_id'],
+//             variantId: e['variant_id'],
+//             pack: e['pack'],
+//             price: e['price'],
+//             packType: e['packType'],
+//             discount: e['discount'],
+//             quantity: e['quantity'],
+//           );
+//         }).toList(),
+//         total: order['finalAmount'].toString(),
+//         discount: '0',
+//       );
+
+//       log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
+//       final CartOrderModel? cartOrder =
+//           await ApiWorker().addToCart(productBYData.toJson());
+
+//       if (cartOrder != null) {
+//         log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
+//         final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+//         final int orderStatus = 11;
+
+//         CartOrderModel orderPayload = CartOrderModel(
+//           customerId: order['customerId'],
+//           salesmanId: order['salesmanId'],
+//           cartId: cartOrder.cartId,
+//           orderStatus: orderStatus,
+//           orderPrice: order['finalAmount'],
+//           paymentType: order['paymentType'].toString(),
+//           companyId: companyId,
+//           paymentDetail: '',
+//           transactionNumber: '',
+//           transactionDate: '',
+//         );
+
+//         log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
+//         await placeOrder(orderPayload, (statusCode, message) async {
+//           if (statusCode == 200) {
+//             log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
+//             await offlineOrdersBox.delete(order['id']); 
+//           } else {
+//             log('[syncOfflineOrders] Failed to sync order: $message');
+//           }
+//         });
+//       }
+//     } catch (e) {
+//       log('[syncOfflineOrders] Error syncing order: $e');
+//     }
+//   }
+// }
+
+Future<void> placeOrder(
+  CartOrderModel cartOrder,
+  Function(int statusCode, String message) onResponse,
+) async {
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  cartOrder.companyId = companyId;
+  try {
+    log('Assigned companyId: ${cartOrder.companyId}');
+    log('Place Order Payload: ${cartOrder.toJson()}');
+    final response = await Dio().post(
+      "http://16.50.232.153:3000/place_order",
+      data: cartOrder.toJson(),
+    );
+    log('Response status code: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      log('Order placed successfully: ${response.data}');
+      onResponse(200, 'Your order has been successfully placed.');
+    } else {
+      log('Failed to place order: ${response.data}');
+      onResponse(response.statusCode ?? 500, 'Failed to place your order.');
+    }
+  } catch (e) {
+    log('Error placing order: $e');
+    onResponse(500, 'An error occurred while placing the order.');
   }
 }

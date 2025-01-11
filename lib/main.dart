@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/sqflite_database/database_helper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -16,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -58,11 +60,20 @@ void main() async {
 
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
-
   Get.lazyPut<HomeController>(() => HomeController());
-  runApp(MyApp(initialRout: SessionHelper.loginSavedData != null
-      ? AppRoutes.home
-      : AppRoutes.login));
+  final connectivityService = ConnectivityService();
+  connectivityService.startListening((connectivityResult) async {
+    if (connectivityResult != ConnectivityResult.none) {
+      bool isOnline = await connectivityService.isOnline();
+      if (isOnline) {
+        await connectivityService.syncOfflineOrders();
+      }
+    }
+  });
+  runApp(MyApp(
+      initialRout: SessionHelper.loginSavedData != null
+          ? AppRoutes.home
+          : AppRoutes.login));
 }
 
 class MyApp extends StatefulWidget {
@@ -115,7 +126,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    
     return LayoutBuilder(
       builder: (context, sizingConstraints) {
         AppDimensions.createInstance(context, sizingConstraints);

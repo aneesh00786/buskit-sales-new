@@ -59,8 +59,6 @@ Future<void> syncOfflineOrders() async {
   _isSyncing = true; 
   try {
     var offlineOrdersBox = await Hive.openBox('offlineOrders');
-    
-    // Check if there are orders to sync
     if (offlineOrdersBox.isEmpty) {
       log('[syncOfflineOrders] No offline orders to sync.');
       return;
@@ -94,7 +92,6 @@ Future<void> syncOfflineOrders() async {
         log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
         final CartOrderModel? cartOrder =
             await ApiWorker().addToCart(productBYData.toJson());
-
         if (cartOrder != null) {
           log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
           final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -137,5 +134,4 @@ Future<void> syncOfflineOrders() async {
     _isSyncing = false; 
   }
 }
-
 }

@@ -372,7 +372,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                       child: Text(
                                                         'Stock : ${product.stock}',
                                                         style: TextStyle(
-                                                            fontSize: 20,
+                                                            fontSize: 7,
                                                             color: Colors.white,
                                                             fontWeight:
                                                                 FontWeight

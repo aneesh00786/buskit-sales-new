@@ -1268,32 +1268,33 @@ class _CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
-    final orderData = {
-      'customer_id': customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-      'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
-      'order_price': finalAmount,
-      'paymentType': paymentType,
-      'cart_list': cartItems
-          .map((e) => {
-                'product_id': e.detail.productId,
-                'variant_id': e.detail.variationId,
-                'pack': e.detail.saleBy == 'Pack'
-                    ? e.detail.count.toString()
-                    : e.detail.count.toString(),
-                'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                'price': e.detail.price.toString(),
-                'discount': '0',
-                'quantity': e.detail.count.toInt(),
-              })
-          .toList(),
-    };
-    var offlineBox = await Hive.openBox('offlineOrders');
-    await offlineBox.add(orderData);
-    log('[saveOrderOffline] Order saved locally: $orderData');
-  }
+Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
+  final orderData = {
+    'customer_id': customeController.customerId.isNotEmpty
+        ? customeController.customerId.value
+        : widget.productsController.selectedCustomerId.value,
+    'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
+    'order_price': finalAmount,
+    'paymentType': paymentType,
+    'cart_list': cartItems
+        .map((e) => {
+              'product_id': e.detail.productId,
+              'variant_id': e.detail.variationId,
+              'pack': e.detail.saleBy == 'Pack'
+                  ? (e.detail.count * e.detail.pieces!).toString()
+                  : e.detail.count.toString(),
+              'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              'price': e.detail.price.toString(),
+              'discount': '0',
+              'quantity': e.detail.count.toInt(),
+            })
+        .toList(),
+  };
+  var offlineBox = await Hive.openBox('offlineOrders');
+  await offlineBox.add(orderData);
+  log('[saveOrderOffline] Order saved locally: $orderData');
+}
+
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
     return input.map((key, value) {

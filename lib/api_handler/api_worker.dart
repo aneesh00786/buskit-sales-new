@@ -35,6 +35,7 @@ import 'package:get/route_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../common/pagination_model.dart';
+import '../ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import '../ui/view/ui/auth/auth_model/login_responce.dart';
 
 class ApiWorker with ApiConstants {
@@ -1086,39 +1087,62 @@ class ApiWorker with ApiConstants {
     return OrderCountResponse.fromJson(response.data);
   }
 
-  Future<OrderResponce> getRecentOrdersData({
-    SearchModel? searchModel,
-    int? order_status,
-  }) async {
-    final requestBody = {
-      "order_status": order_status,
-      "start_date": searchModel?.startDate,
-      "end_date": searchModel?.endDate,
-      "companyId": companyId,
-      "salesman_id": salesmanId,
-    };
+Future<OrderResponce> getRecentOrdersData({
+  SearchModel? searchModel,
+  int? order_status,
+}) async {
+  final requestBody = {
+    "order_status": order_status,
+    "start_date": searchModel?.startDate,
+    "end_date": searchModel?.endDate,
+    "companyId": companyId,
+    "salesman_id": salesmanId,
+  };
 
-    // Log the request body
-    log("Request Body: $requestBody");
+  log("Request Body: $requestBody");
+  log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
 
-    log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
+  var hiveBox = await Hive.openBox('recentOrders'); // Open the Hive box
 
+  // Check for internet connectivity
+  final isConnected = await ConnectivityService().isOnline();
+
+  if (isConnected) {
     try {
       final response = await dio.postbycustom(
         ApiConstants.get_recent_order,
         data: FormData.fromMap(requestBody),
       );
 
-      // Log the response data
       log("Response Data: ${response.data}");
 
-      return OrderResponce.fromJson(response.data);
+      // Parse the response
+      OrderResponce orderResponce = OrderResponce.fromJson(response.data);
+
+      // Save the fetched data to Hive
+      await hiveBox.put('recentOrders', response.data);
+      log("Data saved to Hive.");
+
+      return orderResponce;
     } on DioException catch (error, stackTrace) {
-      // Log the error details
       log("DioException: ${error.toString()}");
       return Future.error(DioExceptionHandler.fromDioError(error));
     }
+  } else {
+    // Fetch data from Hive when offline
+    if (hiveBox.containsKey('recentOrders')) {
+      log("Fetching data from Hive as there is no internet.");
+      final cachedData = hiveBox.get('recentOrders');
+
+      // Parse the cached data
+      return OrderResponce.fromJson(cachedData);
+    } else {
+      log("No internet and no cached data available.");
+      throw Exception("No internet connection and no cached data available.");
+    }
   }
+}
+
 
   Future<OrderProcessInvoice> getOrderProcessInvoiceData({
     String? orderId,

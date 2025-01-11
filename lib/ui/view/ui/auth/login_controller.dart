@@ -4,9 +4,11 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
 class LoginController extends GetxController {
@@ -41,69 +43,74 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<bool> performLogin() async {
-    try {
-      final requestBody = {
-        "email": emailController.text.removeAllWhitespace,
-        "password": passwordController.text,
-      };
-      log("Request Body: $requestBody");
+Future<bool> performLogin(BuildContext context) async {
+  try {
+    final requestBody = {
+      "email": emailController.text.removeAllWhitespace,
+      "password": passwordController.text,
+    };
+    log("Request Body: $requestBody");
 
-      loginResponce = await _apiWorker.loginApi(
-        emailController.text.removeAllWhitespace,
-        passwordController.text,
-      );
-      log("Response Body: ${loginResponce?.toJson()}");
-      log("StatusCode: ${loginResponce?.statusCode}");
+    loginResponce = await _apiWorker.loginApi(
+      emailController.text.removeAllWhitespace,
+      passwordController.text,
+    );
 
-      if (loginResponce?.statusCode == 200) {
+    log("Response Body: ${loginResponce?.toJson()}");
+    log("StatusCode: ${loginResponce?.statusCode}");
+
+    if (loginResponce?.statusCode == 200) {
       loginButtonController.success();
       await SessionHelper().setLoginData(loginResponce!.data!);
       final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
       log("Fetching settings after login...");
       await Future.delayed(Duration(seconds: 2));
       final settings = await _apiWorker.fetchAllSettings(companyId);
-
+      await Provider.of<CustomersProvider>(context, listen: false)
+          .fetchCustomerData();
+      await _apiWorker.getTempProduct('');
       if (settings != null) {
-        await SessionHelper().setSettingsData(settings); // Save settings here
+        await SessionHelper().setSettingsData(settings);
       }
-
       Get.offAllNamed(AppRoutes.home);
       return true;
     } else if (loginResponce?.statusCode == 422 ||
-          loginResponce?.statusCode == 409) {
-        return false;
-      } else if (loginResponce?.statusCode == 401) {
-        return false;
-      } else {
-        showErrorDialog(
-            'Login Error', 'An unexpected error occurred. Please try again.');
-      }
-
+        loginResponce?.statusCode == 409) {
       return false;
-    } catch (e) {
-      loginButtonController.error();
-      loginButtonController.reset();
-
-      if (e is DioException) {
-        log("DioException: ${e.response?.data}");
-        Get.snackbar(
-          'Login Error',
-          e.response?.data['message'] ?? e.message,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      } else {
-        log("Login Error: $e");
-        Get.snackbar(
-          'Login Error',
-          e.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-
+    } else if (loginResponce?.statusCode == 401) {
       return false;
+    } else {
+      showErrorDialog(
+        'Login Error',
+        'An unexpected error occurred. Please try again.',
+      );
     }
+
+    return false;
+  } catch (e) {
+    loginButtonController.error();
+    loginButtonController.reset();
+
+    if (e is DioException) {
+      log("DioException: ${e.response?.data}");
+      Get.snackbar(
+        'Login Error',
+        e.response?.data['message'] ?? e.message,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else {
+      log("Login Error: $e");
+      Get.snackbar(
+        'Login Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+
+    return false;
   }
+}
+
 
   /// Utility function to show error dialog
   void showErrorDialog(String title, String message) {

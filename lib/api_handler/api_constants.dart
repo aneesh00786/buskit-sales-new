@@ -44,12 +44,11 @@ mixin class ApiConstants {
   static const String handle_lead = "handle_lead";
   static const String fetch_leads_reject = "fetch_leads_reject";
   static const String fetch_specific_order = "fetch_specific_order";
-  static const String update_CategorytargetValue = "update_CategorytargetValue";
+  static const String update_CategorytargetValue = "Update_CategoryProjectionValue";
   static const String salesman_dashview = "salesman_dashview";
   static const String salesman_dash_navcontents = "salesman_dash_navcontents";
   static const String fetchAllSetting = "fetchAllSetting";
   static const String fetchLeadsCount = "fetchLeadsCount";
-  
 
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
@@ -80,9 +79,11 @@ mixin class ApiConstants {
 
   // DUMMY IMAGE URL
   static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
+
   // GOOGLE MAP API KEY
   static const String kGoogleApiKey = "AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc";
   static const String gGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
+  
   // GOOGLE MAP API'S
   static const String mapBaseUrl = "https://maps.gomaps.pro/maps/api/";
   static const String gmapBaseUrl = "https://maps.googleapis.com/maps/api/";

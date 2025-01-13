@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +49,8 @@ class LoginController extends GetxController {
   }
 
 Future<bool> performLogin(BuildContext context) async {
+  final int currentYear = DateTime.now().year;
+
   try {
     final requestBody = {
       "email": emailController.text.removeAllWhitespace,
@@ -67,6 +70,17 @@ Future<bool> performLogin(BuildContext context) async {
       loginButtonController.success();
       await SessionHelper().setLoginData(loginResponce!.data!);
       final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+          final targetType = SessionHelper.settingsData
+          ?.firstWhere(
+            (setting) => setting.key == 'targetType',
+            orElse: () => AllCompanySettingsData(
+              key: 'targetType',
+              value: '',
+            ),
+          )
+          .value ??
+      '';
       log("Fetching settings after login...");
       await Future.delayed(Duration(seconds: 2));
       final settings = await _apiWorker.fetchAllSettings(companyId);
@@ -74,6 +88,7 @@ Future<bool> performLogin(BuildContext context) async {
       await productsController.fetchCategoryData();
       await _apiWorker.getTempProduct('C49SC7');
       await pendingPaymentController.loadOrderData(chartIndex: 0,compId: companyId);
+      await _apiWorker.fetchSalesmanPerformanceData(monthName:  "January",year:  int.parse(currentYear.toString()),isfromLogin: true,compId: companyId,salesId:salesmanId );
       if (settings != null) {
         await SessionHelper().setSettingsData(settings);
       }

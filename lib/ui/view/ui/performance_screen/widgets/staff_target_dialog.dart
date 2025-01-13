@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -34,7 +35,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   bool isWeekly = false;
   Map<dynamic, String> updatedTargets = {};
-  Map<dynamic, String> weeklyTargets = {};
+  Map<int, TextEditingController> categoryControllers = {};
+
+  //Map<dynamic, String> weeklyTargets = {};
 
   @override
   void initState() {
@@ -49,59 +52,51 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     log("salesmanId : $salesmanId");
   }
 
-void _initializeControllers() {
-  final salesmanTargetList =
-      widget.staffController.salesmanTargetList.value.categoryPerformance ?? [];
-
-  if (salesmanTargetList.isEmpty) {
-    log('Salesman Target List is empty or null');
-    return;
-  }
-  
-  widget.tabControllers.clear();
-  for (var target in salesmanTargetList) {
-    widget.tabControllers.add(
-      TextEditingController(
+  void _initializeControllers() {
+    final salesmanTargetList =
+        widget.staffController.salesmanTargetList.value.categoryPerformance ??
+            [];
+    widget.tabControllers.clear();
+    for (var target in salesmanTargetList) {
+      final controller = TextEditingController(
         text: target.actualTarget?.toString() ?? '',
-      ),
-    );
-  }
-
-  _weeklyTargetControllers.clear();
-  for (var target in salesmanTargetList) {
-    if (target.actualTarget is Map) {
-      final weeklyTargets = target.actualTarget as Map;
-      weeklyTargets.forEach((week, value) {
-        if (_weeklyTargetControllers[week] == null) {
-          _weeklyTargetControllers[week] = [];
-        }
-
-        while (_weeklyTargetControllers[week]!.length <=
-            widget.staffController.salesmanTargetList.value.categoryPerformance!
-                .indexOf(target)) {
-          _weeklyTargetControllers[week]!.add(TextEditingController());
-        }
-        _weeklyTargetControllers[week]!.last =
-            TextEditingController(text: value?.toString() ?? '');
-      });
+      );
+      widget.tabControllers.add(controller);
+      categoryControllers[salesmanTargetList.indexOf(target)] = controller;
+    }
+    _weeklyTargetControllers.clear();
+    for (var target in salesmanTargetList) {
+      if (target.actualTarget is Map) {
+        final weeklyTargets = target.actualTarget as Map;
+        weeklyTargets.forEach((week, value) {
+          if (_weeklyTargetControllers[week] == null) {
+            _weeklyTargetControllers[week] = [];
+          }
+          _weeklyTargetControllers[week]!.add(
+            TextEditingController(text: value?.toString() ?? ''),
+          );
+        });
+      }
     }
   }
-}
 
-
-  @override
-  void dispose() {
-    widget.tabController.dispose();
-    for (var controller in widget.tabControllers) {
+@override
+void dispose() {
+  widget.tabController.dispose();
+  for (var controller in widget.tabControllers) {
+    controller.dispose();
+  }
+  for (var controller in categoryControllers.values) {
+    controller.dispose();
+  }
+  _weeklyTargetControllers.forEach((_, controllers) {
+    for (var controller in controllers) {
       controller.dispose();
     }
-    _weeklyTargetControllers.forEach((_, controllers) {
-      for (var controller in controllers) {
-        controller.dispose();
-      }
-    });
-    super.dispose();
-  }
+  });
+  super.dispose();
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -236,17 +231,16 @@ void _initializeControllers() {
     final selectedMonth = widget.tabController.index + 1;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
-
     updatedTargets = {
-      for (int i = 0; i < widget.tabControllers.length; i++)
-        widget.staffController.salesmanTargetList.value.categoryPerformance![i].cid
-            .toString(): widget.tabControllers[i].text.toString()
+      for (int i = 0; i < categoryControllers.length; i++)
+        widget.staffController.salesmanTargetList.value.categoryPerformance![i]
+            .cid
+            .toString(): categoryControllers[i]?.text.toString() ?? ''
     };
 
-    Map<String, String> buildRequestData(
+    Map<String, Map<String, String>> buildWeeklyTargetData(
         List<int> categoryIds, List<int> relevantWeeks) {
-      final Map<String, String> requestData = {};
-
+      final Map<String, Map<String, String>> weeklyTargetData = {};
       for (var week in relevantWeeks) {
         final weekKey = 'week$week';
         final controllers = _weeklyTargetControllers[weekKey] ?? [];
@@ -255,39 +249,47 @@ void _initializeControllers() {
             categoryIndex < categoryIds.length;
             categoryIndex++) {
           final categoryId = categoryIds[categoryIndex];
-          final key = 'weekly_${categoryId}_week$week';
           final controller = categoryIndex < controllers.length
               ? controllers[categoryIndex]
               : null;
-          requestData[key] = controller?.text ?? '';
+          weeklyTargetData.putIfAbsent(weekKey, () => {});
+          weeklyTargetData[weekKey]!['$categoryId'] = controller?.text ?? '';
         }
       }
 
-      return requestData;
+      return weeklyTargetData;
     }
 
     List<int> getCategoryIds() {
-      return widget.staffController.salesmanTargetList.value.categoryPerformance!
+      return widget
+          .staffController.salesmanTargetList.value.categoryPerformance!
           .map((category) => category.cid!)
           .toList();
     }
 
     final categoryIds = getCategoryIds();
     final relevantWeeks = getWeeksForMonth(widget.currentYear, selectedMonth);
-    final requestData = buildRequestData(categoryIds, relevantWeeks);
+    final weeklyTargetData = buildWeeklyTargetData(categoryIds, relevantWeeks);
+    final requestData = {
+      "companyId": 1,
+      "sales_id": "SALES1",
+      "month": selectedMonthName,
+      "year": widget.currentYear.toString(),
+      "categories": updatedTargets,
+      "weekly_target": isWeekly ? weeklyTargetData : {},
+    };
 
-    log(requestData.toString());
-
+    final requestDataAsStrings =
+        requestData.map((key, value) => MapEntry(key, value.toString()));
+    log('Performance Request: ${jsonEncode(requestData)}');
     widget.staffController.updateCategoryTarget(
       "SALES1",
       selectedMonthName,
       widget.currentYear.toString(),
       updatedTargets,
-      requestData,
+      requestDataAsStrings,
     );
-
-    print('Updated Targets: $updatedTargets');
-    Navigator.of(context).pop();
+    log('Updated Targets: $updatedTargets');
   }
 
   Widget _buildTableHeader(String text) {
@@ -307,19 +309,22 @@ void _initializeControllers() {
   }
 
   List<TableRow> _buildCategoryRows() {
-    log('Length odf :${widget.staffController.salesmanTargetList.value.categoryPerformance?.length}');
+    log('Length of :${widget.staffController.salesmanTargetList.value.categoryPerformance?.length}');
     return List.generate(
-      widget.staffController.salesmanTargetList.value.categoryPerformance?.length ??
+      widget.staffController.salesmanTargetList.value.categoryPerformance
+              ?.length ??
           0,
       (index) {
-        final target = widget
-            .staffController.salesmanTargetList.value.categoryPerformance?[index];
+        final target = widget.staffController.salesmanTargetList.value
+            .categoryPerformance?[index];
+        categoryControllers[index] ??= TextEditingController(
+          text: target?.actualTarget.toString() ?? '',
+        );
         return TableRow(
           children: [
-            _buildTableCell(target?.category??''),
-            _buildTableCell(target?.actualTarget.toString()??''),
-            _buildTableTextField(index, false,target),
-
+            _buildTableCell(target?.category ?? ''),
+            _buildTableCell(target?.actualTarget.toString() ?? ''),
+            _buildTableTextField(index, false, target),
           ],
         );
       },
@@ -361,11 +366,11 @@ void _initializeControllers() {
 
     for (var categoryIndex = 0;
         categoryIndex <
-            widget
-                .staffController.salesmanTargetList.value.categoryPerformance!.length;
+            widget.staffController.salesmanTargetList.value.categoryPerformance!
+                .length;
         categoryIndex++) {
-      final target = widget.staffController.salesmanTargetList
-          .value.categoryPerformance![categoryIndex];
+      final target = widget.staffController.salesmanTargetList.value
+          .categoryPerformance![categoryIndex];
       final rowColumns = <Widget>[
         Container(
           height: 50,
@@ -451,31 +456,30 @@ void _initializeControllers() {
     );
   }
 
-Widget _buildTableTextField(int index, bool isReadOnly, CategoryPerformance? target) {
-  TextEditingController controller = TextEditingController(
-    text: target?.actualProjection?.toString() ?? '',
-  );
+  Widget _buildTableTextField(
+      int index, bool isReadOnly, CategoryPerformance? target) {
+    TextEditingController controller = TextEditingController(
+      text: target?.actualProjection?.toString() ?? '',
+    );
 
-  return Container(
-    height: 50,
-    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-    child: TextField(
-      controller: controller,
-      textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 16),
-      readOnly: isReadOnly,
-      decoration: InputDecoration(
-        fillColor: Colors.blueGrey.shade50,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      child: TextField(
+        controller: controller,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 16),
+        readOnly: isReadOnly,
+        decoration: InputDecoration(
+          fillColor: Colors.blueGrey.shade50,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 5),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 5),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 }

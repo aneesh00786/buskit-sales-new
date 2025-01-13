@@ -23,8 +23,6 @@ class DioClient with ApiConstants {
     return _dio;
   }
 
-  // HTTP request methods will go here
-
   Future<Response> postbycustom<T>(
     String path, {
     data,
@@ -34,7 +32,7 @@ class DioClient with ApiConstants {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-  }) async {
+  }) async { 
     try {
       final response = await _dio.post(path,
           data: data,

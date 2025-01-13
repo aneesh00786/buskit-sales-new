@@ -49,10 +49,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   final int currentMonth = DateTime.now().month;
   String? _selectedMonthName;
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   String selectedValue = "2024";
   @override
   void initState() {
     super.initState();
+    ApiWorker().fetchAllSettings(companyId);
     _tabController =
         TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
     _selectedMonthName = DateFormat.MMMM().format(DateTime.now());

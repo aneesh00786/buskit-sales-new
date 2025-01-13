@@ -130,7 +130,6 @@ class ProductsController extends GetxController {
 
   Future<void> fetchCategoryData() async {
     CategoryModel? categoryModel;
-
     final List<ConnectivityResult> connectivityResult =
         await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {

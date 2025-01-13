@@ -5,6 +5,8 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +19,8 @@ class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  ProductsController productsController = Get.put(ProductsController());
+  PendingPaymentController pendingPaymentController = Get.put(PendingPaymentController());
 
   LoginResponce? loginResponce;
 
@@ -68,7 +72,9 @@ Future<bool> performLogin(BuildContext context) async {
       final settings = await _apiWorker.fetchAllSettings(companyId);
       await Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerData();
-      await _apiWorker.getTempProduct('');
+      await productsController.fetchCategoryData();
+      await _apiWorker.getTempProduct('C49SC7');
+      await pendingPaymentController.loadOrderData(chartIndex: 0);
       if (settings != null) {
         await SessionHelper().setSettingsData(settings);
       }

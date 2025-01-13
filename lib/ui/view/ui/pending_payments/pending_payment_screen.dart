@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_payment_top_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_tabbar.dart';
@@ -23,6 +25,7 @@ class _PendingPaymentScreenState extends State<PendingPaymentScreen> {
   void initState() {
     super.initState();
     orderController.loadOrderData(chartIndex: selectedTabIndex);
+    log('Selected Tab Number : $selectedTabIndex');
   }
 
   void _onTabChanged(int index) {

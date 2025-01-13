@@ -681,87 +681,71 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ PRODUCT SECTION ***************** ///
-  Future<List<ProductModel>> getTempProduct(String subCatId) async {
-    log('=== getTempProduct called ===');
-    log('Company ID: $companyId');
-    log('Selected Subcategory ID: $subCatId');
+Future<List<ProductModel>> getTempProduct(String subCatId) async {
+  log('=== getTempProduct called ===');
+  List<ProductModel> allProducts = [];
 
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool hasNetwork = connectivityResult != ConnectivityResult.none;
-    log('Has Network: $hasNetwork');
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasNetwork = connectivityResult != ConnectivityResult.none;
+  bool hasInternet = hasNetwork && await isInternetAvailable();
+  log('Has Internet: $hasInternet');
 
-    bool hasInternet = hasNetwork && await isInternetAvailable();
-    log('Has Internet: $hasInternet');
-    List<ProductModel> allProducts = [];
-    if (hasInternet) {
-      log('🌐 Internet is available. Fetching products from API...');
-      try {
-        final response = await dio.getbycustom(
-          ApiConstants.fetchproduct,
-          queryParameters: {"company_id": companyId},
-        );
-
-        if (response.statusCode == 200) {
-          log('✅ API Response Status Code: 200');
-          final responseData = response.data;
-          log('📥 Response Data: ${responseData.toString().substring(0, 500)}...');
-          if (responseData['data'] is List) {
-            log('🔍 Response contains product data. Parsing...');
-            for (var item in responseData['data']) {
-              if (item['product'] is List) {
-                List<dynamic> productsJsonList = item['product'];
-                allProducts.addAll(productsJsonList
-                    .map((productJson) => ProductModel.fromJson(productJson))
-                    .toList());
-              }
-            }
-            log('✅ Fetched Products Count from API: ${allProducts.length}');
-            var productBox = await Hive.openBox('productBox');
-            await productBox.put(
-              'products',
-              allProducts.map((product) => product.toJson()).toList(),
-            );
-
-            log('💾 Products saved to Hive for offline access.');
-          } else {
-            log("❌ Unexpected response format: 'data' is not a list");
-          }
-        } else {
-          log("❌ Failed to load products from API. Status code: ${response.statusCode}");
-        }
-      } catch (e) {
-        log("❌ Error fetching products from API: $e");
-      }
-    } else {
-      log("⚠️ No internet connection. Fetching products from Hive...");
-    }
+  if (hasInternet) {
     try {
-      var productBox = await Hive.openBox('productBox');
-      var rawProductList = productBox.get('products', defaultValue: []);
-      if (rawProductList is List && rawProductList.isNotEmpty) {
-        allProducts = rawProductList.map((productJson) {
-          if (productJson is Map) {
-            var parsedJson = ApiService()
-                .castToStringDynamic(Map<dynamic, dynamic>.from(productJson));
-            return ProductModel.fromJson(parsedJson);
-          } else {
-            throw Exception(
-                "Invalid data format in Hive: Expected Map, got ${productJson.runtimeType}");
+      final response = await dio.getbycustom(
+        ApiConstants.fetchproduct,
+        queryParameters: {"company_id": companyId},
+      );
+
+      if (response.statusCode == 200 && response.data['data'] is List) {
+        for (var item in response.data['data']) {
+          if (item['product'] is List) {
+            allProducts.addAll((item['product'] as List)
+                .map((productJson) => ProductModel.fromJson(productJson))
+                .toList());
           }
-        }).toList();
+        }
+        log('Fetched Products from API: ${allProducts.length}');
+        var productBox = await Hive.openBox('productBox');
+        await productBox.put(
+          'products',
+          allProducts.map((product) => product.toJson()).toList(),
+        );
+        log('Products saved to Hive.');
       }
-
-      log("✅ Total Products Fetched from Hive: ${allProducts.length}");
     } catch (e) {
-      log("❌ Error fetching products from Hive: $e");
+      log('Error fetching products from API: $e');
     }
-    List<ProductModel> filteredProducts = allProducts.where((product) {
-      return product.scid == subCatId;
-    }).toList();
-
-    log("✅ Filtered Products Count for Subcategory ($subCatId): ${filteredProducts.length}");
-    return filteredProducts;
+  } else {
+    log('No internet. Fetching from Hive...');
   }
+
+  try {
+    var productBox = await Hive.openBox('productBox');
+    var rawProductList = productBox.get('products', defaultValue: []);
+    log('Raw Hive Data: $rawProductList');
+    if (rawProductList is List) {
+      allProducts = rawProductList.map((productJson) {
+        if (productJson is Map) {
+          return ProductModel.fromJson(Map<String, dynamic>.from(productJson));
+        }
+        return null; 
+      }).whereType<ProductModel>().toList();
+    }
+    log('Fetched Products from Hive: ${allProducts.length}');
+  } catch (e) {
+    log('Error fetching from Hive: $e');
+  }
+
+  List<ProductModel> filteredProducts = allProducts.where((product) {
+    return product.scid == subCatId;
+  }).toList();
+
+  log('Filtered Products: ${filteredProducts.length}');
+  return filteredProducts;
+}
+
+
 
   Future<bool> isInternetAvailable() async {
     try {
@@ -994,59 +978,67 @@ class ApiWorker with ApiConstants {
   }
 
   /// ******************** PENDING PAYMENT ******************/
-  Future<PendingPaymentResponse> getPendingPaymentData({
-    SearchModel? searchModel,
-    PaginationModel? paginationModel,
-    required int chartIndex,
-    String? salesmanId,
-  }) async {
-    final requestData = {
-      "chart_index": chartIndex,
-      "start_date": searchModel?.startDate,
-      "end_date": searchModel?.endDate,
-      "limit": paginationModel?.limit.toString() ?? '',
-      "page": paginationModel?.currentPage.toString() ?? '',
-      "salesman_id": salesmanId,
-      "companyId": companyId,
-    };
+Future<PendingPaymentResponse> getPendingPaymentData({
+  SearchModel? searchModel,
+  PaginationModel? paginationModel,
+  required int chartIndex,
+  String? salesmanId,
+}) async {
+  final requestData = {
+    "chart_index": chartIndex,
+    "start_date": searchModel?.startDate ?? '',
+    "end_date": searchModel?.endDate ?? '',
+    "limit": paginationModel?.limit?.toString() ?? '100', // Default limit to 100
+    "page": paginationModel?.currentPage?.toString() ?? '1', // Default page to 1
+    "salesman_id": salesmanId ?? '', // Ensure a fallback value
+    "companyId": companyId,
+  };
 
-    log("Sending request with data: $requestData");
-    final cacheKey =
-        'pending_payment_${chartIndex}_${salesmanId ?? ''}_${paginationModel?.currentPage ?? ''}';
-    final pendingPaymentBox = Hive.box('pendingPaymentBox');
+  log("Sending request with data: $requestData");
 
-    try {
-      final cachedData = pendingPaymentBox.get(cacheKey);
-      if (cachedData != null) {
-        log("Using cached data for key: $cacheKey");
-        final castedData = ApiService().castToStringDynamic(cachedData);
-        return PendingPaymentResponse.fromJson(castedData);
-      }
-      final response = await dio
-          .postbycustom(
-        ApiConstants.fetch_pending_payments,
-        data: FormData.fromMap(requestData),
-      )
-          .onError((DioException error, stackTrace) {
-        log(error.toString());
-        return Future.error(throw DioExceptionHandler.fromDioError(error));
-      });
+  final cacheKey =
+      'pending_payment_${chartIndex}_${salesmanId ?? ''}_${paginationModel?.currentPage ?? ''}';
+  final pendingPaymentBox = Hive.box('pendingPaymentBox');
 
+  try {
+    // Check for cached data
+    final cachedData = pendingPaymentBox.get(cacheKey);
+    if (cachedData != null) {
+      log("Using cached data for key: $cacheKey");
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return PendingPaymentResponse.fromJson(castedData);
+    }
+    final response = await dio1.post(
+      ApiConstants.fetch_pending_payments,
+      data: FormData.fromMap(requestData),
+      options: Options(
+        validateStatus: (status) => status != null && status < 500,
+      ),
+    );
+    if (response.statusCode == 200) {
       log("API response received: ${response.data}");
-      await pendingPaymentBox.put(cacheKey, response.data);
+      await pendingPaymentBox.put(cacheKey, response.data); 
       return PendingPaymentResponse.fromJson(response.data);
-    } catch (e) {
-      log("Error occurred: $e");
-      final cachedData = pendingPaymentBox.get(cacheKey);
-      if (cachedData != null) {
-        log("Using cached data after API failure for key: $cacheKey");
-        final castedData = ApiService().castToStringDynamic(cachedData);
-        return PendingPaymentResponse.fromJson(castedData);
-      } else {
-        throw Exception('Failed to fetch data and no cached data available.');
-      }
+    } else {
+      log("API Error: StatusCode ${response.statusCode}, Data: ${response.data}");
+      throw Exception(
+          "Failed to fetch pending payment data. StatusCode: ${response.statusCode}");
+    }
+  } catch (e) {
+    log("Error occurred: $e");
+
+    // Check for cached data after failure
+    final cachedData = pendingPaymentBox.get(cacheKey);
+    if (cachedData != null) {
+      log("Using cached data after API failure for key: $cacheKey");
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return PendingPaymentResponse.fromJson(castedData);
+    } else {
+      throw Exception('Failed to fetch data and no cached data available.');
     }
   }
+}
+
 
   Future<IndividualPendingPaymentResponse> getAllPendingPaymentIndividual(
       {String? customerId}) async {

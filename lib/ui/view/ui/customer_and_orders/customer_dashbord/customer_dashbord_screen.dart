@@ -1302,18 +1302,19 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       return showProductListDialog<FrequantliyProductList>(
                         context: context,
                         productList: frequentProductLists,
-                        getQuantity: (product) => product.count.length,
+                        getQuantity: (product) => product.count.length.toDouble(),
                         getProductName: (product) => product.productName,
                         getVariationName: (product) => product.variationName,
                         getFormattedDate: (product) =>
                             DateFormat('dd-MM-yyyy').format(product.createdAt),
                         getPrice: (product) => formatAmount(product.totalPrice),
                         getBuyQuantity: (product) => product.quantity,
+                        getInNo: (product) => product.inNo,
                         onQuantityTap: (context, product) =>
                             showDashTimesDialogue(
                           context,
                           product,
-                          (p) => p.count, // Replace with appropriate field
+                          (p) => p.count, 
                           (data) => formatAmount(data
                               .price), // Assuming 'price' is a field in QuantityList
                           (data) => data.quantity

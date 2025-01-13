@@ -103,3 +103,33 @@ class MainNotification {
         "rejected": rejected,
       };
 }
+
+/// LEADS COUNT
+
+class LeadsCountData {
+    int? statusCode;
+    bool? status;
+    String? message;
+    int? data;
+
+    LeadsCountData({
+        this.statusCode,
+        this.status,
+        this.message,
+        this.data,
+    });
+
+    factory LeadsCountData.fromJson(Map<String, dynamic> json) => LeadsCountData(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+        data: json["data"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "data": data,
+    };
+}

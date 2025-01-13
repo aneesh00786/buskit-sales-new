@@ -42,6 +42,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   late List<int> localCounts;
+
+  bool canAddQuantity = false;
+
   @override
   void initState() {
     super.initState();
@@ -295,8 +298,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: double.parse(detail.tax.toString() ?? '')
-                                      .toStringAsFixed(2),
+                                  content:
+                                      double.parse(detail.tax.toString() ?? '')
+                                          .toStringAsFixed(2),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
@@ -408,8 +412,54 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                           fontSize: fontSize,
                                         ),
                                         SizedBox(width: 8),
+                                        // Container(
+                                        //   decoration: BoxDecoration(
+                                        //     color: primaryColor,
+                                        //     borderRadius: BorderRadius.only(
+                                        //       topRight: Radius.circular(5),
+                                        //       bottomRight: Radius.circular(5),
+                                        //     ),
+                                        //   ),
+                                        //   child: InkWell(
+                                        //     onTap: () {
+                                        //       setState(() {
+                                        //         detail.saleBy ??= 'Pack';
+                                        //         if (detail.stock == 0) {
+                                        //           ScaffoldMessenger.of(context)
+                                        //               .showSnackBar(
+                                        //             SnackBar(
+                                        //               backgroundColor:
+                                        //                   Colors.red,
+                                        //               content: CustomText(
+                                        //                 content:
+                                        //                     'This item is out of stock',
+                                        //                 color: Colors.white,
+                                        //               ),
+                                        //               duration: const Duration(
+                                        //                   seconds: 2),
+                                        //             ),
+                                        //           );
+                                        //         } else {
+                                        //           localCounts[i]++;
+                                        //           detail.count =
+                                        //               localCounts[i].toDouble();
+                                        //           calculateAmount(detail);
+                                        //         }
+                                        //       });
+                                        //     },
+                                        //     child: Padding(
+                                        //       padding:
+                                        //           const EdgeInsets.all(2.5),
+                                        //       child: Icon(
+                                        //         Icons.add,
+                                        //         color: Colors.white,
+                                        //         size: iconSize,
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
                                         Container(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: primaryColor,
                                             borderRadius: BorderRadius.only(
                                               topRight: Radius.circular(5),
@@ -420,21 +470,161 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             onTap: () {
                                               setState(() {
                                                 detail.saleBy ??= 'Pack';
-                                                if (detail.stock == 0) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    SnackBar(
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                      content: CustomText(
-                                                        content:
-                                                            'This item is out of stock',
-                                                        color: Colors.white,
-                                                      ),
-                                                      duration: const Duration(
-                                                          seconds: 2),
-                                                    ),
+
+                                                if (detail.stock == 0 &&
+                                                    canAddQuantity == false) {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(15),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        title: Row(
+                                                          children: [
+                                                            Icon(
+                                                                Icons
+                                                                    .info_outline,
+                                                                color:
+                                                                    Colors.red),
+                                                            const SizedBox(
+                                                                width: 8),
+                                                            const Text(
+                                                              'Out of Stock',
+                                                              style: TextStyle(
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        content: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            const Text(
+                                                              'This item is out of stock.',
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                color: Colors
+                                                                    .black87,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            const Text(
+                                                              'Do you want to add this as a pre-order?',
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        actions: [
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .redAccent,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                            ),
+                                                            child: const Text(
+                                                              'No',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                canAddQuantity =
+                                                                    true; // Allow adding to cart now
+                                                                localCounts[
+                                                                    i]++; // Increment quantity by 1
+                                                                detail.count =
+                                                                    localCounts[
+                                                                            i]
+                                                                        .toDouble(); // Update the count
+                                                                calculateAmount(
+                                                                    detail); // Recalculate the price
+                                                              });
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(); // Close the dialog
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  Colors.green,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                            ),
+                                                            child: const Text(
+                                                              'Yes',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
                                                   );
+                                                } else if (detail.stock == 0 &&
+                                                    canAddQuantity == true) {
+                                                  localCounts[i]++;
+                                                  detail.count =
+                                                      localCounts[i].toDouble();
+                                                  calculateAmount(detail);
                                                 } else {
                                                   localCounts[i]++;
                                                   detail.count =
@@ -467,6 +657,169 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
+                // Padding(
+                //   padding: EdgeInsets.symmetric(
+                //     vertical: screenHeight * 0.03,
+                //     horizontal: screenWidth * 0.025,
+                //   ),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.end,
+                //     children: [
+                //       ElevatedButton(
+                //           onPressed: () {
+                //             log('Customer ID: ${customerAndOrderController.customerId.value}');
+                //             log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
+                //             log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+
+                //             if ((customerAndOrderController.customerId.value !=
+                //                         null &&
+                //                     customerAndOrderController
+                //                         .customerId.value.isNotEmpty) ||
+                //                 (widget.productController.selectedCustomerName
+                //                             .value !=
+                //                         null &&
+                //                     widget
+                //                         .productController
+                //                         .selectedCustomerName
+                //                         .value
+                //                         .isNotEmpty)) {
+                //               List<CartItem> cartItems =
+                //                   CartDatabaseManager().getCartItems();
+                //               List<Detail> detailsFromCart = cartItems
+                //                   .map((cartItem) => cartItem.detail)
+                //                   .toList();
+
+                //               bool anyProductProcessed = false;
+
+                //               for (var i = 0;
+                //                   i < widget.detailsCopy.length;
+                //                   i++) {
+                //                 Detail detail = widget.detailsCopy[i];
+                //                 log('Processing detail with variationId: ${detail.variationId}, localCounts[i]: ${localCounts[i]}');
+
+                //                 bool isProductAlreadyInCart =
+                //                     detailsFromCart.any(
+                //                   (item) =>
+                //                       item.variationName ==
+                //                           detail.variationName &&
+                //                       item.sellPrice == detail.sellPrice,
+                //                 );
+
+                //                 if (localCounts[i] > 0) {
+                //                   anyProductProcessed = true;
+                //                   if (!isProductAlreadyInCart) {
+                //                     final bool isPack = detail.saleBy == 'Pack';
+                //                     CartDatabaseManager().addToCart(
+                //                       detail,
+                //                       widget.product.productName ?? '',
+                //                       detail.totalPrice!.toInt(),
+                //                       isPack,
+                //                       localCounts[i],
+                //                     );
+                //                     log('Product added to cart with ID: ${detail.variationId}');
+                //                   } else {
+                //                     log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
+                //                     CartDatabaseManager().updateCartItemCount(
+                //                         detail, localCounts[i]);
+                //                   }
+                //                 }
+                //               }
+                //               if (!anyProductProcessed) {
+                //                 showDialog(
+                //                   context: context,
+                //                   builder: (context) {
+                //                     return AlertDialog(
+                //                       actions: [
+                //                         SizedBox(height: 20),
+                //                         Center(
+                //                             child: Icon(
+                //                                 Icons.warning_amber_outlined,
+                //                                 size: 50,
+                //                                 color: Colors.blue)),
+                //                         SizedBox(height: 20),
+                //                         Center(
+                //                           child: CustomText(
+                //                               content: "Please add a variant",
+                //                               fontSize: 18),
+                //                         ),
+                //                         TextButton(
+                //                           onPressed: () {
+                //                             Navigator.pop(context);
+                //                           },
+                //                           child: CustomText(
+                //                               content: "Ok",
+                //                               color: primaryColor),
+                //                         ),
+                //                       ],
+                //                     );
+                //                   },
+                //                 );
+                //                 return; // Prevent further execution
+                //               }
+
+                //               widget.onDone();
+                //               Navigator.pop(context);
+                //             } else {
+                //               showDialog(
+                //                 context: context,
+                //                 builder: (context) {
+                //                   return AlertDialog(
+                //                     actions: [
+                //                       SizedBox(height: 20),
+                //                       Center(
+                //                           child: Icon(
+                //                               Icons.warning_amber_outlined,
+                //                               size: 50,
+                //                               color: Colors.orange)),
+                //                       SizedBox(height: 20),
+                //                       Center(
+                //                         child: CustomText(
+                //                             content: "Please Select a Customer",
+                //                             fontSize: 18),
+                //                       ),
+                //                       TextButton(
+                //                         onPressed: () {
+                //                           Navigator.pop(context);
+                //                         },
+                //                         child: CustomText(
+                //                             content: "Ok", color: primaryColor),
+                //                       ),
+                //                     ],
+                //                   );
+                //                 },
+                //               );
+                //             }
+                //           },
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor: primaryButtonColor,
+                //             padding: EdgeInsets.symmetric(
+                //               horizontal: screenWidth * 0.04,
+                //               vertical: screenHeight * 0.01,
+                //             ),
+                //             shape: RoundedRectangleBorder(
+                //               borderRadius: BorderRadius.circular(20),
+                //             ),
+                //           ),
+                //           child: Row(
+                //             children: [
+                //               CustomText(
+                //                 content: "Add",
+                //                 fontSize: screenWidth * 0.02,
+                //                 color: Colors.white,
+                //               ),
+                //               SizedBox(
+                //                 width: 4,
+                //               ),
+                //               Icon(
+                //                 EneftyIcons.shopping_cart_outline,
+                //                 color: white,
+                //                 size: screenWidth * 0.02,
+                //               )
+                //             ],
+                //           )),
+                //     ],
+                //   ),
+                // ),
                 Padding(
                   padding: EdgeInsets.symmetric(
                     vertical: screenHeight * 0.03,
@@ -477,81 +830,72 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     children: [
                       ElevatedButton(
                           onPressed: () {
-                            log('Customer ID: ${customerAndOrderController.customerId.value}');
-                            log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
-                            log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
-
-                            if ((customerAndOrderController.customerId.value !=
-                                        null &&
-                                    customerAndOrderController
-                                        .customerId.value.isNotEmpty) ||
-                                (widget.productController.selectedCustomerName
-                                            .value !=
-                                        null &&
-                                    widget
-                                        .productController
-                                        .selectedCustomerName
-                                        .value
-                                        .isNotEmpty)) {
-                              List<CartItem> cartItems =
-                                  CartDatabaseManager().getCartItems();
-                              List<Detail> detailsFromCart = cartItems
-                                  .map((cartItem) => cartItem.detail)
-                                  .toList();
-
-                              bool anyProductProcessed = false;
-
-                              for (var i = 0;
-                                  i < widget.detailsCopy.length;
-                                  i++) {
-                                Detail detail = widget.detailsCopy[i];
-                                log('Processing detail with variationId: ${detail.variationId}, localCounts[i]: ${localCounts[i]}');
-
-                                bool isProductAlreadyInCart =
-                                    detailsFromCart.any(
-                                  (item) =>
-                                      item.variationName ==
-                                          detail.variationName &&
-                                      item.sellPrice == detail.sellPrice,
-                                );
-
-                                if (localCounts[i] > 0) {
-                                  anyProductProcessed = true;
-                                  if (!isProductAlreadyInCart) {
-                                    final bool isPack = detail.saleBy == 'Pack';
-                                    CartDatabaseManager().addToCart(
-                                      detail,
-                                      widget.product.productName ?? '',
-                                      detail.totalPrice!.toInt(),
-                                      isPack,
-                                      localCounts[i],
-                                    );
-                                    log('Product added to cart with ID: ${detail.variationId}');
+                            if (canAddQuantity == false) {
+                              log('Customer ID: ${customerAndOrderController.customerId.value}');
+                              log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
+                              log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+                              if ((customerAndOrderController
+                                      .customerId.value.isNotEmpty) ||
+                                  (widget.productController.selectedCustomerName
+                                      .value.isNotEmpty)) {
+                                List<CartItem> cartItems =
+                                    CartDatabaseManager().getCartItems();
+                                List<Detail> detailsFromCart = cartItems
+                                    .map((cartItem) => cartItem.detail)
+                                    .toList();
+                                for (var i = 0;
+                                    i < widget.detailsCopy.length;
+                                    i++) {
+                                  Detail detail = widget.detailsCopy[i];
+                                  bool isProductAlreadyInCart =
+                                      detailsFromCart.any(
+                                    (item) =>
+                                        item.variationName ==
+                                            detail.variationName &&
+                                        item.sellPrice == detail.sellPrice,
+                                  );
+                                  if (localCounts[i] > 0) {
+                                    if (!isProductAlreadyInCart) {
+                                      final bool isPack =
+                                          detail.saleBy == 'Pack';
+                                      CartDatabaseManager().addToCart(
+                                        detail,
+                                        widget.product.productName ?? '',
+                                        detail.totalPrice!.toInt(),
+                                        isPack,
+                                        localCounts[i],
+                                      );
+                                      log('Product added to cart with ID: ${detail.variationId}');
+                                    } else {
+                                      log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
+                                      CartDatabaseManager().updateCartItemCount(
+                                          detail, localCounts[i]);
+                                    }
                                   } else {
-                                    log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
-                                    CartDatabaseManager().updateCartItemCount(
-                                        detail, localCounts[i]);
+                                    log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                   }
                                 }
-                              }
-                              if (!anyProductProcessed) {
+
+                                widget.onDone();
+                                Navigator.pop(context);
+                              } else {
                                 showDialog(
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
                                       actions: [
-                                        SizedBox(height: 20),
-                                        Center(
+                                        const SizedBox(height: 20),
+                                        const Center(
                                             child: Icon(
                                                 Icons.warning_amber_outlined,
                                                 size: 50,
-                                                color: Colors.blue)),
-                                        SizedBox(height: 20),
+                                                color: Colors.orange)),
+                                        const SizedBox(height: 20),
                                         Center(
-                                          child: CustomText(
-                                              content: "Please add a variant",
-                                              fontSize: 18),
-                                        ),
+                                            child: CustomText(
+                                                content:
+                                                    "Please Select a Customer",
+                                                fontSize: 18)),
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
@@ -564,40 +908,154 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     );
                                   },
                                 );
-                                return; // Prevent further execution
                               }
+                            } else if (canAddQuantity == true) {
+                              // for checking
+                              // showCustomToastDisplay(context,
+                              //     'PRE ORDER ACTION', Colors.blue, Icons.check);
+                              // ~~~~~~~~~~~~~~~~~~~~
 
-                              widget.onDone();
-                              Navigator.pop(context);
-                            } else {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    actions: [
-                                      SizedBox(height: 20),
-                                      Center(
-                                          child: Icon(
-                                              Icons.warning_amber_outlined,
-                                              size: 50,
-                                              color: Colors.orange)),
-                                      SizedBox(height: 20),
-                                      Center(
-                                        child: CustomText(
-                                            content: "Please Select a Customer",
-                                            fontSize: 18),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: CustomText(
-                                            content: "Ok", color: primaryColor),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              log('Customer ID: ${customerAndOrderController.customerId.value}');
+                              log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
+                              log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+                              if ((customerAndOrderController
+                                      .customerId.value.isNotEmpty) ||
+                                  (widget.productController.selectedCustomerName
+                                      .value.isNotEmpty)) {
+                                List<CartItem> cartPreorderItems =
+                                    CartDatabaseManager()
+                                        .getCartPreorderItems();
+                                List<Detail> detailsFromCart = cartPreorderItems
+                                    .map((cartPreorderItem) =>
+                                        cartPreorderItem.detail)
+                                    .toList();
+                                // for (var i = 0;
+                                //     i < widget.detailsCopy.length;
+                                //     i++) {
+                                //   Detail detail = widget.detailsCopy[i];
+                                //   bool isProductAlreadyInCart =
+                                //       detailsFromCart.any(
+                                //     (item) =>
+                                //         item.variationName ==
+                                //             detail.variationName &&
+                                //         item.sellPrice == detail.sellPrice,
+                                //   );
+                                //   if (localCounts[i] > 0) {
+                                //     if (!isProductAlreadyInCart) {
+                                //       final bool isPack =
+                                //           detail.saleBy == 'Pack';
+                                //       CartDatabaseManager().addToPreorderCart(
+                                //         detail,
+                                //         widget.product.productName ?? '',
+                                //         detail.totalPrice!.toInt(),
+                                //         isPack,
+                                //         localCounts[i],
+                                //       );
+                                //       log('Product added to cart with ID: ${detail.variationId}');
+                                //     } else {
+                                //       log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
+                                //       CartDatabaseManager().updateCartItemCount(
+                                //           detail, localCounts[i]);
+                                //     }
+                                //   } else {
+                                //     log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
+                                //   }
+                                // }
+
+                                for (var i = 0;
+                                    i < widget.detailsCopy.length;
+                                    i++) {
+                                  Detail detail = widget.detailsCopy[i];
+                                  final bool isPack = detail.saleBy == 'Pack';
+
+                                  if (localCounts[i] > 0) {
+                                    if ((detail.stock ?? 0) > 0) {
+                                      bool isProductAlreadyInCart =
+                                          detailsFromCart.any(
+                                        (item) =>
+                                            item.variationName ==
+                                                detail.variationName &&
+                                            item.sellPrice == detail.sellPrice,
+                                      );
+
+                                      if (!isProductAlreadyInCart) {
+                                        CartDatabaseManager().addToCart(
+                                          detail,
+                                          widget.product.productName ?? '',
+                                          detail.totalPrice!.toInt(),
+                                          isPack,
+                                          localCounts[i],
+                                        );
+                                        log('Product added to regular cart with ID: ${detail.variationId}');
+                                      } else {
+                                        log('Product with ID: ${detail.variationId} is already in the regular cart. Updating count.');
+                                        CartDatabaseManager()
+                                            .updateCartItemCount(
+                                                detail, localCounts[i]);
+                                      }
+                                    } else if (canAddQuantity) {
+                                      bool isProductAlreadyInPreorderCart =
+                                          detailsFromCart.any(
+                                        (item) =>
+                                            item.variationName ==
+                                                detail.variationName &&
+                                            item.sellPrice == detail.sellPrice,
+                                      );
+
+                                      if (!isProductAlreadyInPreorderCart) {
+                                        CartDatabaseManager().addToPreorderCart(
+                                          detail,
+                                          widget.product.productName ?? '',
+                                          detail.totalPrice!.toInt(),
+                                          isPack,
+                                          localCounts[i],
+                                        );
+                                        log('Product added to pre-order cart with ID: ${detail.variationId}');
+                                      } else {
+                                        log('Product with ID: ${detail.variationId} is already in the pre-order cart. Updating count.');
+                                        CartDatabaseManager()
+                                            .updatePreorderCartItemCount(
+                                                detail, localCounts[i]);
+                                      }
+                                    }
+                                  } else {
+                                    log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
+                                  }
+                                }
+
+                                widget.onDone();
+                                Navigator.pop(context);
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      actions: [
+                                        const SizedBox(height: 20),
+                                        const Center(
+                                            child: Icon(
+                                                Icons.warning_amber_outlined,
+                                                size: 50,
+                                                color: Colors.orange)),
+                                        const SizedBox(height: 20),
+                                        Center(
+                                            child: CustomText(
+                                                content:
+                                                    "Please Select a Customer",
+                                                fontSize: 18)),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: CustomText(
+                                              content: "Ok",
+                                              color: primaryColor),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -613,17 +1071,19 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                           child: Row(
                             children: [
                               CustomText(
-                                content: "Add",
+                                content: canAddQuantity
+                                    ? "Add to Cart"
+                                    : "Add to Cart",
                                 fontSize: screenWidth * 0.02,
                                 color: Colors.white,
                               ),
                               SizedBox(
-                                width: 4,
+                                width: screenWidth * 0.02,
                               ),
                               Icon(
                                 EneftyIcons.shopping_cart_outline,
+                                size: screenWidth * 0.03,
                                 color: white,
-                                size: screenWidth * 0.02,
                               )
                             ],
                           )),

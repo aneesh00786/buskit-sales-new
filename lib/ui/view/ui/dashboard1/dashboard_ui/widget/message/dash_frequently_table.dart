@@ -12,12 +12,15 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
   return LayoutBuilder(
     builder: (context, constraints) {
       double availableWidth = constraints.maxWidth;
-      double flexWidth = availableWidth * 1.2;
-      double colWidth1 = flexWidth * 3 / 9;
-      double colWidth2 = flexWidth * 2 / 9;
-      double colWidth3 = flexWidth * 1 / 9;
-      double colWidth4 = flexWidth * 2 / 9;
-      double colWidth5 = flexWidth * 1 / 9;
+         double flexWidth = availableWidth * 1.3;
+
+        double colWidth1 = flexWidth * 2.8 / 11;
+        double colWidth2_2 = flexWidth * 1.2 / 11;
+        double colWidth2 = flexWidth * 2 / 11;
+        double colWidth3 = flexWidth * 1 / 11;
+        double colWidth4 = flexWidth * 2.1 / 11;
+        double colWidth5 = flexWidth * 1 / 11;
+
       double fontSize = 11;
       topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
       if (topSellingProducts.isEmpty) {
@@ -41,6 +44,18 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child: Center(
                           child: MyRegularText(
                             label: "Product",
+                            fontWeight: FontWeight.w600,
+                            color: secondaryTextColor,
+                            align: TextAlign.center,
+                            fontSize: 11.3,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: colWidth2_2,
+                        child: Center(
+                          child: MyRegularText(
+                            label: "I/N",
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -118,6 +133,16 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                             SizedBox(
+                                  width: colWidth2_2,
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: product.inNo.toString(),
+                                      color: secondaryTextColor,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
                               SizedBox(
                                 width: colWidth2,
                                 child: Center(

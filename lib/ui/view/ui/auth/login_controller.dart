@@ -70,11 +70,10 @@ Future<bool> performLogin(BuildContext context) async {
       log("Fetching settings after login...");
       await Future.delayed(Duration(seconds: 2));
       final settings = await _apiWorker.fetchAllSettings(companyId);
-      await Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerData();
+      await Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
       await productsController.fetchCategoryData();
       await _apiWorker.getTempProduct('C49SC7');
-      await pendingPaymentController.loadOrderData(chartIndex: 0);
+      await pendingPaymentController.loadOrderData(chartIndex: 0,compId: companyId);
       if (settings != null) {
         await SessionHelper().setSettingsData(settings);
       }

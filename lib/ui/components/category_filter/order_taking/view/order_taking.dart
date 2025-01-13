@@ -91,7 +91,10 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-    cartItemCount = CartDatabaseManager().cartItems.length;
+
+        cartItemCount = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length;
+
     CartDatabaseManager().addListener(_updateCartCount);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -146,7 +149,8 @@ class _OrderTakingState extends State<OrderTaking>
 
   void _updateCartCount() {
     setState(() {
-      cartItemCount = CartDatabaseManager().cartItems.length;
+      cartItemCount = CartDatabaseManager().cartItems.length +
+          CartDatabaseManager().cartPreorderItems.length;
     });
   }
 
@@ -185,7 +189,7 @@ class _OrderTakingState extends State<OrderTaking>
     List<CustomerAndOrderData> results = allCustomers.where((customer) {
       return customer.businessName
               ?.toLowerCase()
-              .contains(query.toLowerCase()) ??
+              .startsWith(query.toLowerCase()) ??
           false;
     }).toList();
     setState(() {
@@ -519,13 +523,16 @@ class _OrderTakingState extends State<OrderTaking>
                             icon: EneftyIcons.profile_outline,
                           ),
                           Expanded(
-                            child: isLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : customerSearchController.text.isNotEmpty
-                                    ? filteredCustomers.isEmpty
-                                        ? const Center(
-                                            child: Text('No customers found.'))
+                          child: isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : customerSearchController.text.isNotEmpty
+                                  ? filteredCustomers.isEmpty
+                                      ? Container(
+                                          color: white,
+                                          child: const Center(
+                                              child:
+                                                  Text('No customers found.')),
+                                        )
                                         : ListView.builder(
                                             shrinkWrap: true,
                                             itemCount: filteredCustomers.length,

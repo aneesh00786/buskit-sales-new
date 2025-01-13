@@ -971,7 +971,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           context: context,
                           productList: topSellingProducts,
                           getQuantity: (product) =>
-                              product.quantity??0,
+                              product.quantity?.toDouble() ?? 0.0,
                           getProductName: (product) =>
                               product.productName ?? '',
                           getVariationName: (product) =>
@@ -983,6 +983,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                               product.topSellingProductATotalPrice),
                           getBuyQuantity: (product) =>
                               int.tryParse(product.buyquantity ?? '0') ?? 0,
+                          getInNo: (product) => product.inNo ?? '',
                           onQuantityTap: (context, product) =>
                               showDashTimesDialogue(
                             context,

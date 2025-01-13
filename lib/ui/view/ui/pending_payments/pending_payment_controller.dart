@@ -57,7 +57,7 @@ class PendingPaymentController extends GetxController {
     return selectedItems.toList();
   }
 
-  Future<void> loadOrderData({required int chartIndex}) async {
+  Future<void> loadOrderData({required int chartIndex,int? compId}) async {
     final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     print("Loading data for chartIndex: $chartIndex");
     try {
@@ -65,7 +65,8 @@ class PendingPaymentController extends GetxController {
         chartIndex: chartIndex,
         searchModel: searchModel,
         paginationModel: PaginationModel(),
-        salesmanId: salesmanId
+        salesmanId: salesmanId,
+        compId: compId,
       );
 
       if (data.data != null) {

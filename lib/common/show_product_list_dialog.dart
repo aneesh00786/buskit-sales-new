@@ -7,11 +7,12 @@ import 'package:flutter/material.dart';
 void showProductListDialog<T>({
   required BuildContext context,
   required List<T> productList,
-  required int Function(T) getQuantity,
+  required double Function(T) getQuantity,
   required String Function(T) getProductName,
   required String Function(T) getVariationName,
   required String Function(T) getFormattedDate,
   required String Function(T) getPrice,
+  required String Function(T) getInNo,
   required int Function(T) getBuyQuantity,
   required void Function(BuildContext, T) onQuantityTap,
 }) {
@@ -34,10 +35,12 @@ void showProductListDialog<T>({
                 ? maxDialogHeight
                 : contentHeight;
 
-            double colWidth1 = dialogWidth * 3 / 9;
-            double colWidth2 = dialogWidth * 2 / 9;
-            double colWidth3 = dialogWidth * 1 / 9;
-            double colWidth5 = dialogWidth * 1 / 9;
+            double colWidth1 = dialogWidth * 3 / 12;
+            double colWidth2_2 = dialogWidth * 1.5 / 12;
+            double colWidth2 = dialogWidth * 2 / 12;
+            double colWidth3 = dialogWidth * 1 / 12;
+            double colWidth4 = dialogWidth * 2 / 12;
+            double colWidth5 = dialogWidth * 1 / 12;
             double colWidth6 = dialogWidth * 1 / 24;
 
             return ConstrainedBox(
@@ -58,12 +61,22 @@ void showProductListDialog<T>({
                         ),
                         height: headerHeight,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
                               width: colWidth1,
                               child: const Center(
                                 child: DialogTableHeaderTextWhite(
                                   text: "Product",
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: colWidth2_2,
+                              child: const Center(
+                                child: DialogTableHeaderTextWhite(
+                                  text: "I/N",
                                   fontSize: 13,
                                 ),
                               ),
@@ -86,7 +99,8 @@ void showProductListDialog<T>({
                                 ),
                               ),
                             ),
-                            Expanded(
+                            SizedBox(
+                              width: colWidth4,
                               child: const Center(
                                 child: DialogTableHeaderTextWhite(
                                   text: "Price",
@@ -150,6 +164,8 @@ void showProductListDialog<T>({
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     SizedBox(
                                       width: colWidth1,
@@ -159,6 +175,15 @@ void showProductListDialog<T>({
                                         fontSize: 12,
                                         maxlines: 2,
                                         overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: colWidth2_2,
+                                      child: Center(
+                                        child: MyRegularText(
+                                          label: getInNo(product),
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(
@@ -187,7 +212,7 @@ void showProductListDialog<T>({
                                             child: Center(
                                               child: MyRegularText(
                                                 label:
-                                                    '${getQuantity(product)}',
+                                                    '${getQuantity(product).toInt()}',
                                                 color: buttonTextColor,
                                                 align: TextAlign.center,
                                                 fontSize: 12,
@@ -198,7 +223,8 @@ void showProductListDialog<T>({
                                         ),
                                       ),
                                     ),
-                                    Expanded(
+                                    SizedBox(
+                                      width: colWidth4,
                                       child: Center(
                                         child: MyRegularText(
                                           label: getPrice(product),

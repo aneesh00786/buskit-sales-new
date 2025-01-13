@@ -401,6 +401,7 @@ class TopSellingProductA {
   String? variationName;
   String? price;
   String? productName;
+  String? inNo;
   DateTime? createdAt;
   List<TopSellingCustomer>? customer;
   List<TopSellingQuantityList>? quantityList;
@@ -418,6 +419,7 @@ class TopSellingProductA {
     this.variationName,
     this.price,
     this.productName,
+    this.inNo,
     this.createdAt,
     this.customer,
     this.quantityList,
@@ -437,6 +439,7 @@ class TopSellingProductA {
         variationName: json["variation_name"],
         price: json["price"],
         productName: json["product_name"],
+        inNo: json["in_no"],
         createdAt: DateTime.parse(json["created_at"]),
         customer: List<TopSellingCustomer>.from(
             json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
@@ -459,6 +462,7 @@ class TopSellingProductA {
         "variation_name": variationName,
         "price": price,
         "product_name": productName,
+        "in_no": inNo,
         "created_at": createdAt!.toIso8601String(),
         "customer": List<dynamic>.from(customer!.map((x) => x.toJson())),
         "quantityList":

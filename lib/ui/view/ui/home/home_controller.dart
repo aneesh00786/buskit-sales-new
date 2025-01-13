@@ -222,6 +222,7 @@ class HomeController extends GetxController {
 
     bool isLogout = (barTitle == logOut);
     bool isRecentOrders = (barTitle == todayOrders);
+    bool isLeads = (barTitle == leads);
 
     return SidebarXItem(
       icon: iconData,
@@ -326,6 +327,23 @@ class HomeController extends GetxController {
                                 )
                               : SizedBox.shrink(),
                     ),
+                  if (isLeads)
+                    Positioned(
+                        top: 0,
+                        left: 200,
+                        child: notificationController.isLeadsCountLoading.value
+                            ? const SizedBox.shrink()
+                            : CircleAvatar(
+                                radius: 10,
+                                backgroundColor: Colors.red,
+                                child: Text(
+                                  notificationController.leadsCount.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              )),
                 ],
               ),
             ],

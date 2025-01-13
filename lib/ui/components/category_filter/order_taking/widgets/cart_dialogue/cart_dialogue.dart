@@ -17,12 +17,14 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -45,18 +47,27 @@ class CartDialogue extends StatefulWidget {
 
 class _CartDialogueState extends State<CartDialogue> {
   late List<CartItem> cartItems;
+  late List<CartItem> preorderItems;
   List<int> quantities = [];
+  List<int> preorderQuantities = [];
   double total = 0.0;
+  double preorderTotal = 0.0;
   double tax = 0.0;
+  double preorderTax = 0.0;
+
   String? _selectedValue;
   String? _dropdownValue;
   int? paymentType;
+
   final List<String> _options = [
     'Sale Order',
     "Quick Sale",
     'Pre Order',
     'Estimate'
   ];
+
+  List<String> filteredOptions = [];
+
   CustomerAndOrderController customeController =
       Get.put(CustomerAndOrderController());
   final TextEditingController totalQuickController = TextEditingController();
@@ -67,12 +78,27 @@ class _CartDialogueState extends State<CartDialogue> {
   final TextEditingController remarkController = TextEditingController();
 
   bool _isLoading = true;
+
+  bool isOrder = true;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     _loadCartItems();
+    _loadPreorderItems();
+
+    isOrder = cartItems.isEmpty && preorderItems.isNotEmpty ? false : true;
+    setOptions();
+  }
+
+  void setOptions() {
+    setState(() {
+      filteredOptions = isOrder
+          ? ['Sale Order', 'Quick Sale', 'Estimate']
+          : ['Pre Order', 'Estimate'];
+    });
   }
 
   void _loadCartItems() {
@@ -91,6 +117,23 @@ class _CartDialogueState extends State<CartDialogue> {
     }
   }
 
+    void _loadPreorderItems() {
+    try {
+      List<CartItem> storedPreorderItems =
+          CartDatabaseManager().getCartPreorderItems();
+      preorderItems = storedPreorderItems;
+      preorderQuantities = List.generate(preorderItems.length, (index) => 1);
+      preorderTotal = Utils().getFinalAmount(preorderItems);
+      preorderTax = Utils().getTotalTax(preorderItems);
+      if (_options.isNotEmpty) {
+        _selectedValue = _options[0];
+      }
+      _isLoading = false;
+    } catch (e) {
+      log('Error loading pre-order items: $e');
+    }
+  }
+
   Map<String, List<CartItem>> groupCartItemsByName(List<CartItem> cartItems) {
     return groupBy(cartItems, (CartItem item) => item.productName);
   }
@@ -98,14 +141,15 @@ class _CartDialogueState extends State<CartDialogue> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Center(
+      return const Center(
         child: SpinKitFadingCube(
           color: primaryColor,
           size: 20.0,
         ),
       );
     }
-    double finalAmount = total + tax;
+    // double finalAmount = total + tax;
+    double finalAmount = isOrder ? total + tax : preorderTotal + preorderTax;
     widget.productsController.updateFinalAmount(finalAmount);
     String formattedAmount = finalAmount.toStringAsFixed(2);
     final Size screenSize = MediaQuery.of(context).size;
@@ -149,112 +193,415 @@ class _CartDialogueState extends State<CartDialogue> {
                       width: width,
                       title: 'My Cart',
                     ),
-                    cartItems.isEmpty
-                        ? Container(
-                            height: 100,
-                            child: Center(
-                              child: CustomText(
-                                content: 'Your cart is empty.',
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: black,
+                    if (cartItems.isNotEmpty || preorderItems.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16),
+                        child: SizedBox(
+                          height: 40,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: primaryColor),
+                                      color: isOrder ? primaryColor : white,
+                                      borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(20),
+                                          bottomLeft: Radius.circular(20))),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        isOrder = true;
+                                      });
+                                      setOptions();
+                                    },
+                                    child: Center(
+                                      child: CustomText(
+                                        content: 'ORDERS',
+                                        fontWeight: FontWeight.w700,
+                                        color: !isOrder ? primaryColor : white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          )
-                        : Flexible(
-                            child: SizedBox(
-                              height: dialogHeight * 0.5,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: cartItems
-                                      .map((cartItem) => cartItem.productName)
-                                      .toSet()
-                                      .toList()
-                                      .map((productName) {
-                                    List<CartItem> groupedItems = cartItems
-                                        .where((item) =>
-                                            item.productName == productName)
-                                        .toList();
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 20),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Stack(
-                                            alignment: Alignment.bottomCenter,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  CustomHeaderContainer(
-                                                    text: productName,
-                                                    fontSize: fontSize,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 50,
-                                                    child: Center(
-                                                      child: IconButton(
-                                                        onPressed: () {
-                                                          showVariantDeleteDIalog(
-                                                              context,
-                                                              productName);
-                                                        },
-                                                        icon: const Icon(
-                                                          Icons.delete,
-                                                          size: 30,
-                                                          color: Colors.red,
-                                                        ),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: primaryColor),
+                                      color: !isOrder ? primaryColor : white,
+                                      borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(20),
+                                          bottomRight: Radius.circular(20))),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        isOrder = false;
+                                      });
+                                      setOptions();
+                                    },
+                                    child: Center(
+                                      child: CustomText(
+                                        content: 'PRE-ORDERS',
+                                        fontWeight: FontWeight.w700,
+                                        color: isOrder ? primaryColor : white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                    // cartItems.isEmpty
+                    //     ? Container(
+                    //         height: 100,
+                    //         child: Center(
+                    //           child: CustomText(
+                    //             content: 'Your cart is empty.',
+                    //             fontSize: 16,
+                    //             fontWeight: FontWeight.bold,
+                    //             color: black,
+                    //           ),
+                    //         ),
+                    //       )
+                    //     : Flexible(
+                    //         child: SizedBox(
+                    //           height: dialogHeight * 0.5,
+                    //           child: SingleChildScrollView(
+                    //             child: Column(
+                    //               children: cartItems
+                    //                   .map((cartItem) => cartItem.productName)
+                    //                   .toSet()
+                    //                   .toList()
+                    //                   .map((productName) {
+                    //                 List<CartItem> groupedItems = cartItems
+                    //                     .where((item) =>
+                    //                         item.productName == productName)
+                    //                     .toList();
+                    //                 return Padding(
+                    //                   padding:
+                    //                       const EdgeInsets.only(bottom: 20),
+                    //                   child: Column(
+                    //                     crossAxisAlignment:
+                    //                         CrossAxisAlignment.start,
+                    //                     children: [
+                    //                       Stack(
+                    //                         alignment: Alignment.bottomCenter,
+                    //                         children: [
+                    //                           Row(
+                    //                             mainAxisAlignment:
+                    //                                 MainAxisAlignment
+                    //                                     .spaceBetween,
+                    //                             children: [
+                    //                               CustomHeaderContainer(
+                    //                                 text: productName,
+                    //                                 fontSize: fontSize,
+                    //                               ),
+                    //                               SizedBox(
+                    //                                 width: 50,
+                    //                                 child: Center(
+                    //                                   child: IconButton(
+                    //                                     onPressed: () {
+                    //                                       showVariantDeleteDIalog(
+                    //                                           context,
+                    //                                           productName);
+                    //                                     },
+                    //                                     icon: const Icon(
+                    //                                       Icons.delete,
+                    //                                       size: 30,
+                    //                                       color: Colors.red,
+                    //                                     ),
+                    //                                   ),
+                    //                                 ),
+                    //                               )
+                    //                             ],
+                    //                           ),
+                    //                           Container(
+                    //                             height: 3.5,
+                    //                             color: lightPrimaryColor,
+                    //                             width: double.infinity,
+                    //                           ),
+                    //                         ],
+                    //                       ),
+                    //                       Row(
+                    //                         children: [
+                    //                           Expanded(
+                    //                               child: DataTable(
+                    //                             headingRowHeight: 30,
+                    //                             dataRowHeight: rowHeight,
+                    //                             horizontalMargin: 5,
+                    //                             columnSpacing: columnSpacing,
+                    //                             columns:
+                    //                                 DataTableColumns.getColumns(
+                    //                                     fontSize),
+                    //                             rows:
+                    //                                 GroupedItemDataRows.getRows(
+                    //                               groupedItems: groupedItems,
+                    //                               fontSize: fontSize,
+                    //                               availableWidth:
+                    //                                   availableWidth,
+                    //                               context: context,
+                    //                               productQuantityManager:
+                    //                                   productQuantityManager,
+                    //                               deleteConfirmationDialogue:
+                    //                                   deleteConfirmationDialogue,
+                    //                             ),
+                    //                           ))
+                    //                         ],
+                    //                       ),
+                    //                     ],
+                    //                   ),
+                    //                 );
+                    //               }).toList(),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    if (isOrder) ...[
+                      cartItems.isEmpty
+                          ? SizedBox(
+                              height: 100,
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Your cart is empty.',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: black,
+                                ),
+                              ),
+                            )
+                          : Flexible(
+                              child: SizedBox(
+                                height: dialogHeight * 0.5,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: cartItems
+                                        .map((cartItem) => cartItem.productName)
+                                        .toSet()
+                                        .toList()
+                                        .map((productName) {
+                                      List<CartItem> groupedItems = cartItems
+                                          .where((item) =>
+                                              item.productName == productName)
+                                          .toList();
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Stack(
+                                              alignment: Alignment.bottomCenter,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child:
+                                                          CustomHeaderContainer(
+                                                        text: productName,
+                                                        fontSize: fontSize,
                                                       ),
                                                     ),
-                                                  )
-                                                ],
-                                              ),
-                                              Container(
-                                                height: 3.5,
-                                                color: lightPrimaryColor,
-                                                width: double.infinity,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                  child: DataTable(
-                                                headingRowHeight: 30,
-                                                dataRowHeight: rowHeight,
-                                                horizontalMargin: 5,
-                                                columnSpacing: columnSpacing,
-                                                columns:
-                                                    DataTableColumns.getColumns(
-                                                        fontSize),
-                                                rows:
-                                                    GroupedItemDataRows.getRows(
-                                                  groupedItems: groupedItems,
-                                                  fontSize: fontSize,
-                                                  availableWidth:
-                                                      availableWidth,
-                                                  context: context,
-                                                  productQuantityManager:
-                                                      productQuantityManager,
-                                                  deleteConfirmationDialogue:
-                                                      deleteConfirmationDialogue,
+                                                    SizedBox(
+                                                      width: 50,
+                                                      child: Center(
+                                                        child: IconButton(
+                                                          onPressed: () {
+                                                            showVariantDeleteDialog(
+                                                                context,
+                                                                productName,
+                                                                false);
+                                                          },
+                                                          icon: const Icon(
+                                                            EneftyIcons
+                                                                .trash_bold,
+                                                            size: 28,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
                                                 ),
-                                              ))
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
+                                                Container(
+                                                  height: 3.5,
+                                                  color: lightPrimaryColor,
+                                                  width: double.infinity,
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                    child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 10.0),
+                                                  child: DataTable(
+                                                    headingRowHeight: 30,
+                                                    dataRowHeight: rowHeight,
+                                                    horizontalMargin: 5,
+                                                    columnSpacing:
+                                                        columnSpacing,
+                                                    columns: DataTableColumns
+                                                        .getColumns(fontSize),
+                                                    rows: GroupedItemDataRows
+                                                        .getRows(
+                                                      groupedItems:
+                                                          groupedItems,
+                                                      fontSize: fontSize,
+                                                      availableWidth:
+                                                          availableWidth,
+                                                      context: context,
+                                                      productQuantityManager:
+                                                          productQuantityManager,
+                                                      deleteConfirmationDialogue:
+                                                          deleteConfirmationDialogue,
+                                                    ),
+                                                  ),
+                                                ))
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                    SizedBox(
+                    ],
+                    if (!isOrder) ...[
+                      preorderItems.isEmpty
+                          ? SizedBox(
+                              height: 100,
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Your pre-order cart is empty.',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: black,
+                                ),
+                              ),
+                            )
+                          : Flexible(
+                              child: SizedBox(
+                                height: dialogHeight * 0.5,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: preorderItems
+                                        .map((cartItem) => cartItem.productName)
+                                        .toSet()
+                                        .toList()
+                                        .map((productName) {
+                                      List<CartItem> groupedItems =
+                                          preorderItems
+                                              .where((item) =>
+                                                  item.productName ==
+                                                  productName)
+                                              .toList();
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Stack(
+                                              alignment: Alignment.bottomCenter,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child:
+                                                          CustomHeaderContainer(
+                                                        text: productName,
+                                                        fontSize: fontSize,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 50,
+                                                      child: Center(
+                                                        child: IconButton(
+                                                          onPressed: () {
+                                                            showVariantDeleteDialog(
+                                                                context,
+                                                                productName,
+                                                                true);
+                                                          },
+                                                          icon: const Icon(
+                                                            EneftyIcons
+                                                                .trash_bold,
+                                                            size: 28,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                                Container(
+                                                  height: 3.5,
+                                                  color: lightPrimaryColor,
+                                                  width: double.infinity,
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10.0),
+                                                    child: DataTable(
+                                                      headingRowHeight: 30,
+                                                      dataRowHeight: rowHeight,
+                                                      horizontalMargin: 5,
+                                                      columnSpacing:
+                                                          columnSpacing,
+                                                      columns: DataTableColumns
+                                                          .getColumns(fontSize),
+                                                      rows: GroupedItemDataRows
+                                                          .getRows(
+                                                        groupedItems:
+                                                            groupedItems,
+                                                        fontSize: fontSize,
+                                                        availableWidth:
+                                                            availableWidth,
+                                                        context: context,
+                                                        productQuantityManager:
+                                                            preorderQuantityManager,
+                                                        deleteConfirmationDialogue:
+                                                            deletePreorderConfirmationDialogue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ],
+
+                    const SizedBox(
                       height: 10,
                     ),
                     Container(
@@ -274,7 +621,8 @@ class _CartDialogueState extends State<CartDialogue> {
                               fontWeight: FontWeight.w600,
                             ),
                             CustomText(
-                              content: '${total.toStringAsFixed(2)}',
+                              content:
+                                  formatAmount(isOrder ? total : preorderTotal),
                               fontSize: 16,
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
@@ -286,7 +634,7 @@ class _CartDialogueState extends State<CartDialogue> {
                     const SizedBox(height: 5.0),
                     CartTotalWidget(
                       title: 'Tax',
-                      content: tax,
+                      content: isOrder ? tax : preorderTax,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
@@ -314,9 +662,9 @@ class _CartDialogueState extends State<CartDialogue> {
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: _options.map((option) {
+                            children: filteredOptions.map((option) {
                               totalQuickController.text =
-                                  formatAmount(formattedAmount);
+                                  '\$${double.parse(formattedAmount)}';
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
@@ -455,8 +803,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                               ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
+                                              border: const OutlineInputBorder(
+                                                borderSide: BorderSide(
                                                     color: Colors.black,
                                                     width: 1),
                                               ),
@@ -565,7 +913,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                               },
                                             ),
                                           ),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         if (_dropdownValue == "Cheque" ||
                                             _dropdownValue == "Bank Transfer")
                                           Expanded(
@@ -635,7 +983,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                           ),
                                       ],
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     if (_dropdownValue == "Cheque" ||
                                         _dropdownValue == "Bank Transfer")
                                       Row(
@@ -708,7 +1056,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                       context: context,
                                       barrierDismissible: false,
                                       builder: (BuildContext context) {
-                                        return Center(
+                                        return const Center(
                                           child: CircularProgressIndicator(),
                                         );
                                       },
@@ -807,7 +1155,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           .pop();
                                                       _clearCartItem(cartItems);
                                                     },
-                                                    child: Text('OK'),
+                                                    child: const Text('OK'),
                                                   ),
                                                 ],
                                               );
@@ -837,7 +1185,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                     onPressed: () {
                                                       Navigator.pop(context);
                                                     },
-                                                    child: Text('OK'),
+                                                    child: const Text('OK'),
                                                   ),
                                                 ],
                                               );
@@ -869,11 +1217,11 @@ class _CartDialogueState extends State<CartDialogue> {
                                         context: context);
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         backgroundColor: Colors.red,
-                                        content: const Text(
+                                        content: Text(
                                             'Please fill all required fields'),
-                                        duration: const Duration(seconds: 3),
+                                        duration: Duration(seconds: 3),
                                       ),
                                     );
                                   }
@@ -888,7 +1236,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                   barrierDismissible: false,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: Center(
+                                      title: const Center(
                                         child: Icon(
                                           Icons.warning_amber_rounded,
                                           color: Colors.red,
@@ -908,7 +1256,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                     rootNavigator: true)
                                                 .pop();
                                           },
-                                          child: Text('OK'),
+                                          child: const Text('OK'),
                                         ),
                                       ],
                                     );
@@ -944,16 +1292,18 @@ class _CartDialogueState extends State<CartDialogue> {
     required double finalAmount,
     int? paymentType,
   }) async {
+    List<CartItem> itemList = isOrder ? cartItems : preorderItems;
+
     final connectivityService = ConnectivityService();
 
-    if (cartItems.isNotEmpty &&
+    if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
             widget.productsController.selectedCustomerId.value.isNotEmpty)) {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         },
       );
       try {
@@ -963,12 +1313,14 @@ class _CartDialogueState extends State<CartDialogue> {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
-          _clearCartItem(cartItems);
+         isOrder
+                ? _clearCartItem(itemList)
+                : _clearPreorderCartItem(itemList);
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('Offline Mode'),
-              content: Text(
+              title: const Text('Offline Mode'),
+              content: const Text(
                   'The order will be placed automatically when connected to the internet.'),
               actions: [
                 TextButton(
@@ -976,17 +1328,19 @@ class _CartDialogueState extends State<CartDialogue> {
                     setState(() {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
-                      _clearCartItem(cartItems);
+                     isOrder
+                            ? _clearCartItem(itemList)
+                            : _clearPreorderCartItem(itemList);
                     });
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             ),
           );
 
           log('[processSaveAndSend] Device is online. Proceeding with stock synchronization...');
-          for (var cartItem in cartItems) {
+          for (var cartItem in itemList) {
             var productId = cartItem.detail.productId;
             var productBox = await Hive.openBox('productBox');
             var rawProductList = productBox.get('products', defaultValue: []);
@@ -1031,7 +1385,7 @@ class _CartDialogueState extends State<CartDialogue> {
           return;
         }
         log('[processSaveAndSend] Preparing data for API call...');
-        List<Detail> detail = cartItems.map((e) => e.detail).toList();
+        List<Detail> detail = itemList.map((e) => e.detail).toList();
         final productBYData = AddToCartModel(
           customerId: customeController.customerId.isNotEmpty
               ? customeController.customerId.value
@@ -1090,70 +1444,74 @@ class _CartDialogueState extends State<CartDialogue> {
             transactionDate: dateController.text.trim(),
           );
           await placeOrder(order, (statusCode, message) {
-            Navigator.pop(context);
-            if (statusCode == 200) {
-              _clearCartItem(cartItems);
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: Container(
-                        height: 100,
-                        width: 100,
-                        child: Lottie.asset(
-                            'assets/images/Animation - 1726906882515.json'),
-                      ),
+          Navigator.pop(context);
+          if (statusCode == 200) {
+            isOrder
+                ? _clearCartItem(itemList)
+                : _clearPreorderCartItem(itemList);
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Center(
+                    child: SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: Lottie.asset(
+                          'assets/images/Animation - 1726906882515.json'),
                     ),
-                    content: CustomText(
-                      content: message,
-                      fontSize: 18,
+                  ),
+                  content: CustomText(
+                    content: message,
+                    fontSize: 18,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
+                        isOrder
+                            ? _clearCartItem(itemList)
+                            : _clearPreorderCartItem(itemList);
+                      },
+                      child: const Text('OK'),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
-                          _clearCartItem(cartItems);
-                        },
-                        child: Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            } else {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: Container(
-                        height: 200,
-                        width: 200,
-                        child: Lottie.asset(
-                            'assets/images/Warning_animation.json'),
-                      ),
+                  ],
+                );
+              },
+            );
+          } else {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Center(
+                    child: SizedBox(
+                      height: 200,
+                      width: 200,
+                      child:
+                          Lottie.asset('assets/images/Warning_animation.json'),
                     ),
-                    content: CustomText(
-                      content: message,
-                      fontSize: 18,
+                  ),
+                  content: CustomText(
+                    content: message,
+                    fontSize: 18,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          });
+                  ],
+                );
+              },
+            );
+          }
+        });
         }
       } catch (e) {
         Navigator.pop(context);
@@ -1162,12 +1520,24 @@ class _CartDialogueState extends State<CartDialogue> {
       }
     } else {
       Navigator.pop(context);
-      String errorMessage = customeController.customerId.value.isEmpty ||
-              widget.productsController.selectedCustomerId.value.isEmpty
-          ? 'No Customer Selected'
-          : 'Your cart is empty';
-      log('[processSaveAndSend] Validation failed. Message: $errorMessage');
-      showSnackbar(context, errorMessage);
+      if (customeController.customerId.value.isEmpty ||
+          widget.productsController.selectedCustomerId.value.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('No Customer Selected'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Your cart is empty'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -1219,7 +1589,7 @@ class _CartDialogueState extends State<CartDialogue> {
                 Navigator.of(context, rootNavigator: true).pop();
                 _clearCartItem(cartItems);
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -1247,7 +1617,7 @@ class _CartDialogueState extends State<CartDialogue> {
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -1261,40 +1631,39 @@ class _CartDialogueState extends State<CartDialogue> {
         backgroundColor: Colors.red,
         content: Text(
           message,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
 
-Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
-  final orderData = {
-    'customer_id': customeController.customerId.isNotEmpty
-        ? customeController.customerId.value
-        : widget.productsController.selectedCustomerId.value,
-    'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
-    'order_price': finalAmount,
-    'paymentType': paymentType,
-    'cart_list': cartItems
-        .map((e) => {
-              'product_id': e.detail.productId,
-              'variant_id': e.detail.variationId,
-              'pack': e.detail.saleBy == 'Pack'
-                  ? (e.detail.count * e.detail.pieces!).toString()
-                  : e.detail.count.toString(),
-              'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-              'price': e.detail.price.toString(),
-              'discount': '0',
-              'quantity': e.detail.count.toInt(),
-            })
-        .toList(),
-  };
-  var offlineBox = await Hive.openBox('offlineOrders');
-  await offlineBox.add(orderData);
-  log('[saveOrderOffline] Order saved locally: $orderData');
-}
-
+  Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
+    final orderData = {
+      'customer_id': customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value,
+      'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
+      'order_price': finalAmount,
+      'paymentType': paymentType,
+      'cart_list': cartItems
+          .map((e) => {
+                'product_id': e.detail.productId,
+                'variant_id': e.detail.variationId,
+                'pack': e.detail.saleBy == 'Pack'
+                    ? (e.detail.count * e.detail.pieces!).toString()
+                    : e.detail.count.toString(),
+                'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                'price': e.detail.price.toString(),
+                'discount': '0',
+                'quantity': e.detail.count.toInt(),
+              })
+          .toList(),
+    };
+    var offlineBox = await Hive.openBox('offlineOrders');
+    await offlineBox.add(orderData);
+    log('[saveOrderOffline] Order saved locally: $orderData');
+  }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
     return input.map((key, value) {
@@ -1336,13 +1705,13 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('No')),
+                    child: const Text('No')),
                 TextButton(
                     onPressed: () {
                       _deleteVariant(groupedItem, groupedItems);
                       Navigator.pop(context);
                     },
-                    child: Text('Yes'))
+                    child: const Text('Yes'))
               ],
             )
           ],
@@ -1351,47 +1720,105 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     );
   }
 
-  Future<dynamic> showVariantDeleteDIalog(
-      BuildContext context, String productName) {
+  Future<dynamic> deletePreorderConfirmationDialogue(
+      BuildContext context, CartItem groupedItem, List<CartItem> groupedItems) {
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: CustomText(
-            content: 'Delete ${productName}..?',
-            fontWeight: FontWeight.bold,
+            content: 'Delete ${groupedItem.detail.variationName}..?',
+            fontWeight: FontWeight.w700,
           ),
           actions: [
             Align(
               alignment: Alignment.centerLeft,
               child: CustomText(
-                content: 'Are you sure you want to delete this item?',
-                fontSize: 15,
+                content: 'Are you sure you want to delete this pre-order item?',
+                fontSize: 17,
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: CustomText(
-                    content: 'Cancel',
-                    color: primaryColor,
-                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('No'),
                 ),
                 TextButton(
                   onPressed: () {
-                    _deleteItem(productName);
-
+                    _deletePreorderVariant(groupedItem, groupedItems);
                     Navigator.pop(context);
                   },
-                  child: CustomText(
-                    content: 'Confirm',
-                    color: primaryColor,
-                  ),
-                )
+                  child: const Text('Yes'),
+                ),
               ],
-            )
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<dynamic> showVariantDeleteDialog(
+      BuildContext context, String productName, bool isPreOrder) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.warning_amber_outlined, color: Colors.red, size: 28),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CustomText(
+                  content: 'Delete "$productName"?',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: CustomText(
+            content: 'Are you sure you want to delete this item?',
+            fontSize: 15,
+          ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: CustomText(
+                content: 'Cancel',
+                color: primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () {
+                if (isPreOrder) {
+                  _deletePreorderItem(productName);
+                } else {
+                  _deleteItem(productName);
+                }
+                Navigator.pop(context);
+                showCustomToastDisplay(
+                  context,
+                  'Item deleted successfully',
+                  Colors.green,
+                  Icons.check,
+                );
+              },
+              child: CustomText(
+                content: 'Confirm',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         );
       },
@@ -1408,6 +1835,20 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
       total = Utils().getFinalAmount(cartItems);
       tax = Utils().getTotalTax(cartItems);
     });
+  }
+
+  void _deletePreorderVariant(
+      CartItem variantToDelete, List<CartItem> groupedItems) {
+    setState(() {
+      groupedItems.remove(variantToDelete);
+      preorderItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      CartDatabaseManager().deletePreorderCartItem(variantToDelete);
+      preorderTotal = Utils().getFinalAmount(preorderItems);
+      preorderTax = Utils().getTotalTax(preorderItems);
+    });
+    log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
   }
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
@@ -1428,7 +1869,7 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
                     topLeft: Radius.circular(5),
                     bottomLeft: Radius.circular(5))),
             child: Padding(
-              padding: EdgeInsets.all(2),
+              padding: const EdgeInsets.all(2),
               child: InkWell(
                   onTap: () {
                     setState(() {
@@ -1453,7 +1894,7 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
             ),
           ),
           CustomText(
-            content: '${cartItem.detail.count.toStringAsFixed(0)}',
+            content: cartItem.detail.count.toStringAsFixed(0),
             fontSize: fontSize,
           ),
           Container(
@@ -1463,7 +1904,7 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
                     topRight: Radius.circular(5),
                     bottomRight: Radius.circular(5))),
             child: Padding(
-              padding: EdgeInsets.all(2),
+              padding: const EdgeInsets.all(2),
               child: InkWell(
                 onTap: () {
                   setState(() {
@@ -1491,9 +1932,92 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     );
   }
 
+  Container preorderQuantityManager(CartItem cartPreorderItem, String sellPrice,
+      double fontSize, double availableWidth) {
+    double padding = availableWidth > 400 ? 6 : 3;
+    return Container(
+      width: availableWidth > 400 ? 80 : 50,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: const Color.fromARGB(255, 241, 240, 240)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5))),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (cartPreorderItem.detail.count > 0) {
+                        cartPreorderItem.detail.count--;
+                        log("Updated count for pre-order item ${cartPreorderItem.detail.id}: ${cartPreorderItem.detail.count}");
+                        CartDatabaseManager()
+                            .updatePreorderCart(cartPreorderItem);
+                        calulatePreorderAmount(preorderItems);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: padding, right: padding),
+                    child: CustomText(
+                      color: white,
+                      content: '-',
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                    ),
+                  )),
+            ),
+          ),
+          CustomText(
+            content: cartPreorderItem.detail.count.toStringAsFixed(0),
+            fontSize: fontSize,
+          ),
+          Container(
+            decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(5),
+                    bottomRight: Radius.circular(5))),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    cartPreorderItem.detail.count++;
+                    log("Updated count for pre-order item ${cartPreorderItem.detail.id}: ${cartPreorderItem.detail.count}");
+                    CartDatabaseManager().updatePreorderCart(cartPreorderItem);
+                    calulatePreorderAmount(preorderItems);
+                  });
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(left: padding, right: padding),
+                  child: CustomText(
+                    color: white,
+                    content: '+',
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void calulateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
+
     for (var cartItem in cartItems) {
       double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
       if (price != null) {
@@ -1504,22 +2028,64 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
           cartItem.totalPrice = (price * cartItem.detail.count).toInt();
         }
         total += cartItem.totalPrice;
-        double? itemTax = double.tryParse(cartItem.detail.tax.toString() ?? '');
+        double? itemTax = double.tryParse(cartItem.detail.tax.toString());
         if (itemTax != null) {
           tax += itemTax * cartItem.detail.count;
         }
       }
     }
+
+    log("Total price for all items: \$${total.toStringAsFixed(2)}");
+    log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
+  }
+
+  void calulatePreorderAmount(List<CartItem> preorderItems) {
+    preorderTotal = 0.0;
+    preorderTax = 0.0;
+
+    for (var cartItem in preorderItems) {
+      double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      if (price != null) {
+        if (cartItem.isPack == true) {
+          cartItem.totalPrice =
+              (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+        } else {
+          cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+        }
+        preorderTotal += cartItem.totalPrice;
+        double? itemTax = double.tryParse(cartItem.detail.tax.toString());
+        if (itemTax != null) {
+          preorderTax += itemTax * cartItem.detail.count;
+        }
+      }
+    }
+
+    log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
+    log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
   }
 
   void _clearCartItem(List<CartItem> cartItem) {
     CartDatabaseManager().clearCart();
+    // CartDatabaseManager().clearPreorderCart();
     setState(() {
       cartItems.remove(cartItem);
       quantities.remove(cartItem);
-      widget.cartItemCount = 0;
+      // preorderItems.remove(cartItem);
+      // preorderQuantities.remove(cartItem);
     });
-    log('CartItem Cleared : $cartItem');
+    log('Cart Item Cleared : $cartItem');
+  }
+
+  void _clearPreorderCartItem(List<CartItem> cartPreorderItem) {
+    // CartDatabaseManager().clearCart();
+    CartDatabaseManager().clearPreorderCart();
+    setState(() {
+      // cartItems.remove(cartItem);
+      // quantities.remove(cartItem);
+      preorderItems.remove(cartPreorderItem);
+      preorderQuantities.remove(cartPreorderItem);
+    });
+    log('Cart Item Cleared : $cartPreorderItem');
   }
 
   void _deleteItem(String productName) {
@@ -1544,6 +2110,32 @@ Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     });
 
     log('Cart items deleted for product: $productName');
+  }
+
+  void _deletePreorderItem(String productName) {
+    final itemsToDelete =
+        preorderItems.where((item) => item.productName == productName).toList();
+
+    for (var item in itemsToDelete) {
+      CartDatabaseManager().deletePreorderCartItem(item);
+    }
+
+    setState(() {
+      List<int> indicesToRemove = [];
+      for (int i = 0; i < preorderItems.length; i++) {
+        if (preorderItems[i].productName == productName) {
+          indicesToRemove.add(i);
+        }
+      }
+      preorderItems.removeWhere((item) => item.productName == productName);
+      for (int index in indicesToRemove.reversed) {
+        preorderQuantities.removeAt(index);
+      }
+      preorderTotal = Utils().getFinalAmount(preorderItems);
+      preorderTax = Utils().getTotalTax(preorderItems);
+    });
+
+    log('Pre-order items deleted for product: $productName');
   }
 }
 
@@ -1633,7 +2225,7 @@ class CartTextFields extends StatelessWidget {
 //         await placeOrder(orderPayload, (statusCode, message) async {
 //           if (statusCode == 200) {
 //             log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
-//             await offlineOrdersBox.delete(order['id']); 
+//             await offlineOrdersBox.delete(order['id']);
 //           } else {
 //             log('[syncOfflineOrders] Failed to sync order: $message');
 //           }

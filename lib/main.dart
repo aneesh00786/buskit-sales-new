@@ -36,6 +36,7 @@ void main() async {
   Hive.registerAdapter(CategoryDataAdapter());
   Hive.registerAdapter(SubCategoryItemAdapter());
   await Hive.openBox<CartItem>('cartBox');
+  await Hive.openBox<CartItem>('cartPreorderBox');
   await Hive.openBox('dashboardBox');
   await Hive.openBox('customerBox');
   await Hive.openBox('chatBox');

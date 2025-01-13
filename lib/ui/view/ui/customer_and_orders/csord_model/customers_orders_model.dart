@@ -834,6 +834,7 @@ class FrequantliyProductList {
   final int quantity;
   final double totalPrice;
   final String productName;
+  final String inNo;
   final DateTime createdAt;
   final List<QuantityList> quantityList;
   final List<Count> count;
@@ -846,6 +847,7 @@ class FrequantliyProductList {
       required this.quantity,
       required this.totalPrice,
       required this.productName,
+      required this.inNo,
       required this.createdAt,
       required this.quantityList,
       required this.count});
@@ -859,6 +861,7 @@ class FrequantliyProductList {
       quantity: int.parse(json['quantity'] ?? "0"),
       totalPrice: double.parse(json['total_price'] ?? "0"),
       productName: json["product_name"] ?? "",
+      inNo: json["in_no"] ?? "",
       createdAt: DateTime.parse(json["created_at"]),
       quantityList: (json['quantityList'] as List<dynamic>)
           .map((e) => QuantityList.fromJson(e))
@@ -878,6 +881,7 @@ class FrequantliyProductList {
       "quantity": quantity,
       "total_price": totalPrice,
       "product_name": productName,
+      "in_no": inNo,
       "created_at": createdAt.toIso8601String(),
       'quantityList':
           quantityList.map((customer) => customer.toJson()).toList(),

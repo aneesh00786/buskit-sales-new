@@ -86,6 +86,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         Get.put(NotificationController());
 
     bool isRecentOrders = index == 7;
+    bool isLeads = index == 4;
 
     return GestureDetector(
       onTap: () {
@@ -96,7 +97,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         });
       },
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeIn,
         padding: EdgeInsets.only(
           top: 5,
@@ -117,11 +118,11 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             AnimatedScale(
               scale:
                   widget.sidebarXController.selectedIndex == index ? 1.2 : 1.0,
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               child: Icon(
                 sideBarData.icon!,
-                size: 25,
+                size: 24,
                 color: widget.sidebarXController.selectedIndex == index
                     ? Theme.of(context).primaryColor
                     : Colors.grey,
@@ -129,10 +130,10 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             ),
             if (isRecentOrders)
               Positioned(
-                top: -15,
-                left: 10,
+                top: -12,
+                left: 12,
                 child: notificationController.isNotificationLoading.value
-                    ? SizedBox.shrink() 
+                    ? const SizedBox.shrink()
                     : notificationController
                                 .recentOrderCountData.mainNotification !=
                             null
@@ -144,11 +145,33 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                                       .recentOrderCountData.notificationCreated
                                       ?.toString() ??
                                   '0',
-                              style:
-                                  TextStyle(fontSize: 13, color: Colors.white),
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
                             ),
                           )
-                        : SizedBox.shrink(), //
+                        : const SizedBox.shrink(),
+              ),
+            if (isLeads)
+              Positioned(
+                top: -12,
+                left: 12,
+                child: notificationController.isLeadsCountLoading.value
+                    ? const SizedBox.shrink()
+                    : CircleAvatar(
+                            radius: 10,
+                            backgroundColor: Colors.red,
+                            child: Text(
+                              notificationController
+                                      .leadsCount.value
+                                      .toString(),
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
               ),
           ],
         ),

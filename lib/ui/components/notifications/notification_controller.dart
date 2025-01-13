@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 class NotificationController extends GetxController {
   RecentOrderCountData recentOrderCountData = RecentOrderCountData();
 
+    RxInt leadsCount = 0.obs;
+
   RxBool isNotificationLoading = false.obs;
   Future<RecentOrderCountData> loadNotificationData(
     String startDate,
@@ -22,6 +24,26 @@ class NotificationController extends GetxController {
     } finally {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         isNotificationLoading.value = false;
+      });
+    }
+  }
+
+  /// LEADS COUNT
+
+  RxBool isLeadsCountLoading = false.obs;
+  Future<int> loadLeadsCountData(
+  ) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      isLeadsCountLoading.value = true;
+    });
+
+    try {
+      var data = await ApiWorker().fetchLeadsCount();
+      leadsCount.value = data.data!;
+      return data.data!;
+    } finally {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        isLeadsCountLoading.value = false;
       });
     }
   }

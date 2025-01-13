@@ -48,6 +48,7 @@ mixin class ApiConstants {
   static const String salesman_dashview = "salesman_dashview";
   static const String salesman_dash_navcontents = "salesman_dash_navcontents";
   static const String fetchAllSetting = "fetchAllSetting";
+  static const String fetchLeadsCount = "fetchLeadsCount";
   
 
   /// Category Api END Point

@@ -10,8 +10,10 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/custo
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
+import 'package:dio/src/response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:dio/src/response.dart' as respo;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
@@ -133,22 +135,32 @@ class StaffController extends GetxController {
         staffId, selectedMonthName, currentYear, selectedMonthName);
   }
 
-  Future<void> updateCategoryTarget(
-    String salesmanId,
-    String month,
-    String year,
-    Map<dynamic, String> categoryData,
-    Map<dynamic, String> weeklyTarget,
-  ) async {
-    try {
-      var data = await ApiWorker().updateCategoryTargetValue(
-          salesmanId, month, year, categoryData, weeklyTarget);
-      print(data.statusMessage);
-    } catch (e) {
-      print('Error: $e');
-      rethrow;
-    }
+Future<respo.Response> updateCategoryTarget(
+  String salesmanId,
+  String month,
+  String year,
+  Map<dynamic, String> categoryData,
+  Map<dynamic, String> weeklyTarget,
+) async {
+  try {
+    final data = await ApiWorker().updateCategoryTargetValue(
+      salesmanId,
+      month,
+      year,
+      categoryData,
+      weeklyTarget,
+    );
+    print(data.statusMessage);
+
+    // Return the Response<dynamic> object
+    return data;
+  } catch (e) {
+    print('Error: $e');
+    rethrow; // Preserve and rethrow the exception
   }
+}
+
+
 
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {

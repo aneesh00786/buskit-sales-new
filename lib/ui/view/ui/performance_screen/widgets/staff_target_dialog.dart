@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 
 class StaffTargetDialog extends StatefulWidget {
   final StaffController staffController;
@@ -227,70 +228,123 @@ void dispose() {
         }));
   }
 
-  void _saveTargets() {
-    final selectedMonth = widget.tabController.index + 1;
-    final selectedMonthName =
-        DateFormat.MMMM().format(DateTime(0, selectedMonth));
-    updatedTargets = {
-      for (int i = 0; i < categoryControllers.length; i++)
-        widget.staffController.salesmanTargetList.value.categoryPerformance![i]
-            .cid
-            .toString(): categoryControllers[i]?.text.toString() ?? ''
-    };
+void _saveTargets() async {
+  final selectedMonth = widget.tabController.index + 1;
+  final selectedMonthName =
+      DateFormat.MMMM().format(DateTime(0, selectedMonth));
+  updatedTargets = {
+    for (int i = 0; i < categoryControllers.length; i++)
+      widget.staffController.salesmanTargetList.value.categoryPerformance![i]
+          .cid
+          .toString(): categoryControllers[i]?.text.toString() ?? ''
+  };
 
-    Map<String, Map<String, String>> buildWeeklyTargetData(
-        List<int> categoryIds, List<int> relevantWeeks) {
-      final Map<String, Map<String, String>> weeklyTargetData = {};
-      for (var week in relevantWeeks) {
-        final weekKey = 'week$week';
-        final controllers = _weeklyTargetControllers[weekKey] ?? [];
+  Map<String, Map<String, String>> buildWeeklyTargetData(
+      List<int> categoryIds, List<int> relevantWeeks) {
+    final Map<String, Map<String, String>> weeklyTargetData = {};
+    for (var week in relevantWeeks) {
+      final weekKey = 'week$week';
+      final controllers = _weeklyTargetControllers[weekKey] ?? [];
 
-        for (var categoryIndex = 0;
-            categoryIndex < categoryIds.length;
-            categoryIndex++) {
-          final categoryId = categoryIds[categoryIndex];
-          final controller = categoryIndex < controllers.length
-              ? controllers[categoryIndex]
-              : null;
-          weeklyTargetData.putIfAbsent(weekKey, () => {});
-          weeklyTargetData[weekKey]!['$categoryId'] = controller?.text ?? '';
-        }
+      for (var categoryIndex = 0;
+          categoryIndex < categoryIds.length;
+          categoryIndex++) {
+        final categoryId = categoryIds[categoryIndex];
+        final controller = categoryIndex < controllers.length
+            ? controllers[categoryIndex]
+            : null;
+        weeklyTargetData.putIfAbsent(weekKey, () => {});
+        weeklyTargetData[weekKey]!['$categoryId'] = controller?.text ?? '';
       }
-
-      return weeklyTargetData;
     }
 
-    List<int> getCategoryIds() {
-      return widget
-          .staffController.salesmanTargetList.value.categoryPerformance!
-          .map((category) => category.cid!)
-          .toList();
-    }
+    return weeklyTargetData;
+  }
 
-    final categoryIds = getCategoryIds();
-    final relevantWeeks = getWeeksForMonth(widget.currentYear, selectedMonth);
-    final weeklyTargetData = buildWeeklyTargetData(categoryIds, relevantWeeks);
-    final requestData = {
-      "companyId": 1,
-      "sales_id": "SALES1",
-      "month": selectedMonthName,
-      "year": widget.currentYear.toString(),
-      "categories": updatedTargets,
-      "weekly_target": isWeekly ? weeklyTargetData : {},
-    };
+  List<int> getCategoryIds() {
+    return widget
+        .staffController.salesmanTargetList.value.categoryPerformance!
+        .map((category) => category.cid!)
+        .toList();
+  }
 
-    final requestDataAsStrings =
+  final categoryIds = getCategoryIds();
+  final relevantWeeks = getWeeksForMonth(widget.currentYear, selectedMonth);
+  final weeklyTargetData = buildWeeklyTargetData(categoryIds, relevantWeeks);
+  final requestData = {
+    "companyId": 1,
+    "sales_id": "SALES1",
+    "month": selectedMonthName,
+    "year": widget.currentYear.toString(),
+    "categories": updatedTargets,
+    "weekly_target": isWeekly ? weeklyTargetData : {},
+  };
+      final requestDataAsStrings =
         requestData.map((key, value) => MapEntry(key, value.toString()));
-    log('Performance Request: ${jsonEncode(requestData)}');
-    widget.staffController.updateCategoryTarget(
+  try {
+    final response = await widget.staffController.updateCategoryTarget(
       "SALES1",
       selectedMonthName,
       widget.currentYear.toString(),
       updatedTargets,
       requestDataAsStrings,
     );
-    log('Updated Targets: $updatedTargets');
+
+    if (response.statusCode == 200) {
+      _showAlertDialog(
+        context,
+        'Success',
+        'Targets saved successfully!',
+        'assets/images/Animation - 1726906882515.json',
+      );
+    } else {
+      _showAlertDialog(
+        context,
+        'Failed',
+        'Failed to save targets. Please try again!',
+        'assets/images/Warning_animation.json',
+      );
+    }
+  } catch (e) {
+    _showAlertDialog(
+      context,
+      'Error',
+      'An unexpected error occurred. Please try again!',
+      'assets/images/Warning_animation.json',
+    );
+    log('Error saving targets: $e');
   }
+}
+
+void _showAlertDialog(
+    BuildContext context, String title, String message, String animationPath) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Center(
+          child: SizedBox(
+            height: 100,
+            width: 100,
+            child: Lottie.asset(animationPath),
+          ),
+        ),
+        content: CustomText(
+          content: message,
+          fontSize: 18,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Widget _buildTableHeader(String text) {
     return Container(

@@ -19,12 +19,14 @@ class StaffTargetDialog extends StatefulWidget {
   final StaffController staffController;
   TabController tabController;
   int currentYear;
+  String staffProjection;
   List<TextEditingController> tabControllers;
   StaffTargetDialog({
     required this.staffController,
     required this.tabController,
     required this.currentYear,
     required this.tabControllers,
+    required this.staffProjection,
   });
 
   @override
@@ -39,32 +41,23 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Map<dynamic, String> updatedTargets = {};
   Map<int, TextEditingController> categoryControllers = {};
   Map<int, TextEditingController> projectionControllers = {};
-  final staffProjection = SessionHelper.settingsData
-          ?.firstWhere(
-            (setting) => setting.key == 'staffProjection',
-            orElse: () => AllCompanySettingsData(
-              key: 'staffProjection',
-              value: '',
-            ),
-          )
-          .value ??
-      '';
+
 
   @override
   void initState() {
     super.initState();
     _loadTargets();
     final staffProjection = SessionHelper.settingsData
-          ?.firstWhere(
-            (setting) => setting.key == 'staffProjection',
-            orElse: () => AllCompanySettingsData(
-              key: 'staffProjection',
-              value: '',
-            ),
-          )
-          .value ??
-      '';
-      log("Staff Projection : $staffProjection");
+            ?.firstWhere(
+              (setting) => setting.key == 'staffProjection',
+              orElse: () => AllCompanySettingsData(
+                key: 'staffProjection',
+                value: '',
+              ),
+            )
+            .value ??
+        '';
+    log("Staff Projection : $staffProjection");
   }
 
   void _loadTargets() async {
@@ -175,7 +168,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                   children: [
                                     _buildTableHeader('Category'),
                                     _buildTableHeader('Target'),
-                                    if (staffProjection == "1")
+                                    if (widget.staffProjection == "1")
                                       _buildTableHeader('Projection'),
                                   ],
                                 ),
@@ -409,7 +402,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           children: [
             _buildTableCell(target?.category ?? ''),
             _buildTableCell(target?.actualTarget.toString() ?? ''),
-            if (staffProjection == "1")
+            if (widget.staffProjection == "1")
               _buildTableTextField(index, false, target),
           ],
         );

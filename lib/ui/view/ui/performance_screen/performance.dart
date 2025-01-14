@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/checkin_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/custom_perfo_bar_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/customer_dialogue.dart';
@@ -37,10 +38,23 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   String selectedValue = "2024";
+  String staffProjection = '';
   @override
   void initState() {
     super.initState();
     ApiWorker().fetchAllSettings(companyId);
+    setState(() {
+      staffProjection = SessionHelper.settingsData
+              ?.firstWhere(
+                (setting) => setting.key == 'staffProjection',
+                orElse: () => AllCompanySettingsData(
+                  key: 'staffProjection',
+                  value: '',
+                ),
+              )
+              .value ??
+          '';
+    });
     _tabController =
         TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
     _selectedMonthName = DateFormat.MMMM().format(DateTime.now());
@@ -114,7 +128,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
                               child: DropdownButton<String>(
                                 value: selectedValue,
-                                items: ['2025','2024', '2023'].map((String year) {
+                                items:
+                                    ['2025', '2024', '2023'].map((String year) {
                                   return DropdownMenuItem<String>(
                                     value: year,
                                     child: Text(
@@ -354,6 +369,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       currentYear: currentYear,
                       tabController: _tabController,
                       tabControllers: _targetControllers,
+                      staffProjection: staffProjection,
                     ),
                   ),
                 )

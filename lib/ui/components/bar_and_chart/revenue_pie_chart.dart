@@ -69,22 +69,22 @@ const Color revenueProgressBarFilledColor = Colors.green;
 
 class DoughnutDefault extends StatefulWidget {
   final Revenuee categoryData;
-  final String booking;
-  final String order;
+  final dynamic booking;
+  final dynamic order;
   final Color aColor;
   final Color bColor;
-  final Widget sabik;
-  final Widget sabik1;
+  final Widget legend1;
+  final Widget legend2;
 
   const DoughnutDefault({
     Key? key,
     required this.categoryData,
     required this.booking,
     required this.order,
-    required this.sabik,
+    required this.legend1,
     required this.aColor,
     required this.bColor,
-    required this.sabik1,
+    required this.legend2,
   }) : super(key: key);
 
   @override
@@ -92,27 +92,45 @@ class DoughnutDefault extends StatefulWidget {
 }
 
 class _DoughnutDefaultState extends State<DoughnutDefault> {
-  late TooltipBehavior _tooltip;
-
   @override
   void initState() {
-    _tooltip = TooltipBehavior(enable: true, format: 'point.x : point.y%');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalBookingRevenue = widget.categoryData.bookingRevenueData?.fold(
-          0.0,
-          (sum, item) => sum + (item.total ?? 0.0),
-        ) ??
-        0.0;
+    final totalOrderRevenue = (widget.categoryData.orderRevenueData != null &&
+            widget.categoryData.orderRevenueData!.isNotEmpty)
+        ? widget.categoryData.orderRevenueData!.last.totalOrderRevenue
+                ?.toDouble() ??
+            0.0
+        : 0.0;
 
-    final totalOrderRevenue = widget.categoryData.orderRevenueData?.fold(
-          0.0,
-          (sum, item) => sum + (item.totalOrderRevenue?.toDouble() ?? 0.0),
-        ) ??
-        0.0;
+    final totalBookingRevenue =
+        (widget.categoryData.bookingRevenueData != null &&
+                widget.categoryData.bookingRevenueData!.isNotEmpty)
+            ? widget.categoryData.bookingRevenueData!.last.totalBookingRevenue
+                    ?.toDouble() ??
+                0.0
+            : 0.0;
+
+    final totalRevenue = totalBookingRevenue + totalOrderRevenue;
+
+    final orderRevenuePercentage = totalRevenue > 0
+        ? ((totalOrderRevenue / totalRevenue) * 100).clamp(0.0, 100.0)
+        : 0.0;
+    final bookingRevenuePercentage = totalRevenue > 0
+        ? ((totalBookingRevenue / totalRevenue) * 100).clamp(0.0, 100.0)
+        : 0.0;
+
+    if (totalRevenue == 0) {
+      return Center(
+        child: Text(
+          "No data available",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -122,19 +140,19 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
           flex: 3,
           child: fl_chart.PieChart(
             fl_chart.PieChartData(
-              startDegreeOffset: 250,
-              sectionsSpace: 0.7,
-              centerSpaceRadius: 60,
+              startDegreeOffset: -90,
+              sectionsSpace: 2,
+              centerSpaceRadius: 43,
               sections: [
                 fl_chart.PieChartSectionData(
-                  value: totalOrderRevenue,
-                  color: widget.aColor,
+                  value: bookingRevenuePercentage,
+                  color: widget.bColor,
                   radius: 25,
                   showTitle: false,
                 ),
                 fl_chart.PieChartSectionData(
-                  value: totalBookingRevenue,
-                  color: widget.bColor,
+                  value: orderRevenuePercentage,
+                  color: widget.aColor,
                   radius: 25,
                   showTitle: false,
                 ),
@@ -145,20 +163,29 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                   if (event is FlTapUpEvent &&
                       response != null &&
                       response.touchedSection != null) {
-                    final section = response.touchedSection!;
-                    final fl_chart.PieTouchedSection touchedSectionData =
-                        section;
-                    final title = 'Revenue';
-                    showValueDialog(context, widget.categoryData, title);
+                    // Get the index of the touched section
+                    int touchedIndex =
+                        response.touchedSection!.touchedSectionIndex;
+
+                    // Check the index and show a dialog based on the touched section
+                    if (touchedIndex == 1) {
+                      // Show Revenue Dialog
+                      const title = 'Revenue';
+                      showValueDialog(context, widget.categoryData, title);
+                    } else if (touchedIndex == 0) {
+                      // Show Booking Revenue Dialog
+                      const title = 'Booking';
+                      showValueDialog(context, widget.categoryData, title);
+                    }
                   }
                 },
               ),
             ),
           ),
         ),
-        widget.sabik1,
+        widget.legend1,
         const SizedBox(height: 4),
-        widget.sabik,
+        widget.legend2,
       ],
     );
   }

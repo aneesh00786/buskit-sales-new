@@ -204,75 +204,111 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             const MaterialStatePropertyAll(secondaryColor),
                         columns: [
                           DataColumn(
-                            label: CustomText(
-                              content: 'Variant',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Variant',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Unit',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Unit',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Sale price',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Sale price',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Tax',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Tax',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Pack',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Pack',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Total',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Total',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Stock',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Stock',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Sale by',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Sale by',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                           DataColumn(
-                            label: CustomText(
-                              content: 'Quantity',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize,
+                            label: Expanded(
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Quantity',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -376,7 +412,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       mainAxisSize: MainAxisSize.max,
                                       children: [
                                         Container(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: primaryColor,
                                             borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(5),
@@ -405,59 +441,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         CustomText(
                                           content:
-                                              '${localCounts[i].toStringAsFixed(0)}',
+                                              localCounts[i].toStringAsFixed(0),
                                           fontSize: fontSize,
                                         ),
-                                        SizedBox(width: 8),
-                                        // Container(
-                                        //   decoration: BoxDecoration(
-                                        //     color: primaryColor,
-                                        //     borderRadius: BorderRadius.only(
-                                        //       topRight: Radius.circular(5),
-                                        //       bottomRight: Radius.circular(5),
-                                        //     ),
-                                        //   ),
-                                        //   child: InkWell(
-                                        //     onTap: () {
-                                        //       setState(() {
-                                        //         detail.saleBy ??= 'Pack';
-                                        //         if (detail.stock == 0) {
-                                        //           ScaffoldMessenger.of(context)
-                                        //               .showSnackBar(
-                                        //             SnackBar(
-                                        //               backgroundColor:
-                                        //                   Colors.red,
-                                        //               content: CustomText(
-                                        //                 content:
-                                        //                     'This item is out of stock',
-                                        //                 color: Colors.white,
-                                        //               ),
-                                        //               duration: const Duration(
-                                        //                   seconds: 2),
-                                        //             ),
-                                        //           );
-                                        //         } else {
-                                        //           localCounts[i]++;
-                                        //           detail.count =
-                                        //               localCounts[i].toDouble();
-                                        //           calculateAmount(detail);
-                                        //         }
-                                        //       });
-                                        //     },
-                                        //     child: Padding(
-                                        //       padding:
-                                        //           const EdgeInsets.all(2.5),
-                                        //       child: Icon(
-                                        //         Icons.add,
-                                        //         color: Colors.white,
-                                        //         size: iconSize,
-                                        //       ),
-                                        //     ),
-                                        //   ),
-                                        // ),
+                                        const SizedBox(width: 8),
                                         Container(
                                           decoration: const BoxDecoration(
                                             color: primaryColor,

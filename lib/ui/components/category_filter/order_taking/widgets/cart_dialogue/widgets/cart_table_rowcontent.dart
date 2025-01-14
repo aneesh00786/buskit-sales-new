@@ -29,16 +29,29 @@ class GroupedItemDataRows {
           ),
           DataCell(TableContent(
               fontSize: fontSize,
-              content:
-                  '${groupedItem.detail.packtype}/ ${groupedItem.detail.pieces} Pcs')),
+              maxLines: 1,
+              content: formatAmount(groupedItem.detail.sellPrice ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
-              content:
-                  formatAmount(groupedItem.detail.price ?? '0'))),
+              maxLines: 2,
+              content: groupedItem.isPack == true
+                  ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
+                  : 'Pcs')),
           DataCell(TableContent(
               fontSize: fontSize,
-              content:
-                  '${double.parse(groupedItem.detail.tax.toString() ?? '0').toStringAsFixed(2)}')),
+              maxLines: 1,
+              content: formatAmount(
+                  double.parse(groupedItem.detail.sellPrice.toString()) *
+                      (groupedItem.isPack == true
+                          ? groupedItem.detail.pieces!
+                          : 1)))),
+          DataCell(TableContent(
+              maxLines: 1,
+              fontSize: fontSize,
+              content: formatAmount(groupedItem.detail.tax! *
+                  (groupedItem.isPack == true
+                      ? groupedItem.detail.pieces!
+                      : 1)))),
           DataCell(
             Center(
               child: ConstrainedBox(
@@ -57,9 +70,10 @@ class GroupedItemDataRows {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: CustomText(
-                  content: formatAmount(groupedItem.totalPrice.toStringAsFixed(2)),
+                  content: formatAmount(groupedItem.totalPrice),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,
+                  maxLine: 1,
                 ),
               ),
             ),
@@ -91,7 +105,12 @@ class GroupedItemDataRows {
 class TableContent extends StatelessWidget {
   double fontSize;
   String content;
-  TableContent({super.key, required this.fontSize, required this.content});
+  int maxLines;
+  TableContent(
+      {super.key,
+      required this.fontSize,
+      required this.content,
+      this.maxLines = 2});
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +121,7 @@ class TableContent extends StatelessWidget {
           content: content,
           textAlign: TextAlign.center,
           fontSize: fontSize,
+          maxLine: maxLines,
         ),
       ),
     );

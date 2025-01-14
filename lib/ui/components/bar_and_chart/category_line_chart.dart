@@ -349,6 +349,39 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 
+    double getRoundedUpperLimit() {
+    final maxValue = barGroups
+        .map((group) =>
+            group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
+        .reduce((a, b) => a > b ? a : b);
+    return (maxValue / 1000).ceil() * 1000;
+  }
+
+  double getDynamicReservedSize() {
+    final maxValue = barGroups
+        .map((group) =>
+            group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
+        .reduce((a, b) => a > b ? a : b);
+    int digitCount = maxValue.toInt().toString().length;
+    return (digitCount * 8);
+  }
+
+    Widget getBottomTitlesDummy(double value, TitleMeta meta) {
+    Widget text = Transform.rotate(
+      angle: -1.34 / 4,
+      child: MyRegularText(
+        label: widget.allCategory[value.toInt()].category ?? '',
+        fontWeight: FontWeight.w500,
+        fontSize: 11,
+        color: Colors.white,
+      ),
+    );
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      child: text,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -362,84 +395,133 @@ class _CustomBarChartState extends State<CustomBarChart> {
                 thickness: MaterialStateProperty.all(5),
                 radius: Radius.circular(8),
               ),
-              child: Scrollbar(
-                controller:
-                    Provider.of<DashboardProvider>(context, listen: false)
-                        .scrollController,
-                interactive: true,
-                thickness: 5,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Scrollbar(
                     controller:
                         Provider.of<DashboardProvider>(context, listen: false)
                             .scrollController,
-                    scrollDirection: Axis.horizontal,
-                    physics: ClampingScrollPhysics(),
-                    child: SizedBox(
-                      width: barGroups.length * 66.0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 3.0),
-                        child: BarChart(
-                          BarChartData(
-                            alignment: BarChartAlignment.spaceAround,
-                            barGroups: barGroups,
-                            titlesData: FlTitlesData(
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: getLeftTitles,
-                                  reservedSize: 40,
+                    interactive: true,
+                    thickness: 5,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: SingleChildScrollView(
+                        controller:
+                            Provider.of<DashboardProvider>(context, listen: false)
+                                .scrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: ClampingScrollPhysics(),
+                        child: SizedBox(
+                          width: barGroups.length * 66.0,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 3.0),
+                            child: BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.spaceAround,
+                                barGroups: barGroups,
+                                maxY: getRoundedUpperLimit(),
+                                titlesData: FlTitlesData(
+                                  leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: getLeftTitles,
+                                          reservedSize: getDynamicReservedSize(),
+                                        ),
+                                      ),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      getTitlesWidget: getBottomTitles,
+                                      reservedSize: 40,
+                                    ),
+                                  ),
+                                  topTitles: AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                  rightTitles: AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                    color: const Color(0xffe0e0e0),
+                                    width: 0.9,
+                                  ),
+                                ),
+                                barTouchData: BarTouchData(
+                                  touchCallback: (FlTouchEvent event,
+                                      BarTouchResponse? touchResponse) {
+                                    if (touchResponse != null &&
+                                        touchResponse.spot != null &&
+                                        event is FlTapUpEvent) {
+                                      final int index =
+                                          touchResponse.spot!.touchedBarGroupIndex;
+                                      CategoryPerformancee perf =
+                                          widget.categoryPerformance.firstWhere(
+                                        (performance) =>
+                                            performance.category ==
+                                            widget.allCategory[index].category,
+                                      );
+                                      _showSalesmanPopup(perf.cid ?? 0,
+                                          widget.allCategory[index].category ?? '');
+                                    }
+                                  },
                                 ),
                               ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: getBottomTitles,
-                                  reservedSize: 40,
-                                ),
-                              ),
-                              topTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                              rightTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                            ),
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border.all(
-                                color: const Color(0xffe0e0e0),
-                                width: 0.9,
-                              ),
-                            ),
-                            barTouchData: BarTouchData(
-                              touchCallback: (FlTouchEvent event,
-                                  BarTouchResponse? touchResponse) {
-                                if (touchResponse != null &&
-                                    touchResponse.spot != null &&
-                                    event is FlTapUpEvent) {
-                                  final int index =
-                                      touchResponse.spot!.touchedBarGroupIndex;
-                                  CategoryPerformancee perf =
-                                      widget.categoryPerformance.firstWhere(
-                                    (performance) =>
-                                        performance.category ==
-                                        widget.allCategory[index].category,
-                                  );
-                                  _showSalesmanPopup(perf.cid ?? 0,
-                                      widget.allCategory[index].category ?? '');
-                                }
-                              },
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Container(
+                      padding: EdgeInsets.only(bottom: 0, top: 3),
+                      color: white,
+                      width: getDynamicReservedSize(),
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: getRoundedUpperLimit(),
+                          // barGroups: barGroups,
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: getLeftTitles,
+                                reservedSize: getDynamicReservedSize(),
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: getBottomTitlesDummy,
+                                reservedSize: 40,
+                              ),
+                            ),
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border.all(
+                              color: Colors.transparent,
+                              width: 0.9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

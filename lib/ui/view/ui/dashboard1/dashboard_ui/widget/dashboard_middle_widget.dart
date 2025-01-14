@@ -29,6 +29,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart'
     as model;
@@ -78,7 +79,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       setState(() {
         final targetSetting = settingsList?.firstWhere(
           (setting) => setting.key == 'staffProjection',
-          orElse: () => AllCompanySettingsData(key: 'staffProjection', value: ''),
+          orElse: () =>
+              AllCompanySettingsData(key: 'staffProjection', value: ''),
         );
         staffProjection = targetSetting?.value ?? '';
       });
@@ -86,6 +88,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       print("Error fetching settings: $e");
     }
   }
+
   TextEditingController communicationController = TextEditingController();
 
   @override
@@ -244,9 +247,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                         ?.fold(
                                       0.0,
                                       (sum, order) =>
-                                          sum +
-                                          (order.orderTotal ??
-                                              0), 
+                                          sum + (order.orderTotal ?? 0),
                                     ) ==
                                     0)) {
                           return const NodataWidget();
@@ -288,8 +289,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                             (sum, order) =>
                                                 sum +
                                                 (order.orderTotal?.toInt() ??
-                                                    0)
-                                            ),
+                                                    0)),
                                     pendingAmountCount: (responseModel
                                                     .collection
                                                     ?.order
@@ -641,7 +641,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     );
   }
 
-  Widget middleTopRightComponet() {
+Widget middleTopRightComponet() {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -649,7 +649,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
             blurRadius: 5,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 25,
@@ -660,28 +660,28 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
-                ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-              child: Text(
-                "Revenue",
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
-            ),
+  decoration: BoxDecoration(
+    color: primaryColor.withOpacity(0.2),
+    borderRadius: BorderRadius.only(
+      topLeft: Radius.circular(25),
+      bottomRight: Radius.circular(25),
+    ),
+  ),
+  padding:
+      const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
+  child: Text(
+    "Revenue",
+    style: cardHeadingTextStyle,
+    maxLines: 1,
+    softWrap: false,
+  ),
+),
             Expanded(
               child: Padding(
-                padding: nkRegularPadding(),
+                padding: const EdgeInsets.all(8.0),
                 child: Consumer<DashboardProvider>(
                   builder: (context, provider, child) {
-                    return FutureBuilder<model1.ResponseModell>(
+                    return FutureBuilder<ResponseModell>(
                       future: provider.futureResponseModel,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -692,9 +692,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               size: 20.0,
                             ),
                           );
-                        }
-
-                        if (snapshot.hasError) {
+                        } else if (snapshot.hasError) {
                           return const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -702,82 +700,71 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 Icon(Icons.error_outline,
                                     size: 50, color: Colors.red),
                                 Text(
-                                  "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                  textAlign: TextAlign.center,
-                                ),
+                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
                               ],
                             ),
                           );
-                        }
+                        } else if (snapshot.hasData) {
+                          final categoryPerformance = snapshot.data!.revenue;
+                          if (categoryPerformance!.orderRevenueData!.isEmpty) {
+                            return const NodataWidget();
+                          }
 
-                        if (!snapshot.hasData ||
-                            snapshot.data?.revenue == null) {
-                          return const NodataWidget();
-                        }
+                          final bookingRevenueLength =
+                              categoryPerformance.bookingRevenueData!.isNotEmpty
+                                  ? categoryPerformance.bookingRevenueData!.last
+                                      .totalBookingRevenue
+                                  : 0.0;
 
-                        final categoryPerformance = snapshot.data!.revenue;
+                          final orderRevenueLast =
+                              categoryPerformance.orderRevenueData!.isNotEmpty
+                                  ? categoryPerformance
+                                      .orderRevenueData!.last.totalOrderRevenue
+                                  : 0.0;
 
-                        // Check if booking or order revenue data is empty
-                        final bookingRevenueLength = categoryPerformance
-                                    ?.bookingRevenueData?.isNotEmpty ??
-                                false
-                            ? categoryPerformance
-                                ?.bookingRevenueData?.last.total
-                            : 0.0;
-
-                        final orderRevenueLast =
-                            categoryPerformance?.orderRevenueData?.isNotEmpty ??
-                                    false
-                                ? categoryPerformance
-                                    ?.orderRevenueData?.last.totalOrderRevenue
-                                : 0.0;
-                        if (bookingRevenueLength == 0.0 &&
-                            orderRevenueLast == 0.0) {
-                          return const NodataWidget();
-                        }
-
-                        return Center(
-                          child: DoughnutDefault(
-                            categoryData: categoryPerformance!,
-                            booking: "Booking : 3",
-                            order: "Order : 3",
-                            aColor: Colors.blue,
-                            bColor: const Color(0xff1d3d63),
-                            sabik: const SizedBox.shrink(),
-                            sabik1: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 6,
-                                  backgroundColor: Color(0xff1d3d63),
-                                ),
-                                const SizedBox(width: 2),
-                                MyRegularText(
-                                  label:
-                                      'Booking : ${formatAmount(bookingRevenueLength)}',
-                                  color: secondaryTextColor,
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                const SizedBox(
-                                  width: 8.3,
-                                ),
-                                CircleAvatar(
-                                  radius: 6,
-                                  backgroundColor: Colors.blue,
-                                ),
-                                const SizedBox(width: 2),
-                                MyRegularText(
-                                  label:
+                          return Center(
+                            child: DoughnutDefault(
+                              categoryData: categoryPerformance,
+                              booking: "Booking : 3",
+                              order: "Order : 3",
+                              aColor: Colors.blue,
+                              bColor: const Color(0xff1d3d63),
+                              legend1: const SizedBox.shrink(),
+                              legend2: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                // alignment: WrapAlignment.center,
+                                // crossAxisAlignment: WrapCrossAlignment.center,
+                                // spacing: 8,
+                                // runSpacing: 4,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      showValueDialog(context,
+                                          categoryPerformance, 'Bookings');
+                                    },
+                                    child: _buildLegendItem(
+                                      const Color(0xff1d3d63),
+                                      'Pre-Order : ${formatAmount(bookingRevenueLength)}',
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  InkWell(
+                                    onTap: () {
+                                      showValueDialog(context,
+                                          categoryPerformance, 'Revenue');
+                                    },
+                                    child: _buildLegendItem(
+                                      Colors.blue,
                                       'Order : ${formatAmount(orderRevenueLast)}',
-                                  color: secondaryTextColor,
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          return const NodataWidget();
+                        }
                       },
                     );
                   },

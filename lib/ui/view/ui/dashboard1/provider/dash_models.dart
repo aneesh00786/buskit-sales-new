@@ -168,33 +168,204 @@ class Salesmanvn {
   }
 }
 
-class OrderRevenueData {
+// class OrderRevenueData {
+//   int? id;
+//   String? cartId;
+//   String? customerId;
+//   String? salesmanId;
+//   double? total;
+//   String? discount;
+//   int? status;
+//   String? createdAt;
+//   String? updatedAt;
+//   String? orderId;
+//   int? paymentStatus;
+//   int? paymentType;
+//   String? paymentDetail;
+//   int? orderStatus;
+//   String? orderCreatAt;
+//   int? orderTotal;
+//   int? receivedAmount;
+//   String? receivedAmountDate;
+//   String? checkDueDate;
+//   int? checkNumber;
+//   String? transactionDate;
+//   String? transactionDetails;
+//   int? totalOrderRevenue;
+
+//   OrderRevenueData({
+//     this.id,
+//     this.cartId,
+//     this.customerId,
+//     this.salesmanId,
+//     this.total,
+//     this.discount,
+//     this.status,
+//     this.createdAt,
+//     this.updatedAt,
+//     this.orderId,
+//     this.paymentStatus,
+//     this.paymentType,
+//     this.paymentDetail,
+//     this.orderStatus,
+//     this.orderCreatAt,
+//     this.orderTotal,
+//     this.receivedAmount,
+//     this.receivedAmountDate,
+//     this.checkDueDate,
+//     this.checkNumber,
+//     this.transactionDate,
+//     this.transactionDetails,
+//     this.totalOrderRevenue,
+//   });
+
+//   factory OrderRevenueData.fromJson(Map<String, dynamic> json) {
+//     return OrderRevenueData(
+//       id: json['id'] ?? 0,
+//       cartId: json['cart_id']?.toString() ?? '',
+//       customerId: json['customer_id']?.toString() ?? '',
+//       salesmanId: json['salesman_id']?.toString() ?? '',
+//       total: json['total']?.toDouble() ?? 0.0,
+//       discount: json['discount']?.toString() ?? '',
+//       status: json['status'] ?? 0,
+//       createdAt: json['created_at']?.toString() ?? '',
+//       updatedAt: json['updated_at']?.toString() ?? '',
+//       orderId: json['order_id']?.toString() ?? '',
+//       paymentStatus: json['payment_status'] ?? 0,
+//       paymentType: json['payment_type'] ?? 0,
+//       paymentDetail: json['payment_detail']?.toString() ?? '',
+//       orderStatus: json['order_status'] ?? 0,
+//       orderCreatAt: json['order_creat_at']?.toString() ?? '',
+//       orderTotal: json['order_total'] ?? 0,
+//       receivedAmount: json['received_amount'] ?? 0,
+//       receivedAmountDate: json['received_amount_date']?.toString() ?? '',
+//       checkDueDate: json['check_due_date']?.toString() ?? '',
+//       checkNumber: json['check_number'] != null ? json['check_number'] : 0,
+//       transactionDate: json['transaction_date']?.toString() ?? '',
+//       transactionDetails: json['transaction_details']?.toString() ?? '',
+//       totalOrderRevenue: json['total_order_revenue'] ?? 0,
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'cart_id': cartId,
+//       'customer_id': customerId,
+//       'salesman_id': salesmanId,
+//       'total': total,
+//       'discount': discount,
+//       'status': status,
+//       'created_at': createdAt,
+//       'updated_at': updatedAt,
+//       'order_id': orderId,
+//       'payment_status': paymentStatus,
+//       'payment_type': paymentType,
+//       'payment_detail': paymentDetail,
+//       'order_status': orderStatus,
+//       'order_creat_at': orderCreatAt,
+//       'order_total': orderTotal,
+//       'received_amount': receivedAmount,
+//       'received_amount_date': receivedAmountDate,
+//       'check_due_date': checkDueDate,
+//       'check_number': checkNumber,
+//       'transaction_date': transactionDate,
+//       'transaction_details': transactionDetails,
+//       'total_order_revenue': totalOrderRevenue,
+//     };
+//   }
+// }
+
+// class Revenuee {
+//   List<OrderRevenueData>? bookingRevenueData;
+//   List<OrderRevenueData>? orderRevenueData;
+
+//   Revenuee({this.bookingRevenueData, this.orderRevenueData});
+
+//   factory Revenuee.fromJson(Map<String, dynamic> json) {
+//     var bookingRevenueList = json['booking_revenueData'] as List? ?? [];
+//     var orderRevenueList = json['order_revenueData'] as List? ?? [];
+
+//     List<OrderRevenueData> bookingRevenueData =
+//         bookingRevenueList.map((i) => OrderRevenueData.fromJson(i)).toList();
+//     List<OrderRevenueData> orderRevenueData =
+//         orderRevenueList.map((i) => OrderRevenueData.fromJson(i)).toList();
+
+//     return Revenuee(
+//       bookingRevenueData: bookingRevenueData,
+//       orderRevenueData: orderRevenueData,
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'booking_revenueData':
+//           bookingRevenueData?.map((e) => e.toJson()).toList(),
+//       'order_revenueData': orderRevenueData?.map((e) => e.toJson()).toList(),
+//     };
+//   }
+// }
+
+class Revenuee {
+  List<BookingRevenueDatum>? bookingRevenueData;
+  List<OrderRevenueDatum>? orderRevenueData;
+
+  Revenuee({
+    this.bookingRevenueData,
+    this.orderRevenueData,
+  });
+
+  factory Revenuee.fromJson(Map<String, dynamic> json) => Revenuee(
+        bookingRevenueData: List<BookingRevenueDatum>.from(
+            json["booking_revenueData"]
+                .map((x) => BookingRevenueDatum.fromJson(x))),
+        orderRevenueData: List<OrderRevenueDatum>.from(json["order_revenueData"]
+            .map((x) => OrderRevenueDatum.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "booking_revenueData":
+            List<dynamic>.from(bookingRevenueData!.map((x) => x.toJson())),
+        "order_revenueData":
+            List<dynamic>.from(orderRevenueData!.map((x) => x.toJson())),
+      };
+}
+
+class BookingRevenueDatum {
   int? id;
+  int? companyId;
   String? cartId;
   String? customerId;
   String? salesmanId;
-  double? total;
+  int? total;
   String? discount;
   int? status;
-  String? createdAt;
-  String? updatedAt;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   String? orderId;
   int? paymentStatus;
   int? paymentType;
   String? paymentDetail;
   int? orderStatus;
-  String? orderCreatAt;
+  DateTime? orderCreatAt;
   int? orderTotal;
   int? receivedAmount;
-  String? receivedAmountDate;
-  String? checkDueDate;
-  int? checkNumber;
-  String? transactionDate;
+  dynamic receivedAmountDate;
+  DateTime? checkDueDate;
+  dynamic checkNumber;
+  dynamic transactionDate;
   String? transactionDetails;
-  int? totalOrderRevenue;
+  String? rejectionReason;
+  dynamic rejectedDate;
+  dynamic receivableAmount;
+  dynamic deliveryDatetime;
+  int? notificationStatus;
+  dynamic orderCreatedStored;
+  int? totalBookingRevenue;
 
-  OrderRevenueData({
+  BookingRevenueDatum({
     this.id,
+    this.companyId,
     this.cartId,
     this.customerId,
     this.salesmanId,
@@ -216,94 +387,114 @@ class OrderRevenueData {
     this.checkNumber,
     this.transactionDate,
     this.transactionDetails,
+    this.rejectionReason,
+    this.rejectedDate,
+    this.receivableAmount,
+    this.deliveryDatetime,
+    this.notificationStatus,
+    this.orderCreatedStored,
+    this.totalBookingRevenue,
+  });
+
+  factory BookingRevenueDatum.fromJson(Map<String, dynamic> json) =>
+      BookingRevenueDatum(
+        id: json["id"],
+        companyId: json["company_id"],
+        cartId: json["cart_id"],
+        customerId: json["customer_id"],
+        salesmanId: json["salesman_id"],
+        total: json["total"],
+        discount: json["discount"],
+        status: json["status"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        orderId: json["order_id"],
+        paymentStatus: json["payment_status"],
+        paymentType: json["payment_type"],
+        paymentDetail: json["payment_detail"],
+        orderStatus: json["order_status"],
+        orderCreatAt: DateTime.parse(json["order_creat_at"]),
+        orderTotal: json["order_total"],
+        receivedAmount: json["received_amount"],
+        receivedAmountDate: json["received_amount_date"],
+        checkDueDate: DateTime.parse(json["check_due_date"]),
+        checkNumber: json["check_number"],
+        transactionDate: json["transaction_date"],
+        transactionDetails: json["transaction_details"],
+        rejectionReason: json["rejection_reason"],
+        rejectedDate: json["rejected_date"],
+        receivableAmount: json["receivable_amount"],
+        deliveryDatetime: json["delivery_datetime"],
+        notificationStatus: json["notification_status"],
+        orderCreatedStored: json["order_created_stored"],
+        totalBookingRevenue: json["total_booking_revenue"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "company_id": companyId,
+        "cart_id": cartId,
+        "customer_id": customerId,
+        "salesman_id": salesmanId,
+        "total": total,
+        "discount": discount,
+        "status": status,
+        "created_at": createdAt!.toIso8601String(),
+        "updated_at": updatedAt!.toIso8601String(),
+        "order_id": orderId,
+        "payment_status": paymentStatus,
+        "payment_type": paymentType,
+        "payment_detail": paymentDetail,
+        "order_status": orderStatus,
+        "order_creat_at": orderCreatAt!.toIso8601String(),
+        "order_total": orderTotal,
+        "received_amount": receivedAmount,
+        "received_amount_date": receivedAmountDate,
+        "check_due_date": checkDueDate!.toIso8601String(),
+        "check_number": checkNumber,
+        "transaction_date": transactionDate,
+        "transaction_details": transactionDetails,
+        "rejection_reason": rejectionReason,
+        "rejected_date": rejectedDate,
+        "receivable_amount": receivableAmount,
+        "delivery_datetime": deliveryDatetime,
+        "notification_status": notificationStatus,
+        "order_created_stored": orderCreatedStored,
+        "total_booking_revenue": totalBookingRevenue,
+      };
+}
+
+class OrderRevenueDatum {
+  int? orderTotal;
+  DateTime? orderCreatAt;
+  String? orderId;
+  int? orderStatus;
+  int? totalOrderRevenue;
+
+  OrderRevenueDatum({
+    this.orderTotal,
+    this.orderCreatAt,
+    this.orderId,
+    this.orderStatus,
     this.totalOrderRevenue,
   });
 
-  factory OrderRevenueData.fromJson(Map<String, dynamic> json) {
-    return OrderRevenueData(
-      id: json['id'] ?? 0,
-      cartId: json['cart_id']?.toString() ?? '',
-      customerId: json['customer_id']?.toString() ?? '',
-      salesmanId: json['salesman_id']?.toString() ?? '',
-      total: json['total']?.toDouble() ?? 0.0,
-      discount: json['discount']?.toString() ?? '',
-      status: json['status'] ?? 0,
-      createdAt: json['created_at']?.toString() ?? '',
-      updatedAt: json['updated_at']?.toString() ?? '',
-      orderId: json['order_id']?.toString() ?? '',
-      paymentStatus: json['payment_status'] ?? 0,
-      paymentType: json['payment_type'] ?? 0,
-      paymentDetail: json['payment_detail']?.toString() ?? '',
-      orderStatus: json['order_status'] ?? 0,
-      orderCreatAt: json['order_creat_at']?.toString() ?? '',
-      orderTotal: json['order_total'] ?? 0,
-      receivedAmount: json['received_amount'] ?? 0,
-      receivedAmountDate: json['received_amount_date']?.toString() ?? '',
-      checkDueDate: json['check_due_date']?.toString() ?? '',
-      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
-      transactionDate: json['transaction_date']?.toString() ?? '',
-      transactionDetails: json['transaction_details']?.toString() ?? '',
-      totalOrderRevenue: json['total_order_revenue'] ?? 0,
-    );
-  }
+  factory OrderRevenueDatum.fromJson(Map<String, dynamic> json) =>
+      OrderRevenueDatum(
+        orderTotal: json["order_total"],
+        orderCreatAt: DateTime.parse(json["order_creat_at"]),
+        orderId: json["order_id"],
+        orderStatus: json["order_status"],
+        totalOrderRevenue: json["total_order_revenue"],
+      );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'cart_id': cartId,
-      'customer_id': customerId,
-      'salesman_id': salesmanId,
-      'total': total,
-      'discount': discount,
-      'status': status,
-      'created_at': createdAt,
-      'updated_at': updatedAt,
-      'order_id': orderId,
-      'payment_status': paymentStatus,
-      'payment_type': paymentType,
-      'payment_detail': paymentDetail,
-      'order_status': orderStatus,
-      'order_creat_at': orderCreatAt,
-      'order_total': orderTotal,
-      'received_amount': receivedAmount,
-      'received_amount_date': receivedAmountDate,
-      'check_due_date': checkDueDate,
-      'check_number': checkNumber,
-      'transaction_date': transactionDate,
-      'transaction_details': transactionDetails,
-      'total_order_revenue': totalOrderRevenue,
-    };
-  }
-}
-
-class Revenuee {
-  List<OrderRevenueData>? bookingRevenueData;
-  List<OrderRevenueData>? orderRevenueData;
-
-  Revenuee({this.bookingRevenueData, this.orderRevenueData});
-
-  factory Revenuee.fromJson(Map<String, dynamic> json) {
-    var bookingRevenueList = json['booking_revenueData'] as List? ?? [];
-    var orderRevenueList = json['order_revenueData'] as List? ?? [];
-
-    List<OrderRevenueData> bookingRevenueData =
-        bookingRevenueList.map((i) => OrderRevenueData.fromJson(i)).toList();
-    List<OrderRevenueData> orderRevenueData =
-        orderRevenueList.map((i) => OrderRevenueData.fromJson(i)).toList();
-
-    return Revenuee(
-      bookingRevenueData: bookingRevenueData,
-      orderRevenueData: orderRevenueData,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'booking_revenueData':
-          bookingRevenueData?.map((e) => e.toJson()).toList(),
-      'order_revenueData': orderRevenueData?.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        "order_total": orderTotal,
+        "order_creat_at": orderCreatAt!.toIso8601String(),
+        "order_id": orderId,
+        "order_status": orderStatus,
+        "total_order_revenue": totalOrderRevenue,
+      };
 }
 
 class ResponseModell {

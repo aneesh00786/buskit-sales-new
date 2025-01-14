@@ -173,7 +173,7 @@ class Detail {
   String? updatedAt;
 
   @HiveField(21)
-  double count;
+  num count;
 
   @HiveField(22)
   String? saleBy = 'Pack';
@@ -183,6 +183,12 @@ class Detail {
 
   @HiveField(24)
   num? sellingPrice;
+
+  @HiveField(25)
+  num? packPrice;
+
+  @HiveField(26)
+  num? sellingPackPrice;
 
   Detail({
     this.id,
@@ -210,6 +216,8 @@ class Detail {
     this.saleBy,
     this.totalPrice,
     this.sellingPrice,
+    this.packPrice,
+    this.sellingPackPrice,
   });
 
   Detail.fromJson(Map<String, dynamic> json)
@@ -234,10 +242,12 @@ class Detail {
         vStatus = json['v_status'],
         createdAt = json['created_at'],
         updatedAt = json['updated_at'],
-        count = json['count'] ?? 0.0,
+        count = json['count']??0.0,
         saleBy = json['saleBy'],
         totalPrice = json['totalPrice'],
-        sellingPrice = json['selling_price'];
+        sellingPrice = json['selling_price'],
+        packPrice = json['pack_price'],
+        sellingPackPrice = json['selling_pack_price'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -266,6 +276,8 @@ class Detail {
     data['saleBy'] = this.saleBy;
     data['totalPrice'] = this.totalPrice;
     data['selling_price'] = this.sellingPrice;
+    data['pack_price'] = this.packPrice;
+    data['selling_pack_price'] = this.sellingPackPrice;
     return data;
   }
 }

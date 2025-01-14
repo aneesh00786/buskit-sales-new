@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:intl/intl.dart';
 
 extension StringExtension on String {
   String get nkStringCapitalizeFirstCaracter {
@@ -50,6 +51,27 @@ String formatAmount(dynamic value) {
     print('Error in formatAmount: $e');
     rethrow;
   }
+}
+
+String formatAmountOnly(dynamic value) {
+  double amount;
+
+  if (value is String) {
+    amount = double.tryParse(value) ?? 0.0;
+  } else if (value is int) {
+    amount = value.toDouble();
+  } else if (value is double) {
+    amount = value;
+  } else {
+    throw ArgumentError('Unsupported value type');
+  }
+
+  final formatter = NumberFormat.decimalPatternDigits(
+    locale: 'en_IN',
+    decimalDigits: 2,
+  );
+
+  return formatter.format(amount);
 }
 
 String getStatusName(int status) {

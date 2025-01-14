@@ -128,61 +128,117 @@ class _ProductGridState extends State<ProductGrid> {
                         final product = products[index];
                         return LayoutBuilder(
                           builder: (context, constraints) {
+                            // final double imageHeight =
+                            //     constraints.maxHeight * 0.45;
+                            // final double nameFontSize =
+                            //     (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
+                            // final double stockFontSize =
+                            //     (constraints.maxWidth * 0.04).clamp(8, 12.0);
+                            // int pieces = 0;
+                            // List sellPrice = product.detail!
+                            //     .map((e) => e.sellPrice)
+                            //     .toList();
+                            // List<double> totalPrices = product.detail!.map((e) {
+                            //   double sellPrice;
+                            //   if (e.sellPrice is String) {
+                            //     sellPrice =
+                            //         double.tryParse(e.sellPrice ?? '') ?? 0.0;
+                            //   } else if (e.sellPrice is double) {
+                            //     sellPrice = double.parse(e.sellPrice ?? '');
+                            //   } else {
+                            //     sellPrice = 0.0;
+                            //   }
+                            //   pieces = e.pieces != null ? e.pieces as int : 0;
+                            //   return sellPrice * pieces;
+                            // }).toList();
+                            // double? firstTotal = totalPrices.isNotEmpty
+                            //     ? totalPrices.first
+                            //     : null;
+                            // double? lastTotal = totalPrices.isNotEmpty
+                            //     ? totalPrices.last
+                            //     : null;
+                            // List<double> sellPriceValues = sellPrice
+                            //     .map((price) => double.tryParse(price) ?? 0.0)
+                            //     .toList();
+                            // double smallestSellPrice =
+                            //     sellPriceValues.isNotEmpty
+                            //         ? sellPriceValues
+                            //             .reduce((a, b) => a < b ? a : b)
+                            //         : 0.0;
+                            // double largestSellPrice = sellPriceValues.isNotEmpty
+                            //     ? sellPriceValues
+                            //         .reduce((a, b) => a > b ? a : b)
+                            //     : 0.0;
+                            // String firstSellPrice =
+                            //     smallestSellPrice.toStringAsFixed(2);
+                            // String lastSellPrice =
+                            //     largestSellPrice.toStringAsFixed(2);
+                            // num lowstockItem = 0;
+                            // num stock = 0;
+                            // num lowstock = 0;
+                            // product.detail?.forEach((detail) {
+                            //   stock = detail.stock ?? 0;
+                            //   lowstock = detail.lowstock ?? 0;
+                            //   if (stock < lowstock) {
+                            //     lowstockItem++;
+                            //   }
+                            // });
                             final double imageHeight =
-                                constraints.maxHeight * 0.45;
-                            final double nameFontSize =
-                                (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
-                            final double stockFontSize =
-                                (constraints.maxWidth * 0.04).clamp(8, 12.0);
-                            int pieces = 0;
-                            List sellPrice = product.detail!
-                                .map((e) => e.sellPrice)
-                                .toList();
-                            List<double> totalPrices = product.detail!.map((e) {
-                              double sellPrice;
-                              if (e.sellPrice is String) {
-                                sellPrice =
-                                    double.tryParse(e.sellPrice ?? '') ?? 0.0;
-                              } else if (e.sellPrice is double) {
-                                sellPrice = double.parse(e.sellPrice ?? '');
-                              } else {
-                                sellPrice = 0.0;
-                              }
-                              pieces = e.pieces != null ? e.pieces as int : 0;
-                              return sellPrice * pieces;
-                            }).toList();
-                            double? firstTotal = totalPrices.isNotEmpty
-                                ? totalPrices.first
-                                : null;
-                            double? lastTotal = totalPrices.isNotEmpty
-                                ? totalPrices.last
-                                : null;
-                            List<double> sellPriceValues = sellPrice
-                                .map((price) => double.tryParse(price) ?? 0.0)
-                                .toList();
-                            double smallestSellPrice =
-                                sellPriceValues.isNotEmpty
-                                    ? sellPriceValues
-                                        .reduce((a, b) => a < b ? a : b)
-                                    : 0.0;
-                            double largestSellPrice = sellPriceValues.isNotEmpty
-                                ? sellPriceValues
-                                    .reduce((a, b) => a > b ? a : b)
-                                : 0.0;
-                            String firstSellPrice =
-                                smallestSellPrice.toStringAsFixed(2);
-                            String lastSellPrice =
-                                largestSellPrice.toStringAsFixed(2);
-                            num lowstockItem = 0;
-                            num stock = 0;
-                            num lowstock = 0;
-                            product.detail?.forEach((detail) {
-                              stock = detail.stock ?? 0;
-                              lowstock = detail.lowstock ?? 0;
-                              if (stock < lowstock) {
-                                lowstockItem++;
-                              }
-                            });
+                                  constraints.maxHeight * 0.45;
+                              final double nameFontSize =
+                                  (constraints.maxWidth * 0.06)
+                                      .clamp(11.0, 16.0);
+                              (constraints.maxWidth * 0.05).clamp(10.0, 14.0);
+                              final double stockFontSize =
+                                  (constraints.maxWidth * 0.04).clamp(8, 12.0);
+                              int pieces = 0;
+                              List sellPrice = product.detail!
+                                  .map((e) => e.sellingPrice)
+                                  .toList();
+                              List<double> totalPrices =
+                                  product.detail!.map((e) {
+                                double packPrice =
+                                    e.sellingPackPrice?.toDouble() ?? 0;
+                                pieces = e.pieces != null ? e.pieces as int : 0;
+                                return packPrice;
+                              }).toList();
+                              double? firstTotal = totalPrices.isNotEmpty
+                                  ? totalPrices.first
+                                  : 0;
+                              double? lastTotal =
+                                  totalPrices.isNotEmpty ? totalPrices.last : 0;
+                              List<double> sellPriceValues = sellPrice
+                                  .map((price) =>
+                                      double.tryParse(price.toString()) ?? 0.0)
+                                  .toList();
+                              double smallestSellPrice =
+                                  sellPriceValues.isNotEmpty
+                                      ? sellPriceValues
+                                          .reduce((a, b) => a < b ? a : b)
+                                      : 0.0;
+                              double largestSellPrice =
+                                  sellPriceValues.isNotEmpty
+                                      ? sellPriceValues
+                                          .reduce((a, b) => a > b ? a : b)
+                                      : 0.0;
+                              String firstSellPrice =
+                                  smallestSellPrice.toString().isEmpty
+                                      ? ''
+                                      : smallestSellPrice.toString();
+                              String lastSellPrice =
+                                  largestSellPrice.toString().isEmpty
+                                      ? ''
+                                      : largestSellPrice.toString();
+                              num lowstockItem = 0;
+                              num stock = 0;
+                              num lowstock = 0;
+                              product.detail?.forEach((detail) {
+                                stock = detail.stock ?? 0;
+                                lowstock = detail.lowstock ?? 0;
+                                if (stock < lowstock) {
+                                  lowstockItem++;
+                                }
+                              });
                             return GestureDetector(
                                 onTap: () {
                                   _showProductVariantDialog(
@@ -245,6 +301,181 @@ class _ProductGridState extends State<ProductGrid> {
                                             ),
                                           ),
                                           const Spacer(),
+                                          // Padding(
+                                          //   padding: const EdgeInsets.symmetric(
+                                          //       horizontal: 5.0),
+                                          //   child: Row(
+                                          //     mainAxisAlignment:
+                                          //         MainAxisAlignment.start,
+                                          //     children: [
+                                          //       Container(
+                                          //         padding: const EdgeInsets
+                                          //             .symmetric(
+                                          //             horizontal: 6,
+                                          //             vertical: 3),
+                                          //         decoration: BoxDecoration(
+                                          //             borderRadius:
+                                          //                 BorderRadius.circular(
+                                          //                     30),
+                                          //             color:
+                                          //                 Colors.yellow[700]),
+                                          //         child: Text(
+                                          //           lowstockItem > 0
+                                          //               ? '$lowstockItem Low'
+                                          //               : '0 Low',
+                                          //           style: TextStyle(
+                                          //             fontSize: 7,
+                                          //             fontWeight:
+                                          //                 FontWeight.w600,
+                                          //           ),
+                                          //         ),
+                                          //       ),
+                                          //       const SizedBox(width: 6),
+                                          //       Container(
+                                          //         padding: const EdgeInsets
+                                          //             .symmetric(
+                                          //             horizontal: 6,
+                                          //             vertical: 3),
+                                          //         decoration: BoxDecoration(
+                                          //             borderRadius:
+                                          //                 BorderRadius.circular(
+                                          //                     30),
+                                          //             color:
+                                          //                 Colors.red.shade800),
+                                          //         child: Text(
+                                          //           stock > 0 ||
+                                          //                   stock < lowstock
+                                          //               ? '0 Nll'
+                                          //               : '1 Nll',
+                                          //           style: TextStyle(
+                                          //             fontSize: 7,
+                                          //             color: Colors.white,
+                                          //             fontWeight:
+                                          //                 FontWeight.w600,
+                                          //           ),
+                                          //         ),
+                                          //       ),
+                                          //       const Spacer(),
+                                          //       Text(
+                                          //         product.detail!.length > 1
+                                          //             ? '${formatAmount(firstSellPrice)} - $lastSellPrice'
+                                          //             : formatAmount(
+                                          //                 firstSellPrice),
+                                          //         style: TextStyle(
+                                          //           fontSize: 9,
+                                          //           fontWeight: FontWeight.w600,
+                                          //         ),
+                                          //       ),
+                                          //       const SizedBox(width: 3),
+                                          //       product.inclTax != '' &&
+                                          //               product.inclTax != null
+                                          //           ? Container(
+                                          //               padding:
+                                          //                   const EdgeInsets
+                                          //                       .symmetric(
+                                          //                       horizontal: 3,
+                                          //                       vertical: 2),
+                                          //               decoration: BoxDecoration(
+                                          //                   borderRadius:
+                                          //                       BorderRadius
+                                          //                           .circular(
+                                          //                               5),
+                                          //                   color: Colors.blue),
+                                          //               child: Text(
+                                          //                 '(incl.tax)',
+                                          //                 style: GoogleFonts
+                                          //                     .poppins(
+                                          //                         fontSize: 6,
+                                          //                         color: Colors
+                                          //                             .white,
+                                          //                         fontWeight:
+                                          //                             FontWeight
+                                          //                                 .w600),
+                                          //               ),
+                                          //             )
+                                          //           : Container()
+                                          //     ],
+                                          //   ),
+                                          // ),
+                                          // Padding(
+                                          //     padding: const EdgeInsets.only(
+                                          //         left: 5,
+                                          //         right: 5,
+                                          //         top: 5,
+                                          //         bottom: 8),
+                                          //     child: Row(
+                                          //       mainAxisAlignment:
+                                          //           MainAxisAlignment.start,
+                                          //       children: [
+                                          //         Container(
+                                          //           height: 12,
+                                          //           width: 12,
+                                          //           color: Colors.red,
+                                          //         ),
+                                          //         const SizedBox(width: 5),
+                                          //         Container(
+                                          //           decoration: BoxDecoration(
+                                          //             borderRadius:
+                                          //                 BorderRadius.circular(
+                                          //                     100),
+                                          //             color: Colors.green,
+                                          //           ),
+                                          //           child: Padding(
+                                          //             padding:
+                                          //                 EdgeInsets.symmetric(
+                                          //                     horizontal: 6,
+                                          //                     vertical: 3),
+                                          //             child: Text(
+                                          //               'Stock : ${product.stock}',
+                                          //               style: TextStyle(
+                                          //                   fontSize: 7,
+                                          //                   color: Colors.white,
+                                          //                   fontWeight:
+                                          //                       FontWeight
+                                          //                           .w600),
+                                          //             ),
+                                          //           ),
+                                          //         ),
+                                          //         const SizedBox(width: 5),
+                                          //         Expanded(
+                                          //           child: Row(
+                                          //             mainAxisAlignment:
+                                          //                 MainAxisAlignment.end,
+                                          //             children: [
+                                          //               Image.asset(
+                                          //                 "assets/images/cart_box.png",
+                                          //                 height: 10,
+                                          //               ),
+                                          //               const SizedBox(
+                                          //                   width: 5),
+                                          //               Flexible(
+                                          //                 child: Text(
+                                          //                   product.detail!
+                                          //                               .length >
+                                          //                           1
+                                          //                       ? '${formatAmount(firstTotal)}(${pieces} pcs) - ${lastTotal}(${pieces} pcs)'
+                                          //                       : '${formatAmount(firstTotal)}(${pieces} pcs)',
+                                          //                   style: GoogleFonts
+                                          //                       .poppins(
+                                          //                     fontSize:
+                                          //                         stockFontSize,
+                                          //                     fontWeight:
+                                          //                         FontWeight
+                                          //                             .w600,
+                                          //                   ),
+                                          //                   overflow:
+                                          //                       TextOverflow
+                                          //                           .ellipsis,
+                                          //                   maxLines: 1,
+                                          //                   textAlign:
+                                          //                       TextAlign.right,
+                                          //                 ),
+                                          //               ),
+                                          //             ],
+                                          //           ),
+                                          //         ),
+                                          //       ],
+                                          //     )),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 5.0),
@@ -267,7 +498,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                     lowstockItem > 0
                                                         ? '$lowstockItem Low'
                                                         : '0 Low',
-                                                    style: TextStyle(
+                                                    style: GoogleFonts.poppins(
                                                       fontSize: 7,
                                                       fontWeight:
                                                           FontWeight.w600,
@@ -291,7 +522,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                             stock < lowstock
                                                         ? '0 Nll'
                                                         : '1 Nll',
-                                                    style: TextStyle(
+                                                    style: GoogleFonts.poppins(
                                                       fontSize: 7,
                                                       color: Colors.white,
                                                       fontWeight:
@@ -302,10 +533,10 @@ class _ProductGridState extends State<ProductGrid> {
                                                 const Spacer(),
                                                 Text(
                                                   product.detail!.length > 1
-                                                      ? '${formatAmount(firstSellPrice)} - $lastSellPrice'
+                                                      ? '${formatAmount(firstSellPrice)} - ${formatAmountOnly(lastSellPrice)}'
                                                       : formatAmount(
                                                           firstSellPrice),
-                                                  style: TextStyle(
+                                                  style: GoogleFonts.poppins(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -362,7 +593,8 @@ class _ProductGridState extends State<ProductGrid> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               100),
-                                                      color: Colors.green,
+                                                      color:
+                                                          Colors.green.shade700,
                                                     ),
                                                     child: Padding(
                                                       padding:
@@ -397,8 +629,8 @@ class _ProductGridState extends State<ProductGrid> {
                                                             product.detail!
                                                                         .length >
                                                                     1
-                                                                ? '${formatAmount(firstTotal)}(${pieces} pcs) - ${lastTotal}(${pieces} pcs)'
-                                                                : '${formatAmount(firstTotal)}(${pieces} pcs)',
+                                                                ? '${formatAmount(firstTotal)}($pieces pcs) - $lastTotal($pieces pcs)'
+                                                                : '${formatAmount(firstTotal)}($pieces pcs)',
                                                             style: GoogleFonts
                                                                 .poppins(
                                                               fontSize:
@@ -423,8 +655,9 @@ class _ProductGridState extends State<ProductGrid> {
                                         ],
                                       ),
                                     ),
-                                    product.detail!.length == 0 &&
-                                            lowstockItem == 0
+                                    product.detail!.isEmpty ||
+                                            product.detail!.every(
+                                                (detail) => (detail.stock) == 0)
                                         ? Positioned(
                                             top: 20,
                                             right: -26,

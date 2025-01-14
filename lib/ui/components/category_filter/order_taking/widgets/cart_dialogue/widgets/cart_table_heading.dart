@@ -13,6 +13,13 @@ class DataTableColumns {
       ),
       DataColumn(
         label: DialogTableHeaderText(
+          text: 'Unit Price',
+          fontSize: fontSize,
+          align: TextAlign.center,
+        ),
+      ),
+      DataColumn(
+        label: DialogTableHeaderText(
           text: 'Pack',
           fontSize: fontSize,
           align: TextAlign.center,

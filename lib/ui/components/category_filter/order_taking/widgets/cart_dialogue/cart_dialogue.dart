@@ -88,8 +88,11 @@ class _CartDialogueState extends State<CartDialogue> {
     super.initState();
     _loadCartItems();
     _loadPreorderItems();
+    calculateAmount(cartItems);
+    calculatePreorderAmount(preorderItems);
 
     isOrder = cartItems.isEmpty && preorderItems.isNotEmpty ? false : true;
+    _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
   }
 
@@ -206,13 +209,14 @@ class _CartDialogueState extends State<CartDialogue> {
                                   decoration: BoxDecoration(
                                       border: Border.all(color: primaryColor),
                                       color: isOrder ? primaryColor : white,
-                                      borderRadius: const BorderRadius.only(
+                                      borderRadius: BorderRadius.only(
                                           topLeft: Radius.circular(20),
                                           bottomLeft: Radius.circular(20))),
                                   child: InkWell(
                                     onTap: () {
                                       setState(() {
                                         isOrder = true;
+                                        _selectedValue = _options[0];
                                       });
                                       setOptions();
                                     },
@@ -231,13 +235,14 @@ class _CartDialogueState extends State<CartDialogue> {
                                   decoration: BoxDecoration(
                                       border: Border.all(color: primaryColor),
                                       color: !isOrder ? primaryColor : white,
-                                      borderRadius: const BorderRadius.only(
+                                      borderRadius: BorderRadius.only(
                                           topRight: Radius.circular(20),
                                           bottomRight: Radius.circular(20))),
                                   child: InkWell(
                                     onTap: () {
                                       setState(() {
                                         isOrder = false;
+                                        _selectedValue = _options[2];
                                       });
                                       setOptions();
                                     },
@@ -315,7 +320,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                 productName,
                                                                 false);
                                                           },
-                                                          icon: const Icon(
+                                                          icon: Icon(
                                                             EneftyIcons
                                                                 .trash_bold,
                                                             size: 28,
@@ -344,15 +349,15 @@ class _CartDialogueState extends State<CartDialogue> {
                                                     headingRowHeight: 30,
                                                     dataRowHeight: rowHeight,
                                                     horizontalMargin: 5,
-                                                    columnSpacing:
-                                                        columnSpacing,
+                                                    columnSpacing: 15,
                                                     columns: DataTableColumns
                                                         .getColumns(fontSize),
                                                     rows: GroupedItemDataRows
                                                         .getRows(
                                                       groupedItems:
                                                           groupedItems,
-                                                      fontSize: fontSize,
+                                                      fontSize:
+                                                          availableWidth / 55,
                                                       availableWidth:
                                                           availableWidth,
                                                       context: context,
@@ -435,7 +440,7 @@ class _CartDialogueState extends State<CartDialogue> {
                                                                 productName,
                                                                 true);
                                                           },
-                                                          icon: const Icon(
+                                                          icon: Icon(
                                                             EneftyIcons
                                                                 .trash_bold,
                                                             size: 28,
@@ -472,7 +477,8 @@ class _CartDialogueState extends State<CartDialogue> {
                                                           .getRows(
                                                         groupedItems:
                                                             groupedItems,
-                                                        fontSize: fontSize,
+                                                        fontSize:
+                                                            availableWidth / 55,
                                                         availableWidth:
                                                             availableWidth,
                                                         context: context,
@@ -495,7 +501,6 @@ class _CartDialogueState extends State<CartDialogue> {
                               ),
                             ),
                     ],
-
                     const SizedBox(
                       height: 10,
                     ),
@@ -1772,7 +1777,7 @@ class _CartDialogueState extends State<CartDialogue> {
                         cartItem.detail.count--;
                         log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                         CartDatabaseManager().updateCart(cartItem);
-                        calulateAmount(cartItems);
+                        calculateAmount(cartItems);
                       }
                     });
                   },
@@ -1806,7 +1811,7 @@ class _CartDialogueState extends State<CartDialogue> {
                     cartItem.detail.count++;
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     CartDatabaseManager().updateCart(cartItem);
-                    calulateAmount(cartItems);
+                    calculateAmount(cartItems);
                   });
                 },
                 child: Padding(
@@ -1854,7 +1859,7 @@ class _CartDialogueState extends State<CartDialogue> {
                         log("Updated count for pre-order item ${cartPreorderItem.detail.id}: ${cartPreorderItem.detail.count}");
                         CartDatabaseManager()
                             .updatePreorderCart(cartPreorderItem);
-                        calulatePreorderAmount(preorderItems);
+                        calculatePreorderAmount(preorderItems);
                       }
                     });
                   },
@@ -1888,7 +1893,7 @@ class _CartDialogueState extends State<CartDialogue> {
                     cartPreorderItem.detail.count++;
                     log("Updated count for pre-order item ${cartPreorderItem.detail.id}: ${cartPreorderItem.detail.count}");
                     CartDatabaseManager().updatePreorderCart(cartPreorderItem);
-                    calulatePreorderAmount(preorderItems);
+                    calculatePreorderAmount(preorderItems);
                   });
                 },
                 child: Padding(
@@ -1909,7 +1914,7 @@ class _CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void calulateAmount(List<CartItem> cartItems) {
+  void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
 
@@ -1923,7 +1928,10 @@ class _CartDialogueState extends State<CartDialogue> {
           cartItem.totalPrice = (price * cartItem.detail.count).toInt();
         }
         total += cartItem.totalPrice;
-        double? itemTax = double.tryParse(cartItem.detail.tax.toString());
+        double? itemTax = cartItem.isPack == true
+            ? double.tryParse(cartItem.detail.tax.toString())! *
+                double.tryParse(cartItem.detail.pieces.toString())!
+            : double.tryParse(cartItem.detail.tax.toString());
         if (itemTax != null) {
           tax += itemTax * cartItem.detail.count;
         }
@@ -1934,7 +1942,7 @@ class _CartDialogueState extends State<CartDialogue> {
     log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
 
-  void calulatePreorderAmount(List<CartItem> preorderItems) {
+  void calculatePreorderAmount(List<CartItem> preorderItems) {
     preorderTotal = 0.0;
     preorderTax = 0.0;
 
@@ -1948,7 +1956,10 @@ class _CartDialogueState extends State<CartDialogue> {
           cartItem.totalPrice = (price * cartItem.detail.count).toInt();
         }
         preorderTotal += cartItem.totalPrice;
-        double? itemTax = double.tryParse(cartItem.detail.tax.toString());
+        double? itemTax = cartItem.isPack == true
+            ? double.tryParse(cartItem.detail.tax.toString())! *
+                double.tryParse(cartItem.detail.pieces.toString())!
+            : double.tryParse(cartItem.detail.tax.toString());
         if (itemTax != null) {
           preorderTax += itemTax * cartItem.detail.count;
         }

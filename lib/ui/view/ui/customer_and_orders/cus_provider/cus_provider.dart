@@ -113,12 +113,10 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
-
-  // Add a setter for currentPage
   set currentPage(int newPage) {
     if (newPage != _currentPage) {
       _currentPage = newPage;
-      notifyListeners(); // Notify listeners about the change
+      notifyListeners();
     }
   }
 
@@ -128,7 +126,7 @@ class CustomersProvider with ChangeNotifier {
     } else {
       _filteredCustomers = _customers
           .where((customer) =>
-              customer.businessName.toLowerCase().contains(query.toLowerCase()))
+              customer.businessName.toLowerCase().startsWith(query.toLowerCase()))
           .toList();
     }
     notifyListeners();
@@ -150,24 +148,11 @@ class CustomersProvider with ChangeNotifier {
     _yearsListOfAllList = yearsListOfAll;
   }
 
-  // Future<void> fetchcustomersDash() async {
-  //   try {
-  //     _isLoading = true;
-  //     notifyListeners();
-  //     _customersDashFuture = _apiService.fetchCustomerDashboardData();
-  //     notifyListeners();
-  //   } catch (e, stackTrace) {
-  //     _isLoading = false;
-  //     _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
 
   Future<void> fetchCustomerDashboardCountData(
     String customerId,
   ) async {
     try {
-      // Update _countFuture with the result of fetchOrderCount
       _countFuture = _apiService.fetchOrderCount(
           customerId, _selectedStartDate, _selectedEndDate);
       notifyListeners();
@@ -179,20 +164,14 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<OrderResponse>? _orderResponse;
-
   Future<OrderResponse>? get orderResponse => _orderResponse;
-
   Future<CustomerResponse>? _customerResponse;
-
   Future<CustomerResponse>? get customerResponse => _customerResponse;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-
   File? get imageFile => _imageFile;
-
   Future<void> pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       _imageFile = File(pickedFile.path);
       notifyListeners();
@@ -253,7 +232,6 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomersDataDash(String customerId) async {
     try {
-      // Update _countFuture with the result of fetchOrderCount
       _customerResponse = _apiService.fetchOneCustomer(customerId);
       notifyListeners();
     } catch (e, stackTrace) {

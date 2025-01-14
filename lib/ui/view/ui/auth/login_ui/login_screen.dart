@@ -13,8 +13,13 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin  {
   LoginController loginController = Get.put(LoginController());
+    @override
+  void initState() {
+    super.initState();
+    loginController.initializeTabController(this, length: 3);
+  }
   @override
   Widget build(BuildContext context) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

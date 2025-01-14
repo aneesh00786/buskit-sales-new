@@ -17,7 +17,8 @@ import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
 class LoginController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
-  // TabController? _tabController;
+  TabController? _tabController;
+  TabController? get tabController => _tabController;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -25,12 +26,9 @@ class LoginController extends GetxController {
   PendingPaymentController pendingPaymentController =
       Get.put(PendingPaymentController());
   StaffController staffController = Get.put(StaffController());
-
   LoginResponce? loginResponce;
-
   RoundedLoadingButtonController loginButtonController =
       RoundedLoadingButtonController();
-
   RxBool isPasswordVisible = true.obs;
 
   Widget get getIsPasswordVisible {
@@ -49,6 +47,10 @@ class LoginController extends GetxController {
         icon: const Icon(Icons.visibility_off),
       );
     }
+  }
+
+  void initializeTabController(TickerProvider vsync, {required int length}) {
+    _tabController = TabController(length: length, vsync: vsync);
   }
 
   Future<bool> performLogin(BuildContext context) async {
@@ -94,10 +96,10 @@ class LoginController extends GetxController {
         await _apiWorker.getTempProduct('C49SC7');
         await pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId);
-        // await staffController.loadSalesmanTargetForSelectedTab(
-        //     currentYear: currentYear.toString(),
-        //     selectedTabIndex: _tabController!.index + 1,
-        //     staffId: salesmanId);
+        await staffController.loadSalesmanTargetForSelectedTab(
+            currentYear: currentYear.toString(),
+            selectedTabIndex: _tabController!.index + 1,
+            staffId: salesmanId);
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }
@@ -139,8 +141,6 @@ class LoginController extends GetxController {
       return false;
     }
   }
-
-  /// Utility function to show error dialog
   void showErrorDialog(String title, String message) {
     Get.dialog(
       AlertDialog(

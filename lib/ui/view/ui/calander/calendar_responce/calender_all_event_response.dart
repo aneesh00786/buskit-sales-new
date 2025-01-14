@@ -39,13 +39,13 @@ class EventData {
   String? start;
   String? end;
   int? type;
-  dynamic? checkIn;
+  dynamic checkIn;
   String? checkInLongitude;
   String? checkInLatitude;
-  dynamic? checkOut;
+  dynamic checkOut;
   String? checkOutLatitude;
   int? checkOutLongitude;
-  dynamic? eventCancel;
+  dynamic eventCancel;
   int? status;
   String? createdAt;
   String? updatedAt;
@@ -56,7 +56,6 @@ class EventData {
   String? address;
   String? latitude;
   String? longitude;
-
 
   EventData(
       {this.id,
@@ -83,42 +82,39 @@ class EventData {
       this.mobileNo,
       this.address,
       this.latitude,
-      this.longitude
-      
-      });
-EventData.fromJson(Map<String, dynamic> json) {
-    
+      this.longitude});
+  EventData.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    eventId = json['event_id'];
+    customerId = json['customer_id'];
+    salesmanId = json['salesman_id'];
+    title = json['title'];
+    start = json['start'];
+    end = json['end'];
+    type = json['type'] is bool ? (json['type'] == true ? 1 : 0) : json['type'];
+    checkIn = json['check_in'];
+    checkInLongitude = json['check_in_longitude'];
+    checkInLatitude = json['check_in_latitude'];
+    checkOut = json['check_out'];
+    checkOutLatitude = json['check_out_latitude'];
+    checkOutLongitude = json['check_out_longitude'] is bool
+        ? (json['check_out_longitude'] == true ? 1 : 0)
+        : json['check_out_longitude'];
 
-  id = json['id'];
-  eventId = json['event_id'];
-  customerId = json['customer_id'];
-  salesmanId = json['salesman_id'];
-  title = json['title'];
-  start = json['start'];
-  end = json['end'];
-  type = json['type'] is bool ? (json['type'] == true ? 1 : 0) : json['type'];
-  checkIn = json['check_in'];
-  checkInLongitude = json['check_in_longitude'];
-  checkInLatitude = json['check_in_latitude'];
-  checkOut = json['check_out'];
-  checkOutLatitude = json['check_out_latitude'];
-  checkOutLongitude = json['check_out_longitude'] is bool 
-      ? (json['check_out_longitude'] == true ? 1 : 0) 
-      : json['check_out_longitude'];
-
-  eventCancel = json['event_cancel'];
-  status = json['status'] is bool ? (json['status'] == true ? 1 : 0) : json['status'];
-  createdAt = json['created_at'];
-  updatedAt = json['updated_at'];
-  businessName = json['business_name'];
-  imageUrl = json['image_url'];
-  email = json["email"];
-  mobileNo = json["mobileno"];
-  address = json["address"];
-  latitude = json["latitude"];
-  longitude =json["longitude"];
-}
-
+    eventCancel = json['event_cancel'];
+    status = json['status'] is bool
+        ? (json['status'] == true ? 1 : 0)
+        : json['status'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+    businessName = json['business_name'];
+    imageUrl = json['image_url'];
+    email = json["email"];
+    mobileNo = json["mobileno"];
+    address = json["address"];
+    latitude = json["latitude"];
+    longitude = json["longitude"];
+  }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();

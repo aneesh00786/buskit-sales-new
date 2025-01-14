@@ -102,7 +102,6 @@ class CustomersProvider with ChangeNotifier {
   Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
     try {
-      // Debouncing network requests
       _productResponse = _apiService.fetchCustomerDashboardCartData(
         customerId: customerId,
         catId: catId,

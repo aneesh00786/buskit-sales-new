@@ -20,12 +20,22 @@ class CalenderScreen extends StatefulWidget {
 class _CalenderScreenState extends State<CalenderScreen> {
   CalenderMapController calenderController = Get.put(CalenderMapController());
 
-  @override
+  // @override
+  // void initState() {
+  //   calenderController.fetchCalenderEvents();
+  //   calenderController.loadCalenderEvent_v1;
+  //   super.initState();
+  //    Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
+  // }
+
+    @override
   void initState() {
-    calenderController.fetchCalenderEvents();
-    calenderController.loadCalenderEvent_v1;
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    calenderController.fetchCalenderEvents(startOfMonth);
+
+    calenderController.loadCalenderEventV1;
     super.initState();
-     Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
   }
 
   @override

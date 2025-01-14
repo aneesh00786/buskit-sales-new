@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -8,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,12 +32,6 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
   Customer? selectedCustomer;
 
   @override
-  void initState() {
-    widget.calenderController.fetchCalenderEvents();
-    widget.calenderController.loadCalenderEvent_v1;
-    super.initState();
-  }
-  @override
   Widget build(BuildContext context) {
     return MyCommnonContainer(
       color: white,
@@ -44,30 +40,79 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
   }
 
   Widget calenderWidget() {
+    final rawDayList = SessionHelper.settingsData
+            ?.firstWhere(
+              (setting) => setting.key == 'day_list',
+              orElse: () => AllCompanySettingsData(
+                key: 'day_list',
+                value: '',
+              ),
+            )
+            .value ??
+        '';
+
+    List<String> dayList =
+        rawDayList.split(',').map((day) => day.trim()).toList();
+
+    const Map<String, int> dayNameToInt = {
+      'Monday': DateTime.monday,
+      'Tuesday': DateTime.tuesday,
+      'Wednesday': DateTime.wednesday,
+      'Thursday': DateTime.thursday,
+      'Friday': DateTime.friday,
+      'Saturday': DateTime.saturday,
+      'Sunday': DateTime.sunday,
+    };
+
+    List<int> parsedDays = dayList
+        .map((day) => dayNameToInt[day] ?? -1)
+        .where((day) => day != -1)
+        .toList();
+
     return MonthView(
       cellAspectRatio:
-          AppDimensions.instance.orientation == Orientation.landscape
-              ? 2.0
-              : 0.78,
+          AppDimensions.instance!.orientation == Orientation.landscape
+              ? 1.7
+              : 0.8,
       headerStyle: HeaderStyle(
         decoration: BoxDecoration(
           color: primaryColor.withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
         ),
         headerTextStyle: TextStyle(
-          color: black,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          fontFamily: "Poppins_Regular"
-        ),
+            color: black,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            fontFamily: "Poppins_Regular"),
       ),
+      onPageChange: (date, page) {
+        final startOfSelectedMonth = DateTime(date.year, date.month, 1);
+        widget.calenderController.fetchCalenderEvents(startOfSelectedMonth);
+        widget.calenderController.loadCalenderEventV1;
+      },
       pageTransitionCurve: Curves.easeInOutCubicEmphasized,
       borderColor: white,
       cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) {
+
         int eventCount = event.length;
+
+        bool isWorkingDay = parsedDays.contains(date.weekday);
+        bool isCurrentMonth = isInMonth;
+
         return GestureDetector(
+          // onTap: () {
+          //   if (event.isNotEmpty) {
+          //     widget.calenderController.clearSelections();
+          //     Get.dialog(SelectCustomerDiloag(
+          //       dateTime: date,
+          //       calenderMapController: widget.calenderController,
+          //       eventData: event,
+          //     ));
+          //     log('Date : $date');
+          //   }
+          // },
           onTap: () {
-            if (event.isNotEmpty) {
+            if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
               widget.calenderController.clearSelections();
               Get.dialog(SelectCustomerDiloag(
                 dateTime: date,
@@ -85,7 +130,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.06),
                       blurRadius: 20,
-                      offset: Offset(3, 3),
+                      offset: const Offset(3, 3),
                       spreadRadius: 1,
                     )
                   ]
@@ -96,36 +141,110 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                     ? secondaryTextColor.withOpacity(0.08)
                     : white,
             padding: nkRegularPadding(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CustomText(
-                  content: date.day.toString(),
-                  color: isToday
-                      ? buttonTextColor
-                      : !isInMonth
-                          ? secondaryTextColor.withOpacity(0.5)
-                          : null,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                if (eventCount > 0)
-                  CircleAvatar(
-                    radius: 10,
-                    backgroundColor: (date.isBefore(DateTime.now()) &&
-                                !date.isSameDate(DateTime.now())) &&
-                            event.any((e) => e.event!.checkIn == null)
-                        ? const Color(0xffCCCC00)
-                        : Colors.green,
+            // child: Column(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   crossAxisAlignment: CrossAxisAlignment.center,
+            //   children: [
+            //     CustomText(
+            //       content: date.day.toString(),
+            //       color: isToday
+            //           ? buttonTextColor
+            //           : !isInMonth
+            //               ? secondaryTextColor.withOpacity(0.5)
+            //               : null,
+            //       fontSize: 24,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //     if (eventCount > 0)
+            //       CircleAvatar(
+            //         radius: 10,
+            //         backgroundColor: (date.isBefore(DateTime.now()) &&
+            //                     !date.isSameDate(DateTime.now())) &&
+            //                 event.any((e) => e.event!.checkIn == null)
+            //             ? const Color(0xffCCCC00)
+            //             : Colors.green,
+            //         child: MyRegularText(
+            //           label: eventCount.toString(),
+            //           color: Colors.white,
+            //           fontSize: 16,
+            //         ),
+            //       ),
+            //   ],
+            // ),
+            child: isCurrentMonth && isWorkingDay
+                ? AppDimensions.instance!.orientation == Orientation.portrait
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          MyRegularText(
+                            label: date.day.toString(),
+                            color: isToday
+                                ? buttonTextColor
+                                : !isInMonth
+                                    ? secondaryTextColor.withOpacity(0.5)
+                                    : null,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          const SizedBox(height: 5),
+                          if (eventCount > 0)
+                            CircleAvatar(
+                              radius: 10,
+                              backgroundColor: (date.isBefore(DateTime.now()) &&
+                                          !date.isSameDate(DateTime.now())) &&
+                                      event.any((e) => e.event!.checkIn == null)
+                                  ? const Color(0xffCCCC00)
+                                  : Colors.green,
+                              child: MyRegularText(
+                                label: eventCount.toString(),
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                        ],
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          MyRegularText(
+                            label: date.day.toString(),
+                            color: isToday
+                                ? buttonTextColor
+                                : !isInMonth
+                                    ? secondaryTextColor.withOpacity(0.5)
+                                    : null,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          const SizedBox(width: 10),
+                          if (eventCount > 0)
+                            CircleAvatar(
+                              radius: 10,
+                              backgroundColor: (date.isBefore(DateTime.now()) &&
+                                          !date.isSameDate(DateTime.now())) &&
+                                      event.any((e) => e.event!.checkIn == null)
+                                  ? const Color(0xffCCCC00)
+                                  : Colors.green,
+                              child: MyRegularText(
+                                label: eventCount.toString(),
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                        ],
+                      )
+                : Center(
                     child: MyRegularText(
-                      label: eventCount.toString(),
-                      color: Colors.white,
-                      fontSize: 16,
+                      label: date.day.toString(),
+                      color: secondaryTextColor.withOpacity(0.5),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-              ],
-            ),
           ),
         );
       },

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,13 +39,32 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Map<dynamic, String> updatedTargets = {};
   Map<int, TextEditingController> categoryControllers = {};
   Map<int, TextEditingController> projectionControllers = {};
-
-  //Map<dynamic, String> weeklyTargets = {};
+  final staffProjection = SessionHelper.settingsData
+          ?.firstWhere(
+            (setting) => setting.key == 'staffProjection',
+            orElse: () => AllCompanySettingsData(
+              key: 'staffProjection',
+              value: '',
+            ),
+          )
+          .value ??
+      '';
 
   @override
   void initState() {
     super.initState();
     _loadTargets();
+    final staffProjection = SessionHelper.settingsData
+          ?.firstWhere(
+            (setting) => setting.key == 'staffProjection',
+            orElse: () => AllCompanySettingsData(
+              key: 'staffProjection',
+              value: '',
+            ),
+          )
+          .value ??
+      '';
+      log("Staff Projection : $staffProjection");
   }
 
   void _loadTargets() async {
@@ -64,9 +84,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
 
   void _initializeControllers() {
     final salesmanTargetList =
-        widget.staffController.salesmanTargetList.value.categoryPerformance ?? [];
-
-    // Dispose existing controllers
+        widget.staffController.salesmanTargetList.value.categoryPerformance ??
+            [];
     for (var controller in categoryControllers.values) {
       controller.dispose();
     }
@@ -74,8 +93,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       controller.dispose();
     }
     _weeklyTargetControllers.clear();
-
-    // Initialize controllers
     categoryControllers.clear();
     projectionControllers.clear();
     for (var target in salesmanTargetList) {
@@ -158,7 +175,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                   children: [
                                     _buildTableHeader('Category'),
                                     _buildTableHeader('Target'),
-                                    _buildTableHeader('Projection'),
+                                    if (staffProjection == "1")
+                                      _buildTableHeader('Projection'),
                                   ],
                                 ),
                                 ..._buildCategoryRows(),
@@ -171,7 +189,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                         isDataInitialized
                             ? Builder(
                                 builder: (context) {
-                                  // Get the weeks for the current month
                                   final selectedMonth =
                                       widget.tabController.index + 1;
                                   final relevantWeeks = getWeeksForMonth(
@@ -187,22 +204,19 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                           TableBorder.all(color: Colors.grey),
                                       columnWidths: const {
                                         0: FixedColumnWidth(150)
-                                      }, // Category column width
+                                      },
                                       children: [
-                                        // Header row
                                         TableRow(
                                           decoration: BoxDecoration(
                                               color: Colors.grey[300]),
                                           children: [
                                             _buildTableHeader('Category'),
-                                            // Dynamically generate the week headers
                                             ...relevantWeeks.map((week) {
                                               return _buildTableHeader(
                                                   'Week $week');
                                             }),
                                           ],
                                         ),
-                                        // Data rows
                                         ..._buildCategoryWeeklyRows(
                                             relevantWeeks),
                                       ],
@@ -395,7 +409,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           children: [
             _buildTableCell(target?.category ?? ''),
             _buildTableCell(target?.actualTarget.toString() ?? ''),
-            _buildTableTextField(index, false, target),
+            if (staffProjection == "1")
+              _buildTableTextField(index, false, target),
           ],
         );
       },

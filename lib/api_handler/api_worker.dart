@@ -502,7 +502,6 @@ Future<PerformanceData?> fetchSalesmanPerformanceData({
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-
     return CustomerDashboardResponse.fromJson(response.data);
   }
 
@@ -523,7 +522,6 @@ Future<PerformanceData?> fetchSalesmanPerformanceData({
 
     return CustomerDashboardTotalSaleResponse.fromJson(response.data);
   }
-
   Future<Response> buyProduct(Map<String, dynamic> sendData) async {
     final response = await dio
         .postbycustom(ApiConstants.place_order,

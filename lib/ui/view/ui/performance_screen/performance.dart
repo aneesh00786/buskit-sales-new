@@ -1,36 +1,22 @@
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/checkin_checkout_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/checkin_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/custom_perfo_bar_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/customer_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/datacolumn_and_row.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/options_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:scrollable_table_view/scrollable_table_view.dart';
 
 class PerformanceScreen extends StatefulWidget {
   const PerformanceScreen({super.key});
@@ -431,16 +417,4 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       );
     });
   }
-
-// Widget _buildTimesheetDialogContent(TimesheetData? data) {
-//   if (data == null) return const Text('No Timesheet data available.');
-//   return Column(
-//     crossAxisAlignment: CrossAxisAlignment.start,
-//     mainAxisSize: MainAxisSize.min,
-//     children: [
-//       Text('Timesheet Details:', style: TextStyle(fontWeight: FontWeight.bold)),
-//       ...data.entries.map((entry) => Text('${entry.name}: ${entry.value}')),
-//     ],
-//   );
-// }
 }

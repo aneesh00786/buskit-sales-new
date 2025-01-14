@@ -17,7 +17,7 @@ import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
 class LoginController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
-  late final TabController _tabController;
+  // TabController? _tabController;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -94,10 +94,10 @@ class LoginController extends GetxController {
         await _apiWorker.getTempProduct('C49SC7');
         await pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId);
-        await staffController.loadSalesmanTargetForSelectedTab(
-            currentYear: currentYear.toString(),
-            selectedTabIndex: _tabController.index + 1,
-            staffId: salesmanId);
+        // await staffController.loadSalesmanTargetForSelectedTab(
+        //     currentYear: currentYear.toString(),
+        //     selectedTabIndex: _tabController!.index + 1,
+        //     staffId: salesmanId);
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }

@@ -204,11 +204,13 @@ class BarChartSample extends StatelessWidget {
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
+  String staffProjection;
 
-  const CustomBarChart({
+   CustomBarChart({
     super.key,
     required this.allCategory,
     required this.categoryPerformance,
+    required this.staffProjection,
   });
 
   @override
@@ -445,6 +447,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+            if(widget.staffProjection=="1")
             _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
             _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
           ],

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -34,6 +35,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_res
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
     as model1;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -47,12 +49,39 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:image/image.dart' as img;
 
 // ignore: must_be_immutable
-class DashBoardMiddleWidget extends StatelessWidget {
+class DashBoardMiddleWidget extends StatefulWidget {
   final DashBoardController dashBoardController;
   BuildContext context;
-
   DashBoardMiddleWidget(
-      {super.key, required this.dashBoardController, required this.context});
+      {super.key,
+      required this.dashBoardController,
+      required this.context,});
+
+  @override
+  State<DashBoardMiddleWidget> createState() => _DashBoardMiddleWidgetState();
+}
+
+class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
+    String staffProjection = '';
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  
+    @override
+  void initState() {
+    super.initState();
+    ApiWorker().fetchAllSettings(companyId);
+        setState(() {
+      staffProjection = SessionHelper.settingsData
+              ?.firstWhere(
+                (setting) => setting.key == 'staffProjection',
+                orElse: () => AllCompanySettingsData(
+                  key: 'staffProjection',
+                  value: '',
+                ),
+              )
+              .value ??
+          '';
+    });
+  }
   TextEditingController communicationController = TextEditingController();
 
   @override
@@ -545,7 +574,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
               padding:
                   const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
-                projectionsVsActual,
+                staffProjection == "1"
+                    ? "Category Target / Projection / Actuals"
+                    : "Category Target / Actuals",
                 style: cardHeadingTextStyle,
                 maxLines: 1,
                 softWrap: false,
@@ -587,9 +618,9 @@ class DashBoardMiddleWidget extends StatelessWidget {
 
                           return Center(
                             child: CustomBarChart(
-                              categoryPerformance: categoryPerformance!,
-                              allCategory: categories!,
-                            ),
+                                categoryPerformance: categoryPerformance!,
+                                allCategory: categories!,
+                                staffProjection: staffProjection),
                           );
                         } else {
                           return const NodataWidget();
@@ -824,14 +855,14 @@ class DashBoardMiddleWidget extends StatelessWidget {
             ),
           ],
           borderRadius: 25,
-          padding: dashBoardController.selectedCommunicationIndex.value == index
+          padding: widget.dashBoardController.selectedCommunicationIndex.value == index
               ? nkSmallPadding()
               : null,
           onTap: () {
-            dashBoardController.selectedCommunicationIndex.value = index;
+            widget.dashBoardController.selectedCommunicationIndex.value = index;
 
             showDialog(
-              context: context,
+              context: widget.context,
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: Row(
@@ -890,7 +921,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
             );
           },
           isCommonBorder:
-              dashBoardController.selectedCommunicationIndex.value == index,
+              widget.dashBoardController.selectedCommunicationIndex.value == index,
           child: Row(
             children: [
               ClipOval(
@@ -968,7 +999,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                     onTap: () {
                       if (topSellingProducts.isNotEmpty) {
                         return showProductListDialog<TopSellingProductA>(
-                          context: context,
+                          context: widget.context,
                           productList: topSellingProducts,
                           getQuantity: (product) =>
                               product.quantity?.toDouble() ?? 0.0,
@@ -999,7 +1030,7 @@ class DashBoardMiddleWidget extends StatelessWidget {
                           ),
                         );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        ScaffoldMessenger.of(widget.context).showSnackBar(
                           const SnackBar(
                             content: Text("No data available"),
                           ),

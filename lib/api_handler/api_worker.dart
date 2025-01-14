@@ -217,64 +217,69 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<PerformanceData?> fetchSalesmanPerformanceData(
-      {required String monthName,
-      required int year,
-      int? compId,
-      String? salesId,
-      required bool isfromLogin}) async {
-    const apiUrl = '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
-    final requestPayload = {
-      "companyId": isfromLogin ? compId : companyId,
-      "salesman_id": isfromLogin ? salesId : salesmanId,
-      "year": year,
-      "month": monthName,
-      "targetType": targetType,
-    };
-    final cacheKey = 'performance_data_${salesmanId}_${year}_$monthName';
-    final performanceBox = Hive.box('performanceBox');
-    log('Api URL for performance: $apiUrl');
-    log('Request body fetchSalesmanPerformance: $requestPayload');
-    try {
+Future<PerformanceData?> fetchSalesmanPerformanceData({
+  required String monthName,
+  required int year,
+  int? compId,
+  String? salesId,
+  required bool isfromLogin,
+}) async {
+  const apiUrl = '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
+  final requestPayload = {
+    "companyId": isfromLogin ? compId : companyId,
+    "salesman_id": isfromLogin ? salesId : salesmanId,
+    "year": year,
+    "month": monthName,
+    "targetType": targetType,
+  };
+  final cacheKey = 'performance_data_${salesmanId}_${year}_$monthName';
+  final performanceBox = Hive.box('performanceBox');
+  log('Api URL for performance: $apiUrl');
+  log('Request body fetchSalesmanPerformance: $requestPayload');
+  try {
+    Response response = await dio1.post(
+      apiUrl,
+      data: requestPayload,
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonData = response.data['data'];
+      log('Performance Response: $jsonData');
+      await performanceBox.put(cacheKey, jsonData);
+
+      return PerformanceData.fromJson(jsonData);
+    } else {
+      log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
       final cachedData = performanceBox.get(cacheKey);
       if (cachedData != null) {
         log('Using cached data for key: $cacheKey');
-        final castedData = ApiService().castToStringDynamic(cachedData);
-        return PerformanceData.fromJson(castedData);
-      }
-      Response response = await dio1.post(
-        apiUrl,
-        data: requestPayload,
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = response.data['data'];
-        log('Performance Response: $jsonData');
-        await performanceBox.put(cacheKey, jsonData);
-        return PerformanceData.fromJson(jsonData);
-      } else {
-        log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
-        return null;
-      }
-    } on DioException catch (dioError) {
-      log("Dio error occurred: ${dioError.message}");
-      if (dioError.response != null) {
-        log("Dio error response: ${dioError.response?.data}");
-        log("Dio error status code: ${dioError.response?.statusCode}");
-      }
-      final cachedData = performanceBox.get(cacheKey);
-      if (cachedData != null) {
-        log('Using cached data after API failure for key: $cacheKey');
         final castedData = ApiService().castToStringDynamic(cachedData);
         return PerformanceData.fromJson(castedData);
       } else {
         log("No cached data available.");
         return null;
       }
-    } catch (e) {
-      log("Error fetching salesman Performance: $e");
+    }
+  } on DioException catch (dioError) {
+    log("Dio error occurred: ${dioError.message}");
+    if (dioError.response != null) {
+      log("Dio error response: ${dioError.response?.data}");
+      log("Dio error status code: ${dioError.response?.statusCode}");
+    }
+    final cachedData = performanceBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data after API failure for key: $cacheKey');
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return PerformanceData.fromJson(castedData);
+    } else {
+      log("No cached data available.");
       return null;
     }
+  } catch (e) {
+    log("Error fetching salesman Performance: $e");
+    return null;
   }
+}
 
   Future<Response> updateCategoryTargetValue(
     String salesmanId,

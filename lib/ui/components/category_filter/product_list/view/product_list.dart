@@ -99,7 +99,7 @@ class _ProductGridState extends State<ProductGrid> {
               widget.productsController.selectedSubCategoryName.value.isEmpty
                   ? name ?? ''
                   : widget.productsController.selectedSubCategoryName.value,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
               ),
@@ -238,7 +238,7 @@ class _ProductGridState extends State<ProductGrid> {
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                               textAlign: TextAlign.center,
-                                              style: GoogleFonts.poppins(
+                                              style: TextStyle(
                                                 fontSize: nameFontSize,
                                                 fontWeight: FontWeight.w600,
                                               ),
@@ -267,7 +267,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                     lowstockItem > 0
                                                         ? '$lowstockItem Low'
                                                         : '0 Low',
-                                                    style: GoogleFonts.poppins(
+                                                    style: TextStyle(
                                                       fontSize: 7,
                                                       fontWeight:
                                                           FontWeight.w600,
@@ -291,7 +291,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                             stock < lowstock
                                                         ? '0 Nll'
                                                         : '1 Nll',
-                                                    style: GoogleFonts.poppins(
+                                                    style: TextStyle(
                                                       fontSize: 7,
                                                       color: Colors.white,
                                                       fontWeight:
@@ -305,7 +305,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                       ? '${formatAmount(firstSellPrice)} - $lastSellPrice'
                                                       : formatAmount(
                                                           firstSellPrice),
-                                                  style: GoogleFonts.poppins(
+                                                  style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w600,
                                                   ),

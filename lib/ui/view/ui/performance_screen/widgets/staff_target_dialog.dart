@@ -37,67 +37,77 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   bool isWeekly = false;
   Map<dynamic, String> updatedTargets = {};
   Map<int, TextEditingController> categoryControllers = {};
+  Map<int, TextEditingController> projectionControllers = {};
 
   //Map<dynamic, String> weeklyTargets = {};
 
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
-    widget.staffController.loadSalesmanTargetForSelectedTab(
+    _loadTargets();
+  }
+
+  void _loadTargets() async {
+    try {
+      await widget.staffController.loadSalesmanTargetForSelectedTab(
         currentYear: widget.currentYear.toString(),
         selectedTabIndex: widget.tabController.index + 1,
-        staffId: salesmanId);
-    log("CurrentYear : ${widget.currentYear.toString()}");
-    log("selectedTabIndex : ${widget.tabController.index + 1}");
-    log("salesmanId : $salesmanId");
+        staffId: salesmanId,
+      );
+      if (mounted) {
+        setState(() => _initializeControllers());
+      }
+    } catch (e) {
+      log("Error loading targets: $e");
+    }
   }
 
   void _initializeControllers() {
     final salesmanTargetList =
-        widget.staffController.salesmanTargetList.value.categoryPerformance ??
-            [];
-    widget.tabControllers.clear();
-    for (var target in salesmanTargetList) {
-      final controller = TextEditingController(
-        text: target.actualTarget?.toString() ?? '',
-      );
-      widget.tabControllers.add(controller);
-      categoryControllers[salesmanTargetList.indexOf(target)] = controller;
-    }
-    _weeklyTargetControllers.clear();
-    for (var target in salesmanTargetList) {
-      if (target.actualTarget is Map) {
-        final weeklyTargets = target.actualTarget as Map;
-        weeklyTargets.forEach((week, value) {
-          if (_weeklyTargetControllers[week] == null) {
-            _weeklyTargetControllers[week] = [];
-          }
-          _weeklyTargetControllers[week]!.add(
-            TextEditingController(text: value?.toString() ?? ''),
-          );
-        });
-      }
-    }
-  }
+        widget.staffController.salesmanTargetList.value.categoryPerformance ?? [];
 
-@override
-void dispose() {
-  widget.tabController.dispose();
-  for (var controller in widget.tabControllers) {
-    controller.dispose();
-  }
-  for (var controller in categoryControllers.values) {
-    controller.dispose();
-  }
-  _weeklyTargetControllers.forEach((_, controllers) {
-    for (var controller in controllers) {
+    // Dispose existing controllers
+    for (var controller in categoryControllers.values) {
       controller.dispose();
     }
-  });
-  super.dispose();
-}
+    for (var controller in projectionControllers.values) {
+      controller.dispose();
+    }
+    _weeklyTargetControllers.clear();
 
+    // Initialize controllers
+    categoryControllers.clear();
+    projectionControllers.clear();
+    for (var target in salesmanTargetList) {
+      final targetIndex = salesmanTargetList.indexOf(target);
+      categoryControllers[targetIndex] = TextEditingController(
+        text: target.actualTarget?.toString() ?? '',
+      );
+      projectionControllers[targetIndex] = TextEditingController(
+        text: target.actualProjection?.toString() ?? '',
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.tabController.dispose();
+    for (var controller in widget.tabControllers) {
+      controller.dispose();
+    }
+    for (var controller in categoryControllers.values) {
+      controller.dispose();
+    }
+    for (var controller in projectionControllers.values) {
+      controller.dispose();
+    }
+    _weeklyTargetControllers.forEach((_, controllers) {
+      for (var controller in controllers) {
+        controller.dispose();
+      }
+    });
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,123 +238,130 @@ void dispose() {
         }));
   }
 
-void _saveTargets() async {
-  final selectedMonth = widget.tabController.index + 1;
-  final selectedMonthName =
-      DateFormat.MMMM().format(DateTime(0, selectedMonth));
-  updatedTargets = {
-    for (int i = 0; i < categoryControllers.length; i++)
-      widget.staffController.salesmanTargetList.value.categoryPerformance![i]
-          .cid
-          .toString(): categoryControllers[i]?.text.toString() ?? ''
-  };
-
-  Map<String, Map<String, String>> buildWeeklyTargetData(
-      List<int> categoryIds, List<int> relevantWeeks) {
-    final Map<String, Map<String, String>> weeklyTargetData = {};
-    for (var week in relevantWeeks) {
-      final weekKey = 'week$week';
-      final controllers = _weeklyTargetControllers[weekKey] ?? [];
-
-      for (var categoryIndex = 0;
-          categoryIndex < categoryIds.length;
-          categoryIndex++) {
-        final categoryId = categoryIds[categoryIndex];
-        final controller = categoryIndex < controllers.length
-            ? controllers[categoryIndex]
-            : null;
-        weeklyTargetData.putIfAbsent(weekKey, () => {});
-        weeklyTargetData[weekKey]!['$categoryId'] = controller?.text ?? '';
-      }
+  void _saveTargets() async {
+    final selectedMonth = widget.tabController.index + 1;
+    final selectedMonthName =
+        DateFormat.MMMM().format(DateTime(0, selectedMonth));
+    updatedTargets = {
+      for (int i = 0; i < categoryControllers.length; i++)
+        widget.staffController.salesmanTargetList.value.categoryPerformance![i]
+            .cid
+            .toString(): categoryControllers[i]?.text.toString() ?? ''
+    };
+    for (int i = 0; i < projectionControllers.length; i++) {
+      final cid = widget
+          .staffController.salesmanTargetList.value.categoryPerformance![i].cid
+          .toString();
+      updatedTargets[cid] = projectionControllers[i]?.text ?? '';
     }
 
-    return weeklyTargetData;
-  }
+    Map<String, Map<String, String>> buildWeeklyTargetData(
+        List<int> categoryIds, List<int> relevantWeeks) {
+      final Map<String, Map<String, String>> weeklyTargetData = {};
+      for (var week in relevantWeeks) {
+        final weekKey = 'week$week';
+        final controllers = _weeklyTargetControllers[weekKey] ?? [];
 
-  List<int> getCategoryIds() {
-    return widget
-        .staffController.salesmanTargetList.value.categoryPerformance!
-        .map((category) => category.cid!)
-        .toList();
-  }
+        for (var categoryIndex = 0;
+            categoryIndex < categoryIds.length;
+            categoryIndex++) {
+          final categoryId = categoryIds[categoryIndex];
+          final controller = categoryIndex < controllers.length
+              ? controllers[categoryIndex]
+              : null;
+          weeklyTargetData.putIfAbsent(weekKey, () => {});
+          weeklyTargetData[weekKey]!['$categoryId'] = controller?.text ?? '';
+        }
+      }
 
-  final categoryIds = getCategoryIds();
-  final relevantWeeks = getWeeksForMonth(widget.currentYear, selectedMonth);
-  final weeklyTargetData = buildWeeklyTargetData(categoryIds, relevantWeeks);
-  final requestData = {
-    "companyId": 1,
-    "sales_id": "SALES1",
-    "month": selectedMonthName,
-    "year": widget.currentYear.toString(),
-    "categories": updatedTargets,
-    "weekly_target": isWeekly ? weeklyTargetData : {},
-  };
-      final requestDataAsStrings =
+      return weeklyTargetData;
+    }
+
+    List<int> getCategoryIds() {
+      return widget
+          .staffController.salesmanTargetList.value.categoryPerformance!
+          .map((category) => category.cid!)
+          .toList();
+    }
+
+    final categoryIds = getCategoryIds();
+    final relevantWeeks = getWeeksForMonth(widget.currentYear, selectedMonth);
+    final weeklyTargetData = buildWeeklyTargetData(categoryIds, relevantWeeks);
+    final requestData = {
+      "companyId": 1,
+      "sales_id": "SALES1",
+      "month": selectedMonthName,
+      "year": widget.currentYear.toString(),
+      "categories": updatedTargets,
+      "weekly_target": isWeekly ? weeklyTargetData : {},
+    };
+    log('Request Data $requestData');
+    final requestDataAsStrings =
         requestData.map((key, value) => MapEntry(key, value.toString()));
-  try {
-    final response = await widget.staffController.updateCategoryTarget(
-      "SALES1",
-      selectedMonthName,
-      widget.currentYear.toString(),
-      updatedTargets,
-      requestDataAsStrings,
-    );
-
-    if (response.statusCode == 200) {
-      _showAlertDialog(
-        context,
-        'Success',
-        'Targets saved successfully!',
-        'assets/images/Animation - 1726906882515.json',
+    try {
+      final response = await widget.staffController.updateCategoryTarget(
+        "SALES1",
+        selectedMonthName,
+        widget.currentYear.toString(),
+        updatedTargets,
+        requestDataAsStrings,
       );
-    } else {
+
+      if (response.statusCode == 200) {
+        _showAlertDialog(
+          context,
+          'Success',
+          'Targets saved successfully!',
+          'assets/images/Animation - 1726906882515.json',
+        );
+      } else {
+        _showAlertDialog(
+          context,
+          'Failed',
+          'Failed to save targets. Please try again!',
+          'assets/images/Warning_animation.json',
+        );
+      }
+    } catch (e) {
       _showAlertDialog(
         context,
-        'Failed',
-        'Failed to save targets. Please try again!',
+        'Error',
+        'An unexpected error occurred. Please try again!',
         'assets/images/Warning_animation.json',
       );
+      log('Error saving targets: $e');
     }
-  } catch (e) {
-    _showAlertDialog(
-      context,
-      'Error',
-      'An unexpected error occurred. Please try again!',
-      'assets/images/Warning_animation.json',
-    );
-    log('Error saving targets: $e');
   }
-}
 
-void _showAlertDialog(
-    BuildContext context, String title, String message, String animationPath) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Center(
-          child: SizedBox(
-            height: 100,
-            width: 100,
-            child: Lottie.asset(animationPath),
+  void _showAlertDialog(BuildContext context, String title, String message,
+      String animationPath) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Center(
+            child: SizedBox(
+              height: 100,
+              width: 100,
+              child: Lottie.asset(animationPath),
+            ),
           ),
-        ),
-        content: CustomText(
-          content: message,
-          fontSize: 18,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('OK'),
+          content: CustomText(
+            content: message,
+            fontSize: 18,
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildTableHeader(String text) {
     return Container(
@@ -460,7 +477,7 @@ void _showAlertDialog(
                   contentPadding: const EdgeInsets.symmetric(vertical: 5),
                   hintText: targetControllerForWeek.text.isEmpty
                       ? 'Week $week'
-                      : null, // Show hint only if text is empty
+                      : null,
                   hintStyle: const TextStyle(color: Colors.grey),
                 ),
               ),
@@ -512,7 +529,7 @@ void _showAlertDialog(
 
   Widget _buildTableTextField(
       int index, bool isReadOnly, CategoryPerformance? target) {
-    TextEditingController controller = TextEditingController(
+    projectionControllers[index] ??= TextEditingController(
       text: target?.actualProjection?.toString() ?? '',
     );
 
@@ -520,10 +537,9 @@ void _showAlertDialog(
       height: 50,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       child: TextField(
-        controller: controller,
+        controller: projectionControllers[index],
         textAlign: TextAlign.center,
         style: const TextStyle(fontSize: 16),
-        readOnly: isReadOnly,
         decoration: InputDecoration(
           fillColor: Colors.blueGrey.shade50,
           filled: true,

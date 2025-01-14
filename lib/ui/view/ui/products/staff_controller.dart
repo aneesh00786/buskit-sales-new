@@ -123,7 +123,7 @@ class StaffController extends GetxController {
     }
   }
 
-  void loadSalesmanTargetForSelectedTab({
+  Future<void> loadSalesmanTargetForSelectedTab({
     required int selectedTabIndex,
     required String staffId,
     required String currentYear,

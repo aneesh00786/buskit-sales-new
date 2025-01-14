@@ -31,6 +31,7 @@ class OrderController extends GetxController {
   RxInt deliveredCount = 0.obs;
   RxInt rejectedCount = 0.obs;
   RxBool isCountLoading = true.obs;
+  bool _isLoading = false;
 Future<void> loadOrderCountData() async {
   isCountLoading(true);
   try {
@@ -51,9 +52,9 @@ Future<void> loadOrderCountData() async {
     isCountLoading(false);
   }
 }
-
-  Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
+Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     orderDataList.clear();
+
     switch (selectedIndex) {
       case 0:
         selectedStatusCountIndex.value = 11;
@@ -80,16 +81,14 @@ Future<void> loadOrderCountData() async {
         selectedStatusCountIndex.value = 11;
     }
 
-    // Fetch recent orders data based on status
-    var data = await _apiWorker.getRecentOrdersData(
+    var data = await ApiWorker().getRecentOrdersData(
       searchModel: searchData,
-      order_status: selectedStatusCountIndex.value,
+      orderStatus: selectedStatusCountIndex.value,
     );
-    orderDataList.assignAll(data.data!); // Assign new data
+    orderDataList.assignAll(data.data!);
     return data.data!;
   }
 
-  // Function to update the date range for customer visits and reload order data
   updateCustomerVisitScheduleSet(DateTime? startDate, DateTime? endDate) {
     if (startDate != null && endDate != null) {
       searchData.startDate = NKDateUtils.apiDayFormat(startDate);
@@ -98,7 +97,7 @@ Future<void> loadOrderCountData() async {
       searchData.startDate = "";
       searchData.endDate = "";
     }
-    loadOrderData(selectedIndex: selectedTabIndex.value); // Reload orders
+    loadOrderData(selectedIndex: selectedTabIndex.value);
     refresh();
     print('444+${searchData.startDate}');
     print('444++${searchData.endDate}');
@@ -106,7 +105,7 @@ Future<void> loadOrderCountData() async {
 
   void updateTabIndex(int newIndex) {
     selectedTabIndex.value = newIndex;
-    loadOrderCountData(); 
+    loadOrderCountData();
     loadOrderData(selectedIndex: newIndex);
   }
   Widget orderStatusWidget(String status, Color color) {

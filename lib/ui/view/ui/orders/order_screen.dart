@@ -2,18 +2,14 @@
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_tabbar.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_top_widget.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrderScreen extends StatefulWidget {
   final int passIndex;
-
   const OrderScreen({super.key, this.passIndex = 0});
-
   @override
   State<OrderScreen> createState() => _OrderScreenState();
 }
@@ -23,7 +19,6 @@ class _OrderScreenState extends State<OrderScreen> {
    NotificationController notificationController = Get.find<NotificationController>();
 
   int selectedTabIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -38,6 +33,7 @@ class _OrderScreenState extends State<OrderScreen> {
       orderController.updateTabIndex(index);
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

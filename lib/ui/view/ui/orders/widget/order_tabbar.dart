@@ -59,23 +59,23 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     switch (index) {
       case 0:
         return notificationController
-            .recentOrderCountData.mainNotification!.recentOrders!
+            .recentOrderCountData.mainNotification?.recentOrders??0
             .toInt();
       case 1:
         return notificationController
-            .recentOrderCountData.mainNotification!.waitingForApproval!
+            .recentOrderCountData.mainNotification?.waitingForApproval??0
             .toInt();
       case 2:
         return notificationController
-            .recentOrderCountData.mainNotification!.quickSale!
+            .recentOrderCountData.mainNotification?.quickSale??0
             .toInt();
       case 3:
         return notificationController
-            .recentOrderCountData.mainNotification!.processingOrders!
+            .recentOrderCountData.mainNotification?.processingOrders??0
             .toInt();
       case 4:
         return notificationController
-            .recentOrderCountData.mainNotification!.packedAndReadyForDelivery!
+            .recentOrderCountData.mainNotification?.packedAndReadyForDelivery??0
             .toInt();
       case 5:
         return 0;

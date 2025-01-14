@@ -471,7 +471,7 @@ Future<PerformanceData?> fetchSalesmanPerformanceData({
       'companyId': companyId,
       "salesman_id": salesmanId,
     };
-
+    log('Request Data : $requestData');
     if (startDate != null) {
       requestData['start_date'] = startDate;
     }
@@ -1116,50 +1116,80 @@ Future<PerformanceData?> fetchSalesmanPerformanceData({
     return OrderCountResponse.fromJson(response.data);
   }
 
-  Future<OrderResponce> getRecentOrdersData({
-    SearchModel? searchModel,
-    int? order_status,
-  }) async {
-    final requestBody = {
-      "order_status": order_status,
-      "start_date": searchModel?.startDate,
-      "end_date": searchModel?.endDate,
-      "companyId": companyId,
-      "page": 1,
-      "limit": 1000,
-      "salesman_id": salesmanId,
-    };
-    log("Request Body: $requestBody");
-    log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
-    var hiveBox = await Hive.openBox('recentOrders');
-    final isConnected = await ConnectivityService().isOnline();
-    if (isConnected) {
-      try {
-        final response = await dio.postbycustom(
-          ApiConstants.get_recent_order,
-          data: FormData.fromMap(requestBody),
-        );
-        log("Response Data: ${response.data}");
-        OrderResponce orderResponce = OrderResponce.fromJson(response.data);
-        await hiveBox.put('recentOrders', response.data);
-        log("Data saved to Hive.");
+  // Future<OrderResponce> getRecentOrdersData({
+  //   SearchModel? searchModel,
+  //   int? order_status,
+  // }) async {
+  //   final requestBody = {
+  //     "order_status": order_status,
+  //     "start_date": searchModel?.startDate,
+  //     "end_date": searchModel?.endDate,
+  //     "companyId": companyId,
+  //     "page": 1,
+  //     "limit": 1000,
+  //     "salesman_id": salesmanId,
+  //   };
+  //   log("Request Body: $requestBody");
+  //   log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
+  //   var hiveBox = await Hive.openBox('recentOrders');
+  //   final isConnected = await ConnectivityService().isOnline();
+  //   if (isConnected) {
+  //     try {
+  //       final response = await dio.postbycustom(
+  //         ApiConstants.get_recent_order,
+  //         data: FormData.fromMap(requestBody),
+  //       );
+  //       log("Response Data: ${response.data}");
+  //       OrderResponce orderResponce = OrderResponce.fromJson(response.data);
+  //       await hiveBox.put('recentOrders', response.data);
+  //       log("Data saved to Hive.");
 
-        return orderResponce;
-      } on DioException catch (error, stackTrace) {
-        log("DioException: ${error.toString()}");
-        return Future.error(DioExceptionHandler.fromDioError(error));
-      }
-    } else {
-      if (hiveBox.containsKey('recentOrders')) {
-        log("Fetching data from Hive as there is no internet.");
-        final cachedData = hiveBox.get('recentOrders');
-        return OrderResponce.fromJson(cachedData);
-      } else {
-        log("No internet and no cached data available.");
-        throw Exception("No internet connection and no cached data available.");
-      }
-    }
+  //       return orderResponce;
+  //     } on DioException catch (error, stackTrace) {
+  //       log("DioException: ${error.toString()}");
+  //       return Future.error(DioExceptionHandler.fromDioError(error));
+  //     }
+  //   } else {
+  //     if (hiveBox.containsKey('recentOrders')) {
+  //       log("Fetching data from Hive as there is no internet.");
+  //       final cachedData = hiveBox.get('recentOrders');
+  //       return OrderResponce.fromJson(cachedData);
+  //     } else {
+  //       log("No internet and no cached data available.");
+  //       throw Exception("No internet connection and no cached data available.");
+  //     }
+  //   }
+  // }
+
+    Future<OrderResponce> getRecentOrdersData({
+    SearchModel? searchModel,
+    int? orderStatus,
+  }) async {
+    log(companyId.toString());
+    final start = searchModel?.startDate?.isNotEmpty == true
+        ? searchModel?.startDate
+        : null; 
+    final end =
+        searchModel?.endDate?.isNotEmpty == true ? searchModel?.endDate : null;
+
+    final response = await dio.postbycustom(
+      ApiConstants.get_recent_order,
+      data: {
+        "order_status": orderStatus,
+        "start_date": start,
+        "end_date": end,
+        "limit": 100,
+        "page": 1,
+        "companyId": companyId,
+        "salesman_id": salesmanId
+      },
+    ).onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return OrderResponce.fromJson(response.data);
   }
+
 
   Future<OrderProcessInvoice> getOrderProcessInvoiceData({
     String? orderId,

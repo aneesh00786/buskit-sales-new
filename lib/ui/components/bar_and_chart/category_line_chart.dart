@@ -256,6 +256,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
             borderRadius: BorderRadius.zero,
             borderSide: BorderSide.none,
           ),
+          if(widget.staffProjection=="1")
           BarChartRodData(
             toY: projection,
             color: const Color(0xff15396a),

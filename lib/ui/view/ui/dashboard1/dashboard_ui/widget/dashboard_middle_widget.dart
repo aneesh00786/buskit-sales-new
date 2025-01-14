@@ -52,35 +52,39 @@ import 'package:image/image.dart' as img;
 class DashBoardMiddleWidget extends StatefulWidget {
   final DashBoardController dashBoardController;
   BuildContext context;
-  DashBoardMiddleWidget(
-      {super.key,
-      required this.dashBoardController,
-      required this.context,});
+  DashBoardMiddleWidget({
+    super.key,
+    required this.dashBoardController,
+    required this.context,
+  });
 
   @override
   State<DashBoardMiddleWidget> createState() => _DashBoardMiddleWidgetState();
 }
 
 class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
-    String staffProjection = '';
+  String staffProjection = '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  
-    @override
+
+  @override
   void initState() {
     super.initState();
-    ApiWorker().fetchAllSettings(companyId);
-        setState(() {
-      staffProjection = SessionHelper.settingsData
-              ?.firstWhere(
-                (setting) => setting.key == 'staffProjection',
-                orElse: () => AllCompanySettingsData(
-                  key: 'staffProjection',
-                  value: '',
-                ),
-              )
-              .value ??
-          '';
-    });
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    try {
+      final settingsList = await ApiWorker().fetchAllSettings(companyId);
+      setState(() {
+        final targetSetting = settingsList?.firstWhere(
+          (setting) => setting.key == 'staffProjection',
+          orElse: () => AllCompanySettingsData(key: 'staffProjection', value: ''),
+        );
+        staffProjection = targetSetting?.value ?? '';
+      });
+    } catch (e) {
+      print("Error fetching settings: $e");
+    }
   }
   TextEditingController communicationController = TextEditingController();
 
@@ -242,7 +246,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       (sum, order) =>
                                           sum +
                                           (order.orderTotal ??
-                                              0), // Handle nulls here
+                                              0), 
                                     ) ==
                                     0)) {
                           return const NodataWidget();
@@ -280,11 +284,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     completedOrdersCount: responseModel
                                         .collection!.payment!.completedOrders!
                                         .fold(
-                                            0, // Initial value is an int
+                                            0,
                                             (sum, order) =>
                                                 sum +
                                                 (order.orderTotal?.toInt() ??
-                                                    0) // Convert double to int
+                                                    0)
                                             ),
                                     pendingAmountCount: (responseModel
                                                     .collection
@@ -855,9 +859,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             ),
           ],
           borderRadius: 25,
-          padding: widget.dashBoardController.selectedCommunicationIndex.value == index
-              ? nkSmallPadding()
-              : null,
+          padding:
+              widget.dashBoardController.selectedCommunicationIndex.value ==
+                      index
+                  ? nkSmallPadding()
+                  : null,
           onTap: () {
             widget.dashBoardController.selectedCommunicationIndex.value = index;
 
@@ -921,7 +927,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             );
           },
           isCommonBorder:
-              widget.dashBoardController.selectedCommunicationIndex.value == index,
+              widget.dashBoardController.selectedCommunicationIndex.value ==
+                  index,
           child: Row(
             children: [
               ClipOval(

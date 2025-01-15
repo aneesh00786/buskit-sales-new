@@ -4,7 +4,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LoginLeftSideWidget extends StatefulWidget {
   const LoginLeftSideWidget({Key? key}) : super(key: key);
@@ -57,7 +56,7 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
               SizedBox(height: 30,),
              Padding(
                padding: const EdgeInsets.symmetric(horizontal: 20),
-               child: Text("Welcome!",style: GoogleFonts.poppins(color: white, fontSize: 45, fontWeight: FontWeight.bold),),
+               child: Text("Welcome!",style: TextStyle(color: white, fontSize: 45, fontWeight: FontWeight.bold),),
              ),
              Center(
                child: Padding(
@@ -65,7 +64,7 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
                  child: Text(
                   "Empower Your Sales, Anywhere, Anytime!",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(color: white, fontSize: 20, fontWeight: FontWeight.bold,),),
+                  style: TextStyle(color: white, fontSize: 20, fontWeight: FontWeight.bold,),),
                ),
              ),
         

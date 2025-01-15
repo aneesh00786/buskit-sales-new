@@ -6,7 +6,6 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -55,16 +54,28 @@ class _ProductGridState extends State<ProductGrid> {
     try {
       SubCategoryItem? subCategoryItem =
           widget.productsController.getInitialSubCategoryIdAndName();
-      name = subCategoryItem?.subCategory ?? '';
+
+      if (subCategoryItem == null) {
+        log("No subcategory item found. Aborting fetch.");
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      name = subCategoryItem.subCategory ?? '';
       List<ProductModel> fetchedProducts = await widget.productsController
-          .fetchProducts(subCategoryItem?.id ?? '');
+          .fetchProducts(subCategoryItem.id ?? '');
+
       setState(() {
         products = fetchedProducts;
         isLoading = false;
       });
     } catch (e) {
       log('Error fetching initial products: $e');
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -128,117 +139,58 @@ class _ProductGridState extends State<ProductGrid> {
                         final product = products[index];
                         return LayoutBuilder(
                           builder: (context, constraints) {
-                            // final double imageHeight =
-                            //     constraints.maxHeight * 0.45;
-                            // final double nameFontSize =
-                            //     (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
-                            // final double stockFontSize =
-                            //     (constraints.maxWidth * 0.04).clamp(8, 12.0);
-                            // int pieces = 0;
-                            // List sellPrice = product.detail!
-                            //     .map((e) => e.sellPrice)
-                            //     .toList();
-                            // List<double> totalPrices = product.detail!.map((e) {
-                            //   double sellPrice;
-                            //   if (e.sellPrice is String) {
-                            //     sellPrice =
-                            //         double.tryParse(e.sellPrice ?? '') ?? 0.0;
-                            //   } else if (e.sellPrice is double) {
-                            //     sellPrice = double.parse(e.sellPrice ?? '');
-                            //   } else {
-                            //     sellPrice = 0.0;
-                            //   }
-                            //   pieces = e.pieces != null ? e.pieces as int : 0;
-                            //   return sellPrice * pieces;
-                            // }).toList();
-                            // double? firstTotal = totalPrices.isNotEmpty
-                            //     ? totalPrices.first
-                            //     : null;
-                            // double? lastTotal = totalPrices.isNotEmpty
-                            //     ? totalPrices.last
-                            //     : null;
-                            // List<double> sellPriceValues = sellPrice
-                            //     .map((price) => double.tryParse(price) ?? 0.0)
-                            //     .toList();
-                            // double smallestSellPrice =
-                            //     sellPriceValues.isNotEmpty
-                            //         ? sellPriceValues
-                            //             .reduce((a, b) => a < b ? a : b)
-                            //         : 0.0;
-                            // double largestSellPrice = sellPriceValues.isNotEmpty
-                            //     ? sellPriceValues
-                            //         .reduce((a, b) => a > b ? a : b)
-                            //     : 0.0;
-                            // String firstSellPrice =
-                            //     smallestSellPrice.toStringAsFixed(2);
-                            // String lastSellPrice =
-                            //     largestSellPrice.toStringAsFixed(2);
-                            // num lowstockItem = 0;
-                            // num stock = 0;
-                            // num lowstock = 0;
-                            // product.detail?.forEach((detail) {
-                            //   stock = detail.stock ?? 0;
-                            //   lowstock = detail.lowstock ?? 0;
-                            //   if (stock < lowstock) {
-                            //     lowstockItem++;
-                            //   }
-                            // });
                             final double imageHeight =
-                                  constraints.maxHeight * 0.45;
-                              final double nameFontSize =
-                                  (constraints.maxWidth * 0.06)
-                                      .clamp(11.0, 16.0);
-                              (constraints.maxWidth * 0.05).clamp(10.0, 14.0);
-                              final double stockFontSize =
-                                  (constraints.maxWidth * 0.04).clamp(8, 12.0);
-                              int pieces = 0;
-                              List sellPrice = product.detail!
-                                  .map((e) => e.sellingPrice)
-                                  .toList();
-                              List<double> totalPrices =
-                                  product.detail!.map((e) {
-                                double packPrice =
-                                    e.sellingPackPrice?.toDouble() ?? 0;
-                                pieces = e.pieces != null ? e.pieces as int : 0;
-                                return packPrice;
-                              }).toList();
-                              double? firstTotal = totalPrices.isNotEmpty
-                                  ? totalPrices.first
-                                  : 0;
-                              double? lastTotal =
-                                  totalPrices.isNotEmpty ? totalPrices.last : 0;
-                              List<double> sellPriceValues = sellPrice
-                                  .map((price) =>
-                                      double.tryParse(price.toString()) ?? 0.0)
-                                  .toList();
-                              double smallestSellPrice =
-                                  sellPriceValues.isNotEmpty
-                                      ? sellPriceValues
-                                          .reduce((a, b) => a < b ? a : b)
-                                      : 0.0;
-                              double largestSellPrice =
-                                  sellPriceValues.isNotEmpty
-                                      ? sellPriceValues
-                                          .reduce((a, b) => a > b ? a : b)
-                                      : 0.0;
-                              String firstSellPrice =
-                                  smallestSellPrice.toString().isEmpty
-                                      ? ''
-                                      : smallestSellPrice.toString();
-                              String lastSellPrice =
-                                  largestSellPrice.toString().isEmpty
-                                      ? ''
-                                      : largestSellPrice.toString();
-                              num lowstockItem = 0;
-                              num stock = 0;
-                              num lowstock = 0;
-                              product.detail?.forEach((detail) {
-                                stock = detail.stock ?? 0;
-                                lowstock = detail.lowstock ?? 0;
-                                if (stock < lowstock) {
-                                  lowstockItem++;
-                                }
-                              });
+                                constraints.maxHeight * 0.45;
+                            final double nameFontSize =
+                                (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
+                            (constraints.maxWidth * 0.05).clamp(10.0, 14.0);
+                            final double stockFontSize =
+                                (constraints.maxWidth * 0.04).clamp(8, 12.0);
+                            int pieces = 0;
+                            List sellPrice = product.detail!
+                                .map((e) => e.sellingPrice)
+                                .toList();
+                            List<double> totalPrices = product.detail!.map((e) {
+                              double packPrice =
+                                  e.sellingPackPrice?.toDouble() ?? 0;
+                              pieces = e.pieces != null ? e.pieces as int : 0;
+                              return packPrice;
+                            }).toList();
+                            double? firstTotal =
+                                totalPrices.isNotEmpty ? totalPrices.first : 0;
+                            double? lastTotal =
+                                totalPrices.isNotEmpty ? totalPrices.last : 0;
+                            List<double> sellPriceValues = sellPrice
+                                .map((price) =>
+                                    double.tryParse(price.toString()) ?? 0.0)
+                                .toList();
+                            double smallestSellPrice =
+                                sellPriceValues.isNotEmpty
+                                    ? sellPriceValues
+                                        .reduce((a, b) => a < b ? a : b)
+                                    : 0.0;
+                            double largestSellPrice = sellPriceValues.isNotEmpty
+                                ? sellPriceValues
+                                    .reduce((a, b) => a > b ? a : b)
+                                : 0.0;
+                            String firstSellPrice =
+                                smallestSellPrice.toString().isEmpty
+                                    ? ''
+                                    : smallestSellPrice.toString();
+                            String lastSellPrice =
+                                largestSellPrice.toString().isEmpty
+                                    ? ''
+                                    : largestSellPrice.toString();
+                            num lowstockItem = 0;
+                            num stock = 0;
+                            num lowstock = 0;
+                            product.detail?.forEach((detail) {
+                              stock = detail.stock ?? 0;
+                              lowstock = detail.lowstock ?? 0;
+                              if (stock < lowstock) {
+                                lowstockItem++;
+                              }
+                            });
                             return GestureDetector(
                                 onTap: () {
                                   _showProductVariantDialog(
@@ -271,14 +223,17 @@ class _ProductGridState extends State<ProductGrid> {
                                                 ? CachedNetworkImage(
                                                     imageUrl:
                                                         '${ApiConstants.imageBaseUrl}/${product.imageUrl}',
-                                                    placeholder: (context,
-                                                            url) =>
-                                                        Padding(
-                                                          padding: const EdgeInsets.all(15.0),
-                                                          child: CircleAvatar(
-                                                            radius: 10,
-                                                            child: const CircularProgressIndicator()),
-                                                        ),
+                                                    placeholder:
+                                                        (context, url) =>
+                                                            Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15.0),
+                                                      child: CircleAvatar(
+                                                          radius: 10,
+                                                          child:
+                                                              const CircularProgressIndicator()),
+                                                    ),
                                                     errorWidget: (context, url,
                                                             error) =>
                                                         Image.asset(
@@ -498,7 +453,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                     lowstockItem > 0
                                                         ? '$lowstockItem Low'
                                                         : '0 Low',
-                                                    style: GoogleFonts.poppins(
+                                                    style: TextStyle(
                                                       fontSize: 7,
                                                       fontWeight:
                                                           FontWeight.w600,
@@ -522,7 +477,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                             stock < lowstock
                                                         ? '0 Nll'
                                                         : '1 Nll',
-                                                    style: GoogleFonts.poppins(
+                                                    style: TextStyle(
                                                       fontSize: 7,
                                                       color: Colors.white,
                                                       fontWeight:
@@ -536,7 +491,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                       ? '${formatAmount(firstSellPrice)} - ${formatAmountOnly(lastSellPrice)}'
                                                       : formatAmount(
                                                           firstSellPrice),
-                                                  style: GoogleFonts.poppins(
+                                                  style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -558,14 +513,12 @@ class _ProductGridState extends State<ProductGrid> {
                                                             color: Colors.blue),
                                                         child: Text(
                                                           '(incl.tax)',
-                                                          style: GoogleFonts
-                                                              .poppins(
-                                                                  fontSize: 6,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600),
+                                                          style: TextStyle(
+                                                            fontSize: 6,
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
                                                         ),
                                                       )
                                                     : Container()
@@ -631,8 +584,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                                     1
                                                                 ? '${formatAmount(firstTotal)}($pieces pcs) - $lastTotal($pieces pcs)'
                                                                 : '${formatAmount(firstTotal)}($pieces pcs)',
-                                                            style: GoogleFonts
-                                                                .poppins(
+                                                            style: TextStyle(
                                                               fontSize:
                                                                   stockFontSize,
                                                               fontWeight:

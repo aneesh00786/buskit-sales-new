@@ -3,7 +3,6 @@
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CategoryList extends StatefulWidget {
   final List<CategoryData> categories;
@@ -56,7 +55,7 @@ class _CategoryListState extends State<CategoryList> {
               // SizedBox(width:20),
               Text(
                 'Categories',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,
                 ),
@@ -98,7 +97,7 @@ class _CategoryListState extends State<CategoryList> {
                           children: [
                             Text(
                               category.categoryName ?? '',
-                              style: GoogleFonts.poppins(
+                              style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -143,7 +142,7 @@ class _CategoryListState extends State<CategoryList> {
                                   ),
                                   child: Text(
                                     option.subCategory ?? '',
-                                    style: GoogleFonts.poppins(
+                                    style: TextStyle(
                                       fontSize: 12.0,
                                       color: Colors.black,
                                     ),

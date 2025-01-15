@@ -148,24 +148,28 @@ class ProductsController extends GetxController {
     }
   }
 
-  SubCategoryItem? getInitialSubCategoryIdAndName() {
-    try {
-      if (categoryData.value.data != null &&
-          categoryData.value.data!.isNotEmpty) {
-        var firstCategory = categoryData.value.data!.first;
-        var firstSubcategory = firstCategory.subCategoryItem?.first;
-
-        log("Fetching initial subcategory ID: ${firstSubcategory?.id}");
-        log("Fetching initial subcategory name: ${firstSubcategory?.subCategory}");
-
+SubCategoryItem? getInitialSubCategoryIdAndName() {
+  try {
+    if (categoryData.value.data != null &&
+        categoryData.value.data!.isNotEmpty) {
+      var firstCategory = categoryData.value.data!.first;
+      if (firstCategory.subCategoryItem != null &&
+          firstCategory.subCategoryItem!.isNotEmpty) {
+        var firstSubcategory = firstCategory.subCategoryItem!.first;
+        log("Fetching initial subcategory ID: ${firstSubcategory.id}");
+        log("Fetching initial subcategory name: ${firstSubcategory.subCategory}");
         return firstSubcategory;
       }
-      return null;
-    } catch (e) {
-      print("Error fetching initial subcategory details: $e");
-      return null;
     }
+    log("No subcategory found. Returning null.");
+    return null;
+  } catch (e) {
+    log("Error fetching initial subcategory details: $e");
+    return null;
   }
+}
+
+
 
   Future<void> storeCategoryData(CategoryModel categoryModel) async {
     final box = await Hive.openBox('categoriesBox');

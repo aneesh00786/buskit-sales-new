@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
@@ -55,8 +56,6 @@ class LoginController extends GetxController {
 
   Future<bool> performLogin(BuildContext context) async {
     final int currentYear = DateTime.now().year;
-    final int currentMonth = DateTime.now().month;
-
     try {
       final requestBody = {
         "email": emailController.text.removeAllWhitespace,
@@ -71,29 +70,23 @@ class LoginController extends GetxController {
 
       log("Response Body: ${loginResponce?.toJson()}");
       log("StatusCode: ${loginResponce?.statusCode}");
-
       if (loginResponce?.statusCode == 200) {
         loginButtonController.success();
         await SessionHelper().setLoginData(loginResponce!.data!);
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-        final targetType = SessionHelper.settingsData
-                ?.firstWhere(
-                  (setting) => setting.key == 'targetType',
-                  orElse: () => AllCompanySettingsData(
-                    key: 'targetType',
-                    value: '',
-                  ),
-                )
-                .value ??
-            '';
         log("Fetching settings after login...");
         await Future.delayed(Duration(seconds: 2));
+
+        // if (subCategoryItem == null || (subCategoryItem.id ?? '').isEmpty) {
+        //   log("No valid subcategory found. Skipping product fetching.");
+        // } else {
+        //   await productsController.fetchProducts(subCategoryItem.id!);
+        // }
         final settings = await _apiWorker.fetchAllSettings(companyId);
         await Provider.of<CustomersProvider>(context, listen: false)
             .fetchCustomerData();
         await productsController.fetchCategoryData();
-        await _apiWorker.getTempProduct('C49SC7');
         await pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId);
         await staffController.loadSalesmanTargetForSelectedTab(
@@ -103,6 +96,14 @@ class LoginController extends GetxController {
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }
+        SubCategoryItem? subCategoryItem =
+            productsController.getInitialSubCategoryIdAndName();
+        if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
+          await productsController.fetchProducts(subCategoryItem.id!);
+        } else {
+          log("No subcategory found. Products not fetched.");
+        }
+        //C49SC7
         Get.offAllNamed(AppRoutes.home);
         return true;
       } else if (loginResponce?.statusCode == 422 ||
@@ -141,6 +142,7 @@ class LoginController extends GetxController {
       return false;
     }
   }
+
   void showErrorDialog(String title, String message) {
     Get.dialog(
       AlertDialog(

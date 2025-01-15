@@ -706,73 +706,73 @@ Future<PerformanceData?> fetchSalesmanPerformanceData({
   }
 
   /// ************************ PRODUCT SECTION ***************** ///
-  Future<List<ProductModel>> getTempProduct(String subCatId) async {
-    log('=== getTempProduct called ===');
-    List<ProductModel> allProducts = [];
+Future<List<ProductModel>> getTempProduct(String subCatId) async {
+  log('=== getTempProduct called ===');
+  List<ProductModel> allProducts = [];
 
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool hasNetwork = connectivityResult != ConnectivityResult.none;
-    bool hasInternet = hasNetwork && await isInternetAvailable();
-    log('Has Internet: $hasInternet');
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasNetwork = connectivityResult != ConnectivityResult.none;
+  bool hasInternet = hasNetwork && await isInternetAvailable();
+  log('Has Internet: $hasInternet');
 
-    if (hasInternet) {
-      try {
-        final response = await dio.getbycustom(
-          ApiConstants.fetchproduct,
-          queryParameters: {"company_id": companyId},
-        );
-
-        if (response.statusCode == 200 && response.data['data'] is List) {
-          for (var item in response.data['data']) {
-            if (item['product'] is List) {
-              allProducts.addAll((item['product'] as List)
-                  .map((productJson) => ProductModel.fromJson(productJson))
-                  .toList());
-            }
-          }
-          log('Fetched Products from API: ${allProducts.length}');
-          var productBox = await Hive.openBox('productBox');
-          await productBox.put(
-            'products',
-            allProducts.map((product) => product.toJson()).toList(),
-          );
-          log('Products saved to Hive.');
-        }
-      } catch (e) {
-        log('Error fetching products from API: $e');
-      }
-    } else {
-      log('No internet. Fetching from Hive...');
-    }
-
+  if (hasInternet) {
     try {
-      var productBox = await Hive.openBox('productBox');
-      var rawProductList = productBox.get('products');
-      log('Raw Hive Data: $rawProductList');
-      if (rawProductList is List) {
-        allProducts = rawProductList
-            .map((productJson) {
-              if (productJson is Map) {
-                return ProductModel.fromJson(
-                    Map<String, dynamic>.from(productJson));
-              }
-              return null;
-            })
-            .whereType<ProductModel>()
-            .toList();
+      final response = await dio.getbycustom(
+        ApiConstants.fetchproduct,
+        queryParameters: {"company_id": companyId},
+      );
+
+      if (response.statusCode == 200 && response.data['data'] is List) {
+        for (var item in response.data['data']) {
+          if (item['product'] is List) {
+            allProducts.addAll((item['product'] as List)
+                .map((productJson) => ProductModel.fromJson(productJson))
+                .toList());
+          }
+        }
+        log('Fetched Products from API: ${allProducts.length}');
+        var productBox = await Hive.openBox('productBox');
+        await productBox.put(
+          'products',
+          allProducts.map((product) => product.toJson()).toList(),
+        );
+        log('Products saved to Hive.');
       }
-      log('Fetched Products from Hive: ${allProducts.length}');
     } catch (e) {
-      log('Error fetching from Hive: $e');
+      log('Error fetching products from API: $e');
     }
-
-    List<ProductModel> filteredProducts = allProducts.where((product) {
-      return product.scid == subCatId;
-    }).toList();
-
-    log('Filtered Products: ${filteredProducts.length}');
-    return filteredProducts;
+  } else {
+    log('No internet. Fetching from Hive...');
   }
+
+  try {
+    var productBox = await Hive.openBox('productBox');
+    var rawProductList = productBox.get('products');
+    log('Raw Hive Data: $rawProductList');
+    if (rawProductList is List) {
+      allProducts = rawProductList
+          .map((productJson) {
+            if (productJson is Map) {
+              return ProductModel.fromJson(ApiService().castToStringDynamic(productJson));
+            }
+            return null;
+          })
+          .whereType<ProductModel>()
+          .toList();
+    }
+    log('Fetched Products from Hive: ${allProducts.length}');
+  } catch (e) {
+    log('Error fetching from Hive: $e');
+  }
+
+  List<ProductModel> filteredProducts = allProducts.where((product) {
+    return product.scid == subCatId;
+  }).toList();
+
+  log('Filtered Products: ${filteredProducts.length}');
+  return filteredProducts;
+}
+
 
   Future<bool> isInternetAvailable() async {
     try {

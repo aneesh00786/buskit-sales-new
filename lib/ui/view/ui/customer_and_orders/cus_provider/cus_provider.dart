@@ -439,18 +439,17 @@ class CustomersProvider with ChangeNotifier {
             }
             break;
         }
-
         _isLoading = true;
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: salesmanId,
           customerName: '',
-          startDate:// _selectedFilter.name == 'Range' ? _selectedStartDate : 
+          startDate:
           "",
-          endDate://_selectedFilter.name == 'Range' ? _selectedEndDate : 
+          endDate:
           "",
           limit: 10,
           page: page,
-          valueFromDw: _selectedFilter.name,
+          valueFromDw: [_selectedFilter.name,_selectedStartDate,_selectedEndDate],
         );
         log('Selecetd Filters : ${_selectedFilter.name}');
         _customersFuture!.then((value) {
@@ -500,7 +499,6 @@ Future<void> selectDate(BuildContext context, bool isStartDate) async {
     if (_selectedFilter == FilterDateEnum.range &&
         _selectedStartDate.isNotEmpty &&
         _selectedEndDate.isNotEmpty) {
-      // fetchData(); // Uncomment if you want to fetch data immediately
     }
 
     notifyListeners();

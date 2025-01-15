@@ -688,7 +688,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
   required String endDate,
   required int limit,
   required int page,
-  required String valueFromDw,
+  required List<String> valueFromDw,
 }) async {
   final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
   final requestBody = {

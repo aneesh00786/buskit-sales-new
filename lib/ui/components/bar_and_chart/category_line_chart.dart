@@ -487,7 +487,6 @@ class _CustomBarChartState extends State<CustomBarChart> {
                         BarChartData(
                           alignment: BarChartAlignment.spaceAround,
                           maxY: getRoundedUpperLimit(),
-                          // barGroups: barGroups,
                           titlesData: FlTitlesData(
                             leftTitles: AxisTitles(
                               sideTitles: SideTitles(

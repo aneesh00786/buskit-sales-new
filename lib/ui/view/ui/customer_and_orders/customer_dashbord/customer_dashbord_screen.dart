@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
@@ -18,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -1316,14 +1313,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           product,
                           (p) => p.count, 
                           (data) => formatAmount(data
-                              .price), // Assuming 'price' is a field in QuantityList
+                              .price), 
                           (data) => data.quantity
-                              .toString(), // Assuming 'quantity' is a field in QuantityList
+                              .toString(), 
                           (data) => data.totalPrice != null
                               ? formatAmount(data.totalPrice)
-                              : 'N/A', // Adapt as needed
+                              : 'N/A', 
                           (data) => DateFormat('dd-MM-yyyy')
-                              .format(data.createdAt!), // Adapt as needed
+                              .format(data.createdAt!), 
                         ),
                       );
                     } else {

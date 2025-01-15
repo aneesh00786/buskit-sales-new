@@ -4,33 +4,41 @@ import 'package:intl/intl.dart';
 
 extension StringExtension on String {
   String get nkStringCapitalizeFirstCaracter {
-    if (this.isEmpty) {
-    return this;
-  }
-  return this.length > 0
-      ? "${this[0].toUpperCase()}${substring(1)}" 
-      : this.toUpperCase();
+    return "${this[0].toUpperCase()}${substring(1)}";
   }
 
   String get nkValueWithCurrencySymbol {
-    return "\$ $this";
+    final currencySymbol = (SessionHelper.settingsData
+                ?.firstWhere(
+                  (setting) => setting.key == 'currency_symbol',
+                  orElse: () => AllCompanySettingsData(
+                    key: 'currency_symbol',
+                    value: '',
+                  ),
+                )
+                .value ??
+            '')
+        .trim();
+    return "$currencySymbol $this";
   }
+
   String get nkValueWithPercentageSymbol {
-    return "$this%";
+    return "$this %";
   }
 }
 
 String formatAmount(dynamic value) {
   final currencySymbol = (SessionHelper.settingsData
-            ?.firstWhere(
-              (setting) => setting.key == 'currency_symbol',
-              orElse: () => AllCompanySettingsData(
-                key: 'currency_symbol',
-                value: '',
-              ),
-            )
-            .value ?? '')
-        .trim(); // Trim extra spaces from the symbol
+              ?.firstWhere(
+                (setting) => setting.key == 'currency_symbol',
+                orElse: () => AllCompanySettingsData(
+                  key: 'currency_symbol',
+                  value: '',
+                ),
+              )
+              .value ??
+          '')
+      .trim();
   double amount;
 
   try {
@@ -46,7 +54,7 @@ String formatAmount(dynamic value) {
       throw ArgumentError('Unsupported value type: ${value.runtimeType}');
     }
     String formattedAmount = amount.toStringAsFixed(2);
-    return "$currencySymbol $formattedAmount"; 
+    return "$currencySymbol $formattedAmount";
   } catch (e) {
     print('Error in formatAmount: $e');
     rethrow;
@@ -72,6 +80,21 @@ String formatAmountOnly(dynamic value) {
   );
 
   return formatter.format(amount);
+}
+
+String addCurrencySymbol() {
+  final currencySymbol = (SessionHelper.settingsData
+              ?.firstWhere(
+                (setting) => setting.key == 'currency_symbol',
+                orElse: () => AllCompanySettingsData(
+                  key: 'currency_symbol',
+                  value: '',
+                ),
+              )
+              .value ??
+          '')
+      .trim();
+  return currencySymbol;
 }
 
 String getStatusName(int status) {
@@ -105,8 +128,4 @@ String getStatusName(int status) {
     default:
       return 'Unknown';
   }
-}
-
-String addCurrencySymbol() {
-  return '\$';
 }

@@ -22,6 +22,7 @@ import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -312,11 +313,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       width: double.infinity,
                       fit: BoxFit.cover,
                     )
-                  : Image.network(
-                      imageUrl ?? '',
+                  : CachedNetworkImage(
+                      imageUrl: imageUrl ?? '',
                       height: 180,
                       width: double.infinity,
                       fit: BoxFit.cover,
+                      placeholder: (context, url) => Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      errorWidget: (context, url, error) => Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                          size: 40,
+                        ),
+                      ),
                     ),
             ),
           ),

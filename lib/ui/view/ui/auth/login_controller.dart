@@ -6,10 +6,12 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -19,6 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+
+import '../../../../common/search_model.dart';
 
 class LoginController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
@@ -33,6 +37,8 @@ class LoginController extends GetxController {
   StaffController staffController = Get.put(StaffController());
   LeadsController leadsController = Get.put(LeadsController());
   CustomersController leadsCustomerController = Get.put(CustomersController());
+  OrderController orderController = Get.put(OrderController());
+  CalenderMapController calenderMapController = Get.put(CalenderMapController());
   RejectedLeadsController leadsRejectedController =
       Get.put(RejectedLeadsController());
   LoginResponce? loginResponce;
@@ -41,6 +47,8 @@ class LoginController extends GetxController {
   RxBool isPasswordVisible = true.obs;
   PaginationModel paginationModel = PaginationModel();
   final int currentYear = DateTime.now().year;
+  int selectedTabIndex = 0;
+  SearchModel searchData = SearchModel();
 
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
@@ -65,6 +73,10 @@ class LoginController extends GetxController {
   }
 
   Future<bool> performLogin(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+    DateTime? initialDay;
     try {
       final requestBody = {
         "email": emailController.text.removeAllWhitespace,
@@ -100,6 +112,7 @@ class LoginController extends GetxController {
             currentYear: currentYear.toString(),
             selectedTabIndex: _tabController!.index + 1,
             staffId: salesmanId);
+
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }
@@ -114,9 +127,25 @@ class LoginController extends GetxController {
         await leadsController.loadLeadsCustomerData();
         await leadsCustomerController.loadLeadsCustomerData();
         await leadsRejectedController.loadRejectedLeadsData();
+        await Future.delayed(const Duration(microseconds: 500));
+        // await orderController.loadOrderData(selectedIndex: 11)
+        ApiWorker()
+            .getRecentOrdersData(
+          searchModel: searchData,
+          orderStatus: 11,
+          isLogin: true,
+          startDate: firstDayOfMonth.toString(),
+          endDate: lastDayOfMonth.toString(),
+        )
+            .then((data) {
+          log("Recent orders fetched successfully. Data: ${data}");
+        }).catchError((e) {
+          log("Error while fetching recent orders: $e");
+        });
         // await ApiWorker()
         //     .getLeadsRejectedData(paginationModel: paginationModel);
         //C49SC7
+        await calenderMapController.fetchCalenderEvents(initialDay??DateTime.now());
         Get.offAllNamed(AppRoutes.home);
         return true;
       } else if (loginResponce?.statusCode == 422 ||

@@ -644,7 +644,7 @@ class OrderTotalxx {
 }
 
 class YearsListOfAll {
-  int? orderYears;
+  dynamic orderYears;
 
   YearsListOfAll({
     this.orderYears,

@@ -2357,7 +2357,7 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
                                                             DropdownMenuItem<
                                                                 String>>((String
                                                             value) {
-                                                  log('Year List : ${provider.yearsListOfAllList}');
+                                                  log('Year List : ${provider.yearsListOfAllList.map((e) => e.orderYears,)}');
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: value,
@@ -2367,8 +2367,11 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
                                                           horizontal: 4.0),
                                                       child: Text(
                                                         value,
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              value.length > 4
+                                                                  ? 8.0
+                                                                  : 12.0,
                                                           color: Colors.black,
                                                           fontWeight:
                                                               FontWeight.bold,

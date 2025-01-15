@@ -84,6 +84,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     var data = await ApiWorker().getRecentOrdersData(
       searchModel: searchData,
       orderStatus: selectedStatusCountIndex.value,
+      isLogin: false
     );
     orderDataList.assignAll(data.data!);
     return data.data!;

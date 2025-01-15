@@ -847,23 +847,55 @@ Future<List<ProductModel>> getTempProduct(String subCatId) async {
     }
   }
 
-  Future<LeadResponce> getLeadsRejectedData(
-      {PaginationModel? paginationModel}) async {
-    final response = await dio
-        .postbycustom(ApiConstants.fetch_leads_reject,
-            data: FormData.fromMap({
-              "page": paginationModel?.currentPage ?? "",
-              "limit": paginationModel?.limit ?? '',
-              "salesman_id": salesmanId,
-              "companyId": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
+Future<LeadResponce> getLeadsRejectedData({PaginationModel? paginationModel}) async {
+  final cacheKey = 'leads_rejected_${paginationModel?.currentPage ?? ''}';
+  final leadsBox = Hive.box('leadsRejectBox');
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasInternet = connectivityResult != ConnectivityResult.none;
+  bool hasInternetAvailable = hasInternet && await isInternetAvailable();
+  try {
+    if (hasInternetAvailable) {
+      final response = await dio.postbycustom(
+        ApiConstants.fetch_leads_reject,
+        data: FormData.fromMap({
+          "page": paginationModel?.currentPage ?? "",
+          "limit": paginationModel?.limit ?? '',
+          "salesman_id": salesmanId,
+          "companyId": companyId,
+        }),
+      ).onError((DioException error, stackTrace) {
+        log(error.toString());
+        return Future.error(throw DioExceptionHandler.fromDioError(error));
+      });
 
-    return LeadResponce.fromJson(response.data);
+      log('Response Body Fetch Leads Rejected: ${response.data}');
+      await leadsBox.put(cacheKey, response.data);
+      return LeadResponce.fromJson(response.data);
+
+    } else {
+      log('No internet available, fetching from Hive...');
+      final cachedData = leadsBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Using cached data for key: $cacheKey');
+        final castedData = ApiService().castToStringDynamic(cachedData);
+        return LeadResponce.fromJson(castedData);
+      } else {
+        throw Exception('No internet and no cached data available.');
+      }
+    }
+  } catch (e) {
+    log('Error fetching leads rejected data: $e');
+    final cachedData = leadsBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data after failure for key: $cacheKey');
+      final castedData = ApiService().castToStringDynamic(cachedData);
+      return LeadResponce.fromJson(castedData);
+    } else {
+      throw Exception('Failed to fetch data and no cached data available.');
+    }
   }
+}
+
 
   /// ******************** CALENDAR SECTION ******************/
   Future<List<EventData>> getCalendarEvents(

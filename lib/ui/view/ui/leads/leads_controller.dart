@@ -148,13 +148,16 @@ class LeadsController extends GetxController {
     return data;
   }
 
-  Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
-    var data =
-        await ApiWorker().getLeadsData(salesmanId,paginationModel:  PaginationModel());
-    leadsCustomerDataList.assignAll(data.leadCustomerData!);
-    return data.leadCustomerData!;
-  }
+Future<List<LeadCustomerData>> loadLeadsCustomerData() async {
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  var data = await ApiWorker().getLeadsData(
+    salesmanId,
+    paginationModel: PaginationModel(),
+  );
+  leadsCustomerDataList.assignAll(data.leadCustomerData!);
+  return data.leadCustomerData!;
+}
+
 
   /// Widget Section
   CustomerStatus typeToConvertStatus(int statusType) {

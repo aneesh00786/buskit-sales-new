@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -136,13 +138,18 @@ class CustomersController extends GetxController {
   //   return data;
   // }
 
-  Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
-    var data =
-        await _apiWorker.getLeadsData(salesmanId,paginationModel: PaginationModel());
+Future<List<LeadCustomerData>> loadLeadsCustomerData() async {
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  try {
+    var data = await _apiWorker.getLeadsData(salesmanId, paginationModel: PaginationModel());
     customersDataList.assignAll(data.leadCustomerData!);
     return data.leadCustomerData!;
+  } catch (e) {
+    log('Error fetching leads customer data: $e');
+    return [];
   }
+}
+
 
   /// Widget Section
   // CustomerStatus typeToConvertStatus(int statusType) {

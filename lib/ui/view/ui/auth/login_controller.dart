@@ -1,11 +1,15 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -27,10 +31,16 @@ class LoginController extends GetxController {
   PendingPaymentController pendingPaymentController =
       Get.put(PendingPaymentController());
   StaffController staffController = Get.put(StaffController());
+  LeadsController leadsController = Get.put(LeadsController());
+  CustomersController leadsCustomerController = Get.put(CustomersController());
+  RejectedLeadsController leadsRejectedController =
+      Get.put(RejectedLeadsController());
   LoginResponce? loginResponce;
   RoundedLoadingButtonController loginButtonController =
       RoundedLoadingButtonController();
   RxBool isPasswordVisible = true.obs;
+  PaginationModel paginationModel = PaginationModel();
+  final int currentYear = DateTime.now().year;
 
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
@@ -55,7 +65,6 @@ class LoginController extends GetxController {
   }
 
   Future<bool> performLogin(BuildContext context) async {
-    final int currentYear = DateTime.now().year;
     try {
       final requestBody = {
         "email": emailController.text.removeAllWhitespace,
@@ -76,19 +85,17 @@ class LoginController extends GetxController {
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         log("Fetching settings after login...");
-        await Future.delayed(Duration(seconds: 2));
-
-        // if (subCategoryItem == null || (subCategoryItem.id ?? '').isEmpty) {
-        //   log("No valid subcategory found. Skipping product fetching.");
-        // } else {
-        //   await productsController.fetchProducts(subCategoryItem.id!);
-        // }
+        await Future.delayed(const Duration(seconds: 2));
         final settings = await _apiWorker.fetchAllSettings(companyId);
+        await Future.delayed(const Duration(microseconds: 500));
         await Provider.of<CustomersProvider>(context, listen: false)
             .fetchCustomerData();
+        await Future.delayed(const Duration(microseconds: 500));
         await productsController.fetchCategoryData();
+        await Future.delayed(const Duration(microseconds: 500));
         await pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId);
+        await Future.delayed(const Duration(microseconds: 500));
         await staffController.loadSalesmanTargetForSelectedTab(
             currentYear: currentYear.toString(),
             selectedTabIndex: _tabController!.index + 1,
@@ -103,6 +110,12 @@ class LoginController extends GetxController {
         } else {
           log("No subcategory found. Products not fetched.");
         }
+        await Future.delayed(const Duration(microseconds: 500));
+        await leadsController.loadLeadsCustomerData();
+        await leadsCustomerController.loadLeadsCustomerData();
+        await leadsRejectedController.loadRejectedLeadsData();
+        // await ApiWorker()
+        //     .getLeadsRejectedData(paginationModel: paginationModel);
         //C49SC7
         Get.offAllNamed(AppRoutes.home);
         return true;

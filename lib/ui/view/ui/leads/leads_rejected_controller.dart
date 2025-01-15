@@ -128,7 +128,7 @@ Future updateRejectedLead(LeadCustomerData leadData) async {
     });
     btnController.success();
     Get.back();
-    loadRejectedLeadsData;
+    loadRejectedLeadsData();
   }
 
   // Future<Map<String, dynamic>> addStaffMapData(
@@ -160,12 +160,22 @@ Future updateRejectedLead(LeadCustomerData leadData) async {
   //   return data;
   // }
 
-  Future<List<LeadCustomerData>> get loadRejectedLeadsData async {
-    var data = await ApiWorker().getLeadsRejectedData(
-        paginationModel: PaginationModel());
+Future<List<LeadCustomerData>> loadRejectedLeadsData() async {
+  try {
+    // Fetch rejected leads data using the API
+    var data = await ApiWorker().getLeadsRejectedData(paginationModel: PaginationModel());
+    
+    // Assign the fetched data to the list
     rejectedLeadsDataList.assignAll(data.leadCustomerData!);
+    
     return data.leadCustomerData!;
+  } catch (e) {
+    log('Error fetching rejected leads data: $e');
+    // Handle error, return an empty list or handle as needed
+    return [];
   }
+}
+
 
   /// Widget Section
   CustomerStatus typeToConvertStatus(int statusType) {

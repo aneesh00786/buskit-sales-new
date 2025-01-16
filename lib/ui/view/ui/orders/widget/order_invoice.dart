@@ -224,15 +224,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ),
                           ),
                         ),
-                        const DataColumn(
-                          label: Expanded(
-                            flex: 2,
-                            child: Text(
-                              'QTY',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
+                        // const DataColumn(
+                        //   label: Expanded(
+                        //     flex: 2,
+                        //     child: Text(
+                        //       'QTY',
+                        //       textAlign: TextAlign.center,
+                        //     ),
+                        //   ),
+                        // ),
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
@@ -371,55 +371,72 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                   _updateTotalPrice(index);
                                                 },
                                               )
-                                            : Text(widget.invoiceData
-                                                    ?.cart?[index].quantity
-                                                    ?.toString() ??
-                                                '0'),
+                                            : Text(
+                                              (widget.invoiceData!.cart![index]
+                                                          .packType ==
+                                                      'Pack')
+                                                  ? '${(widget.invoiceData?.cart?[index].pieces ?? 0) * (widget.invoiceData?.cart?[index].quantity?.toInt() ?? 0)}'
+                                                      ' (${widget.invoiceData?.cart?[index].quantity ?? 0} ${widget.invoiceData?.cart?[index].packType})'
+                                                  : '${widget.invoiceData?.cart?[index].quantity ?? 0}',
+                                            ),
                                       ),
                                     ),
                                     // Created At
+                                    // DataCell(
+                                    //   Center(
+                                    //     child: Text(
+                                    //       isSpecificData
+                                    //           ? (NKDateUtils.commonDayFormat2(
+                                    //               NKDateUtils
+                                    //                   .formatStringUTCDateTime(
+                                    //                       widget
+                                    //                           .specificData!
+                                    //                           .cart![index]
+                                    //                           .createdAt
+                                    //                           .toString())))
+                                    //           : (NKDateUtils.commonDayFormat2(
+                                    //               NKDateUtils
+                                    //                   .formatStringUTCDateTime(
+                                    //                       widget
+                                    //                           .invoiceData!
+                                    //                           .cart![index]
+                                    //                           .createdAt
+                                    //                           .toString()))),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    // DataCell(
+                                    //   Align(
+                                    //     alignment: Alignment.centerRight,
+                                    //     child: Text(
+                                    //       isSpecificData
+                                    //           ? formatAmount(
+                                    //               _totalPrices[index])
+                                    //           : formatAmount((widget
+                                    //                   .invoiceData!
+                                    //                   .cart![index]
+                                    //                   .price) ??
+                                    //               0 *
+                                    //                   (widget
+                                    //                       .invoiceData!
+                                    //                       .cart![index]
+                                    //                       .quantity)!),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     DataCell(
-                                      Center(
-                                        child: Text(
-                                          isSpecificData
-                                              ? (NKDateUtils.commonDayFormat2(
-                                                  NKDateUtils
-                                                      .formatStringUTCDateTime(
-                                                          widget
-                                                              .specificData!
-                                                              .cart![index]
-                                                              .createdAt
-                                                              .toString())))
-                                              : (NKDateUtils.commonDayFormat2(
-                                                  NKDateUtils
-                                                      .formatStringUTCDateTime(
-                                                          widget
-                                                              .invoiceData!
-                                                              .cart![index]
-                                                              .createdAt
-                                                              .toString()))),
-                                        ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        isSpecificData
+                                            ? formatAmount(_totalPrices[index])
+                                            : formatAmount((widget.invoiceData!
+                                                    .cart![index].total)
+                                                
+                                                ),
                                       ),
                                     ),
-                                    DataCell(
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Text(
-                                          isSpecificData
-                                              ? formatAmount(
-                                                  _totalPrices[index])
-                                              : formatAmount((widget
-                                                      .invoiceData!
-                                                      .cart![index]
-                                                      .price) ??
-                                                  0 *
-                                                      (widget
-                                                          .invoiceData!
-                                                          .cart![index]
-                                                          .quantity)!),
-                                        ),
-                                      ),
-                                    ),
+                                  ),
                                   ],
                                 );
                               },

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
@@ -283,6 +285,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
             provider.fetchchartCategoryPerformmenc(cid);
+            log('CID :$cid');
             return FutureBuilder<ResponseModelCp>(
               future: provider.responseModelCp,
               builder: (context, snapshot) {
@@ -296,7 +299,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     content: Center(
-                      child: Text('Error: ${snapshot.error}'),
+                      child: NodataWidget(),
                     ),
                   );
                 } else if (snapshot.hasData) {

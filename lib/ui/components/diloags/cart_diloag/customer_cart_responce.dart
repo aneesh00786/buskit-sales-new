@@ -117,6 +117,7 @@ class CustomerCart {
   dynamic taxName;
 
   String? packtype;
+  String? packType;
   int? pieces;
   int? stock;
   int? lowstock;
@@ -150,6 +151,7 @@ class CustomerCart {
       this.tax,
       this.taxName,
       this.packtype,
+      this.packType,
       this.pieces,
       this.stock,
       this.lowstock,
@@ -189,7 +191,8 @@ class CustomerCart {
     // ;
     tax = json['tax'];
     taxName = json['tax_name'];
-    packtype = json['packtype'];
+    packtype = json['packtype']; 
+    packType = json['packType']; 
     pieces = json['pieces'];
     stock = json['stock'];
     lowstock = json['lowstock'];
@@ -227,6 +230,7 @@ class CustomerCart {
     json['tax'] = tax;
     json['tax_name'] = taxName;
     json['packtype'] = packtype;
+    json['packType'] = packType;
     json['pieces'] = pieces;
     json['stock'] = stock;
     json['lowstock'] = lowstock;

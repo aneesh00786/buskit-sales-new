@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -31,15 +33,17 @@ class OrderBottomWidget extends StatefulWidget {
 }
 
 class _OrderBottomWidgetState extends State<OrderBottomWidget> {
+  Timer? _debounce;
   @override
   void didUpdateWidget(covariant OrderBottomWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
-      print(
-          "Tab changed: Reloading data for tab index ${widget.selectedTabIndex}");
-      widget.orderController
-          .loadOrderData(selectedIndex: widget.selectedTabIndex);
-      widget.orderController.loadOrderCountData();
+      _debounce?.cancel();
+      _debounce = Timer(Duration(milliseconds: 300), () {
+        widget.orderController
+            .loadOrderData(selectedIndex: widget.selectedTabIndex);
+        widget.orderController.loadOrderCountData();
+      });
     }
   }
 

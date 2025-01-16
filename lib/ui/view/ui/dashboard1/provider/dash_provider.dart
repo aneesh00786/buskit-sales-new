@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 //import 'package:charts_flutter/flutter.dart';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
@@ -642,10 +643,17 @@ class ApiService {
     }
   }
 
-  Future<AdminResponse> fetchAdminDetails({required String token}) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.adminOnPopUp}');
-    final requestBody = {"token": token};
+Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
+  final url = Uri.parse('$_baseUrl${ApiConstants.adminOnPopUp}');
+  final requestBody = {"token": token};
+  final hiveKey = 'salesmanDetails';
+  final adminBox = await Hive.openBox('adminBox');
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasNetwork = connectivityResult != ConnectivityResult.none;
+  bool hasInternet = hasNetwork && await ApiWorker().isInternetAvailable();
+  print('Has Internet: $hasInternet');
 
+  if (hasInternet) {
     try {
       print('API URL: $url');
       print('Request Body: $requestBody');
@@ -656,15 +664,19 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print('fetchAdminDetails : ${response.statusCode}');
-      print('fetchAdminDetails Body: ${response.body}');
+      print('fetchSalesmanDetails : ${response.statusCode}');
+      print('fetchSalesmanDetails Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
         List<AdminData> adminDetails = (jsonResponse['data'] as List)
             .map((json) => AdminData.fromJson(json))
             .toList();
-
+        await adminBox.put(
+          hiveKey,
+          adminDetails.map((admin) => admin.toJson()).toList(),
+        );
+        print('Salesman details saved to Hive.');
         return AdminResponse(
           statusCode: jsonResponse['status_code'],
           status: jsonResponse['status'],
@@ -677,9 +689,36 @@ class ApiService {
       }
     } catch (e) {
       print('Exception occurred: $e');
-      throw Exception('Failed to fetch admin details: $e');
     }
   }
+
+  // Fallback to fetching from Hive
+  print('No internet. Fetching from Hive...');
+  try {
+    final cachedData = adminBox.get(hiveKey);
+    print('Cached Data: $cachedData');
+    if (cachedData is List) {
+      List<AdminData> adminDetails = cachedData
+          .map((data) => AdminData.fromJson(
+                ApiService().castToStringDynamic(data),
+              ))
+          .toList();
+      print('Fetched Salesman details from Hive.');
+
+      return AdminResponse(
+        statusCode: 200,
+        status: true,
+        message: 'Fetched from cache',
+        data: adminDetails,
+      );
+    }
+  } catch (e) {
+    print('Error fetching from Hive: $e');
+  }
+
+  throw Exception('Failed to fetch admin details from API and Hive.');
+}
+
 
 Future<CustomerResponseModelxx> fetchCustomer({
   required String salesmanId,
@@ -1288,7 +1327,7 @@ class DashboardProvider with ChangeNotifier {
         _logger = logger {
     fetchData();
     fetchChatData('');
-    fetchAdminData();
+    fetchSalesmanData();
   }
 
   OrderStatus selectedOrderStatus = OrderStatus.preOrder;
@@ -1845,9 +1884,9 @@ class DashboardProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<AdminResponse> fetchAdminData() async {
+  Future<AdminResponse> fetchSalesmanData() async {
     try {
-      final chatData = await _apiService.fetchAdminDetails(token: 'AAAAAAAAA');
+      final chatData = await _apiService.fetchSalesmanDetails(token: 'AAAAAAAAA');
       _adminResponsee = Future.value(chatData);
       notifyListeners();
       return chatData;

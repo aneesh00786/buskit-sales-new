@@ -901,40 +901,28 @@ class ApiWorker with ApiConstants {
 
   /// ******************** CALENDAR SECTION ******************/
 Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
-  // Add the company ID to the request data.
   sendData['companyId'] = SessionHelper.loginSavedData?.company_id;
   final cacheKey = 'calendar_events_${sendData['companyId']}_${sendData['startDate']}_${sendData['endDate']}';
-
   log('Request Data to Calendar: $sendData');
   final eventsBox = await Hive.openBox('calendarEventsBox');
   List<EventData> allEvents = [];
-
-  // Check internet connectivity
   final connectivityResult = await Connectivity().checkConnectivity();
   bool hasNetwork = connectivityResult != ConnectivityResult.none;
   bool hasInternet = hasNetwork && await isInternetAvailable();
   log('Has Internet: $hasInternet');
-
   if (hasInternet) {
     try {
-      // Fetch data from the API
       final response = await dio.postbycustom(
         ApiConstants.get_event,
         data: FormData.fromMap(sendData),
       );
       log('Response received from API: ${response.data}');
-      
-      // Cast response data using the helper method
       final castedResponse = ApiService().castToStringDynamic(response.data);
 
       if (castedResponse['data'] is List) {
         List<dynamic> eventsJson = castedResponse['data'];
-
-        // Save the fetched data to Hive for future use
         await eventsBox.put(cacheKey, eventsJson);
         log('Data successfully cached with key: $cacheKey');
-
-        // Parse and return the events
         allEvents = eventsJson
             .map((event) => EventData.fromJson(event as Map<String, dynamic>))
             .toList();
@@ -948,8 +936,6 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   } else {
     log('No internet connection. Fetching data from Hive...');
   }
-
-  // Fetch data from Hive if no internet connection
   try {
     var cachedData = eventsBox.get(cacheKey);
     log('Raw Hive Data: $cachedData');
@@ -969,12 +955,10 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   } catch (e) {
     log('Error fetching from Hive: $e');
   }
-
   if (allEvents.isEmpty) {
     log('No events found in cache.');
     throw Exception('No events available, and no internet connection to fetch them.');
   }
-
   return allEvents;
 }
 
@@ -1206,52 +1190,6 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
     });
     return OrderCountResponse.fromJson(response.data);
   }
-
-  // Future<OrderResponce> getRecentOrdersData({
-  //   SearchModel? searchModel,
-  //   int? order_status,
-  // }) async {
-  //   final requestBody = {
-  //     "order_status": order_status,
-  //     "start_date": searchModel?.startDate,
-  //     "end_date": searchModel?.endDate,
-  //     "companyId": companyId,
-  //     "page": 1,
-  //     "limit": 1000,
-  //     "salesman_id": salesmanId,
-  //   };
-  //   log("Request Body: $requestBody");
-  //   log("StartDate : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''} :${order_status}:${companyId}");
-  //   var hiveBox = await Hive.openBox('recentOrders');
-  //   final isConnected = await ConnectivityService().isOnline();
-  //   if (isConnected) {
-  //     try {
-  //       final response = await dio.postbycustom(
-  //         ApiConstants.get_recent_order,
-  //         data: FormData.fromMap(requestBody),
-  //       );
-  //       log("Response Data: ${response.data}");
-  //       OrderResponce orderResponce = OrderResponce.fromJson(response.data);
-  //       await hiveBox.put('recentOrders', response.data);
-  //       log("Data saved to Hive.");
-
-  //       return orderResponce;
-  //     } on DioException catch (error, stackTrace) {
-  //       log("DioException: ${error.toString()}");
-  //       return Future.error(DioExceptionHandler.fromDioError(error));
-  //     }
-  //   } else {
-  //     if (hiveBox.containsKey('recentOrders')) {
-  //       log("Fetching data from Hive as there is no internet.");
-  //       final cachedData = hiveBox.get('recentOrders');
-  //       return OrderResponce.fromJson(cachedData);
-  //     } else {
-  //       log("No internet and no cached data available.");
-  //       throw Exception("No internet connection and no cached data available.");
-  //     }
-  //   }
-  // }
-
 Future<OrderResponce> getRecentOrdersData({
   SearchModel? searchModel,
   int? orderStatus,
@@ -1259,7 +1197,6 @@ Future<OrderResponce> getRecentOrdersData({
   String? endDate,
   required bool isLogin,
 }) async {
-  // Determine the start and end dates based on the login state or search model.
   final start = isLogin
       ? startDate
       : searchModel?.startDate?.isNotEmpty == true

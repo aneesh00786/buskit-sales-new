@@ -80,7 +80,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         },
         itemCount: sideBarList.length);
   }
-  
+
   Widget listComponent(SidebarXItem sideBarData, int index) {
     final NotificationController notificationController =
         Get.put(NotificationController());
@@ -157,22 +157,22 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               Positioned(
                 top: -12,
                 left: 12,
-                child: notificationController.isLeadsCountLoading.value
+                child: notificationController.isLeadsCountLoading.value ||
+                        notificationController.leadsCount.value <= 0
                     ? const SizedBox.shrink()
                     : CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Colors.red,
-                            child: Text(
-                              notificationController
-                                      .leadsCount.value
-                                      .toString(),
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                            ),
+                        radius: 10,
+                        backgroundColor: Colors.red,
+                        child: Text(
+                          notificationController.leadsCount.value.toString(),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
                           ),
-              ),
+                        ),
+                      ),
+              )
           ],
         ),
       ),

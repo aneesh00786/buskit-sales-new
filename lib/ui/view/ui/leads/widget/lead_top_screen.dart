@@ -90,8 +90,8 @@ class LeadTopScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: SpinKitFadingCube(
-                color: primaryColor, // Customize color if needed
-                size: 20.0, // Adjust size as needed
+                color: primaryColor, 
+                size: 20.0,
               ),
             );
           } else if (snapshot.hasError) {
@@ -103,7 +103,6 @@ class LeadTopScreen extends StatelessWidget {
               child: Container(
                 height: 44,
                 width: double.infinity,
-                //  color: const Color(0xffffffff),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -132,7 +131,7 @@ class LeadTopScreen extends StatelessWidget {
                                 ),
                               )
                             : Icon(Icons
-                                .person), // Placeholder if imagePath is null
+                                .person),
                       ),
                       const SizedBox(
                         width: 4.5,

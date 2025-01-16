@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/category_mo
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
@@ -19,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
@@ -42,6 +44,8 @@ class LoginController extends GetxController {
   RejectedLeadsController leadsRejectedController =
       Get.put(RejectedLeadsController());
   LoginResponce? loginResponce;
+    CustomerAndOrderController customerAndOrderController =
+      Get.put(CustomerAndOrderController());
   RoundedLoadingButtonController loginButtonController =
       RoundedLoadingButtonController();
   RxBool isPasswordVisible = true.obs;
@@ -73,9 +77,11 @@ class LoginController extends GetxController {
   }
 
   Future<bool> performLogin(BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
-    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+  DateTime now = DateTime.now();
+  DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+  DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+  String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+  String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
     DateTime? initialDay;
     try {
       final requestBody = {
@@ -102,6 +108,7 @@ class LoginController extends GetxController {
         await Future.delayed(const Duration(microseconds: 500));
         await Provider.of<CustomersProvider>(context, listen: false)
             .fetchCustomerData();
+        await customerAndOrderController.loadCustomer();
         await Future.delayed(const Duration(microseconds: 500));
         await productsController.fetchCategoryData();
         await Future.delayed(const Duration(microseconds: 500));
@@ -134,8 +141,8 @@ class LoginController extends GetxController {
           searchModel: searchData,
           orderStatus: 11,
           isLogin: true,
-          startDate: firstDayOfMonth.toString(),
-          endDate: lastDayOfMonth.toString(),
+          startDate: firstDayString,
+          endDate: lastDayString,
         )
             .then((data) {
           log("Recent orders fetched successfully. Data: ${data}");
@@ -145,6 +152,7 @@ class LoginController extends GetxController {
         // await ApiWorker()
         //     .getLeadsRejectedData(paginationModel: paginationModel);
         //C49SC7
+        //await orderController.loadOrderData(selectedIndex: selectedTabIndex);
         await calenderMapController.fetchCalenderEvents(initialDay??DateTime.now());
         Get.offAllNamed(AppRoutes.home);
         return true;

@@ -91,7 +91,7 @@ class _OrderTakingState extends State<OrderTaking>
       ),
     );
 
-        cartItemCount = CartDatabaseManager().cartItems.length +
+    cartItemCount = CartDatabaseManager().cartItems.length +
         CartDatabaseManager().cartPreorderItems.length;
 
     CartDatabaseManager().addListener(_updateCartCount);
@@ -522,16 +522,34 @@ class _OrderTakingState extends State<OrderTaking>
                             icon: EneftyIcons.profile_outline,
                           ),
                           Expanded(
-                          child: isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : customerSearchController.text.isNotEmpty
-                                  ? filteredCustomers.isEmpty
-                                      ? Container(
-                                          color: white,
-                                          child: const Center(
-                                              child:
-                                                  Text('No customers found.')),
-                                        )
+                            child: isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : customerSearchController.text.isNotEmpty
+                                    ? filteredCustomers.isEmpty
+                                        ? Align(
+                                            alignment: Alignment.topCenter,
+                                            child: Material(
+                                              child: Container(
+                                                width: 300,
+                                                decoration: BoxDecoration(
+                                                  color: Colors
+                                                      .white,
+                                                  
+                                                ),
+                                                padding: const EdgeInsets
+                                                    .symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 20),
+                                                child: const Text(
+                                                  'No customers found.',
+                                                  style:
+                                                      TextStyle(fontSize: 16),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ),
+                                          )
                                         : ListView.builder(
                                             shrinkWrap: true,
                                             itemCount: filteredCustomers.length,

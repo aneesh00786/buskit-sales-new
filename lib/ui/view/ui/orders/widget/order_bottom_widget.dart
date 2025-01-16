@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -247,9 +248,23 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           width: 40,
           height: 40,
           child: ClipOval(
-            child: Image.network(
-              orderData.customerDetails!.imageUrl.toString(),
-            ),
+            child: orderData.customerDetails?.imageUrl?.isNotEmpty == true
+                ? CachedNetworkImage(
+                    imageUrl: orderData.customerDetails!.imageUrl.toString(),
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => const Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Colors.grey,
+                    ),
+                    fit: BoxFit.cover,
+                  )
+                : const Icon(
+                    Icons.person,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
           ),
         ),
         SizedBox(width: 8),

@@ -463,33 +463,77 @@ class ApiWorker with ApiConstants {
     return null;
   }
 
-  Future<RecentOrderCountResponse> fetchRecentOrderCount({
-    String? startDate,
-    String? endDate,
-  }) async {
-    final Map<String, dynamic> requestData = {
-      'companyId': companyId,
-      "salesman_id": salesmanId,
-    };
-    log('Request Data : $requestData');
-    if (startDate != null) {
-      requestData['start_date'] = startDate;
-    }
-    if (endDate != null) {
-      requestData['end_date'] = endDate;
-    }
+Future<RecentOrderCountResponse> fetchRecentOrderCount({
+  String? startDate,
+  String? endDate,
+}) async {
+  final Map<String, dynamic> requestData = {
+    'companyId': companyId,
+    "salesman_id": salesmanId,
+  };
+  log('Request Data : $requestData');
 
-    final response = await dio
-        .postbycustom(
-      ApiConstants.recent_order_count,
-      data: requestData,
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return RecentOrderCountResponse.fromJson(response.data);
+  if (startDate != null) {
+    requestData['start_date'] = startDate;
   }
+  if (endDate != null) {
+    requestData['end_date'] = endDate;
+  }
+
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasNetwork = connectivityResult != ConnectivityResult.none;
+  bool hasInternet = hasNetwork && await isInternetAvailable();
+  log('Has Internet: $hasInternet');
+
+  final cacheKey = 'recent_order_count_${startDate ?? ''}_${endDate ?? ''}';
+
+  if (hasInternet) {
+    try {
+      // Fetching data from the API
+      final response = await dio.postbycustom(
+        ApiConstants.recent_order_count,
+        data: requestData,
+      );
+
+      log('Fetched Data from API: ${response.data}');
+      // Save data to Hive for offline usage
+      var orderCountBox = await Hive.openBox('orderCountBox');
+      await orderCountBox.put(cacheKey, response.data);
+      log('Recent order count data saved to Hive with key: $cacheKey');
+
+      return RecentOrderCountResponse.fromJson(response.data);
+    } on DioException catch (error) {
+      log('API Error: ${error.response?.data}');
+      // Check for cached data in case of an API failure
+      return await _getCachedRecentOrderCount(cacheKey);
+    }
+  } else {
+    // No internet connection: fetch data from Hive
+    log('No internet. Fetching from Hive...');
+    return await _getCachedRecentOrderCount(cacheKey);
+  }
+}
+
+// Helper function to fetch cached data
+Future<RecentOrderCountResponse> _getCachedRecentOrderCount(String cacheKey) async {
+  try {
+    var orderCountBox = await Hive.openBox('orderCountBox');
+    if (orderCountBox.containsKey(cacheKey)) {
+      log('Fetching cached data for key: $cacheKey');
+      final cachedData = orderCountBox.get(cacheKey);
+      log('Cached Data: $cachedData');
+      final parsedData = ApiService().castToStringDynamic(cachedData);
+      return RecentOrderCountResponse.fromJson(parsedData);
+    } else {
+      log('No cached data available for key: $cacheKey');
+      throw Exception('No cached data available');
+    }
+  } catch (e) {
+    log('Error fetching from Hive: $e');
+    throw Exception('Failed to fetch data from Hive');
+  }
+}
+
 
   Future<CustomerDashboardResponse> getCustomerDashboard(
     String customerId,

@@ -40,11 +40,12 @@ class LoginController extends GetxController {
   LeadsController leadsController = Get.put(LeadsController());
   CustomersController leadsCustomerController = Get.put(CustomersController());
   OrderController orderController = Get.put(OrderController());
-  CalenderMapController calenderMapController = Get.put(CalenderMapController());
+  CalenderMapController calenderMapController =
+      Get.put(CalenderMapController());
   RejectedLeadsController leadsRejectedController =
       Get.put(RejectedLeadsController());
   LoginResponce? loginResponce;
-    CustomerAndOrderController customerAndOrderController =
+  CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   RoundedLoadingButtonController loginButtonController =
       RoundedLoadingButtonController();
@@ -77,11 +78,11 @@ class LoginController extends GetxController {
   }
 
   Future<bool> performLogin(BuildContext context) async {
-  DateTime now = DateTime.now();
-  DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
-  DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-  String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
-  String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+    DateTime now = DateTime.now();
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+    String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+    String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
     DateTime? initialDay;
     try {
       final requestBody = {
@@ -111,6 +112,9 @@ class LoginController extends GetxController {
         await customerAndOrderController.loadCustomer();
         await Future.delayed(const Duration(microseconds: 500));
         await productsController.fetchCategoryData();
+        await Future.delayed(const Duration(microseconds: 500));
+        await ApiWorker().fetchRecentOrderCount(
+            startDate: firstDayString, endDate: lastDayString);
         await Future.delayed(const Duration(microseconds: 500));
         await pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId);
@@ -153,7 +157,8 @@ class LoginController extends GetxController {
         //     .getLeadsRejectedData(paginationModel: paginationModel);
         //C49SC7
         //await orderController.loadOrderData(selectedIndex: selectedTabIndex);
-        await calenderMapController.fetchCalenderEvents(initialDay??DateTime.now());
+        await calenderMapController
+            .fetchCalenderEvents(initialDay ?? DateTime.now());
         Get.offAllNamed(AppRoutes.home);
         return true;
       } else if (loginResponce?.statusCode == 422 ||

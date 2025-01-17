@@ -21,9 +21,16 @@ void showValueOrderDialog(
               double maxDialogHeight = constraints.maxHeight * 0.7;
               double rowHeight = 40.0;
               double headerHeight = 30.0;
+              // final filteredOrders = deliveryData.order!.totalOrders!
+              //     .where((orderDetails) => orderDetails.orderStatus == status)
+              //     .toList();
+
               final filteredOrders = deliveryData.order!.totalOrders!
-                  .where((orderDetails) => orderDetails.orderStatus == status)
-                  .toList();
+                .where((orderDetails) => status == 5
+                    ? (orderDetails.orderStatus == 5 ||
+                        orderDetails.orderStatus == 14)
+                    : orderDetails.orderStatus == status)
+                .toList();
 
               double listHeight = filteredOrders.length * rowHeight;
               double contentHeight =

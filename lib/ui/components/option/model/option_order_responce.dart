@@ -42,9 +42,11 @@ class OptionOrderData {
   int? orderStatus;
   String? cartId;
   String? orderCreatAt;
+  String? deliveryDatetime;
   int? orderTotal;
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
+  List<OrderInvoice>? invoice;
 
   OptionOrderData({
     this.id,
@@ -55,6 +57,7 @@ class OptionOrderData {
     this.orderStatus,
     this.cartId,
     this.orderCreatAt,
+    this.deliveryDatetime,
     this.orderTotal,
     this.cart,
     this.customer,
@@ -69,10 +72,14 @@ class OptionOrderData {
     orderStatus = json['order_status'] as int?;
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
+    deliveryDatetime = json['delivery_datetime'] as String?;
     orderTotal = json['order_total'] as int?;
     customer = (json['customer'] as List?)
         ?.map(
             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
+        .toList();
+    invoice = (json['invoice'] as List?)
+        ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
         .toList();
     cart = (json['cart'] as List?)
         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
@@ -85,6 +92,7 @@ class OptionOrderData {
               orderStatus: json['order_status'] as int?,
               cartId: json['cart_id'] as String?,
               orderCreatAt: json['order_creat_at'] as String?,
+              deliveryDatetime: json['delivery_datetime'] as String?,
               orderTotal: json['order_total'] as int?,
             ),
             setCustomerDetails: json['customer'] != null
@@ -105,12 +113,92 @@ class OptionOrderData {
     json['order_status'] = orderStatus;
     json['cart_id'] = cartId;
     json['order_creat_at'] = orderCreatAt;
+    json['delivery_datetime'] = deliveryDatetime;
     json['order_total'] = orderTotal;
     json['cart'] = cart?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();
+    json['invoice'] = invoice?.map((e) => e.toJson()).toList();
     return json;
   }
 }
+// class OptionOrderData {
+//   int? id;
+//   String? orderId;
+//   String? customerId;
+//   String? salesmanId;
+//   int? paymentStatus;
+//   int? orderStatus;
+//   String? cartId;
+//   String? orderCreatAt;
+//   int? orderTotal;
+//   List<CustomerCart>? cart;
+//   List<CustomerDetails>? customer;
+
+//   OptionOrderData({
+//     this.id,
+//     this.orderId,
+//     this.customerId,
+//     this.salesmanId,
+//     this.paymentStatus,
+//     this.orderStatus,
+//     this.cartId,
+//     this.orderCreatAt,
+//     this.orderTotal,
+//     this.cart,
+//     this.customer,
+//   });
+
+//   OptionOrderData.fromJson(Map<String, dynamic> json) {
+//     id = json['id'] as int?;
+//     orderId = json['order_id'] as String?;
+//     customerId = json['customer_id'] as String?;
+//     salesmanId = json['salesman_id'] as String?;
+//     paymentStatus = json['payment_status'] as int?;
+//     orderStatus = json['order_status'] as int?;
+//     cartId = json['cart_id'] as String?;
+//     orderCreatAt = json['order_creat_at'] as String?;
+//     orderTotal = json['order_total'] as int?;
+//     customer = (json['customer'] as List?)
+//         ?.map(
+//             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
+//         .toList();
+//     cart = (json['cart'] as List?)
+//         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
+//             setOptionOrderData: OptionOrderData(
+//               id: json['id'] as int?,
+//               orderId: json['order_id'] as String?,
+//               customerId: json['customer_id'] as String?,
+//               salesmanId: json['salesman_id'] as String?,
+//               paymentStatus: json['payment_status'] as int?,
+//               orderStatus: json['order_status'] as int?,
+//               cartId: json['cart_id'] as String?,
+//               orderCreatAt: json['order_creat_at'] as String?,
+//               orderTotal: json['order_total'] as int?,
+//             ),
+//             setCustomerDetails: json['customer'] != null
+//                 ? CustomerDetails.fromJson((json['customer'] as List)
+//                     .firstWhere((element) =>
+//                         element["customer_id"] == json['customer_id']))
+//                 : null))
+//         .toList();
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> json = <String, dynamic>{};
+//     json['id'] = id;
+//     json['order_id'] = orderId;
+//     json['customer_id'] = customerId;
+//     json['salesman_id'] = salesmanId;
+//     json['payment_status'] = paymentStatus;
+//     json['order_status'] = orderStatus;
+//     json['cart_id'] = cartId;
+//     json['order_creat_at'] = orderCreatAt;
+//     json['order_total'] = orderTotal;
+//     json['cart'] = cart?.map((e) => e.toJson()).toList();
+//     json['customer'] = customer?.map((e) => e.toJson()).toList();
+//     return json;
+//   }
+// }
 class OrderInvoice {
   final int? id;
   final String? invoiceId;

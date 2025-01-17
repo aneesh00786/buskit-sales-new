@@ -3137,6 +3137,7 @@ class SpecificOrderData {
   dynamic orderCreatedStored;
   List<SpecificOrderCart>? cart;
   List<Invoice>? invoice;
+  List<SpecificTax>? tax;
 
   SpecificOrderData({
     this.id,
@@ -3192,6 +3193,7 @@ class SpecificOrderData {
     this.orderCreatedStored,
     this.cart,
     this.invoice,
+    this.tax,
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
@@ -3265,6 +3267,9 @@ class SpecificOrderData {
         invoice: (json["invoice"] as List<dynamic>?)
             ?.map((e) => Invoice.fromJson(e))
             .toList(),
+        tax: (json["tax"] as List<dynamic>?)
+            ?.map((e) => SpecificTax.fromJson(e))
+            .toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -3321,6 +3326,7 @@ class SpecificOrderData {
         "order_created_stored": orderCreatedStored,
         "cart": List<dynamic>.from(cart!.map((x) => x.toJson())),
         "invoice": List<dynamic>.from(invoice!.map((x) => x.toJson())),
+        "tax": List<dynamic>.from(tax!.map((x) => x.toJson())),
       };
 }
 
@@ -3410,5 +3416,33 @@ class SpecificOrderCart {
         "catId": catId,
         "tax_name": taxName,
         "tax": tax,
+      };
+}
+
+class SpecificTax {
+  String? tax_name;
+  int? tax;
+  String? taxable_value;
+  num? tax_amount;
+
+  SpecificTax({
+    this.tax_name,
+    this.tax,
+    this.taxable_value,
+    this.tax_amount,
+  });
+
+  factory SpecificTax.fromJson(Map<String, dynamic> json) => SpecificTax(
+        tax_name: json["tax_name"],
+        tax: json["tax"],
+        taxable_value: json["taxable_value"],
+        tax_amount: json["tax_amount"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "tax_name": tax_name,
+        "tax": tax,
+        "taxable_value": taxable_value,
+        "tax_amount": tax_amount,
       };
 }

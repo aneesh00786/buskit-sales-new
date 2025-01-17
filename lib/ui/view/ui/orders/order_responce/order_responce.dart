@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 
 class OrderResponce {
   int? statusCode;
@@ -43,7 +44,10 @@ class OrderData {
   int? orderStatus;
   String? cartId;
   String? orderCreatAt;
+  String? deliveryDatetime;
   int? orderTotal;
+  String? fullname;
+  String? lastname;
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
   List<CustomerAssignedSalesman>? salesman;
@@ -59,7 +63,10 @@ class OrderData {
     this.orderStatus,
     this.cartId,
     this.orderCreatAt,
+    this.deliveryDatetime,
     this.orderTotal,
+    this.fullname,
+    this.lastname,
     this.cart,
     this.salesman,
     // this.receivableAmount,
@@ -74,7 +81,10 @@ class OrderData {
     orderStatus = json['order_status'] as int?;
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
+    deliveryDatetime = json['delivery_datetime'] as String?;
     orderTotal = json['order_total'] as int?;
+    fullname = json['fullname'] as String?;
+    lastname = json['lastname'] as String?;
     invoice = (json['invoice'] as List?)
         ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -87,6 +97,7 @@ class OrderData {
               orderTotal: json['order_total'] as int?,
               orderStatus: json['order_status'] as int?,
               orderCreatAt: json['order_creat_at'] as String?,
+              deliveryDatetime: json['delivery_datetime'] as String?,
               paymentStatus: json['payment_status'] as int?,
               orderId: json['order_id'] as String?,
               id: json['id'] as int?,
@@ -119,7 +130,10 @@ class OrderData {
     json['order_status'] = orderStatus;
     json['cart_id'] = cartId;
     json['order_creat_at'] = orderCreatAt;
+    json['delivery_datetime'] = deliveryDatetime;
     json['order_total'] = orderTotal;
+    json['fullname'] = fullname;
+    json['lastname'] = lastname;
     json['cart'] = cart?.map((e) => e.toJson()).toList();
     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();
@@ -128,6 +142,100 @@ class OrderData {
     return json;
   }
 }
+// class OrderData {
+//   int? id;
+//   String? orderId;
+//   String? customerId;
+//   String? salesmanId;
+//   int? paymentStatus;
+//   int? orderStatus;
+//   String? cartId;
+//   String? orderCreatAt;
+//   int? orderTotal;
+//   List<CustomerCart>? cart;
+//   List<CustomerDetails>? customer;
+//   List<CustomerAssignedSalesman>? salesman;
+//   List<OrderInvoice>? invoice;
+//   // int? receivableAmount;
+
+//   OrderData({
+//     this.id,
+//     this.orderId,
+//     this.customerId,
+//     this.salesmanId,
+//     this.paymentStatus,
+//     this.orderStatus,
+//     this.cartId,
+//     this.orderCreatAt,
+//     this.orderTotal,
+//     this.cart,
+//     this.salesman,
+//     // this.receivableAmount,
+//   });
+
+//   OrderData.fromJson(Map<String, dynamic> json) {
+//     id = json['id'] as int?;
+//     orderId = json['order_id'] as String?;
+//     customerId = json['customer_id'] as String?;
+//     salesmanId = json['salesman_id'] as String?;
+//     paymentStatus = json['payment_status'] as int?;
+//     orderStatus = json['order_status'] as int?;
+//     cartId = json['cart_id'] as String?;
+//     orderCreatAt = json['order_creat_at'] as String?;
+//     orderTotal = json['order_total'] as int?;
+//     invoice = (json['invoice'] as List?)
+//         ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
+//         .toList();
+//     cart = (json['cart'] as List?)
+//         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
+//             setOptionOrderData: OptionOrderData(
+//               customerId: json['customer_id'] as String?,
+//               salesmanId: json['salesman_id'] as String?,
+//               cartId: json['cart_id'] as String?,
+//               orderTotal: json['order_total'] as int?,
+//               orderStatus: json['order_status'] as int?,
+//               orderCreatAt: json['order_creat_at'] as String?,
+//               paymentStatus: json['payment_status'] as int?,
+//               orderId: json['order_id'] as String?,
+//               id: json['id'] as int?,
+//             ),
+//             setCustomerDetails: (json['customer'] as List?)
+//                 ?.map((dynamic e) =>
+//                     CustomerDetails.fromJson(e as Map<String, dynamic>))
+//                 .toList()
+//                 .first))
+//         .toList();
+
+//     salesman = (json['salesman'] as List?)
+//         ?.map((dynamic e) =>
+//             CustomerAssignedSalesman.fromJson(e as Map<String, dynamic>))
+//         .toList();
+//     customer = (json['customer'] as List?)
+//         ?.map(
+//             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
+//         .toList();
+//     // receivableAmount = json['receivable_amount'] as int?;
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> json = <String, dynamic>{};
+//     json['id'] = id;
+//     json['order_id'] = orderId;
+//     json['customer_id'] = customerId;
+//     json['salesman_id'] = salesmanId;
+//     json['payment_status'] = paymentStatus;
+//     json['order_status'] = orderStatus;
+//     json['cart_id'] = cartId;
+//     json['order_creat_at'] = orderCreatAt;
+//     json['order_total'] = orderTotal;
+//     json['cart'] = cart?.map((e) => e.toJson()).toList();
+//     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
+//     json['customer'] = customer?.map((e) => e.toJson()).toList();
+//     json['invoice'] = invoice?.map((e) => e.toJson()).toList();
+//     // json['receivable_amount'] = receivableAmount;
+//     return json;
+//   }
+// }
 
 class OrderCountResponse {
   int statusCode;
@@ -246,6 +354,7 @@ class OrderProcessInvoiceData {
   String? address;
   List<CustomerCart>? cart;
   List<OrderInvoice>? invoice;
+  List<SpecificTax>? tax;
 
   OrderProcessInvoiceData({
     this.id,
@@ -277,6 +386,7 @@ class OrderProcessInvoiceData {
     this.address,
     this.cart,
     this.invoice,
+    this.tax,
   });
 
   factory OrderProcessInvoiceData.fromJson(Map<String, dynamic> json) =>
@@ -326,6 +436,10 @@ class OrderProcessInvoiceData {
             ? List<OrderInvoice>.from(
                 json["invoice"].map((x) => OrderInvoice.fromJson(x)))
             : null,
+        tax: json["tax"] != null
+            ? List<SpecificTax>.from(
+                json["tax"].map((x) => SpecificTax.fromJson(x)))
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -361,6 +475,9 @@ class OrderProcessInvoiceData {
             : null,
         "invoice": invoice != null
             ? List<dynamic>.from(invoice!.map((x) => x.toJson()))
+            : null,
+        "tax": tax != null
+            ? List<dynamic>.from(tax!.map((x) => x.toJson()))
             : null,
       };
 }
@@ -437,6 +554,7 @@ class FetchSpecificOrderData {
   String? deliveryDatetime;
   List<CartSpecificData>? cart;
   List<OrderInvoice>? invoice;
+  List<SpecificTax>? tax;
 
   FetchSpecificOrderData({
     this.id,
@@ -481,6 +599,7 @@ class FetchSpecificOrderData {
     this.deliveryDatetime,
     this.cart,
     this.invoice,
+    this.tax,
   });
 
   factory FetchSpecificOrderData.fromJson(Map<String, dynamic> json) =>
@@ -537,6 +656,10 @@ class FetchSpecificOrderData {
             ? List<OrderInvoice>.from(
                 json["invoice"].map((x) => OrderInvoice.fromJson(x)))
             : [],
+        tax: json["tax"] != null
+            ? List<SpecificTax>.from(
+                json["tax"].map((x) => SpecificTax.fromJson(x)))
+            : [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -585,6 +708,9 @@ class FetchSpecificOrderData {
             : [],
         "invoice": invoice != null
             ? List<dynamic>.from(invoice!.map((x) => x.toJson()))
+            : [],
+        "tax": tax != null
+            ? List<dynamic>.from(tax!.map((x) => x.toJson()))
             : [],
       };
 }

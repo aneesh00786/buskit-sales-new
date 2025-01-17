@@ -269,15 +269,15 @@ void showDetailedOrderInvoiceDialog(
                                     ],
                                   ),
                                   if (dashBoardController
-                                          .fetchSpecificOrderData!
-                                          .cart!
-                                          .first
-                                          .tax !=
-                                      null) ...[
-                                    Row(
+                                        .fetchSpecificOrderData!.tax !=
+                                    null) ...[
+                                  ...dashBoardController
+                                      .fetchSpecificOrderData!.tax!
+                                      .map((taxItem) {
+                                    return Row(
                                       children: [
                                         Text(
-                                          '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
+                                          '${taxItem.tax_name} - ${taxItem.tax} %',
                                           style: const TextStyle(
                                             color: black,
                                             fontSize: 15,
@@ -287,14 +287,14 @@ void showDetailedOrderInvoiceDialog(
                                         const Spacer(),
                                         Text(
                                           formatAmount(
-                                              '${dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100}'),
-                                          // formatAmount(invoiceData.cart!.first.tax),
-                                          // taxAmount), // Use the calculated tax amount here
+                                            '${dashBoardController.fetchSpecificOrderData!.orderTotal! * taxItem.tax!.toInt() / 100}',
+                                          ),
                                           maxLines: 1,
                                         ),
                                       ],
-                                    ),
-                                  ],
+                                    );
+                                  }).toList(),
+                                ],
                                   Divider(color: Colors.grey.shade400),
                                   Row(
                                     children: [
@@ -310,12 +310,14 @@ void showDetailedOrderInvoiceDialog(
                                       Text(
                                         dashBoardController
                                                     .fetchSpecificOrderData!
-                                                    .cart!
-                                                    .first
                                                     .tax !=
                                                 null
                                             ? formatAmount(
-                                                '${(dashBoardController.fetchSpecificOrderData!.orderTotal! + dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.cart!.first.tax! / 100)}')
+                                                '${(dashBoardController.fetchSpecificOrderData!.orderTotal! + dashBoardController.fetchSpecificOrderData!.orderTotal! * dashBoardController.fetchSpecificOrderData!.tax!.fold(0.0, (sum, taxItem) {
+                                                      return sum +
+                                                          taxItem.tax!
+                                                              .toDouble();
+                                                    }).toInt() / 100)}')
                                             : formatAmount(dashBoardController
                                                 .fetchSpecificOrderData!
                                                 .orderTotal),

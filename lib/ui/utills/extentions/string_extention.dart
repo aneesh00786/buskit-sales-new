@@ -38,7 +38,7 @@ String formatAmount(dynamic value) {
               )
               .value ??
           '')
-      .trim();
+      .trim(); 
   double amount;
 
   try {
@@ -53,7 +53,14 @@ String formatAmount(dynamic value) {
     } else {
       throw ArgumentError('Unsupported value type: ${value.runtimeType}');
     }
-    String formattedAmount = amount.toStringAsFixed(2);
+
+    final formatter = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '',
+      decimalDigits: 2,
+    );
+
+    String formattedAmount = formatter.format(amount);
     return "$currencySymbol $formattedAmount";
   } catch (e) {
     print('Error in formatAmount: $e');

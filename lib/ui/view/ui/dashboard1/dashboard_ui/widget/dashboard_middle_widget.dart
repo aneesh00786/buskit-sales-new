@@ -641,7 +641,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     );
   }
 
-Widget middleTopRightComponet() {
+  Widget middleTopRightComponet() {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -660,22 +660,22 @@ Widget middleTopRightComponet() {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-  decoration: BoxDecoration(
-    color: primaryColor.withOpacity(0.2),
-    borderRadius: BorderRadius.only(
-      topLeft: Radius.circular(25),
-      bottomRight: Radius.circular(25),
-    ),
-  ),
-  padding:
-      const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-  child: Text(
-    "Revenue",
-    style: cardHeadingTextStyle,
-    maxLines: 1,
-    softWrap: false,
-  ),
-),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(0.2),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
+              ),
+              padding:
+                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
+              child: Text(
+                "Revenue",
+                style: cardHeadingTextStyle,
+                maxLines: 1,
+                softWrap: false,
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -711,10 +711,13 @@ Widget middleTopRightComponet() {
                           }
 
                           final bookingRevenueLength =
-                              categoryPerformance.bookingRevenueData!.isNotEmpty
-                                  ? categoryPerformance.bookingRevenueData!.last
-                                      .totalBookingRevenue
-                                  : 0.0;
+                          categoryPerformance.bookingRevenueData!
+                                .map((e) => e.total ?? 0.0)
+                                .reduce((a, b) => a + b);
+                              // categoryPerformance.bookingRevenueData!.isNotEmpty
+                              //     ? categoryPerformance.bookingRevenueData!.last
+                              //         .totalBookingRevenue
+                                  // : 0.0;
 
                           final orderRevenueLast =
                               categoryPerformance.orderRevenueData!.isNotEmpty
@@ -730,12 +733,11 @@ Widget middleTopRightComponet() {
                               aColor: Colors.blue,
                               bColor: const Color(0xff1d3d63),
                               legend1: const SizedBox.shrink(),
-                              legend2: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                // alignment: WrapAlignment.center,
-                                // crossAxisAlignment: WrapCrossAlignment.center,
-                                // spacing: 8,
-                                // runSpacing: 4,
+                              legend2: Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                runSpacing: 4,
                                 children: [
                                   InkWell(
                                     onTap: () {
@@ -747,7 +749,6 @@ Widget middleTopRightComponet() {
                                       'Pre-Order : ${formatAmount(bookingRevenueLength)}',
                                     ),
                                   ),
-                                  SizedBox(width: 8),
                                   InkWell(
                                     onTap: () {
                                       showValueDialog(context,

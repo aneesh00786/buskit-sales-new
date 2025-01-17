@@ -578,37 +578,50 @@ Future<RecentOrderCountResponse> _getCachedRecentOrderCount(String cacheKey) asy
     return response;
   }
 
-  Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-    sendData['companyId'] = companyId;
-    log('Send Data with companyId: $sendData');
+Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
+  // Append companyId to sendData
+  sendData['companyId'] = companyId;
 
-    try {
-      final response = await dio
-          .postbycustom(
-        '${ApiConstants.add_to_cart}',
-        data: FormData.fromMap(sendData),
-      )
-          .onError((DioError error, stackTrace) {
-        log('Error: ${error.response?.data}');
-        return Future.error(DioExceptionHandler.fromDioError(error));
-      });
+  // Log the complete request data
+  log('[addToCart] Request Data: ${sendData.toString()}');
 
-      if (response.statusCode == 200) {
-        if (response.data['cart_id'] == null) {
-          log('Cart ID is null in response.');
-          return null;
-        }
-        log('Response Data: ${response.data}');
-        return CartOrderModel.fromJson(response.data);
-      } else {
-        log('Unexpected status code: ${response.statusCode}');
+  try {
+    // Make the API call
+    final response = await dio
+        .postbycustom(
+          '${ApiConstants.add_to_cart}',
+          data: FormData.fromMap(sendData),
+        )
+        .onError((DioError error, stackTrace) {
+      // Log the error response details
+      log('[addToCart] DioError occurred.');
+      log('[addToCart] Error Type: ${error.type}');
+      log('[addToCart] Error Message: ${error.message}');
+      log('[addToCart] Error Data: ${error.response?.data}');
+      log('[addToCart] Status Code: ${error.response?.statusCode}');
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
+
+    // Handle the response
+    if (response.statusCode == 200) {
+      if (response.data['cart_id'] == null) {
+        log('[addToCart] Cart ID is null in response.');
         return null;
       }
-    } catch (e) {
-      log('Exception in addToCart: $e');
+
+      log('[addToCart] Response Data: ${response.data}');
+      return CartOrderModel.fromJson(response.data);
+    } else {
+      log('[addToCart] Unexpected status code: ${response.statusCode}');
       return null;
     }
+  } catch (e) {
+    // Log the exception
+    log('[addToCart] Exception: $e');
+    return null;
   }
+}
+
 
   Future<Response> deleteCartItem(String cartId, String variationId) async {
     final response = await dio

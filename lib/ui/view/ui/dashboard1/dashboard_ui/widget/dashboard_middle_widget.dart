@@ -10,7 +10,9 @@ import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/doughnut_default_delivery.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersstatus_value_dialog.dart';
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -331,14 +333,30 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    _buildLegendItem(
-                                      const Color.fromARGB(255, 90, 119, 37),
-                                      completedOrdersLabel,
+                                    InkWell(
+                                      onTap: () {
+                                        showValueCollectionDialog(
+                                            context,
+                                            responseModel.collection!,
+                                            'Recieved Payment');
+                                      },
+                                      child: _buildLegendItem(
+                                        const Color.fromARGB(255, 90, 119, 37),
+                                        completedOrdersLabel,
+                                      ),
                                     ),
                                     const SizedBox(width: 8.3),
-                                    _buildLegendItem(
-                                      const Color(0xffa30c13),
-                                      pendingAmountLabel,
+                                    InkWell(
+                                      onTap: () {
+                                        pendingPaymentCollectionDialog(
+                                            context,
+                                            'Pending Payment',
+                                            responseModel.collection!);
+                                      },
+                                      child: _buildLegendItem(
+                                        const Color(0xffa30c13),
+                                        pendingAmountLabel,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -346,14 +364,32 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    _buildLegendItem(
-                                      const Color.fromARGB(255, 255, 173, 181),
-                                      dueAmountLabel,
+                                    InkWell(
+                                      onTap: () {
+                                        pendingPaymentCollectionDialog(
+                                            context,
+                                            'Due Payment',
+                                            responseModel.collection!);
+                                      },
+                                      child: _buildLegendItem(
+                                        const Color.fromARGB(
+                                            255, 255, 173, 181),
+                                        dueAmountLabel,
+                                      ),
                                     ),
                                     const SizedBox(width: 8.3),
-                                    _buildLegendItem(
-                                      const Color.fromARGB(255, 255, 101, 132),
-                                      overdueAmountLabel,
+                                    InkWell(
+                                      onTap: () {
+                                        pendingPaymentCollectionDialog(
+                                            context,
+                                            'Over Due Payment',
+                                            responseModel.collection!);
+                                      },
+                                      child: _buildLegendItem(
+                                        const Color.fromARGB(
+                                            255, 255, 101, 132),
+                                        overdueAmountLabel,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -477,57 +513,56 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 spacing: 8,
                                 runSpacing: 4,
                                 children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize
-                                        .min, // Ensures Row takes minimal space
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 6,
-                                        backgroundColor: Colors.blue.shade300,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      MyRegularText(
-                                        label:
-                                            "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
-                                        fontSize: 11.6,
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                      ),
-                                    ],
+                                  OrderStatusLegend(
+                                    categoryPerformance: categoryPerformance,
+                                    label:
+                                        "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+                                    color: Colors.blue.shade300,
+                                    onTap: () {
+                                      showValueOrderDialog(context,
+                                          categoryPerformance, "Processing", 5);
+                                    },
                                   ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const CircleAvatar(
-                                        radius: 6,
-                                        backgroundColor: Color(0xffc38a42),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      MyRegularText(
-                                        label:
-                                            "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
-                                        fontSize: 11.6,
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                      ),
-                                    ],
+                                  OrderStatusLegend(
+                                    categoryPerformance: categoryPerformance,
+                                    label: categoryPerformance.order
+                                                ?.totalOrders?.isNotEmpty ==
+                                            true
+                                        ? "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}"
+                                        : "Packed & Ready for Delivery : 0",
+                                    color: const Color(0xffc38a42),
+                                    onTap: () {
+                                      if (categoryPerformance
+                                              .order?.totalOrders?.isNotEmpty ==
+                                          true) {
+                                        showValueOrderDialog(
+                                          context,
+                                          categoryPerformance,
+                                          "Packed & Ready for Delivery",
+                                          1,
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  "No data available for this status")),
+                                        );
+                                      }
+                                    },
                                   ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const CircleAvatar(
-                                        radius: 6,
-                                        backgroundColor: Color(0xff33b4a8),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      MyRegularText(
-                                        label:
-                                            "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
-                                        fontSize: 11.6,
-                                        fontWeight: FontWeight.w600,
-                                        color: secondaryTextColor,
-                                      ),
-                                    ],
+                                  OrderStatusLegend(
+                                    categoryPerformance: categoryPerformance,
+                                    label:
+                                        "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
+                                    color: Color(0xff33b4a8),
+                                    onTap: () {
+                                      showValueOrderDialog(
+                                          context,
+                                          categoryPerformance,
+                                          "Delivered Orders",
+                                          2);
+                                    },
                                   ),
                                 ],
                               ),
@@ -710,14 +745,14 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             return const NodataWidget();
                           }
 
-                          final bookingRevenueLength =
-                          categoryPerformance.bookingRevenueData!
-                                .map((e) => e.total ?? 0.0)
-                                .reduce((a, b) => a + b);
-                              // categoryPerformance.bookingRevenueData!.isNotEmpty
-                              //     ? categoryPerformance.bookingRevenueData!.last
-                              //         .totalBookingRevenue
-                                  // : 0.0;
+                          final bookingRevenueLength = categoryPerformance
+                              .bookingRevenueData!
+                              .map((e) => e.total ?? 0.0)
+                              .reduce((a, b) => a + b);
+                          // categoryPerformance.bookingRevenueData!.isNotEmpty
+                          //     ? categoryPerformance.bookingRevenueData!.last
+                          //         .totalBookingRevenue
+                          // : 0.0;
 
                           final orderRevenueLast =
                               categoryPerformance.orderRevenueData!.isNotEmpty
@@ -1141,6 +1176,44 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             color: secondaryTextColor,
             fontSize: NkFontSize.smallFont(),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class OrderStatusLegend extends StatelessWidget {
+  const OrderStatusLegend({
+    super.key,
+    required this.categoryPerformance,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final model1.Delivery? categoryPerformance;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 6,
+            backgroundColor: color,
+          ),
+          const SizedBox(width: 5),
+          MyRegularText(
+            label: label,
+            fontSize: 11.6,
+            fontWeight: FontWeight.w600,
+            color: secondaryTextColor,
+          ),
         ],
       ),
     );

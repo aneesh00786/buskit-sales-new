@@ -211,35 +211,36 @@ void showValueOrderDialog(
                         ),
                       ),
                       // Static Total Row
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Colors.grey,
-                              width: 0.5,
-                            ),
-                          ),
-                        ),
-                        height: rowHeight,
-                        child: Row(
-                          children: [
-                            DialogTableHeaderText(
-                              text: 'Total',
-                              fontSize: 13,
-                            ),
-                            const Expanded(child: SizedBox.shrink()),
-                            const Expanded(child: SizedBox.shrink()),
-                            const Expanded(child: SizedBox.shrink()),
-                            DialogTableHeaderText(
-                              text: formatAmount(filteredOrders
-                                  .map((e) => e.orderTotal ?? 0.0)
-                                  .reduce((a, b) => a + b)),
-                              fontSize: 13,
-                            ),
-                          ],
+                     Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.grey,
+                          width: 0.5,
                         ),
                       ),
-                    ],
+                    ),
+                    height: rowHeight,
+                    child: Row(
+                      children: [
+                        DialogTableHeaderText(
+                          text: 'Total',
+                          fontSize: 13,
+                        ),
+                        const Expanded(child: SizedBox.shrink()),
+                        const Expanded(child: SizedBox.shrink()),
+                        const Expanded(child: SizedBox.shrink()),
+                        DialogTableHeaderText(
+                          text: formatAmount(
+                            filteredOrders
+                                .map((e) => e.orderTotal ?? 0.0)
+                                .fold(0.0, (a, b) => a + b),
+                          ),
+                          fontSize: 13,
+                        ),
+                      ],
+                    ),
+                  )],
                   ),
                 ),
               );

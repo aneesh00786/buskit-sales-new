@@ -10,8 +10,9 @@ import 'package:hive/hive.dart';
 
 class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
-  bool _isSyncing = false; 
-  Stream<List<ConnectivityResult>> get connectivityStream => _connectivity.onConnectivityChanged;
+  bool _isSyncing = false;
+  Stream<List<ConnectivityResult>> get connectivityStream =>
+      _connectivity.onConnectivityChanged;
   Future<bool> isConnected() async {
     var result = await _connectivity.checkConnectivity();
     return result != ConnectivityResult.none;
@@ -41,7 +42,8 @@ class ConnectivityService {
     return result != ConnectivityResult.none;
   }
 
-  void startListening(void Function(List<ConnectivityResult>) onConnectivityChanged) {
+  void startListening(
+      void Function(List<ConnectivityResult>) onConnectivityChanged) {
     _connectivity.onConnectivityChanged.listen((connectivityResults) {
       onConnectivityChanged(connectivityResults);
     });
@@ -51,87 +53,54 @@ class ConnectivityService {
     _connectivity.onConnectivityChanged.drain();
   }
 
-Future<void> syncOfflineOrders() async {
-  if (_isSyncing) {
-    log('[syncOfflineOrders] Sync is already in progress.');
-    return;
-  }
-  _isSyncing = true; 
-  try {
-    var offlineOrdersBox = await Hive.openBox('offlineOrders');
-    if (offlineOrdersBox.isEmpty) {
-      log('[syncOfflineOrders] No offline orders to sync.');
-      return;
-    }
+  Future<void> syncOfflineOrders() async {
+    if (_isSyncing) return;
 
-    var orders = offlineOrdersBox.values.toList();
+    _isSyncing = true;
+    try {
+      var offlineOrdersBox = await Hive.openBox('offlineOrders');
+      if (offlineOrdersBox.isEmpty) {
+        log('[syncOfflineOrders] No orders to sync.');
+        return;
+      }
 
-    for (var order in orders) {
-      try {
-        log('[syncOfflineOrders] Processing offline order: $order');
-
-        final AddToCartModel productBYData = AddToCartModel(
-          customerId: order['customer_id'],
-          salesmanId: order['salesman_id'],
-          cartId: '',
-          cartList: (order['cart_list'] as List).map((e) {
-            return SendCartData(
-              productId: e['product_id'],
-              variantId: e['variant_id'],
-              pack: e['pack'],
-              price: e['price'],
-              packType: e['packType'],
-              discount: e['discount'],
-              quantity: e['quantity'],
-            );
-          }).toList(),
-          total: order['order_price'].toString(),
-          discount: '0',
-        );
-
-        log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
-        final CartOrderModel? cartOrder =
-            await ApiWorker().addToCart(productBYData.toJson());
-        if (cartOrder != null) {
-          log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
-          final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-          final int orderStatus = 11;
-
-          CartOrderModel orderPayload = CartOrderModel(
+      var orders = offlineOrdersBox.values.toList();
+      for (var order in orders) {
+        try {
+          log('[syncOfflineOrders] Syncing order: $order');
+          final AddToCartModel productBYData = AddToCartModel(
             customerId: order['customer_id'],
             salesmanId: order['salesman_id'],
-            cartId: cartOrder.cartId,
-            orderStatus: orderStatus,
-            orderPrice: order['order_price'],
-            paymentType: order['payment_type'].toString(),
-            companyId: companyId,
-            paymentDetail: '',
-            transactionNumber: '',
-            transactionDate: '',
+            cartId: '',
+            cartList: (order['cart_list'] as List)
+                .map((e) => SendCartData(
+                      productId: e['product_id'],
+                      variantId: e['variant_id'],
+                      pack: e['pack'],
+                      price: e['price'],
+                      packType: e['packType'],
+                      discount: e['discount'],
+                      quantity: e['quantity'],
+                    ))
+                .toList(),
+            total: order['order_price'].toString(),
+            discount: '0',
           );
 
-          log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
-          await placeOrder(orderPayload, (statusCode, message) async {
-            if (statusCode == 200) {
-              log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
-              await offlineOrdersBox.clear();
-            } else {
-              log('[syncOfflineOrders] Failed to sync order: $message');
-            }
-          });
+          final CartOrderModel? cartOrder =
+              await ApiWorker().addToCart(productBYData.toJson());
+          if (cartOrder != null) {
+            log('[syncOfflineOrders] Order synced: ${cartOrder.cartId}');
+            offlineOrdersBox.delete(order['id']);
+          }
+        } catch (e) {
+          log('[syncOfflineOrders] Error syncing order: $e');
         }
-      } catch (e) {
-        log('[syncOfflineOrders] Error syncing order: $e');
       }
+    } catch (e) {
+      log('[syncOfflineOrders] Error: $e');
+    } finally {
+      _isSyncing = false;
     }
-    if (offlineOrdersBox.isEmpty) {
-      log('[syncOfflineOrders] All offline orders have been synced and the box is now empty.');
-      await offlineOrdersBox.clear();
-    }
-  } catch (e) {
-    log('[syncOfflineOrders] General error: $e');
-  } finally {
-    _isSyncing = false; 
   }
-}
 }

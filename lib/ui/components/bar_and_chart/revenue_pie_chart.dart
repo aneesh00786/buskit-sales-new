@@ -420,7 +420,7 @@ class NestedPieChartj extends StatelessWidget {
                 showValueCollectionDialog(
                     context, collection, 'Recieved Payment');
               } else if (details.pointIndex == 1) {
-                _pendingPaymentCollectionDialog(
+                pendingPaymentCollectionDialog(
                     context, 'Pending Payment', collection);
               }
             },
@@ -440,10 +440,10 @@ class NestedPieChartj extends StatelessWidget {
             strokeWidth: 0.5,
             onPointTap: (ChartPointDetails details) {
               if (details.pointIndex == 0) {
-                _pendingPaymentCollectionDialog(
+                pendingPaymentCollectionDialog(
                     context, 'Due Payment', collection);
               } else if (details.pointIndex == 1) {
-                _pendingPaymentCollectionDialog(
+                pendingPaymentCollectionDialog(
                     context, 'Over Due Payment', collection);
               }
             },
@@ -453,7 +453,8 @@ class NestedPieChartj extends StatelessWidget {
     );
   }
 
-  void _pendingPaymentCollectionDialog(
+}
+  void pendingPaymentCollectionDialog(
       BuildContext context, String title, Collection collection) {
     final ScrollController scrollController = ScrollController();
     if (collection.order == null || collection.order!.pendingAmount == null) {
@@ -1155,7 +1156,6 @@ class NestedPieChartj extends StatelessWidget {
       },
     );
   }
-}
 
 DateTime normalizeDate(DateTime date) =>
     DateTime(date.year, date.month, date.day);

@@ -806,7 +806,7 @@ Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
     try {
       var productBox = await Hive.openBox('productBox');
       var rawProductList = productBox.get('products');
-      log('Raw Hive Data: $rawProductList');
+     // log('Raw Hive Data: $rawProductList');
       if (rawProductList is List) {
         allProducts = rawProductList
             .map((productJson) {
@@ -995,7 +995,7 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   }
   try {
     var cachedData = eventsBox.get(cacheKey);
-    log('Raw Hive Data: $cachedData');
+   // log('Raw Hive Data: $cachedData');
 
     if (cachedData != null && cachedData is List) {
       allEvents = cachedData
@@ -1018,10 +1018,6 @@ Future<List<EventData>> getCalendarEvents(Map<String, dynamic> sendData) async {
   }
   return allEvents;
 }
-
-
-
-
   Future<Response> handleLeadStatus(
       int? customerId, String? statusResponce) async {
     final response = await dio

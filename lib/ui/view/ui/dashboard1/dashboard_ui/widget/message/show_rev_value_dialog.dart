@@ -194,7 +194,7 @@ void showValueDialog(
                         children: [
                           const DialogTableHeaderText(
                             text: 'Total',
-                            fontSize: 13,
+                            fontSize: 12,
                           ),
                           const Expanded(child: SizedBox.shrink()),
                           const Expanded(child: SizedBox.shrink()),
@@ -202,12 +202,12 @@ void showValueDialog(
                             text: formatAmount(categoryData.orderRevenueData!
                                 .map((e) => e.orderTotal ?? 0.0)
                                 .reduce((a, b) => a + b)),
-                            fontSize: 13,
+                            fontSize: 11,
                           ): DialogTableHeaderText(
                             text: formatAmount(categoryData.bookingRevenueData!
                                 .map((e) => e.total ?? 0.0)
                                 .reduce((a, b) => a + b)),
-                            fontSize: 13,
+                            fontSize: 11,
                           )
                         ],
                       ),

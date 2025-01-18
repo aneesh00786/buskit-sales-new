@@ -419,7 +419,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         const SizedBox(width: 5),
         MyRegularText(
           label: label,
-          fontSize: 11.6,
+          fontSize: 10.6,
           fontWeight: FontWeight.w600,
           color: secondaryTextColor,
         ),
@@ -774,7 +774,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 spacing: 8,
                                 runSpacing: 4,
                                 children: [
-                                  InkWell(
+                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                     InkWell(
                                     onTap: () {
                                       showValueDialog(context,
                                           categoryPerformance, 'Bookings');
@@ -784,6 +787,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       'Pre-Order : ${formatAmount(bookingRevenueLength)}',
                                     ),
                                   ),
+                                  nkSmallSizeBox(),
                                   InkWell(
                                     onTap: () {
                                       showValueDialog(context,
@@ -794,6 +798,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       'Order : ${formatAmount(orderRevenueLast)}',
                                     ),
                                   ),
+                                  ],
+                                 )
                                 ],
                               ),
                             ),

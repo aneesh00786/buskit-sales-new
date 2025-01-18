@@ -4,11 +4,13 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/bar_chart_table_dialog.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -278,8 +280,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
     }).toList();
   }
 
-  void _showSalesmanPopup(int cid, String category) {
-    showDialog(
+  void _showSalesmanPopup(int cid, String category) async {
+    bool isConnected = await ConnectivityService().isOnline();
+   isConnected ? showDialog(
       context: context,
       builder: (context) {
         return Consumer<DashboardProvider>(
@@ -324,7 +327,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
           },
         );
       },
-    );
+    ):showNoInternetSnackBar(context);
   }
 
   Widget getBottomTitles(double value, TitleMeta meta) {

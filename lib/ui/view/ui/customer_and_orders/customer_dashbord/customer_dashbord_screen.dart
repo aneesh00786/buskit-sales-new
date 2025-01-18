@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -27,6 +28,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/order_payment_enlarge_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -80,9 +82,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   @override
   void initState() {
     super.initState();
-
+    
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _initializeCustomerData();
+      bool isConnected = await ConnectivityService().isOnline();
+      if(isConnected){
+        await _initializeCustomerData();
+      }else{
+        showNoInternetSnackBar(context);
+      }
       final customerId = customerOrderController.customerId.value;
       if (customerId.isEmpty) {
         log('Error: Customer ID is empty, initialization failed.');
@@ -108,6 +115,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     });
   }
+  
 
   Future<void> _initializeCustomerData() async {
     String? customerId;
@@ -140,6 +148,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
+    
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
         : productsController.selectedCustomerName.value;
@@ -296,6 +305,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
+                  
                   return Center(child: NodataWidget());
                 } else {
                   final responseModel = snapshot.data!;

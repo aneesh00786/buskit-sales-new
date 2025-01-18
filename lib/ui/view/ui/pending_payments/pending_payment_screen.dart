@@ -28,14 +28,6 @@ class _PendingPaymentScreenState extends State<PendingPaymentScreen> {
     log('Selected Tab Number : $selectedTabIndex');
   }
 
-  void _onTabChanged(int index) {
-    setState(() {
-      selectedTabIndex = index;
-      orderController
-          .updateTabIndex(index);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {

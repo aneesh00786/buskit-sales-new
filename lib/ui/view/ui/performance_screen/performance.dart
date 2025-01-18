@@ -2,10 +2,12 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/checkin_dialogue.dart';
@@ -206,8 +208,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   final isSelected = _tabController.index == index;
 
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
+                    onTap: () async {
+                      bool isConnected = await ConnectivityService().isOnline();
+                      if(isConnected){
+                        setState(() {
                         _tabController.index = index;
                         _selectedMonthName = monthName;
                       });
@@ -216,6 +220,9 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         selectedTabIndex: _tabController.index + 1,
                         staffId: salesmanId,
                       );
+                      }else{
+                        showNoInternetSnackBar(context);
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

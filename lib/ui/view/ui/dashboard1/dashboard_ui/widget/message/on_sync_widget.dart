@@ -21,9 +21,9 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
   @override
   void initState() {
     super.initState();
-    _checkInternetConnectivity();
+    checkInternetConnectivity();
     _connectivityCheckTimer =
-        Timer.periodic(const Duration(seconds: 5), (_) => _checkInternetConnectivity());
+        Timer.periodic(const Duration(seconds: 5), (_) => checkInternetConnectivity());
   }
 
   @override
@@ -32,7 +32,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
     super.dispose();
   }
 
-  Future<void> _checkInternetConnectivity() async {
+  Future<void> checkInternetConnectivity() async {
     bool isConnected = await _connectivityService.isOnline();
     if (isConnected && !_isOnline) {
       _startSyncing();
@@ -73,21 +73,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       child: InkWell(
         onTap: !_isOnline
             ? () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        Icon(Icons.warning_amber, color: red),
-                        const SizedBox(width: 10),
-                        Text(
-                          'You are offline. Please check your connection.',
-                          style: TextStyle(color: black),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: white,
-                  ),
-                );
+               showNoInternetSnackBar(context);
               }
             : () {
                 _startSyncing();
@@ -124,4 +110,21 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       ),
     );
   }
+}
+void showNoInternetSnackBar(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(Icons.warning_amber, color: Colors.red),
+          const SizedBox(width: 10),
+          Text(
+            'You are offline. Please check your connection.',
+            style: const TextStyle(color: Colors.black),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.white,
+    ),
+  );
 }

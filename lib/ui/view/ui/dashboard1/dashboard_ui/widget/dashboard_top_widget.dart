@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -16,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dar
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -45,6 +47,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+
   @override
   void initState() {
     super.initState();
@@ -54,8 +57,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       dashboardProvider.resetProvider();
       dashboardProvider.fetchData();
       dashboardProvider.fetchChatData(salesmanId);
-      final com = SessionHelper.loginSavedData!.company_id!;
-      log('Company id : $com');
     }
   }
 
@@ -102,6 +103,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   }
 
   Widget calender() {
+    final dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
     return LayoutBuilder(
       builder: (context, constraints) {
         return Consumer<DashboardProvider>(
@@ -343,6 +346,21 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                         ),
                     ],
                   ),
+                ),
+                SyncButtonWidget(
+                  onSync: () async {
+                    if (!dashboardProvider.dataFetched) {
+                      dashboardProvider.resetProvider();
+                      dashboardProvider.fetchData();
+                      dashboardProvider.fetchChatData(salesmanId);
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Syncing offline orders...'),
+                        backgroundColor: Colors.blue,
+                      ),
+                    );
+                  },
                 ),
                 NotificationWidget(
                   startDate: provider.selectedStartDate,

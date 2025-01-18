@@ -56,20 +56,17 @@ Future<void> syncOfflineOrders() async {
     log('[syncOfflineOrders] Sync is already in progress.');
     return;
   }
-  _isSyncing = true; 
+  _isSyncing = true;
   try {
     var offlineOrdersBox = await Hive.openBox('offlineOrders');
     if (offlineOrdersBox.isEmpty) {
       log('[syncOfflineOrders] No offline orders to sync.');
       return;
     }
-
     var orders = offlineOrdersBox.values.toList();
-
     for (var order in orders) {
       try {
         log('[syncOfflineOrders] Processing offline order: $order');
-
         final AddToCartModel productBYData = AddToCartModel(
           customerId: order['customer_id'],
           salesmanId: order['salesman_id'],
@@ -92,29 +89,29 @@ Future<void> syncOfflineOrders() async {
         log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
         final CartOrderModel? cartOrder =
             await ApiWorker().addToCart(productBYData.toJson());
+
         if (cartOrder != null) {
           log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
           final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
           final int orderStatus = 11;
-
-          CartOrderModel orderPayload = CartOrderModel(
+          final CartOrderModel orderPayload = CartOrderModel(
             customerId: order['customer_id'],
             salesmanId: order['salesman_id'],
-            cartId: cartOrder.cartId,
+            cartId: cartOrder.cartId, 
             orderStatus: orderStatus,
             orderPrice: order['order_price'],
-            paymentType: order['payment_type'].toString(),
+            paymentType: order['paymentType']?.toString(),
             companyId: companyId,
-            paymentDetail: '',
-            transactionNumber: '',
-            transactionDate: '',
+            paymentDetail: order['paymentDetail'] ?? '',
+            transactionNumber: order['transactionNumber'] ?? '',
+            transactionDate: order['transactionDate'] ?? '',
           );
 
           log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
           await placeOrder(orderPayload, (statusCode, message) async {
             if (statusCode == 200) {
               log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
-              await offlineOrdersBox.clear();
+              await offlineOrdersBox.delete(order);
             } else {
               log('[syncOfflineOrders] Failed to sync order: $message');
             }
@@ -124,14 +121,16 @@ Future<void> syncOfflineOrders() async {
         log('[syncOfflineOrders] Error syncing order: $e');
       }
     }
+
     if (offlineOrdersBox.isEmpty) {
       log('[syncOfflineOrders] All offline orders have been synced and the box is now empty.');
-      await offlineOrdersBox.clear();
     }
   } catch (e) {
     log('[syncOfflineOrders] General error: $e');
   } finally {
-    _isSyncing = false; 
+    _isSyncing = false;
   }
 }
+
+
 }

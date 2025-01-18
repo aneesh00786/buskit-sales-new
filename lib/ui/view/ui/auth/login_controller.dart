@@ -117,7 +117,7 @@ class LoginController extends GetxController {
             startDate: firstDayString, endDate: lastDayString);
         await Future.delayed(const Duration(microseconds: 500));
         await pendingPaymentController.loadOrderData(
-            chartIndex: 0, compId: companyId);
+            chartIndex: 0, compId: companyId,isLogin: true);
         await Future.delayed(const Duration(microseconds: 500));
         await staffController.loadSalesmanTargetForSelectedTab(
             currentYear: currentYear.toString(),

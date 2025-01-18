@@ -3,9 +3,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'dart:async';
-
 class SyncButtonWidget extends StatefulWidget {
   final Function onSync;
 
@@ -19,12 +16,20 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
   final ConnectivityService _connectivityService = ConnectivityService();
   bool _isOnline = true;
   bool _isSyncing = false;
+  Timer? _connectivityCheckTimer;
 
   @override
   void initState() {
     super.initState();
     _checkInternetConnectivity();
-    Timer.periodic(Duration(seconds: 5), (_) => _checkInternetConnectivity());
+    _connectivityCheckTimer =
+        Timer.periodic(const Duration(seconds: 5), (_) => _checkInternetConnectivity());
+  }
+
+  @override
+  void dispose() {
+    _connectivityCheckTimer?.cancel(); 
+    super.dispose();
   }
 
   Future<void> _checkInternetConnectivity() async {
@@ -32,20 +37,26 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
     if (isConnected && !_isOnline) {
       _startSyncing();
     }
-    setState(() {
-      _isOnline = isConnected;
-    });
+    if (mounted) {
+      setState(() {
+        _isOnline = isConnected;
+      });
+    }
   }
 
   Future<void> _startSyncing() async {
-    setState(() {
-      _isSyncing = true;
-    });
-    await Future.delayed(Duration(seconds: 3)); 
+    if (mounted) {
+      setState(() {
+        _isSyncing = true;
+      });
+    }
+    await Future.delayed(const Duration(seconds: 3)); 
     widget.onSync(); 
-    setState(() {
-      _isSyncing = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isSyncing = false;
+      });
+    }
   }
 
   @override
@@ -54,54 +65,63 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       height: 40,
       width: 100,
       decoration: BoxDecoration(
-        color: !_isOnline ? const Color.fromARGB(255, 201, 199, 199): primaryColor.withOpacity(0.7),
+        color: !_isOnline
+            ? const Color.fromARGB(255, 201, 199, 199)
+            : primaryColor.withOpacity(0.7),
         borderRadius: BorderRadius.circular(10),
       ),
-child: InkWell(
-  onTap: !_isOnline
-      ? () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.warning_amber,color: red,),
-                  SizedBox(width: 10,),
-                  Text('You are offline. Please check your connection.',style: TextStyle(color: black),),
-                ],
-              ),
-              backgroundColor: white,
-            ),
-          );
-        }
-      : () {
-          _startSyncing();
-        },
-  child: Center(
-    child: _isSyncing
-        ? SizedBox(
-            height: 15,
-            width: 15,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2.0,
-            ),
-          )
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Sync',
-                style: TextStyle(color: Colors.white,fontFamily: "Poppins_Regular"),
-                
-              ),
-              SizedBox(width: 5),
-              Icon(Icons.replay_outlined, size: 15, color: Colors.white),
-            ],
-          ),
-  ),
-),
-
+      child: InkWell(
+        onTap: !_isOnline
+            ? () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.warning_amber, color: red),
+                        const SizedBox(width: 10),
+                        Text(
+                          'You are offline. Please check your connection.',
+                          style: TextStyle(color: black),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: white,
+                  ),
+                );
+              }
+            : () {
+                _startSyncing();
+              },
+        child: Center(
+          child: _isSyncing
+              ? const SizedBox(
+                  height: 15,
+                  width: 15,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.0,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Sync',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Poppins_Regular",
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    const Icon(
+                      Icons.replay_outlined,
+                      size: 15,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+        ),
+      ),
     );
   }
 }
-

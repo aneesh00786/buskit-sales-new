@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +42,7 @@ class NotificationController extends GetxController {
     try {
       var data = await ApiWorker().fetchLeadsCount();
       leadsCount.value = data.data!;
+      log('Leads Count Data : ${leadsCount.value}');
       return data.data!;
     } finally {
       WidgetsBinding.instance.addPostFrameCallback((_) {

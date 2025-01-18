@@ -24,7 +24,7 @@ class _PendingPaymentScreenState extends State<PendingPaymentScreen> {
   @override
   void initState() {
     super.initState();
-    orderController.loadOrderData(chartIndex: selectedTabIndex);
+    orderController.loadOrderData(chartIndex: selectedTabIndex,isLogin: false);
     log('Selected Tab Number : $selectedTabIndex');
   }
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -154,13 +156,16 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         : const SizedBox.shrink(),
               ),
             if (isLeads)
+            
               Positioned(
                 top: -12,
                 left: 12,
-                child: notificationController.isLeadsCountLoading.value ||
-                        notificationController.leadsCount.value <= 0
-                    ? const SizedBox.shrink()
-                    : CircleAvatar(
+                child: 
+                // notificationController.isLeadsCountLoading.value ||
+                //         notificationController.leadsCount.value <= 0
+                //     ? const SizedBox.shrink()
+                //     : 
+                    CircleAvatar(
                         radius: 10,
                         backgroundColor: Colors.red,
                         child: Text(

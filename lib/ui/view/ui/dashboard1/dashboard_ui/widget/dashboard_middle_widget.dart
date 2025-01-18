@@ -753,13 +753,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           //     ? categoryPerformance.bookingRevenueData!.last
                           //         .totalBookingRevenue
                           // : 0.0;
-
                           final orderRevenueLast =
                               categoryPerformance.orderRevenueData!.isNotEmpty
                                   ? categoryPerformance
                                       .orderRevenueData!.last.totalOrderRevenue
                                   : 0.0;
-
                           return Center(
                             child: DoughnutDefault(
                               categoryData: categoryPerformance,

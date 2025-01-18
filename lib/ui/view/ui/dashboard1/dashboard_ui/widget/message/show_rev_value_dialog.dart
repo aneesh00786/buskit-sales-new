@@ -190,26 +190,38 @@ void showValueDialog(
                         ),
                       ),
                       height: rowHeight,
-                      child: Row(
-                        children: [
-                          const DialogTableHeaderText(
-                            text: 'Total',
-                            fontSize: 12,
-                          ),
-                          const Expanded(child: SizedBox.shrink()),
-                          const Expanded(child: SizedBox.shrink()),
-                        title == "Revenue"?  DialogTableHeaderText(
-                            text: formatAmount(categoryData.orderRevenueData!
-                                .map((e) => e.orderTotal ?? 0.0)
-                                .reduce((a, b) => a + b)),
-                            fontSize: 11,
-                          ): DialogTableHeaderText(
-                            text: formatAmount(categoryData.bookingRevenueData!
-                                .map((e) => e.total ?? 0.0)
-                                .reduce((a, b) => a + b)),
-                            fontSize: 11,
-                          )
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: DialogTableHeaderText(
+                                text: 'Total',
+                                fontSize: 12,
+                                align: TextAlign.left,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: DialogTableHeaderText(
+                                  text: title == "Revenue"
+                                      ? 
+                                      formatAmount(categoryData
+                                          .orderRevenueData!
+                                          .map((e) => e.orderTotal ?? 0.0)
+                                          .reduce((a, b) => a + b))
+                                      : formatAmount(categoryData
+                                          .bookingRevenueData!
+                                          .map((e) => e.total ?? 0.0)
+                                          .reduce((a, b) => a + b)),
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -313,7 +325,8 @@ void showValueDialogCusDash(
                       child: SizedBox(
                         height: contentHeight,
                         child: ListView.builder(
-                          itemCount: orderDetails.isEmpty ? 1 : orderDetails.length,
+                          itemCount:
+                              orderDetails.isEmpty ? 1 : orderDetails.length,
                           physics: const ClampingScrollPhysics(),
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
@@ -341,9 +354,8 @@ void showValueDialogCusDash(
                                         child: buildRowData(
                                             item.orderId ?? 'N/A')),
                                     Expanded(
-                                        child: buildRowData(
-                                            getStatusName(
-                                                item.orderStatus ?? 0))),
+                                        child: buildRowData(getStatusName(
+                                            item.orderStatus ?? 0))),
                                     Expanded(
                                         child: buildRowData(
                                             formatAmount(item.orderTotal))),
@@ -393,5 +405,3 @@ void showValueDialogCusDash(
     },
   );
 }
-
-

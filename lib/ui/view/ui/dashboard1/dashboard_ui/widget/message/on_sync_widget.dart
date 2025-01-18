@@ -54,7 +54,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       height: 40,
       width: 100,
       decoration: BoxDecoration(
-        color: !_isOnline ? const Color.fromARGB(255, 137, 198, 248) : const Color.fromARGB(255, 178, 187, 226),
+        color: !_isOnline ? const Color.fromARGB(255, 201, 199, 199): primaryColor.withOpacity(0.7),
         borderRadius: BorderRadius.circular(10),
       ),
 child: InkWell(

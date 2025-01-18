@@ -53,7 +53,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     return Obx(
       () {
         if (widget.orderController.orderDataList.isEmpty) {
-          return const LoadingToNoDataWidget();
+          return const Text('');
+          //LoadingToNoDataWidget();
         }
         return NkWidgetExceptionHandel(
           onRetryPressed: () => {},

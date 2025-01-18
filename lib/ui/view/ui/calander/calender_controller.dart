@@ -496,26 +496,6 @@ class CalenderMapController extends GetxController {
     );
   }
 
-  // void loadCalenderEventv1(List<EventData> events) {
-  //   if (eventControllerv1.events.isNotEmpty) {
-  //     eventControllerv1.removeAll(eventControllerv1.events);
-  //   }
-  //   var eventData = List<CalendarEventData<EventData>>.generate(
-  //     events.length,
-  //     (index) => CalendarEventData<EventData>(
-  //       title: events[index].title ?? "No Title",
-  //       date: DateTime.parse(events[index].start ?? DateTime.now().toString()),
-  //       endDate: DateTime.parse(events[index].end ?? DateTime.now().toString()),
-  //       event: events[index],
-  //       description: events[index].title ?? "No Description",
-  //       color: getColor(events[index].type ?? 3).$1,
-  //     ),
-  //   );
-  //   eventControllerv1.addAll(eventData);
-  //   log("Events loaded: ${eventData.length}");
-  //   refresh();
-  // }
-
  void loadCalenderEventV1(List<EventData> events) {
     if (eventControllerv1.events.isNotEmpty) {
       eventControllerv1.removeAll(eventControllerv1.events);

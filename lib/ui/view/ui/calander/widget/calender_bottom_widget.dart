@@ -141,36 +141,6 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                     ? secondaryTextColor.withOpacity(0.08)
                     : white,
             padding: nkRegularPadding(),
-            // child: Column(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   crossAxisAlignment: CrossAxisAlignment.center,
-            //   children: [
-            //     CustomText(
-            //       content: date.day.toString(),
-            //       color: isToday
-            //           ? buttonTextColor
-            //           : !isInMonth
-            //               ? secondaryTextColor.withOpacity(0.5)
-            //               : null,
-            //       fontSize: 24,
-            //       fontWeight: FontWeight.bold,
-            //     ),
-            //     if (eventCount > 0)
-            //       CircleAvatar(
-            //         radius: 10,
-            //         backgroundColor: (date.isBefore(DateTime.now()) &&
-            //                     !date.isSameDate(DateTime.now())) &&
-            //                 event.any((e) => e.event!.checkIn == null)
-            //             ? const Color(0xffCCCC00)
-            //             : Colors.green,
-            //         child: MyRegularText(
-            //           label: eventCount.toString(),
-            //           color: Colors.white,
-            //           fontSize: 16,
-            //         ),
-            //       ),
-            //   ],
-            // ),
             child: isCurrentMonth && isWorkingDay
                 ? AppDimensions.instance!.orientation == Orientation.portrait
                     ? Column(

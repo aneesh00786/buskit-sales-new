@@ -27,6 +27,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
 
   
   final DashBoardController controller = Get.put(DashBoardController());
+  ApiWorker apiWorker = Get.put(ApiWorker());
   
   @override
   Widget build(BuildContext context) {

@@ -62,6 +62,7 @@ class _OrderTakingState extends State<OrderTaking>
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   HomeController homeController = Get.find<HomeController>();
+  ApiWorker apiWorker = Get.put(ApiWorker());
   bool isLoading = true;
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;

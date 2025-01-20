@@ -56,6 +56,7 @@ class AppRoutes {
           page: () => DashBoardScreen(
             homeController: Get.arguments ?? HomeController(),
           ),
+          binding: CommonBinding()
         ),
         GetPage(
           name: customersAndOrders,

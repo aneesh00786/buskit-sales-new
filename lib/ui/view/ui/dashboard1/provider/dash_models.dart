@@ -1385,16 +1385,16 @@ class PendingAmount {
   final String? invoiceId;
   final String? businessName;
   final int? orderStatus;
-  final int? orderTotal;
-  final int? receivedAmount;
-  final int? receivableAmount;
-  final int? paymentStatus;
-  final int? creditPeriod;
-  final int? count;
+  final num? orderTotal;
+  final num? receivedAmount;
+  final num? receivableAmount;
+  final num? paymentStatus;
+  final num? creditPeriod;
+  final num? count;
   final String? percentage;
-  final int? amount;
-  final int? dueAmount;
-  final int? overDue;
+  final num? amount;
+  final num? dueAmount;
+  final num? overDue;
   final List<dynamic>? dueDate;
 
   PendingAmount({

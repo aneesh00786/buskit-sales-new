@@ -9,7 +9,7 @@ class EditablePendingPaymentCell extends StatefulWidget {
   final int index;
   final String orderId;
   final int orderTotal;
-  final int? receivable; // Nullable receivable
+  final num? receivable; // Nullable receivable
 
   EditablePendingPaymentCell({
     required this.initialValue,

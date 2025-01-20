@@ -849,7 +849,6 @@ class NestedPieChartj extends StatelessWidget {
                                                     payment.orderTotal! -
                                                         payment.receivedAmount!,
                                             onValueChanged: (newValue, index) {
-                                              // Handle editable cells if necessary
                                             },
                                           ),
                                         ),

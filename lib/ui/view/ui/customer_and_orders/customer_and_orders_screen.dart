@@ -2167,14 +2167,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         );
                                                         provider
                                                             .fetchCustomerDashboardCountData(
-                                                          customer.customerId,
-                                                        );
-                                                        customerAndOrderController
-                                                            .setCustomerId(
                                                                 customer
                                                                     .customerId);
-                                                        provider
-                                                            .setCurrentMonthDates();
                                                         prodController
                                                                 .selectedCustomerName
                                                                 .value =
@@ -2188,7 +2182,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .selectedCustomerImageUrl
                                                                 .value =
                                                             customer.imageUrl;
-                                                            //log(),
+
+                                                        log('Customer ID == : ${customer.customerId}');
+
                                                         Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
@@ -2207,6 +2203,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   .businessName,
                                                               cusImage: customer
                                                                   .imageUrl,
+                                                              isFromOrder: true,
                                                             ),
                                                           ),
                                                         );

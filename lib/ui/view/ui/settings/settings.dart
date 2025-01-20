@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -21,8 +22,10 @@ import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.d
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -41,6 +44,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
   File? photoBrowser;
   bool isIdNotSelected = false, isBrowserNotSelected = false;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final ConnectivityService _connectivityService = ConnectivityService();
+  bool _isOnline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkConnectivity();
+    _connectivityService.connectivityStream.listen(_updateConnectivityStatus);
+  }
+
+Future<void> _checkConnectivity() async {
+  bool onlineStatus = await _connectivityService.isOnline();
+  if (mounted) {
+    setState(() {
+      _isOnline = onlineStatus;
+    });
+
+    if (!_isOnline) {
+      showNoInternetSnackBar(context);
+    }
+  }
+}
+
+
+void _updateConnectivityStatus(List<ConnectivityResult> result) async {
+  if (result != ConnectivityResult.none) {
+    bool hasInternet = await _connectivityService.hasInternet();
+    if (mounted) {
+      setState(() {
+        _isOnline = hasInternet;
+      });
+      if (!_isOnline) {
+        showNoInternetSnackBar(context);
+      }
+    }
+  } else {
+    if (mounted) {
+      setState(() {
+        _isOnline = false;
+      });
+      showNoInternetSnackBar(context);
+    }
+  }
+}
+
 
   final salesman = SessionHelper.loginSavedData;
   @override

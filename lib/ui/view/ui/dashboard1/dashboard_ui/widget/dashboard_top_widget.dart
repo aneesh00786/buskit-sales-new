@@ -1,9 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/pagination_model.dart';
+import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -17,17 +21,29 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dar
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../dashboard_controller.dart';
 
@@ -47,7 +63,26 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-
+  ProductsController productsController = Get.put(ProductsController());
+  PendingPaymentController pendingPaymentController =
+      Get.put(PendingPaymentController());
+  StaffController staffController = Get.put(StaffController());
+  LeadsController leadsController = Get.put(LeadsController());
+  CustomersController leadsCustomerController = Get.put(CustomersController());
+  OrderController orderController = Get.put(OrderController());
+  CalenderMapController calenderMapController =
+      Get.put(CalenderMapController());
+  RejectedLeadsController leadsRejectedController =
+      Get.put(RejectedLeadsController());
+  CustomerAndOrderController customerAndOrderController =
+      Get.put(CustomerAndOrderController());
+  PaginationModel paginationModel = PaginationModel();
+  final int currentYear = DateTime.now().year;
+  int selectedTabIndex = 0;
+  SearchModel searchData = SearchModel();
+  final ApiWorker _apiWorker = ApiWorker();
+  TabController? _tabController;
+  TabController? get tabController => _tabController;
   @override
   void initState() {
     super.initState();
@@ -141,10 +176,11 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                               child: DropdownButton<FilterDateEnum>(
                                 value: provider.selectedFilter,
                                 onChanged: (newValue) async {
-                                  bool isConnected = await ConnectivityService().isOnline();
+                                  bool isConnected =
+                                      await ConnectivityService().isOnline();
                                   if (newValue != null && isConnected) {
                                     provider.onFilterChanged(newValue);
-                                  }else{
+                                  } else {
                                     showNoInternetSnackBar(context);
                                   }
                                 },
@@ -352,10 +388,71 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                 ),
                 SyncButtonWidget(
                   onSync: () async {
+                    DateTime now = DateTime.now();
+                    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+                    DateTime lastDayOfMonth =
+                        DateTime(now.year, now.month + 1, 0);
+                    String firstDayString =
+                        DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+                    String lastDayString =
+                        DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+                    DateTime? initialDay;
+                    final companyId =
+                        SessionHelper.loginSavedData?.company_id ?? 0;
+                    final salesmanId =
+                        SessionHelper.loginSavedData?.salesmanId ?? '';
                     if (!dashboardProvider.dataFetched) {
                       dashboardProvider.resetProvider();
                       dashboardProvider.fetchData();
                       dashboardProvider.fetchChatData(salesmanId);
+                      await Future.delayed(const Duration(seconds: 2));
+                      final settings =
+                          await _apiWorker.fetchAllSettings(companyId);
+                      await Future.delayed(const Duration(microseconds: 500));
+                      await Provider.of<CustomersProvider>(context,
+                              listen: false)
+                          .fetchCustomerData();
+                      await customerAndOrderController.loadCustomer();
+                      await Future.delayed(const Duration(microseconds: 500));
+                      await productsController.fetchCategoryData();
+                      await Future.delayed(const Duration(microseconds: 500));
+                      await ApiWorker().fetchRecentOrderCount(
+                          startDate: firstDayString, endDate: lastDayString);
+                      await Future.delayed(const Duration(microseconds: 500));
+                      await pendingPaymentController.loadOrderData(
+                          chartIndex: 0, compId: companyId, isLogin: true);
+                      await Future.delayed(const Duration(microseconds: 500));
+                      await staffController.loadSalesmanTargetForSelectedTab(
+                          currentYear: currentYear.toString(),
+                          selectedTabIndex: _tabController?.index??0 + 1,
+                          staffId: salesmanId);
+
+                      if (settings != null) {
+                        await SessionHelper().setSettingsData(settings);
+                      }
+                      SubCategoryItem? subCategoryItem =
+                          productsController.getInitialSubCategoryIdAndName();
+                      if (subCategoryItem != null &&
+                          (subCategoryItem.id ?? '').isNotEmpty) {
+                        await productsController
+                            .fetchProducts(subCategoryItem.id!);
+                      } else {
+                        log("No subcategory found. Products not fetched.");
+                      }
+                      await Future.delayed(const Duration(microseconds: 500));
+                      await leadsController.loadLeadsCustomerData();
+                      await leadsCustomerController.loadLeadsCustomerData();
+                      await leadsRejectedController.loadRejectedLeadsData();
+                      await Future.delayed(const Duration(microseconds: 500));
+                      ApiWorker().getRecentOrdersData(
+                        searchModel: searchData,
+                        orderStatus: 11,
+                        isLogin: true,
+                        startDate: firstDayString,
+                        endDate: lastDayString,
+                      );
+                      await calenderMapController
+                          .fetchCalenderEvents(initialDay ?? DateTime.now());
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

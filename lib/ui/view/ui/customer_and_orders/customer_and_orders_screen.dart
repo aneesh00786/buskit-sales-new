@@ -814,11 +814,11 @@ class _tableeeState extends State<tableee> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade100, // Subtle background color
+          color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade300, // Light shadow
+              color: Colors.grey.shade300,
               blurRadius: 6.0,
               offset: const Offset(0, 2),
             ),
@@ -827,16 +827,14 @@ class _tableeeState extends State<tableee> {
         child: TextField(
           controller: controller,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16.0, vertical: 18.0), // Modern padding
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
             labelText: labelText,
-            labelStyle:
-                TextStyle(color: Colors.grey.shade600), // Modern label color
-            prefixIcon: Icon(icon, color: Colors.grey.shade600), // Icon styling
+            labelStyle: TextStyle(color: Colors.grey.shade600),
+            prefixIcon: Icon(icon, color: Colors.grey.shade600),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
-              borderSide: const BorderSide(
-                  color: Colors.blue, width: 1.5), // Highlight color
+              borderSide: const BorderSide(color: Colors.blue, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -1028,65 +1026,86 @@ class BottomTotalWidget extends StatelessWidget {
                     120,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[0].sales),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[0].sales),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[1].delivery),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[1].delivery),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[2].payment),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[2].payment),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[4].preOrder),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[4].preOrder),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[3].estimate),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[3].estimate),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[5].draft),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[5].draft),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
                   _buildTableCell(
-                    Center(
-                      child: Text(
-                          formatAmount(provider.orderTotalList[6].cancelled),
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(formatAmount(provider.orderTotalList[6].cancelled),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
                     ),
                     140,
                   ),
@@ -2148,7 +2167,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           .opaque,
                                                       onTap: () {
                                                         provider
-                                                          .setCurrentMonthDates();
+                                                            .setCurrentMonthDates();
                                                         provider
                                                             .fetchCustomerDashboardData(
                                                           customer.customerId,
@@ -2753,7 +2772,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 ?.toString() ??
                                                             '0',
                                                         Colors.purple,
-                                                        true),
+                                                        false),
                                                   ),
                                                 ),
                                               ),
@@ -2798,7 +2817,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                     b.orderTotal)
                                                             .toString(),
                                                         Colors.grey.shade700,
-                                                        true),
+                                                        false),
                                                   ),
                                                 ),
                                               ),
@@ -2843,7 +2862,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   b.orderTotal)
                                                           .toString(),
                                                       Colors.red.shade600,
-                                                      true,
+                                                      false,
                                                     ),
                                                   ),
                                                 ),

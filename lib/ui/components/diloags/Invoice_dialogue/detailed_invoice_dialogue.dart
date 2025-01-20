@@ -133,17 +133,16 @@ void showDetailedOrderInvoiceDialog(
                 ),
                 const SizedBox(height: 16),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text('ITEMS ORDERED',
-                            style: TextStyle(fontSize: 18))),
-                    const Spacer(),
+                    const Text('ITEMS ORDERED', style: TextStyle(fontSize: 18)),
                     Text(
-                        'Order Status : ${getStatusName(orderInvoiceData.orderStatus!)}',
-                        style: const TextStyle(fontSize: 18))
+                      'Order Status : ${getStatusName(orderInvoiceData.orderStatus!)}',
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   ],
                 ),
+
                 const Divider(
                   color: black,
                 ),
@@ -156,12 +155,14 @@ void showDetailedOrderInvoiceDialog(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: DataTable(
                                     dataRowHeight: 40,
                                     headingRowHeight: 40,
                                     horizontalMargin: 20,
+                                    columnSpacing: 20,
                                     headingTextStyle: const TextStyle(
                                       color: black,
                                       fontSize: 16,
@@ -169,8 +170,8 @@ void showDetailedOrderInvoiceDialog(
                                     ),
                                     columns: const [
                                       DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
+                                        label: Align(
+                                          alignment: Alignment.centerLeft,
                                           child: Text(
                                             'ITEMS NAME',
                                             textAlign: TextAlign.left,
@@ -178,8 +179,8 @@ void showDetailedOrderInvoiceDialog(
                                         ),
                                       ),
                                       DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
+                                        label: Align(
+                                          alignment: Alignment.center,
                                           child: Text(
                                             'UNIT PRICE',
                                             textAlign: TextAlign.center,
@@ -187,8 +188,8 @@ void showDetailedOrderInvoiceDialog(
                                         ),
                                       ),
                                       DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
+                                        label: Align(
+                                          alignment: Alignment.center,
                                           child: Text(
                                             'QUANTITY',
                                             textAlign: TextAlign.center,
@@ -196,8 +197,8 @@ void showDetailedOrderInvoiceDialog(
                                         ),
                                       ),
                                       DataColumn(
-                                        label: Expanded(
-                                          flex: 2,
+                                        label: Align(
+                                          alignment: Alignment.centerRight,
                                           child: Text(
                                             'TOTAL',
                                             textAlign: TextAlign.right,
@@ -208,41 +209,49 @@ void showDetailedOrderInvoiceDialog(
                                     rows: dashBoardController
                                         .fetchSpecificOrderData!.cart!
                                         .map((item) {
-                                      return DataRow(cells: [
-                                        DataCell(Expanded(
-                                            flex: 2,
-                                            child: Text(
-                                                item.productName.toString()))),
-                                        DataCell(Expanded(
-                                          flex: 2,
-                                          child: Center(
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(
+                                            Align(
+                                              alignment: Alignment.centerLeft,
                                               child: Text(
-                                            formatAmount(item.price),
-                                            maxLines: 1,
-                                          )),
-                                        )),
-                                        DataCell(Expanded(
-                                          flex: 2,
-                                          child: Center(
+                                                  item.productName.toString()),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Align(
+                                              alignment: Alignment.center,
                                               child: Text(
-                                                  item.packType == 'Pack'
-                                                      ? '${(item.pieces! * item.quantity!)} (${item.quantity} ${item.packType})'
-                                                      : item.quantity
-                                                          .toString(),
-                                                  maxLines: 1)),
-                                        )),
-                                        DataCell(Expanded(
-                                          flex: 2,
-                                          child: Align(
+                                                formatAmount(item.price),
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                item.packType == 'Pack'
+                                                    ? '${(item.pieces! * item.quantity!)} (${item.quantity} ${item.packType})'
+                                                    : item.quantity.toString(),
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Align(
                                               alignment: Alignment.centerRight,
                                               child: Text(
-                                                  formatAmount(item.totalPrice),
-                                                  maxLines: 1)),
-                                        )),
-                                      ]);
+                                                formatAmount(item.totalPrice),
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
                                     }).toList(),
                                   ),
-                                )
+                                ),
                               ],
                             ),
                             Padding(
@@ -269,32 +278,32 @@ void showDetailedOrderInvoiceDialog(
                                     ],
                                   ),
                                   if (dashBoardController
-                                        .fetchSpecificOrderData!.tax !=
-                                    null) ...[
-                                  ...dashBoardController
-                                      .fetchSpecificOrderData!.tax!
-                                      .map((taxItem) {
-                                    return Row(
-                                      children: [
-                                        Text(
-                                          '${taxItem.tax_name} - ${taxItem.tax} %',
-                                          style: const TextStyle(
-                                            color: black,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
+                                          .fetchSpecificOrderData!.tax !=
+                                      null) ...[
+                                    ...dashBoardController
+                                        .fetchSpecificOrderData!.tax!
+                                        .map((taxItem) {
+                                      return Row(
+                                        children: [
+                                          Text(
+                                            '${taxItem.tax_name} - ${taxItem.tax} %',
+                                            style: const TextStyle(
+                                              color: black,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                          formatAmount(
-                                            '${dashBoardController.fetchSpecificOrderData!.orderTotal! * taxItem.tax!.toInt() / 100}',
+                                          const Spacer(),
+                                          Text(
+                                            formatAmount(
+                                              '${dashBoardController.fetchSpecificOrderData!.orderTotal! * taxItem.tax!.toInt() / 100}',
+                                            ),
+                                            maxLines: 1,
                                           ),
-                                          maxLines: 1,
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
-                                ],
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ],
                                   Divider(color: Colors.grey.shade400),
                                   Row(
                                     children: [

@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -112,6 +113,7 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
+
   set currentPage(int newPage) {
     if (newPage != _currentPage) {
       _currentPage = newPage;
@@ -124,8 +126,9 @@ class CustomersProvider with ChangeNotifier {
       _filteredCustomers = _customers;
     } else {
       _filteredCustomers = _customers
-          .where((customer) =>
-              customer.businessName.toLowerCase().startsWith(query.toLowerCase()))
+          .where((customer) => customer.businessName
+              .toLowerCase()
+              .startsWith(query.toLowerCase()))
           .toList();
     }
     notifyListeners();
@@ -147,7 +150,6 @@ class CustomersProvider with ChangeNotifier {
     _yearsListOfAllList = yearsListOfAll;
   }
 
-
   Future<void> fetchCustomerDashboardCountData(
     String customerId,
   ) async {
@@ -162,7 +164,6 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  
 
   Future<OrderResponse>? _orderResponse;
   Future<OrderResponse>? get orderResponse => _orderResponse;
@@ -478,40 +479,37 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-Future<void> selectDate(BuildContext context, bool isStartDate) async {
-  final DateTime? pickedDate = await showDatePicker(
-    context: context,
-    initialDate: isStartDate
-        ? (_selectedStartDate.isNotEmpty
-            ? DateTime.parse(_selectedStartDate)
-            : DateTime.now())
-        : (_selectedEndDate.isNotEmpty
-            ? DateTime.parse(_selectedEndDate)
-            : DateTime.now()),
-    firstDate: DateTime(2020),
-    lastDate: DateTime(2100),
-  );
+  Future<void> selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: isStartDate
+          ? (_selectedStartDate.isNotEmpty
+              ? DateTime.parse(_selectedStartDate)
+              : DateTime.now())
+          : (_selectedEndDate.isNotEmpty
+              ? DateTime.parse(_selectedEndDate)
+              : DateTime.now()),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
 
-  if (pickedDate != null) {
-    final formattedDate = pickedDate.toIso8601String().substring(0, 10);
+    if (pickedDate != null) {
+      final formattedDate = pickedDate.toIso8601String().substring(0, 10);
 
-    if (isStartDate) {
-      _selectedStartDate = formattedDate;
-    } else {
-      _selectedEndDate = formattedDate;
+      if (isStartDate) {
+        _selectedStartDate = formattedDate;
+      } else {
+        _selectedEndDate = formattedDate;
+      }
+      if (_selectedFilter == FilterDateEnum.range &&
+          _selectedStartDate.isNotEmpty &&
+          _selectedEndDate.isNotEmpty) {}
+
+      notifyListeners();
     }
-    if (_selectedFilter == FilterDateEnum.range &&
-        _selectedStartDate.isNotEmpty &&
-        _selectedEndDate.isNotEmpty) {
-    }
-
-    notifyListeners();
   }
-}
-
 
   void onFilterChanged(FilterDateEnum? selectedFilter) {
-    
     NotificationController notificationController =
         Get.find<NotificationController>();
     print('dropdown changed $selectedFilter');
@@ -522,14 +520,11 @@ Future<void> selectDate(BuildContext context, bool isStartDate) async {
         _selectedEndDate = '';
       } else {
         if (_selectedStartDate.isEmpty) {
-          _selectedStartDate = DateTime.now()
-              .toIso8601String()
-              .substring(0, 10);
+          _selectedStartDate =
+              DateTime.now().toIso8601String().substring(0, 10);
         }
         if (_selectedEndDate.isEmpty) {
-          _selectedEndDate = DateTime.now()
-              .toIso8601String()
-              .substring(0, 10);
+          _selectedEndDate = DateTime.now().toIso8601String().substring(0, 10);
         }
       }
 
@@ -577,19 +572,19 @@ Future<void> selectDate(BuildContext context, bool isStartDate) async {
   void goToNextPage() {
     if (_currentPage < _totalPages) {
       _currentPage++;
-      fetchCustomerData(page: _currentPage); 
+      fetchCustomerData(page: _currentPage);
     }
   }
 
   void goToPreviousPage() {
     if (_currentPage > 1) {
       _currentPage--;
-      fetchCustomerData(page: _currentPage); 
+      fetchCustomerData(page: _currentPage);
     }
   }
 
   void refreshCurrentPage() {
-    fetchCustomerData(page: _currentPage); 
+    fetchCustomerData(page: _currentPage);
   }
 
   Future<void> addEvent(

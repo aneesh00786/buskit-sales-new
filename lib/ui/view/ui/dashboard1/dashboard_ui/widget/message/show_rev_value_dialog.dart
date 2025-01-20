@@ -12,225 +12,248 @@ void showValueDialog(
     context: context,
     builder: (BuildContext context) {
       return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
-            double maxDialogHeight = constraints.maxHeight * 0.7;
-            double rowHeight = 40.0;
-            double headerHeight = 30.0;
-            var displayData = title == "Revenue"
-                ? categoryData.orderRevenueData
-                : categoryData.bookingRevenueData;
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: LayoutBuilder(
+  builder: (BuildContext context, BoxConstraints constraints) {
+    double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+    double maxDialogHeight = constraints.maxHeight * 0.7;
+    double rowHeight = 40.0;
+    double headerHeight = 30.0;
+    var displayData = title == "Revenue"
+        ? categoryData.orderRevenueData
+        : categoryData.bookingRevenueData;
 
-            double listHeight = (displayData?.length ?? 0) * rowHeight;
-            double contentHeight =
-                listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: maxDialogHeight,
+    // Calculate the total height required for the list
+    double listHeight = (displayData?.length ?? 0) * rowHeight;
+
+    // The height of the scrollable area
+    double contentHeight =
+        listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: maxDialogHeight,
+      ),
+      child: SizedBox(
+        width: dialogWidth,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
               ),
-              child: SizedBox(
-                width: dialogWidth,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                        ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: 'Poppins_Regular',
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontFamily: 'Poppins_Regular',
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  dialogCloseButton1(context, red),
+                ],
+              ),
+            ),
+
+            // Table Header
+            Container(
+              color: const Color.fromARGB(255, 247, 247, 247),
+              height: headerHeight,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Date',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      'Invoice',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      'Status',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      'Amount',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // List Content
+            Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: contentHeight,
+                ),
+                child: ListView.builder(
+                  itemCount: displayData?.isEmpty ?? true
+                      ? 1
+                      : displayData?.length ?? 0,
+                  physics: const ClampingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    if (displayData?.isEmpty ?? true) {
+                      return buildEmptyRow();
+                    } else {
+                      var item = displayData![index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 0.5,
                             ),
                           ),
-                          dialogCloseButton1(context, red),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      color: const Color.fromARGB(255, 247, 247, 247),
-                      height: headerHeight,
-                      child: const Row(
-                        children: [
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Date',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Invoice',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Status',
-                            fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
-                            text: 'Amount',
-                            fontSize: 13,
-                          )),
-                        ],
-                      ),
-                    ),
-                    Flexible(
-                      child: SizedBox(
-                        height: contentHeight,
-                        child: ListView.builder(
-                          itemCount: displayData?.isEmpty ?? true
-                              ? 1
-                              : displayData?.length ?? 0,
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            if (displayData?.isEmpty ?? true) {
-                              return buildEmptyRow();
-                            } else {
-                              var item = displayData![index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                ),
-                                height: rowHeight,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        child: buildRowData(
-                                            getFormattedOrderCreatAt(
-                                                title == "Revenue"
-                                                    ? categoryData
-                                                        .orderRevenueData![
-                                                            index]
-                                                        .orderCreatAt
-                                                    : categoryData
-                                                        .bookingRevenueData![
-                                                            index]
-                                                        .orderCreatAt
-                                                // item.orderCreatAt,
-                                                ))),
-                                    Expanded(
-                                        child: buildRowData((title == "Revenue"
-                                                    ? categoryData
-                                                        .orderRevenueData![
-                                                            index]
-                                                        .orderId
-                                                    : categoryData
-                                                        .bookingRevenueData![
-                                                            index]
-                                                        .orderId)
-                                                .toString()
-                                            // item.orderId ?? 'N/A'
-                                            )),
-                                    Expanded(
-                                        child: buildRowData(getStatusName(
-                                            (title == "Revenue"
-                                                    ? categoryData
-                                                        .orderRevenueData![
-                                                            index]
-                                                        .orderStatus
-                                                    : categoryData
-                                                        .bookingRevenueData![
-                                                            index]
-                                                        .orderStatus)!
-                                                .toInt()
-                                            // item.orderStatus!.toInt()
-                                            ))),
-                                    Expanded(
-                                        child: buildRowData(formatAmount(
-                                            title == "Revenue"
-                                                ? categoryData
-                                                    .orderRevenueData![index]
-                                                    .orderTotal
-                                                : categoryData
-                                                    .bookingRevenueData![index]
-                                                    .total
-                                            // item.orderTotal
-                                            ))),
-                                  ],
-                                ),
-                              );
-                            }
-                          },
                         ),
-                      ),
-                    ),
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.grey,
-                            width: 0.5,
-                          ),
-                        ),
-                      ),
-                      height: rowHeight,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        height: rowHeight,
                         child: Row(
                           children: [
                             Expanded(
-                              child: DialogTableHeaderText(
-                                text: 'Total',
-                                fontSize: 12,
-                                align: TextAlign.left,
+                              child: buildRowData(
+                                getFormattedOrderCreatAt(
+                                  title == "Revenue"
+                                      ? categoryData
+                                          .orderRevenueData![index]
+                                          .orderCreatAt
+                                      : categoryData
+                                          .bookingRevenueData![index]
+                                          .orderCreatAt,
+                                ),
                               ),
                             ),
                             Expanded(
-                              flex: 2,
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: DialogTableHeaderText(
-                                  text: title == "Revenue"
-                                      ? 
-                                      formatAmount(categoryData
-                                          .orderRevenueData!
-                                          .map((e) => e.orderTotal ?? 0.0)
-                                          .reduce((a, b) => a + b))
-                                      : formatAmount(categoryData
-                                          .bookingRevenueData!
-                                          .map((e) => e.total ?? 0.0)
-                                          .reduce((a, b) => a + b)),
-                                  fontSize: 11,
+                              child: buildRowData(
+                                (title == "Revenue"
+                                        ? categoryData
+                                            .orderRevenueData![index].orderId
+                                        : categoryData
+                                            .bookingRevenueData![index].orderId)
+                                    .toString(),
+                              ),
+                            ),
+                            Expanded(
+                              child: buildRowData(
+                                getStatusName(
+                                  (title == "Revenue"
+                                          ? categoryData
+                                              .orderRevenueData![index]
+                                              .orderStatus
+                                          : categoryData
+                                              .bookingRevenueData![index]
+                                              .orderStatus)!
+                                      .toInt(),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: buildRowData(
+                                formatAmount(
+                                  title == "Revenue"
+                                      ? categoryData
+                                          .orderRevenueData![index].orderTotal
+                                      : categoryData
+                                          .bookingRevenueData![index].total,
                                 ),
                               ),
                             ),
                           ],
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+
+            // Footer
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.grey,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              height: rowHeight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Total',
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          title == "Revenue"
+                              ? formatAmount(categoryData.orderRevenueData!
+                                  .map((e) => e.orderTotal ?? 0.0)
+                                  .reduce((a, b) => a + b))
+                              : formatAmount(categoryData.bookingRevenueData!
+                                  .map((e) => e.total ?? 0.0)
+                                  .reduce((a, b) => a + b)),
+                          style: const TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
-      );
+      ),
+    );
+  },
+));
+
     },
   );
 }

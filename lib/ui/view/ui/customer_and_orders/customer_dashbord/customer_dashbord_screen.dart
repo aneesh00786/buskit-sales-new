@@ -127,7 +127,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         id: customerId,
       );
     } else {
-      customerId = productsController.selectedCustomerId.value;
+      return;
     }
     if (customerId == null || customerId.isEmpty) {
       log('Customer ID is empty, retrying initialization...');
@@ -135,9 +135,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       //return _initializeCustomerData();
     }
     customerOrderController.setCustomerId(customerId);
-    log('Initialized Customer ID: $customerId');
-    log('Selected Customer Name: ${productsController.selectedCustomerName.value}');
-    log('Selected Customer Image: ${productsController.selectedCustomerImageUrl.value}');
+    log('Initialized Customer ID: ${productsController.selectedCustomerId.value}');
   }
 
   @override
@@ -148,7 +146,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
-    
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
         : productsController.selectedCustomerName.value;
@@ -159,7 +156,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     String? endDate;
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
-
     return nkMediumSizeBox(
       height: isMobile
           ? AppDimensions.instance.height * 3

@@ -3,6 +3,8 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:intl/intl.dart';
+
 class SyncButtonWidget extends StatefulWidget {
   final Function onSync;
 
@@ -17,6 +19,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
   bool _isOnline = true;
   bool _isSyncing = false;
   Timer? _connectivityCheckTimer;
+  DateTime? _lastSyncTime; 
 
   @override
   void initState() {
@@ -28,7 +31,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
 
   @override
   void dispose() {
-    _connectivityCheckTimer?.cancel(); 
+    _connectivityCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -50,67 +53,89 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
         _isSyncing = true;
       });
     }
-    await Future.delayed(const Duration(seconds: 3)); 
-    widget.onSync(); 
+
+    await widget.onSync();
+
     if (mounted) {
       setState(() {
         _isSyncing = false;
+        _lastSyncTime = DateTime.now();
       });
     }
   }
 
+  String _formatLastSyncTime() {
+    if (_lastSyncTime == null) {
+      return "Last Sync: Not Available";
+    }
+    return "${DateFormat('dd/MM/yyyy : hh:mm a').format(_lastSyncTime!)}";
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      width: 100,
-      decoration: BoxDecoration(
-        color: !_isOnline
-            ? const Color.fromARGB(255, 201, 199, 199)
-            : primaryColor.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: InkWell(
-        onTap: !_isOnline
-            ? () {
-               showNoInternetSnackBar(context);
-              }
-            : () {
-                _startSyncing();
-              },
-        child: Center(
-          child: _isSyncing
-              ? const SizedBox(
-                  height: 15,
-                  width: 15,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.0,
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Sync',
-                      style: TextStyle(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 40,
+          width: 100,
+          decoration: BoxDecoration(
+            color: !_isOnline
+                ? const Color.fromARGB(255, 201, 199, 199)
+                : primaryColor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: InkWell(
+            onTap: !_isOnline
+                ? () {
+                    showNoInternetSnackBar(context);
+                  }
+                : _startSyncing,
+            child: Center(
+              child: _isSyncing
+                  ? const SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
                         color: Colors.white,
-                        fontFamily: "Poppins_Regular",
+                        strokeWidth: 2.0,
                       ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Sync',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "Poppins_Regular",
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Icon(
+                          Icons.replay_outlined,
+                          size: 15,
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 5),
-                    const Icon(
-                      Icons.replay_outlined,
-                      size: 15,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 5),
+        Text(
+          _formatLastSyncTime(),
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 11,
+          ),
+        ),
+      ],
     );
   }
 }
+
+
 void showNoInternetSnackBar(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

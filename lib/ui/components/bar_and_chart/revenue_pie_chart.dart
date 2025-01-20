@@ -1341,13 +1341,13 @@ class _DoughnutDefaultCustomerDashState
                   centerSpaceRadius: 43,
                   sections: [
                     fl_chart.PieChartSectionData(
-                      value: paymentCompleted.toDouble(),
+                      value: paymentCompleted?.toDouble(),
                       color: widget.aColor,
                       radius: 19.6,
                       showTitle: false,
                     ),
                     fl_chart.PieChartSectionData(
-                      value: paymentRemaining.toDouble(),
+                      value: paymentRemaining?.toDouble(),
                       color: widget.bColor,
                       radius: 19.6,
                       showTitle: false,
@@ -1363,7 +1363,7 @@ class _DoughnutDefaultCustomerDashState
                         final PieChartSectionData touchedSectionData =
                             section.touchedSection ?? PieChartSectionData();
                         final isPaymentCompleted = touchedSectionData.value ==
-                            paymentCompleted.toDouble();
+                            paymentCompleted;
                         final title =
                             isPaymentCompleted ? 'Bookings' : 'Orders';
                         final orderDetails = isPaymentCompleted

@@ -2013,20 +2013,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         vertical.jumpTo(vertical1.position.pixels);
       }
     });
-WidgetsBinding.instance.addPostFrameCallback((_) {
-  final provider = context.read<CustomersProvider>();
-  if (provider.yearsListOfAllList.isNotEmpty) {
-    customerAndOrderController.selectedYear.value =
-        provider.yearsListOfAllList.first.orderYears?.toString() ?? '';
-    customerAndOrderController.years.value = provider.yearsListOfAllList
-        .map((yearItem) => yearItem.orderYears?.toString() ?? '')
-        .toList();
-  } else {
-    customerAndOrderController.selectedYear.value = '';
-    customerAndOrderController.years.value = [];
-  }
-});
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<CustomersProvider>();
+      if (provider.yearsListOfAllList.isNotEmpty) {
+        customerAndOrderController.selectedYear.value =
+            provider.yearsListOfAllList.first.orderYears?.toString() ?? '';
+        customerAndOrderController.years.value = provider.yearsListOfAllList
+            .map((yearItem) => yearItem.orderYears?.toString() ?? '')
+            .toList();
+      } else {
+        customerAndOrderController.selectedYear.value = '';
+        customerAndOrderController.years.value = [];
+      }
+    });
   }
 
   @override
@@ -2148,47 +2147,6 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
                                                       behavior: HitTestBehavior
                                                           .opaque,
                                                       onTap: () {
-                                                        customerAndOrderController
-                                                            .setCustomerId(
-                                                                customer
-                                                                    .customerId);
-                                                        provider
-                                                            .setCurrentMonthDates();
-                                                        prodController
-                                                                .selectedCustomerName
-                                                                .value =
-                                                            customer
-                                                                .businessName;
-                                                        prodController
-                                                                .selectedCustomerId
-                                                                .value =
-                                                            customer.customerId;
-                                                        prodController
-                                                                .selectedCustomerImageUrl
-                                                                .value =
-                                                            customer.imageUrl;
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                CustomerDachScreen(
-                                                              year: 2024,
-                                                              startDate: provider
-                                                                  .selectedStartDate,
-                                                              endDate: provider
-                                                                  .selectedEndDate,
-                                                              isFromCalendar:
-                                                                  false,
-                                                              cusId: customer
-                                                                  .customerId,
-                                                              cusName: customer
-                                                                  .businessName,
-                                                              cusImage: customer
-                                                                  .imageUrl,
-                                                            ),
-                                                          ),
-                                                        );
-
                                                         provider
                                                             .fetchCustomerDashboardData(
                                                           customer.customerId,
@@ -2210,6 +2168,47 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
                                                         provider
                                                             .fetchCustomerDashboardCountData(
                                                           customer.customerId,
+                                                        );
+                                                        customerAndOrderController
+                                                            .setCustomerId(
+                                                                customer
+                                                                    .customerId);
+                                                        provider
+                                                            .setCurrentMonthDates();
+                                                        prodController
+                                                                .selectedCustomerName
+                                                                .value =
+                                                            customer
+                                                                .businessName;
+                                                        prodController
+                                                                .selectedCustomerId
+                                                                .value =
+                                                            customer.customerId;
+                                                        prodController
+                                                                .selectedCustomerImageUrl
+                                                                .value =
+                                                            customer.imageUrl;
+                                                            //log(),
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                CustomerDachScreen(
+                                                              year: 2024,
+                                                              startDate: provider
+                                                                  .selectedStartDate,
+                                                              endDate: provider
+                                                                  .selectedEndDate,
+                                                              isFromCalendar:
+                                                                  false,
+                                                              cusId: customer
+                                                                  .customerId,
+                                                              cusName: customer
+                                                                  .businessName,
+                                                              cusImage: customer
+                                                                  .imageUrl,
+                                                            ),
+                                                          ),
                                                         );
                                                       },
                                                       child: Column(
@@ -2357,7 +2356,9 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
                                                             DropdownMenuItem<
                                                                 String>>((String
                                                             value) {
-                                                  log('Year List : ${provider.yearsListOfAllList.map((e) => e.orderYears,)}');
+                                                  log('Year List : ${provider.yearsListOfAllList.map(
+                                                    (e) => e.orderYears,
+                                                  )}');
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: value,

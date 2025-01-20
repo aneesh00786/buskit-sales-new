@@ -465,11 +465,11 @@ class BookingRevenueDatum {
 }
 
 class OrderRevenueDatum {
-  int? orderTotal;
+  num? orderTotal;
   DateTime? orderCreatAt;
   String? orderId;
-  int? orderStatus;
-  int? totalOrderRevenue;
+  num? orderStatus;
+  num? totalOrderRevenue;
 
   OrderRevenueDatum({
     this.orderTotal,

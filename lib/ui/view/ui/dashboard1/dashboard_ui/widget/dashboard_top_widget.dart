@@ -401,59 +401,57 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                         SessionHelper.loginSavedData?.company_id ?? 0;
                     final salesmanId =
                         SessionHelper.loginSavedData?.salesmanId ?? '';
-                    if (!dashboardProvider.dataFetched) {
-                      dashboardProvider.resetProvider();
-                      dashboardProvider.fetchData();
-                      dashboardProvider.fetchChatData(salesmanId);
-                      await Future.delayed(const Duration(seconds: 2));
-                      final settings =
-                          await _apiWorker.fetchAllSettings(companyId);
-                      await Future.delayed(const Duration(microseconds: 500));
-                      await Provider.of<CustomersProvider>(context,
-                              listen: false)
-                          .fetchCustomerData();
-                      await customerAndOrderController.loadCustomer();
-                      await Future.delayed(const Duration(microseconds: 500));
-                      await productsController.fetchCategoryData();
-                      await Future.delayed(const Duration(microseconds: 500));
-                      await ApiWorker().fetchRecentOrderCount(
-                          startDate: firstDayString, endDate: lastDayString);
-                      await Future.delayed(const Duration(microseconds: 500));
-                      await pendingPaymentController.loadOrderData(
-                          chartIndex: 0, compId: companyId, isLogin: true);
-                      await Future.delayed(const Duration(microseconds: 500));
-                      await staffController.loadSalesmanTargetForSelectedTab(
-                          currentYear: currentYear.toString(),
-                          selectedTabIndex: _tabController?.index??0 + 1,
-                          staffId: salesmanId);
 
-                      if (settings != null) {
-                        await SessionHelper().setSettingsData(settings);
-                      }
-                      SubCategoryItem? subCategoryItem =
-                          productsController.getInitialSubCategoryIdAndName();
-                      if (subCategoryItem != null &&
-                          (subCategoryItem.id ?? '').isNotEmpty) {
-                        await productsController
-                            .fetchProducts(subCategoryItem.id!);
-                      } else {
-                        log("No subcategory found. Products not fetched.");
-                      }
-                      await Future.delayed(const Duration(microseconds: 500));
-                      await leadsController.loadLeadsCustomerData();
-                      await leadsCustomerController.loadLeadsCustomerData();
-                      await leadsRejectedController.loadRejectedLeadsData();
-                      await Future.delayed(const Duration(microseconds: 500));
-                      ApiWorker().getRecentOrdersData(
-                        searchModel: searchData,
-                        orderStatus: 11,
-                        isLogin: true,
-                        startDate: firstDayString,
-                        endDate: lastDayString,
-                      );
-                      await calenderMapController
-                          .fetchCalenderEvents(initialDay ?? DateTime.now());
+                    dashboardProvider.resetProvider();
+                    dashboardProvider.fetchData();
+                    dashboardProvider.fetchChatData(salesmanId);
+                    await Future.delayed(const Duration(seconds: 2));
+                    final settings =
+                        await _apiWorker.fetchAllSettings(companyId);
+                    await Future.delayed(const Duration(microseconds: 500));
+                    await Provider.of<CustomersProvider>(context, listen: false)
+                        .fetchCustomerData();
+                    await customerAndOrderController.loadCustomer();
+                    await Future.delayed(const Duration(microseconds: 500));
+                    await productsController.fetchCategoryData();
+                    await Future.delayed(const Duration(microseconds: 500));
+                    await ApiWorker().fetchRecentOrderCount(
+                        startDate: firstDayString, endDate: lastDayString);
+                    await Future.delayed(const Duration(microseconds: 500));
+                    await pendingPaymentController.loadOrderData(
+                        chartIndex: 0, compId: companyId, isLogin: true);
+                    await Future.delayed(const Duration(microseconds: 500));
+                    await staffController.loadSalesmanTargetForSelectedTab(
+                        currentYear: currentYear.toString(),
+                        selectedTabIndex: _tabController?.index ?? 0 + 1,
+                        staffId: salesmanId);
+
+                    if (settings != null) {
+                      await SessionHelper().setSettingsData(settings);
                     }
+                    SubCategoryItem? subCategoryItem =
+                        productsController.getInitialSubCategoryIdAndName();
+                    if (subCategoryItem != null &&
+                        (subCategoryItem.id ?? '').isNotEmpty) {
+                      await productsController
+                          .fetchProducts(subCategoryItem.id!);
+                    } else {
+                      log("No subcategory found. Products not fetched.");
+                    }
+                    await Future.delayed(const Duration(microseconds: 500));
+                    await leadsController.loadLeadsCustomerData();
+                    await leadsCustomerController.loadLeadsCustomerData();
+                    await leadsRejectedController.loadRejectedLeadsData();
+                    await Future.delayed(const Duration(microseconds: 500));
+                    ApiWorker().getRecentOrdersData(
+                      searchModel: searchData,
+                      orderStatus: 11,
+                      isLogin: true,
+                      startDate: firstDayString,
+                      endDate: lastDayString,
+                    );
+                    await calenderMapController
+                        .fetchCalenderEvents(initialDay ?? DateTime.now());
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Syncing offline orders...'),

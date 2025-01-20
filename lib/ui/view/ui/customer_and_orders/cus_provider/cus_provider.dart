@@ -445,13 +445,15 @@ class CustomersProvider with ChangeNotifier {
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: salesmanId,
           customerName: '',
-          startDate:
-          "",
-          endDate:
-          "",
+          startDate: // _selectedFilter.name == 'Range' ? _selectedStartDate :
+              "",
+          endDate: //_selectedFilter.name == 'Range' ? _selectedEndDate :
+              "",
           limit: 10,
           page: page,
-          valueFromDw: [_selectedFilter.name,_selectedStartDate,_selectedEndDate],
+          valueFromDw: _selectedFilter.name == 'Range'
+              ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+              : _selectedFilter.name,
         );
         log('Selecetd Filters : ${_selectedFilter.name}');
         _customersFuture!.then((value) {

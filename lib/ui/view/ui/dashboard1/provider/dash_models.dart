@@ -1270,16 +1270,16 @@ class DeliveryOrder {
 }
 
 class OrderDetails {
-    int? orderTotal;
+    num? orderTotal;
     DateTime? orderCreatAt;
     String? orderId;
     int? orderStatus;
     String? businessName;
     String? invoiceId;
-    int? orderProcessing;
-    int? packedForDelivery;
-    int? deliverd;
-    int? outForDelivery;
+    num? orderProcessing;
+    num? packedForDelivery;
+    num? deliverd;
+    num? outForDelivery;
 
     OrderDetails({
         this.orderTotal,

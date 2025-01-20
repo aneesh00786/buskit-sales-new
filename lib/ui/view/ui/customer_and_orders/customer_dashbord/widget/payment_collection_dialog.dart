@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 void paymentCollectionDialog(
       BuildContext context, List<RecentOrder> selectedOrders) {
-    List<int?> _newOrderTotal =
+    List<num?> _newOrderTotal =
         selectedOrders.map((order) => order.orderTotal).toList();
 
     // List<int?> _newOrderTotal = [];

@@ -297,7 +297,7 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      print('Exception occurred1: $e');
       throw Exception('Failed to fetch data: sabikk  kavungal $e');
     }
   }
@@ -343,7 +343,7 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      print('Exception occurred2: $e');
       throw Exception('Failed to fetch data: sabikk  kavungal $e');
     }
   }
@@ -606,7 +606,7 @@ class ApiService {
       String orderId, OrderStatus orderStatus) async {
     String orderStatusString = '';
     if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString(); // Convert int to String
+      orderStatusString = orderStatus.type.toString(); 
     }
     final requestBody = {'order_id': orderId, 'status': orderStatusString};
 
@@ -688,7 +688,7 @@ Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
         throw Exception('Failed to load admin details');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      print('Exception occurred3: $e');
     }
   }
 
@@ -727,7 +727,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
   required String endDate,
   required int limit,
   required int page,
-  required List<String> valueFromDw,
+  required dynamic valueFromDw,
 }) async {
   final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
   final requestBody = {
@@ -813,7 +813,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
       throw Exception('Failed to load data');
     }
   } catch (e) {
-    print('Exception occurred: $e');
+    print('Exception occurred4: $e');
     final cachedData = customerBox.get('fetchCustomerData');
     if (cachedData != null) {
       log('Using cached customer data from Hive');
@@ -1042,7 +1042,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
+      log('Count Response : ${response.body}');
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         print("Response Data: ${jsonResponse['data']}");
@@ -1153,7 +1153,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
         throw Exception('Failed to update admin details');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      print('Exception occurred5: $e');
       throw Exception('Failed to update admin details: $e');
     }
   }
@@ -1206,7 +1206,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
         throw Exception('Failed to update admin details');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      print('Exception occurred6: $e');
       throw Exception('Failed to update admin details: $e');
     }
   }
@@ -1260,7 +1260,7 @@ Future<CustomerResponseModelxx> fetchCustomer({
         throw Exception('Failed to update admin details');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      print('Exception occurred7: $e');
       throw Exception('Failed to update admin details: $e');
     }
   }

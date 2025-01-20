@@ -132,7 +132,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     if (customerId == null || customerId.isEmpty) {
       log('Customer ID is empty, retrying initialization...');
       await Future.delayed(Duration(milliseconds: 100));
-      return _initializeCustomerData();
+      //return _initializeCustomerData();
     }
     customerOrderController.setCustomerId(customerId);
     log('Initialized Customer ID: $customerId');
@@ -317,10 +317,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId:
-                              productsController.selectedCustomerId.value,
+                          customerId: widget.cusId??'',
+                              // productsController.selectedCustomerId.value,
                           customType: "",
-                          customOrderStatusType: OrderStatus.preOrder,
+                          customOrderStatusType: OrderStatus.newOrder,
                           userType: UserType.customer,
                           userId: "",
                           startDate: startDate,
@@ -2648,77 +2648,77 @@ class CustomerTotalSalePages extends StatelessWidget {
   }
 }
 
-class CustomerDashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<CustomersProvider>(
-      builder: (context, provider, child) {
-        // Ensure data fetching happens only once
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (provider.countFuture == null) {
-            provider.fetchCustomerDashboardCountData('CUSTO3');
-          }
-        });
+// class CustomerDashboard extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer<CustomersProvider>(
+//       builder: (context, provider, child) {
+//         // Ensure data fetching happens only once
+//         WidgetsBinding.instance.addPostFrameCallback((_) {
+//           if (provider.countFuture == null) {
+//             provider.fetchCustomerDashboardCountData('CUSTO3');
+//           }
+//         });
 
-        return FutureBuilder<ApiResponsees>(
-          future: provider.countFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (snapshot.hasData) {
-              final data = snapshot.data!.data;
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Order Count Summary',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Order Type')),
-                        DataColumn(label: Text('Count')),
-                      ],
-                      rows: [
-                        DataRow(cells: [
-                          const DataCell(Text('Total Order')),
-                          DataCell(Text(data.totalOrder.toString())),
-                        ]),
-                        DataRow(cells: [
-                          const DataCell(Text('Estimate Order')),
-                          DataCell(Text(data.estimateOrder.toString())),
-                        ]),
-                        DataRow(cells: [
-                          const DataCell(Text('Preorder Order')),
-                          DataCell(Text(data.preorderOrder.toString())),
-                        ]),
-                        DataRow(cells: [
-                          const DataCell(Text('Draft Order')),
-                          DataCell(Text(data.draftOrder.toString())),
-                        ]),
-                        DataRow(cells: [
-                          const DataCell(Text('Cancel Order')),
-                          DataCell(Text(data.cancelOrder.toString())),
-                        ]),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              return const NodataWidget();
-            }
-          },
-        );
-      },
-    );
-  }
-}
+//         return FutureBuilder<ApiResponsees>(
+//           future: provider.countFuture,
+//           builder: (context, snapshot) {
+//             if (snapshot.connectionState == ConnectionState.waiting) {
+//               return const Center(child: CircularProgressIndicator());
+//             } else if (snapshot.hasError) {
+//               return Center(child: Text('Error: ${snapshot.error}'));
+//             } else if (snapshot.hasData) {
+//               final data = snapshot.data!.data;
+//               return Padding(
+//                 padding: const EdgeInsets.all(16.0),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Order Count Summary',
+//                       style: Theme.of(context).textTheme.labelLarge,
+//                     ),
+//                     const SizedBox(height: 16),
+//                     DataTable(
+//                       columns: const [
+//                         DataColumn(label: Text('Order Type')),
+//                         DataColumn(label: Text('Count')),
+//                       ],
+//                       rows: [
+//                         DataRow(cells: [
+//                           const DataCell(Text('Total Order')),
+//                           DataCell(Text(data.totalOrder.toString())),
+//                         ]),
+//                         DataRow(cells: [
+//                           const DataCell(Text('Estimate Order')),
+//                           DataCell(Text(data.estimateOrder.toString())),
+//                         ]),
+//                         DataRow(cells: [
+//                           const DataCell(Text('Preorder Order')),
+//                           DataCell(Text(data.preorderOrder.toString())),
+//                         ]),
+//                         DataRow(cells: [
+//                           const DataCell(Text('Draft Order')),
+//                           DataCell(Text(data.draftOrder.toString())),
+//                         ]),
+//                         DataRow(cells: [
+//                           const DataCell(Text('Cancel Order')),
+//                           DataCell(Text(data.cancelOrder.toString())),
+//                         ]),
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//               );
+//             } else {
+//               return const NodataWidget();
+//             }
+//           },
+//         );
+//       },
+//     );
+//   }
+// }
 
 // class CustomerDetailScreen extends StatelessWidget {
 //   final String customerId;

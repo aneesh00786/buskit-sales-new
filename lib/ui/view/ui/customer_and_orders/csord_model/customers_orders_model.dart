@@ -452,7 +452,7 @@ class Order {
   final int orderStatus;
   final String cartId;
   final DateTime orderCreatAt;
-  final int orderTotal;
+  final num orderTotal;
   final int receivedAmount;
   final DateTime? receivedAmountDate;
   final DateTime? checkDueDate;
@@ -773,7 +773,7 @@ class RecentOrder {
   final String? receivedAmountDate; // This can remain nullable
   final String orderId;
   final String orderCreatAt;
-  final int orderTotal;
+  final num orderTotal;
   final int orderStatus;
   final int paymentStatus;
   final String customerId;

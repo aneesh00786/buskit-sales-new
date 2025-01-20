@@ -2148,6 +2148,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           .opaque,
                                                       onTap: () {
                                                         provider
+                                                          .setCurrentMonthDates();
+                                                        provider
                                                             .fetchCustomerDashboardData(
                                                           customer.customerId,
                                                           2024,
@@ -2183,7 +2185,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .value =
                                                             customer.imageUrl;
 
-                                                        log('Customer ID == : ${customer.customerId}');
+                                                        log('Customer ID == : ${customer.customerId} , Controller Cus ID :${prodController.selectedCustomerId.value}');
 
                                                         Navigator.push(
                                                           context,
@@ -2203,7 +2205,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   .businessName,
                                                               cusImage: customer
                                                                   .imageUrl,
-                                                              isFromOrder: true,
                                                             ),
                                                           ),
                                                         );
@@ -2546,6 +2547,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ? Colors.grey[50]
                                             : Colors.white,
                                         child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             _buildTableCell(
                                               Center(
@@ -2710,7 +2713,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                     b.orderTotal)
                                                             .toString(),
                                                         Colors.cyan,
-                                                        true),
+                                                        false),
                                                   ),
                                                 ),
                                               ),
@@ -2930,7 +2933,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     builder:
                         (BuildContext context, BoxConstraints constraints) {
                       double availableWidth = constraints.maxWidth;
-                      // double fontSize = 14.0;
                       double fontSize = availableWidth * 0.017;
                       double padding = availableWidth / 100;
                       double fixedIconSize = fontSize;

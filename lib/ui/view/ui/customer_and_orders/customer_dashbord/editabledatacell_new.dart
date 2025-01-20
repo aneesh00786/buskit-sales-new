@@ -8,7 +8,7 @@ class EditableDataCell extends StatefulWidget {
   final Function(String, int) onValueChanged;
   final int index;
   final String orderId; // Added parameter for order ID
-  final int orderTotal;
+  final num orderTotal;
 
   EditableDataCell({
     required this.initialValue,

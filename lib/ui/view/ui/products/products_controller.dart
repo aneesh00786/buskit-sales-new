@@ -94,7 +94,7 @@ class ProductsController extends GetxController {
       {required String name, required String imageUrl, required String id}) {
     selectedCustomerName.value = name;
     selectedCustomerImageUrl.value = imageUrl;
-    selectedCategoryId.value = id;
+    selectedCustomerId.value = id;
     log('Selected Customer Updated: $name, $imageUrl, $id');
   }
 

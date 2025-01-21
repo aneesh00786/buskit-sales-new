@@ -52,8 +52,9 @@ class CustomerDachScreen extends StatefulWidget {
   final bool isFromCalendar;
   final bool isDirectDialogue;
   final bool isFromOrder;
+  final ProductsController? productsController;
 
-  const CustomerDachScreen({
+   CustomerDachScreen({
     super.key,
     this.year,
     this.startDate,
@@ -64,6 +65,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.isFromCalendar = false,
     this.isDirectDialogue = false,
     this.isFromOrder = false,
+    this.productsController,
   });
 
   @override
@@ -74,69 +76,80 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
   int selectedYear = 2024;
   late TabController _tabController;
-  ProductsController productsController = Get.put(ProductsController());
+
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
 
-  @override
-  void initState() {
-    super.initState();
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      bool isConnected = await ConnectivityService().isOnline();
-      if(isConnected){
-        await _initializeCustomerData();
-      }else{
-        showNoInternetSnackBar(context);
-      }
-      final customerId = customerOrderController.customerId.value;
-      if (customerId.isEmpty) {
-        log('Error: Customer ID is empty, initialization failed.');
-        return;
-      }
-      final customersProvider =
-          Provider.of<CustomersProvider>(context, listen: false);
-      customersProvider.fetchCustomerDashboardData(
-          customerId, selectedYear, widget.startDate, widget.endDate);
-      customersProvider.fetchCustomerDashboardRevenueData(
-          customerId, selectedYear, widget.startDate, widget.endDate);
-      customersProvider.fetchCustomerDashboardDataSalseData(
-          customerId, selectedYear);
-      customersProvider.fetchCustomersDataDash(customerId);
-    });
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.index = 0;
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        context
-            .read<CustomersProvider>()
-            .setSelectedIndex(_tabController.index);
-      }
-    });
-  }
-  
+@override
+void initState() {
+  super.initState();
 
-  Future<void> _initializeCustomerData() async {
-    String? customerId;
-    if (widget.isFromCalendar) {
-      customerId = widget.cusId ?? '';
-      productsController.updateSelectedCustomer(
-        name: widget.cusName ?? '',
-        imageUrl: widget.cusImage ?? '',
-        id: customerId,
-      );
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    bool isConnected = await ConnectivityService().isOnline();
+    if (isConnected) {
+      await _initializeCustomerData();
     } else {
+      showNoInternetSnackBar(context);
+      return; 
+    }
+
+    final customerId = widget.productsController?.selectedCustomerId.value;
+    if (customerId!.isEmpty) {
+      log('Error: Customer ID is empty, initialization failed.');
       return;
     }
-    if (customerId == null || customerId.isEmpty) {
-      log('Customer ID is empty, retrying initialization...');
-      await Future.delayed(Duration(milliseconds: 100));
-      //return _initializeCustomerData();
+    final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
+
+    customersProvider.fetchCustomerDashboardData(
+      customerId,
+      selectedYear,
+      widget.startDate,
+      widget.endDate,
+    );
+    customersProvider.fetchCustomerDashboardRevenueData(
+      customerId,
+      selectedYear,
+      widget.startDate,
+      widget.endDate,
+    );
+    customersProvider.fetchCustomerDashboardDataSalseData(
+      customerId,
+      selectedYear,
+    );
+    customersProvider.fetchCustomersDataDash(customerId);
+  });
+  _tabController = TabController(length: 2, vsync: this);
+  _tabController.index = 0;
+  _tabController.addListener(() {
+    if (_tabController.indexIsChanging) {
+      context.read<CustomersProvider>().setSelectedIndex(_tabController.index);
     }
-    customerOrderController.setCustomerId(customerId);
-    log('Initialized Customer ID: ${productsController.selectedCustomerId.value}');
+  });
+}
+
+Future<void> _initializeCustomerData() async {
+  final customerId = widget.isFromCalendar
+      ? widget.cusId ?? ''
+      : widget.productsController?.selectedCustomerId.value;
+  final customerName = widget.isFromCalendar
+      ? widget.cusName ?? ''
+      : widget.productsController?.selectedCustomerName.value;
+  final customerImage = widget.isFromCalendar
+      ? widget.cusImage ?? ''
+      : widget.productsController?.selectedCustomerImageUrl.value;
+  if (customerId!.isEmpty) {
+    log('Error: Customer ID is empty in CustomerDachScreen.');
+    return;
   }
+  widget.productsController?.updateSelectedCustomer(
+    name: customerName??'',
+    imageUrl: customerImage??'',
+    id: customerId,
+  );
+
+  log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
+}
 
   @override
   void dispose() {
@@ -148,10 +161,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Widget build(BuildContext context) {
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
-        : productsController.selectedCustomerName.value;
+        : widget.productsController?.selectedCustomerName.value;
     final customerImage = widget.isFromCalendar
         ? widget.cusImage ?? ''
-        : productsController.selectedCustomerImageUrl.value;
+        : widget.productsController?.selectedCustomerImageUrl.value;
     String? startDate;
     String? endDate;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -209,12 +222,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ElevatedButton(
               onPressed: () {
                 customerOrderController
-                    .setCustomerId(productsController.selectedCategoryId.value);
+                    .setCustomerId(widget.productsController?.selectedCategoryId.value??'');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                      productsController: productsController,
+                      productsController: widget.productsController!,
                       isFromCalender: widget.isFromCalendar,
                       isDirectDialogue: widget.isDirectDialogue,
                       isFromOrder: widget.isFromOrder,
@@ -274,7 +287,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               constraints:
                                   BoxConstraints(maxWidth: double.infinity),
                               child: MyRegularText(
-                                label: customerName,
+                                label: customerName??'',
                                 fontSize: 8.8,
                                 maxlines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -301,7 +314,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  
                   return Center(child: NodataWidget());
                 } else {
                   final responseModel = snapshot.data!;
@@ -313,8 +325,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId: widget.cusId??'',
-                              // productsController.selectedCustomerId.value,
+                          customerId: widget.cusId ?? '',
+                          // productsController.selectedCustomerId.value,
                           customType: "",
                           customOrderStatusType: OrderStatus.newOrder,
                           userType: UserType.customer,
@@ -419,8 +431,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             context,
                             MaterialPageRoute(
                                 builder: (_) => DashboardScreen(
-                                      cus: productsController
-                                          .selectedCategoryId.value,
+                                      cus: widget.productsController?.selectedCategoryId.value??'',
                                       y: '2024',
                                     )));
                       },
@@ -467,14 +478,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                                    productsController.selectedCategoryId.value,
+                                    widget.productsController?.selectedCategoryId.value??'',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    productsController.selectedCategoryId.value,
+                                    widget.productsController?.selectedCategoryId.value??'',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
@@ -520,8 +531,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: productsController
-                                      .selectedCategoryId.value,
+                                  customerId: widget.productsController?.selectedCategoryId.value??'',
                                   year: selectedYear,
                                 ),
                               );
@@ -1112,8 +1122,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                     Provider.of<CustomersProvider>(context,
                                             listen: false)
                                         .fetchCustomerDashboardDataSalseData(
-                                            productsController
-                                                .selectedCategoryId.value,
+                                            widget.productsController?.selectedCategoryId.value??'',
                                             selectedYear);
                                   });
                                 },
@@ -1305,7 +1314,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       return showProductListDialog<FrequantliyProductList>(
                         context: context,
                         productList: frequentProductLists,
-                        getQuantity: (product) => product.count.length.toDouble(),
+                        getQuantity: (product) =>
+                            product.count.length.toDouble(),
                         getProductName: (product) => product.productName,
                         getVariationName: (product) => product.variationName,
                         getFormattedDate: (product) =>
@@ -1317,16 +1327,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             showDashTimesDialogue(
                           context,
                           product,
-                          (p) => p.count, 
-                          (data) => formatAmount(data
-                              .price), 
-                          (data) => data.quantity
-                              .toString(), 
+                          (p) => p.count,
+                          (data) => formatAmount(data.price),
+                          (data) => data.quantity.toString(),
                           (data) => data.totalPrice != null
                               ? formatAmount(data.totalPrice)
-                              : 'N/A', 
-                          (data) => DateFormat('dd-MM-yyyy')
-                              .format(data.createdAt!), 
+                              : 'N/A',
+                          (data) =>
+                              DateFormat('dd-MM-yyyy').format(data.createdAt!),
                         ),
                       );
                     } else {

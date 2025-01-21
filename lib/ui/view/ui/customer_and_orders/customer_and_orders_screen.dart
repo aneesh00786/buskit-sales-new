@@ -2165,27 +2165,23 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     child: GestureDetector(
                                                       behavior: HitTestBehavior
                                                           .opaque,
-                                                      onTap: () {
+                                                      onTap: () async {
                                                         provider
                                                             .setCurrentMonthDates();
-                                                        provider
-                                                            .fetchCustomerDashboardData(
-                                                          customer.customerId,
-                                                          2024,
-                                                          provider
-                                                              .selectedStartDate,
-                                                          provider
-                                                              .selectedEndDate,
-                                                        );
-                                                        provider
-                                                            .fetchCustomerDashboardRevenueData(
-                                                          customer.customerId,
-                                                          2024,
-                                                          provider
-                                                              .selectedStartDate,
-                                                          provider
-                                                              .selectedEndDate,
-                                                        );
+                                                        provider.fetchCustomerDashboardData(
+                                                            customer.customerId,
+                                                            2024,
+                                                            provider
+                                                                .selectedStartDate,
+                                                            provider
+                                                                .selectedEndDate);
+                                                        provider.fetchCustomerDashboardRevenueData(
+                                                            customer.customerId,
+                                                            2024,
+                                                            provider
+                                                                .selectedStartDate,
+                                                            provider
+                                                                .selectedEndDate);
                                                         provider
                                                             .fetchCustomerDashboardCountData(
                                                                 customer
@@ -2203,8 +2199,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .selectedCustomerImageUrl
                                                                 .value =
                                                             customer.imageUrl;
-
-                                                        log('Customer ID == : ${customer.customerId} , Controller Cus ID :${prodController.selectedCustomerId.value}');
+                                                        log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
+                                                        await Future.delayed(
+                                                            Duration(
+                                                                milliseconds:
+                                                                    100));
 
                                                         Navigator.push(
                                                           context,
@@ -2216,14 +2215,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   .selectedStartDate,
                                                               endDate: provider
                                                                   .selectedEndDate,
-                                                              isFromCalendar:
-                                                                  false,
+                                                              isFromOrder: true,
                                                               cusId: customer
                                                                   .customerId,
                                                               cusName: customer
                                                                   .businessName,
                                                               cusImage: customer
                                                                   .imageUrl,
+                                                              productsController:
+                                                                  prodController,
                                                             ),
                                                           ),
                                                         );

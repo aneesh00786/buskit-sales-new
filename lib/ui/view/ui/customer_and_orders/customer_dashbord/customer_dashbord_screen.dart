@@ -53,7 +53,7 @@ class CustomerDachScreen extends StatefulWidget {
   final bool isFromCalendar;
   final bool isDirectDialogue;
   final bool isFromOrder;
-  final bool isFromGoogle ;
+  final bool isFromGoogle;
   final ProductsController? productsController;
 
   CustomerDachScreen({
@@ -68,7 +68,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.isDirectDialogue = false,
     this.isFromOrder = false,
     this.productsController,
-    this.isFromGoogle=false,
+    this.isFromGoogle = false,
   });
 
   @override
@@ -171,7 +171,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
-     final apiWorker = Get.find<ApiWorker>(); 
+    final apiWorker = Get.find<ApiWorker>();
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
         : widget.productsController?.selectedCustomerName.value;

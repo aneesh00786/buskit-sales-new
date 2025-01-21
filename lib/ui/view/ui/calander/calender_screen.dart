@@ -22,7 +22,6 @@ class CalenderScreen extends StatefulWidget {
 class _CalenderScreenState extends State<CalenderScreen> {
   CalenderMapController calenderController = Get.put(CalenderMapController());
   HomeController homeController = Get.find<HomeController>();
-
   @override
   void initState() {
     final now = DateTime.now();

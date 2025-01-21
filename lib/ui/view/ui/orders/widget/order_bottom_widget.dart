@@ -74,8 +74,20 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const SizedBox(width: 5),
                         Expanded(
-                          flex: 2,
+                          flex: 1,
+                          child: Center(
+                            child: CustomText(
+                                content: 'SI No.',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          flex: 4,
                           child: Center(
                             child: CustomText(
                                 content: 'Customer List',
@@ -86,7 +98,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         ),
                         SizedBox(width: 10),
                         Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Center(
                             child: CustomText(
                                 content: 'Order NO',
@@ -97,7 +109,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         ),
                         SizedBox(width: 10),
                         Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Center(
                             child: CustomText(
                                 content: 'Created',
@@ -108,7 +120,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         ),
                         SizedBox(width: 10),
                         Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Center(
                             child: CustomText(
                                 content: 'Order Price',
@@ -120,7 +132,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         ),
                         SizedBox(width: 10),
                         Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Center(
                             child: CustomText(
                                 content: 'Status',
@@ -130,9 +142,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                 color: Colors.white),
                           ),
                         ),
-                        SizedBox(width: 10),
-                        SizedBox(
-                          width: 60,
+                        const Expanded(
+                          // width: 60,
+                          flex: 1,
                           child: Center(
                             child: Text(
                               ' ',
@@ -144,7 +156,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 5),
                       ],
                     ),
                   ),
@@ -168,11 +180,12 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             height: 60,
                             child: Row(
                               children: [
+                                Expanded(flex: 1, child: placeholderWidget()),
+                                Expanded(flex: 4, child: placeholderWidget()),
                                 Expanded(flex: 2, child: placeholderWidget()),
-                                Expanded(flex: 1, child: placeholderWidget()),
-                                Expanded(flex: 1, child: placeholderWidget()),
-                                Expanded(flex: 1, child: placeholderWidget()),
-                                Expanded(flex: 1, child: placeholderWidget()),
+                                Expanded(flex: 2, child: placeholderWidget()),
+                                Expanded(flex: 2, child: placeholderWidget()),
+                                Expanded(flex: 2, child: placeholderWidget()),
                                 Expanded(flex: 1, child: placeholderWidget()),
                               ],
                             ),
@@ -183,38 +196,51 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                           height: MediaQuery.of(context).size.height / 11.5,
                           child: Row(
                             children: [
+                              const SizedBox(width: 5),
                               Expanded(
-                                flex: 2,
+                                flex: 1,
+                                child: Center(
+                                  child: CustomText(
+                                    content: '${index + 1}.',
+                                    maxLine: 1,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 4,
                                 child: customerDetailsWidget(
                                     orderData.cart!.first),
                               ),
                               SizedBox(width: 10),
                               Expanded(
-                                flex: 1,
+                                flex: 2,
                                 child: orderNumberWidget(orderData.cart!.first),
                               ),
                               SizedBox(width: 10),
                               Expanded(
-                                flex: 1,
+                                flex: 2,
                                 child: orderCreatedDateWidget(
                                     orderData.cart!.first),
                               ),
                               SizedBox(width: 10),
                               Expanded(
-                                flex: 1,
+                                flex: 2,
                                 child: orderPrice(orderData.cart!.first),
                               ),
                               SizedBox(width: 10),
                               Expanded(
-                                flex: 1,
+                                flex: 2,
                                 child: orderStatus(orderData.cart!.first),
                               ),
-                              SizedBox(width: 10),
-                              SizedBox(
-                                  width: 60,
+                              Expanded(
+                                  flex: 1,
+                                  // width: 60,
                                   child: viewOrder(
                                       widget.orderController, orderData)),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 5),
                             ],
                           ),
                         );
@@ -348,6 +374,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             ? formatAmount(orderData.optionOrderData!.orderTotal) ?? ''
             : 'N/A',
         fontWeight: FontWeight.w600,
+        maxlines: 1,
         fontSize: 12,
       ),
     );

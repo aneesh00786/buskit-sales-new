@@ -1280,7 +1280,7 @@ Future<OrderResponce> getRecentOrdersData({
         "order_status": orderStatus,
         "start_date": start,
         "end_date": end,
-        "limit": 100,
+        "limit": 1000,
         "page": 1,
         "companyId": companyId,
         "salesman_id": salesmanId,

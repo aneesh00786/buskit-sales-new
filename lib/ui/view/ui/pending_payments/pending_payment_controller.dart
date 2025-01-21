@@ -9,17 +9,16 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-
 class PendingPaymentController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
   RxList<CustomerData> orderDataList = <CustomerData>[].obs;
-  RxInt selectedTabIndex = 0.obs; // Track the selected tab index
+  RxInt selectedTabIndex = 0.obs; 
   Rx<ChartDetails> chartData =
       ChartDetails(nearlyDue: 0, due: 0, all: 0, overdue: 0).obs;
-  int? totalAmount;
-  int? nearlyDueAmount;
-  int? dueAmount;
-  int? overdueAmount;
+  num? totalAmount;
+  num? nearlyDueAmount;
+  num? dueAmount;
+  num? overdueAmount;
 
   RxList<IndividualPendingData> individualPendingPayments =
       <IndividualPendingData>[].obs;
@@ -52,7 +51,6 @@ class PendingPaymentController extends GetxController {
     }
   }
 
-// This should return the currently selected items
   List<IndividualPendingData> getSelectedItems() {
     return selectedItems.toList();
   }
@@ -67,7 +65,6 @@ class PendingPaymentController extends GetxController {
         paginationModel: PaginationModel(),
         salesmanId: salesmanId,
         compId: compId,
-        
       );
 
       if (data.data != null) {
@@ -126,67 +123,19 @@ class PendingPaymentController extends GetxController {
     }
     refresh();
   }
-
-//   Future<void> processCustomerPayment({
-//   required String checkDueDate,
-//   required String checkNumber,
-//   required String detail,
-//   required String orderId,
-//   required int paymentType,
-//   required double receivedAmount,
-//   required String transactionDate,
-//   required String transactionId,
-// }) async {
-//   try {
-//     isLoading.value = true;
-
-//     // Call the API worker to process the customer payment
-//     var response = await _apiWorker.customerPayment(
-//       data: FormData.fromMap({
-//         "check_due_date": checkDueDate,
-//         "check_number": checkNumber,
-//         "detail": detail,
-//         "order_id": orderId,
-//         "payment_type": paymentType,
-//         "received_amount": receivedAmount,
-//         "transaction_date": transactionDate,
-//         "transaction_id": transactionId,
-//       }),
-//     );
-
-//     if (response.statusCode == 200) {
-//       print("Customer payment processed successfully.");
-//       // Handle success case (e.g., update the UI or show success message)
-//     } else {
-//       print("Failed to process customer payment. Status code: ${response.statusCode}");
-//       // Handle non-success status code (e.g., show error message)
-//     }
-//   } catch (e) {
-//     print("Error processing customer payment: $e");
-//     // Handle error case (e.g., show error message)
-//   } finally {
-//     isLoading.value = false;
-//   }
-// }
-
   void processPayments(
       List<IndividualPendingData> selectedItemsList, int enteredAmount) {
     print("Selected Items: $selectedItemsList");
     int remainingAmount = enteredAmount;
-
-    // for (var item in selectedItems)
     for (int i=0; i<selectedItemsList.length;i++) {
       int amountToBePaid;
-
       if (selectedItemsList[i].receivableAmount != null) {
         amountToBePaid = selectedItemsList[i].receivableAmount!;
       } else {
         amountToBePaid = selectedItemsList[i].orderTotal;
       }
-
       print(
           "Processing orderId: ${selectedItemsList[i].orderId}, Amount to be paid: $amountToBePaid, Remaining amount: $remainingAmount");
-
       if (remainingAmount <= 0) {
         break;
       }
@@ -199,7 +148,6 @@ class PendingPaymentController extends GetxController {
         remainingAmount = 0;
       }
     }
-
     if (remainingAmount > 0) {
       print("Remaining balance after payment: $remainingAmount");
     }

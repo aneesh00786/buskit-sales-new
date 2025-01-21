@@ -196,7 +196,6 @@ class _OrderTakingState extends State<OrderTaking>
       filteredCustomers = results;
     });
   }
-
   void handleBackNavigation(
     BuildContext context,
     bool toDashBoard,
@@ -262,7 +261,7 @@ class _OrderTakingState extends State<OrderTaking>
                         });
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
-                      } else {
+                      } else{
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();

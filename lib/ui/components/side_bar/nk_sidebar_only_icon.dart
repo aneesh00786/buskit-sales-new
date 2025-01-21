@@ -107,10 +107,9 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   Widget listComponent(SidebarXItem sideBarData, int index) {
     final NotificationController notificationController =
         Get.put(NotificationController());
-
     bool isRecentOrders = index == 7;
     bool isLeads = index == 4;
-
+    bool isDirectProduct = index == 2;
     return GestureDetector(
       onTap: () {
         if (CartDatabaseManager().cartItems.isNotEmpty) {
@@ -126,6 +125,15 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             productController.selectedCustomerImageUrl.value = "";
           }, cartItemCount);
           log('Condition1');
+        } else if (isDirectProduct) {
+          productController.selectedCustomerId.value = "";
+          productController.selectedCustomerName.value = "";
+          productController.selectedCustomerImageUrl.value = "";
+          setState(() {
+            widget.sidebarXController.selectIndex(index);
+            sideBarData.onTap?.call();
+            widget.onTap?.call(widget.sidebarXController.selectedIndex);
+          });
         } else {
           setState(() {
             widget.sidebarXController.selectIndex(index);

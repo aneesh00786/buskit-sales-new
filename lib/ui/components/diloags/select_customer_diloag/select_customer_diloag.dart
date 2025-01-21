@@ -113,6 +113,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       customer.customerId ?? '';
                   Get.to(
                     () => CustomerDachScreen(
+                      isFromCalendar: true,
                       isDirectDialogue: true,
                     ),
                     id: 2,
@@ -277,9 +278,9 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                 Get.to(
                                                     () => CustomerDachScreen(
                                                           isDirectDialogue:
-                                                              false,
+                                                              true,
                                                           year: 2024,
-                                                          isFromCalendar: true,
+                                                          isFromCalendar: false,
                                                           cusId: event.event!
                                                                   .customerId ??
                                                               '',

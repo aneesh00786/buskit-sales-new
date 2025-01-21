@@ -14,10 +14,10 @@ class PendingPaymentResponse {
     String message;
     List<CustomerData> data;
     ChartDetails chartDetails;
-    int totalAmount;
-    int nearlydueAmount;
-    int dueAmount;
-    int overdueAmount;
+    num totalAmount;
+    num nearlydueAmount;
+    num dueAmount;
+    num overdueAmount;
     Pagination pagination;
 
     PendingPaymentResponse({
@@ -97,11 +97,11 @@ class CustomerData {
     int creditPeriod;
     String fullname;
     String businessName;
-    int orderTotal;
+    num orderTotal;
     int orderStatus;
     String town;
     String email;
-    int receivedAmount;
+    num receivedAmount;
 
     CustomerData({
         required this.imageUrl,

@@ -115,7 +115,6 @@ class CustomerCart {
   dynamic price;
   dynamic tax;
   dynamic taxName;
-
   String? packtype;
   String? packType;
   int? pieces;

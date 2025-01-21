@@ -43,7 +43,7 @@ class OptionOrderData {
   String? cartId;
   String? orderCreatAt;
   String? deliveryDatetime;
-  int? orderTotal;
+  num? orderTotal;
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
   List<OrderInvoice>? invoice;
@@ -73,7 +73,7 @@ class OptionOrderData {
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
     deliveryDatetime = json['delivery_datetime'] as String?;
-    orderTotal = json['order_total'] as int?;
+    orderTotal = json['order_total'] as num?;
     customer = (json['customer'] as List?)
         ?.map(
             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
@@ -93,7 +93,7 @@ class OptionOrderData {
               cartId: json['cart_id'] as String?,
               orderCreatAt: json['order_creat_at'] as String?,
               deliveryDatetime: json['delivery_datetime'] as String?,
-              orderTotal: json['order_total'] as int?,
+              orderTotal: json['order_total'] as num?,
             ),
             setCustomerDetails: json['customer'] != null
                 ? CustomerDetails.fromJson((json['customer'] as List)

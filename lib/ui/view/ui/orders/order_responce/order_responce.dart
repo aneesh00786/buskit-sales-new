@@ -45,7 +45,7 @@ class OrderData {
   String? cartId;
   String? orderCreatAt;
   String? deliveryDatetime;
-  int? orderTotal;
+  num? orderTotal;
   String? fullname;
   String? lastname;
   List<CustomerCart>? cart;
@@ -82,7 +82,7 @@ class OrderData {
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
     deliveryDatetime = json['delivery_datetime'] as String?;
-    orderTotal = json['order_total'] as int?;
+    orderTotal = json['order_total'] as num?;
     fullname = json['fullname'] as String?;
     lastname = json['lastname'] as String?;
     invoice = (json['invoice'] as List?)
@@ -94,7 +94,7 @@ class OrderData {
               customerId: json['customer_id'] as String?,
               salesmanId: json['salesman_id'] as String?,
               cartId: json['cart_id'] as String?,
-              orderTotal: json['order_total'] as int?,
+              orderTotal: json['order_total'] as num?,
               orderStatus: json['order_status'] as int?,
               orderCreatAt: json['order_creat_at'] as String?,
               deliveryDatetime: json['delivery_datetime'] as String?,

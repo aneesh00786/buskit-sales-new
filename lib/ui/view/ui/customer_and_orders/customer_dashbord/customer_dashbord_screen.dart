@@ -193,6 +193,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () {
+                log('Is Direct ${widget.isDirectDialogue}');
+                log('Is Calender ${widget.isFromCalendar}');
                 if (widget.isFromCalendar) {
                   homeController.sidebarXController.selectIndex(6);
                   homeController.selectedIndex.value = 6;

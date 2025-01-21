@@ -202,7 +202,7 @@ class _OrderTakingState extends State<OrderTaking>
     bool toDashBoard,
   ) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
-        customerAndOrderController.customerId.value.isNotEmpty) {
+        widget.productsController.selectedCustomerId.value.isNotEmpty) {
       _showCartDialog();
       Future.delayed(Duration(seconds: 1));
       showDialog(
@@ -247,19 +247,13 @@ class _OrderTakingState extends State<OrderTaking>
                         CartDatabaseManager().clearCart();
                       } else {
                         Navigator.pop(context);
-                        Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
-                        customerAndOrderController.customerId.value = '';
-                        widget.productsController.selectedCustomerName.value =
-                            '';
-                        widget.productsController.selectedCustomerId.value = '';
-                        widget.productsController.selectedCustomerImageUrl
-                            .value = '';
                         setState(() {
                           cartItemCount = 0;
                         });
                         customerSearchController.clear();
+                        Navigator.pop(context);
                       }
                     },
                     child: Text('Clear cart'),
@@ -316,20 +310,19 @@ class _OrderTakingState extends State<OrderTaking>
 
   void triggerLeadingIcon(bool toDashBoard) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
-        customerAndOrderController.customerId.value.isNotEmpty) {
+        widget.productsController.selectedCustomerId.value.isNotEmpty) {
       handleBackNavigation(
         context,
         toDashBoard,
       );
-      customerAndOrderController.customerId.value = '';
-      widget.productsController.selectedCustomerName.value = '';
-      widget.productsController.selectedCustomerId.value = '';
-      widget.productsController.selectedCustomerImageUrl.value = '';
       log('Condition1');
     } else if (widget.isFromCalender == true ||
         widget.isDirectDialogue == true ||
         widget.isFromOrder == true) {
-      Navigator.pop(context);
+      handleBackNavigation(
+        context,
+        toDashBoard,
+      );
       log('Condition2');
     } else {
       homeController.sidebarXController.selectIndex(0);
@@ -357,14 +350,13 @@ class _OrderTakingState extends State<OrderTaking>
         leading: SingleChildScrollView(
           child: IconButton(
             onPressed: () {
-              bool toDash = !(widget.isDirectDialogue ||
-                  widget.isFromCalender ||
-                  widget.isFromOrder);
-              log('To Dash : ${toDash}');
+              bool toDash = widget.isDirectDialogue &&
+                  (!widget.isFromOrder || !widget.isFromCalender);
+              log('To Dash : $toDash');
               triggerLeadingIcon(toDash);
               log('Triggered');
-              log(customerAndOrderController.customerId.value);
-              log('Is From Order : ${widget.isFromOrder == true}');
+              log(widget.productsController.selectedCategoryId.value);
+              log('Is From Order : ${widget.isFromOrder}');
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
@@ -534,14 +526,12 @@ class _OrderTakingState extends State<OrderTaking>
                                               child: Container(
                                                 width: 300,
                                                 decoration: BoxDecoration(
-                                                  color: Colors
-                                                      .white,
-                                                  
+                                                  color: Colors.white,
                                                 ),
-                                                padding: const EdgeInsets
-                                                    .symmetric(
-                                                    vertical: 10,
-                                                    horizontal: 20),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 10,
+                                                        horizontal: 20),
                                                 child: const Text(
                                                   'No customers found.',
                                                   style:

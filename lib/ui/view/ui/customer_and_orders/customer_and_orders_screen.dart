@@ -2216,6 +2216,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               endDate: provider
                                                                   .selectedEndDate,
                                                               isFromOrder: true,
+                                                              
                                                               cusId: customer
                                                                   .customerId,
                                                               cusName: customer

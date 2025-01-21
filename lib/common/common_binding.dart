@@ -17,6 +17,6 @@ class CommonBinding extends Bindings {
     Get.lazyPut(() => ProductsController());
     Get.lazyPut(() => CartController());
     Get.lazyPut(() => DatabaseHelper.database);
-    Get.lazyPut(()=>  NotificationController());
+    Get.lazyPut(() => NotificationController());
   }
 }

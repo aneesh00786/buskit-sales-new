@@ -778,7 +778,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                      InkWell(
                                     onTap: () {
                                       showValueDialog(context,
-                                          categoryPerformance, 'Bookings');
+                                          categoryPerformance, 'Pre-Order');
                                     },
                                     child: _buildLegendItem(
                                       const Color(0xff1d3d63),
@@ -789,7 +789,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                   InkWell(
                                     onTap: () {
                                       showValueDialog(context,
-                                          categoryPerformance, 'Revenue');
+                                          categoryPerformance, 'Order');
                                     },
                                     child: _buildLegendItem(
                                       Colors.blue,

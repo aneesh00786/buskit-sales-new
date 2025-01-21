@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -276,9 +277,27 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                 Get.to(
                                                     () => CustomerDachScreen(
                                                           isDirectDialogue:
-                                                              true,
+                                                              false,
+                                                          year: 2024,
+                                                          isFromCalendar: true,
+                                                          cusId: event.event!
+                                                                  .customerId ??
+                                                              '',
+                                                          cusName: event.event!
+                                                                  .businessName ??
+                                                              '',
+                                                          cusImage: event.event!
+                                                                  .imageUrl ??
+                                                              '',
+                                                          productsController:
+                                                              productsController,
+                                                          isFromGoogle: false,
                                                         ),
-                                                    id: 2);
+                                                    binding:
+                                                        BindingsBuilder(() {
+                                                  Get.lazyPut<ApiWorker>(
+                                                      () => ApiWorker());
+                                                }), id: 2);
                                                 final now = DateTime.now();
                                                 final startDate = DateTime(
                                                     now.year, now.month, 1);

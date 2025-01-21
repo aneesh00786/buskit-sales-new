@@ -40,6 +40,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../api_handler/api_worker.dart';
 import '../../../../utills/extentions/string_extention.dart';
 
 class CustomerDachScreen extends StatefulWidget {
@@ -52,9 +53,10 @@ class CustomerDachScreen extends StatefulWidget {
   final bool isFromCalendar;
   final bool isDirectDialogue;
   final bool isFromOrder;
+  final bool isFromGoogle ;
   final ProductsController? productsController;
 
-   CustomerDachScreen({
+  CustomerDachScreen({
     super.key,
     this.year,
     this.startDate,
@@ -66,6 +68,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.isDirectDialogue = false,
     this.isFromOrder = false,
     this.productsController,
+    this.isFromGoogle=false,
   });
 
   @override
@@ -80,76 +83,85 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
+  ApiWorker apiWorker = Get.put(ApiWorker());
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
+    log('Is Calender :${widget.isFromCalendar}');
+    log('Calender Calender Customer ID :${widget.cusId}');
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bool isConnected = await ConnectivityService().isOnline();
+      if (isConnected) {
+        await _initializeCustomerData();
+      } else {
+        showNoInternetSnackBar(context);
+        return;
+      }
 
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    bool isConnected = await ConnectivityService().isOnline();
-    if (isConnected) {
-      await _initializeCustomerData();
-    } else {
-      showNoInternetSnackBar(context);
-      return; 
-    }
+      final customerId = widget.productsController?.selectedCustomerId.value;
+      if (customerId!.isEmpty) {
+        log('Error: Customer ID is empty, initialization failed.');
+        return;
+      }
+      final customersProvider =
+          Provider.of<CustomersProvider>(context, listen: false);
 
-    final customerId = widget.productsController?.selectedCustomerId.value;
-    if (customerId!.isEmpty) {
-      log('Error: Customer ID is empty, initialization failed.');
+      customersProvider.fetchCustomerDashboardData(
+        customerId,
+        selectedYear,
+        widget.startDate,
+        widget.endDate,
+      );
+      customersProvider.fetchCustomerDashboardRevenueData(
+        customerId,
+        selectedYear,
+        widget.startDate,
+        widget.endDate,
+      );
+      customersProvider.fetchCustomerDashboardDataSalseData(
+        customerId,
+        selectedYear,
+      );
+      customersProvider.fetchCustomersDataDash(customerId);
+    });
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.index = 0;
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        context
+            .read<CustomersProvider>()
+            .setSelectedIndex(_tabController.index);
+      }
+    });
+  }
+
+  Future<void> _initializeCustomerData() async {
+    final customerId = widget.isFromCalendar
+        ? widget.cusId ?? ''
+        : widget.productsController?.selectedCustomerId.value ?? '';
+    final customerName = widget.isFromCalendar
+        ? widget.cusName ?? 'Unknown Customer'
+        : widget.productsController?.selectedCustomerName.value ??
+            'Unknown Customer';
+    final customerImage = widget.isFromCalendar
+        ? widget.cusImage ?? ''
+        : widget.productsController?.selectedCustomerImageUrl.value ?? '';
+
+    if (customerId.isEmpty) {
+      log('Error: Customer ID is empty in CustomerDachScreen.');
       return;
     }
-    final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
 
-    customersProvider.fetchCustomerDashboardData(
-      customerId,
-      selectedYear,
-      widget.startDate,
-      widget.endDate,
+    // Update the customer in the controller
+    widget.productsController?.updateSelectedCustomer(
+      name: customerName,
+      imageUrl: customerImage,
+      id: customerId,
     );
-    customersProvider.fetchCustomerDashboardRevenueData(
-      customerId,
-      selectedYear,
-      widget.startDate,
-      widget.endDate,
-    );
-    customersProvider.fetchCustomerDashboardDataSalseData(
-      customerId,
-      selectedYear,
-    );
-    customersProvider.fetchCustomersDataDash(customerId);
-  });
-  _tabController = TabController(length: 2, vsync: this);
-  _tabController.index = 0;
-  _tabController.addListener(() {
-    if (_tabController.indexIsChanging) {
-      context.read<CustomersProvider>().setSelectedIndex(_tabController.index);
-    }
-  });
-}
 
-Future<void> _initializeCustomerData() async {
-  final customerId = widget.isFromCalendar
-      ? widget.cusId ?? ''
-      : widget.productsController?.selectedCustomerId.value;
-  final customerName = widget.isFromCalendar
-      ? widget.cusName ?? ''
-      : widget.productsController?.selectedCustomerName.value;
-  final customerImage = widget.isFromCalendar
-      ? widget.cusImage ?? ''
-      : widget.productsController?.selectedCustomerImageUrl.value;
-  if (customerId!.isEmpty) {
-    log('Error: Customer ID is empty in CustomerDachScreen.');
-    return;
+    log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
   }
-  widget.productsController?.updateSelectedCustomer(
-    name: customerName??'',
-    imageUrl: customerImage??'',
-    id: customerId,
-  );
-
-  log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
-}
 
   @override
   void dispose() {
@@ -159,6 +171,7 @@ Future<void> _initializeCustomerData() async {
 
   @override
   Widget build(BuildContext context) {
+     final apiWorker = Get.find<ApiWorker>(); 
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
         : widget.productsController?.selectedCustomerName.value;
@@ -186,7 +199,7 @@ Future<void> _initializeCustomerData() async {
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
                           CustomerMapScreen(
-                        istoGoogleMap: true,
+                        istoGoogleMap: widget.isFromGoogle,
                       ),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
@@ -221,8 +234,8 @@ Future<void> _initializeCustomerData() async {
           actions: [
             ElevatedButton(
               onPressed: () {
-                customerOrderController
-                    .setCustomerId(widget.productsController?.selectedCategoryId.value??'');
+                customerOrderController.setCustomerId(
+                    widget.productsController?.selectedCategoryId.value ?? '');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -287,7 +300,7 @@ Future<void> _initializeCustomerData() async {
                               constraints:
                                   BoxConstraints(maxWidth: double.infinity),
                               child: MyRegularText(
-                                label: customerName??'',
+                                label: customerName ?? '',
                                 fontSize: 8.8,
                                 maxlines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -431,7 +444,9 @@ Future<void> _initializeCustomerData() async {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => DashboardScreen(
-                                      cus: widget.productsController?.selectedCategoryId.value??'',
+                                      cus: widget.productsController
+                                              ?.selectedCategoryId.value ??
+                                          '',
                                       y: '2024',
                                     )));
                       },
@@ -478,14 +493,18 @@ Future<void> _initializeCustomerData() async {
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                                    widget.productsController?.selectedCategoryId.value??'',
+                                    widget.productsController
+                                            ?.selectedCategoryId.value ??
+                                        '',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.productsController?.selectedCategoryId.value??'',
+                                    widget.productsController
+                                            ?.selectedCategoryId.value ??
+                                        '',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
@@ -531,7 +550,9 @@ Future<void> _initializeCustomerData() async {
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: widget.productsController?.selectedCategoryId.value??'',
+                                  customerId: widget.productsController
+                                          ?.selectedCategoryId.value ??
+                                      '',
                                   year: selectedYear,
                                 ),
                               );
@@ -1122,7 +1143,11 @@ Future<void> _initializeCustomerData() async {
                                     Provider.of<CustomersProvider>(context,
                                             listen: false)
                                         .fetchCustomerDashboardDataSalseData(
-                                            widget.productsController?.selectedCategoryId.value??'',
+                                            widget
+                                                    .productsController
+                                                    ?.selectedCategoryId
+                                                    .value ??
+                                                '',
                                             selectedYear);
                                   });
                                 },

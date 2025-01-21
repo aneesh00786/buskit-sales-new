@@ -10,7 +10,6 @@ class ProductMiddelWidget extends StatelessWidget {
 
   ProductMiddelWidget({Key? key, required this.productsController})
       : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -23,7 +22,7 @@ class ProductMiddelWidget extends StatelessWidget {
             log('isReached state: ${productsController.isReached.value}');  
             return productsController.isReached.value
                 ? CustomerDachScreen(isFromCalendar: true,)
-                : OrderTaking(productsController: productsController,);
+                : OrderTaking(productsController: productsController,isDirectDialogue: true,);
           }),
         );
       },

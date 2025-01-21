@@ -245,15 +245,32 @@ class _OrderTakingState extends State<OrderTaking>
                         });
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
+                      } else if (widget.isDirectDialogue) {
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          homeController.sidebarXController.selectIndex(0);
+                          homeController.selectedIndex.value = 0;
+                          Get.toNamed(AppRoutes.dashboard, id: 2);
+                          customerAndOrderController.customerId.value = '';
+                          widget.productsController.selectedCustomerName.value =
+                              '';
+                          widget.productsController.selectedCustomerId.value =
+                              '';
+                          widget.productsController.selectedCustomerImageUrl
+                              .value = '';
+                        });
+                        CartDatabaseManager().cartItems.clear();
+                        CartDatabaseManager().clearCart();
                       } else {
                         Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
                         setState(() {
                           cartItemCount = 0;
                         });
                         customerSearchController.clear();
-                        Navigator.pop(context);
                       }
                     },
                     child: Text('Clear cart'),
@@ -316,12 +333,10 @@ class _OrderTakingState extends State<OrderTaking>
         toDashBoard,
       );
       log('Condition1');
-    } else if (widget.isFromCalender == true ||
-        widget.isDirectDialogue == true ||
-        widget.isFromOrder == true) {
+    } else if (widget.isFromCalender == true || widget.isFromOrder == true) {
       handleBackNavigation(
         context,
-        toDashBoard,
+        false,
       );
       log('Condition2');
     } else {

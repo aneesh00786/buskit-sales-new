@@ -31,7 +31,7 @@ void showDetailedOrderInvoiceDialog(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  children: [const Spacer(), dialogCloseButton(context, red)],
+                  children: [const Spacer(), dialogCloseButton1(context, red)],
                 ),
                 const SizedBox(height: 16),
                 MyCommnonContainer(
@@ -107,7 +107,7 @@ void showDetailedOrderInvoiceDialog(
                                   ),
                                 ),
                                 Text(
-                                    'Payment Mode : ${_getPaymentTypeName(orderInvoiceData.paymentStatus??0)}'),
+                                    'Payment Mode : ${_getPaymentTypeName(orderInvoiceData.paymentStatus ?? 0)}'),
                               ],
                             ),
                           ],
@@ -137,7 +137,7 @@ void showDetailedOrderInvoiceDialog(
                   children: [
                     const Text('ITEMS ORDERED', style: TextStyle(fontSize: 18)),
                     Text(
-                      'Order Status : ${getStatusName(orderInvoiceData.orderStatus??0)}',
+                      'Order Status : ${getStatusName(orderInvoiceData.orderStatus ?? 0)}',
                       style: const TextStyle(fontSize: 18),
                     ),
                   ],
@@ -170,8 +170,8 @@ void showDetailedOrderInvoiceDialog(
                                     ),
                                     columns: const [
                                       DataColumn(
-                                        label: Align(
-                                          alignment: Alignment.centerLeft,
+                                        label: Expanded(
+                                          flex: 2,
                                           child: Text(
                                             'ITEMS NAME',
                                             textAlign: TextAlign.left,
@@ -179,8 +179,8 @@ void showDetailedOrderInvoiceDialog(
                                         ),
                                       ),
                                       DataColumn(
-                                        label: Align(
-                                          alignment: Alignment.center,
+                                        label: Expanded(
+                                          flex: 2,
                                           child: Text(
                                             'UNIT PRICE',
                                             textAlign: TextAlign.center,
@@ -188,8 +188,8 @@ void showDetailedOrderInvoiceDialog(
                                         ),
                                       ),
                                       DataColumn(
-                                        label: Align(
-                                          alignment: Alignment.center,
+                                        label: Expanded(
+                                          flex: 2,
                                           child: Text(
                                             'QUANTITY',
                                             textAlign: TextAlign.center,
@@ -197,8 +197,8 @@ void showDetailedOrderInvoiceDialog(
                                         ),
                                       ),
                                       DataColumn(
-                                        label: Align(
-                                          alignment: Alignment.centerRight,
+                                        label: Expanded(
+                                          flex: 2,
                                           child: Text(
                                             'TOTAL',
                                             textAlign: TextAlign.right,
@@ -232,7 +232,7 @@ void showDetailedOrderInvoiceDialog(
                                               alignment: Alignment.center,
                                               child: Text(
                                                 item.packType == 'Pack'
-                                                    ? '${(item.pieces??0 * item.quantity!)} (${item.quantity} ${item.packType})'
+                                                    ? '${(item.pieces ?? 0 * item.quantity!)} (${item.quantity} ${item.packType})'
                                                     : item.quantity.toString(),
                                                 maxLines: 1,
                                               ),
@@ -255,104 +255,106 @@ void showDetailedOrderInvoiceDialog(
                               ],
                             ),
                             Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Subtotal',
-                                      style: TextStyle(
-                                        color: black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Subtotal',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      formatAmount(dashBoardController
-                                              .fetchSpecificOrderData
-                                              ?.orderTotal ??
-                                          0),
-                                      maxLines: 1,
-                                    ),
-                                  ],
-                                ),
-                                if (dashBoardController
-                                            .fetchSpecificOrderData?.tax !=
-                                        null &&
-                                    dashBoardController
+                                      const Spacer(),
+                                      Text(
+                                        formatAmount(dashBoardController
+                                                .fetchSpecificOrderData
+                                                ?.orderTotal ??
+                                            0),
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  if (dashBoardController
+                                              .fetchSpecificOrderData?.tax !=
+                                          null &&
+                                      dashBoardController
+                                          .fetchSpecificOrderData!.tax!
+                                          .any((taxItem) =>
+                                              taxItem.tax != null)) ...[
+                                    ...dashBoardController
                                         .fetchSpecificOrderData!.tax!
-                                        .any((taxItem) =>
-                                            taxItem.tax != null)) ...[
-                                  ...dashBoardController
-                                      .fetchSpecificOrderData!.tax!
-                                      .map((taxItem) {
-                                    return Row(
-                                      children: [
-                                        Text(
-                                          '${taxItem.tax_name ?? 'Tax'} - ${taxItem.tax ?? 0} %',
-                                          style: const TextStyle(
-                                            color: black,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
+                                        .map((taxItem) {
+                                      return Row(
+                                        children: [
+                                          Text(
+                                            '${taxItem.tax_name ?? 'Tax'} - ${taxItem.tax ?? 0} %',
+                                            style: const TextStyle(
+                                              color: black,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                          formatAmount(
-                                            '${(dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) * (taxItem.tax ?? 0) / 100}',
+                                          const Spacer(),
+                                          Text(
+                                            formatAmount(
+                                              '${(dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) * (taxItem.tax ?? 0) / 100}',
+                                            ),
+                                            maxLines: 1,
                                           ),
-                                          maxLines: 1,
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
-                                ],
-                                Divider(color: Colors.grey.shade400),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Total',
-                                      style: TextStyle(
-                                        color: black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      dashBoardController.fetchSpecificOrderData
-                                                      ?.tax !=
-                                                  null &&
-                                              dashBoardController
-                                                  .fetchSpecificOrderData!.tax!
-                                                  .any((taxItem) =>
-                                                      taxItem.tax != null)
-                                          ? formatAmount(
-                                              '${((dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) + ((dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) * (dashBoardController.fetchSpecificOrderData?.tax?.fold(0.0, (sum, taxItem) {
-                                                    return sum! +
-                                                        (taxItem.tax
-                                                                ?.toDouble() ??
-                                                            0.0);
-                                                  }) ?? 0) / 100))}',
-                                            )
-                                          : formatAmount(dashBoardController
-                                                  .fetchSpecificOrderData
-                                                  ?.orderTotal ??
-                                              0),
-                                      maxLines: 1,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: red,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                        ],
+                                      );
+                                    }).toList(),
                                   ],
-                                ),
-                              ],
+                                  Divider(color: Colors.grey.shade400),
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Total',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        dashBoardController
+                                                        .fetchSpecificOrderData
+                                                        ?.tax !=
+                                                    null &&
+                                                dashBoardController
+                                                    .fetchSpecificOrderData!
+                                                    .tax!
+                                                    .any((taxItem) =>
+                                                        taxItem.tax != null)
+                                            ? formatAmount(
+                                                '${((dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) + ((dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) * (dashBoardController.fetchSpecificOrderData?.tax?.fold(0.0, (sum, taxItem) {
+                                                      return sum! +
+                                                          (taxItem.tax
+                                                                  ?.toDouble() ??
+                                                              0.0);
+                                                    }) ?? 0) / 100))}',
+                                              )
+                                            : formatAmount(dashBoardController
+                                                    .fetchSpecificOrderData
+                                                    ?.orderTotal ??
+                                                0),
+                                        maxLines: 1,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: red,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                           ],
                         );
                 }),

@@ -1278,25 +1278,24 @@ List<DataRow> _buildDataRows(
     ),
   ];
 }
-
 class DoughnutDefaultCustomerDash extends StatefulWidget {
   final CustomerRevenueResponse customerData;
   final dynamic booking;
   final dynamic order;
   final Color aColor;
   final Color bColor;
-  final Widget sabik;
-  final Widget sabik1;
+  final Widget legend1;
+  final Widget legend2;
 
   const DoughnutDefaultCustomerDash({
     Key? key,
     required this.customerData,
     required this.booking,
     required this.order,
-    required this.sabik,
+    required this.legend1,
     required this.aColor,
     required this.bColor,
-    required this.sabik1,
+    required this.legend2,
   }) : super(key: key);
 
   @override
@@ -1335,7 +1334,7 @@ class _DoughnutDefaultCustomerDashState
             children: [
               fl_chart.PieChart(
                 fl_chart.PieChartData(
-                  startDegreeOffset: 250,
+                  startDegreeOffset: -90,
                   sectionsSpace: 0.6,
                   centerSpaceRadius: 43,
                   sections: [
@@ -1360,11 +1359,11 @@ class _DoughnutDefaultCustomerDashState
                           response.touchedSection != null) {
                         final section = response.touchedSection!;
                         final PieChartSectionData touchedSectionData =
-                            section.touchedSection ?? PieChartSectionData();
+                            section.touchedSection!;
                         final isPaymentCompleted = touchedSectionData.value ==
-                            paymentCompleted;
+                            paymentCompleted?.toDouble();
                         final title =
-                            isPaymentCompleted ? 'Bookings' : 'Orders';
+                            isPaymentCompleted ? 'Pre-Orders' : 'Orders';
                         final orderDetails = isPaymentCompleted
                             ? widget
                                 .customerData.data.revenue.bookingRevenueData
@@ -1380,16 +1379,129 @@ class _DoughnutDefaultCustomerDashState
             ],
           ),
         ),
-        InkWell(
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => OrdersScreen()));
-          },
-          child: widget.sabik1,
-        ),
+        // InkWell(
+        //   onTap: () {
+        //     Navigator.push(context,
+        //         MaterialPageRoute(builder: (context) => OrdersScreen()));
+        //   },
+        //   child: widget.legend1,
+        // ),
         const SizedBox(height: 4),
-        widget.sabik,
+        widget.legend2,
       ],
     );
   }
 }
+// class DoughnutDefaultCustomerDash extends StatefulWidget {
+//   final CustomerRevenueResponse customerData;
+//   final dynamic booking;
+//   final dynamic order;
+//   final Color aColor;
+//   final Color bColor;
+//   final Widget sabik;
+//   final Widget sabik1;
+
+//   const DoughnutDefaultCustomerDash({
+//     Key? key,
+//     required this.customerData,
+//     required this.booking,
+//     required this.order,
+//     required this.sabik,
+//     required this.aColor,
+//     required this.bColor,
+//     required this.sabik1,
+//   }) : super(key: key);
+
+//   @override
+//   _DoughnutDefaultCustomerDashState createState() =>
+//       _DoughnutDefaultCustomerDashState();
+// }
+
+// class _DoughnutDefaultCustomerDashState
+//     extends State<DoughnutDefaultCustomerDash> {
+//   @override
+//   void initState() {
+//     super.initState();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final paymentCompleted =
+//         widget.customerData.data.revenue.bookingRevenueData?.isNotEmpty == true
+//             ? widget.customerData.data.revenue.bookingRevenueData!.last
+//                 .totalBookingRevenue
+//             : 0;
+//     final paymentRemaining =
+//         widget.customerData.data.revenue.orderRevenueData?.isNotEmpty == true
+//             ? widget.customerData.data.revenue.orderRevenueData!.last
+//                 .totalOrderRevenue
+//             : 0;
+
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       mainAxisAlignment: MainAxisAlignment.start,
+//       children: [
+//         Expanded(
+//           flex: 3,
+//           child: Stack(
+//             alignment: Alignment.center,
+//             children: [
+//               fl_chart.PieChart(
+//                 fl_chart.PieChartData(
+//                   startDegreeOffset: 250,
+//                   sectionsSpace: 0.6,
+//                   centerSpaceRadius: 43,
+//                   sections: [
+//                     fl_chart.PieChartSectionData(
+//                       value: paymentCompleted?.toDouble(),
+//                       color: widget.aColor,
+//                       radius: 19.6,
+//                       showTitle: false,
+//                     ),
+//                     fl_chart.PieChartSectionData(
+//                       value: paymentRemaining?.toDouble(),
+//                       color: widget.bColor,
+//                       radius: 19.6,
+//                       showTitle: false,
+//                     ),
+//                   ],
+//                   pieTouchData: fl_chart.PieTouchData(
+//                     touchCallback:
+//                         (FlTouchEvent event, PieTouchResponse? response) {
+//                       if (event is FlTapUpEvent &&
+//                           response != null &&
+//                           response.touchedSection != null) {
+//                         final section = response.touchedSection!;
+//                         final PieChartSectionData touchedSectionData =
+//                             section.touchedSection ?? PieChartSectionData();
+//                         final isPaymentCompleted = touchedSectionData.value ==
+//                             paymentCompleted;
+//                         final title =
+//                             isPaymentCompleted ? 'Bookings' : 'Orders';
+//                         final orderDetails = isPaymentCompleted
+//                             ? widget
+//                                 .customerData.data.revenue.bookingRevenueData
+//                             : widget.customerData.data.revenue.orderRevenueData;
+//                         if (orderDetails != null && orderDetails.isNotEmpty) {
+//                           showValueDialogCusDash(context, orderDetails, title);
+//                         }
+//                       }
+//                     },
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//         InkWell(
+//           onTap: () {
+//             showValueDialogCusDash(context, orderDetails, title);
+//           },
+//           child: widget.sabik1,
+//         ),
+//         const SizedBox(height: 4),
+//         widget.sabik,
+//       ],
+//     );
+//   }
+// }

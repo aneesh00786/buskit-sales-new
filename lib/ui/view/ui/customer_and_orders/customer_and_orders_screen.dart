@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -456,7 +457,7 @@ class _tableeeState extends State<tableee> {
                                           fontSize: 17.5,
                                         ),
                                       ),
-                                      dialogCloseButton(context, Colors.red),
+                                      dialogCloseButton1(context, Colors.red),
                                     ],
                                   ),
                                 ),
@@ -3439,7 +3440,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                               height: 45,
                               width: 45,
                               child: Center(
-                                  child: dialogCloseButton(context, red)),
+                                  child: dialogCloseButton1(context, red)),
                             ),
                           ),
                         ],

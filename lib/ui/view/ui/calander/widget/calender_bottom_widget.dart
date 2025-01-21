@@ -100,17 +100,6 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
         bool isCurrentMonth = isInMonth;
 
         return GestureDetector(
-          // onTap: () {
-          //   if (event.isNotEmpty) {
-          //     widget.calenderController.clearSelections();
-          //     Get.dialog(SelectCustomerDiloag(
-          //       dateTime: date,
-          //       calenderMapController: widget.calenderController,
-          //       eventData: event,
-          //     ));
-          //     log('Date : $date');
-          //   }
-          // },
           onTap: () {
             if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
               widget.calenderController.clearSelections();

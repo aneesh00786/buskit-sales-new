@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -120,7 +121,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               Row(
                 children: [
                   const Spacer(),
-                  dialogCloseButton(context, red),
+                  dialogCloseButton1(context, red),
                 ],
               ),
               const SizedBox(height: 16),

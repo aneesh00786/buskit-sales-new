@@ -1,11 +1,18 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class NkSideBarOnlyIcon extends StatefulWidget {
@@ -31,10 +38,24 @@ class NkSideBarOnlyIcon extends StatefulWidget {
 }
 
 class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
+  ProductsController productController = Get.put(ProductsController());
+  HomeController homeController = Get.put(HomeController());
+  int cartItemCount = 0;
   @override
   void initState() {
-    widget.onTap?.call(widget.sidebarXController.selectedIndex);
     super.initState();
+    widget.onTap?.call(widget.sidebarXController.selectedIndex);
+    cartItemCount = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length;
+
+    CartDatabaseManager().addListener(_updateCartCount);
+  }
+
+  void _updateCartCount() {
+    setState(() {
+      cartItemCount = CartDatabaseManager().cartItems.length +
+          CartDatabaseManager().cartPreorderItems.length;
+    });
   }
 
   @override
@@ -92,11 +113,26 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          widget.sidebarXController.selectIndex(index);
-          sideBarData.onTap?.call();
-          widget.onTap?.call(widget.sidebarXController.selectedIndex);
-        });
+        if (CartDatabaseManager().cartItems.isNotEmpty) {
+          handleBackNavigation(context, false, productController, () {
+            setState(() {
+              widget.sidebarXController.selectIndex(index);
+              sideBarData.onTap?.call();
+              widget.onTap?.call(widget.sidebarXController.selectedIndex);
+            });
+            log('Tab updated after clearing cart.');
+            productController.selectedCustomerId.value = "";
+            productController.selectedCustomerName.value = "";
+            productController.selectedCustomerImageUrl.value = "";
+          }, cartItemCount);
+          log('Condition1');
+        } else {
+          setState(() {
+            widget.sidebarXController.selectIndex(index);
+            sideBarData.onTap?.call();
+            widget.onTap?.call(widget.sidebarXController.selectedIndex);
+          });
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -156,31 +192,107 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         : const SizedBox.shrink(),
               ),
             if (isLeads)
-            
               Positioned(
                 top: -12,
                 left: 12,
-                child: 
-                // notificationController.isLeadsCountLoading.value ||
-                //         notificationController.leadsCount.value <= 0
-                //     ? const SizedBox.shrink()
-                //     : 
+                child:
+                    // notificationController.isLeadsCountLoading.value ||
+                    //         notificationController.leadsCount.value <= 0
+                    //     ? const SizedBox.shrink()
+                    //     :
                     CircleAvatar(
-                        radius: 10,
-                        backgroundColor: Colors.red,
-                        child: Text(
-                          notificationController.leadsCount.value.toString(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                  radius: 10,
+                  backgroundColor: Colors.red,
+                  child: Text(
+                    notificationController.leadsCount.value.toString(),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               )
           ],
         ),
       ),
     );
+  }
+}
+
+void _showCartDialog(BuildContext context, int cartItemCount,
+    ProductsController productController) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CartDialogue(
+        active: false,
+        cartItemCount: cartItemCount,
+        productsController: productController,
+      );
+    },
+  );
+}
+
+void handleBackNavigation(
+    BuildContext context,
+    bool toDashBoard,
+    ProductsController productController,
+    Function updateTabIndex,
+    int cartItemCount) {
+  if (CartDatabaseManager().cartItems.isNotEmpty ||
+      productController.selectedCustomerId.value.isNotEmpty) {
+    _showCartDialog(context, cartItemCount, productController);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(
+            child: SizedBox(
+              height: 150,
+              width: 150,
+              child: Lottie.asset(
+                'assets/images/Animation - cart_has_data.json',
+                repeat: false,
+              ),
+            ),
+          ),
+          content: CustomText(
+            content: 'Would you like to save this as a draft?',
+            fontSize: 25,
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.of(context, rootNavigator: true).pop();
+                    CartDatabaseManager().cartItems.clear();
+                    CartDatabaseManager().clearCart();
+                    log('Cart Cleared');
+                    updateTabIndex();
+                  },
+                  child: const Text('Clear cart'),
+                ),
+                // Ok Button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    log('Dialog dismissed without clearing cart');
+                  },
+                  child: const Text('Ok'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  } else {
+    log('No cart items or customer selected; directly update tab.');
+    updateTabIndex();
   }
 }

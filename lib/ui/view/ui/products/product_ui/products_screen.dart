@@ -52,6 +52,7 @@ class _ProductScreenState extends State<ProductScreen> {
                    
                     ProductMiddelWidget(
                       productsController: productsController,
+                    
                     ),
                   ],
                 ),

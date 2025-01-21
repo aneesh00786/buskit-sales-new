@@ -303,7 +303,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                     now.year, now.month, 1);
                                                 final endDate = DateTime(
                                                     now.year, now.month + 1, 0);
-
                                                 final formattedStartDate =
                                                     DateFormat('yyyy-MM-dd')
                                                         .format(startDate);

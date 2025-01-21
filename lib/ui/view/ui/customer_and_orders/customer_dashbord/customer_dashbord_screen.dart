@@ -29,6 +29,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -1233,44 +1234,37 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             order: "Order : 3",
                             aColor: Colors.blue.shade900,
                             bColor: Colors.blue,
-                            sabik: const SizedBox.shrink(),
-                            sabik1: Row(
+                            legend1: const SizedBox.shrink(),
+                            legend2: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade900,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
+                                InkWell(
+                                  onTap: () {
+                                    showValueDialogCusDash(
+                                        context,
+                                        categoryPerformance
+                                                .data.revenue.bookingRevenueData
+                                            as List<dynamic>,
+                                        'Pre-Order');
+                                  },
+                                  child: _buildLegendItem(
+                                    Colors.blue.shade900,
+                                    'Pre-Order : ${formatAmount(paymentCompleted)}',
                                   ),
                                 ),
-                                const SizedBox(width: 4),
-                                MyRegularText(
-                                  label:
-                                      'Booking : ${formatAmount(paymentCompleted)}',
-                                  color: secondaryTextColor,
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                const SizedBox(width: 16),
-                                Container(
-                                  height: 11.9,
-                                  width: 14.9,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(1.0)),
+                                const SizedBox(width: 10),
+                                InkWell(
+                                  onTap: () {
+                                    showValueDialogCusDash(
+                                        context,
+                                        categoryPerformance.data.revenue
+                                            .orderRevenueData as List<dynamic>,
+                                        'Order');
+                                  },
+                                  child: _buildLegendItem(
+                                    Colors.blue,
+                                    'Order : ${formatAmount(remaCompleted)}',
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                MyRegularText(
-                                  label:
-                                      'Order: ${formatAmount(remaCompleted)}',
-                                  color: secondaryTextColor,
-                                  fontSize: 11.6,
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ],
                             ),
@@ -1287,6 +1281,24 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           );
         },
       ),
+    );
+  }
+    Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircleAvatar(
+          radius: 6,
+          backgroundColor: color,
+        ),
+        const SizedBox(width: 5),
+        MyRegularText(
+          label: label,
+          fontSize: 11.6,
+          fontWeight: FontWeight.w600,
+          color: secondaryTextColor,
+        ),
+      ],
     );
   }
 

@@ -433,10 +433,16 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                 child: ElevatedButton.icon(
                   label: CustomText(content: 'Show Route', color: white),
                   onPressed: () {
-                    Navigator.pop(context);
-                    widget.calenderMapController
-                        .showSelectedCustomerRoute(context);
-                    widget.calenderMapController.fetchDistanceAndTime();
+                    if (widget
+                        .calenderMapController.selectedCustomers.isNotEmpty) {
+                      Navigator.pop(context);
+                      widget.calenderMapController
+                          .showSelectedCustomerRoute(context);
+                      widget.calenderMapController.fetchDistanceAndTime();
+                    } else {
+                      Get.snackbar('No Route Available',
+                          'Please select at least one customer.');
+                    }
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(primaryColor),

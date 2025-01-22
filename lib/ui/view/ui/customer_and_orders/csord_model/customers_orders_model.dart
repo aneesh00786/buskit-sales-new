@@ -77,20 +77,20 @@ class CustomerModelxx {
   final List<String> eventDays;
   final List<CreditPeriodxx> creditPeriod;
   final int companyId;
-  final int? previousYearSales;
-  final int? totalSales;
-  final int sales;
-  final int? salesPrice;
-  final int delivery;
-  final int? deliveryPrice;
-  final int payment;
-  final int? paymentPrice;
-  final int estimates;
-  final int? estimatesPrice;
-  final int preOrder;
-  final int? preOrderPrice;
-  final int drafts;
-  final int cancelled;
+  final num? previousYearSales;
+  final num? totalSales;
+  final num sales;
+  final num? salesPrice;
+  final num delivery;
+  final num? deliveryPrice;
+  final num payment;
+  final num? paymentPrice;
+  final num estimates;
+  final num? estimatesPrice;
+  final num preOrder;
+  final num? preOrderPrice;
+  final num drafts;
+  final num cancelled;
   final List<Salesmanxx> salesman;
   final OrderDataxx orderData;
 
@@ -159,24 +159,21 @@ class CustomerModelxx {
       discount: json['discount'] ?? '',
       eventType: json['event_type'] ?? 0,
       eventDays: _parseEventDays(json['event_days']),
-      // eventDays: json['event_days'] != null && json['event_days'] is List
-      //     ? List<String>.from(json['event_days'])
-      //     : [],
       creditPeriod: List<CreditPeriodxx>.from(
           (json['credit_period'] ?? []).map((x) => CreditPeriodxx.fromJson(x))),
       companyId: json['company_id'] ?? 0,
-      previousYearSales: _parseToInt(json['previous_year_sales']),
-      totalSales: _parseToInt(json['total_sales']),
+      previousYearSales: json['previous_year_sales'],
+      totalSales: json['total_sales'],
       sales: json['sales'] ?? 0,
       salesPrice: _parseToInt(json['sales_price']),
       delivery: json['delivery'] ?? 0,
-      deliveryPrice: _parseToInt(json['delivery_price']),
+      deliveryPrice: json['delivery_price'],
       payment: json['payment'] ?? 0,
-      paymentPrice: _parseToInt(json['payment_price']),
+      paymentPrice: json['payment_price'],
       estimates: json['estimates'] ?? 0,
-      estimatesPrice: _parseToInt(json['estimates_price']),
+      estimatesPrice: json['estimates_price'],
       preOrder: json['pre_order'] ?? 0,
-      preOrderPrice: _parseToInt(json['pre_order_price']),
+      preOrderPrice: json['pre_order_price'],
       drafts: json['drafts'] ?? 0,
       cancelled: json['cancelled'] ?? 0,
       salesman: List<Salesmanxx>.from(

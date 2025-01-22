@@ -53,7 +53,7 @@ void navigateToo(
 }
 
 class _CustomerMapScreenState extends State<CustomerMapScreen>
-    with WidgetsBindingObserver {
+  with WidgetsBindingObserver {
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   final HomeController homeController = Get.put(HomeController());
   final ProductsController productsController = Get.put(ProductsController());

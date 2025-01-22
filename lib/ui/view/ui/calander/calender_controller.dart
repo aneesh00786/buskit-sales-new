@@ -22,7 +22,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
 class CalenderMapController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
   bool hasFetchedData = false;
   Rx<StaffData> selectedStaff = StaffData().obs;
   EventController<SalesManVisitEvents> eventController =
@@ -44,11 +43,12 @@ class CalenderMapController extends GetxController {
   RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
-
+  late ApiWorker _apiWoker;
   @override
   void onInit() {
     super.onInit();
     requestLocationPermission();
+    _apiWoker= Get.put(ApiWorker());
   }
 
   void initializeCheckedList(
@@ -100,15 +100,16 @@ class CalenderMapController extends GetxController {
     }
   }
 
-  void showSelectedCustomerRoute(
-    BuildContext context,
-  ) {
-    if (selectedCustomers.isNotEmpty) {
-      Get.to(() => CustomerMapScreen());
-    } else {
-      log('No customers selected');
-    }
+void showSelectedCustomerRoute(BuildContext context) {
+  if (selectedCustomers.isNotEmpty) {
+    log('${selectedCustomers.length}');
+    Get.to(() => CustomerMapScreen());
+  } else {
+    log('No customers selected');
+    Get.snackbar('No Route Available', 'Please select at least one customer.');
   }
+}
+
 
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();

@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -328,15 +329,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     fontSize: fontSize)),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: double.parse(detail.sellPrice ?? '')
-                                      .toStringAsFixed(2),
+                                  content: formatAmount(detail.sellPrice),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
                                   content:
-                                      double.parse(detail.tax.toString() ?? '')
-                                          .toStringAsFixed(2),
+                                      formatAmount(detail.tax),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
@@ -347,7 +346,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 DataCell(Center(
                                     child: CustomText(
                                   content:
-                                      '${detail.fullstock?.toStringAsFixed(2)}',
+                                      formatAmount(detail.sellingPackPrice),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(

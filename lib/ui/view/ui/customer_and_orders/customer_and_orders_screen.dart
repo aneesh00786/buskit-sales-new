@@ -2217,7 +2217,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               endDate: provider
                                                                   .selectedEndDate,
                                                               isFromOrder: true,
-                                                              
                                                               cusId: customer
                                                                   .customerId,
                                                               cusName: customer
@@ -2598,9 +2597,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: Center(
                                                   child: InkWell(
                                                     onTap: () {
-                                                      if (customer.totalSales ==
-                                                              0 ||
-                                                          customer.totalSales ==
+                                                      if (customer.sales == 0 ||
+                                                          customer.sales ==
                                                               null) {
                                                         showCustomToastDisplay(
                                                             context,
@@ -2609,10 +2607,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             Icons.close);
                                                       } else {
                                                         _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .totalSales);
+                                                          context,
+                                                          customer,
+                                                          customer.orderData
+                                                              .totalSales,
+                                                        );
                                                       }
                                                     },
                                                     child: _buildDataCell(
@@ -2726,7 +2725,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         customer
                                                             .orderData.preOrder
                                                             .takeLast(customer
-                                                                .preOrder)
+                                                                .preOrder.toInt())
                                                             .fold(
                                                                 0.0,
                                                                 (a, b) =>
@@ -2811,7 +2810,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             .toString(),
                                                         customer.orderData.draft
                                                             .takeLast(
-                                                                customer.drafts)
+                                                                customer.drafts.toInt())
                                                             .fold(
                                                                 0.0,
                                                                 (a, b) =>
@@ -2856,7 +2855,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           .toString(),
                                                       customer.orderData.cancel
                                                           .takeLast(customer
-                                                              .cancelled)
+                                                              .cancelled.toInt())
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>

@@ -228,12 +228,19 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   }
 }
 
-void _showCartDialog(BuildContext context, int cartItemCount,
-    ProductsController productController) {
+final GlobalKey<CartDialogueState> cartDialogKey =
+    GlobalKey<CartDialogueState>();
+
+void _showCartDialog(
+    BuildContext context,
+    int cartItemCount,
+    ProductsController productController,
+    GlobalKey<CartDialogueState> dialogKey) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return CartDialogue(
+        key: dialogKey,
         active: false,
         cartItemCount: cartItemCount,
         productsController: productController,
@@ -248,9 +255,13 @@ void handleBackNavigation(
     ProductsController productController,
     Function updateTabIndex,
     int cartItemCount) {
+  final GlobalKey<CartDialogueState> cartDialogKey =
+      GlobalKey<CartDialogueState>();
+
   if (CartDatabaseManager().cartItems.isNotEmpty ||
+      CartDatabaseManager().cartPreorderItems.isNotEmpty ||
       productController.selectedCustomerId.value.isNotEmpty) {
-    _showCartDialog(context, cartItemCount, productController);
+    _showCartDialog(context, cartItemCount, productController, cartDialogKey);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -279,17 +290,23 @@ void handleBackNavigation(
                     Navigator.pop(context);
                     Navigator.of(context, rootNavigator: true).pop();
                     CartDatabaseManager().cartItems.clear();
+                    CartDatabaseManager().cartPreorderItems.clear();
                     CartDatabaseManager().clearCart();
+                    CartDatabaseManager().clearPreorderCart();
                     log('Cart Cleared');
                     updateTabIndex();
                   },
                   child: const Text('Clear cart'),
                 ),
-                // Ok Button
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
+
+                    if (cartDialogKey.currentState != null) {
+                      cartDialogKey.currentState!.performSpecificAction();
+                    }
                     log('Dialog dismissed without clearing cart');
+                    updateTabIndex();
                   },
                   child: const Text('Ok'),
                 ),

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -31,29 +33,74 @@ class OrderController extends GetxController {
   RxInt deliveredCount = 0.obs;
   RxInt rejectedCount = 0.obs;
   RxBool isCountLoading = true.obs;
-  bool _isLoading = false;
-Future<void> loadOrderCountData() async {
-  isCountLoading(true);
-  try {
-    var notificationData = await Get.find<NotificationController>().loadNotificationData('','');
-    if (notificationData.mainNotification != null) {
-      var mainNotification = notificationData.mainNotification!;
-      receivedCount.value = mainNotification.recentOrders ?? 0;
-      approvalCount.value = mainNotification.waitingForApproval ?? 0;
-      quickSaleCount.value = mainNotification.quickSale ?? 0;
-      processingCount.value = mainNotification.processingOrders ?? 0;
-      packedCount.value = mainNotification.packedAndReadyForDelivery ?? 0;
-      deliveredCount.value =  0;
-      rejectedCount.value =  0;
+  var currentPage = 1.obs;
+  var totalPages = 0.obs;
+  RxBool isOrderLoading = false.obs;
+  
+  Future<void> loadOrderCountData() async {
+    isCountLoading(true);
+    try {
+      var notificationData =
+          await Get.find<NotificationController>().loadNotificationData('', '');
+      if (notificationData.mainNotification != null) {
+        var mainNotification = notificationData.mainNotification!;
+        receivedCount.value = mainNotification.recentOrders ?? 0;
+        approvalCount.value = mainNotification.waitingForApproval ?? 0;
+        quickSaleCount.value = mainNotification.quickSale ?? 0;
+        processingCount.value = mainNotification.processingOrders ?? 0;
+        packedCount.value = mainNotification.packedAndReadyForDelivery ?? 0;
+        deliveredCount.value = 0;
+        rejectedCount.value = 0;
+      }
+    } catch (e) {
+      log("Error loading order count data: $e");
+    } finally {
+      isCountLoading(false);
     }
-  } catch (e) {
-    log("Error loading order count data: $e");
-  } finally {
-    isCountLoading(false);
   }
-}
-Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
+// Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
+//     orderDataList.clear();
+
+//     switch (selectedIndex) {
+//       case 0:
+//         selectedStatusCountIndex.value = 11;
+//         break;
+//       case 1:
+//         selectedStatusCountIndex.value = 12;
+//         break;
+//       case 2:
+//         selectedStatusCountIndex.value = 14;
+//         break;
+//       case 3:
+//         selectedStatusCountIndex.value = 5;
+//         break;
+//       case 4:
+//         selectedStatusCountIndex.value = 1;
+//         break;
+//       case 5:
+//         selectedStatusCountIndex.value = 2;
+//         break;
+//       case 6:
+//         selectedStatusCountIndex.value = 13;
+//         break;
+//       default:
+//         selectedStatusCountIndex.value = 11;
+//     }
+
+//     var data = await ApiWorker().getRecentOrdersData(
+//       searchModel: searchData,
+//       orderStatus: selectedStatusCountIndex.value,
+//       isLogin: false
+//     );
+//     orderDataList.assignAll(data.data!);
+//     return data.data!;
+//   }
+
+
+
+  Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     orderDataList.clear();
+    isOrderLoading.value = true;
 
     switch (selectedIndex) {
       case 0:
@@ -81,13 +128,35 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
         selectedStatusCountIndex.value = 11;
     }
 
-    var data = await ApiWorker().getRecentOrdersData(
-      searchModel: searchData,
-      orderStatus: selectedStatusCountIndex.value,
-      isLogin: false
-    );
-    orderDataList.assignAll(data.data!);
-    return data.data!;
+    try {
+      var data = await ApiWorker().getRecentOrdersData(
+        searchModel: searchData,
+        orderStatus: selectedStatusCountIndex.value,
+        page: currentPage.value,
+        isLogin: false,
+      );
+
+      if (data.data == null || data.data!.isEmpty) {
+        log("Order details not found.");
+        orderDataList.clear();
+      } else {
+        orderDataList.assignAll(data.data!);
+
+        // Safely handle pagination
+        if (data.pagination != null && data.pagination!.totalPages != null) {
+          totalPages.value = data.pagination!.totalPages!.toInt();
+        } else {
+          log("Pagination details are missing.");
+          totalPages.value = 1;
+        }
+      }
+    } catch (e) {
+      log("Error loading order data: $e");
+    } finally {
+      isOrderLoading.value = false;
+    }
+
+    return orderDataList;
   }
 
   updateCustomerVisitScheduleSet(DateTime? startDate, DateTime? endDate) {
@@ -109,6 +178,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     loadOrderCountData();
     loadOrderData(selectedIndex: newIndex);
   }
+
   Widget orderStatusWidget(String status, Color color) {
     return Container(
       padding: nkRegularPadding(),
@@ -139,9 +209,10 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       orderProcessInvoiceData = data.data!.first;
     }
 
-    isLoading(false); 
+    isLoading(false);
     return orderProcessInvoiceData;
   }
+
   Future<FetchSpecificOrderData?> loadSpecificOrderInvoiceData({
     required String orderId,
   }) async {
@@ -156,13 +227,14 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       fetchSpecificOrderData = data.data!;
     }
 
-    isLoading(false); 
+    isLoading(false);
     return fetchSpecificOrderData;
   }
+
   Future<OrderProcessInvoiceData?> loadOrderApprovalInvoiceData({
     required String orderId,
   }) async {
-    isLoading(true); 
+    isLoading(true);
     log("Loading Waiting for Approval Invoice Data");
 
     var data = await _apiWorker.loadWaitingForApproval(
@@ -173,9 +245,10 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       orderProcessInvoiceData = data.data.first;
     }
 
-    isLoading(false); 
+    isLoading(false);
     return orderProcessInvoiceData;
   }
+
   RxBool isButtonActionLoading = false.obs;
   Future<ButtonActionData?> rejectButtonAction({
     required BuildContext context,
@@ -195,7 +268,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Order rejected successfully!'),
           backgroundColor: Colors.green,
         ),
@@ -234,7 +307,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Order Accepted successfully!'),
           backgroundColor: Colors.green,
         ),
@@ -254,6 +327,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       return null;
     }
   }
+
   Future<void> sendForCustomerApprovalButtonAction({
     required BuildContext context,
     required String orderId,
@@ -263,12 +337,13 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       isButtonActionLoading(true);
       log("Send for customer approval Button Action");
 
-      var response = await _apiWorker.sendMail(orderId: orderId, updatedOrders: updatedOrders);
+      var response = await _apiWorker.sendMail(
+          orderId: orderId, updatedOrders: updatedOrders);
 
       log("${response.statusMessage}");
       isButtonActionLoading(false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Order sent for approval successfully!'),
           backgroundColor: Colors.green,
         ),
@@ -285,6 +360,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       );
     }
   }
+
   Future<void> addToPackedAndReady({
     required BuildContext context,
     required String orderId,
@@ -295,7 +371,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     try {
       await _apiWorker.packedAndReadyAdd(cartId: cartid, orderId: orderId);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Added to Packed and Ready successfully!'),
           backgroundColor: Colors.green,
         ),
@@ -310,12 +386,13 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       );
     }
   }
+
   Future<ButtonActionData?> deliverButtonAction({
     required BuildContext context,
     required String orderId,
   }) async {
     try {
-      isButtonActionLoading(true); 
+      isButtonActionLoading(true);
       log("Deliver Button Action");
 
       var data = await _apiWorker.orderDeliver(
@@ -326,7 +403,7 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       isButtonActionLoading(false);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Order delivered successfully!'),
           backgroundColor: Colors.green,
         ),
@@ -345,6 +422,31 @@ Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
       );
 
       return null;
+    }
+  }
+
+  void setTotalPages(int total) {
+    totalPages.value = total;
+  }
+
+  void goToPreviousPage() {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+      loadOrderData(selectedIndex: selectedTabIndex.value);
+    }
+  }
+
+  void goToNextPage() {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
+      loadOrderData(selectedIndex: selectedTabIndex.value);
+    }
+  }
+
+  void goToPage(int page) {
+    if (page >= 1 && page <= totalPages.value) {
+      currentPage.value = page;
+      loadOrderData(selectedIndex: selectedTabIndex.value);
     }
   }
 }

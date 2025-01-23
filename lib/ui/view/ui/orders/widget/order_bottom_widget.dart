@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_pagination.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -52,9 +53,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   Widget build(BuildContext context) {
     return Obx(
       () {
+       if (widget.orderController.isOrderLoading.value) {
+          return const Center(child: Text('LOADING'));
+        }
         if (widget.orderController.orderDataList.isEmpty) {
-          return const Text('');
-          //LoadingToNoDataWidget();
+          return const Center(child: Text('Record Not Found'));
         }
         return NkWidgetExceptionHandel(
           onRetryPressed: () => {},
@@ -201,7 +204,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                 flex: 1,
                                 child: Center(
                                   child: CustomText(
-                                    content: '${index + 1}.',
+                                    content: '${((widget.orderController.currentPage.value - 1) * 20) + (index + 1)}.',
                                     maxLine: 1,
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -246,7 +249,14 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         );
                       },
                     ),
-                  )
+                  ),
+                  Container(
+                      padding: EdgeInsets.all(3),
+                      height: 50,
+                      color: Colors.grey[200],
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: OrderPaginationWidget()),),
                 ],
               ],
             ),
@@ -255,7 +265,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
       },
     );
   }
-
   Widget placeholderWidget() {
     return Center(
       child: MyRegularText(
@@ -380,6 +389,60 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     );
   }
 
+  // Widget orderStatus(CustomerCart orderData) {
+  //   Color statusColor;
+  //   switch (orderData.optionOrderData?.orderStatus) {
+  //     case 11:
+  //       statusColor = const Color.fromARGB(255, 225, 250, 191);
+  //       break;
+  //     case 12:
+  //       statusColor = const Color.fromARGB(255, 255, 222, 168);
+  //       break;
+  //     case 14:
+  //       statusColor = const Color.fromARGB(255, 192, 226, 254);
+  //       break;
+  //     case 5:
+  //       statusColor = const Color.fromARGB(255, 190, 253, 247);
+  //       break;
+  //     case 1:
+  //       statusColor = const Color.fromARGB(255, 245, 195, 254);
+  //       break;
+  //     case 2:
+  //       statusColor = const Color.fromARGB(255, 222, 199, 246);
+  //       break;
+  //     case 13:
+  //       statusColor = const Color.fromARGB(255, 246, 199, 199);
+  //       break;
+  //     default:
+  //       statusColor = Colors.grey;
+  //   }
+  //   return Center(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(8.0),
+  //       child: Container(
+  //         decoration: BoxDecoration(
+  //           color: statusColor,
+  //           borderRadius: BorderRadius.circular(50),
+  //         ),
+  //         child: Padding(
+  //           padding:
+  //               const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
+  //           child: MyRegularText(
+  //             label: orderData.optionOrderData?.orderStatus != null
+  //                 ? OrderHandlingClass.fromType(
+  //                         orderData.optionOrderData!.orderStatus!)
+  //                     .name
+  //                 : 'Unknown',
+  //             fontSize: 11,
+  //             align: TextAlign.center,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget orderStatus(CustomerCart orderData) {
     Color statusColor;
     switch (orderData.optionOrderData?.orderStatus) {
@@ -390,7 +453,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         statusColor = const Color.fromARGB(255, 255, 222, 168);
         break;
       case 14:
-        statusColor = const Color.fromARGB(255, 192, 226, 254);
+        // statusColor = const Color.fromARGB(255, 192, 226, 254);
+        statusColor = const Color.fromARGB(255, 190, 253, 247);
         break;
       case 5:
         statusColor = const Color.fromARGB(255, 190, 253, 247);
@@ -407,31 +471,139 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
       default:
         statusColor = Colors.grey;
     }
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: statusColor,
-            borderRadius: BorderRadius.circular(50),
-          ),
-          child: Padding(
-            padding:
-                const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
-            child: MyRegularText(
-              label: orderData.optionOrderData?.orderStatus != null
-                  ? OrderHandlingClass.fromType(
-                          orderData.optionOrderData!.orderStatus!)
-                      .name
-                  : 'Unknown',
-              fontSize: 11,
-              align: TextAlign.center,
-              fontWeight: FontWeight.w600,
+
+    return orderData.optionOrderData?.orderStatus == 2
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: IntrinsicHeight(
+                child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomText(
+                          content: orderData.optionOrderData?.orderStatus !=
+                                  null
+                              ? OrderHandlingClass.fromType(
+                                      orderData.optionOrderData!.orderStatus!)
+                                  .name
+                              : 'Unknown',
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        if (orderData.optionOrderData!.orderStatus == 2 &&
+                            orderData.optionOrderData!.deliveryDatetime !=
+                                null) ...[
+                          const SizedBox(height: 3),
+                          CustomText(
+                            content: NKDateUtils.commonFullDateTimeFormat(
+                                NKDateUtils.formatStringUTCDateTime(orderData
+                                    .optionOrderData!.deliveryDatetime
+                                    .toString())),
+                            textAlign: TextAlign.center,
+                            maxLine: 2,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          )
+        : orderData.optionOrderData?.orderStatus == 14
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: IntrinsicHeight(
+                    child: Container(
+                      clipBehavior: Clip.antiAlias,
+                      padding: EdgeInsets.only(top: 10),
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15.0)),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CustomText(
+                              content:
+                                  orderData.optionOrderData?.orderStatus != null
+                                      ? OrderHandlingClass.fromType(orderData
+                                              .optionOrderData!.orderStatus!)
+                                          .name
+                                      : 'Unknown',
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            if (orderData.optionOrderData?.orderStatus ==
+                                14) ...[
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                        color: Colors.blue,
+                                        child: Center(
+                                          child: Text(
+                                            'Quick Sale',
+                                            style: TextStyle(
+                                                color: white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 10),
+                                          ),
+                                        )),
+                                  ),
+                                ],
+                              )
+                            ]
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: IntrinsicHeight(
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: orderData.optionOrderData?.orderStatus != null
+                            ? statusColor
+                            : Colors.grey,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15.0)),
+                      ),
+                      child: Center(
+                        child: CustomText(
+                          content: orderData.optionOrderData?.orderStatus !=
+                                  null
+                              ? OrderHandlingClass.fromType(
+                                      orderData.optionOrderData!.orderStatus!)
+                                  .name
+                              : 'Unknown',
+                          fontSize: 11,
+                          textAlign: TextAlign.center,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
   }
 
   Widget viewOrder(OrderController orderController, OrderData orderData) {

@@ -224,24 +224,24 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ),
                           ),
                         ),
-                        // const DataColumn(
-                        //   label: Expanded(
-                        //     flex: 2,
-                        //     child: Text(
-                        //       'QTY',
-                        //       textAlign: TextAlign.center,
-                        //     ),
-                        //   ),
-                        // ),
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
                             child: Text(
-                              'CREATED AT',
+                              'QTY',
                               textAlign: TextAlign.center,
                             ),
                           ),
                         ),
+                        // const DataColumn(
+                        //   label: Expanded(
+                        //     flex: 2,
+                        //     child: Text(
+                        //       'CREATED AT',
+                        //       textAlign: TextAlign.center,
+                        //     ),
+                        //   ),
+                        // ),
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
@@ -456,11 +456,109 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                 ],
               ),
               const SizedBox(height: 16),
+              // Padding(
+              //   padding: const EdgeInsets.all(20.0),
+              //   child: Column(
+              //     children: [
+              //       Row(
+              //       children: [
+              //         const Text(
+              //           'Subtotal',
+              //           style: TextStyle(
+              //             color: black,
+              //             fontSize: 15,
+              //             fontWeight: FontWeight.w500,
+              //           ),
+              //         ),
+              //         const Spacer(),
+              //         Text(
+              //           formatAmount(isSpecificData
+              //               ? widget.specificData!.orderTotal ?? 0
+              //               : widget.invoiceData!.orderTotal ?? 0),
+              //         ),
+              //       ],
+              //     ),
+              //     if (((isSpecificData
+              //             ? widget.specificData!.tax
+              //             : widget.invoiceData!.tax) !=
+              //         null)) ...[
+              //       ...(isSpecificData
+              //               ? widget.specificData!.tax
+              //               : widget.invoiceData!.tax)!
+              //           .map((taxItem) {
+              //         return Row(
+              //           children: [
+              //             Text(
+              //               '${isSpecificData ? taxItem.tax_name : taxItem.tax_name} - ${isSpecificData ? taxItem.tax : taxItem.tax} %',
+              //               style: const TextStyle(
+              //                 color: black,
+              //                 fontSize: 14,
+              //                 fontWeight: FontWeight.w500,
+              //               ),
+              //             ),
+              //             const Spacer(),
+              //             Text(
+              //               formatAmount(
+              //                 (_getTaxValue(isSpecificData
+              //                         ? taxItem.tax
+              //                         : taxItem.tax)) *
+              //                     (isSpecificData
+              //                         ? widget.specificData!.orderTotal ?? 0
+              //                         : widget.invoiceData!.orderTotal ?? 0) /
+              //                     100,
+              //               ),
+              //             ),
+              //           ],
+              //         );
+              //       })
+              //     ],
+              //     Divider(color: Colors.grey.shade400),
+              //     Row(
+              //       children: [
+              //         const Text(
+              //           'Total',
+              //           style: TextStyle(
+              //             color: black,
+              //             fontSize: 16,
+              //             fontWeight: FontWeight.w600,
+              //           ),
+              //         ),
+              //         const Spacer(),
+              //         Text(
+              //           formatAmount(
+              //             (isSpecificData
+              //                     ? widget.specificData!.orderTotal ?? 0
+              //                     : widget.invoiceData!.orderTotal ?? 0) +
+              //                 ((_getTaxValue(isSpecificData
+              //                         ? widget.specificData!.tax!.fold(0.0,
+              //                             (sum, taxItem) {
+              //                             return sum + taxItem.tax!.toDouble();
+              //                           })
+              //                         : widget.invoiceData!.tax!.fold(0.0,
+              //                             (sum, taxItem) {
+              //                             return sum + taxItem.tax!.toDouble();
+              //                           }))) *
+              //                     (isSpecificData
+              //                         ? widget.specificData!.orderTotal ?? 0
+              //                         : widget.invoiceData!.orderTotal ?? 0) /
+              //                     100),
+              //           ),
+              //           style: const TextStyle(
+              //             fontSize: 16,
+              //             color: red,
+              //             fontWeight: FontWeight.w600,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //     ],
+              //   ),
+              // ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Row(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Row(
                     children: [
                       const Text(
                         'Subtotal',
@@ -472,45 +570,50 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       ),
                       const Spacer(),
                       Text(
-                        formatAmount(isSpecificData
-                            ? widget.specificData!.orderTotal ?? 0
-                            : widget.invoiceData!.orderTotal ?? 0),
+                        formatAmount(
+                          isSpecificData
+                              ? _totalPrices.reduce((a, b) => a + b)
+                              : (widget.invoiceData?.orderTotal ?? 0),
+                        ),
                       ),
                     ],
                   ),
-                  if (((isSpecificData
-                          ? widget.specificData!.tax
-                          : widget.invoiceData!.tax) !=
-                      null)) ...[
+                  if ((isSpecificData
+                      ? widget.specificData?.tax != null &&
+                          widget.specificData!.tax!
+                              .any((taxItem) => taxItem.tax != null)
+                      : widget.invoiceData?.tax != null &&
+                          widget.invoiceData!.tax!
+                              .any((taxItem) => taxItem.tax != null))) ...[
                     ...(isSpecificData
-                            ? widget.specificData!.tax
-                            : widget.invoiceData!.tax)!
+                            ? widget.specificData!.tax!
+                            : widget.invoiceData!.tax!)
                         .map((taxItem) {
+                      final orderTotal = isSpecificData
+                          ? _totalPrices.reduce((a, b) => a + b)
+                          : (widget.invoiceData?.orderTotal ?? 0);
+                      final taxPercentage = taxItem.tax ?? 0.0;
+                      final taxAmount = (taxPercentage * orderTotal) / 100;
+
                       return Row(
                         children: [
-                          Text(
-                            '${isSpecificData ? taxItem.tax_name : taxItem.tax_name} - ${isSpecificData ? taxItem.tax : taxItem.tax} %',
-                            style: const TextStyle(
-                              color: black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                          if (taxItem.tax_name != null) ...[
+                            Text(
+                              '${taxItem.tax_name ?? ''} - ${taxPercentage.toStringAsFixed(2)}%',
+                              style: const TextStyle(
+                                color: black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            formatAmount(
-                              (_getTaxValue(isSpecificData
-                                      ? taxItem.tax
-                                      : taxItem.tax)) *
-                                  (isSpecificData
-                                      ? widget.specificData!.orderTotal ?? 0
-                                      : widget.invoiceData!.orderTotal ?? 0) /
-                                  100,
+                            const Spacer(),
+                            Text(
+                              formatAmount(taxAmount),
                             ),
-                          ),
+                          ]
                         ],
                       );
-                    })
+                    }),
                   ],
                   Divider(color: Colors.grey.shade400),
                   Row(
@@ -526,22 +629,23 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       const Spacer(),
                       Text(
                         formatAmount(
-                          (isSpecificData
-                                  ? widget.specificData!.orderTotal ?? 0
-                                  : widget.invoiceData!.orderTotal ?? 0) +
-                              ((_getTaxValue(isSpecificData
-                                      ? widget.specificData!.tax!.fold(0.0,
-                                          (sum, taxItem) {
-                                          return sum + taxItem.tax!.toDouble();
-                                        })
-                                      : widget.invoiceData!.tax!.fold(0.0,
-                                          (sum, taxItem) {
-                                          return sum + taxItem.tax!.toDouble();
-                                        }))) *
-                                  (isSpecificData
-                                      ? widget.specificData!.orderTotal ?? 0
-                                      : widget.invoiceData!.orderTotal ?? 0) /
-                                  100),
+                          (() {
+                            final orderTotal = isSpecificData
+                                ? _totalPrices.reduce((a, b) => a + b)
+                                : (widget.invoiceData?.orderTotal ?? 0);
+                            final totalTax = isSpecificData
+                                ? (widget.specificData?.tax?.fold(0.0,
+                                        (sum, taxItem) {
+                                      return sum + (taxItem.tax ?? 0.0);
+                                    }) ??
+                                    0.0)
+                                : (widget.invoiceData?.tax?.fold(0.0,
+                                        (sum, taxItem) {
+                                      return sum + (taxItem.tax ?? 0.0);
+                                    }) ??
+                                    0.0);
+                            return orderTotal + ((totalTax * orderTotal) / 100);
+                          })(),
                         ),
                         style: const TextStyle(
                           fontSize: 16,
@@ -551,9 +655,9 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       ),
                     ],
                   ),
-                  ],
-                ),
+                ],
               ),
+            ),
               const SizedBox(height: 16),
               widget.selectedTabIndex == 1
                   ? Row(

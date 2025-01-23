@@ -3,17 +3,51 @@ import 'package:busskit_salesexecutive/ui/components/option/model/option_order_r
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 
+// class OrderResponce {
+//   int? statusCode;
+//   bool? status;
+//   String? message;
+//   List<OrderData>? data;
+
+//   OrderResponce({
+//     this.statusCode,
+//     this.status,
+//     this.message,
+//     this.data,
+//   });
+
+//   OrderResponce.fromJson(Map<String, dynamic> json) {
+//     statusCode = json['status_code'] as int?;
+//     status = json['status'] as bool?;
+//     message = json['message'] as String?;
+//     data = (json['data'] as List?)
+//         ?.map((dynamic e) => OrderData.fromJson(e as Map<String, dynamic>))
+//         .toList();
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> json = <String, dynamic>{};
+//     json['status_code'] = statusCode;
+//     json['status'] = status;
+//     json['message'] = message;
+//     json['data'] = data?.map((e) => e.toJson()).toList();
+//     return json;
+//   }
+// }
+
 class OrderResponce {
   int? statusCode;
   bool? status;
   String? message;
   List<OrderData>? data;
+  OrderPagination? pagination;
 
   OrderResponce({
     this.statusCode,
     this.status,
     this.message,
     this.data,
+    this.pagination,
   });
 
   OrderResponce.fromJson(Map<String, dynamic> json) {
@@ -23,6 +57,7 @@ class OrderResponce {
     data = (json['data'] as List?)
         ?.map((dynamic e) => OrderData.fromJson(e as Map<String, dynamic>))
         .toList();
+    pagination = OrderPagination.fromJson(json["pagination"]);
   }
 
   Map<String, dynamic> toJson() {
@@ -31,6 +66,7 @@ class OrderResponce {
     json['status'] = status;
     json['message'] = message;
     json['data'] = data?.map((e) => e.toJson()).toList();
+    json['pagination'] = pagination?.toJson();
     return json;
   }
 }
@@ -142,6 +178,36 @@ class OrderData {
     return json;
   }
 }
+
+class OrderPagination {
+  int? totalRecord;
+  int? totalPages;
+  int? currentPage;
+  int? perPage;
+
+  OrderPagination({
+    this.totalRecord,
+    this.totalPages,
+    this.currentPage,
+    this.perPage,
+  });
+
+  factory OrderPagination.fromJson(Map<String, dynamic> json) =>
+      OrderPagination(
+        totalRecord: json["total_record"],
+        totalPages: json["total_pages"],
+        currentPage: json["current_page"],
+        perPage: json["per_page"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "total_record": totalRecord,
+        "total_pages": totalPages,
+        "current_page": currentPage,
+        "per_page": perPage,
+      };
+}
+
 // class OrderData {
 //   int? id;
 //   String? orderId;

@@ -43,7 +43,8 @@ extension OrderStatusExtension on OrderStatus {
       case OrderStatus.waitApproval:
         return "Waiting for Approval";
       case OrderStatus.quickSale:
-        return "Quick Sale";
+        return "Processing";
+        // return "Quick Sale";
       case OrderStatus.rejected:
         return "Rejected";
     }

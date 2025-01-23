@@ -72,7 +72,7 @@ import 'package:flutter/material.dart';
 class ProductProvider extends ChangeNotifier {
   ProductProvider() {
     fetchCategories();
-    fetchData();
+    fetchDatass();
   }
   final ApiService _apiService = ApiService();
   List<CategoryP> _categories = [];
@@ -114,7 +114,7 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchDatass() async {
     _isLoading = true;
     notifyListeners();
     try {

@@ -9,8 +9,8 @@ class DioClient with ApiConstants {
       : _dio = Dio(
           BaseOptions(
               baseUrl: ApiConstants.baseUrl,
-              connectTimeout: const Duration(seconds: 3),
-              receiveTimeout: const Duration(seconds: 1),
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 30),
               responseType: ResponseType.json),
         )..interceptors.addAll([
             AuthorizationInterceptor(),
@@ -32,7 +32,7 @@ class DioClient with ApiConstants {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-  }) async { 
+  }) async {
     try {
       final response = await _dio.post(path,
           data: data,
@@ -52,27 +52,41 @@ class DioClient with ApiConstants {
     }
   }
 
-  Future<Response> getbycustom<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onReceiveProgress,
-  }) async {
+Future<Response> getbycustom<T>(
+  String path, {
+  Map<String, dynamic>? queryParameters,
+  Options? options,
+  CancelToken? cancelToken,
+  ProgressCallback? onReceiveProgress,
+  int maxRetries = 3, // Retry count
+}) async {
+  int retryCount = 0;
+
+  while (retryCount < maxRetries) {
     try {
-      final response = await _dio.get(path,
-          queryParameters: queryParameters,
-          options: options,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress);
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+      );
       return response;
     } on DioError catch (err) {
-      final errorMessage = DioExceptionHandler.fromDioError(err).toString();
-      throw errorMessage;
+      retryCount++;
+      if (retryCount >= maxRetries || err.type != DioErrorType.connectionTimeout) {
+        final errorMessage = DioExceptionHandler.fromDioError(err).toString();
+        throw errorMessage;
+      }
+      log('Retrying request ($retryCount/$maxRetries): $path');
     } catch (e) {
       throw e.toString();
     }
   }
+
+  throw 'Failed to complete the request after $maxRetries retries.';
+}
+
 }
 
 class DioExceptionHandler implements Exception {

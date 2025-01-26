@@ -212,34 +212,58 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
     }
   }
 
-  Future<void> saveCartAsDraft(String customerId) async {
-    if (customerId.isEmpty) {
-      log('Error: Customer ID is required to save a draft.');
+Future<void> saveCartAsDraft(String customerId) async {
+  if (customerId.isEmpty) {
+    log('Error: Customer ID is required to save a draft.');
+    return;
+  }
+  try {
+    List<CartItem> cartItems = CartDatabaseManager().cartItems;
+    if (cartItems.isEmpty) {
+      log('No items in the cart to save as a draft.');
       return;
     }
-    try {
-      List<CartItem> cartItems = CartDatabaseManager().cartItems;
-      if (cartItems.isEmpty) {
-        log('No items in the cart to save as a draft.');
-        return;
+    final existingDraft = CartDatabaseManager().draftBox.get(customerId);
+    List<CartItem> updatedDraftItems = [];
+    if (existingDraft != null) {
+      final draftItemMap = {
+        for (var item in existingDraft.items)
+          '${item.detail.variationName}_${item.detail.sellPrice}': item
+      };
+      for (var cartItem in cartItems) {
+        final key =
+            '${cartItem.detail.variationName}_${cartItem.detail.sellPrice}';
+        if (draftItemMap.containsKey(key)) {
+          final existingItem = draftItemMap[key]!;
+          existingItem.detail.count += cartItem.detail.count;
+          existingItem.totalPrice = existingItem.isPack!
+              ? (existingItem.detail.count *
+                      existingItem.detail.pieces! *
+                      num.parse(existingItem.detail.sellPrice ?? '0'))
+                  .toInt()
+              : (existingItem.detail.count *
+                      num.parse(existingItem.detail.sellPrice ?? '0'))
+                  .toInt();
+        } else {
+          draftItemMap[key] = cartItem;
+        }
       }
-      final existingDraft = CartDatabaseManager().draftBox.get(customerId);
-      List<CartItem> updatedDraftItems = [];
-      if (existingDraft != null) {
-        updatedDraftItems = List.from(existingDraft.items)..addAll(cartItems);
-      } else {
-        updatedDraftItems = cartItems;
-      }
-      final draft = Draft(
-        customerId: customerId,
-        items: updatedDraftItems,
-      );
-      await CartDatabaseManager().draftBox.put(customerId, draft);
-      log('Draft saved successfully for customer ID: $customerId');
-    } catch (e) {
-      log('Error saving cart as draft: $e');
+      updatedDraftItems = draftItemMap.values.toList();
+    } else {
+      updatedDraftItems = cartItems;
     }
+
+    final draft = Draft(
+      customerId: customerId,
+      items: updatedDraftItems,
+    );
+    await CartDatabaseManager().draftBox.put(customerId, draft);
+    log('Draft saved successfully for customer ID: $customerId');
+  } catch (e) {
+    log('Error saving cart as draft: $e');
   }
+}
+
 
   Future<void> updateCart(CartItem updatedItem) async {
     await _cartBox.put(updatedItem.key, updatedItem);
@@ -252,14 +276,12 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
   }
 Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async {
   try {
-    // Retrieve the draft using customerId
     final existingDraft = draftBox.get(customerId);
 
     if (existingDraft != null) {
-      // Update the relevant CartItem in the draft's items list
       final updatedItems = existingDraft.items.map((item) {
         if (item.key == updatedCartItem.key) {
-          return updatedCartItem; // Replace with the updated item
+          return updatedCartItem;
         }
         return item;
       }).toList();
@@ -267,10 +289,7 @@ Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async 
         customerId: existingDraft.customerId,
         items: updatedItems,
       );
-
-      // Save the updated draft back to the box
       await draftBox.put(customerId, updatedDraft);
-
       log('Draft updated successfully for customer ID: $customerId');
       _notifyListeners();
     } else {

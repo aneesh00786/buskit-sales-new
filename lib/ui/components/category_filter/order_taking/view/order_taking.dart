@@ -196,13 +196,16 @@ class _OrderTakingState extends State<OrderTaking>
       filteredCustomers = results;
     });
   }
+
   void handleBackNavigation(
     BuildContext context,
     bool toDashBoard,
   ) {
+    final GlobalKey<CartDialogueState> cartDialogKey =
+      GlobalKey<CartDialogueState>();
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         widget.productsController.selectedCustomerId.value.isNotEmpty) {
-      _showCartDialog();
+      _showCartDialog(cartDialogKey);
       Future.delayed(Duration(seconds: 1));
       showDialog(
         context: context,
@@ -234,10 +237,7 @@ class _OrderTakingState extends State<OrderTaking>
                           homeController.sidebarXController.selectIndex(0);
                           homeController.selectedIndex.value = 0;
                           Get.toNamed(AppRoutes.dashboard, id: 2);
-                          customerAndOrderController.customerId.value = '';
                           widget.productsController.selectedCustomerName.value =
-                              '';
-                          widget.productsController.selectedCustomerId.value =
                               '';
                           widget.productsController.selectedCustomerImageUrl
                               .value = '';
@@ -261,7 +261,7 @@ class _OrderTakingState extends State<OrderTaking>
                         });
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
-                      } else{
+                      } else {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
@@ -276,7 +276,48 @@ class _OrderTakingState extends State<OrderTaking>
                   ),
                   TextButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      if (cartDialogKey.currentState != null) {
+                        cartDialogKey.currentState!.performSpecificAction();
+
+                        if (toDashBoard) {
+                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            homeController.sidebarXController.selectIndex(0);
+                            homeController.selectedIndex.value = 0;
+                            Get.toNamed(AppRoutes.dashboard, id: 2);
+                            widget.productsController.selectedCustomerName
+                                .value = '';
+                            widget.productsController.selectedCustomerImageUrl
+                                .value = '';
+                          });
+                          CartDatabaseManager().cartItems.clear();
+                          CartDatabaseManager().clearCart();
+                        } else if (widget.isDirectDialogue) {
+                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            homeController.sidebarXController.selectIndex(0);
+                            homeController.selectedIndex.value = 0;
+                            Get.toNamed(AppRoutes.dashboard, id: 2);
+                            widget.productsController.selectedCustomerName
+                                .value = '';
+                            widget.productsController.selectedCustomerImageUrl
+                                .value = '';
+                          });
+                          CartDatabaseManager().cartItems.clear();
+                          CartDatabaseManager().clearCart();
+                        } else {
+                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          CartDatabaseManager().cartItems.clear();
+                          CartDatabaseManager().clearCart();
+                          setState(() {
+                            cartItemCount = 0;
+                          });
+                          customerSearchController.clear();
+                        }
+                      }
                     },
                     child: Text('Ok'),
                   ),
@@ -312,9 +353,7 @@ class _OrderTakingState extends State<OrderTaking>
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                Future.delayed(Duration(milliseconds: 300), () {
-                  triggerLeadingIcon(true);
-                });
+
               },
               child: Text('Ok'),
             ),
@@ -595,9 +634,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                             false &&
                                                         CartDatabaseManager()
                                                             .cartItems
-                                                            .isNotEmpty &&
-                                                        customerAndOrderController
-                                                            .customerId
                                                             .isNotEmpty) {
                                                       if (mounted) {
                                                         _showWarningDialog(
@@ -706,7 +742,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                             .setCustomerId(customer
                                                                     .customerId ??
                                                                 '');
-
                                                         widget
                                                                 .productsController
                                                                 .selectedCustomerName
@@ -796,7 +831,7 @@ class _OrderTakingState extends State<OrderTaking>
                             },
                             child: IconButton(
                               onPressed: () {
-                                _showCartDialog();
+                                _showCartDialog(cartDialogKey);
                               },
                               icon: Stack(
                                 children: [
@@ -1007,12 +1042,15 @@ class _OrderTakingState extends State<OrderTaking>
         orElse: () => SubCategoryItem());
     return selectedSubcategory?.id ?? '';
   }
+final GlobalKey<CartDialogueState> cartDialogKey =
+    GlobalKey<CartDialogueState>();
 
-  void _showCartDialog() {
+  void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CartDialogue(
+          key: dialogKey,
           active: active,
           cartItemCount: cartItemCount,
           productsController: widget.productsController,

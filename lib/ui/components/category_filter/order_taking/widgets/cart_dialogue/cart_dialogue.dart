@@ -146,7 +146,7 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void performSpecificAction() async {
-    log('Selected Customer ID :${customeController.customerId.isNotEmpty ? {
+    log('Selected CustomerID :${customeController.customerId.isNotEmpty ? {
         customeController.customerId.value
       } : widget.productsController.selectedCustomerId.value}');
     showDialog(
@@ -186,6 +186,11 @@ class CartDialogueState extends State<CartDialogue> {
           .toList(),
       total: widget.productsController.finalAmount.value.toStringAsFixed(0),
       discount: '0',
+    );
+    CartDatabaseManager().saveCartAsDraft(
+      customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value,
     );
     CartOrderModel? cartOrder =
         await ApiWorker().addToCart(productBYData.toJson());
@@ -233,7 +238,6 @@ class CartDialogueState extends State<CartDialogue> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      Navigator.of(context, rootNavigator: true).pop();
                       isOrder
                           ? _clearCartItem(cartItems)
                           : _clearPreorderCartItem(preorderItems);
@@ -325,8 +329,6 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-
-
   double? finalAmount;
   @override
   Widget build(BuildContext context) {
@@ -344,7 +346,7 @@ class CartDialogueState extends State<CartDialogue> {
     } else if (isDraft && cartItems.isEmpty && preorderItems.isEmpty) {
       log('Calculating for Draft...');
       double draftTotal =
-      draftItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+          draftItems.fold(0.0, (sum, item) => sum + item.totalPrice);
       finalAmount = draftTotal + draftTax;
       log('Draft Total: $draftTotal, Draft Tax: $draftTax, Final Amount: $finalAmount');
     } else {
@@ -853,7 +855,8 @@ class CartDialogueState extends State<CartDialogue> {
                     Container(
                       height: 40,
                       width: double.infinity,
-                      padding: const EdgeInsets.all(10),                     child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Padding(
                         padding: const EdgeInsets.only(right: 10, left: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

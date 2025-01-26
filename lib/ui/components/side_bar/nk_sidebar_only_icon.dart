@@ -204,10 +204,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                 top: -12,
                 left: 12,
                 child:
-                    // notificationController.isLeadsCountLoading.value ||
-                    //         notificationController.leadsCount.value <= 0
-                    //     ? const SizedBox.shrink()
-                    //     :
                     CircleAvatar(
                   radius: 10,
                   backgroundColor: Colors.red,

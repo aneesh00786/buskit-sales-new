@@ -57,10 +57,11 @@ class CartDialogueState extends State<CartDialogue> {
   double preorderTotal = 0.0;
   double tax = 0.0;
   double preorderTax = 0.0;
+  double draftTotal = 0.0;
+  double draftTax = 0.0;
   String? _selectedValue;
   String? _dropdownValue;
   int? paymentType;
-
   final List<String> _options = [
     'Sale Order',
     "Quick Sale",
@@ -80,9 +81,8 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController remarkController = TextEditingController();
   List<CartItem> draftItems = [];
   bool _isLoading = true;
-
   bool isOrder = true;
-
+  bool isDraft = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -94,7 +94,7 @@ class CartDialogueState extends State<CartDialogue> {
     _loadPreorderItems();
     calculateAmount(cartItems);
     calculatePreorderAmount(preorderItems);
-
+    calculateDraftAmount(draftItems);
     isOrder = cartItems.isEmpty && preorderItems.isNotEmpty ? false : true;
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
@@ -288,74 +288,46 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  Future<void> saveCartAsDraft(String customerId) async {
-    if (customerId.isEmpty) {
-      log('Error: Customer ID is required to save a draft.');
-      return;
-    }
-
-    try {
-      List<CartItem> cartItems = CartDatabaseManager().cartItems;
-
-      if (cartItems.isEmpty) {
-        log('No items in the cart to save as a draft.');
-        return;
-      }
-      final existingDraft = CartDatabaseManager().draftBox.get(customerId);
-      List<CartItem> updatedDraftItems = [];
-      if (existingDraft != null) {
-        updatedDraftItems = List.from(existingDraft.items)..addAll(cartItems);
-      } else {
-        updatedDraftItems = cartItems;
-      }
-      final draft = Draft(
-        customerId: customerId,
-        items: updatedDraftItems,
-      );
-      await CartDatabaseManager().draftBox.put(customerId, draft);
-
-      log('Draft saved successfully for customer ID: $customerId');
-    } catch (e) {
-      log('Error saving cart as draft: $e');
-    }
-  }
-
-  Future<void> loadDraft(String customerId) async {
+  void loadDraft(String customerId) {
     try {
       final draft = CartDatabaseManager().draftBox.get(customerId);
 
       if (draft != null) {
         log('Draft loaded successfully for customer ID: $customerId');
-        setState(() {
-          draftItems = draft.items;
-        });
-
+        draftItems = draft.items;
         for (var item in draft.items) {
-          log('Draft Item: '
-              'Product Name: ${item.productName}, '
-              'Variation Name: ${item.detail.variationName}, '
-              'Sell Price: ${item.detail.sellPrice}, '
-              'Count: ${item.detail.count}, '
-              'Total Price: ${item.totalPrice}, '
-              'Is Pack: ${item.isPack}'
-              'Pieces: ${item.detail.pieces}',
-              );
-              
+          log(
+            'Draft Item: '
+            'Product Name: ${item.productName}, '
+            'Variation Name: ${item.detail.variationName}, '
+            'Sell Price: ${item.detail.sellPrice}, '
+            'Count: ${item.detail.count}, '
+            'Total Price: ${item.totalPrice}, '
+            'Is Pack: ${item.isPack}, '
+            'Pieces: ${item.detail.pieces}',
+          );
         }
+        draftTotal = Utils().getFinalAmount(draftItems);
+        draftTax = Utils().getTotalTax(draftItems);
+
+        log('Draft Load Tax : $draftTax');
+        if (_options.isNotEmpty) {
+          _selectedValue = _options[0];
+        }
+        _isLoading = false;
       } else {
         log('No draft found for customer ID: $customerId');
-        setState(() {
-          draftItems = [];
-        });
+        draftItems = [];
       }
     } catch (e) {
       log('Error loading draft for customer ID $customerId: $e');
-      setState(() {
-        draftItems = [];
-      });
+      draftItems = [];
     }
   }
 
+
+
+  double? finalAmount;
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -366,9 +338,20 @@ class CartDialogueState extends State<CartDialogue> {
         ),
       );
     }
-    double finalAmount = isOrder ? total + tax : preorderTotal + preorderTax;
-    widget.productsController.updateFinalAmount(finalAmount);
-    String formattedAmount = finalAmount.toStringAsFixed(2);
+
+    if (isOrder && draftItems.isEmpty) {
+      finalAmount = total + tax;
+    } else if (isDraft && cartItems.isEmpty && preorderItems.isEmpty) {
+      log('Calculating for Draft...');
+      double draftTotal =
+      draftItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+      finalAmount = draftTotal + draftTax;
+      log('Draft Total: $draftTotal, Draft Tax: $draftTax, Final Amount: $finalAmount');
+    } else {
+      finalAmount = preorderTotal + preorderTax;
+    }
+    widget.productsController.updateFinalAmount(finalAmount ?? 0);
+    String formattedAmount = finalAmount?.toStringAsFixed(2) ?? '';
     final Size screenSize = MediaQuery.of(context).size;
     final double width = screenSize.width;
     final double height = screenSize.height;
@@ -812,7 +795,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                             availableWidth,
                                                         context: context,
                                                         productQuantityManager:
-                                                            preorderQuantityManager,
+                                                            draftQuantityManager,
                                                         deleteConfirmationDialogue:
                                                             deleteConfirmationDialogue,
                                                       ),
@@ -850,8 +833,14 @@ class CartDialogueState extends State<CartDialogue> {
                               fontWeight: FontWeight.w600,
                             ),
                             CustomText(
-                              content:
-                                  formatAmount(isOrder ? total : preorderTotal),
+                              content: formatAmount(
+                                  isOrder && draftItems.isEmpty
+                                      ? total
+                                      : isDraft &&
+                                              cartItems.isEmpty &&
+                                              preorderItems.isEmpty
+                                          ? draftTotal
+                                          : preorderTotal),
                               fontSize: 16,
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
@@ -861,11 +850,36 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const SizedBox(height: 5.0),
-                    CartTotalWidget(
-                      title: 'Tax',
-                      content: isOrder ? tax : preorderTax,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),                     child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Tax',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(
+                                  isOrder && draftItems.isEmpty
+                                      ? tax
+                                      : isDraft &&
+                                              cartItems.isEmpty &&
+                                              preorderItems.isEmpty
+                                          ? draftTax
+                                          : preorderTax),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const Divider(),
                     CartTotalWidget(
@@ -1330,7 +1344,7 @@ class CartDialogueState extends State<CartDialogue> {
                                           .toStringAsFixed(0),
                                       discount: '0',
                                     );
-                                    saveCartAsDraft(widget
+                                    CartDatabaseManager().saveCartAsDraft(widget
                                             .customerOrderController
                                             ?.customerId
                                             .value ??
@@ -1447,7 +1461,7 @@ class CartDialogueState extends State<CartDialogue> {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     await processSaveAndSend(
-                                        finalAmount: finalAmount,
+                                        finalAmount: finalAmount ?? 0,
                                         paymentType: paymentType,
                                         context: context);
                                   } else {
@@ -1462,7 +1476,7 @@ class CartDialogueState extends State<CartDialogue> {
                                   }
                                 } else {
                                   await processSaveAndSend(
-                                      finalAmount: finalAmount,
+                                      finalAmount: finalAmount ?? 0,
                                       context: context);
                                 }
                               } else {
@@ -2257,6 +2271,96 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
+  Container draftQuantityManager(
+    CartItem draftItem,
+    String sellPrice,
+    double fontSize,
+    double availableWidth,
+  ) {
+    double padding = availableWidth > 400 ? 6 : 3;
+    return Container(
+      width: availableWidth > 400 ? 80 : 50,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: const Color.fromARGB(255, 241, 240, 240)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(5))),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (draftItem.detail.count > 0) {
+                        draftItem.detail.count--;
+                        log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
+                        CartDatabaseManager().updateDraftItem(
+                            widget.customerOrderController?.customerId.value ??
+                                '',
+                            draftItem);
+                        calculateDraftAmount(draftItems);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: padding, right: padding),
+                    child: CustomText(
+                      color: white,
+                      content: '-',
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                    ),
+                  )),
+            ),
+          ),
+          CustomText(
+            content: draftItem.detail.count.toStringAsFixed(0),
+            fontSize: fontSize,
+          ),
+          Container(
+            decoration: const BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(5),
+                    bottomRight: Radius.circular(5))),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    draftItem.detail.count++;
+                    log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
+                    CartDatabaseManager().updateDraftItem(
+                        widget.customerOrderController?.customerId.value ?? '',
+                        draftItem);
+                    calculateDraftAmount(draftItems);
+                  });
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(left: padding, right: padding),
+                  child: CustomText(
+                    color: white,
+                    content: '+',
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
@@ -2309,8 +2413,36 @@ class CartDialogueState extends State<CartDialogue> {
       }
     }
 
-    log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
-    log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
+    log("Total price for all preorder items: \$${preorderTotal.toStringAsFixed(2)}");
+    log("Total tax for all preorder items: \$${preorderTax.toStringAsFixed(2)}");
+  }
+
+  void calculateDraftAmount(List<CartItem> draftItems) {
+    draftTotal = 0.0;
+    draftTax = 0.0;
+
+    for (var cartItem in draftItems) {
+      double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      if (price != null) {
+        if (cartItem.isPack == true) {
+          cartItem.totalPrice =
+              (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+        } else {
+          cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+        }
+        draftTotal += cartItem.totalPrice;
+        double? itemTax = cartItem.isPack == true
+            ? double.tryParse(cartItem.detail.tax.toString())! *
+                double.tryParse(cartItem.detail.pieces.toString())!
+            : double.tryParse(cartItem.detail.tax.toString());
+        if (itemTax != null) {
+          draftTax += itemTax * cartItem.detail.count;
+        }
+      }
+    }
+
+    log("Total price for all draft items: \$${draftTotal.toStringAsFixed(2)}");
+    log("Total tax for all draft items: \$${draftTax.toStringAsFixed(2)}");
   }
 
   void _clearCartItem(List<CartItem> cartItem) {

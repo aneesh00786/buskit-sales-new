@@ -212,7 +212,34 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
     }
   }
 
-
+  Future<void> saveCartAsDraft(String customerId) async {
+    if (customerId.isEmpty) {
+      log('Error: Customer ID is required to save a draft.');
+      return;
+    }
+    try {
+      List<CartItem> cartItems = CartDatabaseManager().cartItems;
+      if (cartItems.isEmpty) {
+        log('No items in the cart to save as a draft.');
+        return;
+      }
+      final existingDraft = CartDatabaseManager().draftBox.get(customerId);
+      List<CartItem> updatedDraftItems = [];
+      if (existingDraft != null) {
+        updatedDraftItems = List.from(existingDraft.items)..addAll(cartItems);
+      } else {
+        updatedDraftItems = cartItems;
+      }
+      final draft = Draft(
+        customerId: customerId,
+        items: updatedDraftItems,
+      );
+      await CartDatabaseManager().draftBox.put(customerId, draft);
+      log('Draft saved successfully for customer ID: $customerId');
+    } catch (e) {
+      log('Error saving cart as draft: $e');
+    }
+  }
 
   Future<void> updateCart(CartItem updatedItem) async {
     await _cartBox.put(updatedItem.key, updatedItem);
@@ -223,6 +250,38 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
     await _cartPreorderBox.put(updatedItem.key, updatedItem);
     _notifyListeners();
   }
+Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async {
+  try {
+    // Retrieve the draft using customerId
+    final existingDraft = draftBox.get(customerId);
+
+    if (existingDraft != null) {
+      // Update the relevant CartItem in the draft's items list
+      final updatedItems = existingDraft.items.map((item) {
+        if (item.key == updatedCartItem.key) {
+          return updatedCartItem; // Replace with the updated item
+        }
+        return item;
+      }).toList();
+      final updatedDraft = Draft(
+        customerId: existingDraft.customerId,
+        items: updatedItems,
+      );
+
+      // Save the updated draft back to the box
+      await draftBox.put(customerId, updatedDraft);
+
+      log('Draft updated successfully for customer ID: $customerId');
+      _notifyListeners();
+    } else {
+      log('Draft not found for customer ID: $customerId');
+    }
+  } catch (e) {
+    log('Error updating draft for customer ID: $customerId, Error: $e');
+  }
+}
+
+
 
   void deleteCartItem(CartItem item) {
     _cartBox.delete(item.key);

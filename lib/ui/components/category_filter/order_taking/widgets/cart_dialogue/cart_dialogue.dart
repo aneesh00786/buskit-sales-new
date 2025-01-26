@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -36,11 +37,13 @@ class CartDialogue extends StatefulWidget {
   bool? active;
   int cartItemCount;
   ProductsController productsController;
+  CustomerAndOrderController? customerOrderController;
   CartDialogue(
       {super.key,
       this.active,
       required this.cartItemCount,
-      required this.productsController});
+      required this.productsController,
+      this.customerOrderController});
   @override
   State<CartDialogue> createState() => CartDialogueState();
 }
@@ -54,7 +57,6 @@ class CartDialogueState extends State<CartDialogue> {
   double preorderTotal = 0.0;
   double tax = 0.0;
   double preorderTax = 0.0;
-
   String? _selectedValue;
   String? _dropdownValue;
   int? paymentType;
@@ -76,7 +78,7 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController cashRemarkController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
-
+  List<CartItem> draftItems = [];
   bool _isLoading = true;
 
   bool isOrder = true;
@@ -86,6 +88,8 @@ class CartDialogueState extends State<CartDialogue> {
   @override
   void initState() {
     super.initState();
+    log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
+    loadDraft(widget.customerOrderController?.customerId.value ?? '');
     _loadCartItems();
     _loadPreorderItems();
     calculateAmount(cartItems);
@@ -284,6 +288,74 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
+  Future<void> saveCartAsDraft(String customerId) async {
+    if (customerId.isEmpty) {
+      log('Error: Customer ID is required to save a draft.');
+      return;
+    }
+
+    try {
+      List<CartItem> cartItems = CartDatabaseManager().cartItems;
+
+      if (cartItems.isEmpty) {
+        log('No items in the cart to save as a draft.');
+        return;
+      }
+      final existingDraft = CartDatabaseManager().draftBox.get(customerId);
+      List<CartItem> updatedDraftItems = [];
+      if (existingDraft != null) {
+        updatedDraftItems = List.from(existingDraft.items)..addAll(cartItems);
+      } else {
+        updatedDraftItems = cartItems;
+      }
+      final draft = Draft(
+        customerId: customerId,
+        items: updatedDraftItems,
+      );
+      await CartDatabaseManager().draftBox.put(customerId, draft);
+
+      log('Draft saved successfully for customer ID: $customerId');
+    } catch (e) {
+      log('Error saving cart as draft: $e');
+    }
+  }
+
+  Future<void> loadDraft(String customerId) async {
+    try {
+      final draft = CartDatabaseManager().draftBox.get(customerId);
+
+      if (draft != null) {
+        log('Draft loaded successfully for customer ID: $customerId');
+        setState(() {
+          draftItems = draft.items;
+        });
+
+        for (var item in draft.items) {
+          log('Draft Item: '
+              'Product Name: ${item.productName}, '
+              'Variation Name: ${item.detail.variationName}, '
+              'Sell Price: ${item.detail.sellPrice}, '
+              'Count: ${item.detail.count}, '
+              'Total Price: ${item.totalPrice}, '
+              'Is Pack: ${item.isPack}'
+              'Pieces: ${item.detail.pieces}',
+              );
+              
+        }
+      } else {
+        log('No draft found for customer ID: $customerId');
+        setState(() {
+          draftItems = [];
+        });
+      }
+    } catch (e) {
+      log('Error loading draft for customer ID $customerId: $e');
+      setState(() {
+        draftItems = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -294,7 +366,6 @@ class CartDialogueState extends State<CartDialogue> {
         ),
       );
     }
-    // double finalAmount = total + tax;
     double finalAmount = isOrder ? total + tax : preorderTotal + preorderTax;
     widget.productsController.updateFinalAmount(finalAmount);
     String formattedAmount = finalAmount.toStringAsFixed(2);
@@ -405,7 +476,7 @@ class CartDialogueState extends State<CartDialogue> {
                       )
                     ],
                     if (isOrder) ...[
-                      cartItems.isEmpty
+                      cartItems.isEmpty && draftItems.isEmpty
                           ? SizedBox(
                               height: 100,
                               child: Center(
@@ -417,6 +488,9 @@ class CartDialogueState extends State<CartDialogue> {
                                 ),
                               ),
                             )
+                          : Container(),
+                      cartItems.isEmpty
+                          ? Container()
                           : Flexible(
                               child: SizedBox(
                                 height: dialogHeight * 0.5,
@@ -629,6 +703,118 @@ class CartDialogueState extends State<CartDialogue> {
                                                             preorderQuantityManager,
                                                         deleteConfirmationDialogue:
                                                             deletePreorderConfirmationDialogue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ],
+                    if (cartItems.isEmpty && preorderItems.isEmpty) ...[
+                      draftItems.isEmpty
+                          ? SizedBox()
+                          : Flexible(
+                              child: SizedBox(
+                                height: dialogHeight * 0.5,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: draftItems
+                                        .map((cartItem) => cartItem.productName)
+                                        .toSet()
+                                        .toList()
+                                        .map((productName) {
+                                      List<CartItem> groupedDraftItems =
+                                          draftItems
+                                              .where((item) =>
+                                                  item.productName ==
+                                                  productName)
+                                              .toList();
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Stack(
+                                              alignment: Alignment.bottomCenter,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child:
+                                                          CustomHeaderContainer(
+                                                        text: productName,
+                                                        fontSize: fontSize,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 50,
+                                                      child: Center(
+                                                        child: IconButton(
+                                                          onPressed: () {
+                                                            showVariantDeleteDialog(
+                                                                context,
+                                                                productName,
+                                                                false);
+                                                          },
+                                                          icon: Icon(
+                                                            EneftyIcons
+                                                                .trash_bold,
+                                                            size: 28,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                                Container(
+                                                  height: 3.5,
+                                                  color: lightPrimaryColor,
+                                                  width: double.infinity,
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10.0),
+                                                    child: DataTable(
+                                                      headingRowHeight: 30,
+                                                      dataRowHeight: rowHeight,
+                                                      horizontalMargin: 5,
+                                                      columnSpacing:
+                                                          columnSpacing,
+                                                      columns: DataTableColumns
+                                                          .getColumns(fontSize),
+                                                      rows: GroupedItemDataRows
+                                                          .getRows(
+                                                        groupedItems:
+                                                            groupedDraftItems,
+                                                        fontSize:
+                                                            availableWidth / 55,
+                                                        availableWidth:
+                                                            availableWidth,
+                                                        context: context,
+                                                        productQuantityManager:
+                                                            preorderQuantityManager,
+                                                        deleteConfirmationDialogue:
+                                                            deleteConfirmationDialogue,
                                                       ),
                                                     ),
                                                   ),
@@ -1144,6 +1330,12 @@ class CartDialogueState extends State<CartDialogue> {
                                           .toStringAsFixed(0),
                                       discount: '0',
                                     );
+                                    saveCartAsDraft(widget
+                                            .customerOrderController
+                                            ?.customerId
+                                            .value ??
+                                        '');
+                                    log('Customer Id for Save draft : ${widget.customerOrderController?.customerId.value ?? ''}');
                                     CartOrderModel? cartOrder =
                                         await ApiWorker()
                                             .addToCart(productBYData.toJson());

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -11,6 +12,7 @@ class CartDatabaseManager {
   
   final Box<CartItem> _cartBox = Hive.box<CartItem>('cartBox');
   final Box<CartItem> _cartPreorderBox = Hive.box<CartItem>('cartPreorderBox');
+  final Box<Draft> draftBox = Hive.box<Draft>('draftBox');
 
   List<VoidCallback> _listeners = [];
 

@@ -11,7 +11,7 @@ class CartItem extends HiveObject {
   final String productName;
 
   @HiveField(2)
-  int totalPrice;
+  double totalPrice;
 
   @HiveField(3)
   final bool? isPack;
@@ -32,7 +32,7 @@ class CartItem extends HiveObject {
     return CartItem(
       detail: Detail.fromJson(json['detail']), // Assuming `Detail` has `fromJson`
       productName: json['productName'] as String,
-      totalPrice: json['totalPrice'] as int,
+      totalPrice: json['totalPrice'] as double,
       isPack: json['isPack'] as bool?,
       count: json['count'] as int?,
     );

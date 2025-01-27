@@ -349,15 +349,18 @@ class CartDialogueState extends State<CartDialogue> {
     }
 
     if (isOrder && draftItems.isEmpty) {
-      finalAmount = total + tax;
+      // finalAmount = total + tax;
+      finalAmount = total;
     } else if (isDraft && cartItems.isEmpty && preorderItems.isEmpty) {
       log('Calculating for Draft...');
       double draftTotal =
           draftItems.fold(0.0, (sum, item) => sum + item.totalPrice);
-      finalAmount = draftTotal + draftTax;
+      // finalAmount = draftTotal + draftTax;
+      finalAmount = draftTotal;
       log('Draft Total: $draftTotal, Draft Tax: $draftTax, Final Amount: $finalAmount');
     } else {
-      finalAmount = preorderTotal + preorderTax;
+      // finalAmount = preorderTotal + preorderTax;
+      finalAmount = preorderTotal;
     }
     widget.productsController.updateFinalAmount(finalAmount ?? 0);
     String formattedAmount = finalAmount?.toStringAsFixed(2) ?? '';
@@ -1426,7 +1429,8 @@ class CartDialogueState extends State<CartDialogue> {
                                                                       .productsController
                                                                       .selectedCustomerId
                                                                       .value,
-                                                              widget.cartItemCount);
+                                                              widget
+                                                                  .cartItemCount);
                                                       _clearCartItem(cartItems);
                                                     },
                                                     child: const Text('OK'),
@@ -2386,23 +2390,75 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
+  // void calculateAmount(List<CartItem> cartItems) {
+  //   total = 0.0;
+  //   tax = 0.0;
+
+  //   for (var cartItem in cartItems) {
+  //     double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+  //     if (price != null) {
+  //       if (cartItem.isPack == true) {
+  //         cartItem.totalPrice =
+  //             (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+  //       } else {
+  //         cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+  //       }
+  //       // total += cartItem.totalPrice;
+  //       total += cartItem.isPack == true
+  //           ? cartItem.detail.sellingPackPrice! * cartItem.detail.count
+  //           : cartItem.detail.sellingPrice! * cartItem.detail.count;
+  //       double? itemTax = cartItem.isPack == true
+  //           ? double.tryParse(cartItem.detail.tax.toString())! *
+  //               double.tryParse(cartItem.detail.pieces.toString())!
+  //           : double.tryParse(cartItem.detail.tax.toString());
+  //       if (itemTax != null) {
+  //         tax += itemTax * cartItem.detail.count;
+  //       }
+  //     }
+  //   }
+
+  //   log("Total price for all items: \$${total.toStringAsFixed(2)}");
+  //   log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
+  // }
+
+  // void calculatePreorderAmount(List<CartItem> preorderItems) {
+  //   preorderTotal = 0.0;
+  //   preorderTax = 0.0;
+
+  //   for (var cartItem in preorderItems) {
+  //     double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+  //     if (price != null) {
+  //       if (cartItem.isPack == true) {
+  //         cartItem.totalPrice =
+  //             (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+  //       } else {
+  //         cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+  //       }
+  //       preorderTotal += cartItem.totalPrice;
+  //       double? itemTax = cartItem.isPack == true
+  //           ? double.tryParse(cartItem.detail.tax.toString())! *
+  //               double.tryParse(cartItem.detail.pieces.toString())!
+  //           : double.tryParse(cartItem.detail.tax.toString());
+  //       if (itemTax != null) {
+  //         preorderTax += itemTax * cartItem.detail.count;
+  //       }
+  //     }
+  //   }
+  //   log("Total price for all preorder items: \$${preorderTotal.toStringAsFixed(2)}");
+  //   log("Total tax for all preorder items: \$${preorderTax.toStringAsFixed(2)}");
+  // }
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
 
     for (var cartItem in cartItems) {
-      double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      // double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      double? price = cartItem.isPack == true
+          ? cartItem.detail.sellingPackPrice!.toDouble()
+          : cartItem.detail.sellingPrice!.toDouble();
       if (price != null) {
-        if (cartItem.isPack == true) {
-          cartItem.totalPrice =
-              (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
-        } else {
-          cartItem.totalPrice = (price * cartItem.detail.count).toInt();
-        }
-        // total += cartItem.totalPrice;
-        total += cartItem.isPack == true
-            ? cartItem.detail.sellingPackPrice! * cartItem.detail.count
-            : cartItem.detail.sellingPrice! * cartItem.detail.count;
+        cartItem.totalPrice = (price * cartItem.detail.count);
+        total += cartItem.totalPrice;
         double? itemTax = cartItem.isPack == true
             ? double.tryParse(cartItem.detail.tax.toString())! *
                 double.tryParse(cartItem.detail.pieces.toString())!
@@ -2422,13 +2478,16 @@ class CartDialogueState extends State<CartDialogue> {
     preorderTax = 0.0;
 
     for (var cartItem in preorderItems) {
-      double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      // double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
+      double? price = cartItem.isPack == true
+          ? cartItem.detail.sellingPackPrice!.toDouble()
+          : cartItem.detail.sellingPrice!.toDouble();
       if (price != null) {
         if (cartItem.isPack == true) {
           cartItem.totalPrice =
-              (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+              (price * cartItem.detail.pieces! * cartItem.detail.count);
         } else {
-          cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+          cartItem.totalPrice = (price * cartItem.detail.count);
         }
         preorderTotal += cartItem.totalPrice;
         double? itemTax = cartItem.isPack == true
@@ -2440,8 +2499,9 @@ class CartDialogueState extends State<CartDialogue> {
         }
       }
     }
-    log("Total price for all preorder items: \$${preorderTotal.toStringAsFixed(2)}");
-    log("Total tax for all preorder items: \$${preorderTax.toStringAsFixed(2)}");
+
+    log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
+    log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
   }
 
   void calculateDraftAmount(List<CartItem> draftItems) {
@@ -2453,9 +2513,9 @@ class CartDialogueState extends State<CartDialogue> {
       if (price != null) {
         if (cartItem.isPack == true) {
           cartItem.totalPrice =
-              (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
+              (price * cartItem.detail.pieces! * cartItem.detail.count);
         } else {
-          cartItem.totalPrice = (price * cartItem.detail.count).toInt();
+          cartItem.totalPrice = (price * cartItem.detail.count);
         }
         draftTotal += cartItem.totalPrice;
         double? itemTax = cartItem.isPack == true

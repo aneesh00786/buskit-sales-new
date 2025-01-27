@@ -19,7 +19,7 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
     return CartItem(
       detail: fields[0] as Detail,
       productName: fields[1] as String,
-      totalPrice: fields[2] as int,
+      totalPrice: fields[2] as double,
       isPack: fields[3] as bool?,
       count: fields[4] as int?,
     );

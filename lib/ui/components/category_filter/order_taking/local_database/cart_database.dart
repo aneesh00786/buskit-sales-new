@@ -63,18 +63,18 @@ Future<void> addToCart(
           ? (existingCartItem.detail.count *
                   existingCartItem.detail.pieces! *
                   num.parse(existingCartItem.detail.sellPrice ?? '0'))
-              .toInt()
+              .toDouble()
           : (existingCartItem.detail.count *
                   num.parse(existingCartItem.detail.sellPrice ?? '0'))
-              .toInt();
+              .toDouble();
 
       await _cartBox.put(existingCartItem.key, existingCartItem);
       log('Updated product in cart: ${existingCartItem.detail.variationName}, New count: ${existingCartItem.detail.count}, New total price: ${existingCartItem.totalPrice}');
     } else {
       final totalAmount = isPack
           ? (localCount * detail.pieces! * num.parse(detail.sellPrice ?? '0'))
-              .toInt()
-          : (localCount * num.parse(detail.sellPrice ?? '0')).toInt();
+              .toDouble()
+          : (localCount * num.parse(detail.sellPrice ?? '0')).toDouble();
       detail.count = localCount.toDouble();
 
       final cartItem = CartItem(
@@ -115,18 +115,18 @@ Future<void> addToCart(
           ? (existingCartItem.detail.count *
                   existingCartItem.detail.pieces! *
                   num.parse(existingCartItem.detail.sellPrice ?? '0'))
-              .toInt()
+              .toDouble()
           : (existingCartItem.detail.count *
                   num.parse(existingCartItem.detail.sellPrice ?? '0'))
-              .toInt();
+              .toDouble();
 
       await _cartPreorderBox.put(existingCartItem.key, existingCartItem);
       log('Updated product in cart: ${existingCartItem.detail.variationName}, New count: ${existingCartItem.detail.count}, New total price: ${existingCartItem.totalPrice}');
     } else {
       final totalAmount = isPack
           ? (localCount * detail.pieces! * num.parse(detail.sellPrice ?? '0'))
-              .toInt()
-          : (localCount * num.parse(detail.sellPrice ?? '0')).toInt();
+              .toDouble()
+          : (localCount * num.parse(detail.sellPrice ?? '0')).toDouble();
       detail.count = localCount.toDouble();
 
       final cartPreorderItem = CartItem(
@@ -163,10 +163,10 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
             ? (existingCartItem.detail.count *
                     existingCartItem.detail.pieces! *
                     num.parse(existingCartItem.detail.sellPrice ?? '0'))
-                .toInt()
+                .toDouble()
             : (existingCartItem.detail.count *
                     num.parse(existingCartItem.detail.sellPrice ?? '0'))
-                .toInt();
+                .toDouble();
         await _cartBox.put(existingCartItem.key, existingCartItem);
         log('Updated product in cart: ${existingCartItem.detail.variationName}, New count: ${existingCartItem.detail.count}, New total price: ${existingCartItem.totalPrice}');
       } else {
@@ -197,10 +197,10 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
             ? (existingPreorderItem.detail.count *
                     existingPreorderItem.detail.pieces! *
                     num.parse(existingPreorderItem.detail.sellPrice ?? '0'))
-                .toInt()
+                .toDouble()
             : (existingPreorderItem.detail.count *
                     num.parse(existingPreorderItem.detail.sellPrice ?? '0'))
-                .toInt();
+                .toDouble();
         await _cartPreorderBox.put(
             existingPreorderItem.key, existingPreorderItem);
         log('Updated product in pre-order cart: ${existingPreorderItem.detail.variationName}, New count: ${existingPreorderItem.detail.count}, New total price: ${existingPreorderItem.totalPrice}');
@@ -239,10 +239,10 @@ Future<void> saveCartAsDraft(String customerId) async {
               ? (existingItem.detail.count *
                       existingItem.detail.pieces! *
                       num.parse(existingItem.detail.sellPrice ?? '0'))
-                  .toInt()
+                  .toDouble()
               : (existingItem.detail.count *
                       num.parse(existingItem.detail.sellPrice ?? '0'))
-                  .toInt();
+                  .toDouble();
         } else {
           draftItemMap[key] = cartItem;
         }

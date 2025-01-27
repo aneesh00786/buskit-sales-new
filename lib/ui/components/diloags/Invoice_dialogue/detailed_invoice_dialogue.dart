@@ -10,14 +10,11 @@ import 'package:get/get.dart';
 
 void showDetailedOrderInvoiceDialog(
     BuildContext context, var orderData, final bool invoice,
-    {bool isButtonNeeded = false}) async {
+    {bool isButtonNeeded = false, bool? isContinueShop}) async {
   DashBoardController dashBoardController = Get.put(DashBoardController());
-
   var orderInvoiceData = await dashBoardController.loadSpecificOrderInvoiceData(
       orderId: orderData.orderId.toString());
-
   showDialog(
-    // ignore: use_build_context_synchronously
     context: context,
     builder: (BuildContext context) {
       return Dialog(
@@ -359,17 +356,20 @@ void showDetailedOrderInvoiceDialog(
                         );
                 }),
                 const SizedBox(height: 12),
-                if (isButtonNeeded == true) ...[
-                  CustomButton(text: 'Convert to Order', onPressed: () {}),
-                ],
-                // const SizedBox(height: 16),
-                // const Text(
-                //   'Currency  \$',
-                //   style: TextStyle(color: Colors.grey, fontSize: 14),
-                // ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isButtonNeeded == true) ...[
+                      CustomButton(text: 'Convert to Order', onPressed: () {}),
+                    ],
+                    const SizedBox(width: 12),
+                    if (isContinueShop == true) ...[
+                      CustomButton(text: 'Continue Shopping', onPressed: () {}),
+                    ],
+                  ],
+                )
               ],
             )
-            // }),
             ),
       );
     },

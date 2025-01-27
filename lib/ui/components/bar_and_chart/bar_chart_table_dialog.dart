@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
   BuildContext context,
   String title,
   List<Salesmanvn> categories,
+  String staffProjection,
+  String targertType
 ) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     showDialog(
@@ -70,7 +72,7 @@ import 'package:flutter/material.dart';
                       Container(
                         color: const Color.fromARGB(255, 247, 247, 247),
                         height: headerHeight,
-                        child: const Row(
+                        child:  Row(
                           children: [
                             Expanded(
                               child: DialogTableHeaderText(
@@ -78,12 +80,14 @@ import 'package:flutter/material.dart';
                                 fontSize: 13,
                               ),
                             ),
+                            if(targertType=="1")
                             Expanded(
                               child: DialogTableHeaderText(
                                 text: 'Target',
                                 fontSize: 13,
                               ),
                             ),
+                            if(staffProjection=="1")
                             Expanded(
                               child: DialogTableHeaderText(
                                 text: 'Projection',
@@ -132,6 +136,7 @@ import 'package:flutter/material.dart';
                                         ),
                                       ),
                                     ),
+                                    if(targertType=="1")
                                     Expanded(
                                       child: Center(
                                         child: Text(
@@ -143,6 +148,7 @@ import 'package:flutter/material.dart';
                                         ),
                                       ),
                                     ),
+                                    if(staffProjection=="1")
                                     Expanded(
                                       child: Center(
                                         child: Text(

@@ -593,7 +593,7 @@ String displayText = '';
 if (staffProjection == "1" && targetType == "1") {
   displayText = "Category Target / Projection / Actuals";
 } else if (staffProjection == "1" && targetType == "0") {
-  displayText = "Category Projection Actuals";
+  displayText = "Category Projection / Actuals";
 } else if(staffProjection == "0" && targetType == "1") {
   displayText = "Category Target / Actuals";
 }else{

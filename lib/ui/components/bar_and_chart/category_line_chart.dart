@@ -310,7 +310,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   final categories = snapshot.data!.data;
                   Navigator.of(context).pop();
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    showBarchartDialog(context, category, categories ?? []);
+                    showBarchartDialog(context, category, categories ?? [],widget.staffProjection,widget.targetType);
                   });
                   return const SizedBox.shrink();
                 } else {

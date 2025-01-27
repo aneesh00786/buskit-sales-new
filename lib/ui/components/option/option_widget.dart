@@ -1065,7 +1065,9 @@ class OptionWidget extends StatelessWidget {
                                                                     showDetailedOrderInvoiceDialog(
                                                                         context,
                                                                         order,
-                                                                        false);
+                                                                        false,
+                                                                        
+                                                                        );
                                                                   },
                                                                   child: Center(
                                                                     child: Text(
@@ -1213,7 +1215,9 @@ class OptionWidget extends StatelessWidget {
                                                                         order,
                                                                         true,
                                                                         isButtonNeeded:
-                                                                            true);
+                                                                            true,
+                                                                            isContinueShop: true,
+                                                                            );
                                                                   },
                                                                   icon:
                                                                       const Icon(

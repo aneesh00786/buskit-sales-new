@@ -142,19 +142,21 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                   Colors.blueGrey.shade50),
                               border:
                                   TableBorder.all(color: Colors.grey, width: 1),
-                              columns: const [
+                              columns:  [
                                 DataColumn(
                                   label: DialogTableHeaderText(
                                     text: 'Name',
                                     fontSize: 13,
                                   ),
                                 ),
+                                if(widget.targetType=="1")
                                 DataColumn(
                                   label: DialogTableHeaderText(
                                     text: 'Target',
                                     fontSize: 13,
                                   ),
                                 ),
+                                if(widget.staffProjection=="1")
                                 DataColumn(
                                   label: DialogTableHeaderText(
                                     text: 'Projection',
@@ -182,6 +184,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                         ),
                                       ),
                                     ),
+                                    if(widget.targetType=="1")
                                     DataCell(
                                       Center(
                                         child: Text(
@@ -193,6 +196,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                         ),
                                       ),
                                     ),
+                                    if(widget.staffProjection=="1")
                                     DataCell(
                                       Center(
                                         child: Text(

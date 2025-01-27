@@ -1357,10 +1357,7 @@ class CartDialogueState extends State<CartDialogue> {
                                           .toStringAsFixed(0),
                                       discount: '0',
                                     );
-                                    CartDatabaseManager().saveCartAsDraft(
-                                      widget.productsController
-                                          .selectedCustomerId.value,
-                                    );
+
                                     log('Customer Id for Save draft : ${widget.productsController.selectedCustomerId.value}');
                                     CartOrderModel? cartOrder =
                                         await ApiWorker()
@@ -1368,6 +1365,10 @@ class CartDialogueState extends State<CartDialogue> {
                                     log('CartId :${cartOrder?.cartId}');
                                     log('Pack or pcs :${productBYData.cartList.first.pack}');
                                     log('Pack or pcs :${productBYData.cartList.first.packType}');
+                                    CartDatabaseManager().saveCartAsDraft(
+                                      widget.productsController
+                                          .selectedCustomerId.value,
+                                    );
                                     if (cartOrder != null) {
                                       int orderStatus = 4;
                                       CartOrderModel order = CartOrderModel(
@@ -1414,8 +1415,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                               rootNavigator:
                                                                   true)
                                                           .pop();
-                                                      
-        
+
                                                       _clearCartItem(cartItems);
                                                     },
                                                     child: const Text('OK'),
@@ -2374,6 +2374,7 @@ class CartDialogueState extends State<CartDialogue> {
       ),
     );
   }
+
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
@@ -2396,6 +2397,7 @@ class CartDialogueState extends State<CartDialogue> {
     log("Total price for all items: \$${total.toStringAsFixed(2)}");
     log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
+
   void calculatePreorderAmount(List<CartItem> preorderItems) {
     preorderTotal = 0.0;
     preorderTax = 0.0;
@@ -2454,6 +2456,7 @@ class CartDialogueState extends State<CartDialogue> {
     });
     log('Cart Item Cleared : $cartItem');
   }
+
   void _clearPreorderCartItem(List<CartItem> cartPreorderItem) {
     CartDatabaseManager().clearPreorderCart();
     setState(() {

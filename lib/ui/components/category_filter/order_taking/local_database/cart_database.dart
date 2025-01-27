@@ -9,7 +9,7 @@ class CartDatabaseManager {
   static final CartDatabaseManager _instance = CartDatabaseManager._internal();
   factory CartDatabaseManager() => _instance;
   CartDatabaseManager._internal();
-  
+
   final Box<CartItem> _cartBox = Hive.box<CartItem>('cartBox');
   final Box<CartItem> _cartPreorderBox = Hive.box<CartItem>('cartPreorderBox');
   final Box<Draft> draftBox = Hive.box<Draft>('draftBox');
@@ -26,6 +26,7 @@ class CartDatabaseManager {
   List<CartItem> getCartPreorderItems() {
     return _cartPreorderBox.values.toList();
   }
+
   void addListener(VoidCallback listener) {
     _listeners.add(listener);
   }
@@ -40,7 +41,7 @@ class CartDatabaseManager {
     }
   }
 
-Future<void> addToCart(
+  Future<void> addToCart(
     Detail detail,
     String productName,
     int totalAmount,
@@ -144,8 +145,7 @@ Future<void> addToCart(
     _notifyListeners();
   }
 
-
-Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
+  Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
     CartItem? existingCartItem;
     try {
       existingCartItem = _cartBox.values.firstWhere(
@@ -211,149 +211,158 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
       log('No existing pre-order item found to update for product ID: ${detail.variationId}');
     }
   }
-Future<void> saveCartAsDraft(String customerId) async {
-  if (customerId.isEmpty) {
-    log('Error: Customer ID is required to save a draft.');
-    return;
-  }
-  try {
-    List<CartItem> cartItems = CartDatabaseManager().cartItems;
-    if (cartItems.isEmpty) {
-      log('No items in the cart to save as a draft.');
+
+  Future<void> saveCartAsDraft(String customerId) async {
+    if (customerId.isEmpty) {
+      log('Error: Customer ID is required to save a draft.');
       return;
     }
-    final existingDraft = CartDatabaseManager().draftBox.get(customerId);
-    List<CartItem> updatedDraftItems = [];
-    if (existingDraft != null) {
-      final draftItemMap = {
-        for (var item in existingDraft.items)
-          '${item.detail.variationName}_${item.detail.sellPrice}': item
-      };
-      for (var cartItem in cartItems) {
-        final key =
-            '${cartItem.detail.variationName}_${cartItem.detail.sellPrice}';
-        if (draftItemMap.containsKey(key)) {
-          final existingItem = draftItemMap[key]!;
-          existingItem.detail.count += cartItem.detail.count;
-          existingItem.totalPrice = existingItem.isPack!
-              ? (existingItem.detail.count *
-                      existingItem.detail.pieces! *
-                      num.parse(existingItem.detail.sellPrice ?? '0'))
-                  .toDouble()
-              : (existingItem.detail.count *
-                      num.parse(existingItem.detail.sellPrice ?? '0'))
-                  .toDouble();
-        } else {
-          draftItemMap[key] = cartItem;
-        }
+    try {
+      List<CartItem> cartItems = CartDatabaseManager().cartItems;
+      if (cartItems.isEmpty) {
+        log('No items in the cart to save as a draft.');
+        return;
       }
-      updatedDraftItems = draftItemMap.values.toList();
-    } else {
-      updatedDraftItems = cartItems;
+      final existingDraft = CartDatabaseManager().draftBox.get(customerId);
+      List<CartItem> updatedDraftItems = [];
+      if (existingDraft != null) {
+        final draftItemMap = {
+          for (var item in existingDraft.items)
+            '${item.detail.variationName}_${item.detail.sellPrice}': item
+        };
+        for (var cartItem in cartItems) {
+          final key =
+              '${cartItem.detail.variationName}_${cartItem.detail.sellPrice}';
+          if (draftItemMap.containsKey(key)) {
+            final existingItem = draftItemMap[key]!;
+            existingItem.detail.count += cartItem.detail.count;
+            existingItem.totalPrice = existingItem.isPack!
+                ? (existingItem.detail.count *
+                        existingItem.detail.pieces! *
+                        num.parse(existingItem.detail.sellPrice ?? '0'))
+                    .toDouble()
+                : (existingItem.detail.count *
+                        num.parse(existingItem.detail.sellPrice ?? '0'))
+                    .toDouble();
+          } else {
+            draftItemMap[key] = cartItem;
+          }
+        }
+        updatedDraftItems = draftItemMap.values.toList();
+      } else {
+        updatedDraftItems = cartItems;
+      }
+
+      final draft = Draft(
+        customerId: customerId,
+        items: updatedDraftItems,
+      );
+      await CartDatabaseManager().draftBox.put(customerId, draft);
+      log('Draft saved successfully for customer ID: $customerId');
+    } catch (e) {
+      log('Error saving cart as draft: $e');
     }
-
-    final draft = Draft(
-      customerId: customerId,
-      items: updatedDraftItems,
-    );
-    await CartDatabaseManager().draftBox.put(customerId, draft);
-    log('Draft saved successfully for customer ID: $customerId');
-  } catch (e) {
-    log('Error saving cart as draft: $e');
   }
-}
-
 
   Future<void> updateCart(CartItem updatedItem) async {
     await _cartBox.put(updatedItem.key, updatedItem);
     _notifyListeners();
   }
+
   Future<void> updatePreorderCart(CartItem updatedItem) async {
     await _cartPreorderBox.put(updatedItem.key, updatedItem);
     _notifyListeners();
   }
-Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async {
-  try {
-    final existingDraft = draftBox.get(customerId);
 
-    if (existingDraft != null) {
-      final updatedItems = existingDraft.items.map((item) {
-        if (item.key == updatedCartItem.key) {
-          return updatedCartItem;
-        }
-        return item;
-      }).toList();
-      final updatedDraft = Draft(
-        customerId: existingDraft.customerId,
-        items: updatedItems,
-      );
-      await draftBox.put(customerId, updatedDraft);
-      log('Draft updated successfully for customer ID: $customerId');
-      _notifyListeners();
-    } else {
-      log('Draft not found for customer ID: $customerId');
+  Future<void> updateDraftItem(
+      String customerId, CartItem updatedCartItem) async {
+    try {
+      final existingDraft = draftBox.get(customerId);
+
+      if (existingDraft != null) {
+        final updatedItems = existingDraft.items.map((item) {
+          if (item.key == updatedCartItem.key) {
+            return updatedCartItem;
+          }
+          return item;
+        }).toList();
+        final updatedDraft = Draft(
+          customerId: existingDraft.customerId,
+          items: updatedItems,
+        );
+        await draftBox.put(customerId, updatedDraft);
+        log('Draft updated successfully for customer ID: $customerId');
+        _notifyListeners();
+      } else {
+        log('Draft not found for customer ID: $customerId');
+      }
+    } catch (e) {
+      log('Error updating draft for customer ID: $customerId, Error: $e');
     }
-  } catch (e) {
-    log('Error updating draft for customer ID: $customerId, Error: $e');
   }
-}
+
   void deleteCartItem(CartItem item) {
     _cartBox.delete(item.key);
     _notifyListeners();
   }
+
   void deletePreorderCartItem(CartItem item) {
     _cartPreorderBox.delete(item.key);
     _notifyListeners();
   }
+
   void deleteDraftItems(String customerId, CartItem item) {
-  final existingDraft = draftBox.get(customerId);
-  if (existingDraft != null) {
-    final updatedItems = existingDraft.items.where((draftItem) => draftItem.detail.variationId != item.detail.variationId).toList();
-    final updatedDraft = Draft(
-      customerId: existingDraft.customerId,
-      items: updatedItems,
-    );
-    draftBox.put(customerId, updatedDraft);
-    log('Draft item deleted for customer ID: $customerId');
-    _notifyListeners();
-  } else {
-    log('No draft found for customer ID: $customerId to delete item.');
+    final existingDraft = draftBox.get(customerId);
+    if (existingDraft != null) {
+      final updatedItems = existingDraft.items
+          .where((draftItem) => draftItem.key != item.key)
+          .toList();
+      final updatedDraft = Draft(
+        customerId: existingDraft.customerId,
+        items: updatedItems,
+      );
+      draftBox.put(customerId, updatedDraft);
+      log('Draft item deleted for customer ID: $customerId');
+      _notifyListeners();
+    } else {
+      log('No draft found for customer ID: $customerId to delete item.');
+    }
   }
-}
-void deleteDraftItem(String customerId, String variationId) {
-  final existingDraft = draftBox.get(customerId);
-  if (existingDraft != null) {
-    final updatedItems = existingDraft.items
-        .where((draftItem) => draftItem.detail.variationId != variationId)
-        .toList();
-    final updatedDraft = Draft(
-      customerId: existingDraft.customerId,
-      items: updatedItems,
-    );
 
-    draftBox.put(customerId, updatedDraft);
-    log('Draft item with variationId: $variationId deleted for customer ID: $customerId');
-    _notifyListeners();
-  } else {
-    log('No draft found for customer ID: $customerId to delete item.');
+  void deleteDraftItem(String customerId, String variationId) {
+    final existingDraft = draftBox.get(customerId);
+    if (existingDraft != null) {
+      final updatedItems = existingDraft.items
+          .where((draftItem) => draftItem.detail.variationId != variationId)
+          .toList();
+      final updatedDraft = Draft(
+        customerId: existingDraft.customerId,
+        items: updatedItems,
+      );
+
+      draftBox.put(customerId, updatedDraft);
+      log('Draft item with variationId: $variationId deleted for customer ID: $customerId');
+      _notifyListeners();
+    } else {
+      log('No draft found for customer ID: $customerId to delete item.');
+    }
   }
-}
 
-void clearDraftForCustomer(String customerId) {
-  if (draftBox.containsKey(customerId)) {
-    draftBox.delete(customerId);
-    log('All draft items cleared for customer ID: $customerId');
-    _notifyListeners();
-  } else {
-    log('No draft found for customer ID: $customerId to clear.');
+  void clearDraftForCustomer(String customerId) {
+    if (draftBox.containsKey(customerId)) {
+      draftBox.delete(customerId);
+      log('All draft items cleared for customer ID: $customerId');
+      _notifyListeners();
+    } else {
+      log('No draft found for customer ID: $customerId to clear.');
+    }
   }
-}
-void clearAllDrafts() {
-  draftBox.clear();
-  log('All drafts cleared.');
-  _notifyListeners();
-}
 
+  void clearAllDrafts() {
+    draftBox.clear();
+    log('All drafts cleared.');
+    _notifyListeners();
+  }
 
   void clearCart() {
     _cartBox.clear();

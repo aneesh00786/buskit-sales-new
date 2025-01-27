@@ -2190,7 +2190,6 @@ class CartDialogueState extends State<CartDialogue> {
     loadDraft(customerId);
     log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
   }
-
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {
     double padding = availableWidth > 400 ? 6 : 3;

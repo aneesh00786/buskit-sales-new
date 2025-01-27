@@ -81,6 +81,15 @@ class _OrderTakingState extends State<OrderTaking>
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
+  Future<int> getCartItemCounts(String customerId) async {
+    final count = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length +
+        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+    setState(() {
+      cartItemCount = count;
+    });
+    return cartItemCount;
+  }
 
   @override
   void initState() {
@@ -99,8 +108,7 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-    Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
-        customerAndOrderController.customerId.value, cartItemCount);
+     getCartItemCounts(customerAndOrderController.customerId.value);
     CartDatabaseManager().addListener(_updateCartCount);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -644,14 +652,9 @@ class _OrderTakingState extends State<OrderTaking>
                                                       customer.customerId ??
                                                           ''),
                                                   onTap: () async {
-                                                    await Provider.of<
-                                                                CustomersProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .getCartItemCounts(
-                                                            customer.customerId ??
-                                                                '',
-                                                            cartItemCount);
+                                                    await getCartItemCounts(
+                                                      customer.customerId ?? '',
+                                                    );
 
                                                     if (active == true) {
                                                       _showWarningDialog(

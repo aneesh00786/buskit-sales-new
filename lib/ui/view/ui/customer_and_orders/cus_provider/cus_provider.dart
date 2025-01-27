@@ -122,14 +122,17 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<int> getCartItemCounts(String customerId, int cartItemCount) async {
-    final count = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length +
-        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-    cartItemCount = count;
-    notifyListeners();
-    return cartItemCount;
-  }
+  // int _cartItemCount = 0;
+
+  // int get cartItemCount => _cartItemCount;
+
+  // Future<void> getCartItemCounts(String customerId) async {
+  //   final count = CartDatabaseManager().cartItems.length +
+  //       CartDatabaseManager().cartPreorderItems.length +
+  //       (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+  //   _cartItemCount = count;
+  //   notifyListeners(); // Notify UI about changes
+  // }
 
   void updateSearchQuery(String query) {
     if (query.isEmpty) {

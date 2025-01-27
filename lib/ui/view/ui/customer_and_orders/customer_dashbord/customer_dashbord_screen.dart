@@ -80,12 +80,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
   int selectedYear = 2024;
   late TabController _tabController;
-
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
   ApiWorker apiWorker = Get.put(ApiWorker());
-
   @override
   void initState() {
     super.initState();
@@ -99,31 +97,31 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         showNoInternetSnackBar(context);
         return;
       }
-    final customerId = widget.productsController?.selectedCustomerId.value;
+      final customerId = widget.productsController?.selectedCustomerId.value;
 
       if (customerId!.isEmpty) {
         log('Error: Customer ID is empty, initialization failed.');
         return;
       }
-    final customersProvider =
-        Provider.of<CustomersProvider>(context, listen: false);
-    customersProvider.fetchCustomerDashboardData(
-      customerId ?? '',
-      selectedYear,
-      widget.startDate,
-      widget.endDate,
-    );
-    customersProvider.fetchCustomerDashboardRevenueData(
-      customerId ?? '',
-      selectedYear,
-      widget.startDate,
-      widget.endDate,
-    );
-    customersProvider.fetchCustomerDashboardDataSalseData(
-      customerId ?? '',
-      selectedYear,
-    );
-    customersProvider.fetchCustomersDataDash(customerId ?? '');
+      final customersProvider =
+          Provider.of<CustomersProvider>(context, listen: false);
+      customersProvider.fetchCustomerDashboardData(
+        customerId,
+        selectedYear,
+        widget.startDate,
+        widget.endDate,
+      );
+      customersProvider.fetchCustomerDashboardRevenueData(
+        customerId,
+        selectedYear,
+        widget.startDate,
+        widget.endDate,
+      );
+      customersProvider.fetchCustomerDashboardDataSalseData(
+        customerId,
+        selectedYear,
+      );
+      customersProvider.fetchCustomersDataDash(customerId ?? '');
     });
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -168,7 +166,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
-    final apiWorker = Get.find<ApiWorker>();
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
         : widget.productsController?.selectedCustomerName.value;
@@ -235,6 +232,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               onPressed: () {
                 customerOrderController
                     .setCustomerId(customerOrderController.customerId.value);
+                  log('Customer Id :${customerOrderController.customerId.value}');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -243,7 +241,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       isFromCalender: widget.isFromCalendar,
                       isDirectDialogue: widget.isDirectDialogue,
                       isFromOrder: widget.isFromOrder,
-                      
                     ),
                   ),
                 );
@@ -339,7 +336,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       children: [
                         OptionWidgetCustomerDash(
                           customerId: widget.cusId ?? '',
-                          // productsController.selectedCustomerId.value,
                           customType: "",
                           customOrderStatusType: OrderStatus.newOrder,
                           userType: UserType.customer,

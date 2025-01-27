@@ -182,7 +182,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
       OptionData optionData, OrderDataas orderCountList, BuildContext context) {
     Image svgComponent = Image.asset(
       optionData.svg,
-      height: AppDimensions.instance!.height * 0.03,
+      height: AppDimensions.instance.height * 0.03,
       fit: BoxFit.contain,
     );
 

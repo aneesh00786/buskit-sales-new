@@ -1414,23 +1414,8 @@ class CartDialogueState extends State<CartDialogue> {
                                                               rootNavigator:
                                                                   true)
                                                           .pop();
-                                                      await Provider.of<
-                                                                  CustomersProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .getCartItemCounts(
-                                                              customeController
-                                                                      .customerId
-                                                                      .isNotEmpty
-                                                                  ? customeController
-                                                                      .customerId
-                                                                      .value
-                                                                  : widget
-                                                                      .productsController
-                                                                      .selectedCustomerId
-                                                                      .value,
-                                                              widget
-                                                                  .cartItemCount);
+                                                      
+        
                                                       _clearCartItem(cartItems);
                                                     },
                                                     child: const Text('OK'),
@@ -2389,70 +2374,10 @@ class CartDialogueState extends State<CartDialogue> {
       ),
     );
   }
-
-  // void calculateAmount(List<CartItem> cartItems) {
-  //   total = 0.0;
-  //   tax = 0.0;
-
-  //   for (var cartItem in cartItems) {
-  //     double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
-  //     if (price != null) {
-  //       if (cartItem.isPack == true) {
-  //         cartItem.totalPrice =
-  //             (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
-  //       } else {
-  //         cartItem.totalPrice = (price * cartItem.detail.count).toInt();
-  //       }
-  //       // total += cartItem.totalPrice;
-  //       total += cartItem.isPack == true
-  //           ? cartItem.detail.sellingPackPrice! * cartItem.detail.count
-  //           : cartItem.detail.sellingPrice! * cartItem.detail.count;
-  //       double? itemTax = cartItem.isPack == true
-  //           ? double.tryParse(cartItem.detail.tax.toString())! *
-  //               double.tryParse(cartItem.detail.pieces.toString())!
-  //           : double.tryParse(cartItem.detail.tax.toString());
-  //       if (itemTax != null) {
-  //         tax += itemTax * cartItem.detail.count;
-  //       }
-  //     }
-  //   }
-
-  //   log("Total price for all items: \$${total.toStringAsFixed(2)}");
-  //   log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
-  // }
-
-  // void calculatePreorderAmount(List<CartItem> preorderItems) {
-  //   preorderTotal = 0.0;
-  //   preorderTax = 0.0;
-
-  //   for (var cartItem in preorderItems) {
-  //     double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
-  //     if (price != null) {
-  //       if (cartItem.isPack == true) {
-  //         cartItem.totalPrice =
-  //             (price * cartItem.detail.pieces! * cartItem.detail.count).toInt();
-  //       } else {
-  //         cartItem.totalPrice = (price * cartItem.detail.count).toInt();
-  //       }
-  //       preorderTotal += cartItem.totalPrice;
-  //       double? itemTax = cartItem.isPack == true
-  //           ? double.tryParse(cartItem.detail.tax.toString())! *
-  //               double.tryParse(cartItem.detail.pieces.toString())!
-  //           : double.tryParse(cartItem.detail.tax.toString());
-  //       if (itemTax != null) {
-  //         preorderTax += itemTax * cartItem.detail.count;
-  //       }
-  //     }
-  //   }
-  //   log("Total price for all preorder items: \$${preorderTotal.toStringAsFixed(2)}");
-  //   log("Total tax for all preorder items: \$${preorderTax.toStringAsFixed(2)}");
-  // }
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
-
     for (var cartItem in cartItems) {
-      // double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
       double? price = cartItem.isPack == true
           ? cartItem.detail.sellingPackPrice!.toDouble()
           : cartItem.detail.sellingPrice!.toDouble();
@@ -2468,27 +2393,17 @@ class CartDialogueState extends State<CartDialogue> {
         }
       }
     }
-
     log("Total price for all items: \$${total.toStringAsFixed(2)}");
     log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
-
   void calculatePreorderAmount(List<CartItem> preorderItems) {
     preorderTotal = 0.0;
     preorderTax = 0.0;
-
     for (var cartItem in preorderItems) {
-      // double? price = double.tryParse(cartItem.detail.sellPrice ?? '');
       double? price = cartItem.isPack == true
           ? cartItem.detail.sellingPackPrice!.toDouble()
           : cartItem.detail.sellingPrice!.toDouble();
       if (price != null) {
-        if (cartItem.isPack == true) {
-          cartItem.totalPrice =
-              (price * cartItem.detail.pieces! * cartItem.detail.count);
-        } else {
-          cartItem.totalPrice = (price * cartItem.detail.count);
-        }
         preorderTotal += cartItem.totalPrice;
         double? itemTax = cartItem.isPack == true
             ? double.tryParse(cartItem.detail.tax.toString())! *
@@ -2499,7 +2414,6 @@ class CartDialogueState extends State<CartDialogue> {
         }
       }
     }
-
     log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
     log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
   }
@@ -2540,13 +2454,9 @@ class CartDialogueState extends State<CartDialogue> {
     });
     log('Cart Item Cleared : $cartItem');
   }
-
   void _clearPreorderCartItem(List<CartItem> cartPreorderItem) {
-    // CartDatabaseManager().clearCart();
     CartDatabaseManager().clearPreorderCart();
     setState(() {
-      // cartItems.remove(cartItem);
-      // quantities.remove(cartItem);
       preorderItems.remove(cartPreorderItem);
       preorderQuantities.remove(cartPreorderItem);
     });

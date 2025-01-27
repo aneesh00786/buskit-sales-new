@@ -305,10 +305,10 @@ Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async 
     _cartPreorderBox.delete(item.key);
     _notifyListeners();
   }
-  void deleteDraftItem(String customerId, CartItem item) {
+  void deleteDraftItems(String customerId, CartItem item) {
   final existingDraft = draftBox.get(customerId);
   if (existingDraft != null) {
-    final updatedItems = existingDraft.items.where((draftItem) => draftItem.key != item.key).toList();
+    final updatedItems = existingDraft.items.where((draftItem) => draftItem.detail.variationId != item.detail.variationId).toList();
     final updatedDraft = Draft(
       customerId: existingDraft.customerId,
       items: updatedItems,
@@ -320,6 +320,25 @@ Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async 
     log('No draft found for customer ID: $customerId to delete item.');
   }
 }
+void deleteDraftItem(String customerId, String variationId) {
+  final existingDraft = draftBox.get(customerId);
+  if (existingDraft != null) {
+    final updatedItems = existingDraft.items
+        .where((draftItem) => draftItem.detail.variationId != variationId)
+        .toList();
+    final updatedDraft = Draft(
+      customerId: existingDraft.customerId,
+      items: updatedItems,
+    );
+
+    draftBox.put(customerId, updatedDraft);
+    log('Draft item with variationId: $variationId deleted for customer ID: $customerId');
+    _notifyListeners();
+  } else {
+    log('No draft found for customer ID: $customerId to delete item.');
+  }
+}
+
 void clearDraftForCustomer(String customerId) {
   if (draftBox.containsKey(customerId)) {
     draftBox.delete(customerId);

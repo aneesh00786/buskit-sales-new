@@ -2183,7 +2183,7 @@ class CartDialogueState extends State<CartDialogue> {
       draftItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
-      CartDatabaseManager().deleteDraftItem(customerId,variantToDelete);
+      CartDatabaseManager().deleteDraftItem(customerId,variantToDelete.detail.variationId??'');
       draftTotal = Utils().getFinalAmount(draftItems);
       draftTax = Utils().getTotalTax(draftItems);
     });
@@ -2586,7 +2586,7 @@ class CartDialogueState extends State<CartDialogue> {
     final itemsToDelete =
         draftItems.where((item) => item.productName == productName).toList();
     for (var item in itemsToDelete) {
-      CartDatabaseManager().deleteDraftItem(customerId,item);
+      CartDatabaseManager().deleteDraftItems(customerId,item);
     }
     setState(() {
       List<int> indicesToRemove = [];

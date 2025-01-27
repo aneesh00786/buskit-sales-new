@@ -74,6 +74,15 @@ class _OrderTakingState extends State<OrderTaking>
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
+  Future<void> getCartItemCounts(String customerId) async {
+    final count = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length +
+        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+    setState(() {
+      cartItemCount = count;
+    });
+  }
+
   @override
   void initState() {
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
@@ -91,10 +100,7 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-
-    cartItemCount = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length;
-
+    getCartItemCounts(customerAndOrderController.customerId.value);
     CartDatabaseManager().addListener(_updateCartCount);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -202,7 +208,7 @@ class _OrderTakingState extends State<OrderTaking>
     bool toDashBoard,
   ) {
     final GlobalKey<CartDialogueState> cartDialogKey =
-      GlobalKey<CartDialogueState>();
+        GlobalKey<CartDialogueState>();
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         widget.productsController.selectedCustomerId.value.isNotEmpty) {
       _showCartDialog(cartDialogKey);
@@ -277,7 +283,8 @@ class _OrderTakingState extends State<OrderTaking>
                   TextButton(
                     onPressed: () async {
                       if (cartDialogKey.currentState != null) {
-                        cartDialogKey.currentState!.performSpecificAction(false);
+                        cartDialogKey.currentState!
+                            .performSpecificAction(false);
 
                         if (toDashBoard) {
                           Navigator.pop(context);
@@ -353,7 +360,6 @@ class _OrderTakingState extends State<OrderTaking>
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-
               },
               child: Text('Ok'),
             ),
@@ -616,6 +622,10 @@ class _OrderTakingState extends State<OrderTaking>
                                                       customer.customerId ??
                                                           ''),
                                                   onTap: () async {
+                                                    await getCartItemCounts(
+                                                        customer.customerId ??
+                                                            '');
+
                                                     if (active == true) {
                                                       _showWarningDialog(
                                                         context,
@@ -738,6 +748,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                           CartDatabaseManager()
                                                               .clearCart();
                                                         });
+
                                                         customerAndOrderController
                                                             .setCustomerId(customer
                                                                     .customerId ??
@@ -1042,8 +1053,9 @@ class _OrderTakingState extends State<OrderTaking>
         orElse: () => SubCategoryItem());
     return selectedSubcategory?.id ?? '';
   }
-final GlobalKey<CartDialogueState> cartDialogKey =
-    GlobalKey<CartDialogueState>();
+
+  final GlobalKey<CartDialogueState> cartDialogKey =
+      GlobalKey<CartDialogueState>();
 
   void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {
     showDialog(

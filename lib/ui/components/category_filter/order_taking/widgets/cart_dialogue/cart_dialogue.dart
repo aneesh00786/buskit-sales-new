@@ -2419,7 +2419,6 @@ class CartDialogueState extends State<CartDialogue> {
         }
       }
     }
-
     log("Total price for all preorder items: \$${preorderTotal.toStringAsFixed(2)}");
     log("Total tax for all preorder items: \$${preorderTax.toStringAsFixed(2)}");
   }
@@ -2454,12 +2453,9 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _clearCartItem(List<CartItem> cartItem) {
     CartDatabaseManager().clearCart();
-    // CartDatabaseManager().clearPreorderCart();
     setState(() {
       cartItems.remove(cartItem);
       quantities.remove(cartItem);
-      // preorderItems.remove(cartItem);
-      // preorderQuantities.remove(cartItem);
     });
     log('Cart Item Cleared : $cartItem');
   }

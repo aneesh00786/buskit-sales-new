@@ -53,8 +53,10 @@ class CartDialogue extends StatefulWidget {
 class CartDialogueState extends State<CartDialogue> {
   late List<CartItem> cartItems;
   late List<CartItem> preorderItems;
+  List<CartItem> draftItems = [];
   List<int> quantities = [];
   List<int> preorderQuantities = [];
+  List<int> draftQuantity = [];
   double total = 0.0;
   double preorderTotal = 0.0;
   double tax = 0.0;
@@ -81,7 +83,7 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController cashRemarkController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
-  List<CartItem> draftItems = [];
+  
   bool _isLoading = true;
   bool isOrder = true;
   bool isDraft = true;
@@ -125,6 +127,43 @@ class CartDialogueState extends State<CartDialogue> {
       _isLoading = false;
     } catch (e) {
       return null;
+    }
+  }
+    void loadDraft(String customerId) {
+    try {
+      final draft = CartDatabaseManager().draftBox.get(customerId);
+      log('${draft?.items.toString()}');
+      if (draft != null) {
+        log('Draft loaded successfully for customer ID: $customerId');
+        draftItems = draft.items;
+        for (var item in draft.items) {
+          log(
+            'Draft Item: '
+            'Product Name: ${item.productName}, '
+            'Variation Name: ${item.detail.variationName}, '
+            'Sell Price: ${item.detail.sellPrice}, '
+            'Count: ${item.detail.count}, '
+            'Total Price: ${item.totalPrice}, '
+            'Is Pack: ${item.isPack}, '
+            'Pieces: ${item.detail.pieces}',
+          );
+        }
+        draftQuantity = List.generate(draftItems.length, (index) => 1);
+        draftTotal = Utils().getFinalAmount(draftItems);
+        draftTax = Utils().getTotalTax(draftItems);
+
+        log('Draft Load Tax : $draftTax');
+        if (_options.isNotEmpty) {
+          _selectedValue = _options[0];
+        }
+        _isLoading = false;
+      } else {
+        log('No draft found for customer ID: $customerId');
+        draftItems = [];
+      }
+    } catch (e) {
+      log('Error loading draft for customer ID $customerId: $e');
+      draftItems = [];
     }
   }
 
@@ -299,42 +338,7 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  void loadDraft(String customerId) {
-    try {
-      final draft = CartDatabaseManager().draftBox.get(customerId);
-      log('${draft?.items.toString()}');
-      if (draft != null) {
-        log('Draft loaded successfully for customer ID: $customerId');
-        draftItems = draft.items;
-        for (var item in draft.items) {
-          log(
-            'Draft Item: '
-            'Product Name: ${item.productName}, '
-            'Variation Name: ${item.detail.variationName}, '
-            'Sell Price: ${item.detail.sellPrice}, '
-            'Count: ${item.detail.count}, '
-            'Total Price: ${item.totalPrice}, '
-            'Is Pack: ${item.isPack}, '
-            'Pieces: ${item.detail.pieces}',
-          );
-        }
-        draftTotal = Utils().getFinalAmount(draftItems);
-        draftTax = Utils().getTotalTax(draftItems);
 
-        log('Draft Load Tax : $draftTax');
-        if (_options.isNotEmpty) {
-          _selectedValue = _options[0];
-        }
-        _isLoading = false;
-      } else {
-        log('No draft found for customer ID: $customerId');
-        draftItems = [];
-      }
-    } catch (e) {
-      log('Error loading draft for customer ID $customerId: $e');
-      draftItems = [];
-    }
-  }
 
   double? finalAmount;
   @override
@@ -530,7 +534,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                             showVariantDeleteDialog(
                                                                 context,
                                                                 productName,
-                                                                false);
+                                                                false,false);
                                                           },
                                                           icon: Icon(
                                                             EneftyIcons
@@ -650,7 +654,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                             showVariantDeleteDialog(
                                                                 context,
                                                                 productName,
-                                                                true);
+                                                                true,false);
                                                           },
                                                           icon: Icon(
                                                             EneftyIcons
@@ -762,7 +766,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                             showVariantDeleteDialog(
                                                                 context,
                                                                 productName,
-                                                                false);
+                                                                false,true);
                                                           },
                                                           icon: Icon(
                                                             EneftyIcons
@@ -809,7 +813,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                         productQuantityManager:
                                                             draftQuantityManager,
                                                         deleteConfirmationDialogue:
-                                                            deleteConfirmationDialogue,
+                                                            deleteDraftConfirmationDialogue,
                                                       ),
                                                     ),
                                                   ),
@@ -2030,9 +2034,56 @@ class CartDialogueState extends State<CartDialogue> {
       },
     );
   }
+  Future<dynamic> deleteDraftConfirmationDialogue(
+      BuildContext context, CartItem groupedItem, List<CartItem> groupedItems) {
+        String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
+        ? widget.customerOrderController?.customerId.value ?? ''
+        : widget.productsController.selectedCustomerId.value;
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: CustomText(
+            content: 'Delete ${groupedItem.detail.variationName}..?',
+            fontWeight: FontWeight.w700,
+          ),
+          actions: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: CustomText(
+                content: 'Are you sure you want to delete this Draft item?',
+                fontSize: 17,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    _deleteDraftderVariant(groupedItem, groupedItems,customerId);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<dynamic> showVariantDeleteDialog(
-      BuildContext context, String productName, bool isPreOrder) {
+      BuildContext context, String productName, bool isPreOrder,bool isDraft) {
+    String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
+        ? widget.customerOrderController?.customerId.value ?? ''
+        : widget.productsController.selectedCustomerId.value;
     return showDialog(
       context: context,
       builder: (context) {
@@ -2073,8 +2124,12 @@ class CartDialogueState extends State<CartDialogue> {
               onPressed: () {
                 if (isPreOrder) {
                   _deletePreorderItem(productName);
-                } else {
+                } else if(!isDraft) {
                   _deleteItem(productName);
+                }else{
+                  _deleteDraftItem(productName,customerId);
+                  loadDraft(customerId);
+                  log('Draft Delete Clicked : ${customerId}');
                 }
                 Navigator.pop(context);
                 showCustomToastDisplay(
@@ -2096,7 +2151,7 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void _deleteVariant(CartItem variantToDelete, List<CartItem> groupedItems) {
+  void _deleteVariant(CartItem variantToDelete, List<CartItem> groupedItems,) {
     setState(() {
       groupedItems.remove(variantToDelete);
       cartItems.removeWhere((item) =>
@@ -2119,6 +2174,20 @@ class CartDialogueState extends State<CartDialogue> {
       preorderTotal = Utils().getFinalAmount(preorderItems);
       preorderTax = Utils().getTotalTax(preorderItems);
     });
+    log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
+  }
+  void _deleteDraftderVariant(
+      CartItem variantToDelete, List<CartItem> draftItems,String customerId) {
+    setState(() {
+      draftItems.remove(variantToDelete);
+      draftItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      CartDatabaseManager().deleteDraftItem(customerId,variantToDelete);
+      draftTotal = Utils().getFinalAmount(draftItems);
+      draftTax = Utils().getTotalTax(draftItems);
+    });
+    loadDraft(customerId);
     log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
   }
 
@@ -2493,11 +2562,9 @@ class CartDialogueState extends State<CartDialogue> {
   void _deletePreorderItem(String productName) {
     final itemsToDelete =
         preorderItems.where((item) => item.productName == productName).toList();
-
     for (var item in itemsToDelete) {
       CartDatabaseManager().deletePreorderCartItem(item);
     }
-
     setState(() {
       List<int> indicesToRemove = [];
       for (int i = 0; i < preorderItems.length; i++) {
@@ -2513,6 +2580,28 @@ class CartDialogueState extends State<CartDialogue> {
       preorderTax = Utils().getTotalTax(preorderItems);
     });
 
+    log('Pre-order items deleted for product: $productName');
+  }
+  void _deleteDraftItem(String productName,String customerId) {
+    final itemsToDelete =
+        draftItems.where((item) => item.productName == productName).toList();
+    for (var item in itemsToDelete) {
+      CartDatabaseManager().deleteDraftItem(customerId,item);
+    }
+    setState(() {
+      List<int> indicesToRemove = [];
+      for (int i = 0; i < draftItems.length; i++) {
+        if (draftItems[i].productName == productName) {
+          indicesToRemove.add(i);
+        }
+      }
+      draftItems.removeWhere((item) => item.productName == productName);
+      for (int index in indicesToRemove.reversed) {
+        draftItems.removeAt(index);
+      }
+      draftTotal = Utils().getFinalAmount(draftItems);
+      draftTax = Utils().getTotalTax(draftItems);
+    });
     log('Pre-order items deleted for product: $productName');
   }
 }

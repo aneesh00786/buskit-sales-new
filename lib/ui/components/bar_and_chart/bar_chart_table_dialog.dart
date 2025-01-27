@@ -38,7 +38,6 @@ import 'package:flutter/material.dart';
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Dialog Header
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: const BoxDecoration(

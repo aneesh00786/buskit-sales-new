@@ -145,7 +145,7 @@ class CartDialogueState extends State<CartDialogue> {
     return groupBy(cartItems, (CartItem item) => item.productName);
   }
 
-  void performSpecificAction() async {
+  void performSpecificAction(bool isTab) async {
     log('Selected CustomerID :${customeController.customerId.isNotEmpty ? {
         customeController.customerId.value
       } : widget.productsController.selectedCustomerId.value}');
@@ -238,6 +238,7 @@ class CartDialogueState extends State<CartDialogue> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
+                      isTab?Navigator.of(context, rootNavigator: true).pop():null;
                       isOrder
                           ? _clearCartItem(cartItems)
                           : _clearPreorderCartItem(preorderItems);

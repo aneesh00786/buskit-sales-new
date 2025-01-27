@@ -211,7 +211,6 @@ Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
       log('No existing pre-order item found to update for product ID: ${detail.variationId}');
     }
   }
-
 Future<void> saveCartAsDraft(String customerId) async {
   if (customerId.isEmpty) {
     log('Error: Customer ID is required to save a draft.');
@@ -269,7 +268,6 @@ Future<void> saveCartAsDraft(String customerId) async {
     await _cartBox.put(updatedItem.key, updatedItem);
     _notifyListeners();
   }
-
   Future<void> updatePreorderCart(CartItem updatedItem) async {
     await _cartPreorderBox.put(updatedItem.key, updatedItem);
     _notifyListeners();
@@ -299,14 +297,10 @@ Future<void> updateDraftItem(String customerId, CartItem updatedCartItem) async 
     log('Error updating draft for customer ID: $customerId, Error: $e');
   }
 }
-
-
-
   void deleteCartItem(CartItem item) {
     _cartBox.delete(item.key);
     _notifyListeners();
   }
-
   void deletePreorderCartItem(CartItem item) {
     _cartPreorderBox.delete(item.key);
     _notifyListeners();

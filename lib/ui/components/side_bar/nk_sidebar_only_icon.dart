@@ -299,7 +299,7 @@ void handleBackNavigation(
                     Navigator.pop(context);
 
                     if (cartDialogKey.currentState != null) {
-                      cartDialogKey.currentState!.performSpecificAction();
+                      cartDialogKey.currentState!.performSpecificAction(true);
                     }
                     log('Dialog dismissed without clearing cart');
                     updateTabIndex();

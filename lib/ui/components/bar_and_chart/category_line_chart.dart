@@ -209,12 +209,14 @@ class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
   String staffProjection;
+  String targetType;
 
    CustomBarChart({
     super.key,
     required this.allCategory,
     required this.categoryPerformance,
     required this.staffProjection,
+    required this.targetType,
   });
 
   @override
@@ -245,14 +247,13 @@ class _CustomBarChartState extends State<CustomBarChart> {
           salesman: [],
         ),
       );
-
       double target = perf.actualTarget ?? 0.0;
       double projection = perf.actualProjection ?? 0.0;
       double actual = perf.actualSales ?? 0.0;
-
       return BarChartGroupData(
         x: index,
         barRods: [
+          if(widget.targetType=="1")
           BarChartRodData(
             toY: target,
             color: const Color(0xff3b6491),
@@ -534,6 +535,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if(widget.targetType=="1")
             _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
             if(widget.staffProjection=="1")
             _buildLegend(color: const Color(0xff15396a), label: 'Projection'),

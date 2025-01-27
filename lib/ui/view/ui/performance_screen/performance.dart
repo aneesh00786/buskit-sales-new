@@ -41,22 +41,32 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   String selectedValue = "2024";
   String staffProjection = '';
+  String targetType = '';
+    Future<void> _loadSettings() async {
+    try {
+      final settingsList = await ApiWorker().fetchAllSettings(companyId);
+      setState(() {
+        final staffProjectionSetting = settingsList?.firstWhere(
+          (setting) => setting.key == 'staffProjection',
+          orElse: () =>
+              AllCompanySettingsData(key: 'staffProjection', value: ''),
+        );
+        staffProjection = staffProjectionSetting?.value ?? '';
+        final targetTypeSetting = settingsList?.firstWhere(
+          (setting) => setting.key == 'targetType',
+          orElse: () => AllCompanySettingsData(key: 'targetType', value: ''),
+        );
+        targetType = targetTypeSetting?.value ?? '';
+      });
+    } catch (e) {
+      print("Error fetching settings: $e");
+    }
+  }
   @override
   void initState() {
     super.initState();
     ApiWorker().fetchAllSettings(companyId);
-    setState(() {
-      staffProjection = SessionHelper.settingsData
-              ?.firstWhere(
-                (setting) => setting.key == 'staffProjection',
-                orElse: () => AllCompanySettingsData(
-                  key: 'staffProjection',
-                  value: '',
-                ),
-              )
-              .value ??
-          '';
-    });
+    _loadSettings();
     _tabController =
         TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
     _selectedMonthName = DateFormat.MMMM().format(DateTime.now());
@@ -344,6 +354,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           padding: const EdgeInsets.all(8.0),
                           child: CustomPerfoBarChart(
                             categoryPerformance: categoryPerformance!,
+                            staffProjection: staffProjection,
+                            targetType: targetType,
                           ),
                         ),
                       );

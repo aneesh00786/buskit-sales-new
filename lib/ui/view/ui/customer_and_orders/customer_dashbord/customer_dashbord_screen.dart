@@ -99,32 +99,31 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         showNoInternetSnackBar(context);
         return;
       }
+    final customerId = widget.productsController?.selectedCustomerId.value;
 
-      final customerId = widget.productsController?.selectedCustomerId.value;
       if (customerId!.isEmpty) {
         log('Error: Customer ID is empty, initialization failed.');
         return;
       }
-      final customersProvider =
-          Provider.of<CustomersProvider>(context, listen: false);
-
-      customersProvider.fetchCustomerDashboardData(
-        customerId,
-        selectedYear,
-        widget.startDate,
-        widget.endDate,
-      );
-      customersProvider.fetchCustomerDashboardRevenueData(
-        customerId,
-        selectedYear,
-        widget.startDate,
-        widget.endDate,
-      );
-      customersProvider.fetchCustomerDashboardDataSalseData(
-        customerId,
-        selectedYear,
-      );
-      customersProvider.fetchCustomersDataDash(customerId);
+    final customersProvider =
+        Provider.of<CustomersProvider>(context, listen: false);
+    customersProvider.fetchCustomerDashboardData(
+      customerId ?? '',
+      selectedYear,
+      widget.startDate,
+      widget.endDate,
+    );
+    customersProvider.fetchCustomerDashboardRevenueData(
+      customerId ?? '',
+      selectedYear,
+      widget.startDate,
+      widget.endDate,
+    );
+    customersProvider.fetchCustomerDashboardDataSalseData(
+      customerId ?? '',
+      selectedYear,
+    );
+    customersProvider.fetchCustomersDataDash(customerId ?? '');
     });
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -153,14 +152,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       log('Error: Customer ID is empty in CustomerDachScreen.');
       return;
     }
-
-    // Update the customer in the controller
     widget.productsController?.updateSelectedCustomer(
       name: customerName,
       imageUrl: customerImage,
       id: customerId,
     );
-
     log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
   }
 
@@ -237,8 +233,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                customerOrderController.setCustomerId(
-                    customerOrderController.customerId.value);
+                customerOrderController
+                    .setCustomerId(customerOrderController.customerId.value);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -247,6 +243,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       isFromCalender: widget.isFromCalendar,
                       isDirectDialogue: widget.isDirectDialogue,
                       isFromOrder: widget.isFromOrder,
+                      
                     ),
                   ),
                 );
@@ -1285,7 +1282,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ),
     );
   }
-    Widget _buildLegendItem(Color color, String label) {
+
+  Widget _buildLegendItem(Color color, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -121,6 +122,15 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
+  Future<int> getCartItemCounts(String customerId, int cartItemCount) async {
+    final count = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length +
+        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+    cartItemCount = count;
+    notifyListeners();
+    return cartItemCount;
+  }
+
   void updateSearchQuery(String query) {
     if (query.isEmpty) {
       _filteredCustomers = _customers;
@@ -163,7 +173,6 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
-
 
   Future<OrderResponse>? _orderResponse;
   Future<OrderResponse>? get orderResponse => _orderResponse;

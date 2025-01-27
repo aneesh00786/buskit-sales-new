@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_m
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -32,6 +33,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
 class CartDialogue extends StatefulWidget {
   bool? active;
@@ -1403,12 +1405,28 @@ class CartDialogueState extends State<CartDialogue> {
                                                 ),
                                                 actions: [
                                                   TextButton(
-                                                    onPressed: () {
+                                                    onPressed: () async {
                                                       Navigator.pop(context);
                                                       Navigator.of(context,
                                                               rootNavigator:
                                                                   true)
                                                           .pop();
+                                                      await Provider.of<
+                                                                  CustomersProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .getCartItemCounts(
+                                                              customeController
+                                                                      .customerId
+                                                                      .isNotEmpty
+                                                                  ? customeController
+                                                                      .customerId
+                                                                      .value
+                                                                  : widget
+                                                                      .productsController
+                                                                      .selectedCustomerId
+                                                                      .value,
+                                                              widget.cartItemCount);
                                                       _clearCartItem(cartItems);
                                                     },
                                                     child: const Text('OK'),
@@ -2381,7 +2399,10 @@ class CartDialogueState extends State<CartDialogue> {
         } else {
           cartItem.totalPrice = (price * cartItem.detail.count).toInt();
         }
-        total += cartItem.totalPrice;
+        // total += cartItem.totalPrice;
+        total += cartItem.isPack == true
+            ? cartItem.detail.sellingPackPrice! * cartItem.detail.count
+            : cartItem.detail.sellingPrice! * cartItem.detail.count;
         double? itemTax = cartItem.isPack == true
             ? double.tryParse(cartItem.detail.tax.toString())! *
                 double.tryParse(cartItem.detail.pieces.toString())!

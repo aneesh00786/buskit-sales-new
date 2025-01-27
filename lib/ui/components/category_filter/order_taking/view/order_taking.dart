@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -26,6 +27,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import '../../category_list.dart';
 import '../../product_list/view/product_list.dart';
 
@@ -35,6 +37,9 @@ class OrderTaking extends StatefulWidget {
   final bool isFromCalender;
   final bool isDirectDialogue;
   final bool isFromOrder;
+  int? year;
+  dynamic startDate;
+  dynamic endDate;
   OrderTaking({
     super.key,
     required this.productsController,
@@ -42,6 +47,8 @@ class OrderTaking extends StatefulWidget {
     this.isFromCalender = false,
     this.isDirectDialogue = false,
     this.isFromOrder = false,
+    this.startDate,
+    this.endDate,
   });
 
   @override
@@ -74,14 +81,6 @@ class _OrderTakingState extends State<OrderTaking>
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
-  Future<void> getCartItemCounts(String customerId) async {
-    final count = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length +
-        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-    setState(() {
-      cartItemCount = count;
-    });
-  }
 
   @override
   void initState() {
@@ -100,7 +99,8 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-    getCartItemCounts(customerAndOrderController.customerId.value);
+    Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
+        customerAndOrderController.customerId.value, cartItemCount);
     CartDatabaseManager().addListener(_updateCartCount);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -239,7 +239,7 @@ class _OrderTakingState extends State<OrderTaking>
                       if (toDashBoard) {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
-                        Future.delayed(Duration(milliseconds: 300), () {
+                        Future.delayed(const Duration(milliseconds: 300), () {
                           homeController.sidebarXController.selectIndex(0);
                           homeController.selectedIndex.value = 0;
                           Get.toNamed(AppRoutes.dashboard, id: 2);
@@ -253,7 +253,7 @@ class _OrderTakingState extends State<OrderTaking>
                       } else if (widget.isDirectDialogue) {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
-                        Future.delayed(Duration(milliseconds: 300), () {
+                        Future.delayed(const Duration(milliseconds: 300), () {
                           homeController.sidebarXController.selectIndex(0);
                           homeController.selectedIndex.value = 0;
                           Get.toNamed(AppRoutes.dashboard, id: 2);
@@ -382,6 +382,7 @@ class _OrderTakingState extends State<OrderTaking>
         context,
         false,
       );
+
       log('Condition2');
     } else {
       homeController.sidebarXController.selectIndex(0);
@@ -416,6 +417,27 @@ class _OrderTakingState extends State<OrderTaking>
               log('Triggered');
               log(widget.productsController.selectedCategoryId.value);
               log('Is From Order : ${widget.isFromOrder}');
+              final customersProvider =
+                  Provider.of<CustomersProvider>(context, listen: false);
+              final customerId =
+                  widget.productsController.selectedCustomerId.value;
+              customersProvider.fetchCustomerDashboardData(
+                customerId,
+                widget.year ?? 2024,
+                widget.startDate,
+                widget.endDate,
+              );
+              customersProvider.fetchCustomerDashboardRevenueData(
+                customerId,
+                widget.year ?? 2024,
+                widget.startDate,
+                widget.endDate,
+              );
+              customersProvider.fetchCustomerDashboardDataSalseData(
+                customerId,
+                widget.year ?? 2024,
+              );
+              customersProvider.fetchCustomersDataDash(customerId);
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
@@ -622,9 +644,14 @@ class _OrderTakingState extends State<OrderTaking>
                                                       customer.customerId ??
                                                           ''),
                                                   onTap: () async {
-                                                    await getCartItemCounts(
-                                                        customer.customerId ??
-                                                            '');
+                                                    await Provider.of<
+                                                                CustomersProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .getCartItemCounts(
+                                                            customer.customerId ??
+                                                                '',
+                                                            cartItemCount);
 
                                                     if (active == true) {
                                                       _showWarningDialog(

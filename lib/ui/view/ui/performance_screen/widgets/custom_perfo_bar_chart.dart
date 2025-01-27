@@ -16,10 +16,13 @@ import 'package:provider/provider.dart';
 
 class CustomPerfoBarChart extends StatefulWidget {
   final List<CategoryPerformance> categoryPerformance;
-
+  final String staffProjection;
+  final String targetType;
   const CustomPerfoBarChart({
     super.key,
     required this.categoryPerformance,
+    required this.staffProjection,
+    required this.targetType,
   });
 
   @override
@@ -45,6 +48,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
       return BarChartGroupData(
         x: index,
         barRods: [
+          if(widget.targetType=="1")
           BarChartRodData(
             toY: double.parse(target.toString()),
             color: const Color(0xff3b6491),
@@ -52,6 +56,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
             borderRadius: BorderRadius.zero,
             borderSide: BorderSide.none,
           ),
+          if(widget.staffProjection=="1")
           BarChartRodData(
             toY: double.parse(projection.toString()),
             color: const Color(0xff15396a),
@@ -360,7 +365,9 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if(widget.targetType=="1")
             _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+            if(widget.staffProjection=="1")
             _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
             _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
           ],

@@ -67,6 +67,7 @@ class DashBoardMiddleWidget extends StatefulWidget {
 
 class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   String staffProjection = '';
+  String targetType = '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 
   @override
@@ -79,12 +80,17 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
-        final targetSetting = settingsList?.firstWhere(
+        final staffProjectionSetting = settingsList?.firstWhere(
           (setting) => setting.key == 'staffProjection',
           orElse: () =>
               AllCompanySettingsData(key: 'staffProjection', value: ''),
         );
-        staffProjection = targetSetting?.value ?? '';
+        staffProjection = staffProjectionSetting?.value ?? '';
+        final targetTypeSetting = settingsList?.firstWhere(
+          (setting) => setting.key == 'targetType',
+          orElse: () => AllCompanySettingsData(key: 'targetType', value: ''),
+        );
+        targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
       print("Error fetching settings: $e");
@@ -96,9 +102,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
     bool isMobile = screenWidth < 600;
-
     return SizedBox(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -585,6 +589,17 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   }
 
   Widget middleTopLeftComponet() {
+String displayText = '';
+if (staffProjection == "1" && targetType == "1") {
+  displayText = "Category Target / Projection / Actuals";
+} else if (staffProjection == "1" && targetType == "0") {
+  displayText = "Category Projection Actuals";
+} else if(staffProjection == "0" && targetType == "1") {
+  displayText = "Category Target / Actuals";
+}else{
+  displayText = "Category Actuals";
+}
+
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -613,9 +628,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               padding:
                   const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
               child: Text(
-                staffProjection == "1"
-                    ? "Category Target / Projection / Actuals"
-                    : "Category Target / Actuals",
+                displayText,
                 style: cardHeadingTextStyle,
                 maxLines: 1,
                 softWrap: false,
@@ -659,7 +672,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             child: CustomBarChart(
                                 categoryPerformance: categoryPerformance!,
                                 allCategory: categories!,
-                                staffProjection: staffProjection),
+                                staffProjection: staffProjection,
+                                targetType: targetType,
+                                ),
                           );
                         } else {
                           return const NodataWidget();
@@ -772,32 +787,32 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 spacing: 8,
                                 runSpacing: 4,
                                 children: [
-                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                     InkWell(
-                                    onTap: () {
-                                      showValueDialog(context,
-                                          categoryPerformance, 'Pre-Order');
-                                    },
-                                    child: _buildLegendItem(
-                                      const Color(0xff1d3d63),
-                                      'Pre-Order : ${formatAmount(bookingRevenueLength)}',
-                                    ),
-                                  ),
-                                  nkSmallSizeBox(),
-                                  InkWell(
-                                    onTap: () {
-                                      showValueDialog(context,
-                                          categoryPerformance, 'Order');
-                                    },
-                                    child: _buildLegendItem(
-                                      Colors.blue,
-                                      'Order : ${formatAmount(orderRevenueLast)}',
-                                    ),
-                                  ),
-                                  ],
-                                 )
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Pre-Order');
+                                        },
+                                        child: _buildLegendItem(
+                                          const Color(0xff1d3d63),
+                                          'Pre-Order : ${formatAmount(bookingRevenueLength)}',
+                                        ),
+                                      ),
+                                      nkSmallSizeBox(),
+                                      InkWell(
+                                        onTap: () {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Order');
+                                        },
+                                        child: _buildLegendItem(
+                                          Colors.blue,
+                                          'Order : ${formatAmount(orderRevenueLast)}',
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                             ),

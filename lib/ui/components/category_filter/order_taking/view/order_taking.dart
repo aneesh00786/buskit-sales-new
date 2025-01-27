@@ -278,6 +278,7 @@ class _OrderTakingState extends State<OrderTaking>
                     onPressed: () async {
                       if (cartDialogKey.currentState != null) {
                         cartDialogKey.currentState!.performSpecificAction(false);
+
                         if (toDashBoard) {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();

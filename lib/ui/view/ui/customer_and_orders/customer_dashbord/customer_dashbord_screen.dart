@@ -238,7 +238,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ElevatedButton(
               onPressed: () {
                 customerOrderController.setCustomerId(
-                    widget.productsController?.selectedCategoryId.value ?? '');
+                    customerOrderController.customerId.value);
                 Navigator.push(
                   context,
                   MaterialPageRoute(

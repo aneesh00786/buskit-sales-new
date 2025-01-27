@@ -89,7 +89,9 @@ class CartDialogueState extends State<CartDialogue> {
   void initState() {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
-    loadDraft(widget.customerOrderController?.customerId.value ?? '');
+    loadDraft(widget.customerOrderController!.customerId.value.isNotEmpty
+        ? widget.customerOrderController?.customerId.value ?? ''
+        : widget.productsController.selectedCustomerId.value ?? '');
     _loadCartItems();
     _loadPreorderItems();
     calculateAmount(cartItems);
@@ -238,7 +240,9 @@ class CartDialogueState extends State<CartDialogue> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      isTab?Navigator.of(context, rootNavigator: true).pop():null;
+                      isTab
+                          ? Navigator.of(context, rootNavigator: true).pop()
+                          : null;
                       isOrder
                           ? _clearCartItem(cartItems)
                           : _clearPreorderCartItem(preorderItems);
@@ -296,7 +300,7 @@ class CartDialogueState extends State<CartDialogue> {
   void loadDraft(String customerId) {
     try {
       final draft = CartDatabaseManager().draftBox.get(customerId);
-
+      log('${draft?.items.toString()}');
       if (draft != null) {
         log('Draft loaded successfully for customer ID: $customerId');
         draftItems = draft.items;
@@ -1348,12 +1352,11 @@ class CartDialogueState extends State<CartDialogue> {
                                           .toStringAsFixed(0),
                                       discount: '0',
                                     );
-                                    CartDatabaseManager().saveCartAsDraft(widget
-                                            .customerOrderController
-                                            ?.customerId
-                                            .value ??
-                                        '');
-                                    log('Customer Id for Save draft : ${widget.customerOrderController?.customerId.value ?? ''}');
+                                    CartDatabaseManager().saveCartAsDraft(
+                                      widget.productsController
+                                          .selectedCustomerId.value,
+                                    );
+                                    log('Customer Id for Save draft : ${widget.productsController.selectedCustomerId.value}');
                                     CartOrderModel? cartOrder =
                                         await ApiWorker()
                                             .addToCart(productBYData.toJson());

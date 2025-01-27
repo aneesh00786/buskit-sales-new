@@ -2200,6 +2200,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .selectedCustomerImageUrl
                                                                 .value =
                                                             customer.imageUrl;
+                                                        customerAndOrderController.setCustomerId(customer.customerId);
                                                         log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
                                                         await Future.delayed(
                                                             Duration(

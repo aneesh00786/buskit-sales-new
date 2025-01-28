@@ -1636,6 +1636,7 @@ class CartDialogueState extends State<CartDialogue> {
                       isOrder
                           ? _clearCartItem(itemList)
                           : _clearPreorderCartItem(itemList);
+                      
                     });
                   },
                   child: const Text('OK'),
@@ -1781,6 +1782,7 @@ class CartDialogueState extends State<CartDialogue> {
                           isOrder
                               ? _clearCartItem(itemList)
                               : _clearPreorderCartItem(itemList);
+                          _clearDraft(itemList);
                         },
                         child: const Text('OK'),
                       ),
@@ -2599,6 +2601,16 @@ class CartDialogueState extends State<CartDialogue> {
       preorderQuantities.remove(cartPreorderItem);
     });
     log('Cart Item Cleared : $cartPreorderItem');
+  }
+  void _clearDraft(List<CartItem> draftItem) {
+    CartDatabaseManager().clearDraftForCustomer(widget.customerOrderController!.customerId.value.isNotEmpty
+        ? widget.customerOrderController?.customerId.value ?? ''
+        : widget.productsController.selectedCustomerId.value );
+    setState(() {
+      preorderItems.remove(draftItem);
+      preorderQuantities.remove(draftItem);
+    });
+    log('Cart Item Cleared : $draftItem');
   }
 
   void _deleteItem(String productName) {

@@ -167,13 +167,6 @@ class _OrderTakingState extends State<OrderTaking>
     widget.productsController.fetchProducts(subCategory);
   }
 
-  // void _updateCartCount() {
-  //   setState(() {
-  //     cartItemCount = CartDatabaseManager().cartItems.length +
-  //         CartDatabaseManager().cartPreorderItems.length;
-  //   });
-  // }
-
   void _toggleDrawer() {
     setState(() {
       _isDrawerOpen = !_isDrawerOpen;
@@ -399,7 +392,6 @@ class _OrderTakingState extends State<OrderTaking>
         context,
         false,
       );
-
       log('Condition2');
     } else {
       homeController.sidebarXController.selectIndex(0);
@@ -434,27 +426,6 @@ class _OrderTakingState extends State<OrderTaking>
               log('Triggered');
               log(widget.productsController.selectedCategoryId.value);
               log('Is From Order : ${widget.isFromOrder}');
-              final customersProvider =
-                  Provider.of<CustomersProvider>(context, listen: false);
-              final customerId =
-                  widget.productsController.selectedCustomerId.value;
-              customersProvider.fetchCustomerDashboardData(
-                customerId,
-                widget.year ?? 2024,
-                widget.startDate,
-                widget.endDate,
-              );
-              customersProvider.fetchCustomerDashboardRevenueData(
-                customerId,
-                widget.year ?? 2024,
-                widget.startDate,
-                widget.endDate,
-              );
-              customersProvider.fetchCustomerDashboardDataSalseData(
-                customerId,
-                widget.year ?? 2024,
-              );
-              customersProvider.fetchCustomersDataDash(customerId);
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),

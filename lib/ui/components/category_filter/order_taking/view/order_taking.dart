@@ -74,22 +74,22 @@ class _OrderTakingState extends State<OrderTaking>
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
   bool active = false;
-  int cartItemCount = 0;
+  // int cartItemCount = 0;
   String _selectedCategory = '';
   int _expandedIndex = -1;
   String _dialogMessage = '';
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
-  Future<int> getCartItemCounts(String customerId) async {
-    final count = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length +
-        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-    setState(() {
-      cartItemCount = count;
-    });
-    return cartItemCount;
-  }
+  // Future<int> getCartItemCounts(String customerId) async {
+  //   final count = CartDatabaseManager().cartItems.length +
+  //       CartDatabaseManager().cartPreorderItems.length +
+  //       (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+  //   setState(() {
+  //     cartItemCount = count;
+  //   });
+  //   return cartItemCount;
+  // }
 
   @override
   void initState() {
@@ -108,8 +108,11 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-     getCartItemCounts(customerAndOrderController.customerId.value);
-    CartDatabaseManager().addListener(_updateCartCount);
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+    cartProvider.getCartItemCounts(customerAndOrderController.customerId.value);
+    CartDatabaseManager().addListener(() {
+      cartProvider.updateCartCount(customerAndOrderController.customerId.value);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _isDrawerOpen = true;
@@ -135,9 +138,12 @@ class _OrderTakingState extends State<OrderTaking>
 
   @override
   void dispose() {
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     _drawerTimer?.cancel();
     animationController.dispose();
-    CartDatabaseManager().removeListener(_updateCartCount);
+    CartDatabaseManager().removeListener(() {
+      cartProvider.updateCartCount(customerAndOrderController.customerId.value);
+    });
     super.dispose();
   }
 
@@ -161,12 +167,12 @@ class _OrderTakingState extends State<OrderTaking>
     widget.productsController.fetchProducts(subCategory);
   }
 
-  void _updateCartCount() {
-    setState(() {
-      cartItemCount = CartDatabaseManager().cartItems.length +
-          CartDatabaseManager().cartPreorderItems.length;
-    });
-  }
+  // void _updateCartCount() {
+  //   setState(() {
+  //     cartItemCount = CartDatabaseManager().cartItems.length +
+  //         CartDatabaseManager().cartPreorderItems.length;
+  //   });
+  // }
 
   void _toggleDrawer() {
     setState(() {
@@ -215,11 +221,14 @@ class _OrderTakingState extends State<OrderTaking>
     BuildContext context,
     bool toDashBoard,
   ) {
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     final GlobalKey<CartDialogueState> cartDialogKey =
         GlobalKey<CartDialogueState>();
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         widget.productsController.selectedCustomerId.value.isNotEmpty) {
-      _showCartDialog(cartDialogKey);
+      _showCartDialog(
+        cartDialogKey,
+      );
       Future.delayed(Duration(seconds: 1));
       showDialog(
         context: context,
@@ -281,7 +290,7 @@ class _OrderTakingState extends State<OrderTaking>
                         CartDatabaseManager().cartItems.clear();
                         CartDatabaseManager().clearCart();
                         setState(() {
-                          cartItemCount = 0;
+                          cartProvider.cartItemCount = 0;
                         });
                         customerSearchController.clear();
                       }
@@ -328,7 +337,7 @@ class _OrderTakingState extends State<OrderTaking>
                           CartDatabaseManager().cartItems.clear();
                           CartDatabaseManager().clearCart();
                           setState(() {
-                            cartItemCount = 0;
+                            cartProvider.cartItemCount = 0;
                           });
                           customerSearchController.clear();
                         }
@@ -586,173 +595,121 @@ class _OrderTakingState extends State<OrderTaking>
                       : 0,
                   top: 10,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.40,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomSearchBar(
-                            text: "Search customer...",
-                            controller: customerSearchController,
-                            onChange: (value) {
-                              filterCustomers(value);
-                            },
-                            icon: EneftyIcons.profile_outline,
-                          ),
-                          Expanded(
-                            child: isLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : customerSearchController.text.isNotEmpty
-                                    ? filteredCustomers.isEmpty
-                                        ? Align(
-                                            alignment: Alignment.topCenter,
-                                            child: Material(
-                                              child: Container(
-                                                width: 300,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 20),
-                                                child: const Text(
-                                                  'No customers found.',
-                                                  style:
-                                                      TextStyle(fontSize: 16),
-                                                  textAlign: TextAlign.center,
+                child: Consumer<CustomersProvider>(
+                  builder: (context, provider, child) => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.40,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomSearchBar(
+                              text: "Search customer...",
+                              controller: customerSearchController,
+                              onChange: (value) {
+                                filterCustomers(value);
+                              },
+                              icon: EneftyIcons.profile_outline,
+                            ),
+                            Expanded(
+                              child: isLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : customerSearchController.text.isNotEmpty
+                                      ? filteredCustomers.isEmpty
+                                          ? Align(
+                                              alignment: Alignment.topCenter,
+                                              child: Material(
+                                                child: Container(
+                                                  width: 300,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                  ),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 20),
+                                                  child: const Text(
+                                                    'No customers found.',
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                    textAlign: TextAlign.center,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          )
-                                        : ListView.builder(
-                                            shrinkWrap: true,
-                                            itemCount: filteredCustomers.length,
-                                            itemBuilder: (context, index) {
-                                              CustomerAndOrderData customer =
-                                                  filteredCustomers[index];
-                                              return Container(
-                                                color: Colors.white,
-                                                child: ListTile(
-                                                  leading: CircleAvatar(
-                                                    backgroundImage:
-                                                        NetworkImage(
-                                                      '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                            )
+                                          : ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount:
+                                                  filteredCustomers.length,
+                                              itemBuilder: (context, index) {
+                                                CustomerAndOrderData customer =
+                                                    filteredCustomers[index];
+                                                return Container(
+                                                  color: Colors.white,
+                                                  child: ListTile(
+                                                    leading: CircleAvatar(
+                                                      backgroundImage:
+                                                          NetworkImage(
+                                                        '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                                      ),
                                                     ),
-                                                  ),
-                                                  title: Text(
-                                                      customer.businessName ??
-                                                          ''),
-                                                  subtitle: Text(
-                                                      customer.customerId ??
-                                                          ''),
-                                                  onTap: () async {
-                                                    await getCartItemCounts(
-                                                      customer.customerId ?? '',
-                                                    );
-
-                                                    if (active == true) {
-                                                      _showWarningDialog(
-                                                        context,
-                                                        'Please check out from the current customer',
-                                                        Center(
-                                                          child: Icon(
-                                                            Icons
-                                                                .warning_amber_outlined,
-                                                            size: 40,
-                                                            color:
-                                                                Colors.orange,
-                                                          ),
-                                                        ),
+                                                    title: Text(
+                                                        customer.businessName ??
+                                                            ''),
+                                                    subtitle: Text(
+                                                        customer.customerId ??
+                                                            ''),
+                                                    onTap: () async {
+                                                      await provider
+                                                          .getCartItemCounts(
+                                                        customer.customerId ??
+                                                            '',
                                                       );
-                                                    } else if (active ==
-                                                            false &&
-                                                        CartDatabaseManager()
-                                                            .cartItems
-                                                            .isNotEmpty) {
-                                                      if (mounted) {
+                                                      if (active == true) {
                                                         _showWarningDialog(
                                                           context,
-                                                          'Your order saved as draft.',
+                                                          'Please check out from the current customer',
                                                           Center(
-                                                            child: Container(
-                                                                height: 150,
-                                                                width: 150,
-                                                                child: Lottie.asset(
-                                                                    'assets/images/Animation - 1726906882515.json')),
+                                                            child: Icon(
+                                                              Icons
+                                                                  .warning_amber_outlined,
+                                                              size: 40,
+                                                              color:
+                                                                  Colors.orange,
+                                                            ),
                                                           ),
                                                         );
-                                                      }
-                                                      List<Detail> detail =
+                                                      } else if (active ==
+                                                              false &&
                                                           CartDatabaseManager()
                                                               .cartItems
-                                                              .map((e) =>
-                                                                  e.detail)
-                                                              .toList();
+                                                              .isNotEmpty) {
+                                                        if (mounted) {
+                                                          _showWarningDialog(
+                                                            context,
+                                                            'Your order saved as draft.',
+                                                            Center(
+                                                              child: Container(
+                                                                  height: 150,
+                                                                  width: 150,
+                                                                  child: Lottie
+                                                                      .asset(
+                                                                          'assets/images/Animation - 1726906882515.json')),
+                                                            ),
+                                                          );
+                                                        }
+                                                        List<Detail> detail =
+                                                            CartDatabaseManager()
+                                                                .cartItems
+                                                                .map((e) =>
+                                                                    e.detail)
+                                                                .toList();
 
-                                                      final productBYData =
-                                                          AddToCartModel(
-                                                        customerId:
-                                                            customerAndOrderController
-                                                                .customerId
-                                                                .value,
-                                                        salesmanId:
-                                                            SessionHelper
-                                                                .loginSavedData!
-                                                                .salesmanId!,
-                                                        cartId: '',
-                                                        cartList: detail
-                                                            .map((e) =>
-                                                                SendCartData(
-                                                                  productId:
-                                                                      e.productId ??
-                                                                          '',
-                                                                  variantId:
-                                                                      e.variationId ??
-                                                                          '',
-                                                                  pack: e.saleBy ==
-                                                                          'Pack'
-                                                                      ? e.pieces
-                                                                          .toString()
-                                                                      : e.count
-                                                                          .toString(),
-                                                                  packType: e.saleBy ==
-                                                                          'Pack'
-                                                                      ? 'Pack'
-                                                                      : 'Pcs',
-                                                                  price: e.price
-                                                                      .toString(),
-                                                                  discount: '0',
-                                                                  quantity: e
-                                                                      .count
-                                                                      .toInt(),
-                                                                ))
-                                                            .toList(),
-                                                        total: widget
-                                                            .productsController
-                                                            .finalAmount
-                                                            .value
-                                                            .toStringAsFixed(0),
-                                                        discount: '0',
-                                                      );
-
-                                                      CartOrderModel?
-                                                          cartOrder =
-                                                          await ApiWorker()
-                                                              .addToCart(
-                                                                  productBYData
-                                                                      .toJson());
-                                                      log('CartId :${cartOrder?.cartId}');
-
-                                                      if (cartOrder != null) {
-                                                        int orderStatus = 4;
-                                                        CartOrderModel order =
-                                                            CartOrderModel(
+                                                        final productBYData =
+                                                            AddToCartModel(
                                                           customerId:
                                                               customerAndOrderController
                                                                   .customerId
@@ -761,173 +718,234 @@ class _OrderTakingState extends State<OrderTaking>
                                                               SessionHelper
                                                                   .loginSavedData!
                                                                   .salesmanId!,
-                                                          cartId:
-                                                              cartOrder.cartId,
-                                                          orderStatus:
-                                                              orderStatus,
+                                                          cartId: '',
+                                                          cartList: detail
+                                                              .map((e) =>
+                                                                  SendCartData(
+                                                                    productId:
+                                                                        e.productId ??
+                                                                            '',
+                                                                    variantId:
+                                                                        e.variationId ??
+                                                                            '',
+                                                                    pack: e.saleBy ==
+                                                                            'Pack'
+                                                                        ? e.pieces
+                                                                            .toString()
+                                                                        : e.count
+                                                                            .toString(),
+                                                                    packType: e.saleBy ==
+                                                                            'Pack'
+                                                                        ? 'Pack'
+                                                                        : 'Pcs',
+                                                                    price: e
+                                                                        .price
+                                                                        .toString(),
+                                                                    discount:
+                                                                        '0',
+                                                                    quantity: e
+                                                                        .count
+                                                                        .toInt(),
+                                                                  ))
+                                                              .toList(),
+                                                          total: widget
+                                                              .productsController
+                                                              .finalAmount
+                                                              .value
+                                                              .toStringAsFixed(
+                                                                  0),
+                                                          discount: '0',
                                                         );
 
-                                                        log('CartId :${cartOrder.cartId}');
-                                                        await widget
-                                                            .productsController
-                                                            .placeOrder(order);
-                                                        setState(() {
-                                                          CartDatabaseManager()
-                                                              .cartItems
-                                                              .clear();
-                                                          CartDatabaseManager()
-                                                              .clearCart();
-                                                        });
+                                                        CartOrderModel?
+                                                            cartOrder =
+                                                            await ApiWorker()
+                                                                .addToCart(
+                                                                    productBYData
+                                                                        .toJson());
+                                                        log('CartId :${cartOrder?.cartId}');
 
+                                                        if (cartOrder != null) {
+                                                          int orderStatus = 4;
+                                                          CartOrderModel order =
+                                                              CartOrderModel(
+                                                            customerId:
+                                                                customerAndOrderController
+                                                                    .customerId
+                                                                    .value,
+                                                            salesmanId: SessionHelper
+                                                                .loginSavedData!
+                                                                .salesmanId!,
+                                                            cartId: cartOrder
+                                                                .cartId,
+                                                            orderStatus:
+                                                                orderStatus,
+                                                          );
+
+                                                          log('CartId :${cartOrder.cartId}');
+                                                          await widget
+                                                              .productsController
+                                                              .placeOrder(
+                                                                  order);
+                                                          setState(() {
+                                                            CartDatabaseManager()
+                                                                .cartItems
+                                                                .clear();
+                                                            CartDatabaseManager()
+                                                                .clearCart();
+                                                          });
+
+                                                          customerAndOrderController
+                                                              .setCustomerId(
+                                                                  customer.customerId ??
+                                                                      '');
+                                                          widget
+                                                                  .productsController
+                                                                  .selectedCustomerName
+                                                                  .value =
+                                                              widget
+                                                                  .productsController
+                                                                  .getFormattedCustomerName(
+                                                                      customer
+                                                                          .businessName);
+                                                          widget
+                                                              .productsController
+                                                              .selectedCustomerId
+                                                              .value = customer
+                                                                  .customerId ??
+                                                              '';
+                                                          widget
+                                                              .productsController
+                                                              .selectedCustomerImageUrl
+                                                              .value = customer
+                                                                  .imageUrl ??
+                                                              '';
+                                                          customerSearchController
+                                                              .clear();
+
+                                                          log('Selected Customer Name :${widget.productsController.selectedCustomerName.value}');
+                                                        }
+                                                      } else {
                                                         customerAndOrderController
                                                             .setCustomerId(customer
                                                                     .customerId ??
                                                                 '');
                                                         widget
-                                                                .productsController
-                                                                .selectedCustomerName
-                                                                .value =
-                                                            widget
-                                                                .productsController
-                                                                .getFormattedCustomerName(
-                                                                    customer
-                                                                        .businessName);
+                                                            .productsController
+                                                            .updateSelectedCustomer(
+                                                                id: customer
+                                                                        .customerId ??
+                                                                    '',
+                                                                imageUrl: customer
+                                                                        .imageUrl ??
+                                                                    '',
+                                                                name: customer
+                                                                        .businessName ??
+                                                                    '');
                                                         widget
                                                             .productsController
                                                             .selectedCustomerId
                                                             .value = customer
                                                                 .customerId ??
                                                             '';
-                                                        widget
-                                                            .productsController
-                                                            .selectedCustomerImageUrl
-                                                            .value = customer
-                                                                .imageUrl ??
-                                                            '';
                                                         customerSearchController
                                                             .clear();
-
-                                                        log('Selected Customer Name :${widget.productsController.selectedCustomerName.value}');
                                                       }
-                                                    } else {
-                                                      customerAndOrderController
-                                                          .setCustomerId(customer
-                                                                  .customerId ??
-                                                              '');
-                                                      widget.productsController
-                                                          .updateSelectedCustomer(
-                                                              id: customer
-                                                                      .customerId ??
-                                                                  '',
-                                                              imageUrl: customer
-                                                                      .imageUrl ??
-                                                                  '',
-                                                              name: customer
-                                                                      .businessName ??
-                                                                  '');
-                                                      widget
-                                                          .productsController
-                                                          .selectedCustomerId
-                                                          .value = customer
-                                                              .customerId ??
-                                                          '';
-                                                      customerSearchController
-                                                          .clear();
-                                                    }
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          )
-                                    : const SizedBox.shrink(),
-                          ),
-                          if (widget.productsController.showDialog.value)
-                            AlertDialog(
-                              title: Text('Warning'),
-                              content: Text(_dialogMessage),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      widget.productsController.closeDialog,
-                                  child: Text('OK'),
-                                ),
-                              ],
+                                                    },
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                      : const SizedBox.shrink(),
                             ),
-                        ],
-                      ),
-                    ),
-                    IntrinsicWidth(
-                        child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Hero(
-                          tag: 'product_image',
-                          child: AnimatedBuilder(
-                            animation: animationController,
-                            builder: (context, child) {
-                              return Transform.translate(
-                                offset: Offset(0, animation.value),
-                                child: child,
-                              );
-                            },
-                            child: IconButton(
-                              onPressed: () {
-                                _showCartDialog(cartDialogKey);
-                              },
-                              icon: Stack(
-                                children: [
-                                  const Icon(
-                                    Icons.shopping_cart_outlined,
-                                    size: 30,
+                            if (widget.productsController.showDialog.value)
+                              AlertDialog(
+                                title: Text('Warning'),
+                                content: Text(_dialogMessage),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        widget.productsController.closeDialog,
+                                    child: Text('OK'),
                                   ),
-                                  if (cartItemCount > 0)
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 16,
-                                          minHeight: 16,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '${cartItemCount}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+                      IntrinsicWidth(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Hero(
+                            tag: 'product_image',
+                            child: AnimatedBuilder(
+                              animation: animationController,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, animation.value),
+                                  child: child,
+                                );
+                              },
+                              child: IconButton(
+                                onPressed: () {
+                                  _showCartDialog(cartDialogKey);
+                                },
+                                icon: Stack(
+                                  children: [
+                                    const Icon(
+                                      Icons.shopping_cart_outlined,
+                                      size: 30,
+                                    ),
+                                    if (provider.cartItemCount > 0)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${provider.cartItemCount}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        IntrinsicWidth(
-                          child: CustomSwitch(
-                            initialValue: active,
-                            onChanged: (value) {
-                              active = value;
-                            },
-                            active: active,
-                            selectedName: widget
-                                .productsController.selectedCustomerName.value,
+                          SizedBox(
+                            width: 20,
                           ),
-                        )
-                      ],
-                    ))
-                  ],
+                          IntrinsicWidth(
+                            child: CustomSwitch(
+                              initialValue: active,
+                              onChanged: (value) {
+                                active = value;
+                              },
+                              active: active,
+                              selectedName: widget.productsController
+                                  .selectedCustomerName.value,
+                            ),
+                          )
+                        ],
+                      ))
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1088,13 +1106,14 @@ class _OrderTakingState extends State<OrderTaking>
       GlobalKey<CartDialogueState>();
 
   void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CartDialogue(
           key: dialogKey,
           active: active,
-          cartItemCount: cartItemCount,
+          cartItemCount: cartProvider.cartItemCount,
           productsController: widget.productsController,
           customerOrderController: customerAndOrderController,
         );

@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_m
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:collection/collection.dart';
@@ -80,7 +81,7 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController cashRemarkController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
-  
+
   bool _isLoading = true;
   bool isOrder = true;
   bool isDraft = true;
@@ -111,31 +112,33 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-void _loadCartItems() {
-  try {
-    List<CartItem> storedItems = CartDatabaseManager().getCartItems();
-    final customerId = widget.customerOrderController!.customerId.value.isNotEmpty
-        ? widget.customerOrderController?.customerId.value ?? ''
-        : widget.productsController.selectedCustomerId.value; 
-    final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
-    if (draft != null) {
-      storedItems.addAll(draft.items);
+  void _loadCartItems() {
+    try {
+      List<CartItem> storedItems = CartDatabaseManager().getCartItems();
+      final customerId =
+          widget.customerOrderController!.customerId.value.isNotEmpty
+              ? widget.customerOrderController?.customerId.value ?? ''
+              : widget.productsController.selectedCustomerId.value;
+      final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
+      if (draft != null) {
+        storedItems.addAll(draft.items);
+      }
+      cartItems = storedItems;
+      quantities =
+          List.generate(cartItems.length + draftItems.length, (index) => 1);
+      total = Utils().getFinalAmount(cartItems);
+      tax = Utils().getTotalTax(cartItems);
+      if (_options.isNotEmpty) {
+        _selectedValue = _options[0];
+      }
+      _isLoading = false;
+    } catch (e) {
+      print('Error loading cart items: $e');
+      return null;
     }
-    cartItems = storedItems;
-    quantities = List.generate(cartItems.length + draftItems.length, (index) => 1);
-    total = Utils().getFinalAmount(cartItems);
-    tax = Utils().getTotalTax(cartItems);
-    if (_options.isNotEmpty) {
-      _selectedValue = _options[0];
-    }
-    _isLoading = false;
-  } catch (e) {
-    print('Error loading cart items: $e');
-    return null;
   }
-}
 
-    void loadDraft(String customerId) {
+  void loadDraft(String customerId) {
     try {
       final draft = CartDatabaseManager().draftBox.get(customerId);
       log('${draft?.items.toString()}');
@@ -242,11 +245,10 @@ void _loadCartItems() {
     log('Pack or pcs :${productBYData.cartList.first.pack}');
     log('Pack or pcs :${productBYData.cartList.first.packType}');
     CartDatabaseManager().saveCartAsDraft(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-      cartOrder?.cartId??''
-    );
+        customeController.customerId.isNotEmpty
+            ? customeController.customerId.value
+            : widget.productsController.selectedCustomerId.value,
+        cartOrder?.cartId ?? '');
     if (cartOrder != null) {
       int orderStatus = 4;
       log('Selected Customer ID :${customeController.customerId.isNotEmpty ? {
@@ -294,6 +296,19 @@ void _loadCartItems() {
                       isOrder
                           ? _clearCartItem(cartItems)
                           : _clearPreorderCartItem(preorderItems);
+                      final cartProvider = Provider.of<CustomersProvider>(
+                        context,
+                      );
+                      cartProvider.getCartItemCounts(
+                        customeController.customerId.isNotEmpty
+                            ? customeController.customerId.value
+                            : widget
+                                .productsController.selectedCustomerId.value,
+                      );
+                      cartProvider.updateCartCount(customeController.customerId.isNotEmpty
+                            ? customeController.customerId.value
+                            : widget
+                                .productsController.selectedCustomerId.value,);
                     },
                     child: const Text('OK'),
                   ),
@@ -344,8 +359,6 @@ void _loadCartItems() {
       });
     }
   }
-
-
 
   double? finalAmount;
   @override
@@ -541,7 +554,8 @@ void _loadCartItems() {
                                                             showVariantDeleteDialog(
                                                                 context,
                                                                 productName,
-                                                                false,false);
+                                                                false,
+                                                                false);
                                                           },
                                                           icon: Icon(
                                                             EneftyIcons
@@ -661,7 +675,8 @@ void _loadCartItems() {
                                                             showVariantDeleteDialog(
                                                                 context,
                                                                 productName,
-                                                                true,false);
+                                                                true,
+                                                                false);
                                                           },
                                                           icon: Icon(
                                                             EneftyIcons
@@ -773,7 +788,8 @@ void _loadCartItems() {
                                                             showVariantDeleteDialog(
                                                                 context,
                                                                 productName,
-                                                                false,true);
+                                                                false,
+                                                                true);
                                                           },
                                                           icon: Icon(
                                                             EneftyIcons
@@ -1377,12 +1393,10 @@ void _loadCartItems() {
                                     log('Pack or pcs :${productBYData.cartList.first.pack}');
                                     log('Pack or pcs :${productBYData.cartList.first.packType}');
                                     CartDatabaseManager().saveCartAsDraft(
-                                      widget.productsController
-                                          .selectedCustomerId.value,
-                                          cartOrder?.cartId??''
-                                          
-                                    );
-                                
+                                        widget.productsController
+                                            .selectedCustomerId.value,
+                                        cartOrder?.cartId ?? '');
+
                                     if (cartOrder != null) {
                                       int orderStatus = 4;
                                       CartOrderModel order = CartOrderModel(
@@ -1473,7 +1487,6 @@ void _loadCartItems() {
                                       setState(() {
                                         CartDatabaseManager().cartItems.clear();
                                         CartDatabaseManager().clearCart();
-                                        widget.cartItemCount = 0;
                                       });
                                     }
                                   },
@@ -1485,13 +1498,22 @@ void _loadCartItems() {
                             size: width > 1200 ? 14 : 10,
                             onTap: () async {
                               if (widget.active == true) {
+                                final customerId =
+                                    customeController.customerId.isNotEmpty
+                                        ? customeController.customerId.value
+                                        : widget.productsController
+                                            .selectedCustomerId.value;
+                                final savedCartId = CartDatabaseManager()
+                                    .getSavedCartId(customerId);
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     await processSaveAndSend(
-                                        finalAmount: finalAmount ?? 0,
-                                        paymentType: paymentType,
-                                        context: context);
+                                      finalAmount: finalAmount ?? 0,
+                                      paymentType: paymentType,
+                                      context: context,
+                                      cartId: savedCartId ?? '',
+                                    );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -1504,8 +1526,10 @@ void _loadCartItems() {
                                   }
                                 } else {
                                   await processSaveAndSend(
-                                      finalAmount: finalAmount ?? 0,
-                                      context: context);
+                                    finalAmount: finalAmount ?? 0,
+                                    context: context,
+                                    cartId: savedCartId ?? '',
+                                  );
                                 }
                               } else {
                                 showDialog(
@@ -1568,6 +1592,7 @@ void _loadCartItems() {
     required BuildContext context,
     required double finalAmount,
     int? paymentType,
+    required String cartId,
   }) async {
     List<CartItem> itemList = isOrder ? cartItems : preorderItems;
 
@@ -1661,12 +1686,13 @@ void _loadCartItems() {
         }
         log('[processSaveAndSend] Preparing data for API call...');
         List<Detail> detail = itemList.map((e) => e.detail).toList();
+        log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
         final productBYData = AddToCartModel(
           customerId: customeController.customerId.isNotEmpty
               ? customeController.customerId.value
               : widget.productsController.selectedCustomerId.value,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: '',
+          cartId: cartId.isNotEmpty ? cartId : '',
           cartList: await Future.wait(detail.map((e) async {
             String packValue = e.saleBy == 'Pack'
                 ? (await _getPackPiecesValue(
@@ -1709,8 +1735,8 @@ void _loadCartItems() {
                 ? customeController.customerId.value
                 : widget.productsController.selectedCustomerId.value,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: cartOrder.cartId,
-            orderStatus: orderStatus,
+            cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
+            orderStatus: 11,
             orderPrice: finalAmount,
             paymentType: paymentType.toString(),
             companyId: companyId,
@@ -2044,11 +2070,13 @@ void _loadCartItems() {
       },
     );
   }
+
   Future<dynamic> deleteDraftConfirmationDialogue(
       BuildContext context, CartItem groupedItem, List<CartItem> groupedItems) {
-        String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
-        ? widget.customerOrderController?.customerId.value ?? ''
-        : widget.productsController.selectedCustomerId.value;
+    String customerId =
+        widget.customerOrderController!.customerId.value.isNotEmpty
+            ? widget.customerOrderController?.customerId.value ?? ''
+            : widget.productsController.selectedCustomerId.value;
     return showDialog(
       context: context,
       builder: (context) {
@@ -2076,7 +2104,8 @@ void _loadCartItems() {
                 ),
                 TextButton(
                   onPressed: () {
-                    _deleteDraftderVariant(groupedItem, groupedItems,customerId);
+                    _deleteDraftderVariant(
+                        groupedItem, groupedItems, customerId);
                     Navigator.pop(context);
                   },
                   child: const Text('Yes'),
@@ -2090,10 +2119,11 @@ void _loadCartItems() {
   }
 
   Future<dynamic> showVariantDeleteDialog(
-      BuildContext context, String productName, bool isPreOrder,bool isDraft) {
-    String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
-        ? widget.customerOrderController?.customerId.value ?? ''
-        : widget.productsController.selectedCustomerId.value;
+      BuildContext context, String productName, bool isPreOrder, bool isDraft) {
+    String customerId =
+        widget.customerOrderController!.customerId.value.isNotEmpty
+            ? widget.customerOrderController?.customerId.value ?? ''
+            : widget.productsController.selectedCustomerId.value;
     return showDialog(
       context: context,
       builder: (context) {
@@ -2134,10 +2164,10 @@ void _loadCartItems() {
               onPressed: () {
                 if (isPreOrder) {
                   _deletePreorderItem(productName);
-                } else if(!isDraft) {
+                } else if (!isDraft) {
                   _deleteItem(productName);
-                }else{
-                  _deleteDraftItem(productName,customerId);
+                } else {
+                  _deleteDraftItem(productName, customerId);
                   loadDraft(customerId);
                   log('Draft Delete Clicked : ${customerId}');
                 }
@@ -2161,7 +2191,10 @@ void _loadCartItems() {
     );
   }
 
-  void _deleteVariant(CartItem variantToDelete, List<CartItem> groupedItems,) {
+  void _deleteVariant(
+    CartItem variantToDelete,
+    List<CartItem> groupedItems,
+  ) {
     setState(() {
       groupedItems.remove(variantToDelete);
       cartItems.removeWhere((item) =>
@@ -2186,20 +2219,23 @@ void _loadCartItems() {
     });
     log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
   }
+
   void _deleteDraftderVariant(
-      CartItem variantToDelete, List<CartItem> draftItems,String customerId) {
+      CartItem variantToDelete, List<CartItem> draftItems, String customerId) {
     setState(() {
       draftItems.remove(variantToDelete);
       draftItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
-      CartDatabaseManager().deleteDraftItem(customerId,variantToDelete.detail.variationId??'');
+      CartDatabaseManager().deleteDraftItem(
+          customerId, variantToDelete.detail.variationId ?? '');
       draftTotal = Utils().getFinalAmount(draftItems);
       draftTax = Utils().getTotalTax(draftItems);
     });
     loadDraft(customerId);
     log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
   }
+
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {
     double padding = availableWidth > 400 ? 6 : 3;
@@ -2591,11 +2627,12 @@ void _loadCartItems() {
 
     log('Pre-order items deleted for product: $productName');
   }
-  void _deleteDraftItem(String productName,String customerId) {
+
+  void _deleteDraftItem(String productName, String customerId) {
     final itemsToDelete =
         draftItems.where((item) => item.productName == productName).toList();
     for (var item in itemsToDelete) {
-      CartDatabaseManager().deleteDraftItems(customerId,item);
+      CartDatabaseManager().deleteDraftItems(customerId, item);
     }
     setState(() {
       List<int> indicesToRemove = [];

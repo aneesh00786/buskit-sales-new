@@ -101,6 +101,23 @@ class CustomersProvider with ChangeNotifier {
   Future<ProductResponse>? _productResponse;
 
   Future<ProductResponse>? get productResponse => _productResponse;
+
+  int cartItemCount = 0;
+
+  Future<int> getCartItemCounts(String customerId) async {
+    final count = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length +
+        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+    cartItemCount = count;
+    notifyListeners();
+    return cartItemCount;
+  }
+    void updateCartCount(String customerId) {
+    cartItemCount = CartDatabaseManager().cartItems.length +
+        CartDatabaseManager().cartPreorderItems.length+
+        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
+    notifyListeners();
+  }
   Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
     try {

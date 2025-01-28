@@ -257,11 +257,16 @@ class CartDatabaseManager {
         cartId: cartId,
         items: updatedDraftItems,
       );
+      log('Draft : ${draft.cartId}');
       await CartDatabaseManager().draftBox.put(customerId, draft);
       log('Draft saved successfully for customer ID: $customerId');
     } catch (e) {
       log('Error saving cart as draft: $e');
     }
+  }
+    String? getSavedCartId(String customerId) {
+    final draft = draftBox.get(customerId);
+    return draft?.cartId; 
   }
 
   Future<void> updateCart(CartItem updatedItem) async {

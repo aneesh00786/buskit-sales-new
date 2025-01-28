@@ -20,9 +20,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_m
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -74,7 +72,6 @@ class CartDialogueState extends State<CartDialogue> {
   ];
 
   List<String> filteredOptions = [];
-
   CustomerAndOrderController customeController =
       Get.put(CustomerAndOrderController());
   final TextEditingController totalQuickController = TextEditingController();
@@ -114,21 +111,30 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-  void _loadCartItems() {
-    try {
-      List<CartItem> storedItems = CartDatabaseManager().getCartItems();
-      cartItems = storedItems;
-      quantities = List.generate(cartItems.length, (index) => 1);
-      total = Utils().getFinalAmount(cartItems);
-      tax = Utils().getTotalTax(cartItems);
-      if (_options.isNotEmpty) {
-        _selectedValue = _options[0];
-      }
-      _isLoading = false;
-    } catch (e) {
-      return null;
+void _loadCartItems() {
+  try {
+    List<CartItem> storedItems = CartDatabaseManager().getCartItems();
+    final customerId = widget.customerOrderController!.customerId.value.isNotEmpty
+        ? widget.customerOrderController?.customerId.value ?? ''
+        : widget.productsController.selectedCustomerId.value; 
+    final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
+    if (draft != null) {
+      storedItems.addAll(draft.items);
     }
+    cartItems = storedItems;
+    quantities = List.generate(cartItems.length + draftItems.length, (index) => 1);
+    total = Utils().getFinalAmount(cartItems);
+    tax = Utils().getTotalTax(cartItems);
+    if (_options.isNotEmpty) {
+      _selectedValue = _options[0];
+    }
+    _isLoading = false;
+  } catch (e) {
+    print('Error loading cart items: $e');
+    return null;
   }
+}
+
     void loadDraft(String customerId) {
     try {
       final draft = CartDatabaseManager().draftBox.get(customerId);

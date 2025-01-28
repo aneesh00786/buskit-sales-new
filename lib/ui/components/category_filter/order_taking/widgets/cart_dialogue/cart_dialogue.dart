@@ -114,27 +114,27 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _loadCartItems() {
     try {
-      List<CartItem> storedItems = CartDatabaseManager().getCartItems();
       final customerId =
           widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController?.customerId.value ?? ''
               : widget.productsController.selectedCustomerId.value;
+
+      // Load cart items
+      cartItems = CartDatabaseManager().getCartItems();
       final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
-      if (draft != null) {
-        storedItems.addAll(draft.items);
-      }
-      cartItems = storedItems;
+      draftItems = draft?.items ?? [];
       quantities =
           List.generate(cartItems.length + draftItems.length, (index) => 1);
-      total = Utils().getFinalAmount(cartItems);
-      tax = Utils().getTotalTax(cartItems);
+      total = Utils().getFinalAmount([...cartItems, ...draftItems]);
+      tax = Utils().getTotalTax([...cartItems, ...draftItems]);
+
       if (_options.isNotEmpty) {
         _selectedValue = _options[0];
       }
+
       _isLoading = false;
     } catch (e) {
       print('Error loading cart items: $e');
-      return null;
     }
   }
 
@@ -305,10 +305,12 @@ class CartDialogueState extends State<CartDialogue> {
                             : widget
                                 .productsController.selectedCustomerId.value,
                       );
-                      cartProvider.updateCartCount(customeController.customerId.isNotEmpty
+                      cartProvider.updateCartCount(
+                        customeController.customerId.isNotEmpty
                             ? customeController.customerId.value
                             : widget
-                                .productsController.selectedCustomerId.value,);
+                                .productsController.selectedCustomerId.value,
+                      );
                     },
                     child: const Text('OK'),
                   ),
@@ -495,7 +497,7 @@ class CartDialogueState extends State<CartDialogue> {
                       )
                     ],
                     if (isOrder) ...[
-                      cartItems.isEmpty && draftItems.isEmpty
+                      (cartItems.isEmpty && draftItems.isEmpty)
                           ? SizedBox(
                               height: 100,
                               child: Center(
@@ -508,22 +510,26 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                             )
                           : Container(),
-                      cartItems.isEmpty
-                          ? Container()
-                          : Flexible(
+                      (cartItems.isNotEmpty || draftItems.isNotEmpty)
+                          ? Flexible(
                               child: SizedBox(
                                 height: dialogHeight * 0.5,
                                 child: SingleChildScrollView(
                                   child: Column(
-                                    children: cartItems
-                                        .map((cartItem) => cartItem.productName)
+                                    children: [...cartItems, ...draftItems]
+                                        .map((item) => item.productName)
                                         .toSet()
                                         .toList()
                                         .map((productName) {
-                                      List<CartItem> groupedItems = cartItems
+                                      // Group combined items by productName
+                                      List<CartItem> groupedItems = [
+                                        ...cartItems,
+                                        ...draftItems
+                                      ]
                                           .where((item) =>
                                               item.productName == productName)
                                           .toList();
+
                                       return Padding(
                                         padding:
                                             const EdgeInsets.only(bottom: 20),
@@ -614,7 +620,8 @@ class CartDialogueState extends State<CartDialogue> {
                                   ),
                                 ),
                               ),
-                            ),
+                            )
+                          : Container(),
                     ],
                     if (!isOrder) ...[
                       preorderItems.isEmpty
@@ -739,119 +746,119 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                             ),
                     ],
-                    if (cartItems.isEmpty && preorderItems.isEmpty) ...[
-                      draftItems.isEmpty
-                          ? SizedBox()
-                          : Flexible(
-                              child: SizedBox(
-                                height: dialogHeight * 0.5,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: draftItems
-                                        .map((cartItem) => cartItem.productName)
-                                        .toSet()
-                                        .toList()
-                                        .map((productName) {
-                                      List<CartItem> groupedDraftItems =
-                                          draftItems
-                                              .where((item) =>
-                                                  item.productName ==
-                                                  productName)
-                                              .toList();
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Stack(
-                                              alignment: Alignment.bottomCenter,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child:
-                                                          CustomHeaderContainer(
-                                                        text: productName,
-                                                        fontSize: fontSize,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 50,
-                                                      child: Center(
-                                                        child: IconButton(
-                                                          onPressed: () {
-                                                            showVariantDeleteDialog(
-                                                                context,
-                                                                productName,
-                                                                false,
-                                                                true);
-                                                          },
-                                                          icon: Icon(
-                                                            EneftyIcons
-                                                                .trash_bold,
-                                                            size: 28,
-                                                            color: Colors.red,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Container(
-                                                  height: 3.5,
-                                                  color: lightPrimaryColor,
-                                                  width: double.infinity,
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 10.0),
-                                                    child: DataTable(
-                                                      headingRowHeight: 30,
-                                                      dataRowHeight: rowHeight,
-                                                      horizontalMargin: 5,
-                                                      columnSpacing:
-                                                          columnSpacing,
-                                                      columns: DataTableColumns
-                                                          .getColumns(fontSize),
-                                                      rows: GroupedItemDataRows
-                                                          .getRows(
-                                                        groupedItems:
-                                                            groupedDraftItems,
-                                                        fontSize:
-                                                            availableWidth / 55,
-                                                        availableWidth:
-                                                            availableWidth,
-                                                        context: context,
-                                                        productQuantityManager:
-                                                            draftQuantityManager,
-                                                        deleteConfirmationDialogue:
-                                                            deleteDraftConfirmationDialogue,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                    ],
+                    // if (cartItems.isEmpty && preorderItems.isEmpty) ...[
+                    //   draftItems.isEmpty
+                    //       ? SizedBox()
+                    //       : Flexible(
+                    //           child: SizedBox(
+                    //             height: dialogHeight * 0.5,
+                    //             child: SingleChildScrollView(
+                    //               child: Column(
+                    //                 children: draftItems
+                    //                     .map((cartItem) => cartItem.productName)
+                    //                     .toSet()
+                    //                     .toList()
+                    //                     .map((productName) {
+                    //                   List<CartItem> groupedDraftItems =
+                    //                       draftItems
+                    //                           .where((item) =>
+                    //                               item.productName ==
+                    //                               productName)
+                    //                           .toList();
+                    //                   return Padding(
+                    //                     padding:
+                    //                         const EdgeInsets.only(bottom: 20),
+                    //                     child: Column(
+                    //                       crossAxisAlignment:
+                    //                           CrossAxisAlignment.start,
+                    //                       children: [
+                    //                         Stack(
+                    //                           alignment: Alignment.bottomCenter,
+                    //                           children: [
+                    //                             Row(
+                    //                               mainAxisAlignment:
+                    //                                   MainAxisAlignment
+                    //                                       .spaceBetween,
+                    //                               children: [
+                    //                                 Expanded(
+                    //                                   child:
+                    //                                       CustomHeaderContainer(
+                    //                                     text: productName,
+                    //                                     fontSize: fontSize,
+                    //                                   ),
+                    //                                 ),
+                    //                                 SizedBox(
+                    //                                   width: 50,
+                    //                                   child: Center(
+                    //                                     child: IconButton(
+                    //                                       onPressed: () {
+                    //                                         showVariantDeleteDialog(
+                    //                                             context,
+                    //                                             productName,
+                    //                                             false,
+                    //                                             true);
+                    //                                       },
+                    //                                       icon: Icon(
+                    //                                         EneftyIcons
+                    //                                             .trash_bold,
+                    //                                         size: 28,
+                    //                                         color: Colors.red,
+                    //                                       ),
+                    //                                     ),
+                    //                                   ),
+                    //                                 )
+                    //                               ],
+                    //                             ),
+                    //                             Container(
+                    //                               height: 3.5,
+                    //                               color: lightPrimaryColor,
+                    //                               width: double.infinity,
+                    //                             ),
+                    //                           ],
+                    //                         ),
+                    //                         Row(
+                    //                           children: [
+                    //                             Expanded(
+                    //                               child: Padding(
+                    //                                 padding: const EdgeInsets
+                    //                                     .symmetric(
+                    //                                     horizontal: 10.0),
+                    //                                 child: DataTable(
+                    //                                   headingRowHeight: 30,
+                    //                                   dataRowHeight: rowHeight,
+                    //                                   horizontalMargin: 5,
+                    //                                   columnSpacing:
+                    //                                       columnSpacing,
+                    //                                   columns: DataTableColumns
+                    //                                       .getColumns(fontSize),
+                    //                                   rows: GroupedItemDataRows
+                    //                                       .getRows(
+                    //                                     groupedItems:
+                    //                                         groupedDraftItems,
+                    //                                     fontSize:
+                    //                                         availableWidth / 55,
+                    //                                     availableWidth:
+                    //                                         availableWidth,
+                    //                                     context: context,
+                    //                                     productQuantityManager:
+                    //                                         draftQuantityManager,
+                    //                                     deleteConfirmationDialogue:
+                    //                                         deleteDraftConfirmationDialogue,
+                    //                                   ),
+                    //                                 ),
+                    //                               ),
+                    //                             )
+                    //                           ],
+                    //                         ),
+                    //                       ],
+                    //                     ),
+                    //                   );
+                    //                 }).toList(),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ),
+                    // ],
                     const SizedBox(
                       height: 10,
                     ),
@@ -2191,20 +2198,36 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void _deleteVariant(
-    CartItem variantToDelete,
-    List<CartItem> groupedItems,
-  ) {
-    setState(() {
-      groupedItems.remove(variantToDelete);
-      cartItems.removeWhere((item) =>
-          item.productName == variantToDelete.productName &&
-          item.detail.variationName == variantToDelete.detail.variationName);
+void _deleteVariant(
+  CartItem variantToDelete,
+  List<CartItem> combinedItems,
+) {
+      String customerId =
+        widget.customerOrderController!.customerId.value.isNotEmpty
+            ? widget.customerOrderController?.customerId.value ?? ''
+            : widget.productsController.selectedCustomerId.value;
+  setState(() {
+    cartItems.removeWhere((item) =>
+        item.productName == variantToDelete.productName &&
+        item.detail.variationName == variantToDelete.detail.variationName);
+
+    draftItems.removeWhere((item) =>
+        item.productName == variantToDelete.productName &&
+        item.detail.variationName == variantToDelete.detail.variationName);
+    combinedItems.remove(variantToDelete);
+    if (draftItems.any((item) => item == variantToDelete)) {
+      CartDatabaseManager().deleteDraftItem(
+          customerId,variantToDelete.detail.variationId ?? '');
+    } else {
       CartDatabaseManager().deleteCartItem(variantToDelete);
-      total = Utils().getFinalAmount(cartItems);
-      tax = Utils().getTotalTax(cartItems);
-    });
-  }
+    }
+    total = Utils().getFinalAmount([...cartItems, ...draftItems]);
+    tax = Utils().getTotalTax([...cartItems, ...draftItems]);
+  });
+
+  log('Deleted variant: ${variantToDelete.detail.variationName}');
+}
+
 
   void _deletePreorderVariant(
       CartItem variantToDelete, List<CartItem> groupedItems) {
@@ -2222,8 +2245,8 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _deleteDraftderVariant(
       CartItem variantToDelete, List<CartItem> draftItems, String customerId) {
+        
     setState(() {
-      draftItems.remove(variantToDelete);
       draftItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
@@ -2231,8 +2254,9 @@ class CartDialogueState extends State<CartDialogue> {
           customerId, variantToDelete.detail.variationId ?? '');
       draftTotal = Utils().getFinalAmount(draftItems);
       draftTax = Utils().getTotalTax(draftItems);
+      _loadCartItems();
     });
-    loadDraft(customerId);
+
     log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
   }
 

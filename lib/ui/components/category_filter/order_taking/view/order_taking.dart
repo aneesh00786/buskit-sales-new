@@ -707,7 +707,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                                 .map((e) =>
                                                                     e.detail)
                                                                 .toList();
-
                                                         final productBYData =
                                                             AddToCartModel(
                                                           customerId:

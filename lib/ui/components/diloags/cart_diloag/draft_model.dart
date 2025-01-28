@@ -13,16 +13,21 @@ class Draft extends HiveObject {
   @HiveField(2)
   final String cartId;
 
+  @HiveField(3)
+  final String draftId;
+
   Draft({
     required this.customerId,
     required this.items,
     required this.cartId,
+    required this.draftId,
   });
   factory Draft.fromJson(Map<String, dynamic> json) {
     return Draft(
       customerId: json['customerId'],
       items: (json['items'] as List).map((item) => CartItem.fromJson(item)).toList(),
       cartId: json['cart_id'],
+      draftId: json['id'],
     );
   }
 
@@ -31,6 +36,7 @@ class Draft extends HiveObject {
       'customerId': customerId,
       'items': items.map((item) => item.toJson()).toList(),
       'cart_id': cartId,
+      'id': draftId,
     };
   }
 }

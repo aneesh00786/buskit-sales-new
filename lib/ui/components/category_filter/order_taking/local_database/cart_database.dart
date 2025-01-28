@@ -212,7 +212,7 @@ class CartDatabaseManager {
     }
   }
 
-  Future<void> saveCartAsDraft(String customerId,String cartId) async {
+  Future<void> saveCartAsDraft(String customerId,String cartId,String draftId) async {
     if (customerId.isEmpty) {
       log('Error: Customer ID is required to save a draft.');
       return;
@@ -256,6 +256,7 @@ class CartDatabaseManager {
         customerId: customerId,
         cartId: cartId,
         items: updatedDraftItems,
+        draftId: draftId,
       );
       log('Draft : ${draft.cartId}');
       await CartDatabaseManager().draftBox.put(customerId, draft);
@@ -264,10 +265,17 @@ class CartDatabaseManager {
       log('Error saving cart as draft: $e');
     }
   }
-    String? getSavedCartId(String customerId) {
-    final draft = draftBox.get(customerId);
-    return draft?.cartId; 
+Map<String, String?>? getSavedCartData(String customerId) {
+  final draft = draftBox.get(customerId);
+  if (draft != null) {
+    return {
+      'cart_id': draft.cartId,
+      'id': draft.draftId,
+    };
   }
+  return null;
+}
+
 
   Future<void> updateCart(CartItem updatedItem) async {
     await _cartBox.put(updatedItem.key, updatedItem);
@@ -294,7 +302,8 @@ class CartDatabaseManager {
         final updatedDraft = Draft(
           customerId: existingDraft.customerId,
           items: updatedItems,
-          cartId: ''
+          cartId: '',
+          draftId: '',
         );
         await draftBox.put(customerId, updatedDraft);
         log('Draft updated successfully for customer ID: $customerId');
@@ -326,7 +335,8 @@ class CartDatabaseManager {
       final updatedDraft = Draft(
         customerId: existingDraft.customerId,
         items: updatedItems,
-        cartId: ''
+        cartId: '',
+        draftId: ''
       );
       draftBox.put(customerId, updatedDraft);
       log('Draft item deleted for customer ID: $customerId');
@@ -345,7 +355,8 @@ class CartDatabaseManager {
       final updatedDraft = Draft(
         customerId: existingDraft.customerId,
         items: updatedItems,
-        cartId: ''
+        cartId: '',
+        draftId: '',
       );
 
       draftBox.put(customerId, updatedDraft);

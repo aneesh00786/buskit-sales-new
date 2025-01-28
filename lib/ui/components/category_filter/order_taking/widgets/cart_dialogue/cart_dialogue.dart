@@ -51,6 +51,7 @@ class CartDialogue extends StatefulWidget {
 
 class CartDialogueState extends State<CartDialogue> {
   late List<CartItem> cartItems;
+  late List<CartItem> combinedList;
   late List<CartItem> preorderItems;
   List<CartItem> draftItems = [];
   List<int> quantities = [];
@@ -112,31 +113,33 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-  void _loadCartItems() {
-    try {
-      final customerId =
-          widget.customerOrderController!.customerId.value.isNotEmpty
-              ? widget.customerOrderController?.customerId.value ?? ''
-              : widget.productsController.selectedCustomerId.value;
+void _loadCartItems() {
+  try {
+    final customerId = widget.customerOrderController!.customerId.value.isNotEmpty
+        ? widget.customerOrderController!.customerId.value
+        : widget.productsController.selectedCustomerId.value;
 
-      // Load cart items
-      cartItems = CartDatabaseManager().getCartItems();
-      final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
-      draftItems = draft?.items ?? [];
-      quantities =
-          List.generate(cartItems.length + draftItems.length, (index) => 1);
-      total = Utils().getFinalAmount([...cartItems, ...draftItems]);
-      tax = Utils().getTotalTax([...cartItems, ...draftItems]);
+    cartItems = CartDatabaseManager().getCartItems();
+    final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
+    draftItems = draft?.items ?? [];
 
-      if (_options.isNotEmpty) {
-        _selectedValue = _options[0];
-      }
-
+    setState(() {
+      combinedList = [...cartItems, ...draftItems];
+      quantities = List.generate(combinedList.length, (index) => 1);
+      total = Utils().getFinalAmount(combinedList);
+      tax = Utils().getTotalTax(combinedList);
       _isLoading = false;
-    } catch (e) {
-      print('Error loading cart items: $e');
+    });
+
+    if (_options.isNotEmpty) {
+      _selectedValue = _options[0];
     }
+  } catch (e) {
+    print('Error loading cart items: $e');
   }
+}
+
+
 
   void loadDraft(String customerId) {
     try {
@@ -244,11 +247,7 @@ class CartDialogueState extends State<CartDialogue> {
     log('CartId :${cartOrder?.cartId}');
     log('Pack or pcs :${productBYData.cartList.first.pack}');
     log('Pack or pcs :${productBYData.cartList.first.packType}');
-    CartDatabaseManager().saveCartAsDraft(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-        cartOrder?.cartId ?? '');
+
     if (cartOrder != null) {
       int orderStatus = 4;
       log('Selected Customer ID :${customeController.customerId.isNotEmpty ? {
@@ -263,9 +262,10 @@ class CartDialogueState extends State<CartDialogue> {
         orderStatus: orderStatus,
       );
       log('CartId :${cartOrder.cartId}');
-      await placeOrder(order, (statusCode, message) {
+      await placeOrder(order, (statusCode, message, response) {
         Navigator.pop(context);
         if (statusCode == 200) {
+          final draftId = response?['id'];
           isOrder
               ? _clearCartItem(cartItems)
               : _clearPreorderCartItem(preorderItems);
@@ -318,6 +318,12 @@ class CartDialogueState extends State<CartDialogue> {
               );
             },
           );
+          CartDatabaseManager().saveCartAsDraft(
+              customeController.customerId.isNotEmpty
+                  ? customeController.customerId.value
+                  : widget.productsController.selectedCustomerId.value,
+              cartOrder?.cartId ?? '',
+              draftId);
         } else {
           showDialog(
             context: context,
@@ -497,7 +503,7 @@ class CartDialogueState extends State<CartDialogue> {
                       )
                     ],
                     if (isOrder) ...[
-                      (cartItems.isEmpty && draftItems.isEmpty)
+                      (combinedList.isEmpty)
                           ? SizedBox(
                               height: 100,
                               child: Center(
@@ -510,21 +516,18 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                             )
                           : Container(),
-                      (cartItems.isNotEmpty || draftItems.isNotEmpty)
+                      (combinedList.isNotEmpty)
                           ? Flexible(
                               child: SizedBox(
                                 height: dialogHeight * 0.5,
                                 child: SingleChildScrollView(
                                   child: Column(
-                                    children: [...cartItems, ...draftItems]
+                                    children: combinedList
                                         .map((item) => item.productName)
                                         .toSet()
                                         .toList()
                                         .map((productName) {
-                                      List<CartItem> groupedItems = [
-                                        ...cartItems,
-                                        ...draftItems
-                                      ]
+                                      List<CartItem> groupedItems = combinedList
                                           .where((item) =>
                                               item.productName == productName)
                                           .toList();
@@ -1398,10 +1401,6 @@ class CartDialogueState extends State<CartDialogue> {
                                     log('CartId :${cartOrder?.cartId}');
                                     log('Pack or pcs :${productBYData.cartList.first.pack}');
                                     log('Pack or pcs :${productBYData.cartList.first.packType}');
-                                    CartDatabaseManager().saveCartAsDraft(
-                                        widget.productsController
-                                            .selectedCustomerId.value,
-                                        cartOrder?.cartId ?? '');
 
                                     if (cartOrder != null) {
                                       int orderStatus = 4;
@@ -1419,10 +1418,11 @@ class CartDialogueState extends State<CartDialogue> {
 
                                       log('CartId :${cartOrder.cartId}');
                                       await placeOrder(order,
-                                          (statusCode, message) {
+                                          (statusCode, message, response) {
                                         Navigator.pop(context);
                                         if (statusCode == 200) {
                                           _clearCartItem(cartItems);
+                                          final draftId = response?['id'];
                                           showDialog(
                                             context: context,
                                             barrierDismissible: false,
@@ -1458,6 +1458,12 @@ class CartDialogueState extends State<CartDialogue> {
                                               );
                                             },
                                           );
+                                          log('Draft ID : $draftId');
+                                          CartDatabaseManager().saveCartAsDraft(
+                                              widget.productsController
+                                                  .selectedCustomerId.value,
+                                              cartOrder.cartId,
+                                              draftId);
                                         } else {
                                           showDialog(
                                             context: context,
@@ -1490,6 +1496,7 @@ class CartDialogueState extends State<CartDialogue> {
                                           );
                                         }
                                       });
+
                                       setState(() {
                                         CartDatabaseManager().cartItems.clear();
                                         CartDatabaseManager().clearCart();
@@ -1509,8 +1516,10 @@ class CartDialogueState extends State<CartDialogue> {
                                         ? customeController.customerId.value
                                         : widget.productsController
                                             .selectedCustomerId.value;
-                                final savedCartId = CartDatabaseManager()
-                                    .getSavedCartId(customerId);
+                                final savedCartData = CartDatabaseManager()
+                                    .getSavedCartData(customerId);
+                                final cartId = savedCartData?['cart_id'] ?? '';
+                                final draftId = savedCartData?['id'] ?? '';
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
@@ -1518,7 +1527,8 @@ class CartDialogueState extends State<CartDialogue> {
                                       finalAmount: finalAmount ?? 0,
                                       paymentType: paymentType,
                                       context: context,
-                                      cartId: savedCartId ?? '',
+                                      cartId: cartId,
+                                      draftId: draftId,
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1534,7 +1544,8 @@ class CartDialogueState extends State<CartDialogue> {
                                   await processSaveAndSend(
                                     finalAmount: finalAmount ?? 0,
                                     context: context,
-                                    cartId: savedCartId ?? '',
+                                    cartId: cartId,
+                                    draftId: draftId
                                   );
                                 }
                               } else {
@@ -1599,6 +1610,7 @@ class CartDialogueState extends State<CartDialogue> {
     required double finalAmount,
     int? paymentType,
     required String cartId,
+    required String draftId,
   }) async {
     List<CartItem> itemList = [...cartItems, ...draftItems];
     final connectivityService = ConnectivityService();
@@ -1636,7 +1648,6 @@ class CartDialogueState extends State<CartDialogue> {
                       isOrder
                           ? _clearCartItem(itemList)
                           : _clearPreorderCartItem(itemList);
-                      
                     });
                   },
                   child: const Text('OK'),
@@ -1750,7 +1761,7 @@ class CartDialogueState extends State<CartDialogue> {
             transactionNumber: chequeOrTransactionNumberController.text.trim(),
             transactionDate: dateController.text.trim(),
           );
-          await placeOrder(order, (statusCode, message) {
+          await placeOrder(order, (statusCode, message, response) {
             Navigator.pop(context);
             if (statusCode == 200) {
               isOrder
@@ -2025,8 +2036,9 @@ class CartDialogueState extends State<CartDialogue> {
                     child: const Text('No')),
                 TextButton(
                     onPressed: () {
-                      final provider = Provider.of<CustomersProvider>(context,listen:false);
-                      _deleteVariant(groupedItem, groupedItems,provider);
+                      final provider = Provider.of<CustomersProvider>(context,
+                          listen: false);
+                      _deleteVariant(groupedItem, provider);
                       Navigator.pop(context);
                     },
                     child: const Text('Yes'))
@@ -2200,36 +2212,31 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void _deleteVariant(
-    CartItem variantToDelete,
-    List<CartItem> combinedItems,
-    CustomersProvider provider
-  ) {
-    String customerId =
-        widget.customerOrderController!.customerId.value.isNotEmpty
-            ? widget.customerOrderController?.customerId.value ?? ''
-            : widget.productsController.selectedCustomerId.value;
-    setState(() {
-      cartItems.removeWhere((item) =>
-          item.productName == variantToDelete.productName &&
-          item.detail.variationName == variantToDelete.detail.variationName);
+void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
+  final String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
+      ? widget.customerOrderController!.customerId.value
+      : widget.productsController.selectedCustomerId.value;
+  setState(() {
+    cartItems.removeWhere((item) =>
+        item.productName == variantToDelete.productName &&
+        item.detail.variationName == variantToDelete.detail.variationName);
+    draftItems.removeWhere((item) =>
+        item.productName == variantToDelete.productName &&
+        item.detail.variationName == variantToDelete.detail.variationName);
+    combinedList = [...cartItems, ...draftItems];
+    if (draftItems.any((item) => item == variantToDelete)) {
+      CartDatabaseManager().deleteDraftItem(
+          customerId, variantToDelete.detail.variationId ?? '');
+    } else {
+      CartDatabaseManager().deleteCartItem(variantToDelete);
+    }
+    total = Utils().getFinalAmount(combinedList);
+    tax = Utils().getTotalTax(combinedList);
+  });
+  provider.updateCartCount(customerId);
+  log('Deleted variant: ${variantToDelete.detail.variationName}');
+}
 
-      draftItems.removeWhere((item) =>
-          item.productName == variantToDelete.productName &&
-          item.detail.variationName == variantToDelete.detail.variationName);
-      combinedItems.remove(variantToDelete);
-      if (draftItems.any((item) => item == variantToDelete)) {
-        CartDatabaseManager().deleteDraftItem(
-            customerId, variantToDelete.detail.variationId ?? '');
-      } else {
-        CartDatabaseManager().deleteCartItem(variantToDelete);
-      }
-      total = Utils().getFinalAmount([...cartItems, ...draftItems]);
-      tax = Utils().getTotalTax([...cartItems, ...draftItems]);
-    });
-    provider.updateCartCount(customerId);
-    log('Deleted variant: ${variantToDelete.detail.variationName}');
-  }
 
   void _deletePreorderVariant(
       CartItem variantToDelete, List<CartItem> groupedItems) {
@@ -2604,10 +2611,12 @@ class CartDialogueState extends State<CartDialogue> {
     });
     log('Cart Item Cleared : $cartPreorderItem');
   }
+
   void _clearDraft(List<CartItem> draftItem) {
-    CartDatabaseManager().clearDraftForCustomer(widget.customerOrderController!.customerId.value.isNotEmpty
-        ? widget.customerOrderController?.customerId.value ?? ''
-        : widget.productsController.selectedCustomerId.value );
+    CartDatabaseManager().clearDraftForCustomer(
+        widget.customerOrderController!.customerId.value.isNotEmpty
+            ? widget.customerOrderController?.customerId.value ?? ''
+            : widget.productsController.selectedCustomerId.value);
     setState(() {
       preorderItems.remove(draftItem);
       preorderQuantities.remove(draftItem);
@@ -2723,27 +2732,38 @@ class CartTextFields extends StatelessWidget {
 
 Future<void> placeOrder(
   CartOrderModel cartOrder,
-  Function(int statusCode, String message) onResponse,
+  Function(int statusCode, String message, Map<String, dynamic>? responseData)
+      onResponse,
 ) async {
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   cartOrder.companyId = companyId;
+
   try {
     log('Assigned companyId: ${cartOrder.companyId}');
     log('Place Order Payload: ${cartOrder.toJson()}');
+
     final response = await Dio().post(
       "http://16.50.232.153:3000/place_order",
       data: cartOrder.toJson(),
     );
+
     log('Response status code: ${response.statusCode}');
+
     if (response.statusCode == 200) {
       log('Order placed successfully: ${response.data}');
-      onResponse(200, 'Your order has been successfully placed.');
+      // Pass the response data to the callback
+      onResponse(
+          200, 'Your order has been successfully placed.', response.data);
     } else {
       log('Failed to place order: ${response.data}');
-      onResponse(response.statusCode ?? 500, 'Failed to place your order.');
+      onResponse(
+        response.statusCode ?? 500,
+        'Failed to place your order.',
+        response.data,
+      );
     }
   } catch (e) {
     log('Error placing order: $e');
-    onResponse(500, 'An error occurred while placing the order.');
+    onResponse(500, 'An error occurred while placing the order.', null);
   }
 }

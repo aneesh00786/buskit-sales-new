@@ -84,45 +84,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
   ApiWorker apiWorker = Get.put(ApiWorker());
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
     log('Is Calender :${widget.isFromCalendar}');
     log('Calender Calender Customer ID :${widget.cusId}');
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      bool isConnected = await ConnectivityService().isOnline();
-      if (isConnected) {
-        await _initializeCustomerData();
-      } else {
-        showNoInternetSnackBar(context);
-        return;
-      }
-      final customerId = widget.productsController?.selectedCustomerId.value;
-
-      if (customerId!.isEmpty) {
-        log('Error: Customer ID is empty, initialization failed.');
-        return;
-      }
-      final customersProvider =
-          Provider.of<CustomersProvider>(context, listen: false);
-      customersProvider.fetchCustomerDashboardData(
-        customerId,
-        selectedYear,
-        widget.startDate,
-        widget.endDate,
-      );
-      customersProvider.fetchCustomerDashboardRevenueData(
-        customerId,
-        selectedYear,
-        widget.startDate,
-        widget.endDate,
-      );
-      customersProvider.fetchCustomerDashboardDataSalseData(
-        customerId,
-        selectedYear,
-      );
-      customersProvider.fetchCustomersDataDash(customerId ?? '');
-    });
+    _refreshScreen();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
     _tabController.addListener(() {
@@ -131,6 +99,47 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             .read<CustomersProvider>()
             .setSelectedIndex(_tabController.index);
       }
+    });
+  }
+
+  void _refreshScreen() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bool isConnected = await ConnectivityService().isOnline();
+      if (isConnected) {
+        await _initializeCustomerData();
+        final customerId = widget.productsController?.selectedCustomerId.value;
+        if (customerId != null && customerId.isNotEmpty) {
+          final customersProvider =
+              Provider.of<CustomersProvider>(context, listen: false);
+          customersProvider.fetchCustomerDashboardData(
+            customerId,
+            selectedYear,
+            widget.startDate,
+            widget.endDate,
+          );
+          customersProvider.fetchCustomerDashboardRevenueData(
+            customerId,
+            selectedYear,
+            widget.startDate,
+            widget.endDate,
+          );
+          customersProvider.fetchCustomerDashboardDataSalseData(
+            customerId,
+            selectedYear,
+          );
+          customersProvider.fetchCustomersDataDash(customerId);
+          customersProvider.fetchCustomerDashboardCountData(customerId);
+        }
+      } else {
+        showNoInternetSnackBar(context);
+      }
+      setState(() {
+        _isLoading = false;
+      });
     });
   }
 
@@ -232,7 +241,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               onPressed: () {
                 customerOrderController
                     .setCustomerId(customerOrderController.customerId.value);
-                  log('Customer Id :${customerOrderController.customerId.value}');
+                log('Customer Id :${customerOrderController.customerId.value}');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -243,7 +252,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       isFromOrder: widget.isFromOrder,
                     ),
                   ),
-                );
+                ).then((value) {
+                  _refreshScreen();
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,

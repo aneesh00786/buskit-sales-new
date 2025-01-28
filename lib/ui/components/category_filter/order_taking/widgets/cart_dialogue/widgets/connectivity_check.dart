@@ -108,7 +108,7 @@ Future<void> syncOfflineOrders() async {
           );
 
           log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
-          await placeOrder(orderPayload, (statusCode, message) async {
+          await placeOrder(orderPayload, (statusCode, message,response) async {
             if (statusCode == 200) {
               log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
               await offlineOrdersBox.delete(order);

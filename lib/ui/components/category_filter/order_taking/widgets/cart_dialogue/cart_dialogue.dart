@@ -236,16 +236,17 @@ void _loadCartItems() {
       total: widget.productsController.finalAmount.value.toStringAsFixed(0),
       discount: '0',
     );
-    CartDatabaseManager().saveCartAsDraft(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    );
     CartOrderModel? cartOrder =
         await ApiWorker().addToCart(productBYData.toJson());
     log('CartId :${cartOrder?.cartId}');
     log('Pack or pcs :${productBYData.cartList.first.pack}');
     log('Pack or pcs :${productBYData.cartList.first.packType}');
+    CartDatabaseManager().saveCartAsDraft(
+      customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value,
+      cartOrder?.cartId??''
+    );
     if (cartOrder != null) {
       int orderStatus = 4;
       log('Selected Customer ID :${customeController.customerId.isNotEmpty ? {
@@ -1378,7 +1379,10 @@ void _loadCartItems() {
                                     CartDatabaseManager().saveCartAsDraft(
                                       widget.productsController
                                           .selectedCustomerId.value,
+                                          cartOrder?.cartId??''
+                                          
                                     );
+                                
                                     if (cartOrder != null) {
                                       int orderStatus = 4;
                                       CartOrderModel order = CartOrderModel(

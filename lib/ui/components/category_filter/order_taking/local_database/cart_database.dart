@@ -212,7 +212,7 @@ class CartDatabaseManager {
     }
   }
 
-  Future<void> saveCartAsDraft(String customerId) async {
+  Future<void> saveCartAsDraft(String customerId,String cartId) async {
     if (customerId.isEmpty) {
       log('Error: Customer ID is required to save a draft.');
       return;
@@ -252,9 +252,9 @@ class CartDatabaseManager {
       } else {
         updatedDraftItems = cartItems;
       }
-
       final draft = Draft(
         customerId: customerId,
+        cartId: cartId,
         items: updatedDraftItems,
       );
       await CartDatabaseManager().draftBox.put(customerId, draft);
@@ -289,6 +289,7 @@ class CartDatabaseManager {
         final updatedDraft = Draft(
           customerId: existingDraft.customerId,
           items: updatedItems,
+          cartId: ''
         );
         await draftBox.put(customerId, updatedDraft);
         log('Draft updated successfully for customer ID: $customerId');
@@ -320,6 +321,7 @@ class CartDatabaseManager {
       final updatedDraft = Draft(
         customerId: existingDraft.customerId,
         items: updatedItems,
+        cartId: ''
       );
       draftBox.put(customerId, updatedDraft);
       log('Draft item deleted for customer ID: $customerId');
@@ -338,6 +340,7 @@ class CartDatabaseManager {
       final updatedDraft = Draft(
         customerId: existingDraft.customerId,
         items: updatedItems,
+        cartId: ''
       );
 
       draftBox.put(customerId, updatedDraft);

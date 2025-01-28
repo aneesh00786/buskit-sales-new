@@ -19,17 +19,20 @@ class DraftAdapter extends TypeAdapter<Draft> {
     return Draft(
       customerId: fields[0] as String,
       items: (fields[1] as List).cast<CartItem>(),
+      cartId: fields[2] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Draft obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.customerId)
       ..writeByte(1)
-      ..write(obj.items);
+      ..write(obj.items)
+      ..writeByte(2)
+      ..write(obj.cartId);
   }
 
   @override

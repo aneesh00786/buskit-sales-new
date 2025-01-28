@@ -521,7 +521,6 @@ class CartDialogueState extends State<CartDialogue> {
                                         .toSet()
                                         .toList()
                                         .map((productName) {
-                                      // Group combined items by productName
                                       List<CartItem> groupedItems = [
                                         ...cartItems,
                                         ...draftItems
@@ -1601,8 +1600,7 @@ class CartDialogueState extends State<CartDialogue> {
     int? paymentType,
     required String cartId,
   }) async {
-    List<CartItem> itemList = isOrder ? cartItems : preorderItems;
-
+    List<CartItem> itemList = [...cartItems, ...draftItems];
     final connectivityService = ConnectivityService();
 
     if (itemList.isNotEmpty &&
@@ -1743,7 +1741,7 @@ class CartDialogueState extends State<CartDialogue> {
                 : widget.productsController.selectedCustomerId.value,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
             cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
-            orderStatus: 11,
+            orderStatus: orderStatus,
             orderPrice: finalAmount,
             paymentType: paymentType.toString(),
             companyId: companyId,
@@ -1757,6 +1755,7 @@ class CartDialogueState extends State<CartDialogue> {
               isOrder
                   ? _clearCartItem(itemList)
                   : _clearPreorderCartItem(itemList);
+              log('ItemList Length ${itemList.length}');
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -2198,36 +2197,35 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-void _deleteVariant(
-  CartItem variantToDelete,
-  List<CartItem> combinedItems,
-) {
-      String customerId =
+  void _deleteVariant(
+    CartItem variantToDelete,
+    List<CartItem> combinedItems,
+  ) {
+    String customerId =
         widget.customerOrderController!.customerId.value.isNotEmpty
             ? widget.customerOrderController?.customerId.value ?? ''
             : widget.productsController.selectedCustomerId.value;
-  setState(() {
-    cartItems.removeWhere((item) =>
-        item.productName == variantToDelete.productName &&
-        item.detail.variationName == variantToDelete.detail.variationName);
+    setState(() {
+      cartItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
 
-    draftItems.removeWhere((item) =>
-        item.productName == variantToDelete.productName &&
-        item.detail.variationName == variantToDelete.detail.variationName);
-    combinedItems.remove(variantToDelete);
-    if (draftItems.any((item) => item == variantToDelete)) {
-      CartDatabaseManager().deleteDraftItem(
-          customerId,variantToDelete.detail.variationId ?? '');
-    } else {
-      CartDatabaseManager().deleteCartItem(variantToDelete);
-    }
-    total = Utils().getFinalAmount([...cartItems, ...draftItems]);
-    tax = Utils().getTotalTax([...cartItems, ...draftItems]);
-  });
+      draftItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      combinedItems.remove(variantToDelete);
+      if (draftItems.any((item) => item == variantToDelete)) {
+        CartDatabaseManager().deleteDraftItem(
+            customerId, variantToDelete.detail.variationId ?? '');
+      } else {
+        CartDatabaseManager().deleteCartItem(variantToDelete);
+      }
+      total = Utils().getFinalAmount([...cartItems, ...draftItems]);
+      tax = Utils().getTotalTax([...cartItems, ...draftItems]);
+    });
 
-  log('Deleted variant: ${variantToDelete.detail.variationName}');
-}
-
+    log('Deleted variant: ${variantToDelete.detail.variationName}');
+  }
 
   void _deletePreorderVariant(
       CartItem variantToDelete, List<CartItem> groupedItems) {
@@ -2245,7 +2243,6 @@ void _deleteVariant(
 
   void _deleteDraftderVariant(
       CartItem variantToDelete, List<CartItem> draftItems, String customerId) {
-        
     setState(() {
       draftItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&

@@ -2025,7 +2025,8 @@ class CartDialogueState extends State<CartDialogue> {
                     child: const Text('No')),
                 TextButton(
                     onPressed: () {
-                      _deleteVariant(groupedItem, groupedItems);
+                      final provider = Provider.of<CustomersProvider>(context,listen:false);
+                      _deleteVariant(groupedItem, groupedItems,provider);
                       Navigator.pop(context);
                     },
                     child: const Text('Yes'))
@@ -2202,6 +2203,7 @@ class CartDialogueState extends State<CartDialogue> {
   void _deleteVariant(
     CartItem variantToDelete,
     List<CartItem> combinedItems,
+    CustomersProvider provider
   ) {
     String customerId =
         widget.customerOrderController!.customerId.value.isNotEmpty
@@ -2225,7 +2227,7 @@ class CartDialogueState extends State<CartDialogue> {
       total = Utils().getFinalAmount([...cartItems, ...draftItems]);
       tax = Utils().getTotalTax([...cartItems, ...draftItems]);
     });
-
+    provider.updateCartCount(customerId);
     log('Deleted variant: ${variantToDelete.detail.variationName}');
   }
 

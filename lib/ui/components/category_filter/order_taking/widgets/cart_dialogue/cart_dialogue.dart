@@ -2187,9 +2187,10 @@ void _loadCartItems() {
                   _deletePreorderItem(productName);
                 } else if (!isDraft) {
                   _deleteItem(productName);
+                  loadDraft(customerId);
                 } else {
                   _deleteDraftItem(productName, customerId);
-                  loadDraft(customerId);
+                  
                   log('Draft Delete Clicked : ${customerId}');
                 }
                 Navigator.pop(context);
@@ -2624,29 +2625,38 @@ void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     log('Cart Item Cleared : $draftItem');
   }
 
-  void _deleteItem(String productName) {
-    final itemsToDelete =
-        cartItems.where((item) => item.productName == productName).toList();
-    for (var item in itemsToDelete) {
+void _deleteItem(String productName) {
+  setState(() {
+    final itemsToDeleteFromCart = cartItems.where((item) => item.productName == productName).toList();
+    for (var item in itemsToDeleteFromCart) {
       CartDatabaseManager().deleteCartItem(item);
     }
-    setState(() {
-      List<int> indicesToRemove = [];
-      for (int i = 0; i < cartItems.length; i++) {
-        if (cartItems[i].productName == productName) {
-          indicesToRemove.add(i);
-        }
+    cartItems.removeWhere((item) => item.productName == productName);
+    final itemsToDeleteFromDraft = draftItems.where((item) => item.productName == productName).toList();
+    for (var item in itemsToDeleteFromDraft) {
+      String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
+          ? widget.customerOrderController!.customerId.value
+          : widget.productsController.selectedCustomerId.value;
+      CartDatabaseManager().deleteDraftItem(customerId, item.detail.variationId ?? '');
+    }
+    draftItems.removeWhere((item) => item.productName == productName);
+    List<int> indicesToRemove = [];
+    for (int i = 0; i < combinedList.length; i++) {
+      if (combinedList[i].productName == productName) {
+        indicesToRemove.add(i);
       }
-      cartItems.removeWhere((item) => item.productName == productName);
-      for (int index in indicesToRemove.reversed) {
-        quantities.removeAt(index);
-      }
-      total = Utils().getFinalAmount(cartItems);
-      tax = Utils().getTotalTax(cartItems);
-    });
+    }
+    for (int index in indicesToRemove.reversed) {
+      quantities.removeAt(index);
+    }
+    combinedList = [...cartItems, ...draftItems];
+    total = Utils().getFinalAmount(combinedList);
+    tax = Utils().getTotalTax(combinedList);
+  });
 
-    log('Cart items deleted for product: $productName');
-  }
+  log('Items deleted for product: $productName');
+}
+
 
   void _deletePreorderItem(String productName) {
     final itemsToDelete =

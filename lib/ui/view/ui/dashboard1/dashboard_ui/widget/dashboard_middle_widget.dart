@@ -54,8 +54,6 @@ import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:image/image.dart' as img;
-
-// ignore: must_be_immutable
 class DashBoardMiddleWidget extends StatefulWidget {
   final DashBoardController dashBoardController;
   BuildContext context;

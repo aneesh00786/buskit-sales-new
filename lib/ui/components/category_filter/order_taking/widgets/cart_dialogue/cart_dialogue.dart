@@ -119,6 +119,7 @@ void _loadCartItems() {
     cartItems = CartDatabaseManager().getCartItems();
     final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
     draftItems = draft?.items ?? [];
+    combinedList = [...cartItems, ...draftItems];
     setState(() {
       quantities = List.generate(cartItems.length, (index) => 1);
       total = Utils().getFinalAmount(cartItems);

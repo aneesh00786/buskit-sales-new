@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart' as font1;
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -25,6 +26,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dash_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/editabledatacell_new.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/custom_toast.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_category_chart_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_revenue_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/order_payment_enlarge_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
@@ -422,16 +425,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
   }
 
-  Expanded Category(BuildContext context) {
-    return Expanded(
-        child: Padding(
-      padding: const EdgeInsets.all(5.0),
+  Widget Category(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
         boxShadow: [
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
             blurRadius: 5,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 25,
@@ -445,36 +447,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               children: [
                 Row(
                   children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => DashboardScreen(
-                                      cus: widget.productsController
-                                              ?.selectedCategoryId.value ??
-                                          '',
-                                      y: '2024',
-                                    )));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(25),
-                            bottomRight: Radius.circular(25),
-                          ),
-                        ),
-                        padding: const EdgeInsets.only(
-                            right: 20, left: 20, top: 5, bottom: 5),
-                        child: Text(
-                          'Category Sales',
-                          style: cardHeadingTextStyle,
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
-                      ),
-                    ),
+                    dashboardContainerHeader('Category Sales'),
                     const SizedBox(width: 14),
                     Container(
                       height: MediaQuery.of(context).orientation ==
@@ -497,21 +470,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         onChanged: (int? newValue) {
                           setState(() {
                             selectedYear = newValue!;
+                            // Fetch data for the selected year
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                                    widget.productsController
-                                            ?.selectedCategoryId.value ??
-                                        '',
+                                    widget.cusId??'',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.productsController
-                                            ?.selectedCategoryId.value ??
-                                        '',
+                                    widget.cusId??'',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
@@ -528,11 +498,39 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             .toList(),
                       ),
                     ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20, top: 2),
+                      child: InkWell(
+                        onTap: () {
+                          showCustomerCategoryChartDialog(
+                            context,
+                            "Category Sales",
+                            widget.cusId??'',
+                            selectedYear,
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: primaryColor.withOpacity(0.3)),
+                          child: const Padding(
+                            padding: EdgeInsets.all(5.0),
+                            child: Icon(
+                              Icons.open_in_new,
+                              size: 17,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 nkSmallSizeBox(),
                 Expanded(
-                  child: Scrollbar(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Consumer<CustomersProvider>(
                       builder: (context, provider, child) {
                         return FutureBuilder<ApiResponseModel>(
@@ -546,20 +544,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               return Center(
                                   child: Text('Error: ${snapshot.error}'));
                             } else if (!snapshot.hasData) {
-                              return const NodataWidget();
+                              return const Center(
+                                  child: Text('No data available'));
                             } else {
                               final responseModel = snapshot.data!;
                               final categoryPerformance =
                                   snapshot.data!.data.categoryPerformance;
-                              // Map categoryPerformance to a list of cids
 
                               return Center(
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: widget.productsController
-                                          ?.selectedCategoryId.value ??
-                                      '',
+                                  customerId: widget.cusId??'',
                                   year: selectedYear,
                                 ),
                               );
@@ -573,8 +569,162 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ]);
         }),
       ),
-    ));
+    );
   }
+
+  // Expanded Category(BuildContext context) {
+  //   return Expanded(
+  //       child: Padding(
+  //     padding: const EdgeInsets.all(5.0),
+  //     child: MyCommnonContainer(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+  //           blurRadius: 5,
+  //           offset: Offset(4, 4),
+  //         ),
+  //       ],
+  //       borderRadius: 25,
+  //       height: 300,
+  //       width: double.infinity,
+  //       isCommonBorder: true,
+  //       child: Consumer<CustomersProvider>(builder: (context, provider, child) {
+  //         return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Row(
+  //                 children: [
+  //                   InkWell(
+  //                     onTap: () {
+  //                       Navigator.push(
+  //                           context,
+  //                           MaterialPageRoute(
+  //                               builder: (_) => DashboardScreen(
+  //                                     cus: widget.productsController
+  //                                             ?.selectedCategoryId.value ??
+  //                                         '',
+  //                                     y: '2024',
+  //                                   )));
+  //                     },
+  //                     child: Container(
+  //                       decoration: BoxDecoration(
+  //                         color: primaryColor.withOpacity(0.2),
+  //                         borderRadius: BorderRadius.only(
+  //                           topLeft: Radius.circular(25),
+  //                           bottomRight: Radius.circular(25),
+  //                         ),
+  //                       ),
+  //                       padding: const EdgeInsets.only(
+  //                           right: 20, left: 20, top: 5, bottom: 5),
+  //                       child: Text(
+  //                         'Category Sales',
+  //                         style: cardHeadingTextStyle,
+  //                         maxLines: 1,
+  //                         softWrap: false,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 14),
+  //                   Container(
+  //                     height: MediaQuery.of(context).orientation ==
+  //                             Orientation.portrait
+  //                         ? ResponsiveInfo.isMobileDimension(context)
+  //                             ? 20
+  //                             : 26
+  //                         : ResponsiveInfo.isMobileDimension(context)
+  //                             ? 17
+  //                             : 22,
+  //                     padding: const EdgeInsets.only(left: 6),
+  //                     decoration: BoxDecoration(
+  //                       color: const Color(0xffeef2f7),
+  //                       borderRadius: BorderRadius.circular(4.0),
+  //                     ),
+  //                     child: DropdownButton<int>(
+  //                       iconSize: 12,
+  //                       value: selectedYear,
+  //                       underline: Container(),
+  //                       onChanged: (int? newValue) {
+  //                         setState(() {
+  //                           selectedYear = newValue!;
+  //                           Provider.of<CustomersProvider>(context,
+  //                                   listen: false)
+  //                               .fetchCustomerDashboardData(
+  //                                   widget.productsController
+  //                                           ?.selectedCategoryId.value ??
+  //                                       '',
+  //                                   selectedYear,
+  //                                   widget.startDate,
+  //                                   widget.endDate);
+  //                           Provider.of<CustomersProvider>(context,
+  //                                   listen: false)
+  //                               .fetchCustomerDashboardRevenueData(
+  //                                   widget.productsController
+  //                                           ?.selectedCategoryId.value ??
+  //                                       '',
+  //                                   selectedYear,
+  //                                   widget.startDate,
+  //                                   widget.endDate);
+  //                         });
+  //                       },
+  //                       items: provider.yearList
+  //                           .map((item) => DropdownMenuItem<int>(
+  //                                 value: item.year,
+  //                                 child: Text(
+  //                                   item.year.toString(),
+  //                                   style: cardHeadingTextStyle,
+  //                                 ),
+  //                               ))
+  //                           .toList(),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               nkSmallSizeBox(),
+  //               Expanded(
+  //                 child: Scrollbar(
+  //                   child: Consumer<CustomersProvider>(
+  //                     builder: (context, provider, child) {
+  //                       return FutureBuilder<ApiResponseModel>(
+  //                         future: provider.customersDashFuture,
+  //                         builder: (context, snapshot) {
+  //                           if (snapshot.connectionState ==
+  //                               ConnectionState.waiting) {
+  //                             return const Center(
+  //                                 child: CircularProgressIndicator());
+  //                           } else if (snapshot.hasError) {
+  //                             return Center(
+  //                                 child: Text('Error: ${snapshot.error}'));
+  //                           } else if (!snapshot.hasData) {
+  //                             return const NodataWidget();
+  //                           } else {
+  //                             final responseModel = snapshot.data!;
+  //                             final categoryPerformance =
+  //                                 snapshot.data!.data.categoryPerformance;
+  //                             // Map categoryPerformance to a list of cids
+
+  //                             return Center(
+  //                               child: CustomBarChartCustomerDash(
+  //                                 categoryPerformance: categoryPerformance,
+  //                                 allCategory: responseModel.data.fullCategory,
+  //                                 customerId: widget.productsController
+  //                                         ?.selectedCategoryId.value ??
+  //                                     '',
+  //                                 year: selectedYear,
+  //                               ),
+  //                             );
+  //                           }
+  //                         },
+  //                       );
+  //                     },
+  //                   ),
+  //                 ),
+  //               ),
+  //             ]);
+  //       }),
+  //     ),
+  //   ));
+  // }
 
   // ignore: non_constant_identifier_names
   Expanded OrdersPayments(
@@ -1194,7 +1344,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   Widget TotalSalse(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(8.0),
       child: Consumer<CustomersProvider>(
         builder: (context, provider, child) {
           return FutureBuilder<CustomerRevenueResponse>(
@@ -1207,20 +1357,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               } else if (snapshot.hasData) {
                 final categoryPerformance = snapshot.data!;
 
-                // Check if lists are non-empty, else default to 0
                 final paymentCompleted = categoryPerformance
                             .data.revenue.bookingRevenueData?.isNotEmpty ==
                         true
                     ? categoryPerformance.data.revenue.bookingRevenueData!.last
-                            .totalBookingRevenue ??
-                        0
+                        .totalBookingRevenue
                     : 0;
+
                 final remaCompleted = categoryPerformance
                             .data.revenue.orderRevenueData?.isNotEmpty ==
                         true
-                    ? categoryPerformance.data.revenue.orderRevenueData!.last
-                            .totalOrderRevenue ??
-                        0
+                    ? categoryPerformance
+                        .data.revenue.orderRevenueData!.last.totalOrderRevenue
                     : 0;
 
                 return MyCommnonContainer(
@@ -1228,60 +1376,93 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   width: double.infinity,
                   isCommonBorder: false,
                   padding: nkRegularPadding(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(
                     children: [
-                      const SizedBox(height: 2),
-                      Expanded(
-                        child: Center(
-                          child: DoughnutDefaultCustomerDash(
-                            customerData: categoryPerformance,
-                            booking: "Booking : 3",
-                            order: "Order : 3",
-                            aColor: Colors.blue.shade900,
-                            bColor: Colors.blue,
-                            legend1: const SizedBox.shrink(),
-                            legend2: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    showValueDialogCusDash(
-                                        context,
-                                        categoryPerformance
-                                                .data.revenue.bookingRevenueData
-                                            as List<dynamic>,
-                                        'Pre-Order');
-                                  },
-                                  child: _buildLegendItem(
-                                    Colors.blue.shade900,
-                                    'Pre-Order : ${formatAmount(paymentCompleted)}',
-                                  ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 2),
+                          Expanded(
+                            child: Center(
+                              child: DoughnutDefaultCustomerDash(
+                                customerData: categoryPerformance,
+                                booking: "Booking : 3",
+                                order: "Order : 3",
+                                aColor: Colors.blue.shade900,
+                                bColor: Colors.blue,
+                                legend1: const SizedBox.shrink(),
+                                legend2: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        showValueDialogCusDash(
+                                            context,
+                                            categoryPerformance.data.revenue
+                                                    .bookingRevenueData
+                                                as List<dynamic>,
+                                            'Pre-Order');
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue.shade900,
+                                        'Pre-Order : ${formatAmount(paymentCompleted)}',
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    InkWell(
+                                      onTap: () {
+                                        showValueDialogCusDash(
+                                            context,
+                                            categoryPerformance.data.revenue
+                                                    .orderRevenueData
+                                                as List<dynamic>,
+                                            'Order');
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue,
+                                        'Order : ${formatAmount(remaCompleted)}',
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 10),
-                                InkWell(
-                                  onTap: () {
-                                    showValueDialogCusDash(
-                                        context,
-                                        categoryPerformance.data.revenue
-                                            .orderRevenueData as List<dynamic>,
-                                        'Order');
-                                  },
-                                  child: _buildLegendItem(
-                                    Colors.blue,
-                                    'Order : ${formatAmount(remaCompleted)}',
-                                  ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: -10,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 20, top: 2),
+                          child: InkWell(
+                            onTap: () {
+                              showCustomerRevenueChartDialog(
+                                context,
+                                "Revenue",
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: primaryColor.withOpacity(0.3)),
+                              child: const Padding(
+                                padding: EdgeInsets.all(5.0),
+                                child: Icon(
+                                  Icons.open_in_new,
+                                  size: 17,
+                                  color: primaryColor,
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                 );
               } else {
-                return const NodataWidget();
+                return const Center(child: Text('No data available'));
               }
             },
           );

@@ -31,7 +31,11 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show-category_chart_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_collection_chart_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_order_status_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_revenue_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart'
     as model;
@@ -191,22 +195,35 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                dashboardContainerHeader('Collection'),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      showCollectionChartDialog(
+                        context,
+                        'Collection',
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: const Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-              child: Text(
-                "Collection",
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
+              ],
             ),
             nkSmallSizeBox(),
             Expanded(
@@ -449,22 +466,35 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                dashboardContainerHeader('Order Status'),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      showOrderStatusChartDialog(
+                        context,
+                        'Order Status',
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: const Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-              child: Text(
-                'Order Status',
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
+              ],
             ),
             Expanded(
               child: Padding(
@@ -589,16 +619,16 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   }
 
   Widget middleTopLeftComponet() {
-String displayText = '';
-if (staffProjection == "1" && targetType == "1") {
-  displayText = "Category Target / Projection / Actuals";
-} else if (staffProjection == "1" && targetType == "0") {
-  displayText = "Category Projection / Actuals";
-} else if(staffProjection == "0" && targetType == "1") {
-  displayText = "Category Target / Actuals";
-}else{
-  displayText = "Category Actuals";
-}
+    String displayText = '';
+    if (staffProjection == "1" && targetType == "1") {
+      displayText = "Category Target / Projection / Actuals";
+    } else if (staffProjection == "1" && targetType == "0") {
+      displayText = "Category Projection / Actuals";
+    } else if (staffProjection == "0" && targetType == "1") {
+      displayText = "Category Target / Actuals";
+    } else {
+      displayText = "Category Actuals";
+    }
 
     return Padding(
       padding: const EdgeInsets.all(2.0),
@@ -617,22 +647,57 @@ if (staffProjection == "1" && targetType == "1") {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+            Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(
+                      right: 20, left: 20, top: 5, bottom: 5),
+                  child: Text(
+                    displayText,
+                    style: cardHeadingTextStyle,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                 ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-              child: Text(
-                displayText,
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
+                Row(
+                  children: [
+                    Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5, top: 2),
+                      child: InkWell(
+                        onTap: () {
+                          showCategoryChartDialog(
+                            context,
+                            "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
+                            staffProjection,
+                            targetType,
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: primaryColor.withOpacity(0.3)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: const Icon(
+                              Icons.open_in_new,
+                              size: 17,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             nkMediumSizeBox(),
             Expanded(
@@ -670,11 +735,11 @@ if (staffProjection == "1" && targetType == "1") {
 
                           return Center(
                             child: CustomBarChart(
-                                categoryPerformance: categoryPerformance!,
-                                allCategory: categories!,
-                                staffProjection: staffProjection,
-                                targetType: targetType,
-                                ),
+                              categoryPerformance: categoryPerformance!,
+                              allCategory: categories!,
+                              staffProjection: staffProjection,
+                              targetType: targetType,
+                            ),
                           );
                         } else {
                           return const NodataWidget();
@@ -709,22 +774,32 @@ if (staffProjection == "1" && targetType == "1") {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                dashboardContainerHeader('Revenue'),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      showRevenueChartDialog(context, 'Revenue');
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: const Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              padding:
-                  const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-              child: Text(
-                "Revenue",
-                style: cardHeadingTextStyle,
-                maxLines: 1,
-                softWrap: false,
-              ),
+              ],
             ),
             Expanded(
               child: Padding(
@@ -759,11 +834,13 @@ if (staffProjection == "1" && targetType == "1") {
                           if (categoryPerformance!.orderRevenueData!.isEmpty) {
                             return const NodataWidget();
                           }
+                          final bookingRevenueLength =
+                              categoryPerformance.bookingRevenueData!.isNotEmpty
+                                  ? categoryPerformance.bookingRevenueData!
+                                      .map((e) => e.total ?? 0.0)
+                                      .reduce((a, b) => a + b)
+                                  : 0.0;
 
-                          final bookingRevenueLength = categoryPerformance
-                              .bookingRevenueData!
-                              .map((e) => e.total ?? 0.0)
-                              .reduce((a, b) => a + b);
                           // categoryPerformance.bookingRevenueData!.isNotEmpty
                           //     ? categoryPerformance.bookingRevenueData!.last
                           //         .totalBookingRevenue

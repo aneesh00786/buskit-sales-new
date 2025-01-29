@@ -75,6 +75,7 @@ class DoughnutDefault extends StatefulWidget {
   final Color bColor;
   final Widget legend1;
   final Widget legend2;
+  final bool isBig;
 
   const DoughnutDefault({
     Key? key,
@@ -85,6 +86,7 @@ class DoughnutDefault extends StatefulWidget {
     required this.aColor,
     required this.bColor,
     required this.legend2,
+    this.isBig = false,
   }) : super(key: key);
 
   @override
@@ -124,7 +126,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
         : 0.0;
 
     if (totalRevenue == 0) {
-      return Center(
+      return const Center(
         child: Text(
           "No data available",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -141,19 +143,19 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
           child: fl_chart.PieChart(
             fl_chart.PieChartData(
               startDegreeOffset: -90,
-              sectionsSpace: 2,
-              centerSpaceRadius: 43,
+              sectionsSpace: 1.5,
+              centerSpaceRadius: widget.isBig ? 80 : 43,
               sections: [
                 fl_chart.PieChartSectionData(
                   value: bookingRevenuePercentage,
                   color: widget.bColor,
-                  radius: 25,
+                  radius: widget.isBig ? 60 : 25,
                   showTitle: false,
                 ),
                 fl_chart.PieChartSectionData(
                   value: orderRevenuePercentage,
                   color: widget.aColor,
-                  radius: 25,
+                  radius: widget.isBig ? 60 : 25,
                   showTitle: false,
                 ),
               ],
@@ -163,18 +165,14 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                   if (event is FlTapUpEvent &&
                       response != null &&
                       response.touchedSection != null) {
-                    // Get the index of the touched section
                     int touchedIndex =
                         response.touchedSection!.touchedSectionIndex;
 
-                    // Check the index and show a dialog based on the touched section
                     if (touchedIndex == 1) {
-                      // Show Revenue Dialog
-                      const title = 'Revenue';
+                      const title = 'Order';
                       showValueDialog(context, widget.categoryData, title);
                     } else if (touchedIndex == 0) {
-                      // Show Booking Revenue Dialog
-                      const title = 'Booking';
+                      const title = 'Pre-Order';
                       showValueDialog(context, widget.categoryData, title);
                     }
                   }
@@ -387,6 +385,8 @@ class NestedPieChartj extends StatelessWidget {
   final int dueAmountCount;
   final int overdueAmountCount;
   final Collection collection;
+  
+  final bool isBig;
 
   const NestedPieChartj(
       {super.key,
@@ -394,61 +394,65 @@ class NestedPieChartj extends StatelessWidget {
       required this.pendingAmountCount,
       required this.dueAmountCount,
       required this.overdueAmountCount,
-      required this.collection});
+      required this.collection,
+    this.isBig = false,});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SfCircularChart(
-        series: <CircularSeries>[
-          DoughnutSeries<ChartData2, String>(
-            dataSource: [
-              ChartData2(
-                  'Completed', completedOrdersCount, const Color(0xFF5A7725)),
-              ChartData2(
-                  'Pending', pendingAmountCount, const Color(0xFFA30C13)),
-            ],
-            xValueMapper: (ChartData2 data, _) => data.label,
-            yValueMapper: (ChartData2 data, _) => data.value,
-            pointColorMapper: (ChartData2 data, _) => data.color,
-            radius: '90%',
-            innerRadius: '65%',
-            strokeColor: white,
-            strokeWidth: 2,
-            onPointTap: (ChartPointDetails details) {
-              if (details.pointIndex == 0) {
-                showValueCollectionDialog(
-                    context, collection, 'Recieved Payment');
-              } else if (details.pointIndex == 1) {
-                pendingPaymentCollectionDialog(
-                    context, 'Pending Payment', collection);
-              }
-            },
-          ),
-          DoughnutSeries<ChartData2, String>(
-            dataSource: [
-              ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
-              ChartData2(
-                  'Overdue', overdueAmountCount, const Color(0xFFFF6584)),
-            ],
-            xValueMapper: (ChartData2 data, _) => data.label,
-            yValueMapper: (ChartData2 data, _) => data.value,
-            pointColorMapper: (ChartData2 data, _) => data.color,
-            radius: '57%',
-            innerRadius: '45%',
-            strokeColor: white,
-            strokeWidth: 0.5,
-            onPointTap: (ChartPointDetails details) {
-              if (details.pointIndex == 0) {
-                pendingPaymentCollectionDialog(
-                    context, 'Due Payment', collection);
-              } else if (details.pointIndex == 1) {
-                pendingPaymentCollectionDialog(
-                    context, 'Over Due Payment', collection);
-              }
-            },
-          ),
-        ],
+      child: SizedBox(
+        width: isBig ? 350 : 200,
+        child: SfCircularChart(
+          series: <CircularSeries>[
+            DoughnutSeries<ChartData2, String>(
+              dataSource: [
+                ChartData2(
+                    'Completed', completedOrdersCount, const Color(0xFF5A7725)),
+                ChartData2(
+                    'Pending', pendingAmountCount, const Color(0xFFA30C13)),
+              ],
+              xValueMapper: (ChartData2 data, _) => data.label,
+              yValueMapper: (ChartData2 data, _) => data.value,
+              pointColorMapper: (ChartData2 data, _) => data.color,
+              radius: '90%',
+              innerRadius: '65%',
+              strokeColor: white,
+              strokeWidth: 2,
+              onPointTap: (ChartPointDetails details) {
+                if (details.pointIndex == 0) {
+                  showValueCollectionDialog(
+                      context, collection, 'Recieved Payment');
+                } else if (details.pointIndex == 1) {
+                  pendingPaymentCollectionDialog(
+                      context, 'Pending Payment', collection);
+                }
+              },
+            ),
+            DoughnutSeries<ChartData2, String>(
+              dataSource: [
+                ChartData2('Due', dueAmountCount, const Color(0xFFFFADB5)),
+                ChartData2(
+                    'Overdue', overdueAmountCount, const Color(0xFFFF6584)),
+              ],
+              xValueMapper: (ChartData2 data, _) => data.label,
+              yValueMapper: (ChartData2 data, _) => data.value,
+              pointColorMapper: (ChartData2 data, _) => data.color,
+              radius: '57%',
+              innerRadius: '45%',
+              strokeColor: white,
+              strokeWidth: 0.5,
+              onPointTap: (ChartPointDetails details) {
+                if (details.pointIndex == 0) {
+                  pendingPaymentCollectionDialog(
+                      context, 'Due Payment', collection);
+                } else if (details.pointIndex == 1) {
+                  pendingPaymentCollectionDialog(
+                      context, 'Over Due Payment', collection);
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1286,6 +1290,7 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
   final Color bColor;
   final Widget legend1;
   final Widget legend2;
+  final bool isBig;
 
   const DoughnutDefaultCustomerDash({
     Key? key,
@@ -1296,6 +1301,7 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
     required this.aColor,
     required this.bColor,
     required this.legend2,
+    this.isBig = false,
   }) : super(key: key);
 
   @override
@@ -1335,19 +1341,19 @@ class _DoughnutDefaultCustomerDashState
               fl_chart.PieChart(
                 fl_chart.PieChartData(
                   startDegreeOffset: -90,
-                  sectionsSpace: 0.6,
-                  centerSpaceRadius: 43,
+                  sectionsSpace: 1.5,
+                  centerSpaceRadius: widget.isBig ? 80 : 43,
                   sections: [
                     fl_chart.PieChartSectionData(
                       value: paymentCompleted?.toDouble(),
                       color: widget.aColor,
-                      radius: 19.6,
+                      radius: widget.isBig ? 60 : 25,
                       showTitle: false,
                     ),
                     fl_chart.PieChartSectionData(
                       value: paymentRemaining?.toDouble(),
                       color: widget.bColor,
-                      radius: 19.6,
+                      radius: widget.isBig ? 60 : 25,
                       showTitle: false,
                     ),
                   ],
@@ -1379,19 +1385,14 @@ class _DoughnutDefaultCustomerDashState
             ],
           ),
         ),
-        // InkWell(
-        //   onTap: () {
-        //     Navigator.push(context,
-        //         MaterialPageRoute(builder: (context) => OrdersScreen()));
-        //   },
-        //   child: widget.legend1,
-        // ),
         const SizedBox(height: 4),
         widget.legend2,
       ],
     );
   }
 }
+
+
 // class DoughnutDefaultCustomerDash extends StatefulWidget {
 //   final CustomerRevenueResponse customerData;
 //   final dynamic booking;

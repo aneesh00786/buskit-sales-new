@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
 const String fontFamilyName = 'Poppins_Regular';
@@ -209,4 +210,23 @@ class CustomButton extends StatelessWidget {
       child: Text(text, style: const TextStyle(color: Colors.white)),
     );
   }
+}
+
+Widget dashboardContainerHeader(String text) {
+  return Container(
+    decoration: BoxDecoration(
+      color: primaryColor.withOpacity(0.2),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(25),
+        bottomRight: Radius.circular(25),
+      ),
+    ),
+    padding: const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
+    child: Text(
+      text,
+      style: cardHeadingTextStyle,
+      maxLines: 1,
+      softWrap: false,
+    ),
+  );
 }

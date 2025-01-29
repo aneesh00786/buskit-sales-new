@@ -11,6 +11,7 @@ class DoughnutDefaultDelivery extends StatefulWidget {
   final Color cColor;
   final Widget legend1;
   final Widget legend2;
+  final bool isBig;
 
   const DoughnutDefaultDelivery({
     Key? key,
@@ -20,6 +21,7 @@ class DoughnutDefaultDelivery extends StatefulWidget {
     required this.cColor,
     required this.legend1,
     required this.legend2,
+    this.isBig = false,
   }) : super(key: key);
 
   @override
@@ -35,9 +37,12 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate raw values
     final orderProcessingValue = _getOrderValueByStatus(5);
     final outForDeliveryValue = _getOrderValueByStatus(1);
     final deliveredValue = _getOrderValueByStatus(2);
+
+    // Calculate total and percentages
     final totalValue =
         orderProcessingValue + outForDeliveryValue + deliveredValue;
 
@@ -50,6 +55,8 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
     final deliveredPercentage = totalValue > 0
         ? (deliveredValue / totalValue * 100).clamp(0, 100)
         : 0.0;
+
+    // Apply minimum percentage rule (5% for non-zero values)
     final adjustedPercentages = _adjustPercentages(
       [
         orderProcessingPercentage.toDouble(),
@@ -68,26 +75,26 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
             fl_chart.PieChartData(
               startDegreeOffset: -90,
               sectionsSpace: 2,
-              centerSpaceRadius: 43,
+              centerSpaceRadius: widget.isBig ? 80 : 43,
               sections: [
                 fl_chart.PieChartSectionData(
                   value: adjustedPercentages[0],
                   color: widget.aColor,
-                  radius: 25,
+                  radius: widget.isBig ? 60 : 25,
                   showTitle: false,
                   title: '${adjustedPercentages[0].toStringAsFixed(1)}%',
                 ),
                 fl_chart.PieChartSectionData(
                   value: adjustedPercentages[1],
                   color: widget.bColor,
-                  radius: 25,
+                  radius: widget.isBig ? 60 : 25,
                   showTitle: false,
                   title: '${adjustedPercentages[1].toStringAsFixed(1)}%',
                 ),
                 fl_chart.PieChartSectionData(
                   value: adjustedPercentages[2],
                   color: widget.cColor,
-                  radius: 25,
+                  radius: widget.isBig ? 60 : 25,
                   showTitle: false,
                   title: '${adjustedPercentages[2].toStringAsFixed(1)}%',
                 ),
@@ -135,14 +142,20 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
       ],
     );
   }
+
+  /// Adjust percentages to enforce minimum of 5% for non-zero values
   List<double> _adjustPercentages(List<double> percentages) {
     const minPercentage = 3.0;
+
+    // Calculate adjusted values
     final adjustedPercentages = percentages.map((p) {
       if (p > 0 && p < minPercentage) {
         return minPercentage;
       }
       return p;
     }).toList();
+
+    // Redistribute excess if needed
     final excess = adjustedPercentages.reduce((a, b) => a + b) - 100;
     if (excess > 0) {
       for (int i = 0; i < adjustedPercentages.length; i++) {

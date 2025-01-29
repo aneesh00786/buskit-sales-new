@@ -310,7 +310,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 MyRegularText(
-                  label: orderData.customerDetails?.fullname ?? 'Unknown',
+                  label: orderData.customerDetails?.businessName ?? 'Unknown',
                   maxlines: 2,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,

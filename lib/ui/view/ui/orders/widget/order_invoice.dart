@@ -135,7 +135,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                     Row(
                       children: [
                         const Text(
-                          'Invoice Details',
+                          'CUSTOMER & ORDERS',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 18,

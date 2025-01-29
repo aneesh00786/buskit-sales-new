@@ -82,12 +82,10 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController cashRemarkController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
-
   bool _isLoading = true;
   bool isOrder = true;
   bool isDraft = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     super.initState();
@@ -118,16 +116,13 @@ void _loadCartItems() {
     final customerId = widget.customerOrderController!.customerId.value.isNotEmpty
         ? widget.customerOrderController!.customerId.value
         : widget.productsController.selectedCustomerId.value;
-
     cartItems = CartDatabaseManager().getCartItems();
     final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
     draftItems = draft?.items ?? [];
-
     setState(() {
-      combinedList = [...cartItems, ...draftItems];
-      quantities = List.generate(combinedList.length, (index) => 1);
-      total = Utils().getFinalAmount(combinedList);
-      tax = Utils().getTotalTax(combinedList);
+      quantities = List.generate(cartItems.length, (index) => 1);
+      total = Utils().getFinalAmount(cartItems);
+      tax = Utils().getTotalTax(cartItems);
       _isLoading = false;
     });
 
@@ -234,7 +229,7 @@ void _loadCartItems() {
                     ? e.pieces.toString()
                     : e.count.toString(),
                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                price: e.price.toString(),
+                price: e.sellPrice.toString(),
                 discount: '0',
                 quantity: e.count.toInt(),
               ))
@@ -1383,7 +1378,7 @@ void _loadCartItems() {
                                                 packType: e.saleBy == 'Pack'
                                                     ? 'Pack'
                                                     : 'Pcs',
-                                                price: e.price.toString(),
+                                               price: e.sellPrice.toString(),
                                                 discount: '0',
                                                 quantity: e.count.toInt(),
                                               ))
@@ -1721,7 +1716,7 @@ void _loadCartItems() {
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
-              price: e.price.toString(),
+              price: e.sellPrice.toString(),
               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
               discount: '0',
               quantity: e.count.toInt(),
@@ -2432,95 +2427,95 @@ void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     );
   }
 
-  Container draftQuantityManager(
-    CartItem draftItem,
-    String sellPrice,
-    double fontSize,
-    double availableWidth,
-  ) {
-    double padding = availableWidth > 400 ? 6 : 3;
-    return Container(
-      width: availableWidth > 400 ? 80 : 50,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: const Color.fromARGB(255, 241, 240, 240)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    bottomLeft: Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (draftItem.detail.count > 0) {
-                        draftItem.detail.count--;
-                        log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
-                        CartDatabaseManager().updateDraftItem(
-                            widget.customerOrderController?.customerId.value ??
-                                '',
-                            draftItem);
-                        calculateDraftAmount(draftItems);
-                      }
-                    });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(left: padding, right: padding),
-                    child: CustomText(
-                      color: white,
-                      content: '-',
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
-            ),
-          ),
-          CustomText(
-            content: draftItem.detail.count.toStringAsFixed(0),
-            fontSize: fontSize,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomRight: Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    draftItem.detail.count++;
-                    log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
-                    CartDatabaseManager().updateDraftItem(
-                        widget.customerOrderController?.customerId.value ?? '',
-                        draftItem);
-                    calculateDraftAmount(draftItems);
-                  });
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(left: padding, right: padding),
-                  child: CustomText(
-                    color: white,
-                    content: '+',
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Container draftQuantityManager(
+  //   CartItem draftItem,
+  //   String sellPrice,
+  //   double fontSize,
+  //   double availableWidth,
+  // ) {
+  //   double padding = availableWidth > 400 ? 6 : 3;
+  //   return Container(
+  //     width: availableWidth > 400 ? 80 : 50,
+  //     decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(5),
+  //         color: const Color.fromARGB(255, 241, 240, 240)),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Container(
+  //           decoration: const BoxDecoration(
+  //               color: primaryColor,
+  //               borderRadius: BorderRadius.only(
+  //                   topLeft: Radius.circular(5),
+  //                   bottomLeft: Radius.circular(5))),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(2),
+  //             child: InkWell(
+  //                 onTap: () {
+  //                   setState(() {
+  //                     if (draftItem.detail.count > 0) {
+  //                       draftItem.detail.count--;
+  //                       log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
+  //                       CartDatabaseManager().updateDraftItem(
+  //                           widget.customerOrderController?.customerId.value ??
+  //                               '',
+  //                           draftItem);
+  //                       calculateDraftAmount(draftItems);
+  //                     }
+  //                   });
+  //                 },
+  //                 child: Padding(
+  //                   padding: EdgeInsets.only(left: padding, right: padding),
+  //                   child: CustomText(
+  //                     color: white,
+  //                     content: '-',
+  //                     fontSize: fontSize,
+  //                     fontWeight: FontWeight.bold,
+  //                     textAlign: TextAlign.center,
+  //                   ),
+  //                 )),
+  //           ),
+  //         ),
+  //         CustomText(
+  //           content: draftItem.detail.count.toStringAsFixed(0),
+  //           fontSize: fontSize,
+  //         ),
+  //         Container(
+  //           decoration: const BoxDecoration(
+  //               color: primaryColor,
+  //               borderRadius: BorderRadius.only(
+  //                   topRight: Radius.circular(5),
+  //                   bottomRight: Radius.circular(5))),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(2),
+  //             child: InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   draftItem.detail.count++;
+  //                   log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
+  //                   CartDatabaseManager().updateDraftItem(
+  //                       widget.customerOrderController?.customerId.value ?? '',
+  //                       draftItem);
+  //                   calculateDraftAmount(draftItems);
+  //                 });
+  //               },
+  //               child: Padding(
+  //                 padding: EdgeInsets.only(left: padding, right: padding),
+  //                 child: CustomText(
+  //                   color: white,
+  //                   content: '+',
+  //                   fontSize: fontSize,
+  //                   fontWeight: FontWeight.bold,
+  //                   textAlign: TextAlign.center,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;

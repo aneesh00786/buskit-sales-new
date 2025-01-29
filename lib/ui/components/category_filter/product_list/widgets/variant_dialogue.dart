@@ -334,8 +334,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ))),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content:
-                                      formatAmount(detail.tax),
+                                  content: formatAmount(detail.tax),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
@@ -566,13 +565,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                             onPressed: () {
                                                               setState(() {
                                                                 canAddQuantity =
-                                                                    true; 
+                                                                    true;
                                                                 localCounts[
-                                                                    i]++; 
+                                                                    i]++;
                                                                 detail.count =
                                                                     localCounts[
                                                                             i]
-                                                                        .toDouble(); 
+                                                                        .toDouble();
                                                                 calculateAmount(
                                                                     detail);
                                                               });
@@ -664,24 +663,26 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       .customerId.value.isNotEmpty) ||
                                   (widget.productController.selectedCustomerName
                                       .value.isNotEmpty)) {
-                                List<CartItem> cartItems =
+                                List<CartItem> allItems =
                                     CartDatabaseManager().getCartItems();
-                                List<Detail> detailsFromCart = cartItems
-                                    .map((cartItem) => cartItem.detail)
+                                List<Detail> detailsFromAllItems = allItems
+                                    .map((item) => item.detail)
                                     .toList();
+
                                 for (var i = 0;
                                     i < widget.detailsCopy.length;
                                     i++) {
                                   Detail detail = widget.detailsCopy[i];
-                                  bool isProductAlreadyInCart =
-                                      detailsFromCart.any(
+                                  bool isProductAlreadyInAnyBox =
+                                      detailsFromAllItems.any(
                                     (item) =>
                                         item.variationName ==
                                             detail.variationName &&
                                         item.sellPrice == detail.sellPrice,
                                   );
+
                                   if (localCounts[i] > 0) {
-                                    if (!isProductAlreadyInCart) {
+                                    if (!isProductAlreadyInAnyBox) {
                                       final bool isPack =
                                           detail.saleBy == 'Pack';
                                       CartDatabaseManager().addToCart(
@@ -691,9 +692,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                         isPack,
                                         localCounts[i],
                                       );
-                                      log('Product added to cart with ID: ${detail.variationId}');
+                                      log('Product added to cart or draft with ID: ${detail.variationId}');
                                     } else {
-                                      log('Product with ID: ${detail.variationId} is already in the cart. Updating count.');
+                                      log('Product with ID: ${detail.variationId} is already in cart or draft. Updating count.');
                                       CartDatabaseManager().updateCartItemCount(
                                           detail, localCounts[i]);
                                     }

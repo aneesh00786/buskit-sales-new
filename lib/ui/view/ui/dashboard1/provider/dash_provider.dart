@@ -366,7 +366,6 @@ class ApiService {
             salesmanChats.add(SalesmanChat.fromJson(json));
           });
         });
-
         return SalesmenResponse(
           statusCode: json.decode(response.body)['status_code'],
           status: json.decode(response.body)['status'],

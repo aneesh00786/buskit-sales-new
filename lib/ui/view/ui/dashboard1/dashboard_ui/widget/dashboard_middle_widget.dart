@@ -471,7 +471,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Order Status'),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  padding: const EdgeInsets.only(right: 10,),
                   child: InkWell(
                     onTap: () {
                       showOrderStatusChartDialog(
@@ -680,16 +680,19 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             targetType,
                           );
                         },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: primaryColor.withOpacity(0.3)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: const Icon(
-                              Icons.open_in_new,
-                              size: 17,
-                              color: primaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: primaryColor.withOpacity(0.3)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: const Icon(
+                                Icons.open_in_new,
+                                size: 17,
+                                color: primaryColor,
+                              ),
                             ),
                           ),
                         ),
@@ -779,7 +782,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Revenue'),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  padding: const EdgeInsets.only(right: 10),
                   child: InkWell(
                     onTap: () {
                       showRevenueChartDialog(context, 'Revenue');
@@ -1120,7 +1123,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  padding: const EdgeInsets.only(right: 10,),
                   child: InkWell(
                     onTap: () {
                       if (topSellingProducts.isNotEmpty) {

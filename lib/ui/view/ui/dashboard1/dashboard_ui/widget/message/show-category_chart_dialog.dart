@@ -109,7 +109,7 @@ void showCategoryChartDialog(
                                     allCategory: categories!,
                                     staffProjection: staffProjection,
                                     targetType: categoryTarget,
-                                    isScroll: false,
+                                   // isScroll: false,
                                   ));
                                 } else {
                                   return const NodataWidget();

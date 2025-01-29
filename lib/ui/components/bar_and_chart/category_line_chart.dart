@@ -204,13 +204,11 @@ class BarChartSample extends StatelessWidget {
     );
   }
 }
-
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
   String staffProjection;
   String targetType;
-  bool isScroll;
 
    CustomBarChart({
     super.key,
@@ -218,7 +216,6 @@ class CustomBarChart extends StatefulWidget {
     required this.categoryPerformance,
     required this.staffProjection,
     required this.targetType,
-    this.isScroll = false,
   });
 
   @override
@@ -332,8 +329,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
       },
     ):showNoInternetSnackBar(context);
   }
-
-  Widget getBottomTitles(double value, TitleMeta meta) {
+ Widget getBottomTitles(double value, TitleMeta meta) {
     Widget text = Transform.rotate(
       angle: -1.34 / 4,
       child: MyRegularText(
@@ -395,7 +391,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if(widget.isScroll)...[Expanded(
+        Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: ScrollbarTheme(
@@ -533,122 +529,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
               ),
             ),
           ),
-        ),],
-        if (!widget.isScroll) ...[
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 3.0),
-                      child: BarChart(
-                        BarChartData(
-                          alignment: BarChartAlignment.spaceAround,
-                          maxY: getRoundedUpperLimit(),
-                          barGroups: barGroups,
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: getLeftTitles,
-                                reservedSize: getDynamicReservedSize(),
-                              ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: getBottomTitles,
-                                reservedSize: 40,
-                              ),
-                            ),
-                            topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: Border.all(
-                              color: const Color(0xffe0e0e0),
-                              width: 0.9,
-                            ),
-                          ),
-                          barTouchData: BarTouchData(
-                            touchCallback: (FlTouchEvent event,
-                                BarTouchResponse? touchResponse) {
-                              if (touchResponse != null &&
-                                  touchResponse.spot != null &&
-                                  event is FlTapUpEvent) {
-                                final int index =
-                                    touchResponse.spot!.touchedBarGroupIndex;
-                                CategoryPerformancee perf =
-                                    widget.categoryPerformance.firstWhere(
-                                  (performance) =>
-                                      performance.category ==
-                                      widget.allCategory[index].category,
-                                );
-                                _showSalesmanPopup(perf.cid ?? 0,
-                                    widget.allCategory[index].category ?? '');
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Container(
-                      padding: const EdgeInsets.only(bottom: 0, top: 3),
-                      color: white,
-                      width: getDynamicReservedSize(),
-                      child: BarChart(
-                        BarChartData(
-                          alignment: BarChartAlignment.spaceAround,
-                          maxY: getRoundedUpperLimit(),
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: getLeftTitles,
-                                reservedSize: getDynamicReservedSize(),
-                              ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: getBottomTitlesDummy,
-                                reservedSize: 40,
-                              ),
-                            ),
-                            topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: Border.all(
-                              color: Colors.transparent,
-                              width: 0.9,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -682,6 +563,483 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 }
+// class CustomBarChart extends StatefulWidget {
+//   final List<Category> allCategory;
+//   final List<CategoryPerformancee> categoryPerformance;
+//   String staffProjection;
+//   String targetType;
+//   bool isScroll;
+
+//    CustomBarChart({
+//     super.key,
+//     required this.allCategory,
+//     required this.categoryPerformance,
+//     required this.staffProjection,
+//     required this.targetType,
+//     this.isScroll = false,
+//   });
+
+//   @override
+//   _CustomBarChartState createState() => _CustomBarChartState();
+// }
+
+// class _CustomBarChartState extends State<CustomBarChart> {
+//   List<BarChartGroupData> barGroups = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _createBarGroups();
+//   }
+
+//   void _createBarGroups() {
+//     barGroups = widget.allCategory.asMap().entries.map((entry) {
+//       int index = entry.key;
+//       Category category = entry.value;
+//       CategoryPerformancee? perf = widget.categoryPerformance.firstWhere(
+//         (performance) => performance.category == category.category,
+//         orElse: () => CategoryPerformancee(
+//           cid: -1,
+//           category: category.category,
+//           actualProjection: 0.0,
+//           actualTarget: 0.0,
+//           actualSales: 0.0,
+//           salesman: [],
+//         ),
+//       );
+//       double target = perf.actualTarget ?? 0.0;
+//       double projection = perf.actualProjection ?? 0.0;
+//       double actual = perf.actualSales ?? 0.0;
+//       return BarChartGroupData(
+//         x: index,
+//         barRods: [
+//           if(widget.targetType=="1")
+//           BarChartRodData(
+//             toY: target,
+//             color: const Color(0xff3b6491),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none,
+//           ),
+//           if(widget.staffProjection=="1")
+//           BarChartRodData(
+//             toY: projection,
+//             color: const Color(0xff15396a),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none,
+//           ),
+//           BarChartRodData(
+//             toY: actual,
+//             color: const Color(0xff7a8f3d),
+//             width: 8,
+//             borderRadius: BorderRadius.zero,
+//             borderSide: BorderSide.none,
+//           ),
+//         ],
+//       );
+//     }).toList();
+//   }
+
+//   void _showSalesmanPopup(int cid, String category) async {
+//     bool isConnected = await ConnectivityService().isOnline();
+//    isConnected ? showDialog(
+//       context: context,
+//       builder: (context) {
+//         return Consumer<DashboardProvider>(
+//           builder: (context, provider, child) {
+//             provider.fetchchartCategoryPerformmenc(cid);
+//             log('CID :$cid');
+//             return FutureBuilder<ResponseModelCp>(
+//               future: provider.responseModelCp,
+//               builder: (context, snapshot) {
+//                 if (snapshot.connectionState == ConnectionState.waiting) {
+//                   return Center(
+//                     child: CircularProgressIndicator(),
+//                   );
+//                 } else if (snapshot.hasError) {
+//                   return AlertDialog(
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.all(Radius.circular(10)),
+//                     ),
+//                     content: Center(
+//                       child: NodataWidget(),
+//                     ),
+//                   );
+//                 } else if (snapshot.hasData) {
+//                   final categories = snapshot.data!.data;
+//                   Navigator.of(context).pop();
+//                   WidgetsBinding.instance.addPostFrameCallback((_) {
+//                     showBarchartDialog(context, category, categories ?? [],widget.staffProjection,widget.targetType);
+//                   });
+//                   return const SizedBox.shrink();
+//                 } else {
+//                   return const AlertDialog(
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.all(Radius.circular(10)),
+//                     ),
+//                     content: Center(
+//                       child: Text('No data available'),
+//                     ),
+//                   );
+//                 }
+//               },
+//             );
+//           },
+//         );
+//       },
+//     ):showNoInternetSnackBar(context);
+//   }
+
+//   Widget getBottomTitles(double value, TitleMeta meta) {
+//     Widget text = Transform.rotate(
+//       angle: -1.34 / 4,
+//       child: MyRegularText(
+//         label: widget.allCategory[value.toInt()].category ?? '',
+//         fontWeight: FontWeight.w500,
+//         fontSize: 11,
+//         color: Colors.black,
+//       ),
+//     );
+//     return Container(
+//       margin: const EdgeInsets.only(top: 12),
+//       child: text,
+//     );
+//   }
+
+//   Widget getLeftTitles(double value, TitleMeta meta) {
+//     return MyRegularText(
+//       label: value.toInt().toString(),
+//       fontSize: 10.6,
+//       fontWeight: FontWeight.w500,
+//       color: Colors.black,
+//     );
+//   }
+
+//     double getRoundedUpperLimit() {
+//     final maxValue = barGroups
+//         .map((group) =>
+//             group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
+//         .reduce((a, b) => a > b ? a : b);
+//     return (maxValue / 1000).ceil() * 1000;
+//   }
+
+//   double getDynamicReservedSize() {
+//     final maxValue = barGroups
+//         .map((group) =>
+//             group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
+//         .reduce((a, b) => a > b ? a : b);
+//     int digitCount = maxValue.toInt().toString().length;
+//     return (digitCount * 8);
+//   }
+
+//     Widget getBottomTitlesDummy(double value, TitleMeta meta) {
+//     Widget text = Transform.rotate(
+//       angle: -1.34 / 4,
+//       child: MyRegularText(
+//         label: widget.allCategory[value.toInt()].category ?? '',
+//         fontWeight: FontWeight.w500,
+//         fontSize: 11,
+//         color: Colors.white,
+//       ),
+//     );
+//     return Container(
+//       margin: const EdgeInsets.only(top: 12),
+//       child: text,
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         if(widget.isScroll)...[Expanded(
+//           child: Padding(
+//             padding: const EdgeInsets.only(bottom: 8.0),
+//             child: ScrollbarTheme(
+//               data: ScrollbarThemeData(
+//                 thumbColor: MaterialStateProperty.all(Colors.blue),
+//                 thickness: MaterialStateProperty.all(5),
+//                 radius: Radius.circular(8),
+//               ),
+//               child: Stack(
+//                 children: [
+//                   Scrollbar(
+//                     controller:
+//                         Provider.of<DashboardProvider>(context, listen: false)
+//                             .scrollController,
+//                     interactive: true,
+//                     thickness: 5,
+//                     thumbVisibility: true,
+//                     trackVisibility: true,
+//                     child: Padding(
+//                       padding: const EdgeInsets.only(bottom: 10.0),
+//                       child: SingleChildScrollView(
+//                         controller:
+//                             Provider.of<DashboardProvider>(context, listen: false)
+//                                 .scrollController,
+//                         scrollDirection: Axis.horizontal,
+//                         physics: ClampingScrollPhysics(),
+//                         child: SizedBox(
+//                           width: barGroups.length * 66.0,
+//                           child: Padding(
+//                             padding: const EdgeInsets.only(top: 3.0),
+//                             child: BarChart(
+//                               BarChartData(
+//                                 alignment: BarChartAlignment.spaceAround,
+//                                 barGroups: barGroups,
+//                                 maxY: getRoundedUpperLimit(),
+//                                 titlesData: FlTitlesData(
+//                                   leftTitles: AxisTitles(
+//                                         sideTitles: SideTitles(
+//                                           showTitles: true,
+//                                           getTitlesWidget: getLeftTitles,
+//                                           reservedSize: getDynamicReservedSize(),
+//                                         ),
+//                                       ),
+//                                   bottomTitles: AxisTitles(
+//                                     sideTitles: SideTitles(
+//                                       showTitles: true,
+//                                       getTitlesWidget: getBottomTitles,
+//                                       reservedSize: 40,
+//                                     ),
+//                                   ),
+//                                   topTitles: AxisTitles(
+//                                     sideTitles: SideTitles(showTitles: false),
+//                                   ),
+//                                   rightTitles: AxisTitles(
+//                                     sideTitles: SideTitles(showTitles: false),
+//                                   ),
+//                                 ),
+//                                 borderData: FlBorderData(
+//                                   show: true,
+//                                   border: Border.all(
+//                                     color: const Color(0xffe0e0e0),
+//                                     width: 0.9,
+//                                   ),
+//                                 ),
+//                                 barTouchData: BarTouchData(
+//                                   touchCallback: (FlTouchEvent event,
+//                                       BarTouchResponse? touchResponse) {
+//                                     if (touchResponse != null &&
+//                                         touchResponse.spot != null &&
+//                                         event is FlTapUpEvent) {
+//                                       final int index =
+//                                           touchResponse.spot!.touchedBarGroupIndex;
+//                                       CategoryPerformancee perf =
+//                                           widget.categoryPerformance.firstWhere(
+//                                         (performance) =>
+//                                             performance.category ==
+//                                             widget.allCategory[index].category,
+//                                       );
+//                                       _showSalesmanPopup(perf.cid ?? 0,
+//                                           widget.allCategory[index].category ?? '');
+//                                     }
+//                                   },
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                   Padding(
+//                     padding: const EdgeInsets.only(bottom: 10.0),
+//                     child: Container(
+//                       padding: EdgeInsets.only(bottom: 0, top: 3),
+//                       color: white,
+//                       width: getDynamicReservedSize(),
+//                       child: BarChart(
+//                         BarChartData(
+//                           alignment: BarChartAlignment.spaceAround,
+//                           maxY: getRoundedUpperLimit(),
+//                           titlesData: FlTitlesData(
+//                             leftTitles: AxisTitles(
+//                               sideTitles: SideTitles(
+//                                 showTitles: true,
+//                                 getTitlesWidget: getLeftTitles,
+//                                 reservedSize: getDynamicReservedSize(),
+//                               ),
+//                             ),
+//                             bottomTitles: AxisTitles(
+//                               sideTitles: SideTitles(
+//                                 showTitles: true,
+//                                 getTitlesWidget: getBottomTitlesDummy,
+//                                 reservedSize: 40,
+//                               ),
+//                             ),
+//                             topTitles: AxisTitles(
+//                               sideTitles: SideTitles(showTitles: false),
+//                             ),
+//                             rightTitles: AxisTitles(
+//                               sideTitles: SideTitles(showTitles: false),
+//                             ),
+//                           ),
+//                           borderData: FlBorderData(
+//                             show: true,
+//                             border: Border.all(
+//                               color: Colors.transparent,
+//                               width: 0.9,
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),],
+//         if (!widget.isScroll) ...[
+//           Expanded(
+//             child: Padding(
+//               padding: const EdgeInsets.only(bottom: 8.0),
+//               child: Stack(
+//                 children: [
+//                   Padding(
+//                     padding: const EdgeInsets.only(bottom: 10.0),
+//                     child: Padding(
+//                       padding: const EdgeInsets.only(top: 3.0),
+//                       child: BarChart(
+//                         BarChartData(
+//                           alignment: BarChartAlignment.spaceAround,
+//                           maxY: getRoundedUpperLimit(),
+//                           barGroups: barGroups,
+//                           titlesData: FlTitlesData(
+//                             leftTitles: AxisTitles(
+//                               sideTitles: SideTitles(
+//                                 showTitles: true,
+//                                 getTitlesWidget: getLeftTitles,
+//                                 reservedSize: getDynamicReservedSize(),
+//                               ),
+//                             ),
+//                             bottomTitles: AxisTitles(
+//                               sideTitles: SideTitles(
+//                                 showTitles: true,
+//                                 getTitlesWidget: getBottomTitles,
+//                                 reservedSize: 40,
+//                               ),
+//                             ),
+//                             topTitles: AxisTitles(
+//                               sideTitles: SideTitles(showTitles: false),
+//                             ),
+//                             rightTitles: AxisTitles(
+//                               sideTitles: SideTitles(showTitles: false),
+//                             ),
+//                           ),
+//                           borderData: FlBorderData(
+//                             show: true,
+//                             border: Border.all(
+//                               color: const Color(0xffe0e0e0),
+//                               width: 0.9,
+//                             ),
+//                           ),
+//                           barTouchData: BarTouchData(
+//                             touchCallback: (FlTouchEvent event,
+//                                 BarTouchResponse? touchResponse) {
+//                               if (touchResponse != null &&
+//                                   touchResponse.spot != null &&
+//                                   event is FlTapUpEvent) {
+//                                 final int index =
+//                                     touchResponse.spot!.touchedBarGroupIndex;
+//                                 CategoryPerformancee perf =
+//                                     widget.categoryPerformance.firstWhere(
+//                                   (performance) =>
+//                                       performance.category ==
+//                                       widget.allCategory[index].category,
+//                                 );
+//                                 _showSalesmanPopup(perf.cid ?? 0,
+//                                     widget.allCategory[index].category ?? '');
+//                               }
+//                             },
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                   Padding(
+//                     padding: const EdgeInsets.only(bottom: 10.0),
+//                     child: Container(
+//                       padding: const EdgeInsets.only(bottom: 0, top: 3),
+//                       color: white,
+//                       width: getDynamicReservedSize(),
+//                       child: BarChart(
+//                         BarChartData(
+//                           alignment: BarChartAlignment.spaceAround,
+//                           maxY: getRoundedUpperLimit(),
+//                           titlesData: FlTitlesData(
+//                             leftTitles: AxisTitles(
+//                               sideTitles: SideTitles(
+//                                 showTitles: true,
+//                                 getTitlesWidget: getLeftTitles,
+//                                 reservedSize: getDynamicReservedSize(),
+//                               ),
+//                             ),
+//                             bottomTitles: AxisTitles(
+//                               sideTitles: SideTitles(
+//                                 showTitles: true,
+//                                 getTitlesWidget: getBottomTitlesDummy,
+//                                 reservedSize: 40,
+//                               ),
+//                             ),
+//                             topTitles: AxisTitles(
+//                               sideTitles: SideTitles(showTitles: false),
+//                             ),
+//                             rightTitles: AxisTitles(
+//                               sideTitles: SideTitles(showTitles: false),
+//                             ),
+//                           ),
+//                           borderData: FlBorderData(
+//                             show: true,
+//                             border: Border.all(
+//                               color: Colors.transparent,
+//                               width: 0.9,
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ],
+//         Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             if(widget.targetType=="1")
+//             _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+//             if(widget.staffProjection=="1")
+//             _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
+//             _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildLegend({required Color color, required String label}) {
+//     return Row(
+//       children: [
+//         CircleAvatar(
+//           radius: ResponsiveInfo.isMobileDimension(context) ? 5.45 : 6.10,
+//           backgroundColor: color,
+//         ),
+//         const SizedBox(width: 2),
+//         MyRegularText(
+//           label: label,
+//           color: secondaryTextColor,
+//           fontSize: 11.6,
+//           fontWeight: FontWeight.w600,
+//         ),
+//         const SizedBox(width: 10),
+//       ],
+//     );
+//   }
+// }
 
 class CustomBarChartCustomerDash extends StatefulWidget {
   final List<FullCategory> allCategory;

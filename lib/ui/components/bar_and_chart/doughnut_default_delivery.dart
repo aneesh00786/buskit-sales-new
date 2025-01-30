@@ -107,7 +107,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                       response.touchedSection != null) {
                     final section = response.touchedSection!;
                     final title =
-                        section.touchedSection!.value == adjustedPercentages[0]
+                        section.touchedSection?.value == adjustedPercentages[0]
                             ? 'Processing Orders'
                             : section.touchedSection!.value ==
                                     adjustedPercentages[1]
@@ -117,7 +117,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                                     ? 'Delivered Orders'
                                     : 'Unknown';
                     final status =
-                        section.touchedSection!.value == adjustedPercentages[0]
+                        section.touchedSection?.value == adjustedPercentages[0]
                             ? 5
                             : section.touchedSection!.value ==
                                     adjustedPercentages[1]

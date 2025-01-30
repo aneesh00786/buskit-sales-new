@@ -377,7 +377,6 @@ void _loadCartItems() {
     }
 
     if (isOrder && draftItems.isEmpty) {
-      // finalAmount = total + tax;
       finalAmount = total;
     } else if (isDraft && cartItems.isEmpty && preorderItems.isEmpty) {
       log('Calculating for Draft...');

@@ -21,17 +21,12 @@ void showValueDialog(
               double maxDialogHeight = constraints.maxHeight * 0.7;
               double rowHeight = 40.0;
               double headerHeight = 30.0;
-              var displayData = title == "Revenue"
+              var displayData = title == "Order"
                   ? categoryData.orderRevenueData
                   : categoryData.bookingRevenueData;
-
-              // Calculate the total height required for the list
               double listHeight = (displayData?.length ?? 0) * rowHeight;
-
-              // The height of the scrollable area
               double contentHeight =
                   listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-
               return ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: maxDialogHeight,
@@ -41,7 +36,6 @@ void showValueDialog(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Header
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: const BoxDecoration(
@@ -145,7 +139,7 @@ void showValueDialog(
                                       Expanded(
                                         child: buildRowData(
                                           getFormattedOrderCreatAt(
-                                            title == "Revenue"
+                                            title == "Order"
                                                 ? categoryData
                                                     .orderRevenueData![index]
                                                     .orderCreatAt
@@ -157,7 +151,7 @@ void showValueDialog(
                                       ),
                                       Expanded(
                                         child: buildRowData(
-                                          (title == "Revenue"
+                                          (title == "Order"
                                                   ? categoryData
                                                       .orderRevenueData![index]
                                                       .orderId
@@ -171,7 +165,7 @@ void showValueDialog(
                                       Expanded(
                                         child: buildRowData(
                                           getStatusName(
-                                            (title == "Revenue"
+                                            (title == "Order"
                                                     ? categoryData
                                                         .orderRevenueData![
                                                             index]
@@ -187,7 +181,7 @@ void showValueDialog(
                                       Expanded(
                                         child: buildRowData(
                                           formatAmount(
-                                            title == "Revenue"
+                                            title == "Order"
                                                 ? categoryData
                                                     .orderRevenueData![index]
                                                     .orderTotal
@@ -239,7 +233,7 @@ void showValueDialog(
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    title == "Revenue"
+                                    title == "Order"
                                         ? formatAmount(categoryData
                                             .orderRevenueData!
                                             .map((e) => e.orderTotal ?? 0.0)

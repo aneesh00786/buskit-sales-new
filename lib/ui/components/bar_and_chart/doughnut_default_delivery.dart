@@ -109,7 +109,7 @@ class _DoughnutDefaultDeliveryState extends State<DoughnutDefaultDelivery> {
                     final title =
                         section.touchedSection?.value == adjustedPercentages[0]
                             ? 'Processing Orders'
-                            : section.touchedSection!.value ==
+                            : section.touchedSection?.value ==
                                     adjustedPercentages[1]
                                 ? 'Packed & Ready for Delivery'
                                 : section.touchedSection!.value ==

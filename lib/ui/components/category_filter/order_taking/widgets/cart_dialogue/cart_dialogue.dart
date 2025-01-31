@@ -1491,7 +1491,7 @@ void _loadCartItems() {
                                           );
                                         }
                                       });
-
+                                      
                                       setState(() {
                                         CartDatabaseManager().cartItems.clear();
                                         CartDatabaseManager().clearCart();

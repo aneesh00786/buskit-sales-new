@@ -48,48 +48,20 @@ class CartDatabaseManager {
     bool isPack,
     int localCount,
   ) async {
-    CartItem? existingCartItem;
-    try {
-      existingCartItem = _cartBox.values.firstWhere(
-        (cartItem) =>
-            cartItem.detail.variationName == detail.variationName &&
-            cartItem.detail.sellPrice == detail.sellPrice,
-      );
-    } catch (e) {
-      existingCartItem = null;
-    }
-    if (existingCartItem != null) {
-      existingCartItem.detail.count += localCount;
-      existingCartItem.totalPrice = isPack
-          ? (existingCartItem.detail.count *
-                  existingCartItem.detail.pieces! *
-                  num.parse(existingCartItem.detail.sellPrice ?? '0'))
-              .toDouble()
-          : (existingCartItem.detail.count *
-                  num.parse(existingCartItem.detail.sellPrice ?? '0'))
-              .toDouble();
-
-      await _cartBox.put(existingCartItem.key, existingCartItem);
-      log('Updated product in cart: ${existingCartItem.detail.variationName}, New count: ${existingCartItem.detail.count}, New total price: ${existingCartItem.totalPrice}');
-    } else {
-      final totalAmount = isPack
-          ? (localCount * detail.pieces! * num.parse(detail.sellPrice ?? '0'))
-              .toDouble()
-          : (localCount * num.parse(detail.sellPrice ?? '0')).toDouble();
-      detail.count = localCount.toDouble();
-
-      final cartItem = CartItem(
-        detail: detail,
-        productName: productName,
-        totalPrice: totalAmount,
-        isPack: isPack,
-      );
-
-      log('Adding item to cart: ${detail.variationName}, Count: ${localCount}');
-      await _cartBox.add(cartItem);
-      log('New product added to cart: ${cartItem.detail.variationName}, Count: ${cartItem.detail.count}, Total price: ${cartItem.totalPrice}');
-    }
-
+    final totalAmount = isPack
+        ? (localCount * detail.pieces! * num.parse(detail.sellPrice ?? '0'))
+            .toDouble()
+        : (localCount * num.parse(detail.sellPrice ?? '0')).toDouble();
+    detail.count = localCount.toDouble();
+    final cartItem = CartItem(
+      detail: detail,
+      productName: productName,
+      totalPrice: totalAmount,
+      isPack: isPack,
+    );
+    log('Adding item to cart: ${detail.variationName}, Count: ${localCount}');
+    await _cartBox.add(cartItem);
+    log('New product added to cart: ${cartItem.detail.variationName}, Count: ${cartItem.detail.count}, Total price: ${cartItem.totalPrice}');
     _notifyListeners();
   }
 
@@ -110,8 +82,10 @@ class CartDatabaseManager {
     } catch (e) {
       existingCartItem = null;
     }
+
     if (existingCartItem != null) {
-      existingCartItem.detail.count += localCount;
+      existingCartItem.detail.count =
+          (existingCartItem.detail.count + localCount).toDouble();
       existingCartItem.totalPrice = isPack
           ? (existingCartItem.detail.count *
                   existingCartItem.detail.pieces! *
@@ -147,17 +121,11 @@ class CartDatabaseManager {
 
   Future<void> updateCartItemCount(Detail detail, int countToAdd) async {
     CartItem? existingCartItem;
-    try {
       existingCartItem = _cartBox.values.firstWhere(
         (cartItem) =>
             cartItem.detail.variationName == detail.variationName &&
             cartItem.detail.sellPrice == detail.sellPrice,
       );
-    } catch (e) {
-      existingCartItem = null;
-    }
-    if (existingCartItem != null) {
-      if (countToAdd > 0) {
         existingCartItem.detail.count += countToAdd;
         existingCartItem.totalPrice = existingCartItem.isPack!
             ? (existingCartItem.detail.count *
@@ -169,12 +137,6 @@ class CartDatabaseManager {
                 .toDouble();
         await _cartBox.put(existingCartItem.key, existingCartItem);
         log('Updated product in cart: ${existingCartItem.detail.variationName}, New count: ${existingCartItem.detail.count}, New total price: ${existingCartItem.totalPrice}');
-      } else {
-        log('Cannot update count to a value less than or equal to zero for product: ${detail.variationId}');
-      }
-    } else {
-      log('No existing cart item found to update for product ID: ${detail.variationId}');
-    }
   }
 
   Future<void> updatePreorderCartItemCount(
@@ -212,7 +174,8 @@ class CartDatabaseManager {
     }
   }
 
-  Future<void> saveCartAsDraft(String customerId,String cartId,String draftId) async {
+  Future<void> saveCartAsDraft(
+      String customerId, String cartId, String draftId) async {
     if (customerId.isEmpty) {
       log('Error: Customer ID is required to save a draft.');
       return;
@@ -265,17 +228,17 @@ class CartDatabaseManager {
       log('Error saving cart as draft: $e');
     }
   }
-Map<String, String?>? getSavedCartData(String customerId) {
-  final draft = draftBox.get(customerId);
-  if (draft != null) {
-    return {
-      'cart_id': draft.cartId,
-      'id': draft.draftId,
-    };
-  }
-  return null;
-}
 
+  Map<String, String?>? getSavedCartData(String customerId) {
+    final draft = draftBox.get(customerId);
+    if (draft != null) {
+      return {
+        'cart_id': draft.cartId,
+        'id': draft.draftId,
+      };
+    }
+    return null;
+  }
 
   Future<void> updateCart(CartItem updatedItem) async {
     await _cartBox.put(updatedItem.key, updatedItem);
@@ -333,11 +296,10 @@ Map<String, String?>? getSavedCartData(String customerId) {
           .where((draftItem) => draftItem.key != item.key)
           .toList();
       final updatedDraft = Draft(
-        customerId: existingDraft.customerId,
-        items: updatedItems,
-        cartId: '',
-        draftId: ''
-      );
+          customerId: existingDraft.customerId,
+          items: updatedItems,
+          cartId: '',
+          draftId: '');
       draftBox.put(customerId, updatedDraft);
       log('Draft item deleted for customer ID: $customerId');
       _notifyListeners();

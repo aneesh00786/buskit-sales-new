@@ -2426,97 +2426,6 @@ void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
       ),
     );
   }
-
-  // Container draftQuantityManager(
-  //   CartItem draftItem,
-  //   String sellPrice,
-  //   double fontSize,
-  //   double availableWidth,
-  // ) {
-  //   double padding = availableWidth > 400 ? 6 : 3;
-  //   return Container(
-  //     width: availableWidth > 400 ? 80 : 50,
-  //     decoration: BoxDecoration(
-  //         borderRadius: BorderRadius.circular(5),
-  //         color: const Color.fromARGB(255, 241, 240, 240)),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //               color: primaryColor,
-  //               borderRadius: BorderRadius.only(
-  //                   topLeft: Radius.circular(5),
-  //                   bottomLeft: Radius.circular(5))),
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(2),
-  //             child: InkWell(
-  //                 onTap: () {
-  //                   setState(() {
-  //                     if (draftItem.detail.count > 0) {
-  //                       draftItem.detail.count--;
-  //                       log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
-  //                       CartDatabaseManager().updateDraftItem(
-  //                           widget.customerOrderController?.customerId.value ??
-  //                               '',
-  //                           draftItem);
-  //                       calculateDraftAmount(draftItems);
-  //                     }
-  //                   });
-  //                 },
-  //                 child: Padding(
-  //                   padding: EdgeInsets.only(left: padding, right: padding),
-  //                   child: CustomText(
-  //                     color: white,
-  //                     content: '-',
-  //                     fontSize: fontSize,
-  //                     fontWeight: FontWeight.bold,
-  //                     textAlign: TextAlign.center,
-  //                   ),
-  //                 )),
-  //           ),
-  //         ),
-  //         CustomText(
-  //           content: draftItem.detail.count.toStringAsFixed(0),
-  //           fontSize: fontSize,
-  //         ),
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //               color: primaryColor,
-  //               borderRadius: BorderRadius.only(
-  //                   topRight: Radius.circular(5),
-  //                   bottomRight: Radius.circular(5))),
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(2),
-  //             child: InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   draftItem.detail.count++;
-  //                   log("Updated count for draft item ${draftItem.detail.id}: ${draftItem.detail.count}");
-  //                   CartDatabaseManager().updateDraftItem(
-  //                       widget.customerOrderController?.customerId.value ?? '',
-  //                       draftItem);
-  //                   calculateDraftAmount(draftItems);
-  //                 });
-  //               },
-  //               child: Padding(
-  //                 padding: EdgeInsets.only(left: padding, right: padding),
-  //                 child: CustomText(
-  //                   color: white,
-  //                   content: '+',
-  //                   fontSize: fontSize,
-  //                   fontWeight: FontWeight.bold,
-  //                   textAlign: TextAlign.center,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
@@ -2734,7 +2643,6 @@ class CartTextFields extends StatelessWidget {
     );
   }
 }
-
 Future<void> placeOrder(
   CartOrderModel cartOrder,
   Function(int statusCode, String message, Map<String, dynamic>? responseData)
@@ -2742,21 +2650,16 @@ Future<void> placeOrder(
 ) async {
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   cartOrder.companyId = companyId;
-
   try {
     log('Assigned companyId: ${cartOrder.companyId}');
     log('Place Order Payload: ${cartOrder.toJson()}');
-
     final response = await Dio().post(
       "http://16.50.232.153:3000/place_order",
       data: cartOrder.toJson(),
     );
-
     log('Response status code: ${response.statusCode}');
-
     if (response.statusCode == 200) {
-      log('Order placed successfully: ${response.data}');
-      // Pass the response data to the callback
+      log('Order placed successfully: ${response.data}'); 
       onResponse(
           200, 'Your order has been successfully placed.', response.data);
     } else {

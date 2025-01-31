@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -422,8 +423,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                               setState(() {
                                                 if (localCounts[i] > 0) {
                                                   localCounts[i]--;
-                                                
-                                                 
                                                 }
                                               });
                                             },
@@ -567,8 +566,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                     true;
                                                                 localCounts[
                                                                     i]++;
-
-                                                                
                                                               });
                                                               Navigator.of(
                                                                       context)
@@ -605,10 +602,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                 } else if (detail.stock == 0 &&
                                                     canAddQuantity == true) {
                                                   localCounts[i]++;
-                                                  
                                                 } else {
                                                   localCounts[i]++;
-                                                  
                                                 }
                                               });
                                             },
@@ -645,7 +640,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             final customerId = customerAndOrderController
                                     .customerId.value.isNotEmpty
                                 ? customerAndOrderController.customerId.value
@@ -655,6 +650,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               log('Customer ID: ${customerAndOrderController.customerId.value}');
                               log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
                               log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+
                               if ((customerAndOrderController
                                       .customerId.value.isNotEmpty) ||
                                   (widget.productController.selectedCustomerName
@@ -664,11 +660,26 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 List<Detail> detailsFromAllItems = allItems
                                     .map((item) => item.detail)
                                     .toList();
+
+                                final existingDraft = CartDatabaseManager()
+                                    .draftBox
+                                    .get(customerId);
+                                final draftItemMap = existingDraft != null
+                                    ? {
+                                        for (var item in existingDraft.items)
+                                          '${item.detail.variationName}_${item.detail.sellPrice}':
+                                              item
+                                      }
+                                    : {};
+
                                 for (var i = 0;
                                     i < widget.detailsCopy.length;
                                     i++) {
                                   Detail detail = widget.detailsCopy[i];
-                                  bool isProductAlreadyInAnyBox =
+                                  bool isProductAlreadyInDraft =
+                                      draftItemMap.containsKey(
+                                          '${detail.variationName}_${detail.sellPrice}');
+                                  bool isProductAlreadyInCart =
                                       detailsFromAllItems.any(
                                     (item) =>
                                         item.variationName ==
@@ -677,22 +688,50 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   );
 
                                   if (localCounts[i] > 0) {
-                                    if (!isProductAlreadyInAnyBox) {
+                                    if (isProductAlreadyInDraft) {
+                                      final draftItem = draftItemMap[
+                                          '${detail.variationName}_${detail.sellPrice}']!;
+                                      draftItem.detail.count += localCounts[i];
+                                      draftItem.totalPrice = draftItem.isPack
+                                          ? (draftItem.detail.count *
+                                                  draftItem.detail.pieces! *
+                                                  num.parse(draftItem
+                                                          .detail.sellPrice ??
+                                                      '0'))
+                                              .toDouble()
+                                          : (draftItem.detail.count *
+                                                  num.parse(draftItem
+                                                          .detail.sellPrice ??
+                                                      '0'))
+                                              .toDouble();
+                                      log('Draft item updated: ${draftItem.detail.variationName}, New Count: ${draftItem.detail.count}, Total Price: ${draftItem.totalPrice}');
+                                      await CartDatabaseManager().draftBox.put(
+                                          customerId,
+                                          existingDraft ??
+                                              Draft(
+                                                  cartId: '',
+                                                  customerId: '',
+                                                  draftId: '',
+                                                  items: []));
+                                    } else if (isProductAlreadyInCart) {
+                                      // Update cart logic
+                                      log('Product with ID: ${detail.variationId} is already in cart. Updating count.');
+                                      await CartDatabaseManager()
+                                          .updateCartItemCount(
+                                              detail, localCounts[i]);
+                                    } else {
+                                      // Add new item
                                       final bool isPack =
                                           detail.saleBy == 'Pack';
-                                      CartDatabaseManager().addToCart(
+                                      await CartDatabaseManager().addToCart(
                                         detail,
                                         widget.product.productName ?? '',
-                                        detail.totalPrice?.toInt()??0,
+                                        detail.totalPrice?.toInt() ?? 0,
                                         isPack,
                                         localCounts[i],
-                                        
+                                        customerId,
                                       );
                                       log('Product added to cart or draft with ID: ${detail.variationId}');
-                                    } else {
-                                      log('Product with ID: ${detail.variationId} is already in cart or draft. Updating count.');
-                                      CartDatabaseManager().updateCartItemCount(
-                                          detail, localCounts[i]);
                                     }
                                   } else {
                                     log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
@@ -761,7 +800,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                 detail.variationName &&
                                             item.sellPrice == detail.sellPrice,
                                       );
-
                                       if (!isProductAlreadyInCart) {
                                         CartDatabaseManager().addToCart(
                                             detail,
@@ -769,7 +807,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             detail.totalPrice!.toInt(),
                                             isPack,
                                             localCounts[i],
-                                           );
+                                            customerId);
                                         log('Product added to regular cart with ID: ${detail.variationId}');
                                       } else {
                                         log('Product with ID: ${detail.variationId} is already in the regular cart. Updating count.');
@@ -895,6 +933,4 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
       }
     });
   }
-
-
 }

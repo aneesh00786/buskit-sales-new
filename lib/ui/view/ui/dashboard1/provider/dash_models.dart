@@ -3335,12 +3335,12 @@ class SpecificOrderCart {
   String? cartId;
   String? productId;
   String? variationId;
-  String? price;
+  num? price;
   dynamic reason;
   int? quantity;
   int? pieces;
   dynamic packType;
-  int? totalPrice;
+  num? totalPrice;
   int? status;
   int? orderPlaceStatus;
   DateTime? createdAt;

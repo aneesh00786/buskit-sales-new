@@ -1059,7 +1059,6 @@ class _OrderTakingState extends State<OrderTaking>
     });
     log('Selected Category: $_selectedCategory');
   }
-
   String selectedSubCategory(String selectedOption) {
     var selectedCategory = widget.productsController.categoryData.value.data!
         .firstWhere((e) =>

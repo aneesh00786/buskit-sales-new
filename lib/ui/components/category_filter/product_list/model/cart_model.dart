@@ -27,21 +27,18 @@ class CartItem extends HiveObject {
     this.count,
   });
 
-  /// Convert JSON to `CartItem`
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      detail: Detail.fromJson(json['detail']), // Assuming `Detail` has `fromJson`
+      detail: Detail.fromJson(json['detail']), 
       productName: json['productName'] as String,
       totalPrice: json['totalPrice'] as double,
       isPack: json['isPack'] as bool?,
       count: json['count'] as int?,
     );
   }
-
-  /// Convert `CartItem` to JSON
   Map<String, dynamic> toJson() {
     return {
-      'detail': detail.toJson(), // Assuming `Detail` has `toJson`
+      'detail': detail.toJson(),
       'productName': productName,
       'totalPrice': totalPrice,
       'isPack': isPack,

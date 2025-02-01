@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SyncButtonWidget extends StatefulWidget {
   final Function onSync;
@@ -19,14 +20,22 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
   bool _isOnline = true;
   bool _isSyncing = false;
   Timer? _connectivityCheckTimer;
-  DateTime? _lastSyncTime; 
+  DateTime? _lastSyncTime;
 
   @override
   void initState() {
     super.initState();
+    _loadLastSyncTime();
     checkInternetConnectivity();
-    _connectivityCheckTimer =
-        Timer.periodic(const Duration(seconds: 5), (_) => checkInternetConnectivity());
+    _connectivityCheckTimer = Timer.periodic(
+        const Duration(seconds: 5), (_) => checkInternetConnectivity());
+  }
+
+  Future<void> _loadLastSyncTime() async {
+    final lastSyncTime = await _getLastSyncTime();
+    setState(() {
+      _lastSyncTime = lastSyncTime;
+    });
   }
 
   @override
@@ -48,20 +57,14 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
   }
 
   Future<void> _startSyncing() async {
-    if (mounted) {
-      setState(() {
-        _isSyncing = true;
-      });
-    }
-
-    await widget.onSync();
-
-    if (mounted) {
-      setState(() {
-        _isSyncing = false;
-        _lastSyncTime = DateTime.now();
-      });
-    }
+    setState(() {
+      _isSyncing = true;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    await _updateLastSyncTime();
+    setState(() {
+      _isSyncing = false;
+    });
   }
 
   String _formatLastSyncTime() {
@@ -133,8 +136,25 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       ],
     );
   }
-}
 
+  Future<void> _updateLastSyncTime() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    await prefs.setString('lastSyncTime', now.toIso8601String());
+    setState(() {
+      _lastSyncTime = now;
+    });
+  }
+
+  Future<DateTime?> _getLastSyncTime() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final lastSyncTimeString = prefs.getString('lastSyncTime');
+    if (lastSyncTimeString == null) {
+      return null;
+    }
+    return DateTime.parse(lastSyncTimeString);
+  }
+}
 
 void showNoInternetSnackBar(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(

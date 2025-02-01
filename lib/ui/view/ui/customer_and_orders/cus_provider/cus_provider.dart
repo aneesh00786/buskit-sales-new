@@ -382,6 +382,7 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomerDashboardData(String customerId, int specifiedYear,
       String? startDate, String? endDate) async {
+        log('Start Date End Date ${startDate}, ${endDate}');
     try {
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(

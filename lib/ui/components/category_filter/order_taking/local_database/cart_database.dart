@@ -91,7 +91,6 @@ Future<void> addToCart(
 
     await CartDatabaseManager().draftBox.put(customerId, existingDraft);
   } else {
-    // No existing draft, add directly to the cart
     final newCartItem = CartItem(
       detail: detail,
       productName: productName,

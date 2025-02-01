@@ -145,22 +145,9 @@ class CartDialogueState extends State<CartDialogue> {
       if (draft != null) {
         log('Draft loaded successfully for customer ID: $customerId');
         draftItems = draft.items;
-        for (var item in draft.items) {
-          log(
-            'Draft Item: '
-            'Product Name: ${item.productName}, '
-            'Variation Name: ${item.detail.variationName}, '
-            'Sell Price: ${item.detail.sellPrice}, '
-            'Count: ${item.detail.count}, '
-            'Total Price: ${item.totalPrice}, '
-            'Is Pack: ${item.isPack}, '
-            'Pieces: ${item.detail.pieces}',
-          );
-        }
         draftQuantity = List.generate(draftItems.length, (index) => 1);
         draftTotal = Utils().getFinalAmount(draftItems);
         draftTax = Utils().getTotalTax(draftItems);
-
         log('Draft Load Tax : $draftTax');
         if (_options.isNotEmpty) {
           _selectedValue = _options[0];
@@ -198,9 +185,9 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void performSpecificAction(bool isTab) async {
-    log('Selected CustomerID :${customeController.customerId.isNotEmpty ? {
-        customeController.customerId.value
-      } : widget.productsController.selectedCustomerId.value}');
+    _loadCartItems();
+    log('Cart Items Length On Back Case :${cartItems.length}');
+    log('Selected CustomerID :${customeController.customerId.isNotEmpty ? customeController.customerId.value : widget.productsController.selectedCustomerId.value}');
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -210,12 +197,12 @@ class CartDialogueState extends State<CartDialogue> {
         );
       },
     );
-    List<Detail> detail = isOrder
-        ? CartDatabaseManager().cartItems.map((e) => e.detail).toList()
-        : CartDatabaseManager().cartPreorderItems.map((e) => e.detail).toList();
+    List<Detail> detail =
+        CartDatabaseManager().cartItems.map((e) => e.detail).toList();
     setState(() {
       widget.cartItemCount = 0;
     });
+    
     final productBYData = AddToCartModel(
       customerId: customeController.customerId.isNotEmpty
           ? customeController.customerId.value
@@ -239,6 +226,7 @@ class CartDialogueState extends State<CartDialogue> {
       total: widget.productsController.finalAmount.value.toStringAsFixed(0),
       discount: '0',
     );
+
     CartOrderModel? cartOrder =
         await ApiWorker().addToCart(productBYData.toJson());
     log('CartId :${cartOrder?.cartId}');
@@ -247,9 +235,6 @@ class CartDialogueState extends State<CartDialogue> {
 
     if (cartOrder != null) {
       int orderStatus = 4;
-      log('Selected Customer ID :${customeController.customerId.isNotEmpty ? {
-          customeController.customerId.value
-        } : widget.productsController.selectedCustomerId.value}');
       CartOrderModel order = CartOrderModel(
         customerId: customeController.customerId.isNotEmpty
             ? customeController.customerId.value
@@ -258,14 +243,19 @@ class CartDialogueState extends State<CartDialogue> {
         cartId: cartOrder.cartId,
         orderStatus: orderStatus,
       );
-      log('CartId :${cartOrder.cartId}');
+
       await placeOrder(order, (statusCode, message, response) {
         Navigator.pop(context);
         if (statusCode == 200) {
           final draftId = response?['id'];
-          isOrder
-              ? _clearCartItem(cartItems)
-              : _clearPreorderCartItem(preorderItems);
+          log('Draft ID: $draftId');
+          CartDatabaseManager().saveCartAsDraft(
+            customeController.customerId.isNotEmpty
+                ? customeController.customerId.value
+                : widget.productsController.selectedCustomerId.value,
+            cartOrder.cartId,
+            draftId,
+          );
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -290,24 +280,7 @@ class CartDialogueState extends State<CartDialogue> {
                       isTab
                           ? Navigator.of(context, rootNavigator: true).pop()
                           : null;
-                      isOrder
-                          ? _clearCartItem(cartItems)
-                          : _clearPreorderCartItem(preorderItems);
-                      final cartProvider = Provider.of<CustomersProvider>(
-                        context,
-                      );
-                      cartProvider.getCartItemCounts(
-                        customeController.customerId.isNotEmpty
-                            ? customeController.customerId.value
-                            : widget
-                                .productsController.selectedCustomerId.value,
-                      );
-                      cartProvider.updateCartCount(
-                        customeController.customerId.isNotEmpty
-                            ? customeController.customerId.value
-                            : widget
-                                .productsController.selectedCustomerId.value,
-                      );
+                      _clearCartItem(cartItems);
                     },
                     child: const Text('OK'),
                   ),
@@ -315,12 +288,8 @@ class CartDialogueState extends State<CartDialogue> {
               );
             },
           );
-          CartDatabaseManager().saveCartAsDraft(
-              customeController.customerId.isNotEmpty
-                  ? customeController.customerId.value
-                  : widget.productsController.selectedCustomerId.value,
-              cartOrder?.cartId ?? '',
-              draftId);
+          
+          log('Draft saved with ID: $draftId');
         } else {
           showDialog(
             context: context,
@@ -352,15 +321,8 @@ class CartDialogueState extends State<CartDialogue> {
         }
       });
       setState(() {
-        if (isOrder) {
-          CartDatabaseManager().cartItems.clear();
-          CartDatabaseManager().clearCart();
-        } else {
-          CartDatabaseManager().cartPreorderItems.clear();
-          CartDatabaseManager().clearPreorderCart();
-        }
-
-        widget.cartItemCount = 0;
+        CartDatabaseManager().cartItems.clear();
+        CartDatabaseManager().clearCart();
       });
     }
   }
@@ -376,18 +338,15 @@ class CartDialogueState extends State<CartDialogue> {
         ),
       );
     }
-
     if (isOrder && draftItems.isEmpty) {
       finalAmount = total;
     } else if (isDraft && cartItems.isEmpty && preorderItems.isEmpty) {
       log('Calculating for Draft...');
       double draftTotal =
           draftItems.fold(0.0, (sum, item) => sum + item.totalPrice);
-      // finalAmount = draftTotal + draftTax;
       finalAmount = draftTotal;
       log('Draft Total: $draftTotal, Draft Tax: $draftTax, Final Amount: $finalAmount');
     } else {
-      // finalAmount = preorderTotal + preorderTax;
       finalAmount = preorderTotal;
     }
     widget.productsController.updateFinalAmount(finalAmount ?? 0);
@@ -1350,10 +1309,9 @@ class CartDialogueState extends State<CartDialogue> {
                                           return AlertDialog(
                                             title: Center(
                                               child: SizedBox(
-                                                height: 100,
-                                                width: 100,
-                                                child: Icon(Icons.close)
-                                              ),
+                                                  height: 100,
+                                                  width: 100,
+                                                  child: Icon(Icons.close)),
                                             ),
                                             content: CustomText(
                                               content:
@@ -1364,7 +1322,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               TextButton(
                                                 onPressed: () {
                                                   Navigator.pop(context);
-                                                  
                                                 },
                                                 child: const Text('OK'),
                                               ),
@@ -1432,11 +1389,7 @@ class CartDialogueState extends State<CartDialogue> {
                                       log('CartId :${cartOrder?.cartId}');
                                       log('Pack or pcs :${productBYData.cartList.first.pack}');
                                       log('Pack or pcs :${productBYData.cartList.first.packType}');
-                                      CartDatabaseManager().saveCartAsDraft(
-                                          widget.productsController
-                                              .selectedCustomerId.value,
-                                          cartOrder?.cartId ?? "",
-                                          '');
+
                                       if (cartOrder != null) {
                                         int orderStatus = 4;
                                         CartOrderModel order = CartOrderModel(
@@ -1495,6 +1448,14 @@ class CartDialogueState extends State<CartDialogue> {
                                                 );
                                               },
                                             );
+                                            CartDatabaseManager()
+                                                .saveCartAsDraft(
+                                                    widget
+                                                        .productsController
+                                                        .selectedCustomerId
+                                                        .value,
+                                                    cartOrder.cartId,
+                                                    draftId);
                                             log('Draft ID : $draftId');
                                           } else {
                                             showDialog(
@@ -1528,7 +1489,6 @@ class CartDialogueState extends State<CartDialogue> {
                                             );
                                           }
                                         });
-
                                         setState(() {
                                           CartDatabaseManager()
                                               .cartItems

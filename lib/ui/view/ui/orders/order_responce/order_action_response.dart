@@ -41,8 +41,8 @@ class ButtonActionData {
     int orderStatus;
     String cartId;
     DateTime orderCreatAt;
-    int orderTotal;
-    int receivedAmount;
+    num orderTotal;
+    num receivedAmount;
     dynamic receivedAmountDate;
     DateTime checkDueDate;
     dynamic checkNumber;
@@ -77,29 +77,37 @@ class ButtonActionData {
         required this.deliveryDatetime,
     });
 
-    factory ButtonActionData.fromJson(Map<String, dynamic> json) => ButtonActionData(
-        id: json["id"],
-        orderId: json["order_id"],
-        customerId: json["customer_id"],
-        salesmanId: json["salesman_id"],
-        paymentStatus: json["payment_status"],
-        paymentType: json["payment_type"],
-        paymentDetail: json["payment_detail"],
-        orderStatus: json["order_status"],
-        cartId: json["cart_id"],
-        orderCreatAt: DateTime.parse(json["order_creat_at"]),
-        orderTotal: json["order_total"],
-        receivedAmount: json["received_amount"],
-        receivedAmountDate: json["received_amount_date"],
-        checkDueDate: DateTime.parse(json["check_due_date"]),
-        checkNumber: json["check_number"],
-        transactionDate: json["transaction_date"],
-        transactionDetails: json["transaction_details"],
-        rejectionReason: json["rejection_reason"],
-        rejectedDate: DateTime.parse(json["rejected_date"]),
-        receivableAmount: json["receivable_amount"],
-        deliveryDatetime: json["delivery_datetime"],
-    );
+    factory ButtonActionData.fromJson(Map<String, dynamic> json) =>
+      ButtonActionData(
+        id: json["id"] ?? "",
+        orderId: json["order_id"] ?? "",
+        customerId: json["customer_id"] ?? "",
+        salesmanId: json["salesman_id"] ?? "",
+        paymentStatus: json["payment_status"] ?? "",
+        paymentType: json["payment_type"] ?? "",
+        paymentDetail: json["payment_detail"] ?? "",
+        orderStatus: json["order_status"] ?? "",
+        cartId: json["cart_id"] ?? "",
+        orderCreatAt: json["order_creat_at"] != null
+            ? DateTime.parse(json["order_creat_at"])
+            : DateTime.now(),
+        orderTotal: num.tryParse(json["order_total"]?.toString() ?? "0") ?? 0,
+        receivedAmount:
+            num.tryParse(json["received_amount"]?.toString() ?? "0") ?? 0,
+        receivedAmountDate: json["received_amount_date"] ?? "",
+        checkDueDate: json["check_due_date"] != null
+            ? DateTime.parse(json["check_due_date"])
+            : DateTime.now(),
+        checkNumber: json["check_number"] ?? "",
+        transactionDate: json["transaction_date"] ?? "",
+        transactionDetails: json["transaction_details"] ?? "",
+        rejectionReason: json["rejection_reason"] ?? "",
+        rejectedDate: json["rejected_date"] != null
+            ? DateTime.parse(json["rejected_date"])
+            : DateTime.now(),
+        receivableAmount: json["receivable_amount"] ?? 0,
+        deliveryDatetime: json["delivery_datetime"] ?? "",
+      );
 
     Map<String, dynamic> toJson() => {
         "id": id,

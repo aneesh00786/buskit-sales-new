@@ -60,13 +60,12 @@ Future<void> addToCart(
   detail.count += localCount.toDouble();
 
   final existingDraft = CartDatabaseManager().draftBox.get(customerId);
-  if (existingDraft != null) {
     final draftItemMap = {
-      for (var item in existingDraft.items)
+      for (var item in existingDraft?.items??[])
         '${item.detail.variationName}_${item.detail.sellPrice}': item
     };
-
     final key = '${detail.variationName}_${detail.sellPrice}';
+  if (existingDraft != null &&draftItemMap.containsKey(key)) {
     if (draftItemMap.containsKey(key)) {
       final existingItem = draftItemMap[key]!;
       existingItem.detail.count += localCount.toDouble();

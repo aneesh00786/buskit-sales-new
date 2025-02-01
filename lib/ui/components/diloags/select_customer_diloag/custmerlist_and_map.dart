@@ -135,6 +135,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       cusId: customer.customerId,
                       cusName: customer.businessName,
                       cusImage: customer.imageUrl,
+                      
                     ),
                     id: 2,
                   );

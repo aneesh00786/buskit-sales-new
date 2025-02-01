@@ -249,7 +249,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                      productsController: widget.productsController!,
+                      productsController: widget.productsController??ProductsController(),
                       isFromCalender: widget.isFromCalendar,
                       isDirectDialogue: widget.isDirectDialogue,
                       isFromOrder: widget.isFromOrder,

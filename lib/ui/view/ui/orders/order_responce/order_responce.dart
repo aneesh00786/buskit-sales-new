@@ -118,7 +118,7 @@ class OrderData {
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
     deliveryDatetime = json['delivery_datetime'] as String?;
-    orderTotal = json['order_total'] as num?;
+    orderTotal = num.tryParse(json['order_total'].toString())??0;
     fullname = json['fullname'] as String?;
     lastname = json['lastname'] as String?;
     invoice = (json['invoice'] as List?)
@@ -402,8 +402,8 @@ class OrderProcessInvoiceData {
   int? orderStatus;
   String? cartId;
   DateTime? orderCreatAt;
-  int? orderTotal;
-  int? receivedAmount;
+  num? orderTotal;
+  num? receivedAmount;
   DateTime? receivedAmountDate;
   DateTime? checkDueDate;
   int? checkNumber;
@@ -470,8 +470,8 @@ class OrderProcessInvoiceData {
         orderCreatAt: json["order_creat_at"] != null
             ? DateTime.parse(json["order_creat_at"])
             : null,
-        orderTotal: json["order_total"],
-        receivedAmount: json["received_amount"],
+        orderTotal: num.tryParse(json["order_total"].toString()),
+        receivedAmount: num.tryParse(json["received_amount"].toString()),
         receivedAmountDate: json["received_amount_date"] != null
             ? DateTime.parse(json["received_amount_date"])
             : null,

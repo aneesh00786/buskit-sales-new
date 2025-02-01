@@ -714,13 +714,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                   draftId: '',
                                                   items: []));
                                     } else if (isProductAlreadyInCart) {
-                                      // Update cart logic
                                       log('Product with ID: ${detail.variationId} is already in cart. Updating count.');
                                       await CartDatabaseManager()
                                           .updateCartItemCount(
                                               detail, localCounts[i]);
                                     } else {
-                                      // Add new item
                                       final bool isPack =
                                           detail.saleBy == 'Pack';
                                       await CartDatabaseManager().addToCart(

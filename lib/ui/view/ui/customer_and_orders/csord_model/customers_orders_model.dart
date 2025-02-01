@@ -1353,8 +1353,8 @@ class OrderDetail {
   final int orderStatus;
   final String cartId;
   final String orderCreatAt;
-  final int orderTotal;
-  final int receivedAmount;
+  final num orderTotal;
+  final num receivedAmount;
   final String receivedAmountDate;
   final String checkDueDate;
   final int checkNumber;
@@ -1395,8 +1395,8 @@ class OrderDetail {
       orderStatus: json['order_status'] ?? 0,
       cartId: json['cart_id'] ?? '',
       orderCreatAt: json['order_creat_at'] ?? '',
-      orderTotal: json['order_total'] ?? 0,
-      receivedAmount: json['received_amount'] ?? 0,
+      orderTotal: num.tryParse(json['order_total'].toString()) ?? 0,
+      receivedAmount: num.tryParse(json['received_amount'].toString()) ?? 0,
       receivedAmountDate: json['received_amount_date'] ?? '',
       checkDueDate: json['check_due_date'] ?? '',
       checkNumber: json['check_number'] ?? 0,

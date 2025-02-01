@@ -38,7 +38,6 @@ class HomeController extends GetxController {
       GlobalKey<ScaffoldState>();
   final ApiWorker _apiWorker = ApiWorker();
   final ApiService _apiService = ApiService();
-
   @override
   void onInit() {
     super.onInit();
@@ -46,8 +45,10 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchDashboardData() async {
+    final salesmanId  = SessionHelper.loginSavedData?.salesmanId??'';
     try {
       await _apiService.fetchDashboardData();
+      await _apiService.fetchIndividualChatApi(salesmanId, 1);
     } catch (e) {
       if (e.toString().contains('Session expired')) {
         await SessionHelper().clearAll();

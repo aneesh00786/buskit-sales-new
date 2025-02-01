@@ -92,6 +92,7 @@ Future<void> addToCart(
 
     await CartDatabaseManager().draftBox.put(customerId, existingDraft);
   } else {
+    // No existing draft, add directly to the cart
     final newCartItem = CartItem(
       detail: detail,
       productName: productName,
@@ -104,8 +105,6 @@ Future<void> addToCart(
 
   _notifyListeners();
 }
-
-
 
   Future<void> addToPreorderCart(
     Detail detail,
@@ -160,13 +159,12 @@ Future<void> addToCart(
 
     _notifyListeners();
   }
-
+  
 Future<void> updateCartItemCount(Detail detail, int newCount) async {
   if (newCount <= 0) {
     log("Error: Count must be greater than zero.");
     return;
   }
-
   try {
     CartItem? existingCartItem = _cartBox.values.firstWhere(
       (cartItem) =>
@@ -174,6 +172,7 @@ Future<void> updateCartItemCount(Detail detail, int newCount) async {
           cartItem.detail.sellPrice == detail.sellPrice,
       orElse: () => CartItem(detail: detail, productName: '', totalPrice: 0),
     );
+
     if (existingCartItem != null) {
       existingCartItem.detail.count += newCount.toDouble();
       existingCartItem.totalPrice = existingCartItem.isPack!

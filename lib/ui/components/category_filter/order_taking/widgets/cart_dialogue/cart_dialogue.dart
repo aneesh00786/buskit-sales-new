@@ -101,6 +101,8 @@ class CartDialogueState extends State<CartDialogue> {
     isOrder = cartItems.isEmpty && preorderItems.isNotEmpty ? false : true;
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
+    log('CartList Length : ${cartItems.length}');
+    log('DraftList Length : ${draftItems.length}');
   }
 
   void setOptions() {
@@ -111,31 +113,30 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-void _loadCartItems() {
-  try {
-    final customerId = widget.customerOrderController!.customerId.value.isNotEmpty
-        ? widget.customerOrderController!.customerId.value
-        : widget.productsController.selectedCustomerId.value;
-    cartItems = CartDatabaseManager().getCartItems();
-    final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
-    draftItems = draft?.items ?? [];
-    combinedList = [...cartItems, ...draftItems];
-    setState(() {
-      quantities = List.generate(cartItems.length, (index) => 1);
-      total = Utils().getFinalAmount(cartItems);
-      tax = Utils().getTotalTax(cartItems);
-      _isLoading = false;
-    });
+  void _loadCartItems() {
+    try {
+      final customerId =
+          widget.customerOrderController!.customerId.value.isNotEmpty
+              ? widget.customerOrderController!.customerId.value
+              : widget.productsController.selectedCustomerId.value;
+      cartItems = CartDatabaseManager().getCartItems();
+      final Draft? draft = CartDatabaseManager().draftBox.get(customerId);
+      draftItems = draft?.items ?? [];
+      combinedList = [...cartItems, ...draftItems];
+      setState(() {
+        quantities = List.generate(cartItems.length, (index) => 1);
+        total = Utils().getFinalAmount(cartItems);
+        tax = Utils().getTotalTax(cartItems);
+        _isLoading = false;
+      });
 
-    if (_options.isNotEmpty) {
-      _selectedValue = _options[0];
+      if (_options.isNotEmpty) {
+        _selectedValue = _options[0];
+      }
+    } catch (e) {
+      print('Error loading cart items: $e');
     }
-  } catch (e) {
-    print('Error loading cart items: $e');
   }
-}
-
-
 
   void loadDraft(String customerId) {
     try {
@@ -432,7 +433,9 @@ void _loadCartItems() {
                       width: width,
                       title: 'My Cart',
                     ),
-                    if (cartItems.isNotEmpty || preorderItems.isNotEmpty||draftItems.isNotEmpty) ...[
+                    if (cartItems.isNotEmpty ||
+                        preorderItems.isNotEmpty ||
+                        draftItems.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 16),
@@ -1339,71 +1342,55 @@ void _loadCartItems() {
                                   text: 'Save as Draft',
                                   size: width > 1200 ? 14 : 10,
                                   onTap: () async {
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (BuildContext context) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      },
-                                    );
-                                    List<Detail> detail = CartDatabaseManager()
-                                        .cartItems
-                                        .map((e) => e.detail)
-                                        .toList();
-                                    setState(() {
-                                      widget.cartItemCount = 0;
-                                    });
-                                    final productBYData = AddToCartModel(
-                                      customerId: customeController
-                                              .customerId.isNotEmpty
-                                          ? customeController.customerId.value
-                                          : widget.productsController
-                                              .selectedCustomerId.value,
-                                      salesmanId: SessionHelper
-                                          .loginSavedData!.salesmanId!,
-                                      cartId: '',
-                                      cartList: detail
-                                          .map((e) => SendCartData(
-                                                productId: e.productId ??
-                                                    widget
-                                                        .productsController
-                                                        .selectedCustomerId
-                                                        .value,
-                                                variantId: e.variationId ?? '',
-                                                pack: e.saleBy == 'Pack'
-                                                    ? e.pieces.toString()
-                                                    : e.count.toString(),
-                                                packType: e.saleBy == 'Pack'
-                                                    ? 'Pack'
-                                                    : 'Pcs',
-                                               price: e.sellPrice.toString(),
-                                                discount: '0',
-                                                quantity: e.count.toInt(),
-                                              ))
-                                          .toList(),
-                                      total: widget
-                                          .productsController.finalAmount.value
-                                          .toStringAsFixed(0),
-                                      discount: '0',
-                                    );
-
-                                    log('Customer Id for Save draft : ${widget.productsController.selectedCustomerId.value}');
-                                    CartOrderModel? cartOrder =
-                                        await ApiWorker()
-                                            .addToCart(productBYData.toJson());
-                                    log('CartId :${cartOrder?.cartId}');
-                                    log('Pack or pcs :${productBYData.cartList.first.pack}');
-                                    log('Pack or pcs :${productBYData.cartList.first.packType}');
-                                     CartDatabaseManager().saveCartAsDraft(
-                                              widget.productsController
-                                                  .selectedCustomerId.value,
-                                              cartOrder?.cartId??"",''
-                                              );
-                                    if (cartOrder != null) {
-                                      int orderStatus = 4;
-                                      CartOrderModel order = CartOrderModel(
+                                    if (cartItems.isEmpty) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Center(
+                                              child: SizedBox(
+                                                height: 100,
+                                                width: 100,
+                                                child: Icon(Icons.close)
+                                              ),
+                                            ),
+                                            content: CustomText(
+                                              content:
+                                                  'The Cart items is Empty',
+                                              fontSize: 18,
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  
+                                                },
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
+                                      );
+                                      List<Detail> detail =
+                                          CartDatabaseManager()
+                                              .cartItems
+                                              .map((e) => e.detail)
+                                              .toList();
+                                      setState(() {
+                                        widget.cartItemCount = 0;
+                                      });
+                                      final productBYData = AddToCartModel(
                                         customerId: customeController
                                                 .customerId.isNotEmpty
                                             ? customeController.customerId.value
@@ -1411,91 +1398,144 @@ void _loadCartItems() {
                                                 .selectedCustomerId.value,
                                         salesmanId: SessionHelper
                                             .loginSavedData!.salesmanId!,
-                                        cartId: cartOrder.cartId,
-                                        orderStatus: orderStatus,
+                                        cartId: '',
+                                        cartList: detail
+                                            .map((e) => SendCartData(
+                                                  productId: e.productId ??
+                                                      widget
+                                                          .productsController
+                                                          .selectedCustomerId
+                                                          .value,
+                                                  variantId:
+                                                      e.variationId ?? '',
+                                                  pack: e.saleBy == 'Pack'
+                                                      ? e.pieces.toString()
+                                                      : e.count.toString(),
+                                                  packType: e.saleBy == 'Pack'
+                                                      ? 'Pack'
+                                                      : 'Pcs',
+                                                  price: e.sellPrice.toString(),
+                                                  discount: '0',
+                                                  quantity: e.count.toInt(),
+                                                ))
+                                            .toList(),
+                                        total: widget.productsController
+                                            .finalAmount.value
+                                            .toStringAsFixed(0),
+                                        discount: '0',
                                       );
 
-                                      log('CartId :${cartOrder.cartId}');
-                                      await placeOrder(order,
-                                          (statusCode, message, response) {
-                                        Navigator.pop(context);
-                                        if (statusCode == 200) {
-                                          _clearCartItem(cartItems);
-                                          final draftId = response?['id'];
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Center(
-                                                  child: Container(
-                                                    height: 100,
-                                                    width: 100,
-                                                    child: Lottie.asset(
-                                                        'assets/images/Animation - 1726906882515.json'),
-                                                  ),
-                                                ),
-                                                content: CustomText(
-                                                  content:
-                                                      'Your order has been successfully saved as Draft',
-                                                  fontSize: 18,
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Navigator.pop(context);
-                                                      Navigator.of(context,
-                                                              rootNavigator:
-                                                                  true)
-                                                          .pop();
+                                      log('Customer Id for Save draft : ${widget.productsController.selectedCustomerId.value}');
+                                      CartOrderModel? cartOrder =
+                                          await ApiWorker().addToCart(
+                                              productBYData.toJson());
+                                      log('CartId :${cartOrder?.cartId}');
+                                      log('Pack or pcs :${productBYData.cartList.first.pack}');
+                                      log('Pack or pcs :${productBYData.cartList.first.packType}');
+                                      CartDatabaseManager().saveCartAsDraft(
+                                          widget.productsController
+                                              .selectedCustomerId.value,
+                                          cartOrder?.cartId ?? "",
+                                          '');
+                                      if (cartOrder != null) {
+                                        int orderStatus = 4;
+                                        CartOrderModel order = CartOrderModel(
+                                          customerId: customeController
+                                                  .customerId.isNotEmpty
+                                              ? customeController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,
+                                          salesmanId: SessionHelper
+                                              .loginSavedData!.salesmanId!,
+                                          cartId: cartOrder.cartId,
+                                          orderStatus: orderStatus,
+                                        );
 
-                                                      _clearCartItem(cartItems);
-                                                    },
-                                                    child: const Text('OK'),
+                                        log('CartId :${cartOrder.cartId}');
+                                        await placeOrder(order,
+                                            (statusCode, message, response) {
+                                          Navigator.pop(context);
+                                          if (statusCode == 200) {
+                                            _clearCartItem(cartItems);
+                                            final draftId = response?['id'];
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Center(
+                                                    child: Container(
+                                                      height: 100,
+                                                      width: 100,
+                                                      child: Lottie.asset(
+                                                          'assets/images/Animation - 1726906882515.json'),
+                                                    ),
                                                   ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                          log('Draft ID : $draftId');
-                                         
-                                        } else {
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Center(
-                                                  child: Container(
-                                                    height: 200,
-                                                    width: 200,
-                                                    child: Lottie.asset(
-                                                        'assets/images/Warning_animation.json'),
+                                                  content: CustomText(
+                                                    content:
+                                                        'Your order has been successfully saved as Draft',
+                                                    fontSize: 18,
                                                   ),
-                                                ),
-                                                content: CustomText(
-                                                  content:
-                                                      "Couldn't save the order as draft please try again.",
-                                                  fontSize: 18,
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('OK'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        Navigator.pop(context);
+                                                        Navigator.of(context,
+                                                                rootNavigator:
+                                                                    true)
+                                                            .pop();
+
+                                                        _clearCartItem(
+                                                            cartItems);
+                                                      },
+                                                      child: const Text('OK'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                            log('Draft ID : $draftId');
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Center(
+                                                    child: Container(
+                                                      height: 200,
+                                                      width: 200,
+                                                      child: Lottie.asset(
+                                                          'assets/images/Warning_animation.json'),
+                                                    ),
                                                   ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        }
-                                      });
-                                      
-                                      setState(() {
-                                        CartDatabaseManager().cartItems.clear();
-                                        CartDatabaseManager().clearCart();
-                                      });
+                                                  content: CustomText(
+                                                    content:
+                                                        "Couldn't save the order as draft please try again.",
+                                                    fontSize: 18,
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: const Text('OK'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
+                                        });
+
+                                        setState(() {
+                                          CartDatabaseManager()
+                                              .cartItems
+                                              .clear();
+                                          CartDatabaseManager().clearCart();
+                                        });
+                                      }
                                     }
                                   },
                                 )
@@ -1537,11 +1577,10 @@ void _loadCartItems() {
                                   }
                                 } else {
                                   await processSaveAndSend(
-                                    finalAmount: finalAmount ?? 0,
-                                    context: context,
-                                    cartId: cartId,
-                                    draftId: draftId
-                                  );
+                                      finalAmount: finalAmount ?? 0,
+                                      context: context,
+                                      cartId: cartId,
+                                      draftId: draftId);
                                 }
                               } else {
                                 showDialog(
@@ -1600,226 +1639,228 @@ void _loadCartItems() {
     );
   }
 
-Future<void> processSaveAndSend({
-  required BuildContext context,
-  required double finalAmount,
-  int? paymentType,
-  required String cartId,
-  required String draftId,
-}) async {
-  List<CartItem> itemList = [...cartItems, ...draftItems];
-  final connectivityService = ConnectivityService();
+  Future<void> processSaveAndSend({
+    required BuildContext context,
+    required double finalAmount,
+    int? paymentType,
+    required String cartId,
+    required String draftId,
+  }) async {
+    List<CartItem> itemList = [...cartItems, ...draftItems];
+    final connectivityService = ConnectivityService();
 
-  if (itemList.isNotEmpty &&
-      (customeController.customerId.value.isNotEmpty ||
-          widget.productsController.selectedCustomerId.value.isNotEmpty)) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(child: CircularProgressIndicator());
-      },
-    );
-
-    try {
-      log('[processSaveAndSend] Checking connectivity...');
-      bool isOnline = await connectivityService.isOnline();
-
-      if (!isOnline) {
-        // Handle offline logic
-        log('[processSaveAndSend] Device is offline. Saving order offline...');
-        await saveOrderOffline(finalAmount, paymentType);
-        Navigator.pop(context);
-        isOrder ? _clearCartItem(itemList) : _clearPreorderCartItem(itemList);
-
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Offline Mode'),
-            content: const Text(
-                'The order will be placed automatically when connected to the internet.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                    Navigator.of(context, rootNavigator: true).pop();
-                    isOrder
-                        ? _clearCartItem(itemList)
-                        : _clearPreorderCartItem(itemList);
-                  });
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-        return;
-      }
-
-      log('[processSaveAndSend] Preparing data for API call...');
-      List<Detail> detail = itemList.map((e) => e.detail).toList();
-      log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
-
-      final productBYData = AddToCartModel(
-        customerId: customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-        cartId: cartId.isNotEmpty ? cartId : '',
-        cartList: await Future.wait(detail.map((e) async {
-          String packValue = e.saleBy == 'Pack'
-              ? (await _getPackPiecesValue(e.productId ?? '', e.count.toInt()))
-                  .toString()
-              : e.count.toString();
-
-          return SendCartData(
-            productId: e.productId ?? '',
-            variantId: e.variationId ?? '',
-            pack: packValue,
-            price: e.sellPrice.toString(),
-            packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-            discount: '0',
-            quantity: e.count.toInt(),
-          );
-        }).toList()),
-        total: finalAmount.toStringAsFixed(0),
-        discount: '0',
+    if (itemList.isNotEmpty &&
+        (customeController.customerId.value.isNotEmpty ||
+            widget.productsController.selectedCustomerId.value.isNotEmpty)) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
       );
 
-      log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
-      CartOrderModel? cartOrder =
-          await ApiWorker().addToCart(productBYData.toJson());
-      log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
+      try {
+        log('[processSaveAndSend] Checking connectivity...');
+        bool isOnline = await connectivityService.isOnline();
 
-      if (cartOrder != null) {
-        log('[processSaveAndSend] Preparing order placement...');
-        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-        int orderStatus = _selectedValue == 'Sale Order'
-            ? 11
-            : _selectedValue == 'Pre Order'
-                ? 0
-                : _selectedValue == 'Estimate'
-                    ? 7
-                    : 14;
+        if (!isOnline) {
+          // Handle offline logic
+          log('[processSaveAndSend] Device is offline. Saving order offline...');
+          await saveOrderOffline(finalAmount, paymentType);
+          Navigator.pop(context);
+          isOrder ? _clearCartItem(itemList) : _clearPreorderCartItem(itemList);
 
-        // Include the draftId here when placing the order
-        CartOrderModel order = CartOrderModel(
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Offline Mode'),
+              content: const Text(
+                  'The order will be placed automatically when connected to the internet.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      Navigator.pop(context);
+                      Navigator.of(context, rootNavigator: true).pop();
+                      isOrder
+                          ? _clearCartItem(itemList)
+                          : _clearPreorderCartItem(itemList);
+                    });
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+          return;
+        }
+
+        log('[processSaveAndSend] Preparing data for API call...');
+        List<Detail> detail = itemList.map((e) => e.detail).toList();
+        log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
+
+        final productBYData = AddToCartModel(
           customerId: customeController.customerId.isNotEmpty
               ? customeController.customerId.value
               : widget.productsController.selectedCustomerId.value,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
-          orderStatus: orderStatus,
-          orderPrice: finalAmount,
-          paymentType: paymentType.toString(),
-          companyId: companyId,
-          paymentDetail: remarkController.text.trim(),
-          transactionNumber: chequeOrTransactionNumberController.text.trim(),
-          transactionDate: dateController.text.trim(),
-          draftId: draftId,
+          cartId: cartId.isNotEmpty ? cartId : '',
+          cartList: await Future.wait(detail.map((e) async {
+            String packValue = e.saleBy == 'Pack'
+                ? (await _getPackPiecesValue(
+                        e.productId ?? '', e.count.toInt()))
+                    .toString()
+                : e.count.toString();
+
+            return SendCartData(
+              productId: e.productId ?? '',
+              variantId: e.variationId ?? '',
+              pack: packValue,
+              price: e.sellPrice.toString(),
+              packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              discount: '0',
+              quantity: e.count.toInt(),
+            );
+          }).toList()),
+          total: finalAmount.toStringAsFixed(0),
+          discount: '0',
         );
-        await placeOrder(order, (statusCode, message, response) {
-          Navigator.pop(context);
-          if (statusCode == 200) {
-            log('ItemList Length ${itemList.length}');
-            log('ItemList Sended List : ${itemList.map((e) => e.detail,)}');
-            isOrder
-                ? _clearCartItem(itemList)
-                : _clearPreorderCartItem(itemList);
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Center(
-                    child: SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: Lottie.asset(
-                          'assets/images/Animation - 1726906882515.json'),
+
+        log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
+        CartOrderModel? cartOrder =
+            await ApiWorker().addToCart(productBYData.toJson());
+        log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
+
+        if (cartOrder != null) {
+          log('[processSaveAndSend] Preparing order placement...');
+          final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+          int orderStatus = _selectedValue == 'Sale Order'
+              ? 11
+              : _selectedValue == 'Pre Order'
+                  ? 0
+                  : _selectedValue == 'Estimate'
+                      ? 7
+                      : 14;
+
+          // Include the draftId here when placing the order
+          CartOrderModel order = CartOrderModel(
+            customerId: customeController.customerId.isNotEmpty
+                ? customeController.customerId.value
+                : widget.productsController.selectedCustomerId.value,
+            salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+            cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
+            orderStatus: orderStatus,
+            orderPrice: finalAmount,
+            paymentType: paymentType.toString(),
+            companyId: companyId,
+            paymentDetail: remarkController.text.trim(),
+            transactionNumber: chequeOrTransactionNumberController.text.trim(),
+            transactionDate: dateController.text.trim(),
+            draftId: draftId,
+          );
+          await placeOrder(order, (statusCode, message, response) {
+            Navigator.pop(context);
+            if (statusCode == 200) {
+              log('ItemList Length ${itemList.length}');
+              log('ItemList Sended List : ${itemList.map(
+                (e) => e.detail,
+              )}');
+              isOrder
+                  ? _clearCartItem(itemList)
+                  : _clearPreorderCartItem(itemList);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Center(
+                      child: SizedBox(
+                        height: 100,
+                        width: 100,
+                        child: Lottie.asset(
+                            'assets/images/Animation - 1726906882515.json'),
+                      ),
                     ),
-                  ),
-                  content: CustomText(
-                    content: message,
-                    fontSize: 18,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.of(context, rootNavigator: true).pop();
-                        isOrder
-                            ? _clearCartItem(itemList)
-                            : _clearPreorderCartItem(itemList);
-                        _clearDraft(itemList);
-                      },
-                      child: const Text('OK'),
+                    content: CustomText(
+                      content: message,
+                      fontSize: 18,
                     ),
-                  ],
-                );
-              },
-            );
-          } else {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Center(
-                    child: SizedBox(
-                      height: 200,
-                      width: 200,
-                      child: Lottie.asset(
-                          'assets/images/Warning_animation.json'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          isOrder
+                              ? _clearCartItem(itemList)
+                              : _clearPreorderCartItem(itemList);
+                          _clearDraft(itemList);
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Center(
+                      child: SizedBox(
+                        height: 200,
+                        width: 200,
+                        child: Lottie.asset(
+                            'assets/images/Warning_animation.json'),
+                      ),
                     ),
-                  ),
-                  content: CustomText(
-                    content: message,
-                    fontSize: 18,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('OK'),
+                    content: CustomText(
+                      content: message,
+                      fontSize: 18,
                     ),
-                  ],
-                );
-              },
-            );
-          }
-        });
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          });
+        }
+      } catch (e) {
+        Navigator.pop(context);
+        log('[processSaveAndSend] Error: $e');
+        showFailureDialog(context, 'An unexpected error occurred.');
       }
-    } catch (e) {
-      Navigator.pop(context);
-      log('[processSaveAndSend] Error: $e');
-      showFailureDialog(context, 'An unexpected error occurred.');
-    }
-  } else {
-    Navigator.pop(context);
-    if (customeController.customerId.value.isEmpty ||
-        widget.productsController.selectedCustomerId.value.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('No Customer Selected'),
-          duration: Duration(seconds: 3),
-        ),
-      );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Your cart is empty'),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      Navigator.pop(context);
+      if (customeController.customerId.value.isEmpty ||
+          widget.productsController.selectedCustomerId.value.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('No Customer Selected'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Your cart is empty'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
-}
-
 
   Future<int> _getPackPiecesValue(String productId, int quantity) async {
     var productBox = await Hive.openBox('productBox');
@@ -2150,7 +2191,7 @@ Future<void> processSaveAndSend({
                   loadDraft(customerId);
                 } else {
                   _deleteDraftItem(productName, customerId);
-                  
+
                   log('Draft Delete Clicked : ${customerId}');
                 }
                 Navigator.pop(context);
@@ -2173,31 +2214,31 @@ Future<void> processSaveAndSend({
     );
   }
 
-void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
-  final String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
-      ? widget.customerOrderController!.customerId.value
-      : widget.productsController.selectedCustomerId.value;
-  setState(() {
-    cartItems.removeWhere((item) =>
-        item.productName == variantToDelete.productName &&
-        item.detail.variationName == variantToDelete.detail.variationName);
-    draftItems.removeWhere((item) =>
-        item.productName == variantToDelete.productName &&
-        item.detail.variationName == variantToDelete.detail.variationName);
-    combinedList = [...cartItems, ...draftItems];
-    if (draftItems.any((item) => item == variantToDelete)) {
-      CartDatabaseManager().deleteDraftItem(
-          customerId, variantToDelete.detail.variationId ?? '');
-    } else {
-      CartDatabaseManager().deleteCartItem(variantToDelete);
-    }
-    total = Utils().getFinalAmount(combinedList);
-    tax = Utils().getTotalTax(combinedList);
-  });
-  provider.updateCartCount(customerId);
-  log('Deleted variant: ${variantToDelete.detail.variationName}');
-}
-
+  void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
+    final String customerId =
+        widget.customerOrderController!.customerId.value.isNotEmpty
+            ? widget.customerOrderController!.customerId.value
+            : widget.productsController.selectedCustomerId.value;
+    setState(() {
+      cartItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      draftItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      combinedList = [...cartItems, ...draftItems];
+      if (draftItems.any((item) => item == variantToDelete)) {
+        CartDatabaseManager().deleteDraftItem(
+            customerId, variantToDelete.detail.variationId ?? '');
+      } else {
+        CartDatabaseManager().deleteCartItem(variantToDelete);
+      }
+      total = Utils().getFinalAmount(combinedList);
+      tax = Utils().getTotalTax(combinedList);
+    });
+    provider.updateCartCount(customerId);
+    log('Deleted variant: ${variantToDelete.detail.variationName}');
+  }
 
   void _deletePreorderVariant(
       CartItem variantToDelete, List<CartItem> groupedItems) {
@@ -2391,6 +2432,7 @@ void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
       ),
     );
   }
+
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
@@ -2494,38 +2536,41 @@ void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     log('Cart Item Cleared : $draftItem');
   }
 
-void _deleteItem(String productName) {
-  setState(() {
-    final itemsToDeleteFromCart = cartItems.where((item) => item.productName == productName).toList();
-    for (var item in itemsToDeleteFromCart) {
-      CartDatabaseManager().deleteCartItem(item);
-    }
-    cartItems.removeWhere((item) => item.productName == productName);
-    final itemsToDeleteFromDraft = draftItems.where((item) => item.productName == productName).toList();
-    for (var item in itemsToDeleteFromDraft) {
-      String customerId = widget.customerOrderController!.customerId.value.isNotEmpty
-          ? widget.customerOrderController!.customerId.value
-          : widget.productsController.selectedCustomerId.value;
-      CartDatabaseManager().deleteDraftItem(customerId, item.detail.variationId ?? '');
-    }
-    draftItems.removeWhere((item) => item.productName == productName);
-    List<int> indicesToRemove = [];
-    for (int i = 0; i < combinedList.length; i++) {
-      if (combinedList[i].productName == productName) {
-        indicesToRemove.add(i);
+  void _deleteItem(String productName) {
+    setState(() {
+      final itemsToDeleteFromCart =
+          cartItems.where((item) => item.productName == productName).toList();
+      for (var item in itemsToDeleteFromCart) {
+        CartDatabaseManager().deleteCartItem(item);
       }
-    }
-    for (int index in indicesToRemove.reversed) {
-      quantities.removeAt(index);
-    }
-    combinedList = [...cartItems, ...draftItems];
-    total = Utils().getFinalAmount(combinedList);
-    tax = Utils().getTotalTax(combinedList);
-  });
+      cartItems.removeWhere((item) => item.productName == productName);
+      final itemsToDeleteFromDraft =
+          draftItems.where((item) => item.productName == productName).toList();
+      for (var item in itemsToDeleteFromDraft) {
+        String customerId =
+            widget.customerOrderController!.customerId.value.isNotEmpty
+                ? widget.customerOrderController!.customerId.value
+                : widget.productsController.selectedCustomerId.value;
+        CartDatabaseManager()
+            .deleteDraftItem(customerId, item.detail.variationId ?? '');
+      }
+      draftItems.removeWhere((item) => item.productName == productName);
+      List<int> indicesToRemove = [];
+      for (int i = 0; i < combinedList.length; i++) {
+        if (combinedList[i].productName == productName) {
+          indicesToRemove.add(i);
+        }
+      }
+      for (int index in indicesToRemove.reversed) {
+        quantities.removeAt(index);
+      }
+      combinedList = [...cartItems, ...draftItems];
+      total = Utils().getFinalAmount(combinedList);
+      tax = Utils().getTotalTax(combinedList);
+    });
 
-  log('Items deleted for product: $productName');
-}
-
+    log('Items deleted for product: $productName');
+  }
 
   void _deletePreorderItem(String productName) {
     final itemsToDelete =
@@ -2608,6 +2653,7 @@ class CartTextFields extends StatelessWidget {
     );
   }
 }
+
 Future<void> placeOrder(
   CartOrderModel cartOrder,
   Function(int statusCode, String message, Map<String, dynamic>? responseData)
@@ -2624,7 +2670,7 @@ Future<void> placeOrder(
     );
     log('Response status code: ${response.statusCode}');
     if (response.statusCode == 200) {
-      log('Order placed successfully: ${response.data}'); 
+      log('Order placed successfully: ${response.data}');
       onResponse(
           200, 'Your order has been successfully placed.', response.data);
     } else {

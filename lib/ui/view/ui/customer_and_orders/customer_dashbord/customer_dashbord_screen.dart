@@ -1394,14 +1394,17 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 legend2: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    InkWell(
+                                   InkWell(
                                       onTap: () {
-                                        showValueDialogCusDash(
-                                            context,
-                                            categoryPerformance.data.revenue
-                                                    .bookingRevenueData
-                                                as List<dynamic>,
-                                            'Pre-Order');
+                                        if (categoryPerformance.data.revenue
+                                            .bookingRevenueData!.isNotEmpty) {
+                                          showValueDialogCusDash(
+                                              context,
+                                              categoryPerformance.data.revenue
+                                                      .bookingRevenueData
+                                                  as List<dynamic>,
+                                              'Pre-Order');
+                                        }
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue.shade900,
@@ -1411,12 +1414,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                     const SizedBox(width: 10),
                                     InkWell(
                                       onTap: () {
-                                        showValueDialogCusDash(
-                                            context,
-                                            categoryPerformance.data.revenue
-                                                    .orderRevenueData
-                                                as List<dynamic>,
-                                            'Order');
+                                        if (categoryPerformance.data.revenue
+                                            .orderRevenueData!.isNotEmpty) {
+                                          showValueDialogCusDash(
+                                              context,
+                                              categoryPerformance.data.revenue
+                                                      .orderRevenueData
+                                                  as List<dynamic>,
+                                              'Order');
+                                        }
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue,

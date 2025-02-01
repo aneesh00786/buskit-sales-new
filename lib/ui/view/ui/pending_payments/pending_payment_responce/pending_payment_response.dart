@@ -130,11 +130,11 @@ class CustomerData {
         creditPeriod: json["credit_period"],
         fullname: json["fullname"],
         businessName: json["business_name"],
-        orderTotal: json["order_total"],
+        orderTotal: num.tryParse(json["order_total"].toString()) ?? 0,
         orderStatus: json["order_status"],
         town: json["town"],
         email: json["email"],
-        receivedAmount: json["received_amount"],
+        receivedAmount: num.tryParse(json["received_amount"].toString()) ?? 0,
     );
 
     Map<String, dynamic> toJson() => {

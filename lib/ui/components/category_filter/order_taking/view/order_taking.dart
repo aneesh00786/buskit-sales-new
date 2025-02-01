@@ -81,16 +81,6 @@ class _OrderTakingState extends State<OrderTaking>
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
-  // Future<int> getCartItemCounts(String customerId) async {
-  //   final count = CartDatabaseManager().cartItems.length +
-  //       CartDatabaseManager().cartPreorderItems.length +
-  //       (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-  //   setState(() {
-  //     cartItemCount = count;
-  //   });
-  //   return cartItemCount;
-  // }
-
   @override
   void initState() {
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');

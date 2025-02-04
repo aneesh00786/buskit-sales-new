@@ -654,12 +654,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       .customerId.value.isNotEmpty) ||
                                   (widget.productController.selectedCustomerName
                                       .value.isNotEmpty)) {
-                               
-                             
                                 final existingDraft =
                                     await CartDatabaseManager()
                                         .getDraftItems(customerId);
-                                final draftItemMap = existingDraft != null
+                                final draftItemMap = existingDraft.isNotEmpty
                                     ? {
                                         for (var item in existingDraft)
                                           '${item.detail.variationName}_${item.detail.sellPrice}':

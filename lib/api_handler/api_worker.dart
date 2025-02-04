@@ -470,8 +470,6 @@ class ApiWorker with ApiConstants {
     final Map<String, dynamic> requestData = {
       'companyId': companyId,
       "salesman_id": salesmanId,
-      "start_date":startDate,
-      'end_date':endDate
     };
     log('Request Data : $requestData');
 

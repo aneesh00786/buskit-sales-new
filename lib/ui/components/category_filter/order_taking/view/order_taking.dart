@@ -74,7 +74,6 @@ class _OrderTakingState extends State<OrderTaking>
   bool _isDrawerOpen = true;
   double _drawerWidth = 300.0;
   bool active = false;
-  // int cartItemCount = 0;
   String _selectedCategory = '';
   int _expandedIndex = -1;
   String _dialogMessage = '';
@@ -304,60 +303,47 @@ class _OrderTakingState extends State<OrderTaking>
                       if (cartDialogKey.currentState != null) {
                         cartDialogKey.currentState!
                             .performSpecificAction(false);
-
                         if (toDashBoard) {
-                          Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
                           Future.delayed(Duration(milliseconds: 300), () {
                             homeController.sidebarXController.selectIndex(0);
                             homeController.selectedIndex.value = 0;
                             Get.toNamed(AppRoutes.dashboard, id: 2);
-                            widget.productsController.selectedCustomerName
-                                .value = '';
-                            widget.productsController.selectedCustomerImageUrl
-                                .value = '';
                           });
-                          CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart(
-                            customerAndOrderController.customerId.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget.productsController.selectedCustomerId
-                                    .value,
-                          );
-                        } else if (widget.isDirectDialogue) {
-                          Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
-                          Future.delayed(Duration(milliseconds: 300), () {
-                            homeController.sidebarXController.selectIndex(0);
-                            homeController.selectedIndex.value = 0;
-                            Get.toNamed(AppRoutes.dashboard, id: 2);
-                            widget.productsController.selectedCustomerName
-                                .value = '';
-                            widget.productsController.selectedCustomerImageUrl
-                                .value = '';
-                          });
-                          CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart(
-                            customerAndOrderController.customerId.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget.productsController.selectedCustomerId
-                                    .value,
-                          );
-                        } else {
-                          Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
-                          CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart(
-                            customerAndOrderController.customerId.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget.productsController.selectedCustomerId
-                                    .value,
-                          );
-                          setState(() {
-                            cartProvider.cartItemCount = 0;
-                          });
-                          customerSearchController.clear();
                         }
+                        // } else if (widget.isDirectDialogue) {
+                        //   Navigator.pop(context);
+                        //   Navigator.of(context, rootNavigator: true).pop();
+                        //   Future.delayed(Duration(milliseconds: 300), () {
+                        //     homeController.sidebarXController.selectIndex(0);
+                        //     homeController.selectedIndex.value = 0;
+                        //     Get.toNamed(AppRoutes.dashboard, id: 2);
+                        //     widget.productsController.selectedCustomerName
+                        //         .value = '';
+                        //     widget.productsController.selectedCustomerImageUrl
+                        //         .value = '';
+                        //   });
+                        //   CartDatabaseManager().cartItems.clear();
+                        //   CartDatabaseManager().clearCart(
+                        //     customerAndOrderController.customerId.isNotEmpty
+                        //         ? customerAndOrderController.customerId.value
+                        //         : widget.productsController.selectedCustomerId
+                        //             .value,
+                        //   );
+                        // } else {
+                        //   Navigator.pop(context);
+                        //   Navigator.of(context, rootNavigator: true).pop();
+                        //   CartDatabaseManager().cartItems.clear();
+                        //   CartDatabaseManager().clearCart(
+                        //     customerAndOrderController.customerId.isNotEmpty
+                        //         ? customerAndOrderController.customerId.value
+                        //         : widget.productsController.selectedCustomerId
+                        //             .value,
+                        //   );
+                        //   // setState(() {
+                        //   //   cartProvider.cartItemCount = 0;
+                        //   // });
+                        //   // customerSearchController.clear();
+                        // }
                       }
                     },
                     child: Text('Ok'),

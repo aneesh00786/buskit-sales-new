@@ -156,9 +156,37 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void performSpecificAction(bool isTab) async {
-    _loadCartItems();
-    log('Cart Items Length On Back Case :${cartItems.length}');
-    log('Selected CustomerID :${customeController.customerId.isNotEmpty ? customeController.customerId.value : widget.productsController.selectedCustomerId.value}');
+    if (cartItems.isEmpty) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(
+              child: SizedBox(
+                height: 100,
+                width: 100,
+                child: Icon(Icons.close),
+              ),
+            ),
+            content: CustomText(
+              content: 'The Cart items is Empty',
+              fontSize: 18,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -168,11 +196,23 @@ class CartDialogueState extends State<CartDialogue> {
         );
       },
     );
+
     List<Detail> detail =
         CartDatabaseManager().cartItems.map((e) => e.detail).toList();
     setState(() {
       widget.cartItemCount = 0;
     });
+
+    final cartDetails = await CartDatabaseManager().getCartAndDraftIds(
+      customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value,
+    );
+
+    Future.delayed(const Duration(seconds: 1));
+
+    final existingCartId = cartDetails?['cart_id'] ?? '';
+    final existingDraftId = cartDetails?['id'] ?? '';
     final productBYData = AddToCartModel(
       customerId: customeController.customerId.isNotEmpty
           ? customeController.customerId.value
@@ -199,10 +239,6 @@ class CartDialogueState extends State<CartDialogue> {
 
     CartOrderModel? cartOrder =
         await ApiWorker().addToCart(productBYData.toJson());
-    log('CartId :${cartOrder?.cartId}');
-    log('Pack or pcs :${productBYData.cartList.first.pack}');
-    log('Pack or pcs :${productBYData.cartList.first.packType}');
-
     if (cartOrder != null) {
       int orderStatus = 4;
       CartOrderModel order = CartOrderModel(
@@ -210,22 +246,23 @@ class CartDialogueState extends State<CartDialogue> {
             ? customeController.customerId.value
             : widget.productsController.selectedCustomerId.value,
         salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-        cartId: cartOrder.cartId,
+        cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
         orderStatus: orderStatus,
+        draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
       );
 
       await placeOrder(order, (statusCode, message, response) {
         Navigator.pop(context);
         if (statusCode == 200) {
           final draftId = response?['id'];
-          log('Draft ID: $draftId');
           CartDatabaseManager().saveCartAsDraft(
             customeController.customerId.isNotEmpty
                 ? customeController.customerId.value
                 : widget.productsController.selectedCustomerId.value,
-            cartOrder.cartId,
-            draftId,
+            existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+            existingDraftId.isNotEmpty ? existingDraftId : draftId,
           );
+
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -247,9 +284,11 @@ class CartDialogueState extends State<CartDialogue> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      isTab
-                          ? Navigator.of(context, rootNavigator: true).pop()
-                          : null;
+                      if (isTab) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      }
+                      Navigator.pop(context);
+                      Navigator.of(context, rootNavigator: true).pop();
                       _clearCartItem(cartItems, false);
                     },
                     child: const Text('OK'),
@@ -258,8 +297,6 @@ class CartDialogueState extends State<CartDialogue> {
               );
             },
           );
-
-          log('Draft saved with ID: $draftId');
         } else {
           showDialog(
             context: context,
@@ -289,14 +326,6 @@ class CartDialogueState extends State<CartDialogue> {
             },
           );
         }
-      });
-      setState(() {
-        CartDatabaseManager().cartItems.clear();
-        CartDatabaseManager().clearCart(
-          customeController.customerId.isNotEmpty
-              ? customeController.customerId.value
-              : widget.productsController.selectedCustomerId.value,
-        );
       });
     }
   }
@@ -1188,10 +1217,11 @@ class CartDialogueState extends State<CartDialogue> {
                                       final cartDetails =
                                           await CartDatabaseManager()
                                               .getCartAndDraftIds(
-                                                  customeController.customerId.isNotEmpty
+                                        customeController.customerId.isNotEmpty
                                             ? customeController.customerId.value
                                             : widget.productsController
-                                                .selectedCustomerId.value,);
+                                                .selectedCustomerId.value,
+                                      );
                                       Future.delayed(Duration(seconds: 1));
                                       if (cartDetails != null) {
                                         log("Existing cart Id: ${cartDetails['cart_id']}");
@@ -1211,7 +1241,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                 .selectedCustomerId.value,
                                         salesmanId: SessionHelper
                                             .loginSavedData!.salesmanId!,
-                                        cartId:'',
+                                        cartId: '',
                                         cartList: detail
                                             .map((e) => SendCartData(
                                                   productId: e.productId ??
@@ -1237,7 +1267,7 @@ class CartDialogueState extends State<CartDialogue> {
                                             .toStringAsFixed(0),
                                         discount: '0',
                                       );
-                                      
+
                                       log('Existing cart Id : $existingCartId , Existing Draft ID : $existingDraftId ');
                                       log('Customer Id for Save draft : ${widget.productsController.selectedCustomerId.value}');
                                       CartOrderModel? cartOrder =
@@ -1357,10 +1387,13 @@ class CartDialogueState extends State<CartDialogue> {
                                           }
                                         });
                                         CartDatabaseManager().clearCart(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
+                                          customeController
+                                                  .customerId.isNotEmpty
+                                              ? customeController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,
+                                        );
                                       }
                                     }
                                   },

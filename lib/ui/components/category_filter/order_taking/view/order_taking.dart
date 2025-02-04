@@ -207,8 +207,12 @@ class _OrderTakingState extends State<OrderTaking>
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     final GlobalKey<CartDialogueState> cartDialogKey =
         GlobalKey<CartDialogueState>();
+    bool hasDraftId = CartDatabaseManager()
+        .cartItems
+        .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
     if (CartDatabaseManager().cartItems.isNotEmpty &&
-        widget.productsController.selectedCustomerId.value.isNotEmpty) {
+        widget.productsController.selectedCustomerId.value.isNotEmpty &&
+        !hasDraftId) {
       _showCartDialog(
         cartDialogKey,
       );
@@ -249,12 +253,12 @@ class _OrderTakingState extends State<OrderTaking>
                               .value = '';
                         });
                         CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCartOnSave(customerAndOrderController
-                                                  .customerId.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : widget.productsController
-                                                  .selectedCustomerId.value,);
+                        CartDatabaseManager().clearCartOnSave(
+                          customerAndOrderController.customerId.isNotEmpty
+                              ? customerAndOrderController.customerId.value
+                              : widget
+                                  .productsController.selectedCustomerId.value,
+                        );
                       } else if (widget.isDirectDialogue) {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
@@ -271,22 +275,22 @@ class _OrderTakingState extends State<OrderTaking>
                               .value = '';
                         });
                         CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCartOnSave(customerAndOrderController
-                                                  .customerId.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : widget.productsController
-                                                  .selectedCustomerId.value,);
+                        CartDatabaseManager().clearCartOnSave(
+                          customerAndOrderController.customerId.isNotEmpty
+                              ? customerAndOrderController.customerId.value
+                              : widget
+                                  .productsController.selectedCustomerId.value,
+                        );
                       } else {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCartOnSave(customerAndOrderController
-                                                  .customerId.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : widget.productsController
-                                                  .selectedCustomerId.value,);
+                        CartDatabaseManager().clearCartOnSave(
+                          customerAndOrderController.customerId.isNotEmpty
+                              ? customerAndOrderController.customerId.value
+                              : widget
+                                  .productsController.selectedCustomerId.value,
+                        );
                         setState(() {
                           cartProvider.cartItemCount = 0;
                         });
@@ -314,12 +318,12 @@ class _OrderTakingState extends State<OrderTaking>
                                 .value = '';
                           });
                           CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart(customerAndOrderController
-                                                  .customerId.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : widget.productsController
-                                                  .selectedCustomerId.value,);
+                          CartDatabaseManager().clearCart(
+                            customerAndOrderController.customerId.isNotEmpty
+                                ? customerAndOrderController.customerId.value
+                                : widget.productsController.selectedCustomerId
+                                    .value,
+                          );
                         } else if (widget.isDirectDialogue) {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
@@ -333,22 +337,22 @@ class _OrderTakingState extends State<OrderTaking>
                                 .value = '';
                           });
                           CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart(customerAndOrderController
-                                                  .customerId.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : widget.productsController
-                                                  .selectedCustomerId.value,);
+                          CartDatabaseManager().clearCart(
+                            customerAndOrderController.customerId.isNotEmpty
+                                ? customerAndOrderController.customerId.value
+                                : widget.productsController.selectedCustomerId
+                                    .value,
+                          );
                         } else {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
                           CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart(customerAndOrderController
-                                                  .customerId.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : widget.productsController
-                                                  .selectedCustomerId.value,);
+                          CartDatabaseManager().clearCart(
+                            customerAndOrderController.customerId.isNotEmpty
+                                ? customerAndOrderController.customerId.value
+                                : widget.productsController.selectedCustomerId
+                                    .value,
+                          );
                           setState(() {
                             cartProvider.cartItemCount = 0;
                           });
@@ -402,25 +406,23 @@ class _OrderTakingState extends State<OrderTaking>
   void triggerLeadingIcon(bool toDashBoard) {
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         widget.productsController.selectedCustomerId.value.isNotEmpty) {
-      handleBackNavigation(
-        context,
-        toDashBoard,
-      );
-      log('Condition1');
+      handleBackNavigation(context, toDashBoard);
+      log('Condition1 - Showing draft dialog');
     } else if (widget.isFromCalender == true || widget.isFromOrder == true) {
-      handleBackNavigation(
-        context,
-        false,
-      );
+      handleBackNavigation(context, false);
       log('Condition2');
     } else {
-      homeController.sidebarXController.selectIndex(0);
-      homeController.selectedIndex.value = 0;
-      Get.toNamed(AppRoutes.dashboard, id: 2);
+      _navigateToDashboard();
       log('Condition3');
     }
-    log('Is Direct :${widget.isDirectDialogue}');
-    log('Is FRom Calender${widget.isFromCalender}');
+    log('Is Direct: ${widget.isDirectDialogue}');
+    log('Is From Calendar: ${widget.isFromCalender}');
+  }
+
+  void _navigateToDashboard() {
+    homeController.sidebarXController.selectIndex(0);
+    homeController.selectedIndex.value = 0;
+    Get.toNamed(AppRoutes.dashboard, id: 2);
   }
 
   @override
@@ -782,8 +784,9 @@ class _OrderTakingState extends State<OrderTaking>
                                                                 .cartItems
                                                                 .clear();
                                                             CartDatabaseManager()
-                                                                .clearCart(customer.customerId ??
-                                                                      '');
+                                                                .clearCart(customer
+                                                                        .customerId ??
+                                                                    '');
                                                           });
 
                                                           customerAndOrderController
@@ -1080,6 +1083,7 @@ class _OrderTakingState extends State<OrderTaking>
     });
     log('Selected Category: $_selectedCategory');
   }
+
   String selectedSubCategory(String selectedOption) {
     var selectedCategory = widget.productsController.categoryData.value.data!
         .firstWhere((e) =>

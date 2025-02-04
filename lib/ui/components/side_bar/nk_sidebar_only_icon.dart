@@ -47,17 +47,14 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     widget.onTap?.call(widget.sidebarXController.selectedIndex);
     cartItemCount = CartDatabaseManager().cartItems.length +
         CartDatabaseManager().cartPreorderItems.length;
-
     CartDatabaseManager().addListener(_updateCartCount);
   }
-
   void _updateCartCount() {
     setState(() {
       cartItemCount = CartDatabaseManager().cartItems.length +
           CartDatabaseManager().cartPreorderItems.length;
     });
   }
-
   @override
   void dispose() {
     super.dispose();
@@ -112,7 +109,10 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     bool isDirectProduct = index == 2;
     return GestureDetector(
       onTap: () {
-        if (CartDatabaseManager().cartItems.isNotEmpty) {
+            bool hasDraftId = CartDatabaseManager()
+        .cartItems
+        .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
+        if (CartDatabaseManager().cartItems.isNotEmpty&&!hasDraftId) {
           handleBackNavigation(context, false, productController, () {
             setState(() {
               widget.sidebarXController.selectIndex(index);

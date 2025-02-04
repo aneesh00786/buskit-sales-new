@@ -288,7 +288,6 @@ class CartDialogueState extends State<CartDialogue> {
                         Navigator.of(context, rootNavigator: true).pop();
                       }
                       Navigator.pop(context);
-                      Navigator.of(context, rootNavigator: true).pop();
                       _clearCartItem(cartItems, false);
                     },
                     child: const Text('OK'),

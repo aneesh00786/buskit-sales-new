@@ -304,46 +304,39 @@ class _OrderTakingState extends State<OrderTaking>
                         cartDialogKey.currentState!
                             .performSpecificAction(false);
                         if (toDashBoard) {
+                          log('Log NO : 1 :');
+                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
                           Future.delayed(Duration(milliseconds: 300), () {
                             homeController.sidebarXController.selectIndex(0);
                             homeController.selectedIndex.value = 0;
                             Get.toNamed(AppRoutes.dashboard, id: 2);
                           });
+                        } else if (widget.isDirectDialogue) {
+                          log('Log NO : 2 :');
+                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            homeController.sidebarXController.selectIndex(0);
+                            homeController.selectedIndex.value = 0;
+                            Get.toNamed(AppRoutes.dashboard, id: 2);
+                            widget.productsController.selectedCustomerName
+                                .value = '';
+                            widget.productsController.selectedCustomerImageUrl
+                                .value = '';
+                          });
+                          CartDatabaseManager().cartItems.clear();
+                          CartDatabaseManager().clearCart(
+                            customerAndOrderController.customerId.isNotEmpty
+                                ? customerAndOrderController.customerId.value
+                                : widget.productsController.selectedCustomerId
+                                    .value,
+                          );
+                        } else {
+                          log('Log NO : 3 :');
+                          Navigator.of(context, rootNavigator: true).pop();
+                          
                         }
-                        // } else if (widget.isDirectDialogue) {
-                        //   Navigator.pop(context);
-                        //   Navigator.of(context, rootNavigator: true).pop();
-                        //   Future.delayed(Duration(milliseconds: 300), () {
-                        //     homeController.sidebarXController.selectIndex(0);
-                        //     homeController.selectedIndex.value = 0;
-                        //     Get.toNamed(AppRoutes.dashboard, id: 2);
-                        //     widget.productsController.selectedCustomerName
-                        //         .value = '';
-                        //     widget.productsController.selectedCustomerImageUrl
-                        //         .value = '';
-                        //   });
-                        //   CartDatabaseManager().cartItems.clear();
-                        //   CartDatabaseManager().clearCart(
-                        //     customerAndOrderController.customerId.isNotEmpty
-                        //         ? customerAndOrderController.customerId.value
-                        //         : widget.productsController.selectedCustomerId
-                        //             .value,
-                        //   );
-                        // } else {
-                        //   Navigator.pop(context);
-                        //   Navigator.of(context, rootNavigator: true).pop();
-                        //   CartDatabaseManager().cartItems.clear();
-                        //   CartDatabaseManager().clearCart(
-                        //     customerAndOrderController.customerId.isNotEmpty
-                        //         ? customerAndOrderController.customerId.value
-                        //         : widget.productsController.selectedCustomerId
-                        //             .value,
-                        //   );
-                        //   // setState(() {
-                        //   //   cartProvider.cartItemCount = 0;
-                        //   // });
-                        //   // customerSearchController.clear();
-                        // }
                       }
                     },
                     child: Text('Ok'),

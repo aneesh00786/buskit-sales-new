@@ -263,10 +263,7 @@ Future<void> saveCartAsDraft(
       if (draftItemMap.containsKey(key)) {
         final existingItem = draftItemMap[key]!;
         final updatedItem = CartItem(
-          detail: existingItem.detail.copyWith(
-            count: (existingItem.detail.count) +
-                (cartItem.detail.count),
-          ),
+          detail: existingItem.detail,
           productName: existingItem.productName,
           totalPrice: cartItem.isPack == true
               ? ((existingItem.detail.count ) *
@@ -298,7 +295,7 @@ Future<void> saveCartAsDraft(
 }
 
   Map<String, String?>? getSavedCartData(String customerId) {
-    final draft = draftBox.get(customerId);
+    final draft = cartBox.get(customerId);
     if (draft != null) {
       return {
         'cart_id': draft.cartId,

@@ -251,7 +251,7 @@ class CartDialogueState extends State<CartDialogue> {
                       isTab
                           ? Navigator.of(context, rootNavigator: true).pop()
                           : null;
-                      _clearCartItem(cartItems,false);
+                      _clearCartItem(cartItems, false);
                     },
                     child: const Text('OK'),
                   ),
@@ -1280,7 +1280,8 @@ class CartDialogueState extends State<CartDialogue> {
 
                                                         isOrder
                                                             ? _clearCartItem(
-                                                                cartItems,false)
+                                                                cartItems,
+                                                                false)
                                                             : _clearPreorderCartItem(
                                                                 cartItems);
                                                       },
@@ -1474,11 +1475,12 @@ class CartDialogueState extends State<CartDialogue> {
         bool isOnline = await connectivityService.isOnline();
 
         if (!isOnline) {
-          // Handle offline logic
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
-          isOrder ? _clearCartItem(itemList,true) : _clearPreorderCartItem(itemList);
+          isOrder
+              ? _clearCartItem(itemList, true)
+              : _clearPreorderCartItem(itemList);
 
           showDialog(
             context: context,
@@ -1493,7 +1495,7 @@ class CartDialogueState extends State<CartDialogue> {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
                       isOrder
-                          ? _clearCartItem(itemList,true)
+                          ? _clearCartItem(itemList, true)
                           : _clearPreorderCartItem(itemList);
                     });
                   },
@@ -1508,7 +1510,6 @@ class CartDialogueState extends State<CartDialogue> {
         log('[processSaveAndSend] Preparing data for API call...');
         List<Detail> detail = itemList.map((e) => e.detail).toList();
         log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
-
         final productBYData = AddToCartModel(
           customerId: customeController.customerId.isNotEmpty
               ? customeController.customerId.value
@@ -1551,8 +1552,6 @@ class CartDialogueState extends State<CartDialogue> {
                   : _selectedValue == 'Estimate'
                       ? 7
                       : 14;
-
-          // Include the draftId here when placing the order
           CartOrderModel order = CartOrderModel(
             customerId: customeController.customerId.isNotEmpty
                 ? customeController.customerId.value
@@ -1566,17 +1565,25 @@ class CartDialogueState extends State<CartDialogue> {
             paymentDetail: remarkController.text.trim(),
             transactionNumber: chequeOrTransactionNumberController.text.trim(),
             transactionDate: dateController.text.trim(),
-            draftId: draftId,
+            draftId: draftId.isNotEmpty ?draftId:'',
           );
+          log('ItemList Sent List: ${itemList.map((e) => 'ProductName: ${e.productName}, '
+              'Cart ID: ${e.cartId}, '
+              'Customer ID: ${e.customerId}, '
+              'Draft ID: ${e.draftId}, '
+              'Variation: ${e.detail.variationName}, '
+              'Price: ${e.detail.sellPrice}, '
+              'Quantity: ${e.detail.count}, '
+              'Total: ${e.totalPrice}, '
+              'IsPack: ${e.isPack}, '
+              'Pieces: ${e.detail.pieces ?? 'N/A'}').join('\n')}');
           await placeOrder(order, (statusCode, message, response) {
             Navigator.pop(context);
             if (statusCode == 200) {
               log('ItemList Length ${itemList.length}');
-              log('ItemList Sended List : ${itemList.map(
-                (e) => e.detail,
-              )}');
+
               isOrder
-                  ? _clearCartItem(itemList,true)
+                  ? _clearCartItem(itemList, true)
                   : _clearPreorderCartItem(itemList);
               showDialog(
                 context: context,
@@ -1601,7 +1608,7 @@ class CartDialogueState extends State<CartDialogue> {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
                           isOrder
-                              ? _clearCartItem(itemList,true)
+                              ? _clearCartItem(itemList, true)
                               : _clearPreorderCartItem(itemList);
                         },
                         child: const Text('OK'),
@@ -1716,7 +1723,7 @@ class CartDialogueState extends State<CartDialogue> {
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop();
-                _clearCartItem(cartItems,true);
+                _clearCartItem(cartItems, true);
               },
               child: const Text('OK'),
             ),
@@ -1947,7 +1954,7 @@ class CartDialogueState extends State<CartDialogue> {
               onPressed: () {
                 if (isPreOrder) {
                   _deletePreorderItem(productName);
-               } else {
+                } else {
                   _deleteItem(productName);
                   log('Draft Delete Clicked : ${customerId}');
                 }
@@ -2212,21 +2219,21 @@ class CartDialogueState extends State<CartDialogue> {
   //   log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
   // }
 
-  void _clearCartItem(List<CartItem> cartItem,bool isSave) {
-    if(isSave){
+  void _clearCartItem(List<CartItem> cartItem, bool isSave) {
+    if (isSave) {
       CartDatabaseManager().clearCartOnSave(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    );
-    }else{
+        customeController.customerId.isNotEmpty
+            ? customeController.customerId.value
+            : widget.productsController.selectedCustomerId.value,
+      );
+    } else {
       CartDatabaseManager().clearCart(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    );
+        customeController.customerId.isNotEmpty
+            ? customeController.customerId.value
+            : widget.productsController.selectedCustomerId.value,
+      );
     }
-    
+
     setState(() {
       cartItems.remove(cartItem);
       quantities.remove(cartItem);

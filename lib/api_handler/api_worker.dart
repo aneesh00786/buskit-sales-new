@@ -470,15 +470,10 @@ class ApiWorker with ApiConstants {
     final Map<String, dynamic> requestData = {
       'companyId': companyId,
       "salesman_id": salesmanId,
+      "start_date":startDate,
+      'end_date':endDate
     };
     log('Request Data : $requestData');
-
-    if (startDate != null) {
-      requestData['start_date'] = startDate;
-    }
-    if (endDate != null) {
-      requestData['end_date'] = endDate;
-    }
 
     final connectivityResult = await Connectivity().checkConnectivity();
     bool hasNetwork = connectivityResult != ConnectivityResult.none;
@@ -506,8 +501,6 @@ class ApiWorker with ApiConstants {
       return await _getCachedRecentOrderCount(cacheKey);
     }
   }
-
-// Helper function to fetch cached data
   Future<RecentOrderCountResponse> _getCachedRecentOrderCount(
       String cacheKey) async {
     try {

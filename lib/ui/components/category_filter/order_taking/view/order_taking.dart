@@ -474,7 +474,7 @@ class _OrderTakingState extends State<OrderTaking>
                                         .selectedCustomerImageUrl.isEmpty
                                     ? Icon(Icons.person,
                                         color: Colors
-                                            .white) // Default fallback icon
+                                            .white)
                                     : CachedNetworkImage(
                                         imageUrl:
                                             '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',

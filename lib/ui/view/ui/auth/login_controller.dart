@@ -90,12 +90,10 @@ class LoginController extends GetxController {
         "password": passwordController.text,
       };
       log("Request Body: $requestBody");
-
       loginResponce = await _apiWorker.loginApi(
         emailController.text.removeAllWhitespace,
         passwordController.text,
       );
-
       log("Response Body: ${loginResponce?.toJson()}");
       log("StatusCode: ${loginResponce?.statusCode}");
       if (loginResponce?.statusCode == 200) {
@@ -113,17 +111,17 @@ class LoginController extends GetxController {
         await Future.delayed(const Duration(microseconds: 500));
         await productsController.fetchCategoryData();
         await Future.delayed(const Duration(microseconds: 500));
-        await ApiWorker().fetchRecentOrderCount(
-            startDate: firstDayString, endDate: lastDayString);
         await Future.delayed(const Duration(microseconds: 500));
         await pendingPaymentController.loadOrderData(
-            chartIndex: 0, compId: companyId,isLogin: true);
+            chartIndex: 0, compId: companyId, isLogin: true);
         await Future.delayed(const Duration(microseconds: 500));
         await staffController.loadSalesmanTargetForSelectedTab(
             currentYear: currentYear.toString(),
             selectedTabIndex: _tabController!.index + 1,
             staffId: salesmanId);
-
+        log('First Date $firstDayString LastDay String $lastDayString Salesman ID $salesmanId CompanyId $companyId');
+        await ApiWorker().fetchRecentOrderCount(
+            startDate: firstDayString, endDate: lastDayString);
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }
@@ -139,7 +137,6 @@ class LoginController extends GetxController {
         await leadsCustomerController.loadLeadsCustomerData();
         await leadsRejectedController.loadRejectedLeadsData();
         await Future.delayed(const Duration(microseconds: 500));
-        // await orderController.loadOrderData(selectedIndex: 11)
         ApiWorker()
             .getRecentOrdersData(
           searchModel: searchData,

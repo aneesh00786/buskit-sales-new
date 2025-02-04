@@ -58,58 +58,57 @@ class CartDatabaseManager {
     }
   }
 
-Future<void> addToCart({
-  required Detail detail,
-  required String productName,
-  required bool isPack,
-  required int localCount,
-  required String customerId,
-}) async {
-  if (localCount <= 0) {
-    throw ArgumentError("Error: Count must be greater than zero.");
+  Future<void> addToCart({
+    required Detail detail,
+    required String productName,
+    required bool isPack,
+    required int localCount,
+    required String customerId,
+  }) async {
+    if (localCount <= 0) {
+      throw ArgumentError("Error: Count must be greater than zero.");
+    }
+    final existingItemIndex = cartBox.values.toList().indexWhere((item) =>
+        item.detail.variationName == detail.variationName &&
+        item.detail.sellPrice == detail.sellPrice &&
+        item.customerId == customerId);
+
+    if (existingItemIndex != -1) {
+      final existingItem = cartBox.getAt(existingItemIndex)!;
+      existingItem.detail.count += localCount.toDouble();
+      existingItem.totalPrice = existingItem.isPack!
+          ? (existingItem.detail.count *
+                  (existingItem.detail.pieces ?? 1) *
+                  (double.tryParse(existingItem.detail.sellPrice ?? '0') ?? 0))
+              .toDouble()
+          : (existingItem.detail.count *
+                  (double.tryParse(existingItem.detail.sellPrice ?? '0') ?? 0))
+              .toDouble();
+      await cartBox.putAt(existingItemIndex, existingItem);
+      log('Updated product in cart: ${existingItem.detail.variationName}, '
+          'New Count: ${existingItem.detail.count}, Total Price: ${existingItem.totalPrice}');
+    } else {
+      final computedTotalAmount = isPack
+          ? (localCount *
+              (detail.pieces ?? 1) *
+              (double.tryParse(detail.sellPrice ?? '0') ?? 0))
+          : (localCount * (double.tryParse(detail.sellPrice ?? '0') ?? 0));
+      detail.count += localCount.toDouble();
+      final newCartItem = CartItem(
+        detail: detail,
+        productName: productName,
+        totalPrice: computedTotalAmount.toDouble(),
+        isPack: isPack,
+        customerId: customerId,
+        count: localCount,
+      );
+      await cartBox.add(newCartItem);
+      log('New product added to cart: ${newCartItem.detail.variationName}, '
+          'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
+    }
+
+    _notifyListeners();
   }
-  final existingItemIndex = cartBox.values.toList().indexWhere((item) =>
-      item.detail.variationName == detail.variationName &&
-      item.detail.sellPrice == detail.sellPrice &&
-      item.customerId == customerId);
-
-  if (existingItemIndex != -1) {
-    final existingItem = cartBox.getAt(existingItemIndex)!;
-    existingItem.detail.count += localCount.toDouble();
-    existingItem.totalPrice = existingItem.isPack!
-        ? (existingItem.detail.count *
-                (existingItem.detail.pieces ?? 1) *
-                (double.tryParse(existingItem.detail.sellPrice ?? '0') ?? 0))
-            .toDouble()
-        : (existingItem.detail.count *
-                (double.tryParse(existingItem.detail.sellPrice ?? '0') ?? 0))
-            .toDouble();
-    await cartBox.putAt(existingItemIndex, existingItem);
-    log('Updated product in cart: ${existingItem.detail.variationName}, '
-        'New Count: ${existingItem.detail.count}, Total Price: ${existingItem.totalPrice}');
-  } else {
-    final computedTotalAmount = isPack
-        ? (localCount *
-            (detail.pieces ?? 1) *
-            (double.tryParse(detail.sellPrice ?? '0') ?? 0))
-        : (localCount * (double.tryParse(detail.sellPrice ?? '0') ?? 0));
-    detail.count += localCount.toDouble();
-    final newCartItem = CartItem(
-      detail: detail,
-      productName: productName,
-      totalPrice: computedTotalAmount.toDouble(),
-      isPack: isPack,
-      customerId: customerId,
-      count: localCount,
-    );
-    await cartBox.add(newCartItem);
-    log('New product added to cart: ${newCartItem.detail.variationName}, '
-        'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
-  }
-
-  _notifyListeners();
-}
-
 
   Future<void> addToPreorderCart(
     Detail detail,
@@ -230,79 +229,154 @@ Future<void> addToCart({
     }
   }
 
-Future<void> saveCartAsDraft(
-  String? customerId,
-  String cartId,
-  String draftId,
-) async {
-  log("Cart Id: $cartId");
-  log("Draft Id: $draftId");
-  log("Customer Id: $customerId");
-  if (customerId == null || customerId.isEmpty) {
-    log('Error: Customer ID is required to save a draft.');
-    return;
-  }
-  try {
-    List<CartItem> cartItems = getCartItems();
-    if (cartItems.isEmpty) {
-      log('No items in the cart to save as a draft.');
+  Future<void> saveCartAsDraft(
+    String? customerId,
+    String cartId,
+    String draftId,
+  ) async {
+    log("Cart Id: $cartId");
+    log("Draft Id: $draftId");
+    log("Customer Id: $customerId");
+    if (customerId == null || customerId.isEmpty) {
+      log('Error: Customer ID is required to save a draft.');
       return;
     }
-    List<CartItem>? existingDraft = await getDraftItems(customerId);
-    Map<String, CartItem> draftItemMap = {};
-    if (existingDraft != null) {
-      for (var item in existingDraft) {
+    try {
+      List<CartItem> cartItems = getCartItems();
+      if (cartItems.isEmpty) {
+        log('No items in the cart to save as a draft.');
+        return;
+      }
+      List<CartItem>? existingDraft = await getDraftItems(customerId);
+      Map<String, CartItem> draftItemMap = {};
+      if (existingDraft != null) {
+        for (var item in existingDraft) {
+          final key =
+              '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+          draftItemMap[key] = item;
+        }
+      }
+      for (var cartItem in cartItems) {
         final key =
-            '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-        draftItemMap[key] = item;
+            '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
+        if (draftItemMap.containsKey(key)) {
+          final existingItem = draftItemMap[key]!;
+          log('Updating item: ${existingItem.productName}, current cartId: ${existingItem.cartId}, draftId: ${existingItem.draftId}');
+          draftItemMap[key] = existingItem.copyWith(
+            count: (existingItem.count ?? 0) + (cartItem.count ?? 0),
+            cartId: cartId,
+            draftId: draftId,
+          );
+          log('Cart Box Contents: ${CartDatabaseManager().cartBox.toMap()}');
+        } else {
+          draftItemMap[key] = cartItem.copyWith(
+            cartId: cartId,
+            draftId: draftId,
+          );
+          log('Cart Box Contents: ${CartDatabaseManager().cartBox.toMap()}');
+        }
       }
-    }
-    for (var cartItem in cartItems) {
-      final key =
-          '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
-      if (draftItemMap.containsKey(key)) {
-        final existingItem = draftItemMap[key]!;
-        final updatedItem = CartItem(
-          detail: existingItem.detail,
-          productName: existingItem.productName,
-          totalPrice: cartItem.isPack == true
-              ? ((existingItem.detail.count ) *
-                  (existingItem.detail.pieces ?? 1) *
-                  num.parse(existingItem.detail.sellPrice ?? '0').toDouble())
-              : ((existingItem.detail.count) *
-                  num.parse(existingItem.detail.sellPrice ?? '0').toDouble()),
-          isPack: existingItem.isPack,
-          customerId: existingItem.customerId,
-          count: (existingItem.count ?? 0) + (cartItem.count ?? 0),
-          cartId: cartId,
-          draftId: draftId
-        );
-        draftItemMap[key] = updatedItem;
-      } else {
-        draftItemMap[key] = cartItem;
-      }
-    }
-    List<CartItem> updatedDraftItems = draftItemMap.values.toList();
-    for (var cartItem in updatedDraftItems) {
-      final itemKey =
-          '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
-      await CartDatabaseManager().cartBox.put(itemKey, cartItem);
-    }
-    log('Draft saved successfully for customer ID: $customerId, Draft ID: $draftId');
-  } catch (e) {
-    log('Error saving cart as draft: $e');
-  }
-}
 
-  Map<String, String?>? getSavedCartData(String customerId) {
-    final draft = cartBox.get(customerId);
-    if (draft != null) {
-      return {
-        'cart_id': draft.cartId,
-        'id': draft.draftId,
-      };
+      for (var item in draftItemMap.values) {
+        final itemKey =
+            '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+        await CartDatabaseManager().cartBox.put(itemKey, item);
+      }
+
+      log('Draft saved successfully for customer ID: $customerId, Draft ID: $draftId CartId $cartId');
+    } catch (e) {
+      log('Error saving cart as draft: $e');
     }
-    return null;
+  }
+
+// Future<void> saveCartAsDraft(
+//   String? customerId,
+//   String cartId,
+//   String draftId,
+// ) async {
+//   log("Cart Id: $cartId");
+//   log("Draft Id: $draftId");
+//   log("Customer Id: $customerId");
+//   if (customerId == null || customerId.isEmpty) {
+//     log('Error: Customer ID is required to save a draft.');
+//     return;
+//   }
+//   try {
+//     List<CartItem> cartItems = getCartItems();
+//     if (cartItems.isEmpty) {
+//       log('No items in the cart to save as a draft.');
+//       return;
+//     }
+//     List<CartItem>? existingDraft = await getDraftItems(customerId);
+//     Map<String, CartItem> draftItemMap = {};
+//     if (existingDraft != null) {
+//       for (var item in existingDraft) {
+//         final key =
+//             '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+//         draftItemMap[key] = item;
+//       }
+//     }
+//     for (var cartItem in cartItems) {
+//       final key =
+//           '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
+//       if (draftItemMap.containsKey(key)) {
+//         final existingItem = draftItemMap[key]!;
+//         final updatedItem = CartItem(
+//           detail: existingItem.detail,
+//           productName: existingItem.productName,
+//           totalPrice: cartItem.isPack == true
+//               ? ((existingItem.detail.count ) *
+//                   (existingItem.detail.pieces ?? 1) *
+//                   num.parse(existingItem.detail.sellPrice ?? '0').toDouble())
+//               : ((existingItem.detail.count) *
+//                   num.parse(existingItem.detail.sellPrice ?? '0').toDouble()),
+//           isPack: existingItem.isPack,
+//           customerId: existingItem.customerId,
+//           count: (existingItem.count ?? 0) + (cartItem.count ?? 0),
+//           cartId: cartId,
+//           draftId: draftId
+//         );
+//         draftItemMap[key] = updatedItem;
+//       } else {
+//         draftItemMap[key] = cartItem;
+//       }
+//     }
+//     List<CartItem> updatedDraftItems = draftItemMap.values.toList();
+//     for (var cartItem in updatedDraftItems) {
+//       final itemKey =
+//           '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
+//       await CartDatabaseManager().cartBox.put(itemKey, cartItem);
+//     }
+//     log('Draft saved successfully for customer ID: $customerId, Draft ID: $draftId');
+//   } catch (e) {
+//     log('Error saving cart as draft: $e');
+//   }
+// }
+
+  Future<Map<String, String?>?> getCartAndDraftIds(String customerId) async {
+    try {
+      final cartItemsa = CartDatabaseManager()
+          .cartBox
+          .values
+          .where((item) => item.customerId == customerId)
+          .cast<CartItem>()
+          .toList();
+      log('Retrieved cart items for customer: ${cartItems.map((item) => item.toJson()).toList()}');
+      if (cartItemsa.isNotEmpty) {
+        final firstItem = cartItemsa.last;
+        log('First Cart ID : ${firstItem.cartId}');
+        log('First Draft ID : ${firstItem.draftId}');
+        return {
+          'cart_id': firstItem.cartId,
+          'id': firstItem.draftId,
+        };
+      }
+      log('No saved cart details found for customer ID: $customerId');
+      return null;
+    } catch (e) {
+      log('Error retrieving cart and draft IDs: $e');
+      return null;
+    }
   }
 
   Future<void> updateCart(CartItem updatedItem) async {
@@ -344,17 +418,16 @@ Future<void> saveCartAsDraft(
     }
   }
 
-void deleteCartItem(CartItem item) {
-  final key = item.key;
-  if (cartBox.containsKey(key)) {
-    log('Item found with key: $key, proceeding to delete');
-    cartBox.delete(key);
-  } else {
-    log('Item with key: $key does not exist in cartBox');
+  void deleteCartItem(CartItem item) {
+    final key = item.key;
+    if (cartBox.containsKey(key)) {
+      log('Item found with key: $key, proceeding to delete');
+      cartBox.delete(key);
+    } else {
+      log('Item with key: $key does not exist in cartBox');
+    }
+    _notifyListeners();
   }
-  _notifyListeners();
-}
-
 
   void deletePreorderCartItem(CartItem item) {
     _cartPreorderBox.delete(item.key);
@@ -417,48 +490,50 @@ void deleteCartItem(CartItem item) {
     _notifyListeners();
   }
 
-Future<void> clearCart(String customerId) async {
-  final cartItems = CartDatabaseManager().getCartItems();
-  final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-  final Map<String, CartItem> uniqueItems = {};
-  for (var item in cartItems + draftItems) {
-    final key = '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-    uniqueItems[key] = item;
-  }
-  final itemsToKeep = uniqueItems.values
-      .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
-      .toList();
-  for (var key in CartDatabaseManager().cartBox.keys) {
-    final item = CartDatabaseManager().cartBox.get(key);
-    if (item!.draftId == null || item!.draftId!.isEmpty) {
-      CartDatabaseManager().cartBox.delete(key);
+  Future<void> clearCart(String customerId) async {
+    final cartItems = CartDatabaseManager().getCartItems();
+    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+    final Map<String, CartItem> uniqueItems = {};
+    for (var item in cartItems + draftItems) {
+      final key =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      uniqueItems[key] = item;
     }
+    final itemsToKeep = uniqueItems.values
+        .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
+        .toList();
+    for (var key in CartDatabaseManager().cartBox.keys) {
+      final item = CartDatabaseManager().cartBox.get(key);
+      if (item!.draftId == null || item!.draftId!.isEmpty) {
+        CartDatabaseManager().cartBox.delete(key);
+      }
+    }
+    for (var item in itemsToKeep) {
+      final itemKey =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      await CartDatabaseManager().cartBox.put(itemKey, item);
+    }
+    log('Cart cleared. Items kept: ${itemsToKeep.length}');
+    _notifyListeners();
   }
-  for (var item in itemsToKeep) {
-    final itemKey = '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-    await CartDatabaseManager().cartBox.put(itemKey, item);
-  }
-  log('Cart cleared. Items kept: ${itemsToKeep.length}');
-  _notifyListeners();
-}
-Future<void> clearCartOnSave(String customerId) async {
-  final cartItems = CartDatabaseManager().getCartItems();
-  final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-  final Map<String, CartItem> uniqueItems = {};
-  for (var item in cartItems + draftItems) {
-    final key = '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-    uniqueItems[key] = item;
-  }
-  for (var key in CartDatabaseManager().cartBox.keys) {
-    await CartDatabaseManager().cartBox.delete(key); 
-  }
-  for (var draftItem in draftItems) {
-    await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
-  }
-  _notifyListeners();
-}
 
-
+  Future<void> clearCartOnSave(String customerId) async {
+    final cartItems = CartDatabaseManager().getCartItems();
+    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+    final Map<String, CartItem> uniqueItems = {};
+    for (var item in cartItems + draftItems) {
+      final key =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      uniqueItems[key] = item;
+    }
+    for (var key in CartDatabaseManager().cartBox.keys) {
+      await CartDatabaseManager().cartBox.delete(key);
+    }
+    for (var draftItem in draftItems) {
+      await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
+    }
+    _notifyListeners();
+  }
 
   void clearPreorderCart() {
     _cartPreorderBox.clear();

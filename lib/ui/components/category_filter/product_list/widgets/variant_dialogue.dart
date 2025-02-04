@@ -650,28 +650,22 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               log('Customer ID: ${customerAndOrderController.customerId.value}');
                               log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
                               log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
-
                               if ((customerAndOrderController
                                       .customerId.value.isNotEmpty) ||
                                   (widget.productController.selectedCustomerName
                                       .value.isNotEmpty)) {
-                                List<CartItem> allItems =
-                                    CartDatabaseManager().getCartItems();
-                                List<Detail> detailsFromAllItems = allItems
-                                    .map((item) => item.detail)
-                                    .toList();
-
-                                final existingDraft = CartDatabaseManager()
-                                    .draftBox
-                                    .get(customerId);
+                               
+                             
+                                final existingDraft =
+                                    await CartDatabaseManager()
+                                        .getDraftItems(customerId);
                                 final draftItemMap = existingDraft != null
                                     ? {
-                                        for (var item in existingDraft.items)
+                                        for (var item in existingDraft)
                                           '${item.detail.variationName}_${item.detail.sellPrice}':
                                               item
                                       }
                                     : {};
-
                                 for (var i = 0;
                                     i < widget.detailsCopy.length;
                                     i++) {
@@ -679,14 +673,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   bool isProductAlreadyInDraft =
                                       draftItemMap.containsKey(
                                           '${detail.variationName}_${detail.sellPrice}');
-                                  bool isProductAlreadyInCart =
-                                      detailsFromAllItems.any(
-                                    (item) =>
-                                        item.variationName ==
-                                            detail.variationName &&
-                                        item.sellPrice == detail.sellPrice,
-                                  );
-
+                                  
                                   if (localCounts[i] > 0) {
                                     if (isProductAlreadyInDraft) {
                                       final draftItem = draftItemMap[
@@ -705,29 +692,22 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                       '0'))
                                               .toDouble();
                                       log('Draft item updated: ${draftItem.detail.variationName}, New Count: ${draftItem.detail.count}, Total Price: ${draftItem.totalPrice}');
-                                      await CartDatabaseManager().draftBox.put(
-                                          customerId,
-                                          existingDraft ??
-                                              Draft(
-                                                  cartId: '',
-                                                  customerId: '',
-                                                  draftId: '',
-                                                  items: []));
-                                    } else if (isProductAlreadyInCart) {
-                                      log('Product with ID: ${detail.variationId} is already in cart. Updating count.');
-                                      await CartDatabaseManager()
-                                          .updateCartItemCount(
-                                              detail, localCounts[i]);
+                                      Navigator.pop(context);
+                                      for (var item in existingDraft) {
+                                        await CartDatabaseManager()
+                                            .cartBox
+                                            .put(item.customerId, item);
+                                      }
                                     } else {
                                       final bool isPack =
                                           detail.saleBy == 'Pack';
                                       await CartDatabaseManager().addToCart(
-                                        detail,
-                                        widget.product.productName ?? '',
-                                        detail.totalPrice?.toInt() ?? 0,
-                                        isPack,
-                                        localCounts[i],
-                                        customerId,
+                                        customerId: customerId,
+                                        localCount: localCounts[i],
+                                        detail: detail,
+                                        isPack: isPack,
+                                        productName:
+                                            widget.product.productName ?? '',
                                       );
                                       log('Product added to cart or draft with ID: ${detail.variationId}');
                                     }
@@ -800,12 +780,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       );
                                       if (!isProductAlreadyInCart) {
                                         CartDatabaseManager().addToCart(
-                                            detail,
-                                            widget.product.productName ?? '',
-                                            detail.totalPrice!.toInt(),
-                                            isPack,
-                                            localCounts[i],
-                                            customerId);
+                                          customerId: customerId,
+                                          localCount: localCounts[i],
+                                          detail: detail,
+                                          isPack: isPack,
+                                          productName:
+                                              widget.product.productName ?? '',
+                                        );
                                         log('Product added to regular cart with ID: ${detail.variationId}');
                                       } else {
                                         log('Product with ID: ${detail.variationId} is already in the regular cart. Updating count.');

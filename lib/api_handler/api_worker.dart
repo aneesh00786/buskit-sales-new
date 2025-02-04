@@ -1470,7 +1470,6 @@ class ApiWorker with ApiConstants {
       rethrow;
     }
   }
-
   Future<Response> packedAndReadyAdd({
     String? cartId,
     String? orderId,
@@ -1488,7 +1487,6 @@ class ApiWorker with ApiConstants {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-
     return response;
   }
 

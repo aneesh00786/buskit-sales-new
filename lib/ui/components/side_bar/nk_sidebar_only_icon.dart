@@ -287,7 +287,7 @@ void handleBackNavigation(
                     Navigator.of(context, rootNavigator: true).pop();
                     CartDatabaseManager().cartItems.clear();
                     CartDatabaseManager().cartPreorderItems.clear();
-                    CartDatabaseManager().clearCart();
+                    CartDatabaseManager().clearCart('');
                     CartDatabaseManager().clearPreorderCart();
                     log('Cart Cleared');
                     updateTabIndex();

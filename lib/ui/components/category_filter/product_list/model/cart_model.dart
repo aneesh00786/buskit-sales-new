@@ -19,23 +19,39 @@ class CartItem extends HiveObject {
   @HiveField(4)
   int? count;
 
+  @HiveField(5)
+  String? customerId;
+
+  @HiveField(6)
+  String? cartId;
+
+  @HiveField(7)
+  String? draftId;
+
   CartItem({
     required this.detail,
     required this.productName,
     required this.totalPrice,
     this.isPack,
     this.count,
+    this.customerId,
+    this.cartId,
+    this.draftId,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      detail: Detail.fromJson(json['detail']), 
+      detail: Detail.fromJson(json['detail']),
       productName: json['productName'] as String,
       totalPrice: json['totalPrice'] as double,
       isPack: json['isPack'] as bool?,
       count: json['count'] as int?,
+      customerId: json['customer_id'] as String?,
+      cartId: json['cart_id'] as String?,
+      draftId: json['id'] as String?,
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'detail': detail.toJson(),
@@ -43,7 +59,33 @@ class CartItem extends HiveObject {
       'totalPrice': totalPrice,
       'isPack': isPack,
       'count': count,
+      'customer_id': customerId,
+      'cart_id': cartId,
+      'id': draftId,
     };
   }
+
+  CartItem copyWith({
+    Detail? detail,
+    String? productName,
+    double? totalPrice,
+    bool? isPack,
+    int? count,
+    String? customerId,
+    String? cartId,
+    String? draftId,
+  }) {
+    return CartItem(
+      detail: detail ?? this.detail,
+      productName: productName ?? this.productName,
+      totalPrice: totalPrice ?? this.totalPrice,
+      isPack: isPack ?? this.isPack,
+      count: count ?? this.count,
+      customerId: customerId ?? this.customerId,
+      cartId: cartId ?? this.cartId,
+      draftId: draftId ?? this.draftId,
+    );
+  }
 }
+
 

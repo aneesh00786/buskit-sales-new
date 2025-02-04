@@ -249,7 +249,12 @@ class _OrderTakingState extends State<OrderTaking>
                               .value = '';
                         });
                         CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCart();
+                        CartDatabaseManager().clearCartOnSave(customerAndOrderController
+                                                  .customerId.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,);
                       } else if (widget.isDirectDialogue) {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
@@ -266,12 +271,22 @@ class _OrderTakingState extends State<OrderTaking>
                               .value = '';
                         });
                         CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCart();
+                        CartDatabaseManager().clearCartOnSave(customerAndOrderController
+                                                  .customerId.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,);
                       } else {
                         Navigator.pop(context);
                         Navigator.of(context, rootNavigator: true).pop();
                         CartDatabaseManager().cartItems.clear();
-                        CartDatabaseManager().clearCart();
+                        CartDatabaseManager().clearCartOnSave(customerAndOrderController
+                                                  .customerId.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,);
                         setState(() {
                           cartProvider.cartItemCount = 0;
                         });
@@ -299,7 +314,12 @@ class _OrderTakingState extends State<OrderTaking>
                                 .value = '';
                           });
                           CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart();
+                          CartDatabaseManager().clearCart(customerAndOrderController
+                                                  .customerId.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,);
                         } else if (widget.isDirectDialogue) {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
@@ -313,12 +333,22 @@ class _OrderTakingState extends State<OrderTaking>
                                 .value = '';
                           });
                           CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart();
+                          CartDatabaseManager().clearCart(customerAndOrderController
+                                                  .customerId.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,);
                         } else {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
                           CartDatabaseManager().cartItems.clear();
-                          CartDatabaseManager().clearCart();
+                          CartDatabaseManager().clearCart(customerAndOrderController
+                                                  .customerId.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : widget.productsController
+                                                  .selectedCustomerId.value,);
                           setState(() {
                             cartProvider.cartItemCount = 0;
                           });
@@ -752,7 +782,8 @@ class _OrderTakingState extends State<OrderTaking>
                                                                 .cartItems
                                                                 .clear();
                                                             CartDatabaseManager()
-                                                                .clearCart();
+                                                                .clearCart(customer.customerId ??
+                                                                      '');
                                                           });
 
                                                           customerAndOrderController

@@ -20,7 +20,7 @@ class NotificationController extends GetxController {
     });
 
     try {
-      var data = await ApiWorker().fetchRecentOrderCount(startDate: startDate, endDate: endDate);
+      var data = await ApiWorker().fetchRecentOrderCount(startDate: '', endDate: '');
       recentOrderCountData = data.data!;
       return data.data!;
     } finally {

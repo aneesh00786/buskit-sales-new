@@ -199,9 +199,6 @@ class CartDialogueState extends State<CartDialogue> {
 
     List<Detail> detail =
         CartDatabaseManager().cartItems.map((e) => e.detail).toList();
-    setState(() {
-      widget.cartItemCount = 0;
-    });
 
     final cartDetails = await CartDatabaseManager().getCartAndDraftIds(
       customeController.customerId.isNotEmpty

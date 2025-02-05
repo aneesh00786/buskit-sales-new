@@ -121,7 +121,7 @@ class LoginController extends GetxController {
             staffId: salesmanId);
         log('First Date $firstDayString LastDay String $lastDayString Salesman ID $salesmanId CompanyId $companyId');
         await ApiWorker().fetchRecentOrderCount(
-            startDate: firstDayString, endDate: lastDayString);
+            startDate: '', endDate: '');
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }

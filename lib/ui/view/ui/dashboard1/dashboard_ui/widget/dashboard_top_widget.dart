@@ -416,7 +416,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                     await productsController.fetchCategoryData();
                     await Future.delayed(const Duration(microseconds: 500));
                     await ApiWorker().fetchRecentOrderCount(
-                        startDate: firstDayString, endDate: lastDayString);
+                        startDate: '', endDate: '');
                     await Future.delayed(const Duration(microseconds: 500));
                     await pendingPaymentController.loadOrderData(
                         chartIndex: 0, compId: companyId, isLogin: true);

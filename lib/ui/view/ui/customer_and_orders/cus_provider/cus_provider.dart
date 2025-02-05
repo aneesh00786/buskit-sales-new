@@ -99,25 +99,35 @@ class CustomersProvider with ChangeNotifier {
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
   Future<ProductResponse>? _productResponse;
-
   Future<ProductResponse>? get productResponse => _productResponse;
-
   int cartItemCount = 0;
 
   Future<int> getCartItemCounts(String customerId) async {
-    final count = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length +
-        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-    cartItemCount = count;
-    notifyListeners();
-    return cartItemCount;
+    try {
+      final cartItems = CartDatabaseManager().getCartItems(customerId);
+      final preorderItemsCount = CartDatabaseManager().cartPreorderItems.length;
+      final count = cartItems.length + preorderItemsCount;
+      cartItemCount = count;
+      notifyListeners();
+      log('Cart count calculated for customer $customerId: $cartItemCount');
+      return cartItemCount;
+    } catch (e) {
+      log('Error calculating cart item counts for customer $customerId: $e');
+      return 0;
+    }
   }
-    void updateCartCount(String customerId) {
-    cartItemCount = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length+
-        (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-    notifyListeners();
+  void updateCartCount(String customerId) {
+    try {
+      final cartItems = CartDatabaseManager().getCartItems(customerId);
+      final preorderItemsCount = CartDatabaseManager().cartPreorderItems.length;
+      cartItemCount = cartItems.length + preorderItemsCount;
+      notifyListeners();
+      log('Cart count updated for customer $customerId: $cartItemCount');
+    } catch (e) {
+      log('Error updating cart count for customer $customerId: $e');
+    }
   }
+
   Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
     try {
@@ -138,18 +148,6 @@ class CustomersProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // int _cartItemCount = 0;
-
-  // int get cartItemCount => _cartItemCount;
-
-  // Future<void> getCartItemCounts(String customerId) async {
-  //   final count = CartDatabaseManager().cartItems.length +
-  //       CartDatabaseManager().cartPreorderItems.length +
-  //       (CartDatabaseManager().draftBox.get(customerId)?.items.length ?? 0);
-  //   _cartItemCount = count;
-  //   notifyListeners(); // Notify UI about changes
-  // }
 
   void updateSearchQuery(String query) {
     if (query.isEmpty) {
@@ -382,7 +380,7 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomerDashboardData(String customerId, int specifiedYear,
       String? startDate, String? endDate) async {
-        log('Start Date End Date ${startDate}, ${endDate}');
+    log('Start Date End Date ${startDate}, ${endDate}');
     try {
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(

@@ -469,7 +469,7 @@ class ApiWorker with ApiConstants {
   }) async {
     final Map<String, dynamic> requestData = {
       'companyId': companyId,
-      "salesman_id": salesmanId,
+      // "salesman_id": salesmanId,
       // "start_date":'',
       // "end_date":'',
     };
@@ -1268,8 +1268,8 @@ class ApiWorker with ApiConstants {
       try {
         final requestData = {
           "order_status": orderStatus,
-          "start_date": start,
-          "end_date": end,
+          "start_date": '',
+          "end_date": '',
           "limit": 20,
           "page": page,
           "companyId": companyId,

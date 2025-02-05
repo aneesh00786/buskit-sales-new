@@ -110,7 +110,7 @@ class CartDialogueState extends State<CartDialogue> {
           widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value;
-      cartItems = CartDatabaseManager().getCartItems();
+      cartItems = CartDatabaseManager().getCartItems(customerId);
       List<CartItem> draftItems =
           await CartDatabaseManager().getDraftItems(customerId);
       final Map<String, CartItem> uniqueItems = {

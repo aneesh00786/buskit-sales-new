@@ -470,9 +470,10 @@ class ApiWorker with ApiConstants {
     final Map<String, dynamic> requestData = {
       'companyId': companyId,
       "salesman_id": salesmanId,
+      // "start_date":'',
+      // "end_date":'',
     };
     log('Request Data : $requestData');
-
     final connectivityResult = await Connectivity().checkConnectivity();
     bool hasNetwork = connectivityResult != ConnectivityResult.none;
     bool hasInternet = hasNetwork && await isInternetAvailable();

@@ -19,26 +19,39 @@ class CartDatabaseManager {
   List<CartItem> get cartItems => cartBox.values.toList();
   List<CartItem> get cartPreorderItems => _cartPreorderBox.values.toList();
 
-  List<CartItem> getCartItems() {
-    log('Cartitem List Length : ${cartItems.length}');
-    return cartBox.values.toList();
-  }
+List<CartItem> getCartItems(String customerId) {
+  try {
+    final customerCartItems = cartBox.values
+        .where((item) => item.customerId == customerId)
+        .toList();
 
-  Future<List<CartItem>> getDraftItems(String customerId) async {
-    try {
-      final allItems = CartDatabaseManager().cartBox.values.toList();
-      final cartitems = allItems
-          .where((item) =>
-              item.customerId == customerId ||
-              item.draftId != null && item.draftId!.isNotEmpty)
-          .toList();
-      log('Draft items retrieved for customer ID: $customerId');
-      return cartitems;
-    } catch (e) {
-      log('Error fetching draft items: $e');
-      return [];
-    }
+    log('Cart items retrieved for customer $customerId: ${customerCartItems.length}');
+    return customerCartItems;
+  } catch (e) {
+    log('Error retrieving cart items for customer $customerId: $e');
+    return [];
   }
+}
+
+
+Future<List<CartItem>> getDraftItems(String customerId) async {
+  try {
+    final allItems = CartDatabaseManager().cartBox.values.toList();
+    final draftItems = allItems
+        .where((item) =>
+            item.customerId == customerId && 
+            item.draftId != null && 
+            item.draftId!.isNotEmpty)
+        .toList();
+    log('Draft items retrieved for customer ID: $customerId');
+    log('Number of Draft Items: ${draftItems.length}');
+    return draftItems;
+  } catch (e) {
+    log('Error fetching draft items: $e');
+    return [];
+  }
+}
+
 
   List<CartItem> getCartPreorderItems() {
     return _cartPreorderBox.values.toList();
@@ -242,7 +255,7 @@ class CartDatabaseManager {
       return;
     }
     try {
-      List<CartItem> cartItems = getCartItems();
+      List<CartItem> cartItems = getCartItems(customerId);
       if (cartItems.isEmpty) {
         log('No items in the cart to save as a draft.');
         return;
@@ -491,7 +504,7 @@ class CartDatabaseManager {
   }
 
   Future<void> clearCart(String customerId) async {
-    final cartItems = CartDatabaseManager().getCartItems();
+    final cartItems = CartDatabaseManager().getCartItems(customerId);
     final draftItems = await CartDatabaseManager().getDraftItems(customerId);
     final Map<String, CartItem> uniqueItems = {};
     for (var item in cartItems + draftItems) {
@@ -518,7 +531,7 @@ class CartDatabaseManager {
   }
 
   Future<void> clearCartOnSave(String customerId) async {
-    final cartItems = CartDatabaseManager().getCartItems();
+    final cartItems = CartDatabaseManager().getCartItems(customerId);
     final draftItems = await CartDatabaseManager().getDraftItems(customerId);
     final Map<String, CartItem> uniqueItems = {};
     for (var item in cartItems + draftItems) {

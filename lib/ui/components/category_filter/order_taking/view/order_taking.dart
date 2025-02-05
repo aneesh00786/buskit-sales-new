@@ -881,15 +881,15 @@ class _OrderTakingState extends State<OrderTaking>
                                             shape: BoxShape.circle,
                                           ),
                                           constraints: const BoxConstraints(
-                                            minWidth: 30,
-                                            minHeight: 30,
+                                            minWidth: 16,
+                                            minHeight: 16,
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${provider.cartItemCount}',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 20,
+                                                fontSize: 10,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),

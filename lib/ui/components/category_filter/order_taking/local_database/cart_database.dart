@@ -24,7 +24,6 @@ List<CartItem> getCartItems(String customerId) {
     final customerCartItems = cartBox.values
         .where((item) => item.customerId == customerId)
         .toList();
-
     log('Cart items retrieved for customer $customerId: ${customerCartItems.length}');
     return customerCartItems;
   } catch (e) {
@@ -32,8 +31,6 @@ List<CartItem> getCartItems(String customerId) {
     return [];
   }
 }
-
-
 Future<List<CartItem>> getDraftItems(String customerId) async {
   try {
     final allItems = CartDatabaseManager().cartBox.values.toList();

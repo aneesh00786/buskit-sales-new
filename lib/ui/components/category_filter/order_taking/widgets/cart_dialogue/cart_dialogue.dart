@@ -1237,7 +1237,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                 .selectedCustomerId.value,
                                         salesmanId: SessionHelper
                                             .loginSavedData!.salesmanId!,
-                                        cartId: '',
+                                        cartId: existingCartId.isNotEmpty?existingCartId:'',
                                         cartList: detail
                                             .map((e) => SendCartData(
                                                   productId: e.productId ??

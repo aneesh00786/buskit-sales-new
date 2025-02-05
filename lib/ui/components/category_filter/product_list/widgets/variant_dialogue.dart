@@ -657,6 +657,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 final existingDraft =
                                     await CartDatabaseManager()
                                         .getDraftItems(customerId);
+                                    CartDatabaseManager()
+                                        .getCartItems(customerId);
                                 final draftItemMap = existingDraft.isNotEmpty
                                     ? {
                                         for (var item in existingDraft)
@@ -746,6 +748,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     );
                                   },
                                 );
+                                
                               }
                             } else if (canAddQuantity == true) {
                               log('Customer ID: ${customerAndOrderController.customerId.value}');

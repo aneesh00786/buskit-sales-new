@@ -98,9 +98,15 @@ class _OrderTakingState extends State<OrderTaking>
       ),
     );
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.getCartItemCounts(customerAndOrderController.customerId.value);
+    cartProvider.getCartItemCounts(
+        customerAndOrderController.customerId.value.isNotEmpty
+            ? customerAndOrderController.customerId.value
+            : widget.productsController.selectedCustomerId.value);
     CartDatabaseManager().addListener(() {
-      cartProvider.updateCartCount(customerAndOrderController.customerId.value);
+      cartProvider.updateCartCount(
+          customerAndOrderController.customerId.value.isNotEmpty
+              ? customerAndOrderController.customerId.value
+              : widget.productsController.selectedCustomerId.value);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -335,7 +341,6 @@ class _OrderTakingState extends State<OrderTaking>
                         } else {
                           log('Log NO : 3 :');
                           Navigator.of(context, rootNavigator: true).pop();
-                          
                         }
                       }
                     },
@@ -451,9 +456,7 @@ class _OrderTakingState extends State<OrderTaking>
                                     : const Color.fromARGB(123, 194, 192, 192),
                                 child: widget.productsController
                                         .selectedCustomerImageUrl.isEmpty
-                                    ? Icon(Icons.person,
-                                        color: Colors
-                                            .white)
+                                    ? Icon(Icons.person, color: Colors.white)
                                     : CachedNetworkImage(
                                         imageUrl:
                                             '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',

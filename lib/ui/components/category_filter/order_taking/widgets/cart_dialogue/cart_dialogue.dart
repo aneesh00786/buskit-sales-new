@@ -156,46 +156,46 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void performSpecificAction(bool isTab) async {
-    if (cartItems.isEmpty) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Center(
-              child: SizedBox(
-                height: 100,
-                width: 100,
-                child: Icon(Icons.close),
-              ),
-            ),
-            content: CustomText(
-              content: 'The Cart items is Empty',
-              fontSize: 18,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
+    // if (cartItems.isEmpty) {
+    //   showDialog(
+    //     context: context,
+    //     barrierDismissible: false,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: Center(
+    //           child: SizedBox(
+    //             height: 100,
+    //             width: 100,
+    //             child: Icon(Icons.close),
+    //           ),
+    //         ),
+    //         content: CustomText(
+    //           content: 'The Cart items is Empty',
+    //           fontSize: 18,
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.pop(context);
+    //             },
+    //             child: const Text('OK'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    //   return;
+    // }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (BuildContext context) {
+    //     return const Center(
+    //       child: CircularProgressIndicator(),
+    //     );
+    //   },
+    // );
 
     List<Detail> detail =
         CartDatabaseManager().cartItems.map((e) => e.detail).toList();

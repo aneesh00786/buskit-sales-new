@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,8 @@ class NkSideBarOnlyIcon extends StatefulWidget {
 
 class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   ProductsController productController = Get.put(ProductsController());
+  CustomerAndOrderController customerOrderController =
+      Get.put(CustomerAndOrderController());
   HomeController homeController = Get.put(HomeController());
   int cartItemCount = 0;
   @override
@@ -125,7 +128,11 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             productController.selectedCustomerId.value = "";
             productController.selectedCustomerName.value = "";
             productController.selectedCustomerImageUrl.value = "";
-          }, cartItemCount);
+          },
+              cartItemCount,
+              customerOrderController.customerId.value.isNotEmpty
+                  ? customerOrderController.customerId.value
+                  : productController.selectedCustomerId.value);
           log('Condition1');
         } else if (isDirectProduct) {
           productController.selectedCustomerId.value = "";
@@ -251,14 +258,13 @@ void handleBackNavigation(
     bool toDashBoard,
     ProductsController productController,
     Function updateTabIndex,
-    int cartItemCount) {
+    int cartItemCount,
+    String customerId) {
   final GlobalKey<CartDialogueState> cartDialogKey =
       GlobalKey<CartDialogueState>();
-
   if (CartDatabaseManager().cartItems.isNotEmpty ||
       CartDatabaseManager().cartPreorderItems.isNotEmpty ||
       productController.selectedCustomerId.value.isNotEmpty) {
-    _showCartDialog(context, cartItemCount, productController, cartDialogKey);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -285,28 +291,26 @@ void handleBackNavigation(
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.of(context, rootNavigator: true).pop();
                     CartDatabaseManager().cartItems.clear();
                     CartDatabaseManager().cartPreorderItems.clear();
-                    CartDatabaseManager().clearCartOnSave('');
+                    CartDatabaseManager().clearCartOnSave(customerId);
                     CartDatabaseManager().clearPreorderCart();
                     log('Cart Cleared');
                     updateTabIndex();
                   },
                   child: const Text('Clear cart'),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-
-                    if (cartDialogKey.currentState != null) {
-                      cartDialogKey.currentState!.performSpecificAction(true);
-                    }
-                    log('Dialog dismissed without clearing cart');
-                    updateTabIndex();
-                  },
-                  child: const Text('Ok'),
-                ),
+                // TextButton(
+                //   onPressed: () {
+                //     Navigator.pop(context);
+                //     if (cartDialogKey.currentState != null) {
+                //       cartDialogKey.currentState!.performSpecificAction(true);
+                //     }
+                //     log('Dialog dismissed without clearing cart');
+                //     updateTabIndex();
+                //   },
+                //   child: const Text('Ok'),
+                // ),
               ],
             ),
           ],

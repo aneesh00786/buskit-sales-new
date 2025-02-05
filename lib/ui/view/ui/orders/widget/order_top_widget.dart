@@ -22,12 +22,13 @@ class OrderTopWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        RangeSelector(
-          onChanged:
-              (selectedIndex, (DateTime? startDate, DateTime? endDate) label) {
-            orderController.updateCustomerVisitScheduleSet(label.$1, label.$2);
-          },
-        ),
+        // RangeSelector(
+        //   onChanged:
+        //       (selectedIndex, (DateTime? startDate, DateTime? endDate) label) {
+        //     orderController.updateCustomerVisitScheduleSet(label.$1, label.$2);
+        //   },
+        // ),
+        Spacer(),
         profiloe(),
       ],
     );

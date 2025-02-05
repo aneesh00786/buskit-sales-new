@@ -606,14 +606,96 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               );
   }
 
+  // Widget viewOrder(OrderController orderController, OrderData orderData) {
+  //   return Center(
+  //     child: IconButton(
+  //       onPressed: () async {
+  //         Get.dialog(
+  //           Center(child: CircularProgressIndicator()),
+  //           barrierDismissible: false,
+  //         );
+  //         if (orderController.selectedTabIndex.value == 0) {
+  //           try {
+  //             await orderController.loadSpecificOrderInvoiceData(
+  //               orderId: orderData.orderId!,
+  //             );
+  //             Get.back();
+  //             if (orderController.orderProcessInvoiceData != null) {
+  //               Get.dialog(
+  //                 OrderProcessInvoiceDialog(
+  //                   specificData: orderController.fetchSpecificOrderData,
+  //                   selectedTabIndex: orderController.selectedTabIndex.value,
+  //                   orderController: orderController,
+  //                 ),
+  //                 barrierDismissible: true,
+  //               );
+  //             } else {
+  //               throw Exception('No invoice data available');
+  //             }
+  //           } catch (e) {
+  //             Get.back();
+  //             Get.snackbar('Error', e.toString());
+  //           }
+  //         } else if (orderController.selectedTabIndex.value == 1) {
+  //           try {
+  //             await orderController.loadOrderApprovalInvoiceData(
+  //               orderId: orderData.orderId!,
+  //             );
+
+  //             Get.back();
+
+  //             if (orderController.orderProcessInvoiceData != null) {
+  //               Get.dialog(
+  //                 OrderProcessInvoiceDialog(
+  //                   invoiceData: orderController.orderProcessInvoiceData,
+  //                   selectedTabIndex: orderController.selectedTabIndex.value,
+  //                   orderController: orderController,
+  //                 ),
+  //                 barrierDismissible: true,
+  //               );
+  //             } else {
+  //               throw Exception('No invoice data available');
+  //             }
+  //           } catch (e) {
+  //             Get.back();
+  //             Get.snackbar('Error', e.toString());
+  //           }
+  //         } else if (orderController.selectedTabIndex >= 1) {
+  //           try {
+  //             await orderController.loadOrderProcessInvoiceData(
+  //               orderId: orderData.orderId!,
+  //               orderStatus: orderData.orderStatus!,
+  //             );
+
+  //             Get.back();
+
+  //             if (orderController.orderProcessInvoiceData != null) {
+  //               Get.dialog(
+  //                 OrderProcessInvoiceDialog(
+  //                   invoiceData: orderController.orderProcessInvoiceData,
+  //                   selectedTabIndex: orderController.selectedTabIndex.value,
+  //                   orderController: orderController,
+  //                 ),
+  //                 barrierDismissible: true,
+  //               );
+  //             } else {
+  //               throw Exception('Data');
+  //             }
+  //           } catch (e) {
+  //             Get.back();
+  //             Get.snackbar('Error', e.toString());
+  //           }
+  //         }
+  //       },
+  //       icon: Icon(Icons.visibility, size: 16),
+  //     ),
+  //   );
+  // }
+
   Widget viewOrder(OrderController orderController, OrderData orderData) {
     return Center(
       child: IconButton(
         onPressed: () async {
-          Get.dialog(
-            Center(child: CircularProgressIndicator()),
-            barrierDismissible: false,
-          );
           if (orderController.selectedTabIndex.value == 0) {
             try {
               await orderController.loadSpecificOrderInvoiceData(
@@ -641,9 +723,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               await orderController.loadOrderApprovalInvoiceData(
                 orderId: orderData.orderId!,
               );
-
               Get.back();
-
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
@@ -666,9 +746,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 orderId: orderData.orderId!,
                 orderStatus: orderData.orderStatus!,
               );
-
               Get.back();
-
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
@@ -679,7 +757,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                   barrierDismissible: true,
                 );
               } else {
-                throw Exception('Data');
+                throw Exception('No invoice data available');
               }
             } catch (e) {
               Get.back();
@@ -687,7 +765,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             }
           }
         },
-        icon: Icon(Icons.visibility, size: 16),
+        icon: const Icon(Icons.visibility, size: 16),
       ),
     );
   }

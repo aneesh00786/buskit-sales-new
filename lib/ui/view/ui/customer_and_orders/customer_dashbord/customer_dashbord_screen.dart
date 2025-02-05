@@ -249,7 +249,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTaking(
-                      productsController: widget.productsController??ProductsController(),
+                      productsController:
+                          widget.productsController ?? ProductsController(),
                       isFromCalender: widget.isFromCalendar,
                       isDirectDialogue: widget.isDirectDialogue,
                       isFromOrder: widget.isFromOrder,
@@ -474,14 +475,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                                    widget.cusId??'',
+                                    widget.cusId ?? '',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.cusId??'',
+                                    widget.cusId ?? '',
                                     selectedYear,
                                     widget.startDate,
                                     widget.endDate);
@@ -506,7 +507,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           showCustomerCategoryChartDialog(
                             context,
                             "Category Sales",
-                            widget.cusId??'',
+                            widget.cusId ?? '',
                             selectedYear,
                           );
                         },
@@ -555,7 +556,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: widget.cusId??'',
+                                  customerId: widget.cusId ?? '',
                                   year: selectedYear,
                                 ),
                               );
@@ -727,6 +728,316 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   // }
 
   // ignore: non_constant_identifier_names
+  // Expanded OrdersPayments(
+  //     BuildContext context, List<RecentOrder> recentOrders) {
+  //   return Expanded(
+  //     child: MyCommnonContainer(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+  //           blurRadius: 5,
+  //           offset: Offset(4, 4),
+  //         ),
+  //       ],
+  //       borderRadius: 25,
+  //       height: 300,
+  //       isCommonBorder: true,
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.center,
+  //         children: [
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Row(
+  //                 children: [
+  //                   Container(
+  //                     decoration: BoxDecoration(
+  //                       color: primaryColor.withOpacity(0.2),
+  //                       borderRadius: BorderRadius.only(
+  //                         topLeft: Radius.circular(25),
+  //                         bottomRight: Radius.circular(25),
+  //                       ),
+  //                     ),
+  //                     padding: const EdgeInsets.only(
+  //                         right: 20, left: 20, top: 5, bottom: 5),
+  //                     child: Text(
+  //                       'Orders & Payment/s',
+  //                       style: cardHeadingTextStyle,
+  //                       maxLines: 1,
+  //                       softWrap: false,
+  //                     ),
+  //                   ),
+  //                   nkSmallSizeBox(),
+  //                   SizedBox(
+  //                     height: 25,
+  //                     child: ElevatedButton(
+  //                       onPressed: () {
+  //                         List<RecentOrder> selectedOrders = [];
+  //                         for (var order in recentOrders) {
+  //                           if (context
+  //                               .read<CustomersProvider>()
+  //                               .isOrderSelected(order)) {
+  //                             selectedOrders.add(order);
+  //                           }
+  //                         }
+
+  //                         // Show the appropriate dialog or toast based on the selection
+  //                         if (selectedOrders.isNotEmpty) {
+  //                           paymentCollectionDialog(context, selectedOrders);
+  //                         } else {
+  //                           showCustomToast(context);
+  //                         }
+  //                       },
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor: const Color(0xff5bc0de),
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(4.0),
+  //                         ),
+  //                       ),
+  //                       child: const Text(
+  //                         'Collection',
+  //                         style: TextStyle(
+  //                           color: Colors.white,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Padding(
+  //                 padding: const EdgeInsets.only(right: 20, top: 2),
+  //                 child: InkWell(
+  //                   onTap: () {
+  //                     showCustomDialog(context, recentOrders);
+  //                   },
+  //                   child: Container(
+  //                       decoration: BoxDecoration(
+  //                           borderRadius: BorderRadius.circular(10),
+  //                           color: primaryColor.withOpacity(0.3)),
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.all(5.0),
+  //                         child: const Icon(
+  //                           Icons.open_in_new,
+  //                           size: 17,
+  //                           color: primaryColor,
+  //                         ),
+  //                       )),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           nkSmallSizeBox(),
+  //           Expanded(
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(8.0),
+  //               child: LayoutBuilder(
+  //                 builder: (context, constraints) {
+  //                   double availableWidth = constraints.maxWidth;
+  //                   double availableHeight = constraints.maxHeight;
+  //                   double fontSize = 11;
+  //                   return Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     children: [
+  //                       const Row(
+  //                         children: [
+  //                           Expanded(
+  //                             child: Center(
+  //                               child: Text(
+  //                                 "Date",
+  //                                 style: TextStyle(
+  //                                   fontFamily: 'Poppins_Regular',
+  //                                   fontWeight: FontWeight.w600,
+  //                                   fontSize: 11,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           Expanded(
+  //                             child: Center(
+  //                               child: Text(
+  //                                 "Invoice",
+  //                                 style: TextStyle(
+  //                                   fontFamily: 'Poppins_Regular',
+  //                                   fontWeight: FontWeight.w600,
+  //                                   fontSize: 11,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           Expanded(
+  //                             child: Center(
+  //                               child: Text(
+  //                                 "Status",
+  //                                 style: TextStyle(
+  //                                   fontFamily: 'Poppins_Regular',
+  //                                   fontWeight: FontWeight.w600,
+  //                                   fontSize: 11,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           Expanded(
+  //                             child: Center(
+  //                               child: Text(
+  //                                 "Amount",
+  //                                 style: TextStyle(
+  //                                   fontFamily: 'Poppins_Regular',
+  //                                   fontWeight: FontWeight.w600,
+  //                                   fontSize: 11,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           Expanded(
+  //                             child: Center(
+  //                               child: Text(
+  //                                 "Due By",
+  //                                 style: TextStyle(
+  //                                   fontFamily: 'Poppins_Regular',
+  //                                   fontWeight: FontWeight.w600,
+  //                                   fontSize: 11,
+  //                                 ),
+  //                                 maxLines: 1,
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           Expanded(
+  //                             child: Center(
+  //                               child: Text(
+  //                                 "Select",
+  //                                 style: TextStyle(
+  //                                   fontFamily: 'Poppins_Regular',
+  //                                   fontWeight: FontWeight.w600,
+  //                                   fontSize: 11,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                       Padding(
+  //                         padding: const EdgeInsets.only(top: 8.0, bottom: 0),
+  //                         child: Container(
+  //                           height: 1,
+  //                           color: Colors.grey.shade100,
+  //                         ),
+  //                       ),
+  //                       Expanded(
+  //                         child: SingleChildScrollView(
+  //                           scrollDirection: Axis.vertical,
+  //                           child: Column(
+  //                             children: recentOrders.map((order) {
+  //                               return Padding(
+  //                                 padding:
+  //                                     const EdgeInsets.symmetric(vertical: 0.0),
+  //                                 child: Row(
+  //                                   children: [
+  //                                     Expanded(
+  //                                       child: Center(
+  //                                         child: Text(
+  //                                           getFormattedOrderCreatAt(
+  //                                               order.orderCreatAt),
+  //                                           style: TextStyle(
+  //                                             fontSize: fontSize,
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Expanded(
+  //                                       child: Center(
+  //                                         child: Text(
+  //                                           order.orderId,
+  //                                           style: TextStyle(
+  //                                             fontSize: fontSize,
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Expanded(
+  //                                       child: Center(
+  //                                         child: Container(
+  //                                           decoration: const BoxDecoration(
+  //                                             color: Color(0xff008000),
+  //                                             borderRadius: BorderRadius.all(
+  //                                                 Radius.circular(4.0)),
+  //                                           ),
+  //                                           child: Padding(
+  //                                             padding: EdgeInsets.symmetric(
+  //                                               horizontal: availableWidth / 80,
+  //                                               vertical: availableHeight / 100,
+  //                                             ),
+  //                                             child: Text(
+  //                                               getStatusName(
+  //                                                   order.orderStatus),
+  //                                               maxLines: 1,
+  //                                               overflow: TextOverflow.ellipsis,
+  //                                               style: TextStyle(
+  //                                                 color: Colors.white,
+  //                                                 fontSize: fontSize,
+  //                                               ),
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Expanded(
+  //                                       child: Center(
+  //                                         child: Text(
+  //                                           formatAmount(order.orderTotal),
+  //                                           maxLines: 1,
+  //                                           style: TextStyle(
+  //                                             fontSize: fontSize,
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Expanded(
+  //                                       child: Center(
+  //                                         child: Text(
+  //                                           getFormattedOrderCreatAt(
+  //                                               order.orderCreatAt),
+  //                                           style: TextStyle(
+  //                                             fontSize: fontSize,
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Expanded(
+  //                                       child: Center(
+  //                                         child: Consumer<CustomersProvider>(
+  //                                           builder:
+  //                                               (context, provider, child) {
+  //                                             return Checkbox(
+  //                                               value: provider
+  //                                                   .isOrderSelected(order),
+  //                                               onChanged: (bool? isSelected) {
+  //                                                 provider.toggleOrderSelection(
+  //                                                     order);
+  //                                               },
+  //                                             );
+  //                                           },
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                               );
+  //                             }).toList(),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Expanded OrdersPayments(
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
@@ -735,7 +1046,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
             blurRadius: 5,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 25,
@@ -779,7 +1090,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               selectedOrders.add(order);
                             }
                           }
-
                           // Show the appropriate dialog or toast based on the selection
                           if (selectedOrders.isNotEmpty) {
                             paymentCollectionDialog(context, selectedOrders);
@@ -828,7 +1138,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             nkSmallSizeBox(),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(0.0),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     double availableWidth = constraints.maxWidth;
@@ -915,7 +1225,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 0),
+                          padding: const EdgeInsets.only(top: 4.0, bottom: 0),
                           child: Container(
                             height: 1,
                             color: Colors.grey.shade100,
@@ -984,6 +1294,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             formatAmount(order.orderTotal),
                                             maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontSize: fontSize,
                                             ),
@@ -993,9 +1304,24 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Expanded(
                                         child: Center(
                                           child: Text(
-                                            getFormattedOrderCreatAt(
-                                                order.orderCreatAt),
+                                            // getFormattedOrderCreatAt(
+                                            //     order.duedate?.first ?? ''),
+                                            order.duedate!.isNotEmpty
+                                                ? order.duedate?.first ?? ''
+                                                : '',
+                                            // order.duedate?.first ?? '',
                                             style: TextStyle(
+                                              color: order.duedate!.isEmpty
+                                                  ? Colors.grey
+                                                  : order.duedate?[1] >= 3
+                                                      ? Colors.green
+                                                      : order.duedate?[1] <=
+                                                                  3 &&
+                                                              order.duedate?[
+                                                                      1] >=
+                                                                  1
+                                                          ? Colors.amber
+                                                          : Colors.red,
                                               fontSize: fontSize,
                                             ),
                                           ),
@@ -1394,7 +1720,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 legend2: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                   InkWell(
+                                    InkWell(
                                       onTap: () {
                                         if (categoryPerformance.data.revenue
                                             .bookingRevenueData!.isNotEmpty) {
@@ -1559,13 +1885,16 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           context,
                           product,
                           (p) => p.count,
+                          (data) => data.businessName,
                           (data) => formatAmount(data.price),
+                          (data) => formatAmount(data.tax),
                           (data) => data.quantity.toString(),
                           (data) => data.totalPrice != null
                               ? formatAmount(data.totalPrice)
                               : 'N/A',
                           (data) =>
                               DateFormat('dd-MM-yyyy').format(data.createdAt!),
+                          false,
                         ),
                       );
                     } else {
@@ -1592,371 +1921,278 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ),
             ],
           ),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                double fontSize = 11;
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 30,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: DataTable(
-                                horizontalMargin: 6,
-                                headingRowHeight: 30,
-                                headingRowColor:
-                                    WidgetStateProperty.resolveWith(
-                                  (states) =>
-                                      const Color.fromARGB(255, 205, 206, 208)
-                                          .withOpacity(0.2),
-                                ),
-                                dataRowHeight: 0,
-                                dividerThickness: 0,
-                                border: TableBorder.all(
-                                    width: 0, color: Colors.white),
-                                columns: const [
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Product",
-                                          fontWeight: FontWeight.w600,
-                                          color: secondaryTextColor,
-                                          align: TextAlign.center,
-                                          fontSize: 11.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Last Purchase",
-                                          fontWeight: FontWeight.w600,
-                                          color: secondaryTextColor,
-                                          align: TextAlign.center,
-                                          fontSize: 11.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Times",
-                                          fontWeight: FontWeight.w600,
-                                          color: secondaryTextColor,
-                                          align: TextAlign.center,
-                                          fontSize: 11.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Price",
-                                          fontWeight: FontWeight.w600,
-                                          color: secondaryTextColor,
-                                          align: TextAlign.center,
-                                          fontSize: 11.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Qty",
-                                          fontWeight: FontWeight.w600,
-                                          color: secondaryTextColor,
-                                          align: TextAlign.center,
-                                          fontSize: 11.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                rows: frequentProductLists.map((product) {
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(
-                                        Text(
-                                          '${product.productName} - ${product.variationName}',
-                                          style: TextStyle(fontSize: fontSize),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            DateFormat('dd-MM-yyyy')
-                                                .format(product.createdAt),
-                                            style:
-                                                TextStyle(fontSize: fontSize),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: InkWell(
-                                            child: Container(
-                                              height: 20,
-                                              width: 20,
-                                              decoration: const BoxDecoration(
-                                                color: Colors.blue,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  product.count.length
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                    color: buttonTextColor,
-                                                    fontSize: fontSize,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            formatAmount(product.price),
-                                            style:
-                                                TextStyle(fontSize: fontSize),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            product.quantity.toString(),
-                                            style:
-                                                TextStyle(fontSize: fontSize),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
+          nkSmallSizeBox(),
+          Expanded(child: topSellingProductsCustomer(frequentProductLists)),
+        ],
+      ),
+    );
+  }
+
+  Widget topSellingProductsCustomer(
+      List<FrequantliyProductList> frequentProductLists) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double availableWidth = constraints.maxWidth;
+        double flexWidth = availableWidth * 1.4;
+
+        double colWidth0 = flexWidth * 1 / 12;
+        double colWidth1 = flexWidth * 2.8 / 12;
+        double colWidth2_2 = flexWidth * 1.2 / 12;
+        double colWidth2 = flexWidth * 2 / 12;
+        double colWidth3 = flexWidth * 1 / 12;
+        double colWidth4 = flexWidth * 2.1 / 12;
+        double colWidth5 = flexWidth * 1 / 12;
+
+        double fontSize = 11;
+
+        if (frequentProductLists.isEmpty) {
+          return const NodataWidget();
+        } else {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              width: flexWidth + 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Fixed Header
+                  Container(
+                    height: 35,
+                    color: Colors.grey.shade100,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: colWidth0,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "Sl.No.",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                      // Content Table (Scrollable)
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                minHeight: 100,
-                                maxHeight: constraints.maxHeight),
+                        const SizedBox(width: 5),
+                        SizedBox(
+                          width: colWidth1,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "Product",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        SizedBox(
+                          width: colWidth2_2,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "I/N",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        SizedBox(
+                          width: colWidth2,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "Last Purchase",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        SizedBox(
+                          width: colWidth3,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "Times",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        SizedBox(
+                          width: colWidth4,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "Price",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        SizedBox(
+                          width: colWidth5,
+                          child: const Center(
+                            child: MyRegularText(
+                              label: "Qty",
+                              fontWeight: FontWeight.w600,
+                              color: secondaryTextColor,
+                              align: TextAlign.center,
+                              fontSize: 11.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Column(
+                        children:
+                            frequentProductLists.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          var product = entry.value;
+
+                          return SizedBox(
+                            height: 35,
                             child: Row(
                               children: [
-                                Expanded(
-                                  child: DataTable(
-                                    horizontalMargin: 6,
-                                    headingRowHeight: 0,
-                                    dataRowHeight: 35,
-                                    dividerThickness: 0,
-                                    border: TableBorder.all(
-                                        width: 0, color: Colors.white),
-                                    columns: const [
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Center(
-                                            child: MyRegularText(
-                                              label: "Product",
-                                              fontWeight: FontWeight.w600,
-                                              color: secondaryTextColor,
-                                              align: TextAlign.center,
-                                              fontSize: 11.3,
-                                            ),
+                                SizedBox(
+                                  width: colWidth0,
+                                  child: MyRegularText(
+                                    label: "${index + 1}.",
+                                    fontSize: fontSize,
+                                    maxlines: 1,
+                                    align: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                SizedBox(
+                                  width: colWidth1,
+                                  child: MyRegularText(
+                                    label:
+                                        '${product.productName} - ${product.variationName}',
+                                    fontSize: fontSize,
+                                    maxlines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                SizedBox(
+                                  width: colWidth2_2,
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: product.inNo.toString(),
+                                      color: secondaryTextColor,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                SizedBox(
+                                  width: colWidth2,
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: DateFormat('dd-MM-yyyy')
+                                          .format(product.createdAt.toLocal()),
+                                      color: secondaryTextColor,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                SizedBox(
+                                  width: colWidth3,
+                                  child: Center(
+                                    child: InkWell(
+                                      onTap: () {
+                                        showDashTimesDialogue(
+                                          context,
+                                          product,
+                                          (p) => p.count,
+                                          (data) => data.businessName,
+                                          (data) => formatAmount(data.price),
+                                          (data) => formatAmount(data.tax),
+                                          (data) => data.quantity.toString(),
+                                          (data) => data.totalPrice != null
+                                              ? formatAmount(data.totalPrice)
+                                              : 'N/A',
+                                          (data) => DateFormat('dd-MM-yyyy')
+                                              .format(
+                                                  data.createdAt!.toLocal()),
+                                          false,
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 20,
+                                        width: 20,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: MyRegularText(
+                                            label:
+                                                product.count.length.toString(),
+                                            color: buttonTextColor,
+                                            align: TextAlign.center,
+                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Center(
-                                            child: MyRegularText(
-                                              label: "Last Purchase",
-                                              fontWeight: FontWeight.w600,
-                                              color: secondaryTextColor,
-                                              align: TextAlign.center,
-                                              fontSize: 11.3,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Center(
-                                            child: MyRegularText(
-                                              label: "Times",
-                                              fontWeight: FontWeight.w600,
-                                              color: secondaryTextColor,
-                                              align: TextAlign.center,
-                                              fontSize: 11.3,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Center(
-                                            child: MyRegularText(
-                                              label: "Price",
-                                              fontWeight: FontWeight.w600,
-                                              color: secondaryTextColor,
-                                              align: TextAlign.center,
-                                              fontSize: 11.3,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Center(
-                                            child: MyRegularText(
-                                              label: "Qty",
-                                              fontWeight: FontWeight.w600,
-                                              color: secondaryTextColor,
-                                              align: TextAlign.center,
-                                              fontSize: 11.3,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    rows: frequentProductLists.map((product) {
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(
-                                            Text(
-                                              '${product.productName} - ${product.variationName}',
-                                              style:
-                                                  TextStyle(fontSize: fontSize),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Center(
-                                              child: Text(
-                                                DateFormat('dd-MM-yyyy')
-                                                    .format(product.createdAt),
-                                                style: TextStyle(
-                                                    fontSize: fontSize),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Center(
-                                              child: InkWell(
-                                                onTap: () {
-                                                  showDashTimesDialogue(
-                                                    context,
-                                                    product,
-                                                    (p) => p.count,
-                                                    (data) => formatAmount(
-                                                        data.price),
-                                                    (data) => data.quantity
-                                                        .toString(),
-                                                    (data) =>
-                                                        data.totalPrice != null
-                                                            ? formatAmount(
-                                                                data.totalPrice)
-                                                            : 'N/A',
-                                                    (data) => DateFormat(
-                                                            'dd-MM-yyyy')
-                                                        .format(
-                                                            data.createdAt!),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  height: 20,
-                                                  width: 20,
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: Colors.blue,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      product.count.length
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                        color: buttonTextColor,
-                                                        fontSize: fontSize,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Center(
-                                              child: Text(
-                                                formatAmount(product.price),
-                                                style: TextStyle(
-                                                    fontSize: fontSize),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Center(
-                                              child: Text(
-                                                product.quantity.toString(),
-                                                style: TextStyle(
-                                                    fontSize: fontSize),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                SizedBox(
+                                  width: colWidth4,
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: formatAmount(product.totalPrice),
+                                      color: secondaryTextColor,
+                                      fontSize: fontSize,
+                                      maxlines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                SizedBox(
+                                  width: colWidth5,
+                                  child: Center(
+                                    child: MyRegularText(
+                                      label: product.quantity.toString(),
+                                      color: secondaryTextColor,
+                                      fontSize: fontSize,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
+                          );
+                        }).toList(),
                       ),
-                    ],
+                    ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-          ),
-          nkSmallSizeBox(),
-        ],
-      ),
+          );
+        }
+      },
     );
   }
 

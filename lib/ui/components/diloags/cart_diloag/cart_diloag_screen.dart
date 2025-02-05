@@ -156,7 +156,7 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
     num total = 0;
     num? totalDiscount;
     for (var element in cartDataList) {
-      tax += num.parse(element.tax ?? "0");
+      tax += num.parse(element.tax.toString());
       total += num.parse(element.price ?? "0");
       totalDiscount =
           element.discount != null && num.parse(element.discount!) > 0
@@ -392,7 +392,7 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
                   ? MyRegularText(
                       label: calculateAmountWithDiscount(
                               total: cartData.total!,
-                              tax: num.parse(cartData.tax!),
+                              tax: num.parse(cartData.tax.toString()),
                               discount: num.parse(cartData.discount!))
                           .toStringAsFixed(2)
                           .nkValueWithCurrencySymbol

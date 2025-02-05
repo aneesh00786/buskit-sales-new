@@ -49,12 +49,14 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         CartDatabaseManager().cartPreorderItems.length;
     CartDatabaseManager().addListener(_updateCartCount);
   }
+
   void _updateCartCount() {
     setState(() {
       cartItemCount = CartDatabaseManager().cartItems.length +
           CartDatabaseManager().cartPreorderItems.length;
     });
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -109,10 +111,10 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     bool isDirectProduct = index == 2;
     return GestureDetector(
       onTap: () {
-            bool hasDraftId = CartDatabaseManager()
-        .cartItems
-        .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
-        if (CartDatabaseManager().cartItems.isNotEmpty&&!hasDraftId) {
+        bool hasDraftId = CartDatabaseManager()
+            .cartItems
+            .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
+        if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
           handleBackNavigation(context, false, productController, () {
             setState(() {
               widget.sidebarXController.selectIndex(index);
@@ -203,8 +205,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               Positioned(
                 top: -12,
                 left: 12,
-                child:
-                    CircleAvatar(
+                child: CircleAvatar(
                   radius: 10,
                   backgroundColor: Colors.red,
                   child: Text(

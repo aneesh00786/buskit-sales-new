@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +22,7 @@ class OrderController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
   RxList<OrderData> orderDataList = <OrderData>[].obs;
   OrderProcessInvoiceData orderProcessInvoiceData = OrderProcessInvoiceData();
-  FetchSpecificOrderData fetchSpecificOrderData = FetchSpecificOrderData();
+  SpecificOrderData fetchSpecificOrderData = SpecificOrderData();
   RxInt selectedTabIndex = 0.obs;
   RxInt selectedStatusCountIndex = 11.obs;
   SearchModel searchData = SearchModel();
@@ -142,7 +143,6 @@ class OrderController extends GetxController {
       } else {
         orderDataList.assignAll(data.data!);
 
-        // Safely handle pagination
         if (data.pagination != null && data.pagination!.totalPages != null) {
           totalPages.value = data.pagination!.totalPages!.toInt();
         } else {
@@ -174,6 +174,7 @@ class OrderController extends GetxController {
   }
 
   void updateTabIndex(int newIndex) {
+    currentPage.value = 1;
     selectedTabIndex.value = newIndex;
     loadOrderCountData();
     loadOrderData(selectedIndex: newIndex);
@@ -213,14 +214,14 @@ class OrderController extends GetxController {
     return orderProcessInvoiceData;
   }
 
-  Future<FetchSpecificOrderData?> loadSpecificOrderInvoiceData({
+  Future<SpecificOrderData?> loadSpecificOrderInvoiceData({
     required String orderId,
   }) async {
     isLoading(true);
     log("Loading Specific Order Invoice Data");
 
-    var data = await _apiWorker.fetchSpecificOrder(
-      orderId: orderId,
+    var data = await ApiWorker().fetchSpecificOrderInvoice(
+      orderId,
     );
 
     if (data.data != null) {

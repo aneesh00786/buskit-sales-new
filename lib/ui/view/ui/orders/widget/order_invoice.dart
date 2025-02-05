@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class OrderProcessInvoiceDialog extends StatefulWidget {
   OrderProcessInvoiceData? invoiceData;
-  FetchSpecificOrderData? specificData;
+  SpecificOrderData? specificData;
   final int selectedTabIndex;
   final OrderController orderController;
   OrderProcessInvoiceDialog({
@@ -37,7 +38,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
   List<TextEditingController> _quantityControllers = [];
   List<double> _totalPrices = [];
   bool isChanged = false;
-  List<FetchSpecificOrderData> _updatedOrder = [];
+ final List<SpecificOrderData> _updatedOrder = [];
 
   @override
   void initState() {
@@ -58,14 +59,17 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               text: widget.specificData!.cart![index].quantity?.toString() ??
                   '1'));
 
-      _totalPrices = List.generate(
+     _totalPrices = List.generate(
         widget.specificData!.cart!.length,
         (index) {
           double price = double.tryParse(
                   widget.specificData!.cart![index].price?.toString() ?? '0') ??
               0;
           int quantity = widget.specificData!.cart![index].quantity ?? 1;
-          return price * quantity;
+          double tax = double.tryParse(
+                  widget.specificData!.cart![index].tax?.toString() ?? '0') ??
+              0;
+          return (price * quantity) + tax;
         },
       );
 
@@ -79,9 +83,20 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
   void _updateTotalPrice(int index) {
     double price = double.tryParse(_priceControllers[index].text) ?? 0;
     int quantity = int.tryParse(_quantityControllers[index].text) ?? 1;
+    double tax = widget.specificData!.cart![index].inclTax != "incl_tax"
+        ? double.tryParse(
+                widget.specificData!.cart![index].tax?.toString() ?? '0') ??
+            0
+        : 0;
 
     setState(() {
-      _totalPrices[index] = price * quantity;
+      if (widget.specificData!.cart![index].packType == 'Pack') {
+        int pieces = widget.specificData!.cart![index].pieces ?? 1;
+
+        _totalPrices[index] = (price * quantity * pieces) + tax;
+      } else if (widget.specificData!.cart![index].packType == 'Pcs') {
+        _totalPrices[index] = (price * quantity) + tax;
+      }
     });
   }
 
@@ -134,14 +149,16 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          'CUSTOMER & ORDERS',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Text(
+                        widget.selectedTabIndex == 5
+                            ? 'INVOICE DETAILS'
+                            : 'ORDER DETAILS',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
                         const Spacer(),
                         Text(
                           'Created At : ${isSpecificData ? (NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.specificData!.orderCreatAt.toString()))) : (NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt!.toIso8601String())))}',
@@ -224,6 +241,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ),
                           ),
                         ),
+                        
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
@@ -233,15 +251,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ),
                           ),
                         ),
-                        // const DataColumn(
-                        //   label: Expanded(
-                        //     flex: 2,
-                        //     child: Text(
-                        //       'CREATED AT',
-                        //       textAlign: TextAlign.center,
-                        //     ),
-                        //   ),
-                        // ),
+                        const DataColumn(
+                        label: Expanded(
+                          flex: 2,
+                          child: Text(
+                            'TAX',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
@@ -425,17 +443,62 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     //   ),
                                     // ),
                                     DataCell(
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text(
-                                        isSpecificData
-                                            ? formatAmount(_totalPrices[index])
-                                            : formatAmount((widget.invoiceData!
-                                                    .cart![index].total)
-                                                
-                                                ),
-                                      ),
+                                    Center(
+                                      child: Text(isSpecificData
+                                          ? formatAmount(widget
+                                              .specificData?.cart?[index].tax)
+                                          : formatAmount(widget
+                                              .invoiceData?.cart?[index].tax)),
                                     ),
+                                  ),
+                                   DataCell(
+                                    Align(
+                                        alignment: Alignment.centerRight,
+                                        child: isSpecificData
+                                            ? Text.rich(
+                                                TextSpan(
+                                                  text: formatAmount(
+                                                      _totalPrices[index]),
+                                                  children: widget
+                                                              .specificData!
+                                                              .cart![index]
+                                                              .inclTax ==
+                                                          "incl_tax"
+                                                      ? [
+                                                          TextSpan(
+                                                            text:
+                                                                "  (Incl. Tax)",
+                                                            style: TextStyle(
+                                                                fontSize: 10),
+                                                          ),
+                                                        ]
+                                                      : [],
+                                                ),
+                                                maxLines: 1,
+                                              )
+                                            : Text.rich(
+                                                TextSpan(
+                                                  text: formatAmount(widget
+                                                      .invoiceData!
+                                                      .cart![index]
+                                                      .total),
+                                                  children: widget
+                                                              .invoiceData!
+                                                              .cart![index]
+                                                              .inclTax ==
+                                                          "incl_tax"
+                                                      ? [
+                                                          TextSpan(
+                                                            text:
+                                                                "  (Incl. Tax)",
+                                                            style: TextStyle(
+                                                                fontSize: 10),
+                                                          ),
+                                                        ]
+                                                      : [],
+                                                ),
+                                                maxLines: 1,
+                                              )),
                                   ),
                                   ],
                                 );
@@ -445,6 +508,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                               const DataRow(
                                 cells: [
                                   DataCell(Text('No items available.')),
+                                  DataCell(Text('')),
                                   DataCell(Text('')),
                                   DataCell(Text('')),
                                   DataCell(Text('')),
@@ -573,7 +637,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         formatAmount(
                           isSpecificData
                               ? _totalPrices.reduce((a, b) => a + b)
-                              : (widget.invoiceData?.orderTotal ?? 0),
+                              : widget.invoiceData?.cart?.fold<num>(
+                                  0, (sum, item) => sum + item.total),
                         ),
                       ),
                     ],
@@ -629,23 +694,10 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       const Spacer(),
                       Text(
                         formatAmount(
-                          (() {
-                            final orderTotal = isSpecificData
-                                ? _totalPrices.reduce((a, b) => a + b)
-                                : (widget.invoiceData?.orderTotal ?? 0);
-                            final totalTax = isSpecificData
-                                ? (widget.specificData?.tax?.fold(0.0,
-                                        (sum, taxItem) {
-                                      return sum + (taxItem.tax ?? 0.0);
-                                    }) ??
-                                    0.0)
-                                : (widget.invoiceData?.tax?.fold(0.0,
-                                        (sum, taxItem) {
-                                      return sum + (taxItem.tax ?? 0.0);
-                                    }) ??
-                                    0.0);
-                            return orderTotal + ((totalTax * orderTotal) / 100);
-                          })(),
+                          isSpecificData
+                              ? _totalPrices.reduce((a, b) => a + b)
+                              : widget.invoiceData?.cart?.fold<num>(
+                                  0, (sum, item) => sum + item.total),
                         ),
                         style: const TextStyle(
                           fontSize: 16,
@@ -959,7 +1011,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                               i < widget.specificData!.cart!.length;
                               i++) {
                             widget.specificData!.cart![i].price =
-                                _priceControllers[i].text;
+                                num.tryParse(_priceControllers[i].text);
                             widget.specificData!.cart![i].quantity =
                                 int.tryParse(_quantityControllers[i].text) ??
                                     widget.specificData!.cart![i].quantity;
@@ -983,6 +1035,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       );
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),
@@ -1006,7 +1059,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 i < widget.specificData!.cart!.length;
                                 i++) {
                               widget.specificData!.cart![i].price =
-                                  _priceControllers[i].text;
+                                  num.tryParse(_priceControllers[i].text);
                               widget.specificData!.cart![i].quantity =
                                   int.tryParse(_quantityControllers[i].text) ??
                                       widget.specificData!.cart![i].quantity;
@@ -1031,6 +1084,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         );
                         await widget.orderController.loadOrderData(
                             selectedIndex: widget.selectedTabIndex);
+                        await widget.orderController.loadOrderCountData();
                         Navigator.pop(context);
                       },
                     ),
@@ -1064,6 +1118,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       // Pop the screen after the action is completed
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),
@@ -1078,6 +1133,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       );
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),
@@ -1119,6 +1175,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       // Pop the screen after the action is completed
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),
@@ -1187,6 +1244,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       // Pop the screen after the action is completed
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),
@@ -1203,6 +1261,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       // Pop the screen after the action is completed
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),
@@ -1218,6 +1277,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       // Pop the screen after the action is completed
                       await widget.orderController.loadOrderData(
                           selectedIndex: widget.selectedTabIndex);
+                      await widget.orderController.loadOrderCountData();
                       Navigator.pop(context);
                     },
                   ),

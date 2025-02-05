@@ -1342,22 +1342,20 @@ class ApiWorker with ApiConstants {
     return OrderProcessInvoice.fromJson(response.data);
   }
 
-  Future<FetchSpecificOrder> fetchSpecificOrder({
-    String? orderId,
-  }) async {
+ Future<FetchSpecificOrderInvoice> fetchSpecificOrder(
+      String orderId) async {
     final response = await dio
-        .postbycustom(
-      ApiConstants.fetch_specific_order,
-      data: FormData.fromMap({
-        "order_id": orderId,
-        "companyId": companyId,
-      }),
-    )
+        .postbycustom(ApiConstants.fetch_specific_order,
+            data: FormData.fromMap({
+              "order_id": orderId,
+              "companyId": companyId,
+            }))
         .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-    return FetchSpecificOrder.fromJson(response.data);
+    log(response.data.toString());
+    return FetchSpecificOrderInvoice.fromJson(response.data);
   }
 
   Future<OrderProcessInvoice> loadWaitingForApproval({

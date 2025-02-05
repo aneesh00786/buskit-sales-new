@@ -10,10 +10,13 @@ Future<dynamic> showDashTimesDialogue<T>(
   BuildContext context,
   T product,
   List<dynamic> Function(T product) getTimesData,
+  String Function(dynamic timesData) getCustomer,
   String Function(dynamic timesData) getPrice,
+  String Function(dynamic timesData) getTax,
   String Function(dynamic timesData) getQuantity,
   String Function(dynamic timesData) getTotalPrice,
   String Function(dynamic timesData) getPurchasedAt,
+  bool isDash,
 ) {
   List<dynamic> timesDataList = getTimesData(product);
 
@@ -26,7 +29,7 @@ Future<dynamic> showDashTimesDialogue<T>(
         ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+            double dialogWidth = MediaQuery.of(context).size.width * 0.8;
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;
@@ -38,7 +41,7 @@ Future<dynamic> showDashTimesDialogue<T>(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,
               ),
-              child: Container(
+              child: SizedBox(
                 width: dialogWidth,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -58,10 +61,10 @@ Future<dynamic> showDashTimesDialogue<T>(
                           Expanded(
                             child: MyRegularText(
                               label: product is TopSellingProductA
-                                  ? '${product.productName ?? "Unknown"} - ${product.variationName ?? "Unknown"}'
+                                  ? '${product.productName} - ${product.variationName}'
                                   : product is FrequantliyProductList
-                                      ? '${product.productName ?? "Unknown"} - ${product.variationName ?? "Unknown"}'
-                                      : 'No Product Data',
+                                      ? product.productName
+                                      : '',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -80,15 +83,22 @@ Future<dynamic> showDashTimesDialogue<T>(
                       height: headerHeight,
                       child: Row(
                         children: [
+                          SizedBox(width: 50, child: buildHeader('  Sl.No.')),
+                          if (isDash) ...[
+                            Expanded(child: buildHeader('Customer')),
+                          ],
                           Expanded(child: buildHeader('Price')),
                           Expanded(child: buildHeader('Quantity')),
+                          if (isDash) ...[
+                            Expanded(child: buildHeader('Tax')),
+                          ],
                           Expanded(child: buildHeader('Amount')),
-                          Expanded(child: buildHeader('Purchased At')),
+                          Expanded(child: buildHeader('Date')),
                         ],
                       ),
                     ),
                     Flexible(
-                      child: Container(
+                      child: SizedBox(
                         height: contentHeight,
                         child: ListView.builder(
                           itemCount:
@@ -112,12 +122,25 @@ Future<dynamic> showDashTimesDialogue<T>(
                                 height: rowHeight,
                                 child: Row(
                                   children: [
+                                    SizedBox(
+                                        width: 50,
+                                        child: buildRowData("  ${index + 1}.")),
+                                    if (isDash) ...[
+                                      Expanded(
+                                          child: buildRowData(
+                                              getCustomer(timesData))),
+                                    ],
                                     Expanded(
                                         child:
                                             buildRowData(getPrice(timesData))),
                                     Expanded(
                                         child: buildRowData(
                                             getQuantity(timesData))),
+                                    if (isDash) ...[
+                                      Expanded(
+                                          child:
+                                              buildRowData(getTax(timesData))),
+                                    ],
                                     Expanded(
                                         child: buildRowData(
                                             getTotalPrice(timesData))),
@@ -148,7 +171,8 @@ Widget buildHeader(String title) {
     child: Text(
       title,
       style: const TextStyle(
-        fontSize: 12,
+        fontSize: 13,
+        fontFamily: 'Poppins_Regular',
         fontWeight: FontWeight.bold,
       ),
       textAlign: TextAlign.center,

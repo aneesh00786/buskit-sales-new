@@ -1136,9 +1136,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               product.variationName ?? '',
                           getFormattedDate: (product) =>
                               DateFormat('dd-MM-yyyy')
-                                  .format(product.createdAt!),
+                                  .format(product.createdAt!.toLocal()),
                           getPrice: (product) => formatAmount(
-                              product.topSellingProductATotalPrice),
+                            product.inclTax == "incl_tax"
+                                ? (double.tryParse(product
+                                        .topSellingProductATotalPrice
+                                        .toString()) ??
+                                    0.0)
+                                : ((double.tryParse(product
+                                            .topSellingProductATotalPrice
+                                            .toString()) ??
+                                        0.0) +
+                                    ((double.tryParse(product.tax.toString()) ??
+                                            0.0) *
+                                        (double.tryParse(
+                                                product.quantity.toString()) ??
+                                            0.0))),
+                          ),
                           getBuyQuantity: (product) =>
                               int.tryParse(product.buyquantity ?? '0') ?? 0,
                           getInNo: (product) => product.inNo ?? '',
@@ -1147,13 +1161,29 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             context,
                             product,
                             (p) => p.getTimesData ?? [],
+                            (data) => data.businessName,
                             (data) => formatAmount(data.price),
+                            (data) => formatAmount(product.tax),
                             (data) => data.quantity.toString(),
-                            (data) => data.totalPrice != null
-                                ? formatAmount(data.totalPrice)
-                                : 'N/A',
+                            (data) => formatAmount(
+                              product.inclTax == "incl_tax"
+                                  ? ((double.tryParse(data.price.toString()) ??
+                                          0) *
+                                      (double.tryParse(
+                                              data.quantity.toString()) ??
+                                          0))
+                                  : (((double.tryParse(data.price.toString()) ??
+                                              0) *
+                                          (double.tryParse(
+                                                  data.quantity.toString()) ??
+                                              0)) +
+                                      (double.tryParse(
+                                              product.tax.toString()) ??
+                                          0.0)),
+                            ),
                             (data) => DateFormat('dd-MM-yyyy')
                                 .format(data.createdAt!),
+                            true,
                           ),
                         );
                       } else {

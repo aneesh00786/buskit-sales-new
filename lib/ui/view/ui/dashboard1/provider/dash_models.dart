@@ -593,6 +593,8 @@ class TopSellingProductA {
   String? price;
   String? productName;
   String? inNo;
+  String? inclTax;
+  String? tax;
   DateTime? createdAt;
   List<TopSellingCustomer>? customer;
   List<TopSellingQuantityList>? quantityList;
@@ -611,6 +613,8 @@ class TopSellingProductA {
     this.price,
     this.productName,
     this.inNo,
+    this.inclTax,
+    this.tax,
     this.createdAt,
     this.customer,
     this.quantityList,
@@ -631,6 +635,8 @@ class TopSellingProductA {
         price: json["price"],
         productName: json["product_name"],
         inNo: json["in_no"],
+        inclTax: json["incl_tax"],
+        tax: json["tax"],
         createdAt: DateTime.parse(json["created_at"]),
         customer: List<TopSellingCustomer>.from(
             json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
@@ -654,6 +660,8 @@ class TopSellingProductA {
         "price": price,
         "product_name": productName,
         "in_no": inNo,
+        "incl_tax": inclTax,
+        "tax": tax,
         "created_at": createdAt!.toIso8601String(),
         "customer": List<dynamic>.from(customer!.map((x) => x.toJson())),
         "quantityList":
@@ -689,12 +697,14 @@ class TopSellingCustomer {
 }
 
 class TopSellingGetTimesDatum {
+  String? businessName;
   String? totalPrice;
   DateTime? createdAt;
   int? quantity;
   String? price;
 
   TopSellingGetTimesDatum({
+    this.businessName,
     this.totalPrice,
     this.createdAt,
     this.quantity,
@@ -703,6 +713,7 @@ class TopSellingGetTimesDatum {
 
   factory TopSellingGetTimesDatum.fromJson(Map<String, dynamic> json) =>
       TopSellingGetTimesDatum(
+        businessName: json["business_name"],
         totalPrice: json["total_price"],
         createdAt: DateTime.parse(json["created_at"]),
         quantity: json["quantity"],
@@ -710,6 +721,7 @@ class TopSellingGetTimesDatum {
       );
 
   Map<String, dynamic> toJson() => {
+        "business_name": businessName,
         "total_price": totalPrice,
         "created_at": createdAt!.toIso8601String(),
         "quantity": quantity,
@@ -3122,8 +3134,8 @@ class SpecificOrderData {
   String? paymentDetail;
   int? orderStatus;
   DateTime? orderCreatAt;
-  int? orderTotal;
-  int? receivedAmount;
+  num? orderTotal;
+  num? receivedAmount;
   DateTime? receivedAmountDate;
   DateTime? checkDueDate;
   int? checkNumber;
@@ -3240,8 +3252,8 @@ class SpecificOrderData {
         orderCreatAt: json["order_creat_at"] != null
             ? DateTime.tryParse(json["order_creat_at"])
             : null,
-        orderTotal: json["order_total"] as int?,
-        receivedAmount: json["received_amount"] as int?,
+        orderTotal: json["order_total"] as num?,
+        receivedAmount: json["received_amount"] as num?,
         receivedAmountDate: json["received_amount_date"] != null
             ? DateTime.tryParse(json["received_amount_date"])
             : null,
@@ -3339,7 +3351,7 @@ class SpecificOrderCart {
   dynamic reason;
   int? quantity;
   int? pieces;
-  dynamic packType;
+  String? packType;
   num? totalPrice;
   int? status;
   int? orderPlaceStatus;
@@ -3349,7 +3361,8 @@ class SpecificOrderCart {
   String? productName;
   int? catId;
   dynamic taxName;
-  dynamic tax;
+  num? tax;
+  String? inclTax;
 
   SpecificOrderCart({
     this.id,
@@ -3371,6 +3384,7 @@ class SpecificOrderCart {
     this.catId,
     this.taxName,
     this.tax,
+    this.inclTax,
   });
 
   factory SpecificOrderCart.fromJson(Map<String, dynamic> json) =>
@@ -3393,7 +3407,8 @@ class SpecificOrderCart {
         productName: json["product_name"],
         catId: json["catId"],
         taxName: json["tax_name"],
-        tax: json["tax"],
+        tax: num.tryParse(json["tax"].toString()) ?? 0,
+        inclTax: json["incl_tax"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -3416,6 +3431,7 @@ class SpecificOrderCart {
         "catId": catId,
         "tax_name": taxName,
         "tax": tax,
+        "incl_tax": inclTax,
       };
 }
 

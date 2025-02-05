@@ -25,7 +25,7 @@ extension OrderStatusExtension on OrderStatus {
       case OrderStatus.preOrder:
         return "Pre-Order";
       case OrderStatus.outOfDelivery:
-        return "Out of Delivery";
+        return "Out for Delivery";
       case OrderStatus.delivered:
         return "Delivered";
       case OrderStatus.draft:

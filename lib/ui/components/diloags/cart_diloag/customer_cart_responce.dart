@@ -113,7 +113,7 @@ class CustomerCart {
   String? variationName;
   String? unitType;
   dynamic price;
-  dynamic tax;
+  num? tax;
   dynamic taxName;
   String? packtype;
   String? packType;
@@ -132,6 +132,7 @@ class CustomerCart {
   String? orderId;
   OptionOrderData? optionOrderData;
   String? salesmanReason;
+  String? inclTax;
 
   CustomerCart(
       {this.id,
@@ -164,7 +165,9 @@ class CustomerCart {
       this.total,
       this.totalAmount,
       this.orderId,
-      this.customerDetails});
+      this.customerDetails,
+      this.inclTax,
+      });
 
   CustomerCart.fromJson(
     Map<String, dynamic> json, {
@@ -188,10 +191,10 @@ class CustomerCart {
     unitType = json['unitType'];
     price = json['price'];
     // ;
-    tax = json['tax'];
+    tax = num.tryParse(json['tax'].toString())??0;
     taxName = json['tax_name'];
-    packtype = json['packtype']; 
-    packType = json['packType']; 
+    packtype = json['packtype'];
+    packType = json['packType'];
     pieces = json['pieces'];
     stock = json['stock'];
     lowstock = json['lowstock'];
@@ -209,6 +212,7 @@ class CustomerCart {
     customerDetails = setCustomerDetails;
     orderId = setOrderId;
     optionOrderData = setOptionOrderData;
+    inclTax = json['incl_tax'];
   }
 
   Map<String, dynamic> toJson() {
@@ -240,6 +244,7 @@ class CustomerCart {
     json['quantity'] = quantity;
     json['total_price'] = total;
     json['total_amount'] = totalAmount;
+    json['incl_tax'] = inclTax;
     return json;
   }
 }

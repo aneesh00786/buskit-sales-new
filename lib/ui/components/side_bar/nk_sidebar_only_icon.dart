@@ -196,10 +196,10 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                             radius: 10,
                             backgroundColor: Colors.red,
                             child: Text(
-                              notificationController
-                                      .recentOrderCountData.notificationCreated
-                                      ?.toString() ??
-                                  '0',
+                              notificationController.recentOrderCountData
+                                            .mainNotification!.recentOrders
+                                            ?.toString() ??
+                                        '0',
                               style: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.white,

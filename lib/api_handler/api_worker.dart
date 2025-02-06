@@ -469,7 +469,7 @@ class ApiWorker with ApiConstants {
   }) async {
     final Map<String, dynamic> requestData = {
       'companyId': companyId,
-      // "salesman_id": salesmanId,
+      "salesman_id": salesmanId,
       // "start_date":'',
       // "end_date":'',
     };

@@ -377,7 +377,7 @@ void showProductListDialog<T>({
                               width: colWidth4,
                               child: const Center(
                                 child: DialogTableHeaderTextWhite(
-                                  text: "Price",
+                                  text: "Amount",
                                   fontSize: 13,
                                 ),
                               ),

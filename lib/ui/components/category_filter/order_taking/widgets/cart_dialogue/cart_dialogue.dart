@@ -186,7 +186,7 @@ class CartDialogueState extends State<CartDialogue> {
     //   );
     //   return;
     // }
-
+    
     // showDialog(
     //   context: context,
     //   barrierDismissible: false,
@@ -196,7 +196,6 @@ class CartDialogueState extends State<CartDialogue> {
     //     );
     //   },
     // );
-
     List<Detail> detail =
         CartDatabaseManager().cartItems.map((e) => e.detail).toList();
 

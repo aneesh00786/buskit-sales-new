@@ -429,6 +429,8 @@ class _OrderTakingState extends State<OrderTaking>
         leading: SingleChildScrollView(
           child: IconButton(
             onPressed: () async {
+              final toDash = widget.isDirectDialogue &&
+                  (!widget.isFromOrder || !widget.isFromCalender);
               final customerId =
                   customerAndOrderController.customerId.isNotEmpty
                       ? customerAndOrderController.customerId.value
@@ -440,9 +442,6 @@ class _OrderTakingState extends State<OrderTaking>
               if (CartDatabaseManager().cartItems.isNotEmpty &&
                   customerId.isNotEmpty &&
                   !hasDraftId) {
-                final toDash = widget.isDirectDialogue &&
-                    (!widget.isFromOrder || !widget.isFromCalender);
-
                 List<Detail> detail = CartDatabaseManager()
                     .cartItems
                     .map((e) => e.detail)
@@ -457,9 +456,7 @@ class _OrderTakingState extends State<OrderTaking>
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: existingCartId.isNotEmpty
-                        ? existingCartId
-                        : '',
+                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
                             productId: e.productId ??
@@ -571,20 +568,25 @@ class _OrderTakingState extends State<OrderTaking>
                     }
                   });
                 }
-
-                if (toDash) {
-                  log('Log NO : 1 : Navigating to Dashboard');
-                  CartDatabaseManager().cartItems.clear();
-                  CartDatabaseManager().clearCart(customerId);
-                } else {
-                  log('Log NO : 3 : Simply popping back');
-                }
-              }else if(hasDraftId){
+              } else if (hasDraftId&&toDash) {
                 log('Log NO : 4 : Simply popping back');
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  homeController.sidebarXController.selectIndex(0);
+                  homeController.selectedIndex.value = 0;
+                  Get.toNamed(AppRoutes.dashboard, id: 2);
+                  widget.productsController.selectedCustomerName.value = '';
+                  widget.productsController.selectedCustomerImageUrl.value = '';
+                });
+                CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().clearCart(customerId);
+                Navigator.pop(context);
+              }else if(hasDraftId){
+                Navigator.pop(context);
+              }else{
                 Navigator.pop(context);
               }
               customerAndOrderController.customerId.value = '';
-              widget.productsController.selectedCustomerId.value='';
+              widget.productsController.selectedCustomerId.value = '';
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),

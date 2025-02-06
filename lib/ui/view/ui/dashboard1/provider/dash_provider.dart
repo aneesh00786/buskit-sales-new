@@ -412,28 +412,23 @@ class ApiService {
           throw Exception('No cached data available.');
         }
       }
-
       log('Internet available. Fetching data from API.');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         log('API Response: $jsonResponse');
-
         final wrappedResponse = {
           'status_code': jsonResponse['status_code'],
           'status': jsonResponse['status'],
           'message': jsonResponse['message'],
           'data': jsonResponse['data'],
         };
-
         await chatBox.put(cacheKey, wrappedResponse);
         log('Saved data to Hive for key: $cacheKey.');
-
         return MessagesResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,

@@ -40,6 +40,7 @@ class _tableeeState extends State<tableee> {
   @override
   void initState() {
     super.initState();
+
     _scrollController1.addListener(() {
       if (_scrollController2.hasClients &&
           _scrollController1.position.pixels !=
@@ -55,8 +56,10 @@ class _tableeeState extends State<tableee> {
         _scrollController1.jumpTo(_scrollController2.position.pixels);
       }
     });
-
-    Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CustomersProvider>(context, listen: false)
+          .fetchCustomerData();
+    });
   }
 
   @override
@@ -2200,7 +2203,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .selectedCustomerImageUrl
                                                                 .value =
                                                             customer.imageUrl;
-                                                        customerAndOrderController.setCustomerId(customer.customerId);
+                                                        customerAndOrderController
+                                                            .setCustomerId(
+                                                                customer
+                                                                    .customerId);
                                                         log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
                                                         await Future.delayed(
                                                             Duration(
@@ -2726,7 +2732,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         customer
                                                             .orderData.preOrder
                                                             .takeLast(customer
-                                                                .preOrder.toInt())
+                                                                .preOrder
+                                                                .toInt())
                                                             .fold(
                                                                 0.0,
                                                                 (a, b) =>
@@ -2810,8 +2817,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         customer.drafts
                                                             .toString(),
                                                         customer.orderData.draft
-                                                            .takeLast(
-                                                                customer.drafts.toInt())
+                                                            .takeLast(customer
+                                                                .drafts
+                                                                .toInt())
                                                             .fold(
                                                                 0.0,
                                                                 (a, b) =>
@@ -2856,7 +2864,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           .toString(),
                                                       customer.orderData.cancel
                                                           .takeLast(customer
-                                                              .cancelled.toInt())
+                                                              .cancelled
+                                                              .toInt())
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>

@@ -336,9 +336,7 @@ void handleBackNavigation(
                           ? customerController.customerId.value
                           : productController.selectedCustomerId.value,
                       salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                      cartId: existingCartId.isNotEmpty
-                            ? existingCartId
-                            : '',
+                      cartId: existingCartId.isNotEmpty ? existingCartId : '',
                       cartList: detail
                           .map((e) => SendCartData(
                                 productId: e.productId ??
@@ -460,6 +458,8 @@ void handleBackNavigation(
                         }
                       });
                     }
+                    customerController.customerId.value = '';
+                    productController.selectedCustomerId.value = '';
                   },
                   child: const Text('Ok'),
                 ),

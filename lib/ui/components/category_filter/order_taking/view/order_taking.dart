@@ -583,6 +583,8 @@ class _OrderTakingState extends State<OrderTaking>
                 log('Log NO : 4 : Simply popping back');
                 Navigator.pop(context);
               }
+              customerAndOrderController.customerId.value = '';
+              widget.productsController.selectedCustomerId.value='';
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),

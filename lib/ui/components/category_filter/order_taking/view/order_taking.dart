@@ -457,7 +457,9 @@ class _OrderTakingState extends State<OrderTaking>
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: '',
+                  cartId: existingCartId.isNotEmpty
+                        ? existingCartId
+                        : '',
                   cartList: detail
                       .map((e) => SendCartData(
                             productId: e.productId ??
@@ -502,7 +504,6 @@ class _OrderTakingState extends State<OrderTaking>
                             : cartOrder.cartId,
                         existingDraftId.isNotEmpty ? existingDraftId : draftId,
                       );
-
                       showDialog(
                         context: context,
                         barrierDismissible: false,

@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:get/get.dart';
 
@@ -45,6 +46,13 @@ class CustomerAndOrderController extends GetxController {
   void setCustomerId(String id) {
     customerId.value = id;
   }
+    void initializeYears(List<YearsListOfAll> yearsList) {
+  selectedYear.value = yearsList.isNotEmpty
+      ? yearsList.first.orderYears?.toString() ?? ''
+      : '';
+  years.value =
+      yearsList.map((yearItem) => yearItem.orderYears?.toString() ?? '').toList();
+}
 Future<List<CustomerAndOrderData>> loadCustomer() async {
   try {
     log("Fetching customers...");

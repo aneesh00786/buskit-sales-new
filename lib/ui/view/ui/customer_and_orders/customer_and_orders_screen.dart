@@ -2038,16 +2038,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<CustomersProvider>();
-      if (provider.yearsListOfAllList.isNotEmpty) {
-        customerAndOrderController.selectedYear.value =
-            provider.yearsListOfAllList.first.orderYears?.toString() ?? '';
-        customerAndOrderController.years.value = provider.yearsListOfAllList
-            .map((yearItem) => yearItem.orderYears?.toString() ?? '')
-            .toList();
-      } else {
-        customerAndOrderController.selectedYear.value = '';
-        customerAndOrderController.years.value = [];
-      }
+      customerAndOrderController.initializeYears(provider.yearsListOfAllList);
     });
   }
 
@@ -2339,20 +2330,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           ),
                                         ),
                                         Obx(() {
-                                          customerAndOrderController
-                                                  .selectedYear.value =
-                                              provider.yearsListOfAllList.first
-                                                  .orderYears
-                                                  .toString();
-                                          customerAndOrderController
-                                                  .years.value =
-                                              provider.yearsListOfAllList
-                                                  .map((yearItem) =>
-                                                      yearItem.orderYears
-                                                          ?.toString() ??
-                                                      '')
-                                                  .toList();
-
                                           return Padding(
                                             padding: const EdgeInsets.only(
                                                 bottom: 20, top: 20),
@@ -2381,9 +2358,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             DropdownMenuItem<
                                                                 String>>((String
                                                             value) {
-                                                  log('Year List : ${provider.yearsListOfAllList.map(
-                                                    (e) => e.orderYears,
-                                                  )}');
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: value,
@@ -2417,7 +2391,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                             ),
                                           );
-                                        }),
+                                        })
                                       ],
                                     ),
                                     120,

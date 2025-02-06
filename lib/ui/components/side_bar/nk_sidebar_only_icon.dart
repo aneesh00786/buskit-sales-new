@@ -129,143 +129,23 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     bool isLeads = index == 4;
     bool isDirectProduct = index == 2;
     return GestureDetector(
-      onTap: () async {
+      onTap: () {
         bool hasDraftId = CartDatabaseManager()
             .cartItems
             .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
         if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
-          List<Detail> detail =
-              CartDatabaseManager().cartItems.map((e) => e.detail).toList();
-          final cartDetails =
-              await CartDatabaseManager().getCartAndDraftIds(customerId);
-
-          Future.delayed(const Duration(seconds: 1));
-
-          final existingCartId = cartDetails?['cart_id'] ?? '';
-          final existingDraftId = cartDetails?['id'] ?? '';
-          final productBYData = AddToCartModel(
-            customerId: customerId,
-            salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: '',
-            cartList: detail
-                .map((e) => SendCartData(
-                      productId: e.productId ??
-                          productController.selectedCustomerId.value,
-                      variantId: e.variationId ?? '',
-                      pack: e.saleBy == 'Pack'
-                          ? e.pieces.toString()
-                          : e.count.toString(),
-                      packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                      price: e.sellPrice.toString(),
-                      discount: '0',
-                      quantity: e.count.toInt(),
-                    ))
-                .toList(),
-            total: productController.finalAmount.value.toStringAsFixed(0),
-            discount: '0',
-          );
-          CartOrderModel? cartOrder =
-              await ApiWorker().addToCart(productBYData.toJson());
-          if (cartOrder != null) {
-            int orderStatus = 4;
-            CartOrderModel order = CartOrderModel(
-              customerId: customerId,
-              salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-              cartId:
-                  existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-              orderStatus: orderStatus,
-              draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-            );
-
-            await placeOrder(order, (statusCode, message, response) {
-              Navigator.pop(context);
-              if (statusCode == 200) {
-                final draftId = response?['id'];
-                CartDatabaseManager().saveCartAsDraft(
-                  customerId,
-                  existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-                  existingDraftId.isNotEmpty ? existingDraftId : draftId,
-                );
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Center(
-                        child: SizedBox(
-                          height: 100,
-                          width: 100,
-                          child: Lottie.asset(
-                              'assets/images/Animation - 1726906882515.json'),
-                        ),
-                      ),
-                      content: CustomText(
-                        content:
-                            'Your order has been successfully saved as Draft',
-                        fontSize: 18,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
-
-                            CartDatabaseManager().clearCart(customerId);
-                            setState(() {
-                              widget.sidebarXController.selectIndex(index);
-                              sideBarData.onTap?.call();
-                              widget.onTap?.call(
-                                  widget.sidebarXController.selectedIndex);
-                            });
-                          },
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              } else {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Center(
-                        child: SizedBox(
-                          height: 200,
-                          width: 200,
-                          child: Lottie.asset(
-                              'assets/images/Warning_animation.json'),
-                        ),
-                      ),
-                      content: CustomText(
-                        content:
-                            "Couldn't save the order as draft please try again.",
-                        fontSize: 18,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
-                            setState(() {
-                              widget.sidebarXController.selectIndex(index);
-                              sideBarData.onTap?.call();
-                              widget.onTap?.call(
-                                  widget.sidebarXController.selectedIndex);
-                            });
-                          },
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
+          handleBackNavigation(
+              context, false, productController, customerOrderController, () {
+            setState(() {
+              widget.sidebarXController.selectIndex(index);
+              sideBarData.onTap?.call();
+              widget.onTap?.call(widget.sidebarXController.selectedIndex);
             });
-          }
+            log('Tab updated after clearing cart.');
+            productController.selectedCustomerId.value = "";
+            productController.selectedCustomerName.value = "";
+            productController.selectedCustomerImageUrl.value = "";
+          }, cartItemCount, customerId, hasDraftId);
           log('Condition1');
         } else if (isDirectProduct) {
           productController.selectedCustomerId.value = "";
@@ -434,7 +314,153 @@ void handleBackNavigation(
                   child: const Text('Clear cart'),
                 ),
                 TextButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    List<Detail> detail = CartDatabaseManager()
+                        .cartItems
+                        .map((e) => e.detail)
+                        .toList();
+
+                    final cartDetails =
+                        await CartDatabaseManager().getCartAndDraftIds(
+                      customerController.customerId.isNotEmpty
+                          ? customerController.customerId.value
+                          : productController.selectedCustomerId.value,
+                    );
+
+                    Future.delayed(const Duration(seconds: 1));
+
+                    final existingCartId = cartDetails?['cart_id'] ?? '';
+                    final existingDraftId = cartDetails?['id'] ?? '';
+                    final productBYData = AddToCartModel(
+                      customerId: customerController.customerId.isNotEmpty
+                          ? customerController.customerId.value
+                          : productController.selectedCustomerId.value,
+                      salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+                      cartId: existingCartId.isNotEmpty
+                            ? existingCartId
+                            : '',
+                      cartList: detail
+                          .map((e) => SendCartData(
+                                productId: e.productId ??
+                                    productController.selectedCustomerId.value,
+                                variantId: e.variationId ?? '',
+                                pack: e.saleBy == 'Pack'
+                                    ? e.pieces.toString()
+                                    : e.count.toString(),
+                                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                                price: e.sellPrice.toString(),
+                                discount: '0',
+                                quantity: e.count.toInt(),
+                              ))
+                          .toList(),
+                      total: productController.finalAmount.value
+                          .toStringAsFixed(0),
+                      discount: '0',
+                    );
+                    CartOrderModel? cartOrder =
+                        await ApiWorker().addToCart(productBYData.toJson());
+                    if (cartOrder != null) {
+                      int orderStatus = 4;
+                      CartOrderModel order = CartOrderModel(
+                        customerId: customerController.customerId.isNotEmpty
+                            ? customerController.customerId.value
+                            : productController.selectedCustomerId.value,
+                        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+                        cartId: existingCartId.isNotEmpty
+                            ? existingCartId
+                            : cartOrder.cartId,
+                        orderStatus: orderStatus,
+                        draftId:
+                            existingDraftId.isNotEmpty ? existingDraftId : '',
+                      );
+
+                      await placeOrder(order, (statusCode, message, response) {
+                        Navigator.pop(context);
+                        if (statusCode == 200) {
+                          final draftId = response?['id'];
+                          CartDatabaseManager().saveCartAsDraft(
+                            customerController.customerId.isNotEmpty
+                                ? customerController.customerId.value
+                                : productController.selectedCustomerId.value,
+                            existingCartId.isNotEmpty
+                                ? existingCartId
+                                : cartOrder.cartId,
+                            existingDraftId.isNotEmpty
+                                ? existingDraftId
+                                : draftId,
+                          );
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Center(
+                                  child: SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: Lottie.asset(
+                                        'assets/images/Animation - 1726906882515.json'),
+                                  ),
+                                ),
+                                content: CustomText(
+                                  content:
+                                      'Your order has been successfully saved as Draft',
+                                  fontSize: 18,
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      if (Navigator.canPop(context)) {
+                                        Navigator.pop(context);
+                                      }
+
+                                      CartDatabaseManager()
+                                          .clearCart(customerId);
+                                      updateTabIndex();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Center(
+                                  child: SizedBox(
+                                    height: 200,
+                                    width: 200,
+                                    child: Lottie.asset(
+                                        'assets/images/Warning_animation.json'),
+                                  ),
+                                ),
+                                content: CustomText(
+                                  content:
+                                      "Couldn't save the order as draft please try again.",
+                                  fontSize: 18,
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      if (Navigator.canPop(context)) {
+                                        Navigator.pop(context);
+                                      }
+                                      updateTabIndex();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      });
+                    }
+                  },
                   child: const Text('Ok'),
                 ),
               ],

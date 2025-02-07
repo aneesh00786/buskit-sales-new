@@ -354,7 +354,7 @@ class _PendingPaymentBottomWidgetState
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     style: const TextStyle(
-                      fontSize: 10.0,
+                      fontSize: 8.0,
                       fontWeight: FontWeight.w400,
                     ),
                   ),

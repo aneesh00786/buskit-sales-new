@@ -101,6 +101,8 @@ class StaffController extends GetxController {
 
       if (jsonData != null) {
         switch (tabStatus) {
+          case 1:
+            checkInOutData.value = CheckInOut.fromJson(jsonData);
           case 2:
             checkInOutData.value = CheckInOut.fromJson(jsonData);
             break;

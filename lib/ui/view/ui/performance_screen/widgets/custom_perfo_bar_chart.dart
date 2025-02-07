@@ -47,6 +47,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
       Object actual = perf.actualSales ?? 0.0;
       return BarChartGroupData(
         x: index,
+        
         barRods: [
           if(widget.targetType=="1")
           BarChartRodData(

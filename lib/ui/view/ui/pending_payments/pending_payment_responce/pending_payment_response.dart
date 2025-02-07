@@ -184,75 +184,84 @@ IndividualPendingPaymentResponse individualPendingPaymentResponseFromJson(String
 String individualPendingPaymentResponseToJson(IndividualPendingPaymentResponse data) => json.encode(data.toJson());
 
 class IndividualPendingPaymentResponse {
-    int statusCode;
-    bool status;
-    List<IndividualPendingData> data;
-    String message;
+  int statusCode;
+  bool status;
+  List<IndividualPendingData> data;
+  String message;
 
-    IndividualPendingPaymentResponse({
-        required this.statusCode,
-        required this.status,
-        required this.data,
-        required this.message,
-    });
+  IndividualPendingPaymentResponse({
+    required this.statusCode,
+    required this.status,
+    required this.data,
+    required this.message,
+  });
 
-    factory IndividualPendingPaymentResponse.fromJson(Map<String, dynamic> json) => IndividualPendingPaymentResponse(
+  factory IndividualPendingPaymentResponse.fromJson(
+          Map<String, dynamic> json) =>
+      IndividualPendingPaymentResponse(
         statusCode: json["status_code"],
         status: json["status"],
-        data: List<IndividualPendingData>.from(json["data"].map((x) => IndividualPendingData.fromJson(x))),
+        data: List<IndividualPendingData>.from(
+            json["data"].map((x) => IndividualPendingData.fromJson(x))),
         message: json["message"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "status_code": statusCode,
         "status": status,
         "data": List<dynamic>.from(data.map((x) => x.toJson())),
         "message": message,
-    };
+      };
 }
 
 class IndividualPendingData {
-    int paymentType;
-    int creditPeriod;
-    int receivedAmount;
-    DateTime? receivedAmountDate;
-    String orderId;
-    DateTime orderCreatAt;
-    int orderTotal;
-    int orderStatus;
-    int paymentStatus;
-    String customerId;
-    int? receivableAmount;
+  int paymentType;
+  int creditPeriod;
+  num receivedAmount;
+  DateTime? receivedAmountDate;
+  String orderId;
+  DateTime orderCreatAt;
+  num orderTotal;
+  int orderStatus;
+  int paymentStatus;
+  String customerId;
+  int? receivableAmount;
+  final int? amountEdited;
 
-    IndividualPendingData({
-        required this.paymentType,
-        required this.creditPeriod,
-        required this.receivedAmount,
-        required this.receivedAmountDate,
-        required this.orderId,
-        required this.orderCreatAt,
-        required this.orderTotal,
-        required this.orderStatus,
-        required this.paymentStatus,
-        required this.customerId,
-        required this.receivableAmount,
-    });
+  IndividualPendingData({
+    required this.paymentType,
+    required this.creditPeriod,
+    required this.receivedAmount,
+    required this.receivedAmountDate,
+    required this.orderId,
+    required this.orderCreatAt,
+    required this.orderTotal,
+    required this.orderStatus,
+    required this.paymentStatus,
+    required this.customerId,
+    required this.receivableAmount,
+    required this.amountEdited,
+  });
 
-    factory IndividualPendingData.fromJson(Map<String, dynamic> json) => IndividualPendingData(
+  factory IndividualPendingData.fromJson(Map<String, dynamic> json) =>
+      IndividualPendingData(
         paymentType: json["payment_type"],
         creditPeriod: json["credit_period"],
-        receivedAmount: json["received_amount"],
-        receivedAmountDate: json["received_amount_date"] == null ? null : DateTime.parse(json["received_amount_date"]),
+        receivedAmount: num.tryParse(json["received_amount"].toString()) ?? 0,
+        receivedAmountDate: json["received_amount_date"] == null
+            ? null
+            : DateTime.parse(json["received_amount_date"]),
         orderId: json["order_id"],
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
-        orderTotal: json["order_total"],
+        orderTotal: num.tryParse(json["order_total"].toString()) ?? 0,
         orderStatus: json["order_status"],
         paymentStatus: json["payment_status"],
         customerId: json["customer_id"],
         receivableAmount: json["receivable_amount"],
-    );
+        amountEdited: json['amount_edited'],
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "payment_type": paymentType,
         "credit_period": creditPeriod,
         "received_amount": receivedAmount,
@@ -264,5 +273,6 @@ class IndividualPendingData {
         "payment_status": paymentStatus,
         "customer_id": customerId,
         "receivable_amount": receivableAmount,
-    };
+        "amount_edited": amountEdited,
+      };
 }

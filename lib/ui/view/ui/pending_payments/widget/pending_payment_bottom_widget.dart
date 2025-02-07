@@ -278,25 +278,16 @@ class _PendingPaymentBottomWidgetState
   Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
     int? creditPeriod = customerData.creditPeriod;
     String? orderCreatAt = customerData.orderCreatAt.toString();
-    //calculate due date
     String? dueDate;
 
     if (creditPeriod != null && orderCreatAt != null) {
-      // Parse the order created date
       DateTime orderDate = DateTime.parse(orderCreatAt);
-
-      // Add the credit period (days) to the order date
       DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
-
-      // Format the due date into the desired string format (e.g., 'dd-MM-yyyy')
       dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
     }
 
     return Center(
       child: _buildRegularText(
-        // NKDateUtils.commonDayFormat(NKDateUtils.formatStringUTCDateTime(
-        //   orderCreatAt,
-        // )),
         dueDate.toString(),
         context,
       ),
@@ -422,13 +413,10 @@ class _PendingPaymentBottomWidgetState
 
   void _pendingPaymentCollectionDialog(
       BuildContext context, String customerId) {
-    final PendingPaymentController controller = Get.find();
-
+    final PendingPaymentController controller = Get.put(PendingPaymentController());
     String selectedPaymentMethod = 'Cash';
     RxInt selectedPaymentMethodInt = 0.obs;
-
     controller.loadIndividualPendingPayments(customerId);
-
     RxList<bool> selectedItems = List<bool>.generate(
       controller.individualPendingPayments.length,
       (index) => false,
@@ -660,8 +648,14 @@ class _PendingPaymentBottomWidgetState
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 3.0),
                                       child: EditablePendingPaymentCell(
-                                        initialValue:
-                                            payment.orderTotal.toString(),
+                                        initialValue: (payment.orderTotal -
+                                                        payment
+                                                            .receivedAmount ==
+                                                    payment.orderTotal
+                                                ? payment.orderTotal
+                                                : payment.orderTotal -
+                                                    payment.receivedAmount)
+                                            .toString(),
                                         index: index,
                                         orderId: payment.orderId,
                                         orderTotal: payment.orderTotal,
@@ -669,6 +663,7 @@ class _PendingPaymentBottomWidgetState
                                         onValueChanged: (newValue, index) {
                                           // Handle editable cells if necessary
                                         },
+                                        amountEdited: payment.amountEdited,
                                       ),
                                     ),
                                   ),
@@ -947,7 +942,7 @@ class _PendingPaymentBottomWidgetState
     }
   }
 
-  Widget _buildPageChanger(
+ Widget _buildPageChanger(
       BuildContext context, PendingPaymentController totalValuesController) {
     // double fontSize = ResponsiveInfo.isMobileDimension(context) ? 6 : 9;
     // if (MediaQuery.of(context).orientation != Orientation.portrait) {
@@ -962,38 +957,38 @@ class _PendingPaymentBottomWidgetState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (totalValuesController.orderDataList.length > 10)
-              PaginationWidget(),
+               PaginationWidget(),
             const Spacer(),
-            if (totalValuesController.selectedTabIndex == 0)
+            if (totalValuesController.selectedTabIndex.value == 0)
               Text(
-                'Total:   ${formatAmount(totalValuesController.totalAmount)}  ',
+                'Total:   ${formatAmount(totalValuesController.totalAmount.value)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               )
-            else if (totalValuesController.selectedTabIndex == 1)
+            else if (totalValuesController.selectedTabIndex.value == 1)
               Text(
-                'Total:   ${formatAmount(totalValuesController.nearlyDueAmount)}  ',
+                'Total:   ${formatAmount(totalValuesController.nearlyDueAmount.value)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               )
-            else if (totalValuesController.selectedTabIndex == 2)
+            else if (totalValuesController.selectedTabIndex.value == 2)
               Text(
-                'Total:   ${formatAmount(totalValuesController.dueAmount)}  ',
+                'Total:   ${formatAmount(totalValuesController.dueAmount.value)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               )
-            else if (totalValuesController.selectedTabIndex == 3)
+            else if (totalValuesController.selectedTabIndex.value == 3)
               Text(
-                'Total:   ${formatAmount(totalValuesController.overdueAmount)}  ',
+                'Total:   ${formatAmount(totalValuesController.overdueAmount.value)}  ',
                 style: const TextStyle(
                   fontFamily: 'Poppins_Regular',
                   fontSize: 14,

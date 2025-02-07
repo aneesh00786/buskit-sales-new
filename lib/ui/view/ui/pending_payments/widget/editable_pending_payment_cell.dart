@@ -1,3 +1,5 @@
+
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:dio/dio.dart';
@@ -8,23 +10,27 @@ class EditablePendingPaymentCell extends StatefulWidget {
   final Function(String, int) onValueChanged;
   final int index;
   final String orderId;
-  final int orderTotal;
-  final num? receivable; // Nullable receivable
+  final num orderTotal;
+  final num? receivable;
+  final int? amountEdited;
 
-  EditablePendingPaymentCell({
+  const EditablePendingPaymentCell({super.key, 
     required this.initialValue,
     required this.onValueChanged,
     required this.index,
     required this.orderId,
     required this.orderTotal,
-    this.receivable, // Nullable receivable
+    this.receivable,
+    this.amountEdited,
   });
 
   @override
-  _EditablePendingPaymentCellState createState() => _EditablePendingPaymentCellState();
+  _EditablePendingPaymentCellState createState() =>
+      _EditablePendingPaymentCellState();
 }
 
-class _EditablePendingPaymentCellState extends State<EditablePendingPaymentCell> {
+class _EditablePendingPaymentCellState
+    extends State<EditablePendingPaymentCell> {
   late TextEditingController _controller;
   bool isChanged = false;
 
@@ -56,40 +62,36 @@ class _EditablePendingPaymentCellState extends State<EditablePendingPaymentCell>
       final data = {
         "order_id": widget.orderId, // Use the orderId passed to the widget
         "amount": double.tryParse(_controller.text) ?? 0,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
 
-      // Make the API call
       final response = await dio.post(
-        'http://16.50.232.153:3000/post_receivable_amount', // Replace with your API endpoint
+        'http://16.50.232.153:3000/post_receivable_amount',
         data: data,
       );
 
-      // Handle the response
       if (response.statusCode == 200) {
         print('API call successful');
-        // Optionally, handle the successful response here
       } else {
         print('API call failed with status code: ${response.statusCode}');
-        // Optionally, handle error response here
       }
     } catch (e) {
       print('Error making API call: $e');
-      // Optionally, handle exceptions here
     }
 
-    // Notify the parent widget about the value change
     widget.onValueChanged(_controller.text, widget.index);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Safely check if receivable is null or different from orderTotal
-    bool isReceivableDifferent = widget.receivable != null && widget.receivable != widget.orderTotal;
+    // bool isReceivableDifferent = widget.receivable != null &&
+    //     widget.receivable.toString() != widget.initialValue;
+    bool isReceivableDifferent = widget.amountEdited == 1 ? true : false;
 
     return Row(
       children: [
         Text(addCurrencySymbol()),
-        SizedBox(width: 5),
+        const SizedBox(width: 5),
         Expanded(
           child: TextField(
             controller: _controller,
@@ -101,23 +103,27 @@ class _EditablePendingPaymentCellState extends State<EditablePendingPaymentCell>
             decoration: InputDecoration(
               filled: true,
               // Fill with green if receivable is different from orderTotal or if value has changed
-              fillColor: isChanged || isReceivableDifferent ? Colors.green[100] : Colors.white,
+              fillColor: isChanged || isReceivableDifferent
+                  ? Colors.green[100]
+                  : Colors.white,
               border: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(10.0),
               ),
               // Display receivable in hintText if it's not null, otherwise display initialValue
-              hintText: widget.receivable != null ? widget.receivable.toString() : widget.initialValue,
+              hintText: widget.receivable != null
+                  ? widget.receivable.toString()
+                  : widget.initialValue,
               hintStyle: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade600,
               ),
-              contentPadding: EdgeInsets.symmetric(
+              contentPadding: const EdgeInsets.symmetric(
                 vertical: 0.0,
                 horizontal: 10.0,
               ),
             ),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: Colors.black,
             ),
@@ -141,7 +147,7 @@ class _EditablePendingPaymentCellState extends State<EditablePendingPaymentCell>
                 onPressed: () {
                   _updateValue();
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.save,
                   color: primaryColor,
                   size: 14.0,

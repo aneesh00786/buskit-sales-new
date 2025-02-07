@@ -87,9 +87,9 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-    // _loadPreorderItems();
+    _loadPreorderItems();
     calculateAmount(cartItems);
-    // calculatePreorderAmount(preorderItems);
+    calculatePreorderAmount(preorderItems);
     isOrder = cartItems.isEmpty && preorderItems.isNotEmpty ? false : true;
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
@@ -134,22 +134,22 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  // void _loadPreorderItems() {
-  //   try {
-  //     List<CartItem> storedPreorderItems =
-  //         CartDatabaseManager().getCartPreorderItems();
-  //     preorderItems = storedPreorderItems;
-  //     preorderQuantities = List.generate(preorderItems.length, (index) => 1);
-  //     preorderTotal = Utils().getFinalAmount(preorderItems);
-  //     preorderTax = Utils().getTotalTax(preorderItems);
-  //     if (_options.isNotEmpty) {
-  //       _selectedValue = _options[0];
-  //     }
-  //     _isLoading = false;
-  //   } catch (e) {
-  //     log('Error loading pre-order items: $e');
-  //   }
-  // }
+  void _loadPreorderItems() {
+    try {
+      List<CartItem> storedPreorderItems =
+          CartDatabaseManager().getCartPreorderItems();
+      preorderItems = storedPreorderItems;
+      preorderQuantities = List.generate(preorderItems.length, (index) => 1);
+      preorderTotal = Utils().getFinalAmount(preorderItems);
+      preorderTax = Utils().getTotalTax(preorderItems);
+      if (_options.isNotEmpty) {
+        _selectedValue = _options[0];
+      }
+      _isLoading = false;
+    } catch (e) {
+      log('Error loading pre-order items: $e');
+    }
+  }
 
   Map<String, List<CartItem>> groupCartItemsByName(List<CartItem> cartItems) {
     return groupBy(cartItems, (CartItem item) => item.productName);
@@ -2242,27 +2242,27 @@ class CartDialogueState extends State<CartDialogue> {
     log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
 
-  // void calculatePreorderAmount(List<CartItem> preorderItems) {
-  //   preorderTotal = 0.0;
-  //   preorderTax = 0.0;
-  //   for (var cartItem in preorderItems) {
-  //     double? price = cartItem.isPack == true
-  //         ? cartItem.detail.sellingPackPrice!.toDouble()
-  //         : cartItem.detail.sellingPrice!.toDouble();
-  //     if (price != null) {
-  //       preorderTotal += cartItem.totalPrice;
-  //       double? itemTax = cartItem.isPack == true
-  //           ? double.tryParse(cartItem.detail.tax.toString())! *
-  //               double.tryParse(cartItem.detail.pieces.toString())!
-  //           : double.tryParse(cartItem.detail.tax.toString());
-  //       if (itemTax != null) {
-  //         preorderTax += itemTax * cartItem.detail.count;
-  //       }
-  //     }
-  //   }
-  //   log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
-  //   log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
-  // }
+  void calculatePreorderAmount(List<CartItem> preorderItems) {
+    preorderTotal = 0.0;
+    preorderTax = 0.0;
+    for (var cartItem in preorderItems) {
+      double? price = cartItem.isPack == true
+          ? cartItem.detail.sellingPackPrice!.toDouble()
+          : cartItem.detail.sellingPrice!.toDouble();
+      if (price != null) {
+        preorderTotal += cartItem.totalPrice;
+        double? itemTax = cartItem.isPack == true
+            ? double.tryParse(cartItem.detail.tax.toString())! *
+                double.tryParse(cartItem.detail.pieces.toString())!
+            : double.tryParse(cartItem.detail.tax.toString());
+        if (itemTax != null) {
+          preorderTax += itemTax * cartItem.detail.count;
+        }
+      }
+    }
+    log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
+    log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
+  }
 
   void _clearCartItem(List<CartItem> cartItem, bool isSave) {
     if (isSave) {

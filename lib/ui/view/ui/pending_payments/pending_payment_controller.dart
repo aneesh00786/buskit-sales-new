@@ -15,10 +15,10 @@ class PendingPaymentController extends GetxController {
   RxInt selectedTabIndex = 0.obs; 
   Rx<ChartDetails> chartData =
       ChartDetails(nearlyDue: 0, due: 0, all: 0, overdue: 0).obs;
-  num? totalAmount;
-  num? nearlyDueAmount;
-  num? dueAmount;
-  num? overdueAmount;
+  RxDouble totalAmount = 0.0.obs;
+  RxDouble nearlyDueAmount = 0.0.obs;
+  RxDouble dueAmount = 0.0.obs;
+  RxDouble overdueAmount = 0.0.obs;
 
   RxList<IndividualPendingData> individualPendingPayments =
       <IndividualPendingData>[].obs;
@@ -70,10 +70,10 @@ class PendingPaymentController extends GetxController {
       if (data.data != null) {
         orderDataList.assignAll(data.data!);
         chartData.value = data.chartDetails;
-        totalAmount = data.totalAmount;
-        nearlyDueAmount = data.nearlydueAmount;
-        dueAmount = data.dueAmount;
-        overdueAmount = data.overdueAmount;
+        totalAmount.value = data.totalAmount.toDouble();
+      nearlyDueAmount.value = data.nearlydueAmount.toDouble();
+      dueAmount.value = data.dueAmount.toDouble();
+      overdueAmount.value = data.overdueAmount.toDouble();
         print("Data loaded successfully: ${data.data}");
       } else {
         orderDataList.clear();
@@ -124,30 +124,37 @@ class PendingPaymentController extends GetxController {
     refresh();
   }
   void processPayments(
-      List<IndividualPendingData> selectedItemsList, int enteredAmount) {
+      List<IndividualPendingData> selectedItemsList, num enteredAmount) {
     print("Selected Items: $selectedItemsList");
-    int remainingAmount = enteredAmount;
-    for (int i=0; i<selectedItemsList.length;i++) {
-      int amountToBePaid;
+    num remainingAmount = enteredAmount;
+
+    for (int i = 0; i < selectedItemsList.length; i++) {
+      num amountToBePaid;
+
       if (selectedItemsList[i].receivableAmount != null) {
         amountToBePaid = selectedItemsList[i].receivableAmount!;
       } else {
         amountToBePaid = selectedItemsList[i].orderTotal;
       }
+
       print(
           "Processing orderId: ${selectedItemsList[i].orderId}, Amount to be paid: $amountToBePaid, Remaining amount: $remainingAmount");
+
       if (remainingAmount <= 0) {
         break;
       }
 
       if (remainingAmount >= amountToBePaid) {
-        print("Paying $amountToBePaid for orderId: ${selectedItemsList[i].orderId}");
+        print(
+            "Paying $amountToBePaid for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount -= amountToBePaid;
       } else {
-        print("Paying $remainingAmount for orderId: ${selectedItemsList[i].orderId}");
+        print(
+            "Paying $remainingAmount for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount = 0;
       }
     }
+
     if (remainingAmount > 0) {
       print("Remaining balance after payment: $remainingAmount");
     }

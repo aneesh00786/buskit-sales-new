@@ -28,6 +28,7 @@ import 'dash_models.dart';
 
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
+  static const String _baseUrl1 = ApiConstants.baseUrl1;
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   ApiService() {
@@ -302,16 +303,22 @@ class ApiService {
     }
   }
 
-  Future<ProductResponse> fetchCustomerDashboardCartData(
-      {required dynamic customerId,
-      required dynamic catId,
-      required dynamic selectedYearCategory}) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.customerSaleByCategory}');
+Future<ProductResponse> fetchCustomerDashboardCartData({
+    required dynamic customerId,
+    required dynamic catId,
+    required dynamic selectedYearCategory,
+    required String startDate,
+    required String endDate,
+  }) async {
+    final url = Uri.parse('$_baseUrl1/CustomerSaleByCategory');
     final requestBody = {
       'customerId': customerId,
       'catId': catId,
       'selected_year_category': selectedYearCategory,
-      'companyId': companyId,
+      'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
+      'last_date': endDate,
+      'start_date': startDate,
+      "salesman_id":SessionHelper.loginSavedData?.salesmanId ?? ''
     };
 
     try {
@@ -323,12 +330,13 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-      print('fetchCustomerDashboardCartData: ${response.statusCode}');
-      print('fetchCustomerDashboardCartData Body: ${response.body}');
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        print(
-            'sabik kavungal ponmala plluippad i. .. .  . .. . . . .. . . . . .   ${jsonResponse['data']}');
+
         var productDetail = jsonResponse['data'] as List;
         List<ProductDetail> allproductDetail =
             productDetail.map((json) => ProductDetail.fromJson(json)).toList();
@@ -339,12 +347,12 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allproductDetail);
       } else {
-        print('Request failed with status: ${response.statusCode}');
+        print('Request failed with status 2: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred2: $e');
-      throw Exception('Failed to fetch data: sabikk  kavungal $e');
+      print('Exception occurred 2: $e');
+      throw Exception('Failed to fetch data: $e');
     }
   }
 

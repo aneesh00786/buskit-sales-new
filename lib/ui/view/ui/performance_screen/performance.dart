@@ -62,29 +62,36 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       print("Error fetching settings: $e");
     }
   }
-  @override
-  void initState() {
-    super.initState();
-    ApiWorker().fetchAllSettings(companyId);
-    _loadSettings();
-    _tabController =
-        TabController(length: 12, vsync: this, initialIndex: currentMonth - 1);
-    _selectedMonthName = DateFormat.MMMM().format(DateTime.now());
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        staffController.loadSalesmanTargetForSelectedTab(
-          currentYear: selectedValue,
-          selectedTabIndex: _tabController.index + 1,
-          staffId: salesmanId,
-        );
-      }
-    });
-    int numberOfFields = 10;
-    _targetControllers = List.generate(
-      numberOfFields,
-      (index) => TextEditingController(),
-    );
-  }
+@override
+void initState() {
+  super.initState();
+  ApiWorker().fetchAllSettings(companyId);
+  _loadSettings();
+  _tabController = TabController(
+    length: 12,
+    vsync: this,
+    initialIndex: currentMonth - 1,
+  );
+  _selectedMonthName = DateFormat.MMMM().format(DateTime(0, currentMonth));
+  _tabController.addListener(() {
+    if (!_tabController.indexIsChanging) {
+      setState(() {
+        _selectedMonthName = DateFormat.MMMM().format(DateTime(0, _tabController.index + 1));
+      });
+      staffController.loadSalesmanTargetForSelectedTab(
+        currentYear: selectedValue,
+        selectedTabIndex: _tabController.index + 1,
+        staffId: salesmanId,
+      );
+    }
+  });
+
+  int numberOfFields = 10;
+  _targetControllers = List.generate(
+    numberOfFields,
+    (index) => TextEditingController(),
+  );
+}
 
   void updateControllers(int count) {
     if (_targetControllers.length < count) {

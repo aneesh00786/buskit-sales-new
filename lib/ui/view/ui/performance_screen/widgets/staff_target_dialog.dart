@@ -318,7 +318,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         _showAlertDialog(
           context,
           'Success',
-          'Projection successfully!',
+          'Projection saved successfully!',
           'assets/images/Animation - 1726906882515.json',
         );
       } else {

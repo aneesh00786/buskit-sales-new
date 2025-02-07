@@ -181,7 +181,6 @@ class ApiWorker with ApiConstants {
       String apiUrl =
           '${ApiConstants.baseUrl}${ApiConstants.salesman_dash_navcontents}';
       log('API URL of TopTab: $apiUrl');
-
       final requestPayload = {
         "companyId": companyId,
         "salesman_id": salesmanId,
@@ -189,6 +188,7 @@ class ApiWorker with ApiConstants {
         "month": monthName,
         "status_of_tile": tabStatus,
       };
+      log('Request  : $requestPayload');
 
       Response response = await dio1.post(apiUrl, data: requestPayload);
 

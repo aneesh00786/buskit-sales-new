@@ -116,6 +116,7 @@ class CustomersProvider with ChangeNotifier {
       return 0;
     }
   }
+
   void updateCartCount(String customerId) {
     try {
       final cartItems = CartDatabaseManager().getCartItems(customerId);
@@ -135,7 +136,11 @@ class CustomersProvider with ChangeNotifier {
         customerId: customerId,
         catId: catId,
         selectedYearCategory: selectedYearCategory,
+        startDate: selectedStartDate,
+        endDate: selectedEndDate,
       );
+
+      // notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
       rethrow;

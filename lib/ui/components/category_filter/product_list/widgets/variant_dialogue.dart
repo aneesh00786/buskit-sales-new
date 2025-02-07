@@ -760,7 +760,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       .value.isNotEmpty)) {
                                 List<CartItem> cartPreorderItems =
                                     CartDatabaseManager()
-                                        .getCartPreorderItems();
+                                        .getCartPreorderItems(customerId);
                                 List<Detail> detailsFromCart = cartPreorderItems
                                     .map((cartPreorderItem) =>
                                         cartPreorderItem.detail)
@@ -808,9 +808,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                         CartDatabaseManager().addToPreorderCart(
                                           detail,
                                           widget.product.productName ?? '',
-                                          detail.totalPrice!.toInt(),
+                                          detail.totalPrice?.toInt()??0,
                                           isPack,
                                           localCounts[i],
+                                          customerId
                                         );
                                         log('Product added to pre-order cart with ID: ${detail.variationId}');
                                       } else {

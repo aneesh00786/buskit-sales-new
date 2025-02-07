@@ -134,14 +134,28 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  void _loadPreorderItems() {
+  void _loadPreorderItems() async {
     try {
-      List<CartItem> storedPreorderItems =
-          CartDatabaseManager().getCartPreorderItems();
-      preorderItems = storedPreorderItems;
-      preorderQuantities = List.generate(preorderItems.length, (index) => 1);
-      preorderTotal = Utils().getFinalAmount(preorderItems);
-      preorderTax = Utils().getTotalTax(preorderItems);
+      final customerId =
+          widget.customerOrderController!.customerId.value.isNotEmpty
+              ? widget.customerOrderController!.customerId.value
+              : widget.productsController.selectedCustomerId.value;
+      preorderItems = CartDatabaseManager().getCartPreorderItems(customerId);
+      List<CartItem> draftItems =
+          await CartDatabaseManager().getPreOrderDraftItems(customerId);
+      final Map<String, CartItem> uniqueItems = {
+        for (var item in cartItems)
+          '${item.detail.variationName}_${item.detail.sellPrice}': item,
+        for (var draft in draftItems)
+          '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
+      };
+      setState(() {
+        preorderItems = cartItems = uniqueItems.values.toList();
+        preorderQuantities = List.generate(preorderItems.length, (index) => 1);
+        preorderTotal = Utils().getFinalAmount(preorderItems);
+        preorderTax = Utils().getTotalTax(preorderItems);
+        _isLoading = false;
+      });
       if (_options.isNotEmpty) {
         _selectedValue = _options[0];
       }
@@ -186,7 +200,7 @@ class CartDialogueState extends State<CartDialogue> {
     //   );
     //   return;
     // }
-    
+
     // showDialog(
     //   context: context,
     //   barrierDismissible: false,

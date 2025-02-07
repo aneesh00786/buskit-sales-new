@@ -14,7 +14,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controlle
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:dio/dio.dart';
@@ -111,7 +110,6 @@ class LoginController extends GetxController {
         await Future.delayed(const Duration(microseconds: 500));
         await productsController.fetchCategoryData();
         await Future.delayed(const Duration(microseconds: 500));
-        await Future.delayed(const Duration(microseconds: 500));
         await pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId, isLogin: true);
         await Future.delayed(const Duration(microseconds: 500));
@@ -150,10 +148,6 @@ class LoginController extends GetxController {
         }).catchError((e) {
           log("Error while fetching recent orders: $e");
         });
-        // await ApiWorker()
-        //     .getLeadsRejectedData(paginationModel: paginationModel);
-        //C49SC7
-        //await orderController.loadOrderData(selectedIndex: selectedTabIndex);
         await calenderMapController
             .fetchCalenderEvents(initialDay ?? DateTime.now());
         Get.offAllNamed(AppRoutes.home);

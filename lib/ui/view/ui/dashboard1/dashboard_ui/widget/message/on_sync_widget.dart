@@ -54,6 +54,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
         _isOnline = isConnected;
       });
     }
+    
   }
 
   Future<void> _startSyncing() async {
@@ -69,7 +70,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
 
   String _formatLastSyncTime() {
     if (_lastSyncTime == null) {
-      return "Last Sync: Not Available";
+      return "";
     }
     return "${DateFormat('dd/MM/yyyy : hh:mm a').format(_lastSyncTime!)}";
   }

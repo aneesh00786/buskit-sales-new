@@ -5,12 +5,12 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 
 class PendingPaymentChart extends StatelessWidget {
   final PendingPaymentController chartController;
-  final Function(int) onBarTapped; // Callback for when a bar is tapped
+  final Function(int) onBarTapped;
 
   const PendingPaymentChart({
     Key? key,
     required this.chartController,
-    required this.onBarTapped, // Accept the callback
+    required this.onBarTapped,
   }) : super(key: key);
 
   @override
@@ -90,8 +90,6 @@ class PendingPaymentChart extends StatelessWidget {
               if (response != null && response.spot != null) {
                 final touchedIndex = response.spot!.touchedBarGroupIndex;
                 final barData = chartController.chartData.value;
-
-                // Get the corresponding bar's value based on the index
                 final tappedValue = touchedIndex == 0
                     ? barData.all
                     : touchedIndex == 1
@@ -99,8 +97,6 @@ class PendingPaymentChart extends StatelessWidget {
                         : touchedIndex == 2
                             ? barData.due
                             : barData.overdue;
-
-                // Trigger callback only if the tapped bar value is greater than 0
                 if (tappedValue > 0) {
                   onBarTapped(touchedIndex);
                 }

@@ -239,9 +239,9 @@ void showValueOrderDialog(
                                 align: TextAlign.left,
                               ),
                             ),
-                            Expanded(
-                              flex: 2,
-                              child: Align(
+                          
+                         
+                               Align(
                                 alignment: Alignment.centerRight,
                                 child: DialogTableHeaderText(
                                   text: 
@@ -252,7 +252,7 @@ void showValueOrderDialog(
                                   ),
                                   fontSize: 13,
                                 ),
-                              ),
+                              
                             ),
                           ],
                         ),

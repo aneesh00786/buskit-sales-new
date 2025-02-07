@@ -411,6 +411,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             }
             Widget dialogContent;
             switch (tabStatus) {
+              
               case 2:
                 dialogContent = buildCheckInOutDialogContent(
                     staffController.checkInOutData.value, staffController);

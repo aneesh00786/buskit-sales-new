@@ -81,7 +81,7 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
-  int selectedYear = 2024;
+  int selectedYear = 2025;
   late TabController _tabController;
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
@@ -147,16 +147,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 
   Future<void> _initializeCustomerData() async {
-    final customerId = widget.isFromCalendar
-        ? widget.cusId ?? ''
-        : widget.productsController?.selectedCustomerId.value ?? '';
-    final customerName = widget.isFromCalendar
-        ? widget.cusName ?? 'Unknown Customer'
-        : widget.productsController?.selectedCustomerName.value ??
-            'Unknown Customer';
-    final customerImage = widget.isFromCalendar
-        ? widget.cusImage ?? ''
-        : widget.productsController?.selectedCustomerImageUrl.value ?? '';
+    final customerId =  widget.cusId ?? '';
+    final customerName = widget.cusName??''; 
+    final customerImage =  widget.cusImage ?? '';
+
+    log('Customer Id _initializeCustomerData : $customerId');
+    log('Customer Id _initializeCustomerData : ${widget.cusId}');
+    log('Customer Id _initializeCustomerData : ${widget.productsController?.selectedCustomerId.value}');
 
     if (customerId.isEmpty) {
       log('Error: Customer ID is empty in CustomerDachScreen.');
@@ -341,10 +338,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 } else if (snapshot.hasError) {
                   return Center(child: NodataWidget());
                 } else {
-                  final responseModel = snapshot.data!;
+                  final responseModel = snapshot.data;
                   final frequentProductLists =
-                      responseModel.data.frequentProductLists;
-                  final recentOrders = responseModel.data.recentOrders;
+                      responseModel?.data.frequentProductLists;
+                  final recentOrders = responseModel?.data.recentOrders;
                   return Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Column(
@@ -370,7 +367,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       const SizedBox(height: 2),
                                       Expanded(
                                         child: OrdersPayments(
-                                            context, recentOrders),
+                                            context, recentOrders??[]),
                                       ),
                                       const SizedBox(height: 2),
                                       Expanded(
@@ -379,7 +376,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       const SizedBox(height: 2),
                                       Expanded(
                                         child: Frequently(
-                                            context, frequentProductLists),
+                                            context, frequentProductLists??[]),
                                       ),
                                     ],
                                   )
@@ -393,7 +390,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           const SizedBox(width: 2),
                                           Expanded(
                                             child: OrdersPayments(
-                                                context, recentOrders),
+                                                context, recentOrders??[]),
                                           ),
                                         ],
                                       ),
@@ -406,7 +403,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           const SizedBox(width: 2),
                                           Expanded(
                                             child: Frequently(
-                                                context, frequentProductLists),
+                                                context, frequentProductLists??[]),
                                           ),
                                         ],
                                       ),

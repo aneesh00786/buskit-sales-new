@@ -95,7 +95,7 @@ class HomeController extends GetxController {
       return GetPageRoute(
           settings: settings,
           transition: Transition.leftToRightWithFade,
-          page: () => tableee(),
+          page: () => Tableee(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.product &&
         sidebarXController.selectedIndex == 2) {

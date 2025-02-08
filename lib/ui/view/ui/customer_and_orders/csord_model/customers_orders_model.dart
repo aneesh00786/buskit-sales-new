@@ -739,7 +739,7 @@ class Data {
 class CategoryPerformancez {
   int cid;
   String category;
-  String totalPrice;
+  num totalPrice;
 
   CategoryPerformancez({
     required this.cid,
@@ -751,9 +751,7 @@ class CategoryPerformancez {
       CategoryPerformancez(
         cid: json["cid"] ?? 0,
         category: json["category"] ?? '',
-        totalPrice: (json["total_price"] is int)
-            ? json["total_price"].toString()
-            : json["total_price"] ?? '',
+        totalPrice: num.tryParse(json["total_price"].toString())??0,
       );
 
   Map<String, dynamic> toJson() => {

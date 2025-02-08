@@ -28,14 +28,17 @@ import 'csord_model/customers_orders_model.dart';
 import 'cus_provider/cus_provider.dart';
 import 'customer_dashbord/customer_dashbord_screen.dart';
 
-class tableee extends StatefulWidget {
+class Tableee extends StatefulWidget {
+  const Tableee({super.key});
+
   @override
-  State<tableee> createState() => _tableeeState();
+  State<Tableee> createState() => _TableeeState();
 }
 
-class _tableeeState extends State<tableee> {
+class _TableeeState extends State<Tableee> {
   final ScrollController _scrollController1 = ScrollController();
   final ScrollController _scrollController2 = ScrollController();
+  final ScrollController _scrollController3 = ScrollController();
 
   @override
   void initState() {
@@ -47,6 +50,11 @@ class _tableeeState extends State<tableee> {
               _scrollController2.position.pixels) {
         _scrollController2.jumpTo(_scrollController1.position.pixels);
       }
+      if (_scrollController3.hasClients &&
+          _scrollController1.position.pixels !=
+              _scrollController3.position.pixels) {
+        _scrollController3.jumpTo(_scrollController1.position.pixels);
+      }
     });
 
     _scrollController2.addListener(() {
@@ -55,17 +63,34 @@ class _tableeeState extends State<tableee> {
               _scrollController1.position.pixels) {
         _scrollController1.jumpTo(_scrollController2.position.pixels);
       }
+      if (_scrollController3.hasClients &&
+          _scrollController2.position.pixels !=
+              _scrollController3.position.pixels) {
+        _scrollController3.jumpTo(_scrollController2.position.pixels);
+      }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerData();
+
+    _scrollController3.addListener(() {
+      if (_scrollController1.hasClients &&
+          _scrollController3.position.pixels !=
+              _scrollController1.position.pixels) {
+        _scrollController1.jumpTo(_scrollController3.position.pixels);
+      }
+      if (_scrollController2.hasClients &&
+          _scrollController3.position.pixels !=
+              _scrollController2.position.pixels) {
+        _scrollController2.jumpTo(_scrollController3.position.pixels);
+      }
     });
+
+    Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData();
   }
 
   @override
   void dispose() {
     _scrollController1.dispose();
     _scrollController2.dispose();
+    _scrollController3.dispose();
     super.dispose();
   }
 
@@ -73,21 +98,34 @@ class _tableeeState extends State<tableee> {
   Widget build(BuildContext context) {
     final provider = Provider.of<CustomersProvider>(context);
     return Scaffold(
+      backgroundColor: white,
       appBar: AppBar(
+        backgroundColor: white,
+        surfaceTintColor: white,
         actions: [
           SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery.of(context).size.width * 0.92,
               child: calender()),
+          const Spacer()
         ],
       ),
       body: Stack(
         children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: TopTotalWidget(
+                scrollController: _scrollController3, provider: provider),
+          ),
           Column(
             children: [
+              const SizedBox(height: 58),
               Expanded(
                   child: FrozenHeaderTable(
                 scrollController: _scrollController1,
               )),
+              const SizedBox(height: 58),
             ],
           ),
           Positioned(
@@ -848,16 +886,304 @@ class _tableeeState extends State<tableee> {
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
               borderSide: const BorderSide(
-                  color: Colors.red, width: 1.5), // Error styling
+                  color: Colors.red, width: 1.5),
             ),
             filled: true,
-            fillColor: Colors.white, // Background inside the text field
+            fillColor: Colors.white, 
           ),
         ),
       ),
     );
   }
 }
+
+class TopTotalWidget extends StatelessWidget {
+  const TopTotalWidget({
+    super.key,
+    required ScrollController scrollController,
+    required this.provider,
+  }) : _scrollController = scrollController;
+
+  final ScrollController _scrollController;
+  final CustomersProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    final searchController = provider.searchController;
+    final CustomerAndOrderController customerAndOrderController =
+        CustomerAndOrderController();
+    double totalTableWidth =
+        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 100;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 260,
+          child: _buildTableHeader(
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                onChanged: (query) {
+                  provider.updateSearchQuery(query);
+                  log("Entered query : $query");
+                },
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  fillColor: Colors.white,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(3.2),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 9.5,
+                    vertical: 9.5,
+                  ),
+                ),
+              ),
+            ),
+            260,
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            controller: _scrollController,
+            child: SizedBox(
+              width: totalTableWidth,
+              child: Container(
+                color: primaryColor,
+                child: Row(
+                  children: [
+                    _buildTableHeader(
+                      Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Sale',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Obx(() {
+                            if (provider.yearsListOfAllList.isNotEmpty) {
+                              customerAndOrderController.selectedYear.value =
+                                  provider.yearsListOfAllList.first.orderYears
+                                          ?.toString() ??
+                                      '';
+                            } else {
+                              customerAndOrderController.selectedYear.value =
+                                  '';
+                            }
+
+                            customerAndOrderController.years.value = provider
+                                .yearsListOfAllList
+                                .map((yearItem) =>
+                                    yearItem.orderYears?.toString() ?? '')
+                                .toList();
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 20, top: 20),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(2.0),
+                                ),
+                                child: DropdownButton<String>(
+                                  iconSize: 14,
+                                  value: customerAndOrderController
+                                          .selectedYear.value.isNotEmpty
+                                      ? customerAndOrderController
+                                          .selectedYear.value
+                                      : null,
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      customerAndOrderController
+                                          .updateSelectedYear(newValue);
+                                    }
+                                  },
+                                  items: customerAndOrderController.years
+                                      .map<DropdownMenuItem<String>>(
+                                          (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0),
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(
+                                            fontSize:
+                                                value.length > 4 ? 8.0 : 12.0,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: myFont,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  dropdownColor: Colors.white,
+                                  isExpanded: false,
+                                  underline: Container(),
+                                ),
+                              ),
+                            );
+                          })
+                        ],
+                      ),
+                      120,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Sales',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Delivery',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Payments',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Pre-Order',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Estimates',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Drafts',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Cancelled',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Text(
+                        'Visits',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      140,
+                    ),
+                    _buildTableHeader(
+                      const Center(
+                        child: Text(
+                          'SE',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                        ),
+                      ),
+                      100,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 
 class BottomTotalWidget extends StatelessWidget {
   const BottomTotalWidget({
@@ -876,7 +1202,7 @@ class BottomTotalWidget extends StatelessWidget {
     }
     return Row(
       children: [
-        _buildTableCell(
+       _buildTableCell(
           padding: EdgeInsets.zero,
           Container(
             width: 200,
@@ -914,61 +1240,71 @@ class BottomTotalWidget extends StatelessWidget {
                               ),
                               Expanded(
                                 child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: List.generate(
-                                      provider.totalPages > 0 ? 3 : 0,
-                                      (index) {
-                                        if (provider.totalPages <= 0) {
-                                          return Container();
-                                        }
-                                        int firstPage = (provider.currentPage -
-                                                1)
-                                            .clamp(1, provider.totalPages - 2);
-                                        int visiblePage = firstPage + index;
-                                        visiblePage = visiblePage.clamp(
-                                            1, provider.totalPages);
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: provider.totalPages > 1
+                                      ? List.generate(3, (index) {
+                                          int firstPage;
 
-                                        return GestureDetector(
-                                          onTap: visiblePage <=
-                                                  provider.totalPages
-                                              ? () {
-                                                  provider.currentPage =
-                                                      visiblePage;
-                                                  provider.refreshCurrentPage();
-                                                }
-                                              : null,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(2.0),
-                                            child: Container(
-                                              height: 40,
-                                              width: 25,
-                                              decoration: BoxDecoration(
-                                                color: provider.currentPage ==
-                                                        visiblePage
-                                                    ? Colors.white
-                                                    : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  '$visiblePage',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color:
-                                                        provider.currentPage ==
-                                                                visiblePage
-                                                            ? primaryColor
-                                                            : Colors.white,
+                                          if (provider.totalPages == 2) {
+                                            firstPage = 1;
+                                          } else if (provider.currentPage ==
+                                              1) {
+                                            firstPage = 1;
+                                          } else if (provider.currentPage ==
+                                              provider.totalPages) {
+                                            firstPage = provider.totalPages - 2;
+                                          } else {
+                                            firstPage =
+                                                provider.currentPage - 1;
+                                          }
+
+                                          int visiblePage = firstPage + index;
+                                          if (visiblePage < 1 ||
+                                              visiblePage >
+                                                  provider.totalPages) {
+                                            return Container();
+                                          }
+
+                                          return GestureDetector(
+                                            onTap: () {
+                                              provider.currentPage =
+                                                  visiblePage;
+                                              provider.refreshCurrentPage();
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(2.0),
+                                              child: Container(
+                                                height: 40,
+                                                width: 25,
+                                                decoration: BoxDecoration(
+                                                  color: provider.currentPage ==
+                                                          visiblePage
+                                                      ? Colors.white
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    '$visiblePage',
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      color:
+                                                          provider.currentPage ==
+                                                                  visiblePage
+                                                              ? primaryColor
+                                                              : Colors.white,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
-                                    )),
+                                          );
+                                        })
+                                      : [],
+                                ),
                               ),
                               SizedBox(
                                 height: 40,
@@ -2057,7 +2393,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       if (provider.isLoading) {
         return const Center(child: CircularProgressIndicator());
       } else if (provider.errorMessage.isNotEmpty) {
-        return Center(child: Text(provider.errorMessage));
+        return Center(
+          child: Text(
+            provider.errorMessage.endsWith("Failed to load data")
+                ? "NO CUSTOMERS FOUND"
+                : provider.errorMessage,
+          ),
+        );
+        // return noCustomerDataWidget(provider, totalTableWidth,
+        //     widget.scrollController, customerAndOrderController);
       } else if (provider.customersFuture == null) {
         return const Center(child: Text('No data available'));
       } else {
@@ -2078,31 +2422,31 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     width: 260,
                     child: Column(
                       children: [
-                        _buildTableHeader(
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: TextField(
-                              onChanged: (query) {
-                                provider.updateSearchQuery(query);
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Search',
-                                hintStyle: const TextStyle(color: Colors.grey),
-                                fillColor: Colors.white,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(3.2),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 9.5,
-                                  vertical: 9.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                          260,
-                        ),
+                        // _buildTableHeader(
+                        //   Padding(
+                        //     padding: const EdgeInsets.all(10),
+                        //     child: TextField(
+                        //       onChanged: (query) {
+                        //         provider.updateSearchQuery(query);
+                        //       },
+                        //       decoration: InputDecoration(
+                        //         hintText: 'Search',
+                        //         hintStyle: const TextStyle(color: Colors.grey),
+                        //         fillColor: Colors.white,
+                        //         filled: true,
+                        //         border: OutlineInputBorder(
+                        //           borderRadius: BorderRadius.circular(3.2),
+                        //           borderSide: BorderSide.none,
+                        //         ),
+                        //         contentPadding: const EdgeInsets.symmetric(
+                        //           horizontal: 9.5,
+                        //           vertical: 9.5,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        //   260,
+                        // ),
                         Expanded(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.vertical,
@@ -2308,223 +2652,223 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              color: primaryColor,
-                              child: Row(
-                                children: [
-                                  _buildTableHeader(
-                                    Row(
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Sale',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Poppins_Regular',
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Obx(() {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 20, top: 20),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(2.0),
-                                              ),
-                                              child: DropdownButton<String>(
-                                                iconSize: 14,
-                                                value:
-                                                    customerAndOrderController
-                                                        .selectedYear.value,
-                                                onChanged: (String? newValue) {
-                                                  if (newValue != null) {
-                                                    customerAndOrderController
-                                                        .updateSelectedYear(
-                                                            newValue);
-                                                  }
-                                                },
-                                                items:
-                                                    customerAndOrderController
-                                                        .years
-                                                        .map<
-                                                            DropdownMenuItem<
-                                                                String>>((String
-                                                            value) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: value,
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 4.0),
-                                                      child: Text(
-                                                        value,
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              value.length > 4
-                                                                  ? 8.0
-                                                                  : 12.0,
-                                                          color: Colors.black,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontFamily:
-                                                              'Poppins_Regular',
-                                                        ),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                                dropdownColor: Colors.white,
-                                                isExpanded: false,
-                                                underline: Container(),
-                                              ),
-                                            ),
-                                          );
-                                        })
-                                      ],
-                                    ),
-                                    120,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Sales',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Delivery',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Payments',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Pre-Order',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Estimates',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Drafts',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Cancelled',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    140,
-                                  ),
-                                  _buildTableHeader(
-                                    const Text(
-                                      'Visits',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Poppins_Regular',
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    160,
-                                  ),
-                                  _buildTableHeader(
-                                    const Center(
-                                      child: Text(
-                                        'SE',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Poppins_Regular',
-                                        ),
-                                      ),
-                                    ),
-                                    100,
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Container(
+                            //   color: primaryColor,
+                            //   child: Row(
+                            //     children: [
+                            //       _buildTableHeader(
+                            //         Row(
+                            //           children: [
+                            //             const Padding(
+                            //               padding: EdgeInsets.all(8.0),
+                            //               child: Text(
+                            //                 'Sale',
+                            //                 style: TextStyle(
+                            //                   fontSize: 12,
+                            //                   color: Colors.white,
+                            //                   fontWeight: FontWeight.bold,
+                            //                   fontFamily: 'Poppins_Regular',
+                            //                 ),
+                            //                 maxLines: 2,
+                            //                 overflow: TextOverflow.ellipsis,
+                            //               ),
+                            //             ),
+                            //             Obx(() {
+                            //               return Padding(
+                            //                 padding: const EdgeInsets.only(
+                            //                     bottom: 20, top: 20),
+                            //                 child: Container(
+                            //                   decoration: BoxDecoration(
+                            //                     color: Colors.white,
+                            //                     borderRadius:
+                            //                         BorderRadius.circular(2.0),
+                            //                   ),
+                            //                   child: DropdownButton<String>(
+                            //                     iconSize: 14,
+                            //                     value:
+                            //                         customerAndOrderController
+                            //                             .selectedYear.value,
+                            //                     onChanged: (String? newValue) {
+                            //                       if (newValue != null) {
+                            //                         customerAndOrderController
+                            //                             .updateSelectedYear(
+                            //                                 newValue);
+                            //                       }
+                            //                     },
+                            //                     items:
+                            //                         customerAndOrderController
+                            //                             .years
+                            //                             .map<
+                            //                                 DropdownMenuItem<
+                            //                                     String>>((String
+                            //                                 value) {
+                            //                       return DropdownMenuItem<
+                            //                           String>(
+                            //                         value: value,
+                            //                         child: Padding(
+                            //                           padding: const EdgeInsets
+                            //                               .symmetric(
+                            //                               horizontal: 4.0),
+                            //                           child: Text(
+                            //                             value,
+                            //                             style: TextStyle(
+                            //                               fontSize:
+                            //                                   value.length > 4
+                            //                                       ? 8.0
+                            //                                       : 12.0,
+                            //                               color: Colors.black,
+                            //                               fontWeight:
+                            //                                   FontWeight.bold,
+                            //                               fontFamily:
+                            //                                   'Poppins_Regular',
+                            //                             ),
+                            //                             maxLines: 2,
+                            //                             overflow: TextOverflow
+                            //                                 .ellipsis,
+                            //                           ),
+                            //                         ),
+                            //                       );
+                            //                     }).toList(),
+                            //                     dropdownColor: Colors.white,
+                            //                     isExpanded: false,
+                            //                     underline: Container(),
+                            //                   ),
+                            //                 ),
+                            //               );
+                            //             })
+                            //           ],
+                            //         ),
+                            //         120,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Sales',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Delivery',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Payments',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Pre-Order',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Estimates',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Drafts',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Cancelled',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         140,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Text(
+                            //           'Visits',
+                            //           style: TextStyle(
+                            //             fontSize: 12,
+                            //             color: Colors.white,
+                            //             fontWeight: FontWeight.bold,
+                            //             fontFamily: 'Poppins_Regular',
+                            //           ),
+                            //           maxLines: 2,
+                            //           overflow: TextOverflow.ellipsis,
+                            //         ),
+                            //         160,
+                            //       ),
+                            //       _buildTableHeader(
+                            //         const Center(
+                            //           child: Text(
+                            //             'SE',
+                            //             style: TextStyle(
+                            //               fontSize: 12,
+                            //               color: Colors.white,
+                            //               fontWeight: FontWeight.bold,
+                            //               fontFamily: 'Poppins_Regular',
+                            //             ),
+                            //           ),
+                            //         ),
+                            //         100,
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                             Expanded(
                               child: SingleChildScrollView(
                                 physics: const ClampingScrollPhysics(),

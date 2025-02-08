@@ -1288,13 +1288,13 @@ class _CustomBarChartCustomerDashState
         orElse: () => CategoryPerformancez(
           cid: -1,
           category: category.categoryName,
-          totalPrice: '0',
+          totalPrice: 0,
         ),
       );
 
       double target = 0.0;
       try {
-        target = double.tryParse(perf.totalPrice) ?? 0.0;
+        target = perf.totalPrice.toDouble();
       } catch (e) {
         target = 0.0;
       }

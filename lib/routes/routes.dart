@@ -60,7 +60,7 @@ class AppRoutes {
         ),
         GetPage(
           name: customersAndOrders,
-          page: () => tableee(),
+          page: () => Tableee(),
           binding: CommonBinding(),
         ),
         GetPage(

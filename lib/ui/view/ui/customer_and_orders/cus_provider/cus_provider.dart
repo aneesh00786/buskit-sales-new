@@ -68,6 +68,9 @@ class CustomersProvider with ChangeNotifier {
 
   String get selectedStartDate => _selectedStartDate;
   String get selectedEndDate => _selectedEndDate;
+  final TextEditingController searchController = TextEditingController();
+  var _searchCustomerName='';
+  String get selectedCustomerName => _searchCustomerName;
 
   Future<ApiResponseModel>? _customersDashFuture;
 
@@ -154,26 +157,43 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  void updateSearchQuery(String query) {
-    if (query.isEmpty) {
-      _filteredCustomers = _customers;
-    } else {
-      _filteredCustomers = _customers
-          .where((customer) => customer.businessName
-              .toLowerCase()
-              .startsWith(query.toLowerCase()))
-          .toList();
+  
+
+  void updateSearchQuery(String query) async {
+    log("updateSearchQuery query : $query");
+    _searchCustomerName = query;
+
+    try {
+      if (query.isEmpty) {
+        // _filteredCustomers = _customers;
+        _filteredCustomers.clear();
+        await fetchCustomerData();
+      } else {
+        _filteredCustomers.clear();
+        notifyListeners();
+
+        await fetchCustomerData(); // API call
+      }
+    } catch (e) {
+      log("Error fetching customer data: $e");
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
+
+  // void setCustomers(List<CustomerModelxx> customers, int totalPages) {
+  //   _customers = customers;
+  //   _filteredCustomers = customers;
+  //   _totalPages = totalPages;
+  //   notifyListeners();
+  // }
   void setCustomers(List<CustomerModelxx> customers, int totalPages) {
     _customers = customers;
     _filteredCustomers = customers;
     _totalPages = totalPages;
     notifyListeners();
   }
-
   void setOrderTotal(List<OrderTotalxx> orderTotals) {
     _orderTotalList = orderTotals;
     notifyListeners();
@@ -427,90 +447,89 @@ class CustomersProvider with ChangeNotifier {
     return _selectedOrders.contains(order);
   }
 
-  Future<void> fetchCustomerData({int page = 1}) async {
-    NotificationController notificationController =
-        Get.find<NotificationController>();
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-    if (_selectedFilter == FilterDateEnum.thisMonth ||
-        _selectedFilter == FilterDateEnum.today ||
-        _selectedFilter == FilterDateEnum.thisWeek ||
-        _selectedFilter == FilterDateEnum.thisYear ||
-        _selectedFilter == FilterDateEnum.range) {
-      try {
-        final now = DateTime.now();
-        String startDate;
-        String endDate;
-
-        switch (_selectedFilter) {
-          case FilterDateEnum.thisMonth:
-            startDate = DateTime(now.year, now.month, 1)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = DateTime(now.year, now.month + 1, 0)
-                .toIso8601String()
-                .substring(0, 10);
-            break;
-          case FilterDateEnum.today:
-            startDate = DateTime(now.year, now.month, now.day)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = startDate;
-            break;
-          case FilterDateEnum.thisWeek:
-            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-            startDate = startOfWeek.toIso8601String().substring(0, 10);
-            endDate = now.toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.thisYear:
-            startDate =
-                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-            endDate =
-                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.range:
-            startDate = _selectedStartDate;
-            endDate = _selectedEndDate;
-            if (startDate.isEmpty || endDate.isEmpty) {
-              return;
-            }
-            break;
-        }
-        _isLoading = true;
-        _customersFuture = _apiService.fetchCustomer(
-          salesmanId: salesmanId,
-          customerName: '',
-          startDate: // _selectedFilter.name == 'Range' ? _selectedStartDate :
-              "",
-          endDate: //_selectedFilter.name == 'Range' ? _selectedEndDate :
-              "",
-          limit: 10,
-          page: page,
-          valueFromDw: _selectedFilter.name == 'Range'
-              ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-              : _selectedFilter.name,
-        );
-        log('Selecetd Filters : ${_selectedFilter.name}');
-        _customersFuture!.then((value) {
-          setCustomers(value.data, value.pagination.totalPages);
-          setOrderTotal(value.orderTotal);
-          setYearList(value.yearsListOfAll);
-          notificationController.loadNotificationData(startDate, endDate);
-          _isLoading = false;
-          notifyListeners();
-        }).catchError((error) {
-          _isLoading = false;
-          _errorMessage = 'Failed to fetch customer data: ${error}';
-          notifyListeners();
-        });
-      } catch (e, stackTrace) {
-        _isLoading = false;
-        _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-        rethrow;
-      }
-    } else {
-      await fetchCustomerData();
-    }
+Future<void> fetchCustomerData({int page = 1}) async {
+  if (page <= 0) {
+    throw ArgumentError('Page must be greater than 0');
   }
+
+  _errorMessage = '';
+  NotificationController notificationController = Get.find<NotificationController>();
+
+  if (_selectedFilter == FilterDateEnum.thisMonth ||
+      _selectedFilter == FilterDateEnum.today ||
+      _selectedFilter == FilterDateEnum.thisWeek ||
+      _selectedFilter == FilterDateEnum.thisYear ||
+      _selectedFilter == FilterDateEnum.range) {
+    try {
+      final now = DateTime.now();
+      String startDate = '';
+      String endDate = '';
+
+      switch (_selectedFilter) {
+        case FilterDateEnum.thisMonth:
+          startDate = DateTime(now.year, now.month, 1).toIso8601String().substring(0, 10);
+          endDate = DateTime(now.year, now.month + 1, 0).toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.today:
+          startDate = DateTime(now.year, now.month, now.day).toIso8601String().substring(0, 10);
+          endDate = startDate;
+          break;
+        case FilterDateEnum.thisWeek:
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          startDate = startOfWeek.toIso8601String().substring(0, 10);
+          endDate = now.toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.thisYear:
+          startDate = DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+          endDate = DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+          break;
+        case FilterDateEnum.range:
+          startDate = _selectedStartDate;
+          endDate = _selectedEndDate;
+          if (startDate.isEmpty || endDate.isEmpty) {
+            throw ArgumentError('Invalid date range: startDate or endDate is empty.');
+          }
+          break;
+      }
+
+      _isLoading = true;
+      log('fetchCustomer query: $_searchCustomerName');
+      log('Parameters: startDate=$startDate, endDate=$endDate, page=$page');
+
+      _customersFuture = _apiService.fetchCustomer(
+        salesmanId: '',
+        customerName: _searchCustomerName,
+        startDate: '',
+        endDate: '',
+        limit: 10,
+        page: page,
+        valueFromDw: _selectedFilter.name == 'Range'
+            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+            : _selectedFilter.name,
+      );
+
+      _customersFuture!.then((value) {
+        setCustomers(value.data, value.pagination.totalPages);
+        setOrderTotal(value.orderTotal);
+        setYearList(value.yearsListOfAll);
+        notificationController.loadNotificationData(startDate, endDate);
+        _isLoading = false;
+        notifyListeners();
+      }).catchError((error) {
+        _isLoading = false;
+        _errorMessage = 'Failed to fetch customer data: $error';
+        notifyListeners();
+      });
+    } catch (e, stackTrace) {
+      _isLoading = false;
+      log('Error fetching customers: $e', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
+  } else {
+    await fetchCustomerData(page: page);
+  }
+}
+
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(

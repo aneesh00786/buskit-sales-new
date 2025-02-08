@@ -217,23 +217,18 @@ void showValueCollectionDialog(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: DialogTableHeaderText(
-                                text: 'Total',
-                                fontSize: 12,
-                                align: TextAlign.left,
-                              ),
+                            DialogTableHeaderText(
+                              text: 'Total',
+                              fontSize: 12,
+                              align: TextAlign.left,
                             ),
-                            Expanded(
-                              flex: 2,
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: DialogTableHeaderText(
-                                  text: formatAmount(completedOrders
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b)),
-                                  fontSize: 13,
-                                ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: DialogTableHeaderText(
+                                text: formatAmount(completedOrders
+                                    .map((e) => e.orderTotal ?? 0.0)
+                                    .reduce((a, b) => a + b)),
+                                fontSize: 13,
                               ),
                             ),
                           ],

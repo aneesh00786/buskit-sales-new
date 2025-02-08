@@ -234,16 +234,14 @@ void showValueOrderDialog(
                               fontSize: 12,
                               align: TextAlign.left,
                             ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: DialogTableHeaderText(
-                                text: formatAmount(
-                                  filteredOrders
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .fold(0.0, (a, b) => a + b),
-                                ),
-                                fontSize: 13,
+                            DialogTableHeaderText(
+                              text: formatAmount(
+                                filteredOrders
+                                    .map((e) => e.orderTotal ?? 0.0)
+                                    .fold(0.0, (a, b) => a + b),
                               ),
+                              fontSize: 13,
+                              align: TextAlign.right,
                             ),
                           ],
                         ),

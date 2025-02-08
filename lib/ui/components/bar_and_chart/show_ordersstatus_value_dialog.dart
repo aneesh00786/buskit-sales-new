@@ -21,9 +21,6 @@ void showValueOrderDialog(
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;
-            // final filteredOrders = deliveryData.order!.totalOrders!
-            //     .where((orderDetails) => orderDetails.orderStatus == status)
-            //     .toList();
 
             final filteredOrders = deliveryData.order!.totalOrders!
                 .where((orderDetails) => status == 5
@@ -75,7 +72,6 @@ void showValueOrderDialog(
                         ],
                       ),
                     ),
-                    // Table Header
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
@@ -109,115 +105,115 @@ void showValueOrderDialog(
                         ],
                       ),
                     ),
-                    // Scrollable Content
                     Flexible(
-                      child: SizedBox(
-                        height: contentHeight,
-                        child: ListView.builder(
-                          itemCount: filteredOrders.isEmpty
-                              ? 1
-                              : filteredOrders.length,
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            if (filteredOrders.isEmpty) {
+                      child: SingleChildScrollView( // Use ScrollView here
+                        child: SizedBox(
+                          height: contentHeight,
+                          child: ListView.builder(
+                            itemCount: filteredOrders.isEmpty
+                                ? 1
+                                : filteredOrders.length,
+                            physics: const ClampingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              if (filteredOrders.isEmpty) {
+                                return Container(
+                                  height: rowHeight,
+                                  alignment: Alignment.center,
+                                  child: const Text(
+                                    'No data available',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                );
+                              }
+                              final orderDetails = filteredOrders[index];
                               return Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                ),
                                 height: rowHeight,
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'No data available',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              );
-                            }
-                            final orderDetails = filteredOrders[index];
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              height: rowHeight,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        orderDetails.businessName ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        getFormattedOrderCreatAt(
-                                            orderDetails.orderCreatAt ?? ''),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          showDetailedOrderInvoiceDialog(
-                                              context, orderDetails, true);
-                                        },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Center(
                                         child: Text(
-                                          orderDetails.invoiceId ?? '',
+                                          orderDetails.businessName ?? '',
                                           style: const TextStyle(
                                             fontSize: 13,
-                                            color: primaryColor,
+                                            color: secondaryTextColor,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        getStatusName(
-                                            orderDetails.orderStatus ?? 0),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          getFormattedOrderCreatAt(
+                                              orderDetails.orderCreatAt ?? ''),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        formatAmount(
-                                            orderDetails.orderTotal ?? 0.0),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
+                                    Expanded(
+                                      child: Center(
+                                        child: InkWell(
+                                          onTap: () {
+                                            showDetailedOrderInvoiceDialog(
+                                                context, orderDetails, true);
+                                          },
+                                          child: Text(
+                                            orderDetails.invoiceId ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: primaryColor,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          getStatusName(
+                                              orderDetails.orderStatus ?? 0),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          formatAmount(
+                                              orderDetails.orderTotal ?? 0.0),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                    // Static Total Row
                     Container(
                       decoration: const BoxDecoration(
                         border: Border(
@@ -231,24 +227,20 @@ void showValueOrderDialog(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: DialogTableHeaderText(
-                                text: 'Total',
-                                fontSize: 12,
-                                align: TextAlign.left,
-                              ),
+                            DialogTableHeaderText(
+                              text: 'Total',
+                              fontSize: 12,
+                              align: TextAlign.left,
                             ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: DialogTableHeaderText(
-                                text: formatAmount(
-                                  filteredOrders
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .fold(0.0, (a, b) => a + b),
-                                ),
-                                fontSize: 13,
+                            DialogTableHeaderText(
+                              text: formatAmount(
+                                filteredOrders
+                                    .map((e) => e.orderTotal ?? 0.0)
+                                    .fold(0.0, (a, b) => a + b),
                               ),
+                              fontSize: 13,
                             ),
                           ],
                         ),

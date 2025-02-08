@@ -1295,7 +1295,7 @@ class PaymentCompleted {
   final int count;
   final int percentage;
   final List<OrderDetail> orderDetails;
-  final int totalAmount;
+  final String totalAmount;
 
   PaymentCompleted({
     required this.count,
@@ -1313,7 +1313,7 @@ class PaymentCompleted {
       count: json['count'] ?? 0,
       percentage: json['percentage'] ?? 0,
       orderDetails: orderDetails,
-      totalAmount: json['total_amount'] ?? 0,
+      totalAmount: json['total_amount'] ?? '',
     );
   }
 }

@@ -972,58 +972,58 @@ Future<CustomerResponseModelxx> fetchCustomer({
     }
   }
 
-  Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
-      String customerId, int year) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.customeTotalSale}');
-
-    final requestBody = {
-      "customer_id": customerId,
-      "year": year,
-      "companyId": companyId,
-    };
-    log('CompanyId : $requestBody');
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
-
-      if (response.statusCode == 200) {
-        var jsonResponse = json.decode(response.body);
-        print("Response Data: ${jsonResponse['data']}");
-        PaymentCompleted paymentCompleted = PaymentCompleted.fromJson(
-            jsonResponse['data']['total_sale']['payment_completed']);
-        PaymentRemaining paymentRemaining = PaymentRemaining.fromJson(
-            jsonResponse['data']['total_sale']['payment_remaning']);
-        List<DiscountData> discountData = [];
-        if (jsonResponse['data']['discount_data'] != null) {
-          discountData = (jsonResponse['data']['discount_data'] as List)
-              .map((json) => DiscountData.fromJson(json))
-              .toList();
-        }
-
-        return CustomerTotalSaleResponse(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: Datas(
-            totalSale: TotalSale(
-              paymentCompleted: paymentCompleted,
-              paymentRemaining: paymentRemaining,
-            ),
-            discountData: discountData,
-          ),
-        );
-      } else {
-        log(response.body);
-        throw Exception(
-            'Failed to fetch customer total sale data - ${response.statusCode}');
+Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
+    String customerId, int year) async {
+  final url = Uri.parse('$_baseUrl${ApiConstants.customeTotalSale}');
+  final requestBody = {
+    "customer_id": customerId,
+    "year": year,
+    "companyId": companyId,
+  };
+  log('Request Body: $requestBody');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(requestBody),
+    );
+    log('API Response: ${response.body}');
+    if (response.statusCode == 200) {
+      var jsonResponse = json.decode(response.body);
+      log('Parsed JSON: $jsonResponse');
+      PaymentCompleted paymentCompleted = PaymentCompleted.fromJson(
+          jsonResponse['data']['total_sale']['payment_completed']);
+      PaymentRemaining paymentRemaining = PaymentRemaining.fromJson(
+          jsonResponse['data']['total_sale']['payment_remaning']);
+      List<DiscountData> discountData = [];
+      if (jsonResponse['data']['discount_data'] != null) {
+        discountData = (jsonResponse['data']['discount_data'] as List)
+            .map((json) => DiscountData.fromJson(json))
+            .toList();
       }
-    } catch (e) {
-      throw Exception('Failed to fetch customer total sale data: $e');
+      return CustomerTotalSaleResponse(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        data: Datas(
+          totalSale: TotalSale(
+            paymentCompleted: paymentCompleted,
+            paymentRemaining: paymentRemaining,
+          ),
+          discountData: discountData,
+        ),
+      );
+    } else {
+      log('Error Response: ${response.body}');
+      throw Exception(
+          'Failed to fetch customer total sale data - ${response.statusCode}');
     }
+  } catch (e) {
+    log('Exception: $e');
+    throw Exception('Failed to fetch customer total sale data: $e');
   }
+}
+
   Future<ApiResponsees> fetchOrderCount(
     String customerId,
     String startDate,

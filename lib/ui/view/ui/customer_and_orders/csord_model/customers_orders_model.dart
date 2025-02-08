@@ -1295,7 +1295,7 @@ class PaymentCompleted {
   final int count;
   final int percentage;
   final List<OrderDetail> orderDetails;
-  final String totalAmount;
+  final num totalAmount;
 
   PaymentCompleted({
     required this.count,
@@ -1308,12 +1308,11 @@ class PaymentCompleted {
     var orderDetailsList = json['order_details'] as List? ?? [];
     List<OrderDetail> orderDetails =
         orderDetailsList.map((i) => OrderDetail.fromJson(i)).toList();
-
     return PaymentCompleted(
       count: json['count'] ?? 0,
       percentage: json['percentage'] ?? 0,
       orderDetails: orderDetails,
-      totalAmount: json['total_amount'] ?? '',
+      totalAmount: num.tryParse(json['total_amount'].toString())??0,
     );
   }
 }
@@ -1680,7 +1679,7 @@ class Salesman {
 class CustomerDashMo {
   int? id;
   String? customerId;
-  String? cartId; // Nullable
+  String? cartId;
   String fullname;
   String mobileno;
   String email;
@@ -1689,18 +1688,18 @@ class CustomerDashMo {
   int zipcode;
   String address;
   String businessName;
-  String? businessNo; // Nullable
-  String? remark; // Nullable
-  String? imageUrl; // Nullable
-  String? salesmanId; // Nullable
-  int? status; // Nullable
-  String? createAt; // Nullable
-  String? salesmanName; // Nullable
-  String? discount; // Nullable
-  int? eventType; // Nullable
-  String? eventDays; // Nullable
-  int? creditPeriod; // Nullable
-  int? companyId; // Nullable
+  String? businessNo; 
+  String? remark; 
+  String? imageUrl; 
+  String? salesmanId; 
+  int? status; 
+  String? createAt; 
+  String? salesmanName; 
+  String? discount; 
+  int? eventType; 
+  String? eventDays; 
+  int? creditPeriod; 
+  int? companyId; 
   List<Cart>? cart;
   List<Salesman>? salesman;
 

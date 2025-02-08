@@ -39,7 +39,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String? _selectedMonthName;
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  String selectedValue = "2024";
+  String selectedValue = "2025";
   String staffProjection = '';
   String targetType = '';
     Future<void> _loadSettings() async {

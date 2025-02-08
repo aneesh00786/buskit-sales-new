@@ -348,7 +348,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
   Widget getLeftTitles(double value, TitleMeta meta) {
     return MyRegularText(
       label: value.toInt().toString(),
-      fontSize: 10.6,
+      fontSize: 8.6,
       fontWeight: FontWeight.w500,
       color: Colors.black,
     );

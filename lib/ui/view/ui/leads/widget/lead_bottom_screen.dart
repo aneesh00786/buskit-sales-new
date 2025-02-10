@@ -293,8 +293,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
           ),
           Expanded(
               child: Container(
-                  decoration: BoxDecoration(
-                  ),
+                  decoration: BoxDecoration(),
                   child: Center(
                       child: Padding(
                     padding: const EdgeInsets.only(left: 9, right: 9),
@@ -324,11 +323,42 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                     SizedBox(
                       width: 20,
                       child: IconButton(
-                        onPressed: () {},
-                        padding: EdgeInsets.all(2),
+                        onPressed: () async {
+                          final bool? confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Delete Lead'),
+                                content: const Text(
+                                    'Are you sure you want to delete this lead?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          if (confirm == true) {
+                            widget.leadsController
+                                .deleteLead(leadCustomerData.id ?? 0);
+                          }
+                        },
+                        padding: const EdgeInsets.all(2),
                         constraints: const BoxConstraints(),
-                        icon: const Icon(EneftyIcons.trash_outline,
-                            color: Colors.red, size: 20),
+                        icon: const Icon(
+                          EneftyIcons.trash_outline,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],

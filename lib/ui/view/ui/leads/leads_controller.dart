@@ -66,7 +66,9 @@ class LeadsController extends GetxController {
     selectedTabIndex.value = newIndex;
     // loadOrderData(chartIndex: newIndex);
   }
-
+    void deleteLead(int id) {
+    leadsCustomerDataList.removeWhere((lead) => lead.id == id);
+  }
   Future updateLeads(LeadCustomerData leadData) async {
     var data = await ApiWorker()
         .updateCustomer(leadData.toUpdateJson())

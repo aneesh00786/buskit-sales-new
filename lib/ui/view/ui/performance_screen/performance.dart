@@ -195,6 +195,7 @@ void initState() {
       ),
       body: Column(
         children: [
+          if(targetType=="1")
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -396,6 +397,7 @@ void initState() {
                       tabController: _tabController,
                       tabControllers: _targetControllers,
                       staffProjection: staffProjection,
+                      targetType:targetType,
                     ),
                   ),
                 )

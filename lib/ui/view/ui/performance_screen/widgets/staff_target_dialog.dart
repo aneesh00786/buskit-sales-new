@@ -20,6 +20,7 @@ class StaffTargetDialog extends StatefulWidget {
   TabController tabController;
   int currentYear;
   String staffProjection;
+  String targetType;
   List<TextEditingController> tabControllers;
   StaffTargetDialog({
     required this.staffController,
@@ -27,6 +28,7 @@ class StaffTargetDialog extends StatefulWidget {
     required this.currentYear,
     required this.tabControllers,
     required this.staffProjection,
+    required this.targetType,
   });
 
   @override
@@ -42,22 +44,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Map<int, TextEditingController> categoryControllers = {};
   Map<int, TextEditingController> projectionControllers = {};
 
-
   @override
   void initState() {
     super.initState();
     _loadTargets();
-    final staffProjection = SessionHelper.settingsData
-            ?.firstWhere(
-              (setting) => setting.key == 'staffProjection',
-              orElse: () => AllCompanySettingsData(
-                key: 'staffProjection',
-                value: '',
-              ),
-            )
-            .value ??
-        '';
-    log("Staff Projection : $staffProjection");
   }
 
   void _loadTargets() async {
@@ -166,13 +156,18 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                   decoration:
                                       BoxDecoration(color: Colors.grey[300]),
                                   children: [
-                                    _buildTableHeader('Category'),
+                                    _buildTableHeader(widget.targetType == "1"
+                                        ? 'Category'
+                                        : 'Month'),
                                     _buildTableHeader('Target'),
                                     if (widget.staffProjection == "1")
                                       _buildTableHeader('Projection'),
                                   ],
                                 ),
-                                ..._buildCategoryRows(),
+                                if (widget.targetType == "1")
+                                  ..._buildCategoryRows(),
+                                if (widget.targetType == "0")
+                                  ..._buildNonCategoryRows()
                               ],
                             ),
                           ),
@@ -408,6 +403,42 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         );
       },
     );
+  }
+
+  List<TableRow> _buildNonCategoryRows() {
+    log('Length of categoryPerformance: ${widget.staffController.salesmanTargetList.value.categoryPerformance?.length}');
+    log('Length of months: ${widget.staffController.salesmanTargetList.value.months?.length}');
+    final months = widget.staffController.salesmanTargetList.value.months ?? [];
+    final categoryPerformance =
+        widget.staffController.salesmanTargetList.value.categoryPerformance ??
+            [];
+    final paddedCategoryPerformance =
+        List<CategoryPerformance>.from(categoryPerformance)
+          ..addAll(List<CategoryPerformance>.generate(
+              months.length - categoryPerformance.length,
+              (index) => CategoryPerformance(
+                    actualTarget: 0,
+                    actualProjection: 0,
+                    actualSales: "0.0",
+                    category: '',
+                  )));
+
+    return List.generate(months.length, (index) {
+      final target = paddedCategoryPerformance[index];
+
+      categoryControllers[index] ??= TextEditingController(
+        text: target.actualTarget?.toString() ?? '',
+      );
+
+      return TableRow(
+        children: [
+          _buildTableCell(months[index]),
+          _buildTableCell(target.actualTarget?.toString() ?? ''),
+          if (widget.staffProjection == "1")
+            _buildTableTextField(index, false, target),
+        ],
+      );
+    });
   }
 
   int getWeekNumber(DateTime date) {

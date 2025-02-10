@@ -276,8 +276,8 @@ class _PendingPaymentBottomWidgetState
           customerData.orderCreatAt.toString(),
         )),
         style: TextStyle(
-          fontSize: ResponsiveInfo.isMobileDimension(context) ? 8 : 12,
-          fontWeight: FontWeight.w500),
+            fontSize: ResponsiveInfo.isMobileDimension(context) ? 8 : 12,
+            fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -296,7 +296,6 @@ class _PendingPaymentBottomWidgetState
     return Center(
       child: Text(
         dueDate.toString(),
-        
       ),
     );
   }
@@ -315,17 +314,17 @@ class _PendingPaymentBottomWidgetState
   Widget _buildOrderPrice(CustomerData customerData, BuildContext context) {
     return Center(
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
           Text(
             formatAmount(customerData.orderTotal),
-            style: TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-                ],
-              ),
-        ));
+        ],
+      ),
+    ));
   }
 
   Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
@@ -964,7 +963,7 @@ class _PendingPaymentBottomWidgetState
       height: 58,
       color: Colors.grey[200],
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding:  EdgeInsets.only(top: 10,bottom: 10,right: MediaQuery.of(context).size.width*0.28),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

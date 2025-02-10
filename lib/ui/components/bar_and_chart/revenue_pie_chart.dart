@@ -61,6 +61,7 @@ class ChartSampleData {
       required this.color,
       required this.text});
 }
+
 const String totalString = "Total";
 const String revenue = "Revenue";
 const String booking = "Booking";
@@ -188,7 +189,6 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
     );
   }
 }
-
 
 class DoughnutDefaultR extends StatefulWidget {
   final dynamic bookingCount;
@@ -385,17 +385,18 @@ class NestedPieChartj extends StatelessWidget {
   final int dueAmountCount;
   final int overdueAmountCount;
   final Collection collection;
-  
+
   final bool isBig;
 
-  const NestedPieChartj(
-      {super.key,
-      required this.completedOrdersCount,
-      required this.pendingAmountCount,
-      required this.dueAmountCount,
-      required this.overdueAmountCount,
-      required this.collection,
-    this.isBig = false,});
+  const NestedPieChartj({
+    super.key,
+    required this.completedOrdersCount,
+    required this.pendingAmountCount,
+    required this.dueAmountCount,
+    required this.overdueAmountCount,
+    required this.collection,
+    this.isBig = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -456,709 +457,715 @@ class NestedPieChartj extends StatelessWidget {
       ),
     );
   }
-
 }
-  void pendingPaymentCollectionDialog(
-      BuildContext context, String title, Collection collection) {
-    final ScrollController scrollController = ScrollController();
-    if (collection.order == null || collection.order!.pendingAmount == null) {
-      print("Order or pendingAmount is null.");
-      return;
-    }
 
-    String selectedPaymentMethod = 'Cash';
-    RxInt selectedPaymentMethodInt = 0.obs;
+void pendingPaymentCollectionDialog(
+    BuildContext context, String title, Collection collection) {
+  final ScrollController scrollController = ScrollController();
 
-    DateTime parseCustomDate(String dateStr) {
-      final dateFormat = DateFormat("dd/MM/yyyy");
-      return dateFormat.parse(dateStr);
-    }
+  if (collection.order == null || collection.order!.pendingAmount == null) {
+    print("Order or pendingAmount is null.");
+    return;
+  }
 
-    RxList<bool> selectedItems = List<bool>.generate(
-      collection.order!.pendingAmount!.length,
+  String selectedPaymentMethod = 'Cash';
+  RxInt selectedPaymentMethodInt = 0.obs;
+
+  DateTime parseCustomDate(String dateStr) {
+    final dateFormat = DateFormat("dd/MM/yyyy");
+    return dateFormat.parse(dateStr);
+  }
+
+  RxList<bool> selectedItems = <bool>[].obs;
+
+  List<PendingAmount> filteredPendingAmount = [];
+
+  void updateSelectedItems() {
+    selectedItems.value = List<bool>.generate(
+      filteredPendingAmount.length,
       (index) => false,
-    ).obs;
-
-    void updateSelectedItems() {
-      selectedItems.value = List<bool>.generate(
-        collection.order!.pendingAmount!.length,
-        (index) => false,
-      );
-    }
-
-    updateSelectedItems();
-
-    bool isWithinThreeDays(DateTime date) {
-      final now = DateTime.now();
-      final startOfToday = DateTime(now.year, now.month, now.day);
-      final endOfThreeDaysFromNow = startOfToday
-          .add(Duration(days: 3, hours: 23, minutes: 59, seconds: 59));
-      return date.isAtSameMomentAs(startOfToday) ||
-          (date.isAfter(startOfToday) &&
-              date.isBefore(endOfThreeDaysFromNow)) ||
-          date.isAtSameMomentAs(endOfThreeDaysFromNow);
-    }
-
-    List<PendingAmount> filteredPendingAmount = [];
-    if (title == 'Due Payment') {
-      filteredPendingAmount = collection.order!.pendingAmount!.where((item) {
-        if (item.dueDate == null || item.dueDate is! List) return false;
-        try {
-          String dateString = item.dueDate![0];
-          DateTime dueDate = parseCustomDate(dateString);
-          return isWithinThreeDays(
-              dueDate); 
-        } catch (e) {
-          print("Error parsing dueDate: ${item.dueDate}, error: $e");
-          return false;
-        }
-      }).toList();
-    } else if (title == 'Over Due Payment') {
-      filteredPendingAmount = collection.order!.pendingAmount!.where((item) {
-        if (item.dueDate == null || item.dueDate is! List) return false;
-        try {
-          String dateString = item.dueDate![0];
-          DateTime dueDate = parseCustomDate(dateString);
-          return dueDate.isBefore(DateTime.now());
-        } catch (e) {
-          print("Error parsing dueDate: ${item.dueDate}, error: $e");
-          return false;
-        }
-      }).toList();
-    } else if (title == 'Pending Payment') {
-      filteredPendingAmount = collection.order!.pendingAmount!.toList();
-    }
-
-    Color getDueDateColor(String dueDateStr) {
-      try {
-        DateTime dueDate = parseCustomDate(dueDateStr);
-
-        if (_isDateToday(dueDate)) {
-          return Colors.amber; // Today
-        } else if (_isDateBeforeToday(dueDate)) {
-          return Colors.red; // Overdue
-        } else if (isWithinThreeDays(dueDate)) {
-          return Colors.amber; // Within 3 days (includes today)
-        } else {
-          return Colors.green; // Future due dates
-        }
-      } catch (e) {
-        print("Error parsing dueDate: $dueDateStr, error: $e");
-        return Colors.grey; // Default color for invalid date or error
-      }
-    }
-
-    double calculateTotalBalanceAmount() {
-      double total = 0;
-      for (int i = 0; i < selectedItems.length; i++) {
-        if (selectedItems[i]) {
-          final receivable =
-              collection.order!.pendingAmount![i].receivableAmount;
-          if (receivable == null) {
-            total +=
-                collection.order!.pendingAmount![i].orderTotal?.toDouble() ??
-                    0.0;
-          } else {
-            total += receivable;
-          }
-        }
-      }
-      return total;
-    }
-
-    void processPayments(List<PendingAmount> selectedItems, int enteredAmount) {
-      print("Processing payments with amount: $enteredAmount");
-      for (var item in selectedItems) {
-        print(
-            "Processing item: ${item.orderId} with amount: ${item.orderTotal}");
-      }
-    }
-
-    RxDouble totalBalanceAmount = RxDouble(calculateTotalBalanceAmount());
-
-    final balanceAmountController = TextEditingController(
-      text: totalBalanceAmount.value.toStringAsFixed(2),
-    );
-
-    final receivedAmountController = TextEditingController();
-    final remarksController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 45,
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xff008000),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontFamily: 'Poppins_Regular',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    dialogCloseButton1(context, red),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 1.3,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ScrollbarTheme(
-                    data: ScrollbarThemeData(
-                      thumbColor:
-                          MaterialStateProperty.resolveWith<Color>((states) {
-                        if (states.contains(MaterialState.dragged)) {
-                          return Colors.blueAccent.shade700;
-                        }
-                        return Colors.blueAccent.shade400;
-                      }),
-                      trackColor:
-                          MaterialStateProperty.all(Colors.blue.shade50),
-                      trackBorderColor:
-                          MaterialStateProperty.all(Colors.blue.shade100),
-                      thickness: MaterialStateProperty.all(6),
-                      radius: const Radius.circular(10),
-                      minThumbLength: 50,
-                    ),
-                    child: Scrollbar(
-                      controller: scrollController,
-                      interactive: true,
-                      thumbVisibility: true,
-                      trackVisibility: true,
-                      thickness: 6,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columnSpacing: 30,
-                            horizontalMargin: 15,
-                            dataRowHeight: 30,
-                            headingRowHeight: 40,
-                            border:
-                                TableBorder.all(color: Colors.grey.shade300),
-                            columns: const [
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Customer',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Date',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Order No.',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Amount',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Status',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Invoice',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Due Date',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Payment',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Receivable',
-                                  fontSize: 13,
-                                ),
-                              ),
-                              DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Select',
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                            rows: [
-                              ...filteredPendingAmount
-                                  .asMap()
-                                  .entries
-                                  .map<DataRow>(
-                                (entry) {
-                                  int index = entry.key;
-                                  var payment = entry.value;
-                                  return DataRow(cells: [
-                                    DataCell(Center(
-                                        child: Text(
-                                            payment.businessName.toString()))),
-                                    DataCell(Center(
-                                        child: Text(getFormattedOrderCreatAt(
-                                            payment.orderCreatAt)))),
-                                    DataCell(Center(
-                                        child:
-                                            Text(payment.orderId.toString()))),
-                                    DataCell(Center(
-                                        child: Text(
-                                            formatAmount(payment.orderTotal)))),
-                                    DataCell(Center(
-                                        child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xff008000),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(4.0)),
-                                            ),
-                                            child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 5,
-                                                ),
-                                                child: Text(
-                                                    getStatusName(payment
-                                                            .orderStatus
-                                                            ?.toInt() ??
-                                                        0),
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                    )))))),
-                                    DataCell(Center(
-                                        child: InkWell(
-                                            onTap: () {
-                                              showDetailedOrderInvoiceDialog(
-                                                  context, payment, true);
-                                            },
-                                            child: Text(
-                                              payment.invoiceId.toString(),
-                                              style: const TextStyle(
-                                                  color: primaryColor),
-                                            )))),
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          payment.dueDate != null &&
-                                                  payment.dueDate!.isNotEmpty
-                                              ? payment.dueDate!.first
-                                                  .toString()
-                                                  .replaceAll('/', '-')
-                                              : 'N/A', // Empty string for null or empty dueDate
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: payment.dueDate != null &&
-                                                    payment.dueDate!.isNotEmpty
-                                                ? getDueDateColor(
-                                                    payment.dueDate!.first)
-                                                : Colors
-                                                    .grey, // Set color to grey for null or empty dueDate
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: payment.paymentStatus == 0
-                                                ? Colors.red
-                                                : payment.paymentStatus == 1
-                                                    ? Colors.green
-                                                    : payment.paymentStatus == 3
-                                                        ? Colors.yellow
-                                                        : Colors.grey,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: payment.paymentStatus == 0
-                                                  ? Colors.red
-                                                  : payment.paymentStatus == 1
-                                                      ? Colors.green
-                                                      : payment.paymentStatus ==
-                                                              3
-                                                          ? Colors.yellow
-                                                          : Colors.grey,
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(1.0),
-                                            child: Icon(
-                                              payment.paymentStatus == 0
-                                                  ? Icons.close
-                                                  : Icons.done,
-                                              color: Colors.white,
-                                              size: 14.0,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 3.0),
-                                          child: EditablePendingPaymentCell(
-                                            initialValue: (payment.orderTotal! -
-                                                            payment
-                                                                .receivedAmount! ==
-                                                        payment.orderTotal
-                                                    ? payment.orderTotal
-                                                    : payment.orderTotal! -
-                                                        payment.receivedAmount!)
-                                                .toString(),
-                                            index: index,
-                                            orderId: payment.orderId.toString(),
-                                            orderTotal:
-                                                payment.orderTotal?.toInt() ??
-                                                    0,
-                                            receivable:
-                                                payment.receivableAmount ??
-                                                    payment.orderTotal! -
-                                                        payment.receivedAmount!,
-                                            onValueChanged: (newValue, index) {
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(child: Obx(() {
-                                        return Checkbox(
-                                          value: selectedItems[index],
-                                          onChanged: (bool? value) {
-                                            selectedItems[index] =
-                                                value ?? false;
-
-                                            totalBalanceAmount.value =
-                                                calculateTotalBalanceAmount();
-                                            balanceAmountController.text =
-                                                totalBalanceAmount.value
-                                                    .toStringAsFixed(2);
-                                          },
-                                        );
-                                      })),
-                                    ),
-                                  ]);
-                                },
-                              ),
-                              DataRow(cells: [
-                                const DataCell(
-                                  Center(
-                                    child: Text(
-                                      'Total',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'Poppins_Regular'),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                                const DataCell(Text('')),
-                                const DataCell(Text('')),
-                                DataCell(
-                                  Center(
-                                    child: Text(
-                                      formatAmount(
-                                        filteredPendingAmount
-                                            .map((e) => e.orderTotal ?? 0.0)
-                                            .fold(0.0, (a, b) => a + b),
-                                      ),
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'Poppins_Regular'),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                                const DataCell(Text('')),
-                                const DataCell(Text('')),
-                                const DataCell(Text('')),
-                                const DataCell(Text('')),
-                                DataCell(
-                                  Center(
-                                    child: Text(
-                                      formatAmount(
-                                        filteredPendingAmount
-                                            .map((e) =>
-                                                e.receivableAmount ??
-                                                e.orderTotal ??
-                                                0.0)
-                                            .fold(0.0, (a, b) => a + b),
-                                      ),
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'Poppins_Regular'),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                                const DataCell(Text('')),
-                              ]),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Second table
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: DataTable(
-                        dataRowHeight: 35,
-                        headingRowHeight: 30,
-                        columns: const [
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Payment Method',
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Balance Amount',
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Received Amount',
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Remarks',
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(label: Text('')),
-                        ],
-                        rows: [
-                          DataRow(
-                            cells: [
-                              DataCell(
-                                DropdownButtonFormField<String>(
-                                  value: selectedPaymentMethod,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade300),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  items: const [
-                                    DropdownMenuItem(
-                                        value: 'Cash', child: Text('Cash')),
-                                    DropdownMenuItem(
-                                        value: 'Cheque', child: Text('Cheque')),
-                                    DropdownMenuItem(
-                                        value: 'Bank Transfer',
-                                        child: Text('Bank Transfer')),
-                                  ],
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      selectedPaymentMethod = value;
-                                      switch (value) {
-                                        case 'Cash':
-                                          selectedPaymentMethodInt.value = 0;
-                                          break;
-                                        case 'Cheque':
-                                          selectedPaymentMethodInt.value = 1;
-                                          break;
-                                        case 'Bank Transfer':
-                                          selectedPaymentMethodInt.value = 2;
-                                          break;
-                                      }
-                                    }
-                                  },
-                                  hint: const Text('Select'),
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.black),
-                                  icon: const Icon(Icons.arrow_drop_down,
-                                      size: 24.0, color: Colors.black),
-                                  iconSize: 24.0,
-                                ),
-                              ),
-                              DataCell(
-                                Row(
-                                  children: [
-                                    Text(addCurrencySymbol()),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      child: TextField(
-                                        readOnly: true,
-                                        controller: balanceAmountController,
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              DataCell(
-                                Row(
-                                  children: [
-                                    Text(addCurrencySymbol()),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      child: TextField(
-                                        controller: receivedAmountController,
-                                        decoration: InputDecoration(
-                                          hintText: 'Enter Amount',
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              DataCell(
-                                TextField(
-                                  controller: remarksController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Remarks',
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade300),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                  ),
-                                ),
-                              ),
-                              DataCell(
-                                Center(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      int enteredAmount = int.tryParse(
-                                              receivedAmountController.text) ??
-                                          0;
-                                      if (enteredAmount > 0) {
-                                        List<PendingAmount> selectedItemsList =
-                                            [];
-                                        for (int i = 0;
-                                            i < selectedItems.length;
-                                            i++) {
-                                          if (selectedItems[i]) {
-                                            selectedItemsList.add(collection
-                                                .order!.pendingAmount![i]);
-                                          }
-                                        }
-
-                                        processPayments(
-                                            selectedItemsList, enteredAmount);
-
-                                        updateSelectedItems();
-                                      } else {
-                                        print("Please enter a valid amount.");
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shadowColor: Colors.transparent,
-                                      backgroundColor:
-                                          primaryColor.withOpacity(0.2),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                    ),
-                                    child: const Text('Submit',
-                                        style: TextStyle(fontSize: 14)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
+
+  bool isWithinThreeDays(DateTime date) {
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final endOfThreeDaysFromNow = startOfToday
+        .add(const Duration(days: 3, hours: 23, minutes: 59, seconds: 59));
+    return date.isAtSameMomentAs(startOfToday) ||
+        (date.isAfter(startOfToday) && date.isBefore(endOfThreeDaysFromNow)) ||
+        date.isAtSameMomentAs(endOfThreeDaysFromNow);
+  }
+
+  if (title == 'Due Payment') {
+    filteredPendingAmount = collection.due!.dueAmount!.toList();
+    // collection.order!.pendingAmount!.where((item) {
+    //   if (item.dueDate == null || item.dueDate is! List) return false;
+    //   try {
+    //     String dateString = item.dueDate![0];
+    //     DateTime dueDate = parseCustomDate(dateString);
+    //     return isWithinThreeDays(dueDate); // Check for due dates within 3 days
+    //   } catch (e) {
+    //     print("Error parsing dueDate: ${item.dueDate}, error: $e");
+    //     return false;
+    //   }
+    // }).toList();
+  } else if (title == 'Over Due Payment') {
+    filteredPendingAmount = collection.overdue!.overdueAmount!.toList();
+    // collection.order!.pendingAmount!.where((item) {
+    //   if (item.dueDate == null || item.dueDate is! List) return false;
+    //   try {
+    //     String dateString = item.dueDate![0];
+    //     DateTime dueDate = parseCustomDate(dateString);
+    //     return _isDateBeforeToday(dueDate);
+    //     // return dueDate.toLocal().isBefore(DateTime.now());
+    //   } catch (e) {
+    //     print("Error parsing dueDate: ${item.dueDate}, error: $e");
+    //     return false;
+    //   }
+    // }).toList();
+  } else if (title == 'Pending Payment') {
+    filteredPendingAmount = collection.order!.pendingAmount!.toList();
+  }
+
+  updateSelectedItems();
+
+  Color getDueDateColor(String dueDateStr) {
+    try {
+      DateTime dueDate = parseCustomDate(dueDateStr);
+
+      if (_isDateToday(dueDate)) {
+        return Colors.orange;
+      } else if (_isDateBeforeToday(dueDate)) {
+        return Colors.red;
+      } else if (isWithinThreeDays(dueDate)) {
+        return Colors.orange;
+      } else {
+        return Colors.green;
+      }
+    } catch (e) {
+      print("Error parsing dueDate: $dueDateStr, error: $e");
+      return Colors.grey;
+    }
+  }
+
+  double calculateTotalBalanceAmount() {
+    double total = 0;
+    for (int i = 0; i < selectedItems.length; i++) {
+      if (selectedItems[i]) {
+        final receivable = filteredPendingAmount[i].receivableAmount;
+        if (receivable == null) {
+          total += ((filteredPendingAmount[i].orderTotal ?? 0) -
+                  (filteredPendingAmount[i].receivedAmount ?? 0))
+              .toDouble();
+        } else {
+          total += receivable;
+        }
+      }
+    }
+    return total;
+  }
+
+  RxDouble totalBalanceAmount = RxDouble(calculateTotalBalanceAmount());
+
+  final balanceAmountController = TextEditingController(
+    text: totalBalanceAmount.value.toStringAsFixed(2),
+  );
+
+  final receivedAmountController = TextEditingController();
+  final remarksController = TextEditingController();
+
+  void processPayments(
+      List<PendingAmount> selectedItems, double enteredAmount) {
+    print("Processing payments with amount: $enteredAmount");
+
+    for (var item in selectedItems) {
+      print("Amount before ${item.orderId}: $enteredAmount");
+
+      double itemAmount = (item.receivableAmount ??
+              ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
+          .toDouble();
+
+      print("Processing item: ${item.orderId} with amount: $itemAmount");
+
+      if (enteredAmount > 0) {
+        double appliedAmount =
+            enteredAmount >= itemAmount ? itemAmount : enteredAmount;
+        enteredAmount -= appliedAmount;
+
+        print("Applied amount to ${item.orderId}: $appliedAmount");
+
+        // ApiWorker().customerPayment(
+        //   checkDueDate: "",
+        //   checkNumber: "",
+        //   detail: remarksController.text,
+        //   orderId: item.orderId.toString(),
+        //   paymentType: selectedPaymentMethod == 'Cash'
+        //       ? "0"
+        //       : selectedPaymentMethod == 'Cheque'
+        //           ? "1"
+        //           : "2",
+        //   receivedAmount: appliedAmount,
+        //   transactionDate: "",
+        //   transactionId: "",
+        // );
+      } else {
+        print("No remaining balance to process ${item.orderId}");
+      }
+
+      print("Amount after ${item.orderId}: $enteredAmount");
+      print("-----------------------------------------------------------");
+    }
+  }
+
+  Widget customPaymentDataTable() {
+    return DataTable(
+      columnSpacing: 30,
+      horizontalMargin: 15,
+      dataRowHeight: 30,
+      headingRowHeight: 40,
+      border: TableBorder.all(color: Colors.grey.shade300),
+      columns: const [
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Customer',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Date',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Order No.',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Amount',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Status',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Invoice',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Due Date',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Payment',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Receivable',
+            fontSize: 13,
+          ),
+        ),
+        DataColumn(
+          label: DialogTableHeaderText(
+            text: 'Select',
+            fontSize: 13,
+          ),
+        ),
+      ],
+      rows: [
+        ...filteredPendingAmount.asMap().entries.map<DataRow>(
+          (entry) {
+            int index = entry.key;
+            var payment = entry.value;
+            return DataRow(cells: [
+              DataCell(Center(child: Text(payment.businessName.toString()))),
+              DataCell(Center(
+                  child: Text(getFormattedOrderCreatAt(payment.orderCreatAt)))),
+              DataCell(Center(child: Text(payment.orderId.toString()))),
+              DataCell(Center(child: Text(formatAmount(payment.orderTotal)))),
+              DataCell(Center(
+                  child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xff008000),
+                        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                      ),
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                          ),
+                          child: Text(
+                              getStatusName(payment.orderStatus?.toInt() ?? 0),
+                              style: const TextStyle(
+                                color: Colors.white,
+                              )))))),
+              DataCell(Center(
+                  child: InkWell(
+                      onTap: () {
+                        showDetailedOrderInvoiceDialog(context, payment, true);
+                      },
+                      child: Text(
+                        payment.invoiceId.toString(),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, color: primaryColor),
+                      )))),
+              DataCell(
+                Center(
+                  child: Text(
+                    payment.dueDate != null && payment.dueDate!.isNotEmpty
+                        ? payment.dueDate!.first.toString().replaceAll('/', '-')
+                        : 'N/A',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: payment.dueDate != null &&
+                              payment.dueDate!.isNotEmpty
+                          ? getDueDateColor(payment.dueDate!.first)
+                          : Colors
+                              .grey, // Set color to grey for null or empty dueDate
+                    ),
+                  ),
+                ),
+              ),
+              DataCell(
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: payment.paymentStatus == 0
+                          ? Colors.red
+                          : payment.paymentStatus == 1
+                              ? Colors.green
+                              : payment.paymentStatus == 3
+                                  ? Colors.amber
+                                  : Colors.grey,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: payment.paymentStatus == 0
+                            ? Colors.red
+                            : payment.paymentStatus == 1
+                                ? Colors.green
+                                : payment.paymentStatus == 3
+                                    ? Colors.amber
+                                    : Colors.grey,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Icon(
+                        payment.paymentStatus == 0 ? Icons.close : Icons.done,
+                        color: Colors.white,
+                        size: 14.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              DataCell(
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3.0),
+                    child: EditablePendingPaymentCell(
+                      initialValue: (payment.orderTotal! -
+                                      payment.receivedAmount! ==
+                                  payment.orderTotal
+                              ? payment.orderTotal
+                              : payment.orderTotal! - payment.receivedAmount!)
+                          .toString(),
+                      index: index,
+                      orderId: payment.orderId.toString(),
+                      orderTotal: payment.orderTotal?.toInt() ?? 0,
+                      receivable: payment.pendingAmount,
+                      // payment.receivableAmount ??
+                      //     payment.orderTotal! -
+                      //         payment.receivedAmount!,
+                      onValueChanged: (newValue, index) {
+                        // Handle editable cells if necessary
+                      },
+                      amountEdited: payment.amountEdited,
+                    ),
+                  ),
+                ),
+              ),
+              DataCell(
+                Center(child: Obx(() {
+                  return Checkbox(
+                    value: selectedItems[index],
+                    onChanged: (bool? value) {
+                      selectedItems[index] = value ?? false;
+
+                      totalBalanceAmount.value = calculateTotalBalanceAmount();
+                      balanceAmountController.text =
+                          totalBalanceAmount.value.toStringAsFixed(2);
+                    },
+                  );
+                })),
+              ),
+            ]);
+          },
+        ),
+        DataRow(cells: [
+          const DataCell(
+            Center(
+              child: Text(
+                'Total',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins_Regular'),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const DataCell(Text('')),
+          const DataCell(Text('')),
+          DataCell(
+            Center(
+              child: Text(
+                formatAmount(
+                  filteredPendingAmount
+                      .map((e) => e.orderTotal ?? 0.0)
+                      .fold(0.0, (a, b) => a + b),
+                ),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins_Regular'),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const DataCell(Text('')),
+          const DataCell(Text('')),
+          const DataCell(Text('')),
+          const DataCell(Text('')),
+          DataCell(
+            Center(
+              child: Text(
+                formatAmount(
+                  filteredPendingAmount
+                      .map((e) =>
+                          e.pendingAmount ??
+                          // e.receivableAmount ??
+                          // e.orderTotal ??
+                          0.0)
+                      .fold(0.0, (a, b) => a + b),
+                ),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins_Regular'),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const DataCell(Text('')),
+        ]),
+      ],
+    );
+  }
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 45,
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Color(0xff008000),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Poppins_Regular',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  dialogCloseButton1(context, red),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 1.3,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ScrollbarTheme(
+                  data: ScrollbarThemeData(
+                    thumbColor:
+                        MaterialStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(MaterialState.dragged)) {
+                        return Colors.blueAccent.shade700;
+                      }
+                      return Colors.blueAccent.shade400;
+                    }),
+                    trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                    trackBorderColor:
+                        MaterialStateProperty.all(Colors.blue.shade100),
+                    thickness: MaterialStateProperty.all(6),
+                    radius: const Radius.circular(10),
+                    minThumbLength: 50,
+                  ),
+                  child: Scrollbar(
+                    controller: scrollController,
+                    interactive: true,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    thickness: 6,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: customPaymentDataTable(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Second table
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DataTable(
+                      dataRowHeight: 35,
+                      headingRowHeight: 30,
+                      columns: const [
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Payment Method',
+                            fontSize: 11,
+                            align: TextAlign.start,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Balance Amount',
+                            fontSize: 11,
+                            align: TextAlign.start,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Received Amount',
+                            fontSize: 11,
+                            align: TextAlign.start,
+                          ),
+                        ),
+                        DataColumn(
+                          label: DialogTableHeaderText(
+                            text: 'Remarks',
+                            fontSize: 11,
+                            align: TextAlign.start,
+                          ),
+                        ),
+                        DataColumn(label: Text('')),
+                      ],
+                      rows: [
+                        DataRow(
+                          cells: [
+                            DataCell(
+                              DropdownButtonFormField<String>(
+                                value: selectedPaymentMethod,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                ),
+                                dropdownColor: Colors.white,
+                                items: const [
+                                  DropdownMenuItem(
+                                      value: 'Cash', child: Text('Cash')),
+                                  DropdownMenuItem(
+                                      value: 'Cheque', child: Text('Cheque')),
+                                  DropdownMenuItem(
+                                      value: 'Bank Transfer',
+                                      child: Text('Bank Transfer')),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    selectedPaymentMethod = value;
+                                    switch (value) {
+                                      case 'Cash':
+                                        selectedPaymentMethodInt.value = 0;
+                                        break;
+                                      case 'Cheque':
+                                        selectedPaymentMethodInt.value = 1;
+                                        break;
+                                      case 'Bank Transfer':
+                                        selectedPaymentMethodInt.value = 2;
+                                        break;
+                                    }
+                                  }
+                                },
+                                hint: const Text('Select'),
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.black),
+                                icon: const Icon(Icons.arrow_drop_down,
+                                    size: 24.0, color: Colors.black),
+                                iconSize: 24.0,
+                              ),
+                            ),
+                            DataCell(
+                              Row(
+                                children: [
+                                  Text(addCurrencySymbol()),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: TextField(
+                                      readOnly: true,
+                                      controller: balanceAmountController,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            DataCell(
+                              Row(
+                                children: [
+                                  Text(addCurrencySymbol()),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: receivedAmountController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Enter Amount',
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            DataCell(
+                              TextField(
+                                controller: remarksController,
+                                decoration: InputDecoration(
+                                  hintText: 'Remarks',
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    double enteredAmount = double.tryParse(
+                                            receivedAmountController.text) ??
+                                        0;
+                                    if (enteredAmount > 0) {
+                                      List<PendingAmount> selectedItemsList =
+                                          [];
+                                      for (int i = 0;
+                                          i < selectedItems.length;
+                                          i++) {
+                                        if (selectedItems[i]) {
+                                          selectedItemsList.add(collection
+                                              .order!.pendingAmount![i]);
+                                        }
+                                      }
+
+                                      processPayments(
+                                          selectedItemsList, enteredAmount);
+
+                                      updateSelectedItems();
+                                    } else {
+                                      print("Please enter a valid amount.");
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shadowColor: Colors.transparent,
+                                    backgroundColor:
+                                        primaryColor.withOpacity(0.2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  child: const Text('Submit',
+                                      style: TextStyle(fontSize: 14)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
 DateTime normalizeDate(DateTime date) =>
     DateTime(date.year, date.month, date.day);
@@ -1282,6 +1289,7 @@ List<DataRow> _buildDataRows(
     ),
   ];
 }
+
 class DoughnutDefaultCustomerDash extends StatefulWidget {
   final CustomerRevenueResponse customerData;
   final dynamic booking;

@@ -1400,10 +1400,12 @@ class PendingAmount {
   final num? orderTotal;
   final num? receivedAmount;
   final num? receivableAmount;
-  final num? paymentStatus;
-  final num? creditPeriod;
-  final num? count;
+  final int? paymentStatus;
+  final int? creditPeriod;
+  final int? count;
   final String? percentage;
+  final int? amountEdited;
+  final num? pendingAmount;
   final num? amount;
   final num? dueAmount;
   final num? overDue;
@@ -1422,6 +1424,8 @@ class PendingAmount {
     this.creditPeriod,
     this.count,
     this.percentage,
+    this.amountEdited,
+    this.pendingAmount,
     this.amount,
     this.dueAmount,
     this.overDue,
@@ -1442,6 +1446,8 @@ class PendingAmount {
       creditPeriod: json['credit_period'],
       count: json['count'],
       percentage: json['percentage'],
+      amountEdited: json['amount_edited'],
+      pendingAmount: json['pending_amount'],
       amount: json['amount'],
       dueAmount: json['due_amount'],
       overDue: json['over_due'],
@@ -1465,6 +1471,8 @@ class PendingAmount {
       'credit_period': creditPeriod,
       'count': count,
       'percentage': percentage,
+      'amount_edited': amountEdited,
+      'pending_amount': pendingAmount,
       'amount': amount,
       'due_amount': dueAmount,
       'over_due': overDue,

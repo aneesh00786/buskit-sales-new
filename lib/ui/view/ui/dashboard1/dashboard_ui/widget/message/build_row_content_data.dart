@@ -20,7 +20,7 @@ Widget buildRowData(String data) {
     child: Text(
       data,
       style: const TextStyle(
-        fontSize: 12,
+        fontSize: 20,
         fontWeight: FontWeight.w400,
       ),
     ),

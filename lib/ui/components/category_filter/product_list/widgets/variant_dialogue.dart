@@ -779,22 +779,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                 detail.variationName &&
                                             item.sellPrice == detail.sellPrice,
                                       );
-                                      if (!isProductAlreadyInCart) {
-                                        CartDatabaseManager().addToCart(
-                                          customerId: customerId,
-                                          localCount: localCounts[i],
-                                          detail: detail,
-                                          isPack: isPack,
-                                          productName:
-                                              widget.product.productName ?? '',
-                                        );
-                                        log('Product added to regular cart with ID: ${detail.variationId}');
-                                      } else {
-                                        log('Product with ID: ${detail.variationId} is already in the regular cart. Updating count.');
-                                        CartDatabaseManager()
-                                            .updateCartItemCount(
-                                                detail, localCounts[i]);
-                                      }
                                     } else if (canAddQuantity) {
                                       bool isProductAlreadyInPreorderCart =
                                           detailsFromCart.any(

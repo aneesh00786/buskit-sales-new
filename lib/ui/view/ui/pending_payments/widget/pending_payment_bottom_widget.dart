@@ -100,7 +100,7 @@ class _PendingPaymentBottomWidgetState
               const SizedBox(width: 10),
               Expanded(flex: 1, child: _buildHeaderText("Days", fontSize)),
               const SizedBox(width: 10),
-              Expanded(flex: 2, child: _buildHeaderText("Price", fontSize)),
+              Expanded(flex: 2, child: _buildHeaderText("Amount", fontSize)),
               const SizedBox(width: 10),
               Expanded(flex: 3, child: _buildHeaderText("Status", fontSize)),
               const SizedBox(width: 10),
@@ -223,18 +223,17 @@ class _PendingPaymentBottomWidgetState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CustomText(
-                content:  customerData.businessName ?? '',
-                  
-                    fontSize: 12,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  
+                  content: customerData.businessName ?? '',
+                  fontSize: 12,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                   maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 CustomText(
-                 content:  customerData.fullname ?? '',
-                  fontSize: 11, color: Colors.black,
+                  content: customerData.fullname ?? '',
+                  fontSize: 11,
+                  color: Colors.black,
                   maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -245,8 +244,9 @@ class _PendingPaymentBottomWidgetState
                 //   overflow: TextOverflow.ellipsis,
                 // ),
                 CustomText(
-                content:   customerData.email ?? '',
-                 fontSize: 10, color: Colors.black,
+                  content: customerData.email ?? '',
+                  fontSize: 10,
+                  color: Colors.black,
                   maxLine: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -260,17 +260,24 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildOrderNumber(CustomerData customerData, BuildContext context) {
     return Center(
-        child: _buildRegularText(customerData.orderId ?? '', context));
+        child: Text(
+      customerData.orderId ?? '',
+      style: TextStyle(
+          fontSize: ResponsiveInfo.isMobileDimension(context) ? 8 : 12,
+          fontWeight: FontWeight.w800),
+    ));
   }
 
   Widget _buildOrderCreatedDate(
       CustomerData customerData, BuildContext context) {
     return Center(
-      child: _buildRegularText(
+      child: Text(
         NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
           customerData.orderCreatAt.toString(),
         )),
-        context,
+        style: TextStyle(
+          fontSize: ResponsiveInfo.isMobileDimension(context) ? 8 : 12,
+          fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -287,9 +294,9 @@ class _PendingPaymentBottomWidgetState
     }
 
     return Center(
-      child: _buildRegularText(
+      child: Text(
         dueDate.toString(),
-        context,
+        
       ),
     );
   }
@@ -301,21 +308,27 @@ class _PendingPaymentBottomWidgetState
     DateTime currentDate = DateTime.now();
     int daysDifference = currentDate.difference(orderCreatedDate).inDays;
     return Center(
-      child: _buildRegularText('$daysDifference', context),
+      child: Text('$daysDifference'),
     );
   }
 
   Widget _buildOrderPrice(CustomerData customerData, BuildContext context) {
     return Center(
-      child: _buildRegularText(
-        formatAmount(customerData.orderTotal),
-        context,
-        fontWeight: FontWeight.w600,
-      ),
-    );
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+          Text(
+            formatAmount(customerData.orderTotal),
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+                ],
+              ),
+        ));
   }
 
- Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
+  Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: IntrinsicHeight(
@@ -397,7 +410,7 @@ class _PendingPaymentBottomWidgetState
     TextOverflow overflow = TextOverflow.ellipsis,
     int maxLines = 1,
   }) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 :12;
+    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 12;
     if (MediaQuery.of(context).orientation != Orientation.portrait) {
       fontSize = ResponsiveInfo.isMobileDimension(context) ? 10 : 12;
     }
@@ -413,7 +426,8 @@ class _PendingPaymentBottomWidgetState
 
   void _pendingPaymentCollectionDialog(
       BuildContext context, String customerId) {
-    final PendingPaymentController controller = Get.put(PendingPaymentController());
+    final PendingPaymentController controller =
+        Get.put(PendingPaymentController());
     String selectedPaymentMethod = 'Cash';
     RxInt selectedPaymentMethodInt = 0.obs;
     controller.loadIndividualPendingPayments(customerId);
@@ -917,8 +931,6 @@ class _PendingPaymentBottomWidgetState
     );
   }
 
-
-
   String getFormattedOrderCreatAt(dynamic value) {
     if (value == null || value.toString().isEmpty) {
       print('Error: Invalid date value');
@@ -942,7 +954,7 @@ class _PendingPaymentBottomWidgetState
     }
   }
 
- Widget _buildPageChanger(
+  Widget _buildPageChanger(
       BuildContext context, PendingPaymentController totalValuesController) {
     // double fontSize = ResponsiveInfo.isMobileDimension(context) ? 6 : 9;
     // if (MediaQuery.of(context).orientation != Orientation.portrait) {
@@ -957,7 +969,7 @@ class _PendingPaymentBottomWidgetState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (totalValuesController.orderDataList.length > 10)
-               PaginationWidget(),
+              PaginationWidget(),
             const Spacer(),
             if (totalValuesController.selectedTabIndex.value == 0)
               Text(

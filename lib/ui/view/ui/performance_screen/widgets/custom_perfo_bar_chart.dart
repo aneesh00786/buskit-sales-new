@@ -242,22 +242,26 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
       showNoInternetSnackBar(context);
     }
   }
-
-  Widget getBottomTitles(double value, TitleMeta meta) {
-    Widget text = Transform.rotate(
-      angle: -1.34 / 4,
-      child: MyRegularText(
-        label: widget.categoryPerformance[value.toInt()].category ?? '',
-        fontWeight: FontWeight.w500,
-        fontSize: 11,
-        color: Colors.black,
-      ),
-    );
+Widget getBottomTitles(double value, TitleMeta meta) {
+  // Ensure the index is within the bounds of the list
+  if (value.toInt() >= 0 && value.toInt() < widget.categoryPerformance.length) {
     return Container(
       margin: const EdgeInsets.only(top: 12),
-      child: text,
+      child: Transform.rotate(
+        angle: -1.34 / 4,
+        child: MyRegularText(
+          label: widget.categoryPerformance[value.toInt()].category ?? '',
+          fontWeight: FontWeight.w500,
+          fontSize: 11,
+          color: Colors.black,
+        ),
+      ),
     );
+  } else {
+    // Return an empty widget if the index is out of bounds
+    return const SizedBox();
   }
+}
 
   Widget getLeftTitles(double value, TitleMeta meta) {
     return MyRegularText(

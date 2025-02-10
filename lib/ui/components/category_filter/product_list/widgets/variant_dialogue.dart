@@ -772,13 +772,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   final bool isPack = detail.saleBy == 'Pack';
                                   if (localCounts[i] > 0) {
                                     if ((detail.stock ?? 0) > 0) {
-                                      bool isProductAlreadyInCart =
-                                          detailsFromCart.any(
-                                        (item) =>
-                                            item.variationName ==
-                                                detail.variationName &&
-                                            item.sellPrice == detail.sellPrice,
-                                      );
+                                      
                                     } else if (canAddQuantity) {
                                       bool isProductAlreadyInPreorderCart =
                                           detailsFromCart.any(

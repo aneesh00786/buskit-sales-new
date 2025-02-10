@@ -55,7 +55,7 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
     final customerCartItems = cartPreorderBox.values
         .where((item) => item.customerId == customerId)
         .toList();
-    log('Cart items retrieved for customer $customerId: ${customerCartItems.length}');
+    log('Cart items retrieved for customer pre $customerId: ${customerCartItems.length}');
     return customerCartItems;
   } catch (e) {
     log('Error retrieving cart items for customer $customerId: $e');

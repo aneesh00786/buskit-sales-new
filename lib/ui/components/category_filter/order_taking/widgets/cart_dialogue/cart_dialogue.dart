@@ -144,13 +144,13 @@ class CartDialogueState extends State<CartDialogue> {
       List<CartItem> draftItems =
           await CartDatabaseManager().getPreOrderDraftItems(customerId);
       final Map<String, CartItem> uniqueItems = {
-        for (var item in cartItems)
+        for (var item in preorderItems)
           '${item.detail.variationName}_${item.detail.sellPrice}': item,
         for (var draft in draftItems)
           '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
       };
+      preorderItems = uniqueItems.values.toList();
       setState(() {
-        preorderItems = cartItems = uniqueItems.values.toList();
         preorderQuantities = List.generate(preorderItems.length, (index) => 1);
         preorderTotal = Utils().getFinalAmount(preorderItems);
         preorderTax = Utils().getTotalTax(preorderItems);
@@ -165,9 +165,9 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  Map<String, List<CartItem>> groupCartItemsByName(List<CartItem> cartItems) {
-    return groupBy(cartItems, (CartItem item) => item.productName);
-  }
+  // Map<String, List<CartItem>> groupCartItemsByName(List<CartItem> cartItems) {
+  //   return groupBy(cartItems, (CartItem item) => item.productName);
+  // }
 
   void performSpecificAction(bool isTab) async {
     // if (cartItems.isEmpty) {
@@ -220,7 +220,6 @@ class CartDialogueState extends State<CartDialogue> {
     );
 
     Future.delayed(const Duration(seconds: 1));
-
     final existingCartId = cartDetails?['cart_id'] ?? '';
     final existingDraftId = cartDetails?['id'] ?? '';
     final productBYData = AddToCartModel(
@@ -342,6 +341,8 @@ class CartDialogueState extends State<CartDialogue> {
   double? finalAmount;
   @override
   Widget build(BuildContext context) {
+    log('preOrder items : ${preorderItems.length}');
+    log('preOrder items : ${isOrder}');
     if (_isLoading) {
       return const Center(
         child: SpinKitFadingCube(

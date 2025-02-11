@@ -410,6 +410,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   List<TableRow> _buildNonCategoryRows() {
     log('Length of categoryPerformance: ${widget.staffController.salesmanTargetList.value.categoryPerformance?.length}');
     log('Length of months: ${widget.staffController.salesmanTargetList.value.months?.length}');
+    log('Length of value targets : ${widget.staffController.salesmanTargetList.value.valueTarget?.length}');
 
     final months = widget.staffController.salesmanTargetList.value.months ?? [];
     final valueTarget =

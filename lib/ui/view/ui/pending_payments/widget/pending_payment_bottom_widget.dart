@@ -320,7 +320,7 @@ class _PendingPaymentBottomWidgetState
         children: [
           Text(
             formatAmount(customerData.orderTotal),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 11),
           ),
         ],
       ),

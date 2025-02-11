@@ -253,7 +253,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
   }
 
   Widget getBottomTitles(double value, TitleMeta meta) {
-    log('Log Printed');
     if (value.toInt() >= 0 &&
         value.toInt() < widget.categoryPerformance.length) {
       return Container(

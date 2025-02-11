@@ -42,7 +42,7 @@ Widget buildVisitsDialogContent(
           return [
             formattedDate,
             visit.businessName ?? 'N/A',
-            visit.status.toString() ?? 'N/A',
+            visit.status!=null?visit.status.toString():'__',
           ];
         }).toList();
 

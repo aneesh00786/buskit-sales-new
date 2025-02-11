@@ -21,6 +21,7 @@ class StaffTargetDialog extends StatefulWidget {
   int currentYear;
   String staffProjection;
   String targetType;
+  String selectedMonthname;
   List<TextEditingController> tabControllers;
   StaffTargetDialog({
     required this.staffController,
@@ -29,6 +30,7 @@ class StaffTargetDialog extends StatefulWidget {
     required this.tabControllers,
     required this.staffProjection,
     required this.targetType,
+    required this.selectedMonthname,
   });
 
   @override
@@ -408,34 +410,39 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   List<TableRow> _buildNonCategoryRows() {
     log('Length of categoryPerformance: ${widget.staffController.salesmanTargetList.value.categoryPerformance?.length}');
     log('Length of months: ${widget.staffController.salesmanTargetList.value.months?.length}');
-    final months = widget.staffController.salesmanTargetList.value.months ?? [];
-    final categoryPerformance =
-        widget.staffController.salesmanTargetList.value.categoryPerformance ??
-            [];
-    final paddedCategoryPerformance =
-        List<CategoryPerformance>.from(categoryPerformance)
-          ..addAll(List<CategoryPerformance>.generate(
-              months.length - categoryPerformance.length,
-              (index) => CategoryPerformance(
-                    actualTarget: 0,
-                    actualProjection: 0,
-                    actualSales: "0.0",
-                    category: '',
-                  )));
 
-    return List.generate(months.length, (index) {
-      final target = paddedCategoryPerformance[index];
+    final months = widget.staffController.salesmanTargetList.value.months ?? [];
+    final valueTarget =
+        widget.staffController.salesmanTargetList.value.valueTarget ?? [];
+    final filteredMonths =
+        months.where((month) => month == widget.selectedMonthname).toList();
+    final paddedValuetarget = List<ValueTargetDatum>.from(valueTarget);
+
+    if (filteredMonths.length > valueTarget.length) {
+      paddedValuetarget.addAll(
+        List<ValueTargetDatum>.generate(
+          filteredMonths.length - valueTarget.length,
+          (index) => ValueTargetDatum(),
+        ),
+      );
+    }
+
+    return List.generate(filteredMonths.length, (index) {
+      final target =
+          paddedValuetarget.isNotEmpty && index < paddedValuetarget.length
+              ? paddedValuetarget[index]
+              : ValueTargetDatum();
 
       categoryControllers[index] ??= TextEditingController(
-        text: target.actualTarget?.toString() ?? '',
+        text: target.projection?.toString() ?? '',
       );
 
       return TableRow(
         children: [
-          _buildTableCell(months[index]),
-          _buildTableCell(target.actualTarget?.toString() ?? ''),
+          _buildTableCell(filteredMonths[index]),
+          _buildTableCell(target.target?.toString() ?? ''),
           if (widget.staffProjection == "1")
-            _buildTableTextField(index, false, target),
+            _buildTableTextField1(index, false, target),
         ],
       );
     });
@@ -570,6 +577,31 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       int index, bool isReadOnly, CategoryPerformance? target) {
     projectionControllers[index] ??= TextEditingController(
       text: target?.actualProjection?.toString() ?? '',
+    );
+
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      child: TextField(
+        controller: projectionControllers[index],
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          fillColor: Colors.blueGrey.shade50,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+        ),
+      ),
+    );
+  }
+  Widget _buildTableTextField1(
+      int index, bool isReadOnly, ValueTargetDatum? target) {
+    projectionControllers[index] ??= TextEditingController(
+      text: target?.projection?.toString() ?? '',
     );
 
     return Container(

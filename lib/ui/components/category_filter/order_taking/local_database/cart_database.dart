@@ -614,6 +614,32 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
     log('Cart cleared. Items kept: ${itemsToKeep.length}');
     _notifyListeners();
   }
+  Future<void> clearPreOrderCart(String customerId) async {
+    final preOrdercartItems = CartDatabaseManager().getCartPreorderItems(customerId);
+    final draftItems = await CartDatabaseManager().getPreOrderDraftItems(customerId);
+    final Map<String, CartItem> uniqueItems = {};
+    for (var item in preOrdercartItems + draftItems) {
+      final key =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      uniqueItems[key] = item;
+    }
+    final itemsToKeep = uniqueItems.values
+        .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
+        .toList();
+    for (var key in CartDatabaseManager().cartPreorderBox.keys) {
+      final item = CartDatabaseManager().cartPreorderBox.get(key);
+      if (item!.draftId == null || item!.draftId!.isEmpty) {
+        CartDatabaseManager().cartPreorderBox.delete(key);
+      }
+    }
+    for (var item in itemsToKeep) {
+      final itemKey =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      await CartDatabaseManager().cartPreorderBox.put(itemKey, item);
+    }
+    log('Cart cleared. Items kept: ${itemsToKeep.length}');
+    _notifyListeners();
+  }
 
   Future<void> clearCartOnSave(String customerId) async {
     final cartItems = CartDatabaseManager().getCartItems(customerId);
@@ -629,6 +655,23 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
     }
     for (var draftItem in draftItems) {
       await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
+    }
+    _notifyListeners();
+  }
+  Future<void> clearPreCartOnSave(String customerId) async {
+    final preOrdercartItems = CartDatabaseManager().getCartPreorderItems(customerId);
+    final draftItems = await CartDatabaseManager().getPreOrderDraftItems(customerId);
+    final Map<String, CartItem> uniqueItems = {};
+    for (var item in preOrdercartItems + draftItems) {
+      final key =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      uniqueItems[key] = item;
+    }
+    for (var key in CartDatabaseManager().cartPreorderBox.keys) {
+      await CartDatabaseManager().cartPreorderBox.delete(key);
+    }
+    for (var draftItem in draftItems) {
+      await CartDatabaseManager().cartPreorderBox.delete(draftItem.draftId!);
     }
     _notifyListeners();
   }

@@ -20,7 +20,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 class PerformanceScreen extends StatefulWidget {
   const PerformanceScreen({super.key});
 
@@ -195,7 +194,6 @@ void initState() {
       ),
       body: Column(
         children: [
-          if(targetType=="1")
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -398,6 +396,7 @@ void initState() {
                       tabControllers: _targetControllers,
                       staffProjection: staffProjection,
                       targetType:targetType,
+                      selectedMonthname : _selectedMonthName??''
                     ),
                   ),
                 )

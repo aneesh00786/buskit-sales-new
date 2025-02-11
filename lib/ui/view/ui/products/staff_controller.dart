@@ -83,6 +83,7 @@ class StaffController extends GetxController {
         salesmanTargetList.update((list) {
           list?.navbarAndTargetContent = response.navbarAndTargetContent;
           list?.categoryPerformance = response.categoryPerformance ?? [];
+          list?.valueTarget = response.valueTarget ?? [];
           list?.months = response.months ?? [];
         });
       } else {

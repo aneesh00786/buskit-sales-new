@@ -349,11 +349,13 @@ class PerformanceResponse {
 class PerformanceData {
   NavbarAndTargetContent? navbarAndTargetContent;
   List<CategoryPerformance>? categoryPerformance;
+  List<ValueTargetDatum>? valueTarget;
   List<String>? months;
 
   PerformanceData({
     this.navbarAndTargetContent,
     this.categoryPerformance,
+    this.valueTarget,
     this.months,
   });
 
@@ -366,6 +368,11 @@ class PerformanceData {
                 json["category_performance"].map((x) => CategoryPerformance.fromJson(x)),
               )
             : [],
+        valueTarget: json["value_targetData"] != null
+            ? List<ValueTargetDatum>.from(
+                json["value_targetData"].map((x) => ValueTargetDatum.fromJson(x)),
+              )
+            : [],
         months: json["months"] != null
             ? List<String>.from(json["months"].map((x) => x))
             : [],
@@ -376,10 +383,51 @@ class PerformanceData {
         "category_performance": categoryPerformance != null
             ? List<dynamic>.from(categoryPerformance!.map((x) => x.toJson()))
             : [],
+        "value_targetData": valueTarget != null
+            ? List<dynamic>.from(valueTarget!.map((x) => x.toJson()))
+            : [],
         "months": months != null ? List<dynamic>.from(months!.map((x) => x)) : [],
       };
 }
+class ValueTargetDatum {
+    ValueTargetDatum({
+         this.id,
+         this.target,
+         this.projection,
+         this.salesId,
+         this.month,
+         this.year,
+         this.companyId,
+    });
+    final int? id;
+    final int? target;
+    final int? projection;
+    final String? salesId;
+    final String? month;
+    final String? year;
+    final int? companyId;
 
+    factory ValueTargetDatum.fromJson(Map<String, dynamic> json){ 
+        return ValueTargetDatum(
+            id: json["id"],
+            target: json["target"],
+            projection: json["projection"],
+            salesId: json["sales_id"],
+            month: json["month"],
+            year: json["year"],
+            companyId: json["company_id"],
+        );
+    }
+      Map<String, dynamic> toJson() => {
+        "cid": id,
+        "target": target,
+        "projection": projection,
+        "sales_id": salesId,
+        "month": month,
+        "year": year,
+        "company_id":companyId,
+      };
+}
 class CategoryPerformance {
   int? cid;
   String? category;

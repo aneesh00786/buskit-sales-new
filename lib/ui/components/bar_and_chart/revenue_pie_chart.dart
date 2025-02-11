@@ -1,31 +1,16 @@
-/// Package import
-// import 'package:busskit_admin/ui/components/color/colors.dart';
-// import 'package:busskit_admin/ui/utills/const_string.dart';
-// import 'package:busskit_admin/ui/utills/extentions/string_extention.dart';
-// import 'package:busskit_admin/ui/view/ui/dashboard/model/dashboard_response.dart';
-// import 'package:busskit_admin/ui/theme/custom_fonts.dart';
-// import 'package:busskit_admin/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
-// import 'package:busskit_admin/ui/view/ui/dashboard1/provider/dash_models.dart';
-// import 'package:busskit_admin/ui/view/ui/dashboard1/provider/dash_provider.dart';
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersstatus_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_chart;
 import 'package:get/get.dart';
@@ -79,7 +64,7 @@ class DoughnutDefault extends StatefulWidget {
   final bool isBig;
 
   const DoughnutDefault({
-    Key? key,
+    super.key,
     required this.categoryData,
     required this.booking,
     required this.order,
@@ -88,9 +73,10 @@ class DoughnutDefault extends StatefulWidget {
     required this.bColor,
     required this.legend2,
     this.isBig = false,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DoughnutDefaultState createState() => _DoughnutDefaultState();
 }
 
@@ -215,6 +201,7 @@ class DoughnutDefaultR extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DoughnutDefaultRState createState() => _DoughnutDefaultRState();
 }
 
@@ -464,7 +451,6 @@ void pendingPaymentCollectionDialog(
   final ScrollController scrollController = ScrollController();
 
   if (collection.order == null || collection.order!.pendingAmount == null) {
-    print("Order or pendingAmount is null.");
     return;
   }
 
@@ -499,31 +485,8 @@ void pendingPaymentCollectionDialog(
 
   if (title == 'Due Payment') {
     filteredPendingAmount = collection.due!.dueAmount!.toList();
-    // collection.order!.pendingAmount!.where((item) {
-    //   if (item.dueDate == null || item.dueDate is! List) return false;
-    //   try {
-    //     String dateString = item.dueDate![0];
-    //     DateTime dueDate = parseCustomDate(dateString);
-    //     return isWithinThreeDays(dueDate); // Check for due dates within 3 days
-    //   } catch (e) {
-    //     print("Error parsing dueDate: ${item.dueDate}, error: $e");
-    //     return false;
-    //   }
-    // }).toList();
   } else if (title == 'Over Due Payment') {
     filteredPendingAmount = collection.overdue!.overdueAmount!.toList();
-    // collection.order!.pendingAmount!.where((item) {
-    //   if (item.dueDate == null || item.dueDate is! List) return false;
-    //   try {
-    //     String dateString = item.dueDate![0];
-    //     DateTime dueDate = parseCustomDate(dateString);
-    //     return _isDateBeforeToday(dueDate);
-    //     // return dueDate.toLocal().isBefore(DateTime.now());
-    //   } catch (e) {
-    //     print("Error parsing dueDate: ${item.dueDate}, error: $e");
-    //     return false;
-    //   }
-    // }).toList();
   } else if (title == 'Pending Payment') {
     filteredPendingAmount = collection.order!.pendingAmount!.toList();
   }
@@ -544,7 +507,6 @@ void pendingPaymentCollectionDialog(
         return Colors.green;
       }
     } catch (e) {
-      print("Error parsing dueDate: $dueDateStr, error: $e");
       return Colors.grey;
     }
   }
@@ -577,44 +539,18 @@ void pendingPaymentCollectionDialog(
 
   void processPayments(
       List<PendingAmount> selectedItems, double enteredAmount) {
-    print("Processing payments with amount: $enteredAmount");
-
     for (var item in selectedItems) {
-      print("Amount before ${item.orderId}: $enteredAmount");
-
       double itemAmount = (item.receivableAmount ??
               ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
           .toDouble();
-
-      print("Processing item: ${item.orderId} with amount: $itemAmount");
-
       if (enteredAmount > 0) {
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
 
-        print("Applied amount to ${item.orderId}: $appliedAmount");
 
-        // ApiWorker().customerPayment(
-        //   checkDueDate: "",
-        //   checkNumber: "",
-        //   detail: remarksController.text,
-        //   orderId: item.orderId.toString(),
-        //   paymentType: selectedPaymentMethod == 'Cash'
-        //       ? "0"
-        //       : selectedPaymentMethod == 'Cheque'
-        //           ? "1"
-        //           : "2",
-        //   receivedAmount: appliedAmount,
-        //   transactionDate: "",
-        //   transactionId: "",
-        // );
       } else {
-        print("No remaining balance to process ${item.orderId}");
       }
-
-      print("Amount after ${item.orderId}: $enteredAmount");
-      print("-----------------------------------------------------------");
     }
   }
 
@@ -622,6 +558,7 @@ void pendingPaymentCollectionDialog(
     return DataTable(
       columnSpacing: 30,
       horizontalMargin: 15,
+      // ignore: deprecated_member_use
       dataRowHeight: 30,
       headingRowHeight: 40,
       border: TableBorder.all(color: Colors.grey.shade300),
@@ -919,16 +856,16 @@ void pendingPaymentCollectionDialog(
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thumbColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(MaterialState.dragged)) {
+                        WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.dragged)) {
                         return Colors.blueAccent.shade700;
                       }
                       return Colors.blueAccent.shade400;
                     }),
-                    trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                    trackColor: WidgetStateProperty.all(Colors.blue.shade50),
                     trackBorderColor:
-                        MaterialStateProperty.all(Colors.blue.shade100),
-                    thickness: MaterialStateProperty.all(6),
+                        WidgetStateProperty.all(Colors.blue.shade100),
+                    thickness: WidgetStateProperty.all(6),
                     radius: const Radius.circular(10),
                     minThumbLength: 50,
                   ),
@@ -957,6 +894,7 @@ void pendingPaymentCollectionDialog(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: DataTable(
+                      // ignore: deprecated_member_use
                       dataRowHeight: 35,
                       headingRowHeight: 30,
                       columns: const [
@@ -1136,7 +1074,7 @@ void pendingPaymentCollectionDialog(
 
                                       updateSelectedItems();
                                     } else {
-                                      print("Please enter a valid amount.");
+                                     
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -1186,109 +1124,6 @@ bool _isDateToday(DateTime date) {
       (date.isAfter(startOfToday) && date.isBefore(endOfToday));
 }
 
-List<DataRow> _buildDataRows(
-    BuildContext context, Collection collection, String title) {
-  return [
-    ...collection.payment!.completedOrders!.map((completedOrder) => DataRow(
-          cells: [
-            DataCell(
-              Center(
-                child: Text(
-                  completedOrder.businessName ?? '',
-                  style: const TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 13.5,
-                  ),
-                ),
-              ),
-            ),
-            DataCell(
-              Center(
-                child: Text(
-                  getFormattedOrderCreatAt(completedOrder.orderCreatAt),
-                  style: const TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 13.5,
-                  ),
-                ),
-              ),
-            ),
-            DataCell(
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    showDetailedOrderInvoiceDialog(
-                        context, completedOrder, true);
-                  },
-                  child: Text(
-                    completedOrder.invoiceId ?? '',
-                    style: const TextStyle(
-                      color: primaryColor,
-                      fontSize: 13.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            DataCell(
-              Center(
-                child: Text(
-                  getStatusName(completedOrder.orderStatus?.toInt() ?? 0),
-                  style: const TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 13.5,
-                  ),
-                ),
-              ),
-            ),
-            DataCell(
-              Center(
-                child: Text(
-                  formatAmount(completedOrder.orderTotal),
-                  style: const TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 13.5,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        )),
-    DataRow(
-      cells: [
-        const DataCell(
-          Center(
-            child: Text(
-              'Total',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Poppins_Regular'),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-        const DataCell(Text('')),
-        const DataCell(Text('')),
-        const DataCell(Text('')),
-        DataCell(
-          Center(
-            child: Text(
-              formatAmount(collection.payment!.completedOrders!
-                  .map((e) => e.orderTotal ?? 0.0)
-                  .reduce((a, b) => a + b)),
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Poppins_Regular'),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ],
-    ),
-  ];
-}
 
 class DoughnutDefaultCustomerDash extends StatefulWidget {
   final CustomerRevenueResponse customerData;
@@ -1301,7 +1136,7 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
   final bool isBig;
 
   const DoughnutDefaultCustomerDash({
-    Key? key,
+    super.key,
     required this.customerData,
     required this.booking,
     required this.order,
@@ -1310,9 +1145,10 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
     required this.bColor,
     required this.legend2,
     this.isBig = false,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DoughnutDefaultCustomerDashState createState() =>
       _DoughnutDefaultCustomerDashState();
 }

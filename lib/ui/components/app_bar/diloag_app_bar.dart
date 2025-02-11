@@ -26,7 +26,7 @@ class DiloagAppBar extends PreferredSize {
       : super(
             child: Container(),
             preferredSize: appBarSize ??
-                Size.fromHeight(AppDimensions.instance!.height * 0.08));
+                Size.fromHeight(AppDimensions.instance.height * 0.08));
 
   @override
   Widget get child => PreferredSize(
@@ -56,7 +56,7 @@ class DiloagAppBar extends PreferredSize {
               Get.back();
             },
         child: Container(
-          height: AppDimensions.instance!.height * 0.05,
+          height: AppDimensions.instance.height * 0.05,
           decoration: BoxDecoration(
             border: Border.all(color: buttonTextColor),
             shape: BoxShape.circle,
@@ -66,7 +66,7 @@ class DiloagAppBar extends PreferredSize {
               padding: const EdgeInsets.all(8.0),
               child: Icon(
                 Icons.close,
-                size: AppDimensions.instance!.height * 0.02,
+                size: AppDimensions.instance.height * 0.02,
                 color: buttonTextColor,
               ),
             ),

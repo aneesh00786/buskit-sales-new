@@ -204,13 +204,14 @@ class BarChartSample extends StatelessWidget {
     );
   }
 }
+// ignore: must_be_immutable
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
   String staffProjection;
   String targetType;
 
-   CustomBarChart({
+  CustomBarChart({
     super.key,
     required this.allCategory,
     required this.categoryPerformance,
@@ -219,6 +220,7 @@ class CustomBarChart extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomBarChartState createState() => _CustomBarChartState();
 }
 
@@ -283,6 +285,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
   void _showSalesmanPopup(int cid, String category) async {
     bool isConnected = await ConnectivityService().isOnline();
    isConnected ? showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) {
         return Consumer<DashboardProvider>(
@@ -293,11 +296,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
               future: provider.responseModelCp,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {
-                  return AlertDialog(
+                  return const AlertDialog(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -327,6 +330,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
           },
         );
       },
+    // ignore: use_build_context_synchronously
     ):showNoInternetSnackBar(context);
   }
  Widget getBottomTitles(double value, TitleMeta meta) {
@@ -396,9 +400,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
             padding: const EdgeInsets.only(bottom: 8.0),
             child: ScrollbarTheme(
               data: ScrollbarThemeData(
-                thumbColor: MaterialStateProperty.all(Colors.blue),
-                thickness: MaterialStateProperty.all(5),
-                radius: Radius.circular(8),
+                thumbColor: WidgetStateProperty.all(Colors.blue),
+                thickness: WidgetStateProperty.all(5),
+                radius: const Radius.circular(8),
               ),
               child: Stack(
                 children: [
@@ -417,7 +421,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                             Provider.of<DashboardProvider>(context, listen: false)
                                 .scrollController,
                         scrollDirection: Axis.horizontal,
-                        physics: ClampingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         child: SizedBox(
                           width: barGroups.length * 66.0,
                           child: Padding(
@@ -442,10 +446,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                       reservedSize: 40,
                                     ),
                                   ),
-                                  topTitles: AxisTitles(
+                                  topTitles: const AxisTitles(
                                     sideTitles: SideTitles(showTitles: false),
                                   ),
-                                  rightTitles: AxisTitles(
+                                  rightTitles: const AxisTitles(
                                     sideTitles: SideTitles(showTitles: false),
                                   ),
                                 ),
@@ -485,7 +489,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: Container(
-                      padding: EdgeInsets.only(bottom: 0, top: 3),
+                      padding: const EdgeInsets.only(bottom: 0, top: 3),
                       color: white,
                       width: getDynamicReservedSize(),
                       child: BarChart(
@@ -507,10 +511,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 reservedSize: 40,
                               ),
                             ),
-                            topTitles: AxisTitles(
+                            topTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
-                            rightTitles: AxisTitles(
+                            rightTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
@@ -1041,6 +1045,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
 //   }
 // }
 
+// ignore: must_be_immutable
 class CustomBarChartCustomerDash extends StatefulWidget {
   final List<FullCategory> allCategory;
   final List<CategoryPerformancez> categoryPerformance;
@@ -1059,6 +1064,7 @@ class CustomBarChartCustomerDash extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomBarChartCustomerDashState createState() =>
       _CustomBarChartCustomerDashState();
 }
@@ -1118,7 +1124,7 @@ class _CustomBarChartCustomerDashState
                             children: [
                               Text(
                                 category,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 15,
                                   fontFamily: 'Poppins_Regular',
                                   fontWeight: FontWeight.w600,
@@ -1185,6 +1191,7 @@ class _CustomBarChartCustomerDashState
                           Padding(
                             padding: const EdgeInsets.all(6.0),
                             child: DataTable(
+                              // ignore: deprecated_member_use
                               dataRowHeight: 35,
                               headingRowHeight: 40,
                               columnSpacing: 30,
@@ -1375,16 +1382,16 @@ class _CustomBarChartCustomerDashState
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thumbColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(MaterialState.dragged)) {
+                        WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.dragged)) {
                         return Colors.blueAccent.shade700;
                       }
                       return Colors.blueAccent.shade400;
                     }),
-                    trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                    trackColor: WidgetStateProperty.all(Colors.blue.shade50),
                     trackBorderColor:
-                        MaterialStateProperty.all(Colors.blue.shade100),
-                    thickness: MaterialStateProperty.all(6),
+                        WidgetStateProperty.all(Colors.blue.shade100),
+                    thickness: WidgetStateProperty.all(6),
                     radius: const Radius.circular(10),
                     minThumbLength: 50,
                   ),
@@ -1427,11 +1434,11 @@ class _CustomBarChartCustomerDashState
                                           reservedSize: 40,
                                         ),
                                       ),
-                                      topTitles: AxisTitles(
+                                      topTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
-                                      rightTitles: AxisTitles(
+                                      rightTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
@@ -1517,10 +1524,10 @@ class _CustomBarChartCustomerDashState
                                     reservedSize: 40,
                                   ),
                                 ),
-                                topTitles: AxisTitles(
+                                topTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
-                                rightTitles: AxisTitles(
+                                rightTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
                               ),
@@ -1569,10 +1576,10 @@ class _CustomBarChartCustomerDashState
                                     reservedSize: 40,
                                   ),
                                 ),
-                                topTitles: AxisTitles(
+                                topTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
-                                rightTitles: AxisTitles(
+                                rightTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
                               ),
@@ -1653,10 +1660,10 @@ class _CustomBarChartCustomerDashState
                                   reservedSize: 40,
                                 ),
                               ),
-                              topTitles: AxisTitles(
+                              topTitles: const AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
-                              rightTitles: AxisTitles(
+                              rightTitles: const AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
                             ),

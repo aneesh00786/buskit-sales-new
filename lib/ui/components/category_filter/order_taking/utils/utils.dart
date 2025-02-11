@@ -9,11 +9,11 @@ class Utils {
       log('Saleby : ${cartItem.detail.saleBy}');
       if (cartItem.detail.saleBy!='Pack') {
         double price = double.tryParse(totalAmount.toString()) ?? 0.0;
-      totalPrice += price * cartItem.detail.count!.toDouble();
+      totalPrice += price * cartItem.detail.count.toDouble();
       log('Total Price$totalPrice - Price : $price - Cart Item Count ${cartItem.detail.count}');
       }else{
         double price = double.tryParse(totalAmount.toString()) ?? 0.0;
-      totalPrice += price *cartItem.detail.pieces!* cartItem.detail.count!.toDouble();
+      totalPrice += price *cartItem.detail.pieces!* cartItem.detail.count.toDouble();
       log('Total Price$totalPrice - Price : $price -Pieces : ${cartItem.detail.pieces!} - Cart Item Count ${cartItem.detail.count}');
       }
     }
@@ -32,7 +32,7 @@ double getTotalTax(List<CartItem> cartItems) {
   double totalTax = 0.0;
   for (var cartItem in cartItems) {
     double itemTax = cartItem.detail.tax?.toDouble() ?? 0.0; // Tax per item
-    totalTax += itemTax * cartItem.detail.count!.toDouble();
+    totalTax += itemTax * cartItem.detail.count.toDouble();
   }
   return totalTax;
 }

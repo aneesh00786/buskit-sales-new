@@ -60,10 +60,10 @@ class DialogHeaderText extends StatelessWidget {
   final double fontSize;
 
   const DialogHeaderText({
-    Key? key,
+    super.key,
     required this.text,
     this.fontSize = 12.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -89,11 +89,10 @@ class DialogTableHeaderText extends StatelessWidget {
   final TextAlign align;
 
   const DialogTableHeaderText(
-      {Key? key,
+      {super.key,
       required this.text,
       this.fontSize = 12.0,
-      this.align = TextAlign.center})
-      : super(key: key);
+      this.align = TextAlign.center});
 
   @override
   Widget build(BuildContext context) {
@@ -118,11 +117,10 @@ class DialogTableHeaderTextWhite extends StatelessWidget {
   final TextAlign align;
 
   const DialogTableHeaderTextWhite(
-      {Key? key,
+      {super.key,
       required this.text,
       this.fontSize = 12.0,
-      this.align = TextAlign.center})
-      : super(key: key);
+      this.align = TextAlign.center});
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +136,7 @@ class DialogTableHeaderTextWhite extends StatelessWidget {
     );
   }
 }
+// ignore: must_be_immutable
 class CustomText extends StatelessWidget {
   Color? color;
   String? fontFamily;
@@ -165,13 +164,13 @@ class CustomText extends StatelessWidget {
     return Text(
       content ?? '',
       style: TextStyle(
-          color: color != null ? color : Colors.black,
-          fontFamily: fontFamily != null ? fontFamily : 'Poppins_Regular',
+          color: color ?? Colors.black,
+          fontFamily: fontFamily ?? 'Poppins_Regular',
           fontSize: fontSize,
           fontWeight: fontWeight),
-      textAlign: textAlign != null ? textAlign : null,
-      maxLines: maxLine == null ? null : maxLine,
-      overflow: overflow == null ? null : overflow,
+      textAlign: textAlign,
+      maxLines: maxLine,
+      overflow: overflow,
     );
   }
 }

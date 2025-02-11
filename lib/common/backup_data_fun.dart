@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:flutter/material.dart';

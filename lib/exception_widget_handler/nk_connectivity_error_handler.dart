@@ -12,8 +12,7 @@ class NkConnectivityErrorHandler extends StatelessWidget {
   final String? errorLable;
   final VoidCallback? onRetryPressed;
   const NkConnectivityErrorHandler(
-      {Key? key, this.errorLable, this.onRetryPressed})
-      : super(key: key);
+      {super.key, this.errorLable, this.onRetryPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +22,7 @@ class NkConnectivityErrorHandler extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          FittedBox(
+          const FittedBox(
             child: MyNetworkImage(
               height: 480,
               imageUrl:
@@ -45,8 +44,8 @@ class NkConnectivityErrorHandler extends StatelessWidget {
   Widget get retryButton => MyThemeButton(
         buttonText: retry,
         onPressed: onRetryPressed,
-        width: AppDimensions.instance!.width * 0.1,
-        height: AppDimensions.instance!.height * 0.035,
+        width: AppDimensions.instance.width * 0.1,
+        height: AppDimensions.instance.height * 0.035,
         isRoundedCorner: true,
       );
 

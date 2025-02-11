@@ -22,7 +22,7 @@ class CategoryList extends StatefulWidget {
   final VoidCallback onDrawerToggle;
   final String selectedCategory;
 
-  CategoryList({
+  const CategoryList({
     super.key,
     required this.productsController,
     required this.categories,
@@ -65,9 +65,8 @@ class _CategoryListState extends State<CategoryList> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (widget.productsController.categoryData.value == null ||
-          widget.productsController.categoryData.value.data == null) {
-        return Center(
+      if (widget.productsController.categoryData.value.data == null) {
+        return const Center(
               child: SpinKitFadingCube(
                 color: primaryColor,
                 size: 20.0,
@@ -97,7 +96,7 @@ class _CategoryListState extends State<CategoryList> {
                   },
                 ),
                 const SizedBox(width: 20),
-                Text(
+                const Text(
                   'Categories',
                   style: TextStyle(
                     fontSize: 14.0,
@@ -135,7 +134,7 @@ class _CategoryListState extends State<CategoryList> {
                             children: [
                               Text(
                                 category.categoryName ?? '',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -180,7 +179,7 @@ class _CategoryListState extends State<CategoryList> {
                                     ),
                                     child: Text(
                                       option.subCategory ?? '',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12.0,
                                         color: Colors.black,
                                       ),

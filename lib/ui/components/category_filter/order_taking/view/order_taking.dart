@@ -31,6 +31,7 @@ import 'package:provider/provider.dart';
 import '../../category_list.dart';
 import '../../product_list/view/product_list.dart';
 
+// ignore: must_be_immutable
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
   final bool? isReached;
@@ -52,6 +53,7 @@ class OrderTaking extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _OrderTakingState createState() => _OrderTakingState();
 }
 
@@ -75,12 +77,12 @@ class _OrderTakingState extends State<OrderTaking>
       GlobalKey<CartDialogueState>();
   bool isLoading = true;
   bool _isDrawerOpen = true;
-  double _drawerWidth = 300.0;
+  final double _drawerWidth = 300.0;
   bool active = false;
   String _selectedCategory = '';
   bool isOrder = true;
   int _expandedIndex = -1;
-  String _dialogMessage = '';
+  final String _dialogMessage = '';
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
@@ -376,7 +378,7 @@ class _OrderTakingState extends State<OrderTaking>
       builder: (BuildContext context) {
         return AlertDialog(
           title: Center(
-            child: Container(
+            child: SizedBox(
                 height: 150,
                 width: 150,
                 child: Lottie.asset(
@@ -391,7 +393,7 @@ class _OrderTakingState extends State<OrderTaking>
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Ok'),
+              child: const Text('Ok'),
             ),
           ],
         );
@@ -415,12 +417,6 @@ class _OrderTakingState extends State<OrderTaking>
   //   log('Is From Calendar: ${widget.isFromCalender}');
   // }
 
-  Future<void> _navigateToDashboard() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    homeController.sidebarXController.selectIndex(0);
-    homeController.selectedIndex.value = 0;
-    Get.toNamed(AppRoutes.dashboard, id: 2);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +427,7 @@ class _OrderTakingState extends State<OrderTaking>
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'Products',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
@@ -768,6 +764,7 @@ class _OrderTakingState extends State<OrderTaking>
                 isOrder
                     ? CartDatabaseManager().clearCart(customerId)
                     : CartDatabaseManager().clearPreOrderCart(customerId);
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                 log('Log 3');
@@ -810,8 +807,8 @@ class _OrderTakingState extends State<OrderTaking>
                     child: Obx(() => Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            if (!widget.productsController.selectedCustomerName
-                                .isEmpty)
+                            if (widget.productsController.selectedCustomerName
+                                .isNotEmpty)
                               CircleAvatar(
                                 radius: 20,
                                 backgroundColor: widget.productsController
@@ -820,7 +817,7 @@ class _OrderTakingState extends State<OrderTaking>
                                     : const Color.fromARGB(123, 194, 192, 192),
                                 child: widget.productsController
                                         .selectedCustomerImageUrl.isEmpty
-                                    ? Icon(Icons.person, color: Colors.white)
+                                    ? const Icon(Icons.person, color: Colors.white)
                                     : CachedNetworkImage(
                                         imageUrl:
                                             '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
@@ -834,14 +831,14 @@ class _OrderTakingState extends State<OrderTaking>
                                             CircleAvatar(
                                           radius: 20,
                                           backgroundColor: Colors.grey[300],
-                                          child: CircularProgressIndicator(
+                                          child: const CircularProgressIndicator(
                                             strokeWidth: 2,
                                             color: Colors.grey,
                                           ),
                                         ),
                                         errorWidget: (context, url, error) {
                                           log('Failed to load image');
-                                          return CircleAvatar(
+                                          return const CircleAvatar(
                                             radius: 20,
                                             backgroundColor: Colors.blueGrey,
                                             child: Icon(Icons.person,
@@ -863,7 +860,7 @@ class _OrderTakingState extends State<OrderTaking>
                                         widget.productsController
                                             .selectedCustomerName.value,
                                       ),
-                                      MyRegularText(
+                                      const MyRegularText(
                                         label: "Customer",
                                         fontSize: 9,
                                       ),
@@ -872,7 +869,7 @@ class _OrderTakingState extends State<OrderTaking>
                             const SizedBox(width: 10),
                           ],
                         ))),
-                NotificationWidget(startDate: '', endDate: ''),
+                const NotificationWidget(startDate: '', endDate: ''),
                 profiloe(),
               ],
             ),
@@ -880,16 +877,8 @@ class _OrderTakingState extends State<OrderTaking>
         ],
       ),
       body: Obx(() {
-        if (widget.productsController.categoryData.value == null) {
-          return Center(
-            child: SpinKitFadingCube(
-              color: primaryColor,
-              size: 20.0,
-            ),
-          );
-        }
         if (widget.productsController.categoryData.value.data == null) {
-          return Center(
+          return const Center(
             child: SpinKitFadingCube(
               color: primaryColor,
               size: 20.0,
@@ -908,7 +897,7 @@ class _OrderTakingState extends State<OrderTaking>
                     children: [
                       Row(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 55,
                           ),
                           Expanded(
@@ -963,7 +952,7 @@ class _OrderTakingState extends State<OrderTaking>
                                               child: Material(
                                                 child: Container(
                                                   width: 300,
-                                                  decoration: BoxDecoration(
+                                                  decoration: const BoxDecoration(
                                                     color: Colors.white,
                                                   ),
                                                   padding: const EdgeInsets
@@ -1009,9 +998,10 @@ class _OrderTakingState extends State<OrderTaking>
                                                       );
                                                       if (active == true) {
                                                         _showWarningDialog(
+                                                          // ignore: use_build_context_synchronously
                                                           context,
                                                           'Please check out from the current customer',
-                                                          Center(
+                                                          const Center(
                                                             child: Icon(
                                                               Icons
                                                                   .warning_amber_outlined,
@@ -1202,13 +1192,13 @@ class _OrderTakingState extends State<OrderTaking>
                             ),
                             if (widget.productsController.showDialog.value)
                               AlertDialog(
-                                title: Text('Warning'),
+                                title: const Text('Warning'),
                                 content: Text(_dialogMessage),
                                 actions: [
                                   TextButton(
                                     onPressed:
                                         widget.productsController.closeDialog,
-                                    child: Text('OK'),
+                                    child: const Text('OK'),
                                   ),
                                 ],
                               ),
@@ -1245,7 +1235,7 @@ class _OrderTakingState extends State<OrderTaking>
                                         top: 0,
                                         child: Container(
                                           padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Colors.red,
                                             shape: BoxShape.circle,
                                           ),
@@ -1270,7 +1260,7 @@ class _OrderTakingState extends State<OrderTaking>
                               ),
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                           ),
                           IntrinsicWidth(
@@ -1338,7 +1328,7 @@ class _OrderTakingState extends State<OrderTaking>
                                 child: IconButton(
                                   icon: Text(
                                     initial,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       color: primaryColor,
                                       fontWeight: FontWeight.bold,
@@ -1473,7 +1463,7 @@ class _OrderTakingState extends State<OrderTaking>
         builder: (context) {
           return AlertDialog(
             actions: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(padding: const EdgeInsets.all(8.0), child: widget),
               Center(
                 child: CustomText(
@@ -1489,7 +1479,7 @@ class _OrderTakingState extends State<OrderTaking>
                     //cartItemCount = 0;
                   });
                 },
-                child: Text('Ok'),
+                child: const Text('Ok'),
               ),
             ],
           );
@@ -1505,7 +1495,7 @@ class CustomSearchBar extends StatelessWidget {
   final ValueChanged<String> onChange;
   final IconData icon;
 
-  CustomSearchBar({
+  const CustomSearchBar({
     super.key,
     required this.text,
     required this.controller,
@@ -1554,18 +1544,18 @@ class WarningDialog extends StatelessWidget {
   final VoidCallback onOkPressed;
 
   const WarningDialog({
-    Key? key,
+    super.key,
     required this.message,
     required this.onOkPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       actions: [
-        SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
+        const SizedBox(height: 20),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
           child: Center(
             child: Icon(
               Icons.warning_amber_rounded,
@@ -1582,7 +1572,7 @@ class WarningDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: onOkPressed,
-          child: Text('Ok'),
+          child: const Text('Ok'),
         ),
       ],
     );

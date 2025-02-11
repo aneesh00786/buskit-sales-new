@@ -14,7 +14,7 @@ class CartDatabaseManager {
   final Box<CartItem> cartPreorderBox = Hive.box<CartItem>('cartPreorderBox');
   final Box<Draft> draftBox = Hive.box<Draft>('draftBox');
 
-  List<VoidCallback> _listeners = [];
+  final List<VoidCallback> _listeners = [];
 
   List<CartItem> get cartItems => cartBox.values.toList();
   List<CartItem> get cartPreorderItems => cartPreorderBox.values.toList();
@@ -253,22 +253,18 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
         orElse: () => CartItem(detail: detail, productName: '', totalPrice: 0),
       );
 
-      if (existingCartItem != null) {
-        existingCartItem.detail.count += newCount.toDouble();
-        existingCartItem.totalPrice = existingCartItem.isPack!
-            ? (existingCartItem.detail.count *
-                    existingCartItem.detail.pieces! *
-                    num.parse(existingCartItem.detail.sellPrice ?? '0'))
-                .toDouble()
-            : (existingCartItem.detail.count *
-                    num.parse(existingCartItem.detail.sellPrice ?? '0'))
-                .toDouble();
-        await cartBox.put(existingCartItem.key, existingCartItem);
-        log('Updated product in cart: ${existingCartItem.detail.variationName}, New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
-      } else {
-        log("Error: Item not found in cart for update.");
-      }
-    } catch (e) {
+      existingCartItem.detail.count += newCount.toDouble();
+      existingCartItem.totalPrice = existingCartItem.isPack!
+          ? (existingCartItem.detail.count *
+                  existingCartItem.detail.pieces! *
+                  num.parse(existingCartItem.detail.sellPrice ?? '0'))
+              .toDouble()
+          : (existingCartItem.detail.count *
+                  num.parse(existingCartItem.detail.sellPrice ?? '0'))
+              .toDouble();
+      await cartBox.put(existingCartItem.key, existingCartItem);
+      log('Updated product in cart: ${existingCartItem.detail.variationName}, New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
+        } catch (e) {
       log('Error updating cart item: $e');
     }
   }
@@ -327,14 +323,12 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
       }
       List<CartItem>? existingDraft = await getDraftItems(customerId);
       Map<String, CartItem> draftItemMap = {};
-      if (existingDraft != null) {
-        for (var item in existingDraft) {
-          final key =
-              '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-          draftItemMap[key] = item;
-        }
+      for (var item in existingDraft) {
+        final key =
+            '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+        draftItemMap[key] = item;
       }
-      for (var cartItem in cartItems) {
+          for (var cartItem in cartItems) {
         final key =
             '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
         if (draftItemMap.containsKey(key)) {
@@ -412,14 +406,12 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
       }
       List<CartItem>? existingDraft = await getPreOrderDraftItems(customerId);
       Map<String, CartItem> draftItemMap = {};
-      if (existingDraft != null) {
-        for (var item in existingDraft) {
-          final key =
-              '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-          draftItemMap[key] = item;
-        }
+      for (var item in existingDraft) {
+        final key =
+            '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+        draftItemMap[key] = item;
       }
-      for (var cartItem in cartPreorderItems) {
+          for (var cartItem in cartPreorderItems) {
         final key =
             '${cartItem.detail.variationName ?? ''}_${cartItem.detail.sellPrice ?? ''}';
         if (draftItemMap.containsKey(key)) {
@@ -602,7 +594,7 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
         .toList();
     for (var key in CartDatabaseManager().cartBox.keys) {
       final item = CartDatabaseManager().cartBox.get(key);
-      if (item!.draftId == null || item!.draftId!.isEmpty) {
+      if (item!.draftId == null || item.draftId!.isEmpty) {
         CartDatabaseManager().cartBox.delete(key);
       }
     }
@@ -628,7 +620,7 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
         .toList();
     for (var key in CartDatabaseManager().cartPreorderBox.keys) {
       final item = CartDatabaseManager().cartPreorderBox.get(key);
-      if (item!.draftId == null || item!.draftId!.isEmpty) {
+      if (item!.draftId == null || item.draftId!.isEmpty) {
         CartDatabaseManager().cartPreorderBox.delete(key);
       }
     }

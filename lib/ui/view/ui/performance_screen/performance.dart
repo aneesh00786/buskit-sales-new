@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
@@ -20,6 +21,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
 class PerformanceScreen extends StatefulWidget {
   const PerformanceScreen({super.key});
 
@@ -41,7 +44,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String selectedValue = "2025";
   String staffProjection = '';
   String targetType = '';
-    Future<void> _loadSettings() async {
+  Future<void> _loadSettings() async {
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
@@ -61,36 +64,38 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       print("Error fetching settings: $e");
     }
   }
-@override
-void initState() {
-  super.initState();
-  ApiWorker().fetchAllSettings(companyId);
-  _loadSettings();
-  _tabController = TabController(
-    length: 12,
-    vsync: this,
-    initialIndex: currentMonth - 1,
-  );
-  _selectedMonthName = DateFormat.MMMM().format(DateTime(0, currentMonth));
-  _tabController.addListener(() {
-    if (!_tabController.indexIsChanging) {
-      setState(() {
-        _selectedMonthName = DateFormat.MMMM().format(DateTime(0, _tabController.index + 1));
-      });
-      staffController.loadSalesmanTargetForSelectedTab(
-        currentYear: selectedValue,
-        selectedTabIndex: _tabController.index + 1,
-        staffId: salesmanId,
-      );
-    }
-  });
 
-  int numberOfFields = 10;
-  _targetControllers = List.generate(
-    numberOfFields,
-    (index) => TextEditingController(),
-  );
-}
+  @override
+  void initState() {
+    super.initState();
+    ApiWorker().fetchAllSettings(companyId);
+    _loadSettings();
+    _tabController = TabController(
+      length: 12,
+      vsync: this,
+      initialIndex: currentMonth - 1,
+    );
+    _selectedMonthName = DateFormat.MMMM().format(DateTime(0, currentMonth));
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _selectedMonthName =
+              DateFormat.MMMM().format(DateTime(0, _tabController.index + 1));
+        });
+        staffController.loadSalesmanTargetForSelectedTab(
+          currentYear: selectedValue,
+          selectedTabIndex: _tabController.index + 1,
+          staffId: salesmanId,
+        );
+      }
+    });
+
+    int numberOfFields = 10;
+    _targetControllers = List.generate(
+      numberOfFields,
+      (index) => TextEditingController(),
+    );
+  }
 
   void updateControllers(int count) {
     if (_targetControllers.length < count) {
@@ -226,19 +231,27 @@ void initState() {
                   return GestureDetector(
                     onTap: () async {
                       bool isConnected = await ConnectivityService().isOnline();
-                      if(isConnected){
+                      if (isConnected) {
                         setState(() {
-                        _tabController.index = index;
-                        _selectedMonthName = monthName;
-                      });
-                      staffController.loadSalesmanTargetForSelectedTab(
-                        currentYear: selectedValue,
-                        selectedTabIndex: _tabController.index + 1,
-                        staffId: salesmanId,
-                      );
-                      }else{
+                          _tabController.index = index;
+                          _selectedMonthName = monthName;
+                        });
+                        staffController.loadSalesmanTargetForSelectedTab(
+                          currentYear: selectedValue,
+                          selectedTabIndex: _tabController.index + 1,
+                          staffId: salesmanId,
+                        );
+                      } else {
                         showNoInternetSnackBar(context);
                       }
+                      final provider = Provider.of<CustomersProvider>(context,
+                          listen: false);
+                      final categoryPerformance = staffController
+                          .salesmanTargetList.value.categoryPerformance;
+                      provider.createBarGroups(
+                          categoryPerformance: categoryPerformance ?? [],
+                          staffProjection: staffProjection,
+                          targetType: targetType);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -280,32 +293,32 @@ void initState() {
                   count: targetContent?.timesheet?.toString() ?? '0',
                   svg: "assets/icons/event.png",
                   svgBgColor: const Color.fromARGB(255, 206, 252, 224),
-                  onTap: () =>
-                      _showTileDialog(context, _selectedMonthName ?? '', 1),
+                  onTap: () => _showTileDialog(
+                      context, _selectedMonthName ?? '', 1, true),
                 ),
                 OptionData(
                   title: 'Check-in/out',
                   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
                   svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 215, 236, 246),
-                  onTap: () =>
-                      _showTileDialog(context, _selectedMonthName ?? '', 2),
+                  onTap: () => _showTileDialog(
+                      context, _selectedMonthName ?? '', 2, true),
                 ),
                 OptionData(
                   title: 'Visits',
                   count: targetContent?.visit?.toString() ?? '0',
                   svg: "assets/icons/location.png",
                   svgBgColor: const Color.fromARGB(255, 249, 219, 193),
-                  onTap: () =>
-                      _showTileDialog(context, _selectedMonthName ?? '', 3),
+                  onTap: () => _showTileDialog(
+                      context, _selectedMonthName ?? '', 3, false),
                 ),
                 OptionData(
                   title: 'Customers',
                   count: targetContent?.customer?.toString() ?? '0',
                   svg: "assets/icons/customer.png",
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),
-                  onTap: () =>
-                      _showTileDialog(context, _selectedMonthName ?? '', 4),
+                  onTap: () => _showTileDialog(
+                      context, _selectedMonthName ?? '', 4, true),
                 ),
               ],
             );
@@ -390,14 +403,13 @@ void initState() {
                       ),
                     ),
                     child: StaffTargetDialog(
-                      staffController: staffController,
-                      currentYear: currentYear,
-                      tabController: _tabController,
-                      tabControllers: _targetControllers,
-                      staffProjection: staffProjection,
-                      targetType:targetType,
-                      selectedMonthname : _selectedMonthName??''
-                    ),
+                        staffController: staffController,
+                        currentYear: currentYear,
+                        tabController: _tabController,
+                        tabControllers: _targetControllers,
+                        staffProjection: staffProjection,
+                        targetType: targetType,
+                        selectedMonthname: _selectedMonthName ?? ''),
                   ),
                 )
               ],
@@ -408,7 +420,8 @@ void initState() {
     );
   }
 
-  void _showTileDialog(BuildContext context, String monthName, int tabStatus) {
+  void _showTileDialog(
+      BuildContext context, String monthName, int tabStatus, bool isFull) {
     staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
       showDialog(
         context: context,
@@ -439,7 +452,9 @@ void initState() {
             }
 
             return Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: isFull
+                  ? EdgeInsets.all(10)
+                  : EdgeInsets.symmetric(horizontal: 150),
               child: Row(
                 children: [
                   Container(

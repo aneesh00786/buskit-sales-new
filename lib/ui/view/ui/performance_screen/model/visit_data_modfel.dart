@@ -48,9 +48,10 @@ class VisitDataItem {
   String? checkOutLatitude;
   int? checkOutLongitude;
   dynamic eventCancel;
-  int? status;
+  String? status;
   DateTime? createdAt;
   DateTime? updatedAt;
+  String? businessName;
 
   VisitDataItem({
     this.id,
@@ -72,6 +73,7 @@ class VisitDataItem {
     this.status,
     this.createdAt,
     this.updatedAt,
+    this.businessName,
   });
 
   factory VisitDataItem.fromJson(Map<String, dynamic> json) => VisitDataItem(
@@ -95,13 +97,14 @@ class VisitDataItem {
         checkOutLatitude: json["check_out_latitude"] ?? '',
         checkOutLongitude: json["check_out_longitude"] ?? 0,
         eventCancel: json["event_cancel"],
-        status: json["status"] ?? 0,
+        status: json["status"] ?? '',
         createdAt: json["created_at"] != null
             ? DateTime.tryParse(json["created_at"])
             : null,
         updatedAt: json["updated_at"] != null
             ? DateTime.tryParse(json["updated_at"])
             : null,
+        businessName: json['business_name']
       );
 
   Map<String, dynamic> toJson() => {
@@ -126,6 +129,7 @@ class VisitDataItem {
         "status": status,
         "created_at": createdAt?.toIso8601String(),
         "updated_at": updatedAt?.toIso8601String(),
+        'business_name':businessName
       };
 }
 

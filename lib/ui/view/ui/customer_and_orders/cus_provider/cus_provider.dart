@@ -8,6 +8,8 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,7 +71,7 @@ class CustomersProvider with ChangeNotifier {
   String get selectedStartDate => _selectedStartDate;
   String get selectedEndDate => _selectedEndDate;
   final TextEditingController searchController = TextEditingController();
-  var _searchCustomerName='';
+  var _searchCustomerName = '';
   String get selectedCustomerName => _searchCustomerName;
 
   Future<ApiResponseModel>? _customersDashFuture;
@@ -104,6 +106,52 @@ class CustomersProvider with ChangeNotifier {
   Future<ProductResponse>? _productResponse;
   Future<ProductResponse>? get productResponse => _productResponse;
   int cartItemCount = 0;
+  List<BarChartGroupData> barGroups = [];
+  void createBarGroups({
+    required List<CategoryPerformance> categoryPerformance,
+    required String targetType,
+    required String staffProjection,
+  }) {
+    log('This function has called');
+    barGroups = categoryPerformance.asMap().entries.map((entry) {
+      int index = entry.key;
+      CategoryPerformance perf = entry.value;
+      num target = perf.actualTarget ?? 0.0;
+      num projection = perf.actualProjection ?? 0.0;
+      num actual = num.parse(perf.actualSales.toString());
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          if (targetType == "1")
+            BarChartRodData(
+              toY: target.toDouble(),
+              color: const Color(0xff3b6491),
+              width: 8,
+              borderRadius: BorderRadius.zero,
+              borderSide: BorderSide.none,
+            ),
+          if (staffProjection == "1")
+            BarChartRodData(
+              toY: projection.toDouble(),
+              color: const Color(0xff15396a),
+              width: 8,
+              borderRadius: BorderRadius.zero,
+              borderSide: BorderSide.none,
+            ),
+          BarChartRodData(
+            toY: actual.toDouble(),
+            color: const Color(0xff7a8f3d),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none,
+          ),
+        ],
+      );
+    }).toList();
+
+    notifyListeners();
+  }
 
   Future<int> getCartItemCounts(String customerId) async {
     try {
@@ -157,8 +205,6 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  
-
   void updateSearchQuery(String query) async {
     log("updateSearchQuery query : $query");
     _searchCustomerName = query;
@@ -181,7 +227,6 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-
   // void setCustomers(List<CustomerModelxx> customers, int totalPages) {
   //   _customers = customers;
   //   _filteredCustomers = customers;
@@ -194,6 +239,7 @@ class CustomersProvider with ChangeNotifier {
     _totalPages = totalPages;
     notifyListeners();
   }
+
   void setOrderTotal(List<OrderTotalxx> orderTotals) {
     _orderTotalList = orderTotals;
     notifyListeners();
@@ -447,89 +493,98 @@ class CustomersProvider with ChangeNotifier {
     return _selectedOrders.contains(order);
   }
 
-Future<void> fetchCustomerData({int page = 1}) async {
-  if (page <= 0) {
-    throw ArgumentError('Page must be greater than 0');
-  }
-
-  _errorMessage = '';
-  NotificationController notificationController = Get.find<NotificationController>();
-
-  if (_selectedFilter == FilterDateEnum.thisMonth ||
-      _selectedFilter == FilterDateEnum.today ||
-      _selectedFilter == FilterDateEnum.thisWeek ||
-      _selectedFilter == FilterDateEnum.thisYear ||
-      _selectedFilter == FilterDateEnum.range) {
-    try {
-      final now = DateTime.now();
-      String startDate = '';
-      String endDate = '';
-
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          startDate = DateTime(now.year, now.month, 1).toIso8601String().substring(0, 10);
-          endDate = DateTime(now.year, now.month + 1, 0).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.today:
-          startDate = DateTime(now.year, now.month, now.day).toIso8601String().substring(0, 10);
-          endDate = startDate;
-          break;
-        case FilterDateEnum.thisWeek:
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startDate = startOfWeek.toIso8601String().substring(0, 10);
-          endDate = now.toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.thisYear:
-          startDate = DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-          endDate = DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.range:
-          startDate = _selectedStartDate;
-          endDate = _selectedEndDate;
-          if (startDate.isEmpty || endDate.isEmpty) {
-            throw ArgumentError('Invalid date range: startDate or endDate is empty.');
-          }
-          break;
-      }
-
-      _isLoading = true;
-      log('fetchCustomer query: $_searchCustomerName');
-      log('Parameters: startDate=$startDate, endDate=$endDate, page=$page');
-
-      _customersFuture = _apiService.fetchCustomer(
-        salesmanId: '',
-        customerName: _searchCustomerName,
-        startDate: '',
-        endDate: '',
-        limit: 10,
-        page: page,
-        valueFromDw: _selectedFilter.name == 'Range'
-            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-            : _selectedFilter.name,
-      );
-
-      _customersFuture!.then((value) {
-        setCustomers(value.data, value.pagination.totalPages);
-        setOrderTotal(value.orderTotal);
-        setYearList(value.yearsListOfAll);
-        notificationController.loadNotificationData(startDate, endDate);
-        _isLoading = false;
-        notifyListeners();
-      }).catchError((error) {
-        _isLoading = false;
-        _errorMessage = 'Failed to fetch customer data: $error';
-        notifyListeners();
-      });
-    } catch (e, stackTrace) {
-      _isLoading = false;
-      log('Error fetching customers: $e', error: e, stackTrace: stackTrace);
-      rethrow;
+  Future<void> fetchCustomerData({int page = 1}) async {
+    if (page <= 0) {
+      throw ArgumentError('Page must be greater than 0');
     }
-  } else {
-    await fetchCustomerData(page: page);
-  }
-}
 
+    _errorMessage = '';
+    NotificationController notificationController =
+        Get.find<NotificationController>();
+
+    if (_selectedFilter == FilterDateEnum.thisMonth ||
+        _selectedFilter == FilterDateEnum.today ||
+        _selectedFilter == FilterDateEnum.thisWeek ||
+        _selectedFilter == FilterDateEnum.thisYear ||
+        _selectedFilter == FilterDateEnum.range) {
+      try {
+        final now = DateTime.now();
+        String startDate = '';
+        String endDate = '';
+
+        switch (_selectedFilter) {
+          case FilterDateEnum.thisMonth:
+            startDate = DateTime(now.year, now.month, 1)
+                .toIso8601String()
+                .substring(0, 10);
+            endDate = DateTime(now.year, now.month + 1, 0)
+                .toIso8601String()
+                .substring(0, 10);
+            break;
+          case FilterDateEnum.today:
+            startDate = DateTime(now.year, now.month, now.day)
+                .toIso8601String()
+                .substring(0, 10);
+            endDate = startDate;
+            break;
+          case FilterDateEnum.thisWeek:
+            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+            startDate = startOfWeek.toIso8601String().substring(0, 10);
+            endDate = now.toIso8601String().substring(0, 10);
+            break;
+          case FilterDateEnum.thisYear:
+            startDate =
+                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+            endDate =
+                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+            break;
+          case FilterDateEnum.range:
+            startDate = _selectedStartDate;
+            endDate = _selectedEndDate;
+            if (startDate.isEmpty || endDate.isEmpty) {
+              throw ArgumentError(
+                  'Invalid date range: startDate or endDate is empty.');
+            }
+            break;
+        }
+
+        _isLoading = true;
+        log('fetchCustomer query: $_searchCustomerName');
+        log('Parameters: startDate=$startDate, endDate=$endDate, page=$page');
+
+        _customersFuture = _apiService.fetchCustomer(
+          salesmanId: '',
+          customerName: _searchCustomerName,
+          startDate: '',
+          endDate: '',
+          limit: 10,
+          page: page,
+          valueFromDw: _selectedFilter.name == 'Range'
+              ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+              : _selectedFilter.name,
+        );
+
+        _customersFuture!.then((value) {
+          setCustomers(value.data, value.pagination.totalPages);
+          setOrderTotal(value.orderTotal);
+          setYearList(value.yearsListOfAll);
+          notificationController.loadNotificationData(startDate, endDate);
+          _isLoading = false;
+          notifyListeners();
+        }).catchError((error) {
+          _isLoading = false;
+          _errorMessage = 'Failed to fetch customer data: $error';
+          notifyListeners();
+        });
+      } catch (e, stackTrace) {
+        _isLoading = false;
+        log('Error fetching customers: $e', error: e, stackTrace: stackTrace);
+        rethrow;
+      }
+    } else {
+      await fetchCustomerData(page: page);
+    }
+  }
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(

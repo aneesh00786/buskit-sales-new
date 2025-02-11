@@ -191,7 +191,6 @@ class ApiWorker with ApiConstants {
       log('Request  : $requestPayload');
 
       Response response = await dio1.post(apiUrl, data: requestPayload);
-
       if (response.statusCode == 200) {
         log('Response Data: ${response.data}');
         return response.data as Map<String, dynamic>;

@@ -86,10 +86,7 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-    _loadPreorderItems();
     calculateAmount(cartItems);
-    calculatePreorderAmount(preorderItems);
-    isOrder = cartItems.isEmpty && preorderItems.isNotEmpty ? false : true;
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
     log('CartList Length : ${cartItems.length}');
@@ -133,306 +130,275 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  void _loadPreorderItems() async {
-    try {
-      final customerId =
-          widget.customerOrderController!.customerId.value.isNotEmpty
-              ? widget.customerOrderController!.customerId.value
-              : widget.productsController.selectedCustomerId.value;
-      preorderItems = CartDatabaseManager().getCartPreorderItems(customerId);
-      List<CartItem> draftItems =
-          await CartDatabaseManager().getPreOrderDraftItems(customerId);
-      final Map<String, CartItem> uniqueItems = {
-        for (var item in preorderItems)
-          '${item.detail.variationName}_${item.detail.sellPrice}': item,
-        for (var draft in draftItems)
-          '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
-      };
-      preorderItems = uniqueItems.values.toList();
-      setState(() {
-        preorderQuantities = List.generate(preorderItems.length, (index) => 1);
-        preorderTotal = Utils().getFinalAmount(preorderItems);
-        preorderTax = Utils().getTotalTax(preorderItems);
-        _isLoading = false;
-      });
-      if (_options.isNotEmpty) {
-        _selectedValue = _options[0];
-      }
-      _isLoading = false;
-    } catch (e) {
-      log('Error loading pre-order items: $e');
-    }
-  }
+  // void performSpecificAction(bool isTab) async {
+  //   List<Detail> detail = isOrder
+  //       ? CartDatabaseManager().cartItems.map((e) => e.detail).toList()
+  //       : CartDatabaseManager().cartPreorderItems.map((e) => e.detail).toList();
 
-  void performSpecificAction(bool isTab) async {
-    List<Detail> detail = isOrder
-        ? CartDatabaseManager().cartItems.map((e) => e.detail).toList()
-        : CartDatabaseManager().cartPreorderItems.map((e) => e.detail).toList();
+  //   final cartDetails =  isOrder
+  //       ? await CartDatabaseManager().getCartAndDraftIds(
+  //     customeController.customerId.isNotEmpty
+  //         ? customeController.customerId.value
+  //         : widget.productsController.selectedCustomerId.value,
+  //   ): await CartDatabaseManager().getPreOrderCartAndDraftIds(
+  //     customeController.customerId.isNotEmpty
+  //         ? customeController.customerId.value
+  //         : widget.productsController.selectedCustomerId.value,
+  //   );
 
-    final cartDetails =  isOrder
-        ? await CartDatabaseManager().getCartAndDraftIds(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    ): await CartDatabaseManager().getPreOrderCartAndDraftIds(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    );
+  //   Future.delayed(const Duration(seconds: 1));
+  //   final existingCartId = cartDetails?['cart_id'] ?? '';
+  //   final existingDraftId = cartDetails?['id'] ?? '';
+  //   final productBYData = AddToCartModel(
+  //     customerId: customeController.customerId.isNotEmpty
+  //         ? customeController.customerId.value
+  //         : widget.productsController.selectedCustomerId.value,
+  //     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+  //     cartId: '',
+  //     cartList: detail
+  //         .map((e) => SendCartData(
+  //               productId: e.productId ??
+  //                   widget.productsController.selectedCustomerId.value,
+  //               variantId: e.variationId ?? '',
+  //               pack: e.saleBy == 'Pack'
+  //                   ? e.pieces.toString()
+  //                   : e.count.toString(),
+  //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //               price: e.sellPrice.toString(),
+  //               discount: '0',
+  //               quantity: e.count.toInt(),
+  //             ))
+  //         .toList(),
+  //     total: widget.productsController.finalAmount.value.toStringAsFixed(0),
+  //     discount: '0',
+  //   );
 
-    Future.delayed(const Duration(seconds: 1));
-    final existingCartId = cartDetails?['cart_id'] ?? '';
-    final existingDraftId = cartDetails?['id'] ?? '';
-    final productBYData = AddToCartModel(
-      customerId: customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-      salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-      cartId: '',
-      cartList: detail
-          .map((e) => SendCartData(
-                productId: e.productId ??
-                    widget.productsController.selectedCustomerId.value,
-                variantId: e.variationId ?? '',
-                pack: e.saleBy == 'Pack'
-                    ? e.pieces.toString()
-                    : e.count.toString(),
-                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                price: e.sellPrice.toString(),
-                discount: '0',
-                quantity: e.count.toInt(),
-              ))
-          .toList(),
-      total: widget.productsController.finalAmount.value.toStringAsFixed(0),
-      discount: '0',
-    );
+  //   CartOrderModel? cartOrder =
+  //       await ApiWorker().addToCart(productBYData.toJson());
+  //   if (cartOrder != null) {
+  //     int orderStatus = 4;
+  //     CartOrderModel order = CartOrderModel(
+  //       customerId: customeController.customerId.isNotEmpty
+  //           ? customeController.customerId.value
+  //           : widget.productsController.selectedCustomerId.value,
+  //       salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+  //       cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //       orderStatus: orderStatus,
+  //       draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+  //     );
 
-    CartOrderModel? cartOrder =
-        await ApiWorker().addToCart(productBYData.toJson());
-    if (cartOrder != null) {
-      int orderStatus = 4;
-      CartOrderModel order = CartOrderModel(
-        customerId: customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-        cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-        orderStatus: orderStatus,
-        draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-      );
+  //     await placeOrder(order, (statusCode, message, response) {
+  //       Navigator.pop(context);
+  //       if (statusCode == 200) {
+  //         final draftId = response?['id'];
+  //        isOrder? CartDatabaseManager().saveCartAsDraft(
+  //           customeController.customerId.isNotEmpty
+  //               ? customeController.customerId.value
+  //               : widget.productsController.selectedCustomerId.value,
+  //           existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //           existingDraftId.isNotEmpty ? existingDraftId : draftId,
+  //         ):CartDatabaseManager().savePreOrderCartAsDraft(
+  //           customeController.customerId.isNotEmpty
+  //               ? customeController.customerId.value
+  //               : widget.productsController.selectedCustomerId.value,
+  //           existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //           existingDraftId.isNotEmpty ? existingDraftId : draftId,
+  //         );
 
-      await placeOrder(order, (statusCode, message, response) {
-        Navigator.pop(context);
-        if (statusCode == 200) {
-          final draftId = response?['id'];
-         isOrder? CartDatabaseManager().saveCartAsDraft(
-            customeController.customerId.isNotEmpty
-                ? customeController.customerId.value
-                : widget.productsController.selectedCustomerId.value,
-            existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-            existingDraftId.isNotEmpty ? existingDraftId : draftId,
-          ):CartDatabaseManager().savePreOrderCartAsDraft(
-            customeController.customerId.isNotEmpty
-                ? customeController.customerId.value
-                : widget.productsController.selectedCustomerId.value,
-            existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-            existingDraftId.isNotEmpty ? existingDraftId : draftId,
-          );
+  //         showDialog(
+  //           context: context,
+  //           barrierDismissible: false,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: Center(
+  //                 child: SizedBox(
+  //                   height: 100,
+  //                   width: 100,
+  //                   child: Lottie.asset(
+  //                       'assets/images/Animation - 1726906882515.json'),
+  //                 ),
+  //               ),
+  //               content: CustomText(
+  //                 content: 'Your order has been successfully saved as Draft',
+  //                 fontSize: 18,
+  //               ),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     Navigator.pop(context);
+  //                     if (isTab) {
+  //                       Navigator.of(context, rootNavigator: true).pop();
+  //                     }
+  //                     Navigator.pop(context);
+  //                    isOrder? _clearCartItem(cartItems, false):_clearPreorderCartItem(cartItems, false);
+  //                   },
+  //                   child: const Text('OK'),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       } else {
+  //         showDialog(
+  //           context: context,
+  //           barrierDismissible: false,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: Center(
+  //                 child: SizedBox(
+  //                   height: 200,
+  //                   width: 200,
+  //                   child: Lottie.asset('assets/images/Warning_animation.json'),
+  //                 ),
+  //               ),
+  //               content: CustomText(
+  //                 content: "Couldn't save the order as draft please try again.",
+  //                 fontSize: 18,
+  //               ),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     Navigator.pop(context);
+  //                   },
+  //                   child: const Text('OK'),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       }
+  //     });
+  //   }
+  // }
 
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Center(
-                  child: SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: Lottie.asset(
-                        'assets/images/Animation - 1726906882515.json'),
-                  ),
-                ),
-                content: CustomText(
-                  content: 'Your order has been successfully saved as Draft',
-                  fontSize: 18,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      if (isTab) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
-                      Navigator.pop(context);
-                     isOrder? _clearCartItem(cartItems, false):_clearPreorderCartItem(cartItems, false);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        } else {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Center(
-                  child: SizedBox(
-                    height: 200,
-                    width: 200,
-                    child: Lottie.asset('assets/images/Warning_animation.json'),
-                  ),
-                ),
-                content: CustomText(
-                  content: "Couldn't save the order as draft please try again.",
-                  fontSize: 18,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      });
-    }
-  }
+  // void performSpecificActionforPreOrder(bool isTab) async {
+  //   List<Detail> detail =
+  //       CartDatabaseManager().cartPreorderItems.map((e) => e.detail).toList();
 
-  void performSpecificActionforPreOrder(bool isTab) async {
-    List<Detail> detail =
-        CartDatabaseManager().cartPreorderItems.map((e) => e.detail).toList();
+  //   final cartDetails = await CartDatabaseManager().getPreOrderCartAndDraftIds(
+  //     customeController.customerId.isNotEmpty
+  //         ? customeController.customerId.value
+  //         : widget.productsController.selectedCustomerId.value,
+  //   );
 
-    final cartDetails = await CartDatabaseManager().getPreOrderCartAndDraftIds(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    );
+  //   Future.delayed(const Duration(seconds: 1));
+  //   final existingCartId = cartDetails?['cart_id'] ?? '';
+  //   final existingDraftId = cartDetails?['id'] ?? '';
+  //   final productBYData = AddToCartModel(
+  //     customerId: customeController.customerId.isNotEmpty
+  //         ? customeController.customerId.value
+  //         : widget.productsController.selectedCustomerId.value,
+  //     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+  //     cartId: '',
+  //     cartList: detail
+  //         .map((e) => SendCartData(
+  //               productId: e.productId ??
+  //                   widget.productsController.selectedCustomerId.value,
+  //               variantId: e.variationId ?? '',
+  //               pack: e.saleBy == 'Pack'
+  //                   ? e.pieces.toString()
+  //                   : e.count.toString(),
+  //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //               price: e.sellPrice.toString(),
+  //               discount: '0',
+  //               quantity: e.count.toInt(),
+  //             ))
+  //         .toList(),
+  //     total: widget.productsController.finalAmount.value.toStringAsFixed(0),
+  //     discount: '0',
+  //   );
 
-    Future.delayed(const Duration(seconds: 1));
-    final existingCartId = cartDetails?['cart_id'] ?? '';
-    final existingDraftId = cartDetails?['id'] ?? '';
-    final productBYData = AddToCartModel(
-      customerId: customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-      salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-      cartId: '',
-      cartList: detail
-          .map((e) => SendCartData(
-                productId: e.productId ??
-                    widget.productsController.selectedCustomerId.value,
-                variantId: e.variationId ?? '',
-                pack: e.saleBy == 'Pack'
-                    ? e.pieces.toString()
-                    : e.count.toString(),
-                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                price: e.sellPrice.toString(),
-                discount: '0',
-                quantity: e.count.toInt(),
-              ))
-          .toList(),
-      total: widget.productsController.finalAmount.value.toStringAsFixed(0),
-      discount: '0',
-    );
+  //   CartOrderModel? cartOrder =
+  //       await ApiWorker().addToCart(productBYData.toJson());
+  //   if (cartOrder != null) {
+  //     int orderStatus = 4;
+  //     CartOrderModel order = CartOrderModel(
+  //       customerId: customeController.customerId.isNotEmpty
+  //           ? customeController.customerId.value
+  //           : widget.productsController.selectedCustomerId.value,
+  //       salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+  //       cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //       orderStatus: orderStatus,
+  //       draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+  //     );
 
-    CartOrderModel? cartOrder =
-        await ApiWorker().addToCart(productBYData.toJson());
-    if (cartOrder != null) {
-      int orderStatus = 4;
-      CartOrderModel order = CartOrderModel(
-        customerId: customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-        cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-        orderStatus: orderStatus,
-        draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-      );
+  //     await placeOrder(order, (statusCode, message, response) {
+  //       Navigator.pop(context);
+  //       if (statusCode == 200) {
+  //         final draftId = response?['id'];
+  //         CartDatabaseManager().savePreOrderCartAsDraft(
+  //           customeController.customerId.isNotEmpty
+  //               ? customeController.customerId.value
+  //               : widget.productsController.selectedCustomerId.value,
+  //           existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //           existingDraftId.isNotEmpty ? existingDraftId : draftId,
+  //         );
 
-      await placeOrder(order, (statusCode, message, response) {
-        Navigator.pop(context);
-        if (statusCode == 200) {
-          final draftId = response?['id'];
-          CartDatabaseManager().savePreOrderCartAsDraft(
-            customeController.customerId.isNotEmpty
-                ? customeController.customerId.value
-                : widget.productsController.selectedCustomerId.value,
-            existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-            existingDraftId.isNotEmpty ? existingDraftId : draftId,
-          );
-
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Center(
-                  child: SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: Lottie.asset(
-                        'assets/images/Animation - 1726906882515.json'),
-                  ),
-                ),
-                content: CustomText(
-                  content: 'Your order has been successfully saved as Draft',
-                  fontSize: 18,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      if (isTab) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
-                      Navigator.pop(context);
-                      _clearCartItem(cartItems, false);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        } else {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Center(
-                  child: SizedBox(
-                    height: 200,
-                    width: 200,
-                    child: Lottie.asset('assets/images/Warning_animation.json'),
-                  ),
-                ),
-                content: CustomText(
-                  content: "Couldn't save the order as draft please try again.",
-                  fontSize: 18,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      });
-    }
-  }
+  //         showDialog(
+  //           context: context,
+  //           barrierDismissible: false,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: Center(
+  //                 child: SizedBox(
+  //                   height: 100,
+  //                   width: 100,
+  //                   child: Lottie.asset(
+  //                       'assets/images/Animation - 1726906882515.json'),
+  //                 ),
+  //               ),
+  //               content: CustomText(
+  //                 content: 'Your order has been successfully saved as Draft',
+  //                 fontSize: 18,
+  //               ),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     Navigator.pop(context);
+  //                     if (isTab) {
+  //                       Navigator.of(context, rootNavigator: true).pop();
+  //                     }
+  //                     Navigator.pop(context);
+  //                     _clearCartItem(cartItems, false);
+  //                   },
+  //                   child: const Text('OK'),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       } else {
+  //         showDialog(
+  //           context: context,
+  //           barrierDismissible: false,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: Center(
+  //                 child: SizedBox(
+  //                   height: 200,
+  //                   width: 200,
+  //                   child: Lottie.asset('assets/images/Warning_animation.json'),
+  //                 ),
+  //               ),
+  //               content: CustomText(
+  //                 content: "Couldn't save the order as draft please try again.",
+  //                 fontSize: 18,
+  //               ),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     Navigator.pop(context);
+  //                   },
+  //                   child: const Text('OK'),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       }
+  //     });
+  //   }
+  // }
 
   double? finalAmount;
   @override
@@ -496,313 +462,172 @@ class CartDialogueState extends State<CartDialogue> {
                       title: 'My Cart',
                     ),
                     if (cartItems.isNotEmpty || preorderItems.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16),
-                        child: SizedBox(
-                          height: 40,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: primaryColor),
-                                      color: isOrder ? primaryColor : white,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(20),
-                                          bottomLeft: Radius.circular(20))),
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isOrder = true;
-                                        _selectedValue = _options[0];
-                                      });
-                                      setOptions();
-                                    },
-                                    child: Center(
-                                      child: CustomText(
-                                        content: 'ORDERS',
-                                        fontWeight: FontWeight.w700,
-                                        color: !isOrder ? primaryColor : white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: primaryColor),
-                                      color: !isOrder ? primaryColor : white,
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(20),
-                                          bottomRight: Radius.circular(20))),
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isOrder = false;
-                                        _selectedValue = _options[2];
-                                      });
-                                      setOptions();
-                                    },
-                                    child: Center(
-                                      child: CustomText(
-                                        content: 'PRE-ORDERS',
-                                        fontWeight: FontWeight.w700,
-                                        color: isOrder ? primaryColor : white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                    if (isOrder) ...[
-                      (cartItems.isEmpty)
-                          ? SizedBox(
-                              height: 100,
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Your cart is empty.',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: black,
-                                ),
-                              ),
-                            )
-                          : Flexible(
-                              child: SizedBox(
-                                height: dialogHeight * 0.5,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: cartItems
-                                        .map((item) => item.productName)
-                                        .toSet()
-                                        .toList()
-                                        .map((productName) {
-                                      List<CartItem> groupedItems = cartItems
-                                          .where((item) =>
-                                              item.productName == productName)
-                                          .toList();
+  Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+    child: SizedBox(
+      height: 40,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: primaryColor),
+                color: isOrder ? primaryColor : white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+              ),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    isOrder = true;
+                    _selectedValue = _options[0];
+                  });
+                  setOptions();
+                },
+                child: Center(
+                  child: CustomText(
+                    content: 'ORDERS',
+                    fontWeight: FontWeight.w700,
+                    color: !isOrder ? primaryColor : white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: primaryColor),
+                color: !isOrder ? primaryColor : white,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    isOrder = false;
+                    _selectedValue = _options[2];
+                  });
+                  setOptions();
+                },
+                child: Center(
+                  child: CustomText(
+                    content: 'PRE-ORDERS',
+                    fontWeight: FontWeight.w700,
+                    color: isOrder ? primaryColor : white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+],
+if (isOrder) ...[
+  (cartItems.where((item) => item.detail.stock! > 0).isEmpty)
+      ? SizedBox(
+          height: 100,
+          child: Center(
+            child: CustomText(
+              content: 'Your cart is empty.',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: black,
+            ),
+          ),
+        )
+      : Flexible(
+          child: SizedBox(
+            height: dialogHeight * 0.5,
+            child: SingleChildScrollView(
+              child: Column(
+                children: cartItems
+                    .where((item) => item.detail.stock! > 0)
+                    .map((item) => item.productName)
+                    .toSet()
+                    .toList()
+                    .map((productName) {
+                  List<CartItem> groupedItems = cartItems
+                      .where((item) =>
+                          item.productName == productName &&
+                          item.detail.stock! > 0)
+                      .toList();
 
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Stack(
-                                              alignment: Alignment.bottomCenter,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child:
-                                                          CustomHeaderContainer(
-                                                        text: productName,
-                                                        fontSize: fontSize,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 50,
-                                                      child: Center(
-                                                        child: IconButton(
-                                                          onPressed: () {
-                                                            showVariantDeleteDialog(
-                                                                context,
-                                                                productName,
-                                                                false,
-                                                                false);
-                                                          },
-                                                          icon: Icon(
-                                                            EneftyIcons
-                                                                .trash_bold,
-                                                            size: 28,
-                                                            color: Colors.red,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Container(
-                                                  height: 3.5,
-                                                  color: lightPrimaryColor,
-                                                  width: double.infinity,
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                    child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10.0),
-                                                  child: DataTable(
-                                                    headingRowHeight: 30,
-                                                    dataRowHeight: rowHeight,
-                                                    horizontalMargin: 5,
-                                                    columnSpacing: 15,
-                                                    columns: DataTableColumns
-                                                        .getColumns(fontSize),
-                                                    rows: GroupedItemDataRows
-                                                        .getRows(
-                                                      groupedItems:
-                                                          groupedItems,
-                                                      fontSize:
-                                                          availableWidth / 55,
-                                                      availableWidth:
-                                                          availableWidth,
-                                                      context: context,
-                                                      productQuantityManager:
-                                                          productQuantityManager,
-                                                      deleteConfirmationDialogue:
-                                                          deleteConfirmationDialogue,
-                                                    ),
-                                                  ),
-                                                ))
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            )
-                    ],
-                    if (!isOrder) ...[
-                      preorderItems.isEmpty
-                          ? SizedBox(
-                              height: 100,
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Your pre-order cart is empty.',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: black,
-                                ),
-                              ),
-                            )
-                          : Flexible(
-                              child: SizedBox(
-                                height: dialogHeight * 0.5,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: preorderItems
-                                        .map((cartItem) => cartItem.productName)
-                                        .toSet()
-                                        .toList()
-                                        .map((productName) {
-                                      List<CartItem> groupedItems =
-                                          preorderItems
-                                              .where((item) =>
-                                                  item.productName ==
-                                                  productName)
-                                              .toList();
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Stack(
-                                              alignment: Alignment.bottomCenter,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child:
-                                                          CustomHeaderContainer(
-                                                        text: productName,
-                                                        fontSize: fontSize,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 50,
-                                                      child: Center(
-                                                        child: IconButton(
-                                                          onPressed: () {
-                                                            showVariantDeleteDialog(
-                                                                context,
-                                                                productName,
-                                                                true,
-                                                                false);
-                                                          },
-                                                          icon: Icon(
-                                                            EneftyIcons
-                                                                .trash_bold,
-                                                            size: 28,
-                                                            color: Colors.red,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Container(
-                                                  height: 3.5,
-                                                  color: lightPrimaryColor,
-                                                  width: double.infinity,
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 10.0),
-                                                    child: DataTable(
-                                                      headingRowHeight: 30,
-                                                      dataRowHeight: rowHeight,
-                                                      horizontalMargin: 5,
-                                                      columnSpacing:
-                                                          columnSpacing,
-                                                      columns: DataTableColumns
-                                                          .getColumns(fontSize),
-                                                      rows: GroupedItemDataRows
-                                                          .getRows(
-                                                        groupedItems:
-                                                            groupedItems,
-                                                        fontSize:
-                                                            availableWidth / 55,
-                                                        availableWidth:
-                                                            availableWidth,
-                                                        context: context,
-                                                        productQuantityManager:
-                                                            preorderQuantityManager,
-                                                        deleteConfirmationDialogue:
-                                                            deletePreorderConfirmationDialogue,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                    ],
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: _buildGroupedItems(
+                      productName: productName,
+                      groupedItems: groupedItems,
+                      availableWidth: availableWidth,
+                      fontSize: fontSize,
+                      rowHeight: rowHeight,
+                      context: context,
+                      productQuantityManager: productQuantityManager,
+                      deleteConfirmationDialogue: deleteConfirmationDialogue,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        )
+],
+if (!isOrder) ...[
+  (cartItems.where((item) => item.detail.stock == 0).isEmpty)
+      ? SizedBox(
+          height: 100,
+          child: Center(
+            child: CustomText(
+              content: 'No pre-order items available.',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: black,
+            ),
+          ),
+        )
+      : Flexible(
+          child: SizedBox(
+            height: dialogHeight * 0.5,
+            child: SingleChildScrollView(
+              child: Column(
+                children: cartItems
+                    .where((item) => item.detail.stock == 0)
+                    .map((item) => item.productName)
+                    .toSet()
+                    .toList()
+                    .map((productName) {
+                  List<CartItem> groupedItems = cartItems
+                      .where((item) =>
+                          item.productName == productName &&
+                          item.detail.stock == 0)
+                      .toList();
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: _buildGroupedItems(
+                      productName: productName,
+                      groupedItems: groupedItems,
+                      availableWidth: availableWidth,
+                      fontSize: fontSize,
+                      rowHeight: rowHeight,
+                      context: context,
+                      productQuantityManager: productQuantityManager,
+                      deleteConfirmationDialogue: deleteConfirmationDialogue,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        )
+],
+
                     const SizedBox(
                       height: 10,
                     ),
@@ -1367,6 +1192,87 @@ class CartDialogueState extends State<CartDialogue> {
       ),
     );
   }
+  Widget _buildGroupedItems({
+  required String productName,
+  required List<CartItem> groupedItems,
+  required double availableWidth,
+  required double fontSize,
+  required double rowHeight,
+  required BuildContext context,
+  required dynamic Function(CartItem, String, double, double) productQuantityManager,
+  required Function(BuildContext, CartItem, List<CartItem>) deleteConfirmationDialogue,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: CustomHeaderContainer(
+                  text: productName,
+                  fontSize: fontSize,
+                ),
+              ),
+              SizedBox(
+                width: 50,
+                child: Center(
+                  child: IconButton(
+                    onPressed: () {
+                      showVariantDeleteDialog(
+                        context,
+                        productName,
+                        false,
+                        false,
+                      );
+                    },
+                    icon: const Icon(
+                      EneftyIcons.trash_bold,
+                      size: 28,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 3.5,
+            color: lightPrimaryColor,
+            width: double.infinity,
+          ),
+        ],
+      ),
+      Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: DataTable(
+                headingRowHeight: 30,
+                dataRowHeight: rowHeight,
+                horizontalMargin: 5,
+                columnSpacing: 15,
+                columns: DataTableColumns.getColumns(fontSize),
+                rows: GroupedItemDataRows.getRows(
+                  groupedItems: groupedItems,
+                  fontSize: availableWidth / 55,
+                  availableWidth: availableWidth,
+                  context: context,
+                  productQuantityManager: productQuantityManager,
+                  deleteConfirmationDialogue: deleteConfirmationDialogue,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
   Future<void> processSaveAndSend({
     required BuildContext context,
@@ -1397,9 +1303,7 @@ class CartDialogueState extends State<CartDialogue> {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
-          isOrder
-              ? _clearCartItem(itemList, true)
-              : _clearPreorderCartItem(itemList, true);
+           _clearCartItem(itemList, true);
 
           showDialog(
             context: context,
@@ -1413,9 +1317,7 @@ class CartDialogueState extends State<CartDialogue> {
                     setState(() {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
-                      isOrder
-                          ? _clearCartItem(itemList, true)
-                          : _clearPreorderCartItem(itemList, true);
+                       _clearCartItem(itemList, true);
                     });
                   },
                   child: const Text('OK'),
@@ -1501,9 +1403,7 @@ class CartDialogueState extends State<CartDialogue> {
             if (statusCode == 200) {
               log('ItemList Length ${itemList.length}');
 
-              isOrder
-                  ? _clearCartItem(itemList, true)
-                  : _clearPreorderCartItem(itemList, true);
+               _clearCartItem(itemList, true);
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -1526,9 +1426,8 @@ class CartDialogueState extends State<CartDialogue> {
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
-                          isOrder
-                              ? _clearCartItem(itemList, true)
-                              : _clearPreorderCartItem(itemList, true);
+                        
+                              _clearCartItem(itemList, true);
                         },
                         child: const Text('OK'),
                       ),
@@ -1814,7 +1713,7 @@ class CartDialogueState extends State<CartDialogue> {
                 ),
                 TextButton(
                   onPressed: () {
-                    _deletePreorderVariant(groupedItem, groupedItems);
+                  
                     Navigator.pop(context);
                   },
                   child: const Text('Yes'),
@@ -1871,12 +1770,10 @@ class CartDialogueState extends State<CartDialogue> {
                 backgroundColor: Colors.red,
               ),
               onPressed: () {
-                if (isPreOrder) {
-                  _deletePreorderItem(productName);
-                } else {
+                
                   _deleteItem(productName);
                   log('Draft Delete Clicked : ${customerId}');
-                }
+                
                 Navigator.pop(context);
                 showCustomToastDisplay(
                   context,
@@ -1916,19 +1813,7 @@ class CartDialogueState extends State<CartDialogue> {
     log('Deleted variant: ${variantToDelete.detail.variationName}');
   }
 
-  void _deletePreorderVariant(
-      CartItem variantToDelete, List<CartItem> groupedItems) {
-    setState(() {
-      groupedItems.remove(variantToDelete);
-      preorderItems.removeWhere((item) =>
-          item.productName == variantToDelete.productName &&
-          item.detail.variationName == variantToDelete.detail.variationName);
-      CartDatabaseManager().deletePreorderCartItem(variantToDelete);
-      preorderTotal = Utils().getFinalAmount(preorderItems);
-      preorderTax = Utils().getTotalTax(preorderItems);
-    });
-    log('Pre-order variant deleted: ${variantToDelete.detail.variationName}');
-  }
+
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {
@@ -2011,88 +1896,6 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  Container preorderQuantityManager(CartItem cartPreorderItem, String sellPrice,
-      double fontSize, double availableWidth) {
-    double padding = availableWidth > 400 ? 6 : 3;
-    return Container(
-      width: availableWidth > 400 ? 80 : 50,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: const Color.fromARGB(255, 241, 240, 240)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    bottomLeft: Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (cartPreorderItem.detail.count > 0) {
-                        cartPreorderItem.detail.count--;
-                        log("Updated count for pre-order item ${cartPreorderItem.detail.id}: ${cartPreorderItem.detail.count}");
-                        CartDatabaseManager()
-                            .updatePreorderCart(cartPreorderItem);
-                        //calculatePreorderAmount(preorderItems);
-                      }
-                    });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(left: padding, right: padding),
-                    child: CustomText(
-                      color: white,
-                      content: '-',
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
-            ),
-          ),
-          CustomText(
-            content: cartPreorderItem.detail.count.toStringAsFixed(0),
-            fontSize: fontSize,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomRight: Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    cartPreorderItem.detail.count++;
-                    log("Updated count for pre-order item ${cartPreorderItem.detail.id}: ${cartPreorderItem.detail.count}");
-                    CartDatabaseManager().updatePreorderCart(cartPreorderItem);
-                    //calculatePreorderAmount(preorderItems);
-                  });
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(left: padding, right: padding),
-                  child: CustomText(
-                    color: white,
-                    content: '+',
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void calculateAmount(List<CartItem> cartItems) {
     total = 0.0;
     tax = 0.0;
@@ -2116,27 +1919,6 @@ class CartDialogueState extends State<CartDialogue> {
     log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
   }
 
-  void calculatePreorderAmount(List<CartItem> preorderItems) {
-    preorderTotal = 0.0;
-    preorderTax = 0.0;
-    for (var cartItem in preorderItems) {
-      double? price = cartItem.isPack == true
-          ? cartItem.detail.sellingPackPrice!.toDouble()
-          : cartItem.detail.sellingPrice!.toDouble();
-      if (price != null) {
-        preorderTotal += cartItem.totalPrice;
-        double? itemTax = cartItem.isPack == true
-            ? double.tryParse(cartItem.detail.tax.toString())! *
-                double.tryParse(cartItem.detail.pieces.toString())!
-            : double.tryParse(cartItem.detail.tax.toString());
-        if (itemTax != null) {
-          preorderTax += itemTax * cartItem.detail.count;
-        }
-      }
-    }
-    log("Total price for all items: \$${preorderTotal.toStringAsFixed(2)}");
-    log("Total tax for all items: \$${preorderTax.toStringAsFixed(2)}");
-  }
 
   void _clearCartItem(List<CartItem> cartItem, bool isSave) {
     if (isSave) {
@@ -2160,27 +1942,6 @@ class CartDialogueState extends State<CartDialogue> {
     log('Cart Item Cleared : $cartItem');
   }
 
-  void _clearPreorderCartItem(List<CartItem> cartPreorderItem, bool isSave) {
-    if (isSave) {
-      CartDatabaseManager().clearPreCartOnSave(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
-    } else {
-      CartDatabaseManager().clearPreOrderCart(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
-    }
-
-    setState(() {
-      preorderItems.remove(cartPreorderItem);
-      preorderQuantities.remove(cartPreorderItem);
-    });
-    log('Cart Item Cleared : $cartPreorderItem');
-  }
 
   // void _clearPreorderCartItem(List<CartItem> cartPreorderItem) {
   //   CartDatabaseManager().clearPreorderCart();
@@ -2215,29 +1976,7 @@ class CartDialogueState extends State<CartDialogue> {
     log('Items deleted for product: $productName');
   }
 
-  void _deletePreorderItem(String productName) {
-    final itemsToDelete =
-        preorderItems.where((item) => item.productName == productName).toList();
-    for (var item in itemsToDelete) {
-      CartDatabaseManager().deletePreorderCartItem(item);
-    }
-    setState(() {
-      List<int> indicesToRemove = [];
-      for (int i = 0; i < preorderItems.length; i++) {
-        if (preorderItems[i].productName == productName) {
-          indicesToRemove.add(i);
-        }
-      }
-      preorderItems.removeWhere((item) => item.productName == productName);
-      for (int index in indicesToRemove.reversed) {
-        preorderQuantities.removeAt(index);
-      }
-      preorderTotal = Utils().getFinalAmount(preorderItems);
-      preorderTax = Utils().getTotalTax(preorderItems);
-    });
 
-    log('Pre-order items deleted for product: $productName');
-  }
 }
 
 class CartTextFields extends StatelessWidget {

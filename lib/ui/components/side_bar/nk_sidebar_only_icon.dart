@@ -54,8 +54,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   void initState() {
     super.initState();
     widget.onTap?.call(widget.sidebarXController.selectedIndex);
-    cartItemCount = CartDatabaseManager().cartItems.length +
-        CartDatabaseManager().cartPreorderItems.length;
+    cartItemCount = CartDatabaseManager().cartItems.length;
     CartDatabaseManager().addListener(_updateCartCount);
   }
 
@@ -73,8 +72,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
 
   void _updateCartCount() {
     setState(() {
-      cartItemCount = CartDatabaseManager().cartItems.length +
-          CartDatabaseManager().cartPreorderItems.length;
+      cartItemCount = CartDatabaseManager().cartItems.length;
     });
   }
 
@@ -305,9 +303,9 @@ void handleBackNavigation(
                   onPressed: () {
                     Navigator.pop(context);
                     CartDatabaseManager().cartItems.clear();
-                    CartDatabaseManager().cartPreorderItems.clear();
+                   
                     CartDatabaseManager().clearCartOnSave(customerId);
-                    CartDatabaseManager().clearPreorderCart();
+                  
                     log('Cart Cleared');
                     updateTabIndex();
                   },

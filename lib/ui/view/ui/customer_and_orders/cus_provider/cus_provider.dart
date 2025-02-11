@@ -156,8 +156,7 @@ class CustomersProvider with ChangeNotifier {
   Future<int> getCartItemCounts(String customerId) async {
     try {
       final cartItems = CartDatabaseManager().getCartItems(customerId);
-      final preorderItemsCount = CartDatabaseManager().cartPreorderItems.length;
-      final count = cartItems.length + preorderItemsCount;
+      final count = cartItems.length;
       cartItemCount = count;
       notifyListeners();
       log('Cart count calculated for customer $customerId: $cartItemCount');
@@ -171,8 +170,7 @@ class CustomersProvider with ChangeNotifier {
   void updateCartCount(String customerId) {
     try {
       final cartItems = CartDatabaseManager().getCartItems(customerId);
-      final preorderItemsCount = CartDatabaseManager().cartPreorderItems.length;
-      cartItemCount = cartItems.length + preorderItemsCount;
+      cartItemCount = cartItems.length;
       notifyListeners();
       log('Cart count updated for customer $customerId: $cartItemCount');
     } catch (e) {

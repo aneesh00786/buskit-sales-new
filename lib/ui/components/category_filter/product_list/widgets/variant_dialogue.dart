@@ -44,9 +44,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   late List<int> localCounts;
-
-  bool canAddQuantity = false;
-
   @override
   void initState() {
     super.initState();
@@ -457,8 +454,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                               setState(() {
                                                 detail.saleBy ??= 'Pack';
 
-                                                if (detail.stock == 0 &&
-                                                    canAddQuantity == false) {
+                                                if (detail.stock == 0) {
                                                   showDialog(
                                                     context: context,
                                                     builder:
@@ -562,8 +558,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                           ElevatedButton(
                                                             onPressed: () {
                                                               setState(() {
-                                                                canAddQuantity =
-                                                                    true;
                                                                 localCounts[
                                                                     i]++;
                                                               });
@@ -599,8 +593,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                       );
                                                     },
                                                   );
-                                                } else if (detail.stock == 0 &&
-                                                    canAddQuantity == true) {
+                                                } else if (detail.stock == 0) {
                                                   localCounts[i]++;
                                                 } else {
                                                   localCounts[i]++;
@@ -646,197 +639,104 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ? customerAndOrderController.customerId.value
                                 : widget
                                     .productController.selectedCustomerId.value;
-                            if (canAddQuantity == false) {
-                              log('Customer ID: ${customerAndOrderController.customerId.value}');
-                              log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
-                              log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
-                              if ((customerAndOrderController
-                                      .customerId.value.isNotEmpty) ||
-                                  (widget.productController.selectedCustomerName
-                                      .value.isNotEmpty)) {
-                                final existingDraft =
-                                    await CartDatabaseManager()
-                                        .getDraftItems(customerId);
-                                    CartDatabaseManager()
-                                        .getCartItems(customerId);
-                                final draftItemMap = existingDraft.isNotEmpty
-                                    ? {
-                                        for (var item in existingDraft)
-                                          '${item.detail.variationName}_${item.detail.sellPrice}':
-                                              item
-                                      }
-                                    : {};
-                                for (var i = 0;
-                                    i < widget.detailsCopy.length;
-                                    i++) {
-                                  Detail detail = widget.detailsCopy[i];
-                                  bool isProductAlreadyInDraft =
-                                      draftItemMap.containsKey(
-                                          '${detail.variationName}_${detail.sellPrice}');
-                                  
-                                  if (localCounts[i] > 0) {
-                                    if (isProductAlreadyInDraft) {
-                                      final draftItem = draftItemMap[
-                                          '${detail.variationName}_${detail.sellPrice}']!;
-                                      draftItem.detail.count += localCounts[i];
-                                      draftItem.totalPrice = draftItem.isPack
-                                          ? (draftItem.detail.count *
-                                                  draftItem.detail.pieces! *
-                                                  num.parse(draftItem
-                                                          .detail.sellPrice ??
-                                                      '0'))
-                                              .toDouble()
-                                          : (draftItem.detail.count *
-                                                  num.parse(draftItem
-                                                          .detail.sellPrice ??
-                                                      '0'))
-                                              .toDouble();
-                                      log('Draft item updated: ${draftItem.detail.variationName}, New Count: ${draftItem.detail.count}, Total Price: ${draftItem.totalPrice}');
-                                      Navigator.pop(context);
-                                      for (var item in existingDraft) {
-                                        await CartDatabaseManager()
-                                            .cartBox
-                                            .put(item.customerId, item);
-                                      }
-                                    } else {
-                                      final bool isPack =
-                                          detail.saleBy == 'Pack';
-                                      await CartDatabaseManager().addToCart(
-                                        customerId: customerId,
-                                        localCount: localCounts[i],
-                                        detail: detail,
-                                        isPack: isPack,
-                                        productName:
-                                            widget.product.productName ?? '',
-                                      );
-                                      log('Product added to cart or draft with ID: ${detail.variationId}');
+
+                            log('Customer ID: ${customerAndOrderController.customerId.value}');
+                            log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
+                            log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
+                            if ((customerAndOrderController
+                                    .customerId.value.isNotEmpty) ||
+                                (widget.productController.selectedCustomerName
+                                    .value.isNotEmpty)) {
+                              final existingDraft = await CartDatabaseManager()
+                                  .getDraftItems(customerId);
+                              CartDatabaseManager().getCartItems(customerId);
+                              final draftItemMap = existingDraft.isNotEmpty
+                                  ? {
+                                      for (var item in existingDraft)
+                                        '${item.detail.variationName}_${item.detail.sellPrice}':
+                                            item
+                                    }
+                                  : {};
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                Detail detail = widget.detailsCopy[i];
+                                bool isProductAlreadyInDraft =
+                                    draftItemMap.containsKey(
+                                        '${detail.variationName}_${detail.sellPrice}');
+
+                                if (localCounts[i] > 0) {
+                                  if (isProductAlreadyInDraft) {
+                                    final draftItem = draftItemMap[
+                                        '${detail.variationName}_${detail.sellPrice}']!;
+                                    draftItem.detail.count += localCounts[i];
+                                    draftItem.totalPrice = draftItem.isPack
+                                        ? (draftItem.detail.count *
+                                                draftItem.detail.pieces! *
+                                                num.parse(draftItem
+                                                        .detail.sellPrice ??
+                                                    '0'))
+                                            .toDouble()
+                                        : (draftItem.detail.count *
+                                                num.parse(draftItem
+                                                        .detail.sellPrice ??
+                                                    '0'))
+                                            .toDouble();
+                                    log('Draft item updated: ${draftItem.detail.variationName}, New Count: ${draftItem.detail.count}, Total Price: ${draftItem.totalPrice}');
+                                    Navigator.pop(context);
+                                    for (var item in existingDraft) {
+                                      await CartDatabaseManager()
+                                          .cartBox
+                                          .put(item.customerId, item);
                                     }
                                   } else {
-                                    log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
-                                  }
-                                }
-
-                                widget.onDone();
-                                Navigator.pop(context);
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      actions: [
-                                        const SizedBox(height: 20),
-                                        const Center(
-                                            child: Icon(
-                                                Icons.warning_amber_outlined,
-                                                size: 50,
-                                                color: Colors.orange)),
-                                        const SizedBox(height: 20),
-                                        Center(
-                                            child: CustomText(
-                                                content:
-                                                    "Please Select a Customer",
-                                                fontSize: 18)),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: CustomText(
-                                              content: "Ok",
-                                              color: primaryColor),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                                
-                              }
-                            } else if (canAddQuantity == true) {
-                              log('Customer ID: ${customerAndOrderController.customerId.value}');
-                              log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
-                              log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
-                              if ((customerAndOrderController
-                                      .customerId.value.isNotEmpty) ||
-                                  (widget.productController.selectedCustomerName
-                                      .value.isNotEmpty)) {
-                                List<CartItem> cartPreorderItems =
-                                    CartDatabaseManager()
-                                        .getCartPreorderItems(customerId);
-                                List<Detail> detailsFromCart = cartPreorderItems
-                                    .map((cartPreorderItem) =>
-                                        cartPreorderItem.detail)
-                                    .toList();
-                                for (var i = 0;
-                                    i < widget.detailsCopy.length;
-                                    i++) {
-                                  Detail detail = widget.detailsCopy[i];
-                                  final bool isPack = detail.saleBy == 'Pack';
-                                  if (localCounts[i] > 0) {
-                                    if ((detail.stock ?? 0) > 0) {
-                                      
-                                    } else if (canAddQuantity) {
-                                      bool isProductAlreadyInPreorderCart =
-                                          detailsFromCart.any(
-                                        (item) =>
-                                            item.variationName ==
-                                                detail.variationName &&
-                                            item.sellPrice == detail.sellPrice,
-                                      );
-
-                                      if (!isProductAlreadyInPreorderCart) {
-                                        CartDatabaseManager().addToPreorderCart(
-                                          detail,
+                                    final bool isPack = detail.saleBy == 'Pack';
+                                    await CartDatabaseManager().addToCart(
+                                      customerId: customerId,
+                                      localCount: localCounts[i],
+                                      detail: detail,
+                                      isPack: isPack,
+                                      productName:
                                           widget.product.productName ?? '',
-                                          detail.totalPrice?.toInt()??0,
-                                          isPack,
-                                          localCounts[i],
-                                          customerId
-                                        );
-                                        log('Product added to pre-order cart with ID: ${detail.variationId}');
-                                      } else {
-                                        log('Product with ID: ${detail.variationId} is already in the pre-order cart. Updating count.');
-                                        CartDatabaseManager()
-                                            .updatePreorderCartItemCount(
-                                                detail, localCounts[i]);
-                                      }
-                                    }
-                                  } else {
-                                    log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
-                                  }
-                                }
-
-                                widget.onDone();
-                                Navigator.pop(context);
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      actions: [
-                                        const SizedBox(height: 20),
-                                        const Center(
-                                            child: Icon(
-                                                Icons.warning_amber_outlined,
-                                                size: 50,
-                                                color: Colors.orange)),
-                                        const SizedBox(height: 20),
-                                        Center(
-                                            child: CustomText(
-                                                content:
-                                                    "Please Select a Customer",
-                                                fontSize: 18)),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: CustomText(
-                                              content: "Ok",
-                                              color: primaryColor),
-                                        ),
-                                      ],
                                     );
-                                  },
-                                );
+                                    log('Product added to cart or draft with ID: ${detail.variationId}');
+                                  }
+                                } else {
+                                  log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
+                                }
                               }
+
+                              widget.onDone();
+                              Navigator.pop(context);
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      const SizedBox(height: 20),
+                                      const Center(
+                                          child: Icon(
+                                              Icons.warning_amber_outlined,
+                                              size: 50,
+                                              color: Colors.orange)),
+                                      const SizedBox(height: 20),
+                                      Center(
+                                          child: CustomText(
+                                              content:
+                                                  "Please Select a Customer",
+                                              fontSize: 18)),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: CustomText(
+                                            content: "Ok", color: primaryColor),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -852,9 +752,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                           child: Row(
                             children: [
                               CustomText(
-                                content: canAddQuantity
-                                    ? "Add to Cart"
-                                    : "Add to Cart",
+                                content: "Add to Cart",
                                 fontSize: screenWidth * 0.02,
                                 color: Colors.white,
                               ),

@@ -80,7 +80,6 @@ class _OrderTakingState extends State<OrderTaking>
   final double _drawerWidth = 300.0;
   bool active = false;
   String _selectedCategory = '';
-  bool isOrder = true;
   int _expandedIndex = -1;
   final String _dialogMessage = '';
   var searchText = ''.obs;
@@ -90,10 +89,6 @@ class _OrderTakingState extends State<OrderTaking>
   void initState() {
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
     super.initState();
-    isOrder = CartDatabaseManager().cartItems.isEmpty &&
-            CartDatabaseManager().cartPreorderItems.isNotEmpty
-        ? false
-        : true;
     if (widget.isDirectDialogue) {
       customerAndOrderController.customerId.value = '';
       widget.productsController.selectedCustomerId.value = '';
@@ -417,7 +412,6 @@ class _OrderTakingState extends State<OrderTaking>
   //   log('Is From Calendar: ${widget.isFromCalender}');
   // }
 
-
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -440,33 +434,20 @@ class _OrderTakingState extends State<OrderTaking>
                   customerAndOrderController.customerId.isNotEmpty
                       ? customerAndOrderController.customerId.value
                       : widget.productsController.selectedCustomerId.value;
-              bool hasDraftId = isOrder
-                  ? CartDatabaseManager().cartItems.every((item) =>
-                      item.draftId != null && item.draftId!.isNotEmpty)
-                  : CartDatabaseManager().cartPreorderItems.every((item) =>
+              bool hasDraftId = CartDatabaseManager().cartItems.every((item) =>
                       item.draftId != null && item.draftId!.isNotEmpty);
               log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
-              if (CartDatabaseManager().cartItems.isNotEmpty ||
-                  CartDatabaseManager().cartPreorderItems.isNotEmpty &&
+              if (CartDatabaseManager().cartItems.isNotEmpty  &&
                       customerId.isNotEmpty &&
                       !hasDraftId &&
                       !toDash) {
                 log('Log 1');
-                log('Preorder Cart ${CartDatabaseManager().cartPreorderItems.length}');
                 log('To Dash $toDash');
-                List<Detail> detail = isOrder
-                    ? CartDatabaseManager()
+                List<Detail> detail =  CartDatabaseManager()
                         .cartItems
                         .map((e) => e.detail)
-                        .toList()
-                    : CartDatabaseManager()
-                        .cartPreorderItems
-                        .map((e) => e.detail)
                         .toList();
-                final cartDetails = isOrder
-                    ? await CartDatabaseManager().getCartAndDraftIds(customerId)
-                    : await CartDatabaseManager()
-                        .getPreOrderCartAndDraftIds(customerId);
+                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
 
                 Future.delayed(const Duration(seconds: 1));
 
@@ -513,17 +494,7 @@ class _OrderTakingState extends State<OrderTaking>
                     Navigator.pop(context);
                     if (statusCode == 200) {
                       final draftId = response?['id'];
-                      isOrder
-                          ? CartDatabaseManager().saveCartAsDraft(
-                              customerId,
-                              existingCartId.isNotEmpty
-                                  ? existingCartId
-                                  : cartOrder.cartId,
-                              existingDraftId.isNotEmpty
-                                  ? existingDraftId
-                                  : draftId,
-                            )
-                          : CartDatabaseManager().savePreOrderCartAsDraft(
+                       CartDatabaseManager().saveCartAsDraft(
                               customerId,
                               existingCartId.isNotEmpty
                                   ? existingCartId
@@ -599,27 +570,20 @@ class _OrderTakingState extends State<OrderTaking>
                     }
                   });
                 }
-              } else if (CartDatabaseManager().cartItems.isNotEmpty ||
-                  CartDatabaseManager().cartPreorderItems.isNotEmpty &&
-                      customerId.isNotEmpty &&
-                      !hasDraftId &&
-                      toDash) {
+              } else if (CartDatabaseManager().cartItems.isNotEmpty &&
+                  customerId.isNotEmpty &&
+                  !hasDraftId &&
+                  toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
-                log('Preorder Cart 1 ${CartDatabaseManager().cartPreorderItems.length}');
-                List<Detail> detail = isOrder
-                    ? CartDatabaseManager()
+                List<Detail> detail = 
+                     CartDatabaseManager()
                         .cartItems
                         .map((e) => e.detail)
-                        .toList()
-                    : CartDatabaseManager()
-                        .cartPreorderItems
-                        .map((e) => e.detail)
                         .toList();
-                final cartDetails = isOrder
-                    ? await CartDatabaseManager().getCartAndDraftIds(customerId)
-                    : await CartDatabaseManager()
-                        .getPreOrderCartAndDraftIds(customerId);
+                    
+                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
+                    
 
                 Future.delayed(const Duration(seconds: 1));
 
@@ -665,17 +629,7 @@ class _OrderTakingState extends State<OrderTaking>
                   await placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
                       final draftId = response?['id'];
-                      isOrder
-                          ? CartDatabaseManager().saveCartAsDraft(
-                              customerId,
-                              existingCartId.isNotEmpty
-                                  ? existingCartId
-                                  : cartOrder.cartId,
-                              existingDraftId.isNotEmpty
-                                  ? existingDraftId
-                                  : draftId,
-                            )
-                          : CartDatabaseManager().savePreOrderCartAsDraft(
+                       CartDatabaseManager().saveCartAsDraft(
                               customerId,
                               existingCartId.isNotEmpty
                                   ? existingCartId
@@ -684,6 +638,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   ? existingDraftId
                                   : draftId,
                             );
+                          
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -758,17 +713,14 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                isOrder
-                    ? CartDatabaseManager().cartItems.clear()
-                    : CartDatabaseManager().cartPreorderItems.clear();
-                isOrder
-                    ? CartDatabaseManager().clearCart(customerId)
-                    : CartDatabaseManager().clearPreOrderCart(customerId);
+                CartDatabaseManager().cartItems.clear();
+               CartDatabaseManager().clearCart(customerId);
+                  
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                 log('Log 3');
-                log('Preorder Cart 2 ${CartDatabaseManager().cartPreorderItems.length}');
+            
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
                   homeController.selectedIndex.value = 0;
@@ -776,22 +728,14 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                isOrder
-                    ? CartDatabaseManager().cartItems.clear()
-                    : CartDatabaseManager().cartPreorderItems.clear();
-                isOrder
-                    ? CartDatabaseManager().clearCart(customerId)
-                    : CartDatabaseManager().clearPreOrderCart(customerId);
+                 CartDatabaseManager().cartItems.clear();
+                 CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');
                 Navigator.pop(context);
-                isOrder
-                    ? CartDatabaseManager().cartItems.clear()
-                    : CartDatabaseManager().cartPreorderItems.clear();
-                isOrder
-                    ? CartDatabaseManager().clearCart(customerId)
-                    : CartDatabaseManager().clearPreOrderCart(customerId);
+                 CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().clearCart(customerId);
               }
             },
             icon: const Icon(Icons.arrow_back_ios),
@@ -817,7 +761,8 @@ class _OrderTakingState extends State<OrderTaking>
                                     : const Color.fromARGB(123, 194, 192, 192),
                                 child: widget.productsController
                                         .selectedCustomerImageUrl.isEmpty
-                                    ? const Icon(Icons.person, color: Colors.white)
+                                    ? const Icon(Icons.person,
+                                        color: Colors.white)
                                     : CachedNetworkImage(
                                         imageUrl:
                                             '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
@@ -831,7 +776,8 @@ class _OrderTakingState extends State<OrderTaking>
                                             CircleAvatar(
                                           radius: 20,
                                           backgroundColor: Colors.grey[300],
-                                          child: const CircularProgressIndicator(
+                                          child:
+                                              const CircularProgressIndicator(
                                             strokeWidth: 2,
                                             color: Colors.grey,
                                           ),
@@ -952,7 +898,8 @@ class _OrderTakingState extends State<OrderTaking>
                                               child: Material(
                                                 child: Container(
                                                   width: 300,
-                                                  decoration: const BoxDecoration(
+                                                  decoration:
+                                                      const BoxDecoration(
                                                     color: Colors.white,
                                                   ),
                                                   padding: const EdgeInsets

@@ -603,6 +603,64 @@ Future<ProductResponse> fetchCustomerDashboardCartData({
       throw Exception('Failed to fetch orders: $e');
     }
   }
+  Future<OrderResponse> fetchCustomerDashOrderstoCart({
+    required String cusId,
+    required String salesmanId,
+    required String startDate,
+    required String endDate,
+    required dynamic orderType,
+    OrderStatus? orderStatus,
+  }) async {
+    final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
+    final requestBody = {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "customer_id": cusId,
+      "salesman_id": "",
+      "order_type": orderType,
+      "payment_type": "1",
+      "start_date": startDate,
+      "end_date": endDate,
+      "limit": 1000,
+      "page": 1,
+    };
+    log("Request Body Of ${requestBody}");
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        log('Fetch All Orders Response: $jsonResponse');
+
+        Pagination pagination =
+            Pagination.fromJson(jsonResponse['pagination'] ?? {});
+        List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
+        log('Fetch All Orders Customer Pagination: ${pagination.totalRecord}');
+
+        List<OrdersDash> orders = [];
+        if (orderData != null) {
+          orders = orderData
+              .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
+              .toList();
+        }
+        return OrderResponse(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? '',
+          data: orders,
+          pagination: pagination,
+        );
+      } else {
+        throw Exception('Failed to fetch orders - ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Failed to fetch orders: $e');
+      throw Exception('Failed to fetch orders: $e');
+    }
+  }
 
   Future<void> changeOrderStatus(
       String orderId, OrderStatus orderStatus) async {

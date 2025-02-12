@@ -11,12 +11,10 @@ class CartDatabaseManager {
   static final CartDatabaseManager _instance = CartDatabaseManager._internal();
   factory CartDatabaseManager() => _instance;
   CartDatabaseManager._internal();
-
   final Box<CartItem> cartBox = Hive.box<CartItem>('cartBox');
   final Box<Draft> draftBox = Hive.box<Draft>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
-
   List<CartItem> getCartItems(String customerId) {
     try {
       final customerCartItems = cartBox.values

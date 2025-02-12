@@ -354,6 +354,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           userId: "",
                           startDate: startDate,
                           endDate: endDate,
+                          productsController:widget.productsController,
                         ),
                         const SizedBox(height: 5.7),
                         Expanded(

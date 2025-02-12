@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -18,11 +19,14 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/customer_order_status_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import 'package:provider/provider.dart';
 
@@ -39,8 +43,9 @@ class OptionWidgetCustomerDash extends StatelessWidget {
   final OrderStatus? customOrderStatusType;
   final String? startDate;
   final String? endDate;
+  final ProductsController? productsController;
 
-  const OptionWidgetCustomerDash({
+   OptionWidgetCustomerDash({
     super.key,
     required this.customerId,
     this.optionFun,
@@ -50,9 +55,11 @@ class OptionWidgetCustomerDash extends StatelessWidget {
     this.customOrderStatusType,
     this.startDate,
     this.endDate,
+    this.productsController,
     this.isVisible = false,
   });
-
+    CustomerAndOrderController customerOrderController =
+      Get.put(CustomerAndOrderController());
   @override
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(
@@ -326,7 +333,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
     }
   }
 
- void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
+  void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
       OrderStatus selectedOrderStatus) {
     showDialog(
       context: context,
@@ -1305,12 +1312,31 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                                                               child: IconButton(
                                                                   onPressed:
                                                                       () {
-                                                                    showDetailedOrderInvoiceDialog(
-                                                                        context,
-                                                                        order,
-                                                                        true,
-                                                                        isButtonNeeded:
-                                                                            true);
+                                                                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return CartDialogue(
+                                                                          active:
+                                                                              true,
+                                                                          cartItemCount:
+                                                                              cartProvider.cartItemCount,
+                                                                          productsController:
+                                                                              productsController??ProductsController(),
+                                                                          customerOrderController:
+                                                                              customerOrderController,
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                    // showDetailedOrderInvoiceDialog(
+                                                                    //     context,
+                                                                    //     order,
+                                                                    //     true,
+                                                                    //     isButtonNeeded:
+                                                                    //         true);
                                                                   },
                                                                   icon:
                                                                       const Icon(
@@ -1493,4 +1519,3 @@ class OptionData {
     this.color,
   });
 }
-

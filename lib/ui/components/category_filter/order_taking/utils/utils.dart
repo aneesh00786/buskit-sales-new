@@ -48,7 +48,6 @@ class Utils {
       return sum + (sellingPrice * count);
     });
   }
-
   double calculateTotalTax(List<CartItem> items) {  
     return items.fold(0.0, (sum, item) {
       double tax = item.detail.tax?.toDouble() ?? 0.0;

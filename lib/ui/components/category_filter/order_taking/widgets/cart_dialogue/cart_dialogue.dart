@@ -54,10 +54,15 @@ class CartDialogueState extends State<CartDialogue> {
   List<int> quantities = [];
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
-  double total = 0.0;
-  double preorderTotal = 0.0;
-  double tax = 0.0;
+  double orderSubtotal = 0.0;
+  double orderTax = 0.0;
+  double orderFinalAmount = 0.0;
+  double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
+  double preorderFinalAmount = 0.0;
+
+  bool isOrder = true; // Toggle between Orders and Pre-orders
+
   String? _selectedValue;
   String? _dropdownValue;
   int? paymentType;
@@ -78,7 +83,6 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
   bool _isLoading = true;
-  bool isOrder = true;
   bool isDraft = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
@@ -86,7 +90,7 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-    calculateAmount(cartItems);
+    calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
     log('CartList Length : ${cartItems.length}');
@@ -106,9 +110,13 @@ class CartDialogueState extends State<CartDialogue> {
           widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value;
-      cartItems = CartDatabaseManager().getCartItems(customerId);
+
+      // Fetch cart and draft items
+      cartItems = await CartDatabaseManager().getCartItems(customerId);
       List<CartItem> draftItems =
           await CartDatabaseManager().getDraftItems(customerId);
+
+      // Combine and remove duplicates
       final Map<String, CartItem> uniqueItems = {
         for (var item in cartItems)
           '${item.detail.variationName}_${item.detail.sellPrice}': item,
@@ -116,12 +124,39 @@ class CartDialogueState extends State<CartDialogue> {
           '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
       };
       cartItems = uniqueItems.values.toList();
+
+      // Separate items into orders and pre-orders
+      List<CartItem> orderItems =
+          cartItems.where((item) => item.detail.stock! > 0).toList();
+      List<CartItem> preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
+
+      // Calculate totals for orders
+      double orderSubtotal = Utils().calculateSubtotal(orderItems);
+      double orderTax = Utils().calculateTotalTax(orderItems);
+      double orderFinalAmount = orderSubtotal + orderTax;
+
+      // Calculate totals for pre-orders
+      double preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+      double preorderTax = Utils().calculateTotalTax(preorderItems);
+      double preorderFinalAmount = preorderSubtotal + preorderTax;
+
+      // Update the state
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);
-        total = Utils().getFinalAmount(cartItems);
-        tax = Utils().getTotalTax(cartItems);
         _isLoading = false;
+
+        // Order totals
+        this.orderSubtotal = orderSubtotal;
+        this.orderTax = orderTax;
+        this.orderFinalAmount = orderFinalAmount;
+
+        // Pre-order totals
+        this.preorderSubtotal = preorderSubtotal;
+        this.preorderTax = preorderTax;
+        this.preorderFinalAmount = preorderFinalAmount;
       });
+
       if (_options.isNotEmpty) {
         _selectedValue = _options[0];
       }
@@ -399,27 +434,6 @@ class CartDialogueState extends State<CartDialogue> {
   //     });
   //   }
   // }
-  double calculateSubtotal(List<CartItem> items) {
-    return items.fold(
-      0.0,
-      (sum, item) =>
-          sum +
-          (num.parse(item.detail.sellingPrice.toString()) *
-              num.parse(item.count.toString())),
-    );
-  }
-
-  double calculateTotalTax(List<CartItem> items) {
-    return items.fold(
-      0.0,
-      (sum, item) =>
-          sum +
-          (item.detail.tax ?? 0) *
-              (item.isPack == true ? item.detail.pieces! : 1),
-    );
-  }
-
-  double? finalAmount;
   @override
   Widget build(BuildContext context) {
     log('preOrder items : ${preorderItems.length}');
@@ -432,20 +446,6 @@ class CartDialogueState extends State<CartDialogue> {
         ),
       );
     }
-    if (isOrder) {
-      finalAmount = calculateSubtotal(
-              cartItems.where((item) => item.detail.stock! > 0).toList()) +
-          calculateTotalTax(
-              cartItems.where((item) => item.detail.stock! > 0).toList());
-    } else {
-      finalAmount = calculateSubtotal(
-              cartItems.where((item) => item.detail.stock == 0).toList()) +
-          calculateTotalTax(
-              cartItems.where((item) => item.detail.stock == 0).toList());
-    }
-
-    widget.productsController.updateFinalAmount(finalAmount ?? 0);
-    String formattedAmount = finalAmount?.toStringAsFixed(2) ?? '';
     final Size screenSize = MediaQuery.of(context).size;
     final double width = screenSize.width;
     final double height = screenSize.height;
@@ -608,7 +608,71 @@ class CartDialogueState extends State<CartDialogue> {
                                   ),
                                 ),
                               ),
-                            )
+                            ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        color: lightPrimaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Subtotal',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(orderSubtotal),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5.0),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Tax',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(orderTax),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      CartTotalWidget(
+                        title: 'Final Amount',
+                        content: double.parse(
+                            orderFinalAmount.toStringAsFixed(2) ?? ''),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color2: Colors.green,
+                      ),
                     ],
                     if (!isOrder) ...[
                       (cartItems
@@ -662,87 +726,72 @@ class CartDialogueState extends State<CartDialogue> {
                                   ),
                                 ),
                               ),
-                            )
+                            ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        color: lightPrimaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Subtotal',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(preorderSubtotal),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5.0),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Tax',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(preorderTax),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      CartTotalWidget(
+                        title: 'Final Amount',
+                        content: double.parse(
+                            preorderFinalAmount?.toStringAsFixed(2) ?? ''),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color2: Colors.green,
+                      ),
                     ],
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      color: lightPrimaryColor,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Subtotal',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(
-                                isOrder
-                                    ? calculateSubtotal(cartItems
-                                        .where((item) => item.detail.stock! > 0)
-                                        .toList())
-                                    : calculateSubtotal(cartItems
-                                        .where((item) => item.detail.stock == 0)
-                                        .toList()),
-                              ),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5.0),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Tax',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(
-                                isOrder
-                                    ? calculateTotalTax(cartItems
-                                        .where((item) => item.detail.stock! > 0)
-                                        .toList())
-                                    : calculateTotalTax(cartItems
-                                        .where((item) => item.detail.stock == 0)
-                                        .toList()),
-                              ),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Divider(),
-                    CartTotalWidget(
-                      title: 'Final Amount',
-                      content: double.parse(formattedAmount),
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color2: Colors.green,
-                    ),
                     SizedBox(
                       height: _selectedValue == "Quick Sale"
                           ? (_dropdownValue == "Cheque" ||
@@ -760,8 +809,8 @@ class CartDialogueState extends State<CartDialogue> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: filteredOptions.map((option) {
-                              totalQuickController.text =
-                                  '\$${double.parse(formattedAmount)}';
+                              // totalQuickController.text =
+                              //     '\$${double.parse(formattedAmount)}';
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
@@ -1163,7 +1212,8 @@ class CartDialogueState extends State<CartDialogue> {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     await processSaveAndSend(
-                                      finalAmount: finalAmount ?? 0,
+                                      finalAmount: 0,
+                                      //finalAmount ?? 0,
                                       paymentType: paymentType,
                                       context: context,
                                       cartId: cartId,
@@ -1181,7 +1231,8 @@ class CartDialogueState extends State<CartDialogue> {
                                   }
                                 } else {
                                   await processSaveAndSend(
-                                      finalAmount: finalAmount ?? 0,
+                                      finalAmount: 0,
+                                      //finalAmount ?? 0,
                                       context: context,
                                       cartId: cartId,
                                       draftId: draftId);
@@ -1850,17 +1901,27 @@ class CartDialogueState extends State<CartDialogue> {
         widget.customerOrderController!.customerId.value.isNotEmpty
             ? widget.customerOrderController!.customerId.value
             : widget.productsController.selectedCustomerId.value;
-    setState(() {});
-    cartItems.removeWhere((item) =>
-        item.productName == variantToDelete.productName &&
-        item.detail.variationName == variantToDelete.detail.variationName);
-    CartDatabaseManager()
-        .deleteDraftItem(customerId, variantToDelete.detail.variationId ?? '');
-    CartDatabaseManager().deleteCartItem(variantToDelete);
 
-    total = Utils().getFinalAmount(cartItems);
-    tax = Utils().getTotalTax(cartItems);
-    provider.updateCartCount(customerId);
+    setState(() {
+      cartItems.removeWhere((item) =>
+          item.productName == variantToDelete.productName &&
+          item.detail.variationName == variantToDelete.detail.variationName);
+      CartDatabaseManager().deleteDraftItem(
+          customerId, variantToDelete.detail.variationId ?? '');
+      CartDatabaseManager().deleteCartItem(variantToDelete);
+      List<CartItem> orderItems =
+          cartItems.where((item) => item.detail.stock! > 0).toList();
+      List<CartItem> preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
+      orderSubtotal = Utils().calculateSubtotal(orderItems);
+      orderTax = Utils().calculateTotalTax(orderItems);
+      orderFinalAmount = orderSubtotal + orderTax;
+      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+      preorderTax = Utils().calculateTotalTax(preorderItems);
+      preorderFinalAmount = preorderSubtotal + preorderTax;
+      provider.updateCartCount(customerId);
+    });
+
     log('Deleted variant: ${variantToDelete.detail.variationName}');
   }
 
@@ -1884,26 +1945,29 @@ class CartDialogueState extends State<CartDialogue> {
             child: Padding(
               padding: const EdgeInsets.all(2),
               child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (cartItem.detail.count > 0) {
-                        cartItem.detail.count--;
-                        log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
-                        CartDatabaseManager().updateCart(cartItem);
-                        calculateAmount(cartItems);
-                      }
-                    });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(left: padding, right: padding),
-                    child: CustomText(
-                      color: white,
-                      content: '-',
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
+                onTap: () {
+                  setState(() {
+                    if (cartItem.detail.count > 0) {
+                      cartItem.detail.count--;
+                      log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
+                      CartDatabaseManager().updateCart(cartItem);
+                      setState(() {
+                        calculateAmounts();
+                      });
+                    }
+                  });
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: padding),
+                  child: CustomText(
+                    color: white,
+                    content: '-',
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ),
           ),
           CustomText(
@@ -1924,11 +1988,13 @@ class CartDialogueState extends State<CartDialogue> {
                     cartItem.detail.count++;
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     CartDatabaseManager().updateCart(cartItem);
-                    calculateAmount(cartItems);
+                    setState(() {
+                      calculateAmounts();
+                    });
                   });
                 },
                 child: Padding(
-                  padding: EdgeInsets.only(left: padding, right: padding),
+                  padding: EdgeInsets.symmetric(horizontal: padding),
                   child: CustomText(
                     color: white,
                     content: '+',
@@ -1945,28 +2011,28 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void calculateAmount(List<CartItem> cartItems) {
-    total = 0.0;
-    tax = 0.0;
-    for (var cartItem in cartItems) {
-      double? price = cartItem.isPack == true
-          ? cartItem.detail.sellingPackPrice!.toDouble()
-          : cartItem.detail.sellingPrice!.toDouble();
-      if (price != null) {
-        cartItem.totalPrice = (price * cartItem.detail.count);
-        total += cartItem.totalPrice;
-        double? itemTax = cartItem.isPack == true
-            ? double.tryParse(cartItem.detail.tax.toString())! *
-                double.tryParse(cartItem.detail.pieces.toString())!
-            : double.tryParse(cartItem.detail.tax.toString());
-        if (itemTax != null) {
-          tax += itemTax * cartItem.detail.count;
-        }
-      }
+void calculateAmounts() {
+  List<CartItem> orderItems =
+      cartItems.where((item) => item.detail.stock! > 0).toList();
+  List<CartItem> preorderItems =
+      cartItems.where((item) => item.detail.stock == 0).toList();
+  log("Order Items: ${orderItems.length}");
+  log("Preorder Items: ${preorderItems.length}");
+  setState(() {
+    if (isOrder) {
+      orderSubtotal = Utils().calculateSubtotal(orderItems);
+      orderTax = Utils().calculateTotalTax(orderItems);
+      orderFinalAmount = orderSubtotal + orderTax;
+      log("Order Subtotal: $orderSubtotal, Order Tax: $orderTax, Final Amount: $orderFinalAmount");
+    } else {
+      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+      preorderTax = Utils().calculateTotalTax(preorderItems);
+      preorderFinalAmount = preorderSubtotal + preorderTax;
+      log("Preorder Subtotal: $preorderSubtotal, Preorder Tax: $preorderTax, Final Amount: $preorderFinalAmount");
     }
-    log("Total price for all items: \$${total.toStringAsFixed(2)}");
-    log("Total tax for all items: \$${tax.toStringAsFixed(2)}");
-  }
+  });
+}
+
 
   void _clearCartItem(List<CartItem> cartItem, bool isSave) {
     if (isSave) {
@@ -1998,15 +2064,19 @@ class CartDialogueState extends State<CartDialogue> {
   //   });
   //   log('Cart Item Cleared : $cartPreorderItem');
   // }
-
   void _deleteItem(String productName) {
     setState(() {
+      // Identify and delete the items from the database
       final itemsToDeleteFromCart =
           cartItems.where((item) => item.productName == productName).toList();
       for (var item in itemsToDeleteFromCart) {
         CartDatabaseManager().deleteCartItem(item);
       }
+
+      // Remove the items from the cart
       cartItems.removeWhere((item) => item.productName == productName);
+
+      // Remove associated quantities
       List<int> indicesToRemove = [];
       for (int i = 0; i < cartItems.length; i++) {
         if (cartItems[i].productName == productName) {
@@ -2016,8 +2086,22 @@ class CartDialogueState extends State<CartDialogue> {
       for (int index in indicesToRemove.reversed) {
         quantities.removeAt(index);
       }
-      total = Utils().getFinalAmount(cartItems);
-      tax = Utils().getTotalTax(cartItems);
+
+      // Separate order and pre-order items
+      List<CartItem> orderItems =
+          cartItems.where((item) => item.detail.stock! > 0).toList();
+      List<CartItem> preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
+
+      // Recalculate totals for orders
+      orderSubtotal = Utils().calculateSubtotal(orderItems);
+      orderTax = Utils().calculateTotalTax(orderItems);
+      orderFinalAmount = orderSubtotal + orderTax;
+
+      // Recalculate totals for pre-orders
+      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+      preorderTax = Utils().calculateTotalTax(preorderItems);
+      preorderFinalAmount = preorderSubtotal + preorderTax;
     });
 
     log('Items deleted for product: $productName');

@@ -2,38 +2,58 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 
 class Utils {
-  double getTotalPrice(List<CartItem> cartItems,int totalAmount) {
+  double getTotalPrice(List<CartItem> cartItems, int totalAmount) {
     double totalPrice = 0.0;
     for (var cartItem in cartItems) {
-      cartItem.detail.saleBy = 'Pack';
-      log('Saleby : ${cartItem.detail.saleBy}');
-      if (cartItem.detail.saleBy!='Pack') {
-        double price = double.tryParse(totalAmount.toString()) ?? 0.0;
-      totalPrice += price * cartItem.detail.count.toDouble();
-      log('Total Price$totalPrice - Price : $price - Cart Item Count ${cartItem.detail.count}');
-      }else{
-        double price = double.tryParse(totalAmount.toString()) ?? 0.0;
-      totalPrice += price *cartItem.detail.pieces!* cartItem.detail.count.toDouble();
-      log('Total Price$totalPrice - Price : $price -Pieces : ${cartItem.detail.pieces!} - Cart Item Count ${cartItem.detail.count}');
+      log('SaleBy: ${cartItem.detail.saleBy}');
+      double price = double.tryParse(totalAmount.toString()) ?? 0.0;
+      if (cartItem.detail.saleBy != 'Pack') {
+        totalPrice += price * cartItem.detail.count.toDouble();
+        log('Total Price: $totalPrice | Price: $price | Count: ${cartItem.detail.count}');
+      } else {
+        int pieces = cartItem.detail.pieces?.toInt() ?? 1;
+        totalPrice += price * pieces * cartItem.detail.count.toDouble();
+        log('Total Price: $totalPrice | Price: $price | Pieces: $pieces | Count: ${cartItem.detail.count}');
       }
     }
+
     return totalPrice;
   }
-double getFinalAmount(List<CartItem> cartItems) {
-  double total = 0.0;
-  for (var cartItem in cartItems) {
-    double? totalPrice = cartItem.totalPrice.toDouble();
-    total += totalPrice;
-  }
-  return total;
-}
 
-double getTotalTax(List<CartItem> cartItems) {
-  double totalTax = 0.0;
-  for (var cartItem in cartItems) {
-    double itemTax = cartItem.detail.tax?.toDouble() ?? 0.0; // Tax per item
-    totalTax += itemTax * cartItem.detail.count.toDouble();
+  double getFinalAmount(List<CartItem> cartItems) {
+    double total = 0.0;
+
+    for (var cartItem in cartItems) {
+      double totalPrice = cartItem.totalPrice?.toDouble() ?? 0.0; 
+      total += totalPrice;
+    }
+
+    return total;
   }
-  return totalTax;
-}
+  double getTotalTax(List<CartItem> cartItems) {
+    double totalTax = 0.0;
+
+    for (var cartItem in cartItems) {
+      double itemTax = cartItem.detail.tax?.toDouble() ?? 0.0;
+      totalTax += itemTax * cartItem.detail.count.toDouble();
+    }
+
+    return totalTax;
+  }
+
+  double calculateSubtotal(List<CartItem> items) {
+    return items.fold(0.0, (sum, item) {
+      double sellingPrice = double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
+      double count = item.detail.count?.toDouble()??0.0;
+      return sum + (sellingPrice * count);
+    });
+  }
+
+  double calculateTotalTax(List<CartItem> items) {  
+    return items.fold(0.0, (sum, item) {
+      double tax = item.detail.tax?.toDouble() ?? 0.0;
+      int multiplier = (item.isPack == true ? (item.detail.pieces!.toInt() ?? 1) : 1);
+      return sum + (tax * multiplier * item.detail.count!.toDouble());
+    });
+  }
 }

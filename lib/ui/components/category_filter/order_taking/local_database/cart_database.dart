@@ -128,23 +128,23 @@ class CartDatabaseManager {
   //   }
   // }
 
-Future<List<CartItem>> getDraftItems(String customerId) async {
-  try {
-    final allItems = CartDatabaseManager().cartBox.values.toList();
-    final draftItems = allItems
-        .where((item) =>
-            item.customerId == customerId &&
-            item.draftId != null &&
-            item.draftId!.isNotEmpty)
-        .toList();
-    log('Draft items retrieved for customer ID: $customerId');
-    log('Number of Draft Items: ${draftItems.length}');
-    return draftItems;
-  } catch (e) {
-    log('Error fetching draft items: $e');
-    return [];
+  Future<List<CartItem>> getDraftItems(String customerId) async {
+    try {
+      final allItems = CartDatabaseManager().cartBox.values.toList();
+      final draftItems = allItems
+          .where((item) =>
+              item.customerId == customerId &&
+              item.draftId != null &&
+              item.draftId!.isNotEmpty)
+          .toList();
+      log('Draft items retrieved for customer ID: $customerId');
+      log('Number of Draft Items: ${draftItems.length}');
+      return draftItems;
+    } catch (e) {
+      log('Error fetching draft items: $e');
+      return [];
+    }
   }
-}
 
   void addListener(VoidCallback listener) {
     _listeners.add(listener);
@@ -166,6 +166,7 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
     required bool isPack,
     required int localCount,
     required String customerId,
+    required String inclTax,
   }) async {
     if (localCount <= 0) {
       throw ArgumentError("Error: Count must be greater than zero.");
@@ -190,11 +191,14 @@ Future<List<CartItem>> getDraftItems(String customerId) async {
       log('Updated product in cart: ${existingItem.detail.variationName}, '
           'New Count: ${existingItem.detail.count}, Total Price: ${existingItem.totalPrice}');
     } else {
+      final double sellPrice = double.tryParse(detail.sellPrice ?? '0') ?? 0;
+      final num tax = detail.tax ?? 0;
+      final double effectivePrice =
+          inclTax != "incl_tax" ? sellPrice + tax : sellPrice;
       final computedTotalAmount = isPack
-          ? (localCount *
-              (detail.pieces ?? 1) *
-              (double.tryParse(detail.sellPrice ?? '0') ?? 0))
-          : (localCount * (double.tryParse(detail.sellPrice ?? '0') ?? 0));
+          ? (localCount * (detail.pieces ?? 1) * effectivePrice)
+          : (localCount * effectivePrice);
+
       detail.count += localCount.toDouble();
       final newCartItem = CartItem(
         detail: detail,

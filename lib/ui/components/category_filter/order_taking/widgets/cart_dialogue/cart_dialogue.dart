@@ -1937,6 +1937,7 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     if (cartItem.detail.count > 0) {
                       cartItem.detail.count--;
+                      cartItem.totalPrice = Utils().calculateTotalPrice(cartItem);
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       CartDatabaseManager().updateCart(cartItem);
                       setState(() {
@@ -1974,6 +1975,7 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
+                    cartItem.totalPrice = Utils().calculateTotalPrice(cartItem);
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     CartDatabaseManager().updateCart(cartItem);
                     setState(() {
@@ -2010,12 +2012,12 @@ void calculateAmounts() {
     if (isOrder) {
       orderSubtotal = Utils().calculateSubtotal(orderItems);
       orderTax = Utils().calculateTotalTax(orderItems);
-      orderFinalAmount = orderSubtotal + orderTax;
+      orderFinalAmount = orderSubtotal;
       log("Order Subtotal: $orderSubtotal, Order Tax: $orderTax, Final Amount: $orderFinalAmount");
     } else {
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
-      preorderFinalAmount = preorderSubtotal + preorderTax;
+      preorderFinalAmount = preorderSubtotal;
       log("Preorder Subtotal: $preorderSubtotal, Preorder Tax: $preorderTax, Final Amount: $preorderFinalAmount");
     }
   });

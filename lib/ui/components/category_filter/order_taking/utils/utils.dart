@@ -24,12 +24,13 @@ class Utils {
     double total = 0.0;
 
     for (var cartItem in cartItems) {
-      double totalPrice = cartItem.totalPrice?.toDouble() ?? 0.0; 
+      double totalPrice = cartItem.totalPrice?.toDouble() ?? 0.0;
       total += totalPrice;
     }
 
     return total;
   }
+
   double getTotalTax(List<CartItem> cartItems) {
     double totalTax = 0.0;
 
@@ -41,22 +42,32 @@ class Utils {
     return totalTax;
   }
 
-double calculateSubtotal(List<CartItem> items) {
-  return items.fold(0.0, (sum, item) {
-    double sellingPrice = double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
-    int pieces = item.detail.pieces?.toInt() ?? 1;
-    double count = item.detail.count.toDouble();
-    double totalCount = item.isPack==true ? count * pieces : count;
+  double calculateSubtotal(List<CartItem> items) {
+    return items.fold(0.0, (sum, item) {
+      double sellingPrice =
+          double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
+      int pieces = item.detail.pieces?.toInt() ?? 1;
+      double count = item.detail.count.toDouble();
+      double totalCount = item.isPack == true ? count * pieces : count;
+      return sum + (sellingPrice * totalCount);
+    });
+  }
 
-    return sum + (sellingPrice * totalCount);
-  });
-}
-
-  double calculateTotalTax(List<CartItem> items) {  
+  double calculateTotalTax(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {
       double tax = item.detail.tax?.toDouble() ?? 0.0;
-      int multiplier = (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
+      int multiplier =
+          (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
       return sum + (tax * multiplier * item.detail.count.toDouble());
     });
+  }
+
+  double calculateTotalPrice(CartItem cartItem) {
+    double sellingPrice =
+        double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
+    int pieces = cartItem.detail.pieces?.toInt() ?? 1;
+    double count = cartItem.detail.count.toDouble();
+    double totalCount = cartItem.isPack == true ? count * pieces : count;
+    return sellingPrice * totalCount;
   }
 }

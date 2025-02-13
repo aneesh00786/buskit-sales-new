@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -14,9 +15,13 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../../generated/assets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -37,7 +42,7 @@ class OptionWidget extends StatelessWidget {
   final String? startDate;
   final String? endDate;
 
-  const OptionWidget({
+   OptionWidget({
     super.key,
     this.optionFun,
     required this.userType,
@@ -53,7 +58,10 @@ class OptionWidget extends StatelessWidget {
     this.isVisible = false,
     this.cancelledCount,
   });
-
+      CustomerAndOrderController customerOrderController =
+      Get.put(CustomerAndOrderController());
+      ProductsController productsController =
+      Get.put(ProductsController());
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
@@ -1210,14 +1218,33 @@ class OptionWidget extends StatelessWidget {
                                                               child: IconButton(
                                                                   onPressed:
                                                                       () {
-                                                                    showDetailedOrderInvoiceDialog(
-                                                                        context,
-                                                                        order,
-                                                                        true,
-                                                                        isButtonNeeded:
-                                                                            true,
-                                                                            isContinueShop: true,
-                                                                            );
+                                                                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return CartDialogue(
+                                                                          active:
+                                                                              true,
+                                                                          cartItemCount:
+                                                                              cartProvider.cartItemCount,
+                                                                          productsController:
+                                                                              productsController,
+                                                                          customerOrderController:
+                                                                              customerOrderController,
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                    // showDetailedOrderInvoiceDialog(
+                                                                    //     context,
+                                                                    //     order,
+                                                                    //     true,
+                                                                    //     isButtonNeeded:
+                                                                    //         true,
+                                                                    //         isContinueShop: true,
+                                                                    //         );
                                                                   },
                                                                   icon:
                                                                       const Icon(

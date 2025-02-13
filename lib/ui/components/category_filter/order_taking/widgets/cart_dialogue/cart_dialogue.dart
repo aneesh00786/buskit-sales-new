@@ -591,6 +591,7 @@ class CartDialogueState extends State<CartDialogue> {
                                               productQuantityManager,
                                           deleteConfirmationDialogue:
                                               deleteConfirmationDialogue,
+                                              isPreOrder: false,
                                         ),
                                       );
                                     }).toList(),
@@ -709,6 +710,7 @@ class CartDialogueState extends State<CartDialogue> {
                                               productQuantityManager,
                                           deleteConfirmationDialogue:
                                               deleteConfirmationDialogue,
+                                          isPreOrder: true,
                                         ),
                                       );
                                     }).toList(),
@@ -1294,6 +1296,7 @@ class CartDialogueState extends State<CartDialogue> {
         productQuantityManager,
     required Function(BuildContext, CartItem, List<CartItem>)
         deleteConfirmationDialogue,
+    required bool isPreOrder,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1778,48 +1781,6 @@ Future<void> processSaveAndSend({
       },
     );
   }
-
-  Future<dynamic> deletePreorderConfirmationDialogue(
-      BuildContext context, CartItem groupedItem, List<CartItem> groupedItems) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: CustomText(
-            content: 'Delete ${groupedItem.detail.variationName}..?',
-            fontWeight: FontWeight.w700,
-          ),
-          actions: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: CustomText(
-                content: 'Are you sure you want to delete this pre-order item?',
-                fontSize: 17,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<dynamic> showVariantDeleteDialog(
       BuildContext context, String productName, bool isPreOrder, bool isDraft) {
     String customerId =
@@ -1864,7 +1825,7 @@ Future<void> processSaveAndSend({
                 backgroundColor: Colors.red,
               ),
               onPressed: () {
-                _deleteItem(productName);
+                _deleteItem(productName,isPreorder: isPreOrder);
                 log('Draft Delete Clicked : ${customerId}');
 
                 Navigator.pop(context);
@@ -2048,57 +2009,42 @@ void calculateAmounts() {
     });
     log('Cart Item Cleared : $cartItem');
   }
-
-  // void _clearPreorderCartItem(List<CartItem> cartPreorderItem) {
-  //   CartDatabaseManager().clearPreorderCart();
-  //   setState(() {
-  //     preorderItems.remove(cartPreorderItem);
-  //     preorderQuantities.remove(cartPreorderItem);
-  //   });
-  //   log('Cart Item Cleared : $cartPreorderItem');
-  // }
-  void _deleteItem(String productName) {
-    setState(() {
-      // Identify and delete the items from the database
-      final itemsToDeleteFromCart =
-          cartItems.where((item) => item.productName == productName).toList();
-      for (var item in itemsToDeleteFromCart) {
-        CartDatabaseManager().deleteCartItem(item);
+void _deleteItem(String productName, {bool isPreorder = false}) {
+  setState(() {
+    final itemsToDeleteFromCart = cartItems.where((item) =>
+        item.productName == productName &&
+        ((isPreorder && item.detail.stock == 0) || (!isPreorder && item.detail.stock! > 0))).toList();
+    for (var item in itemsToDeleteFromCart) {
+      CartDatabaseManager().deleteCartItem(item);
+    }
+    cartItems.removeWhere((item) =>
+        item.productName == productName &&
+        ((isPreorder && item.detail.stock == 0) || (!isPreorder && item.detail.stock! > 0)));
+    List<int> indicesToRemove = [];
+    for (int i = 0; i < cartItems.length; i++) {
+      if (cartItems[i].productName == productName &&
+          ((isPreorder && cartItems[i].detail.stock == 0) ||
+              (!isPreorder && cartItems[i].detail.stock! > 0))) {
+        indicesToRemove.add(i);
       }
+    }
+    for (int index in indicesToRemove.reversed) {
+      quantities.removeAt(index);
+    }
+    List<CartItem> orderItems =
+        cartItems.where((item) => item.detail.stock! > 0).toList();
+    List<CartItem> preorderItems =
+        cartItems.where((item) => item.detail.stock == 0).toList();
+    orderSubtotal = Utils().calculateSubtotal(orderItems);
+    orderTax = Utils().calculateTotalTax(orderItems);
+    orderFinalAmount = orderSubtotal + orderTax;
+    preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+    preorderTax = Utils().calculateTotalTax(preorderItems);
+    preorderFinalAmount = preorderSubtotal + preorderTax;
+  });
+  log('Deleted ${isPreorder ? "preorder" : "order"} items for product: $productName');
+}
 
-      // Remove the items from the cart
-      cartItems.removeWhere((item) => item.productName == productName);
-
-      // Remove associated quantities
-      List<int> indicesToRemove = [];
-      for (int i = 0; i < cartItems.length; i++) {
-        if (cartItems[i].productName == productName) {
-          indicesToRemove.add(i);
-        }
-      }
-      for (int index in indicesToRemove.reversed) {
-        quantities.removeAt(index);
-      }
-
-      // Separate order and pre-order items
-      List<CartItem> orderItems =
-          cartItems.where((item) => item.detail.stock! > 0).toList();
-      List<CartItem> preorderItems =
-          cartItems.where((item) => item.detail.stock == 0).toList();
-
-      // Recalculate totals for orders
-      orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTax = Utils().calculateTotalTax(orderItems);
-      orderFinalAmount = orderSubtotal + orderTax;
-
-      // Recalculate totals for pre-orders
-      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-      preorderTax = Utils().calculateTotalTax(preorderItems);
-      preorderFinalAmount = preorderSubtotal + preorderTax;
-    });
-
-    log('Items deleted for product: $productName');
-  }
 }
 
 class CartTextFields extends StatelessWidget {

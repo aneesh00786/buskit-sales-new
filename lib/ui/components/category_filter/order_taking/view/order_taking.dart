@@ -1392,6 +1392,7 @@ class _OrderTakingState extends State<OrderTaking>
           cartItemCount: cartProvider.cartItemCount,
           productsController: widget.productsController,
           customerOrderController: customerAndOrderController,
+          isDashboard: false,
         );
       },
     );

@@ -145,6 +145,21 @@ class CartDatabaseManager {
       return [];
     }
   }
+  Future<List<CartItem>> getAllDraftItems() async {
+    try {
+      final allItems = CartDatabaseManager().cartBox.values.toList();
+      final draftItems = allItems
+          .where((item) =>
+              item.draftId != null &&
+              item.draftId!.isNotEmpty)
+          .toList();
+      log('Number of Draft Items: ${draftItems.length}');
+      return draftItems;
+    } catch (e) {
+      log('Error fetching draft items: $e');
+      return [];
+    }
+  }
 
   void addListener(VoidCallback listener) {
     _listeners.add(listener);

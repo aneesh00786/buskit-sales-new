@@ -1234,6 +1234,7 @@ class OptionWidget extends StatelessWidget {
                                                                               productsController,
                                                                           customerOrderController:
                                                                               customerOrderController,
+                                                                              isDashboard: true,
                                                                         );
                                                                       },
                                                                     );

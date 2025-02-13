@@ -38,11 +38,13 @@ class CartDialogue extends StatefulWidget {
   int cartItemCount;
   ProductsController productsController;
   CustomerAndOrderController? customerOrderController;
+  bool isDashboard;
   CartDialogue(
       {super.key,
       this.active,
       required this.cartItemCount,
       required this.productsController,
+      required this.isDashboard,
       this.customerOrderController});
   @override
   State<CartDialogue> createState() => CartDialogueState();
@@ -55,15 +57,12 @@ class CartDialogueState extends State<CartDialogue> {
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
   double orderSubtotal = 0.0;
-  bool isChecked = true;
   double orderTax = 0.0;
   double orderFinalAmount = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
   double preorderFinalAmount = 0.0;
-
-  bool isOrder = true; // Toggle between Orders and Pre-orders
-
+  bool isOrder = true;
   String? _selectedValue;
   String? _dropdownValue;
   int? paymentType;
@@ -114,8 +113,7 @@ class CartDialogueState extends State<CartDialogue> {
 
       // Fetch cart and draft items
       cartItems = await CartDatabaseManager().getCartItems(customerId);
-      List<CartItem> draftItems =
-          await CartDatabaseManager().getDraftItems(customerId);
+      List<CartItem> draftItems = !widget.isDashboard?  await CartDatabaseManager().getDraftItems(customerId):await CartDatabaseManager().getAllDraftItems();
 
       // Combine and remove duplicates
       final Map<String, CartItem> uniqueItems = {

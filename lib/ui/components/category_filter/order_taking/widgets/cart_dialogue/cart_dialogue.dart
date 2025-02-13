@@ -55,6 +55,7 @@ class CartDialogueState extends State<CartDialogue> {
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
   double orderSubtotal = 0.0;
+  bool isChecked = true;
   double orderTax = 0.0;
   double orderFinalAmount = 0.0;
   double preorderSubtotal = 0.0;
@@ -1356,6 +1357,7 @@ class CartDialogueState extends State<CartDialogue> {
                     context: context,
                     productQuantityManager: productQuantityManager,
                     deleteConfirmationDialogue: deleteConfirmationDialogue,
+                   
                   ),
                 ),
               ),
@@ -1366,226 +1368,227 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  Future<void> processSaveAndSend({
-    required BuildContext context,
-    required double finalAmount,
-    int? paymentType,
-    required String cartId,
-    required String draftId,
-  }) async {
-    List<CartItem> itemList = cartItems;
-    final connectivityService = ConnectivityService();
+Future<void> processSaveAndSend({
+  required BuildContext context,
+  required double finalAmount,
+  int? paymentType,
+  required String cartId,
+  required String draftId,
+}) async {
+  List<CartItem> itemList = cartItems.where((item) => item.isChecked??true).toList();
+  final connectivityService = ConnectivityService();
 
-    if (itemList.isNotEmpty &&
-        (customeController.customerId.value.isNotEmpty ||
-            widget.productsController.selectedCustomerId.value.isNotEmpty)) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(child: CircularProgressIndicator());
-        },
+  if (itemList.isNotEmpty &&
+      (customeController.customerId.value.isNotEmpty ||
+          widget.productsController.selectedCustomerId.value.isNotEmpty)) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      log('[processSaveAndSend] Checking connectivity...');
+      bool isOnline = await connectivityService.isOnline();
+
+      if (!isOnline) {
+        log('[processSaveAndSend] Device is offline. Saving order offline...');
+        await saveOrderOffline(finalAmount, paymentType);
+        Navigator.pop(context);
+        _clearCartItem(itemList, true);
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Offline Mode'),
+            content: const Text(
+                'The order will be placed automatically when connected to the internet.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _clearCartItem(itemList, true);
+                  });
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      log('[processSaveAndSend] Preparing data for API call...');
+      List<Detail> detail = itemList.map((e) => e.detail).toList();
+      log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
+      final productBYData = AddToCartModel(
+        customerId: customeController.customerId.isNotEmpty
+            ? customeController.customerId.value
+            : widget.productsController.selectedCustomerId.value,
+        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+        cartId: cartId.isNotEmpty ? cartId : '',
+        cartList: await Future.wait(detail.map((e) async {
+          String packValue = e.saleBy == 'Pack'
+              ? (await _getPackPiecesValue(
+                      e.productId ?? '', e.count.toInt()))
+                  .toString()
+              : e.count.toString();
+
+          return SendCartData(
+            productId: e.productId ?? '',
+            variantId: e.variationId ?? '',
+            pack: packValue,
+            price: e.sellPrice.toString(),
+            packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+            discount: '0',
+            quantity: e.count.toInt(),
+          );
+        }).toList()),
+        total: finalAmount.toStringAsFixed(0),
+        discount: '0',
       );
 
-      try {
-        log('[processSaveAndSend] Checking connectivity...');
-        bool isOnline = await connectivityService.isOnline();
+      log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
+      CartOrderModel? cartOrder =
+          await ApiWorker().addToCart(productBYData.toJson());
+      log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
 
-        if (!isOnline) {
-          log('[processSaveAndSend] Device is offline. Saving order offline...');
-          await saveOrderOffline(finalAmount, paymentType);
-          Navigator.pop(context);
-          _clearCartItem(itemList, true);
-
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Offline Mode'),
-              content: const Text(
-                  'The order will be placed automatically when connected to the internet.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      Navigator.pop(context);
-                      Navigator.of(context, rootNavigator: true).pop();
-                      _clearCartItem(itemList, true);
-                    });
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-          return;
-        }
-
-        log('[processSaveAndSend] Preparing data for API call...');
-        List<Detail> detail = itemList.map((e) => e.detail).toList();
-        log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
-        final productBYData = AddToCartModel(
+      if (cartOrder != null) {
+        log('[processSaveAndSend] Preparing order placement...');
+        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+        int orderStatus = _selectedValue == 'Sale Order'
+            ? 11
+            : _selectedValue == 'Pre Order'
+                ? 0
+                : _selectedValue == 'Estimate'
+                    ? 7
+                    : 14;
+        CartOrderModel order = CartOrderModel(
           customerId: customeController.customerId.isNotEmpty
               ? customeController.customerId.value
               : widget.productsController.selectedCustomerId.value,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: cartId.isNotEmpty ? cartId : '',
-          cartList: await Future.wait(detail.map((e) async {
-            String packValue = e.saleBy == 'Pack'
-                ? (await _getPackPiecesValue(
-                        e.productId ?? '', e.count.toInt()))
-                    .toString()
-                : e.count.toString();
+          cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
+          orderStatus: orderStatus,
+          orderPrice: finalAmount,
+          paymentType: paymentType.toString(),
+          companyId: companyId,
+          paymentDetail: remarkController.text.trim(),
+          transactionNumber: chequeOrTransactionNumberController.text.trim(),
+          transactionDate: dateController.text.trim(),
+          draftId: draftId.isNotEmpty ? draftId : '',
+        );
+        log('ItemList Sent List: ${itemList.map((e) => 'ProductName: ${e.productName}, '
+            'Cart ID: ${e.cartId}, '
+            'Customer ID: ${e.customerId}, '
+            'Draft ID: ${e.draftId}, '
+            'Variation: ${e.detail.variationName}, '
+            'Price: ${e.detail.sellPrice}, '
+            'Quantity: ${e.detail.count}, '
+            'Total: ${e.totalPrice}, '
+            'IsPack: ${e.isPack}, '
+            'Pieces: ${e.detail.pieces ?? 'N/A'}').join('\n')}');
+        await placeOrder(order, (statusCode, message, response) {
+          Navigator.pop(context);
+          if (statusCode == 200) {
+            log('ItemList Length ${itemList.length}');
 
-            return SendCartData(
-              productId: e.productId ?? '',
-              variantId: e.variationId ?? '',
-              pack: packValue,
-              price: e.sellPrice.toString(),
-              packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-              discount: '0',
-              quantity: e.count.toInt(),
+            _clearCartItem(itemList, true);
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Center(
+                    child: SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: Lottie.asset(
+                          'assets/images/Animation - 1726906882515.json'),
+                    ),
+                  ),
+                  content: CustomText(
+                    content: message,
+                    fontSize: 18,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
+
+                        _clearCartItem(itemList, true);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
             );
-          }).toList()),
-          total: finalAmount.toStringAsFixed(0),
-          discount: '0',
-        );
-
-        log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
-        CartOrderModel? cartOrder =
-            await ApiWorker().addToCart(productBYData.toJson());
-        log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
-
-        if (cartOrder != null) {
-          log('[processSaveAndSend] Preparing order placement...');
-          final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-          int orderStatus = _selectedValue == 'Sale Order'
-              ? 11
-              : _selectedValue == 'Pre Order'
-                  ? 0
-                  : _selectedValue == 'Estimate'
-                      ? 7
-                      : 14;
-          CartOrderModel order = CartOrderModel(
-            customerId: customeController.customerId.isNotEmpty
-                ? customeController.customerId.value
-                : widget.productsController.selectedCustomerId.value,
-            salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
-            orderStatus: orderStatus,
-            orderPrice: finalAmount,
-            paymentType: paymentType.toString(),
-            companyId: companyId,
-            paymentDetail: remarkController.text.trim(),
-            transactionNumber: chequeOrTransactionNumberController.text.trim(),
-            transactionDate: dateController.text.trim(),
-            draftId: draftId.isNotEmpty ? draftId : '',
-          );
-          log('ItemList Sent List: ${itemList.map((e) => 'ProductName: ${e.productName}, '
-              'Cart ID: ${e.cartId}, '
-              'Customer ID: ${e.customerId}, '
-              'Draft ID: ${e.draftId}, '
-              'Variation: ${e.detail.variationName}, '
-              'Price: ${e.detail.sellPrice}, '
-              'Quantity: ${e.detail.count}, '
-              'Total: ${e.totalPrice}, '
-              'IsPack: ${e.isPack}, '
-              'Pieces: ${e.detail.pieces ?? 'N/A'}').join('\n')}');
-          await placeOrder(order, (statusCode, message, response) {
-            Navigator.pop(context);
-            if (statusCode == 200) {
-              log('ItemList Length ${itemList.length}');
-
-              _clearCartItem(itemList, true);
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Lottie.asset(
-                            'assets/images/Animation - 1726906882515.json'),
-                      ),
+          } else {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Center(
+                    child: SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: Lottie.asset(
+                          'assets/images/Warning_animation.json'),
                     ),
-                    content: CustomText(
-                      content: message,
-                      fontSize: 18,
+                  ),
+                  content: CustomText(
+                    content: message,
+                    fontSize: 18,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
-
-                          _clearCartItem(itemList, true);
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            } else {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: SizedBox(
-                        height: 200,
-                        width: 200,
-                        child: Lottie.asset(
-                            'assets/images/Warning_animation.json'),
-                      ),
-                    ),
-                    content: CustomText(
-                      content: message,
-                      fontSize: 18,
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          });
-        }
-      } catch (e) {
-        Navigator.pop(context);
-        log('[processSaveAndSend] Error: $e');
-        showFailureDialog(context, 'An unexpected error occurred.');
+                  ],
+                );
+              },
+            );
+          }
+        });
       }
-    } else {
+    } catch (e) {
       Navigator.pop(context);
-      if (customeController.customerId.value.isEmpty ||
-          widget.productsController.selectedCustomerId.value.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('No Customer Selected'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Your cart is empty'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
+      log('[processSaveAndSend] Error: $e');
+      showFailureDialog(context, 'An unexpected error occurred.');
+    }
+  } else {
+    Navigator.pop(context);
+    if (customeController.customerId.value.isEmpty ||
+        widget.productsController.selectedCustomerId.value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('No Customer Selected'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Your cart is empty'),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
+}
+
 
   Future<int> _getPackPiecesValue(String productId, int quantity) async {
     var productBox = await Hive.openBox('productBox');

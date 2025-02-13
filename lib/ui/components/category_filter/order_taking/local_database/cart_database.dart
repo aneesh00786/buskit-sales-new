@@ -430,48 +430,67 @@ class CartDatabaseManager {
     _notifyListeners();
   }
 
-  Future<void> clearCart(String customerId) async {
-    final cartItems = CartDatabaseManager().getCartItems(customerId);
-    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-    final Map<String, CartItem> uniqueItems = {};
-    for (var item in cartItems + draftItems) {
-      final key =
-          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+Future<void> clearCart(String customerId) async {
+  final cartItems = CartDatabaseManager().getCartItems(customerId);
+  final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+
+  final Map<String, CartItem> uniqueItems = {};
+  for (var item in cartItems + draftItems) {
+    final key =
+        '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+    if (item.isChecked!) {
       uniqueItems[key] = item;
     }
-    final itemsToKeep = uniqueItems.values
-        .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
-        .toList();
-    for (var key in CartDatabaseManager().cartBox.keys) {
-      final item = CartDatabaseManager().cartBox.get(key);
-      if (item!.draftId == null || item.draftId!.isEmpty) {
-        CartDatabaseManager().cartBox.delete(key);
-      }
-    }
-    for (var item in itemsToKeep) {
-      final itemKey =
-          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-      await CartDatabaseManager().cartBox.put(itemKey, item);
-    }
-    log('Cart cleared. Items kept: ${itemsToKeep.length}');
-    _notifyListeners();
   }
 
-  Future<void> clearCartOnSave(String customerId) async {
-    final cartItems = CartDatabaseManager().getCartItems(customerId);
-    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-    final Map<String, CartItem> uniqueItems = {};
-    for (var item in cartItems + draftItems) {
-      final key =
-          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+  final itemsToKeep = uniqueItems.values
+      .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
+      .toList();
+
+  for (var key in CartDatabaseManager().cartBox.keys) {
+    final item = CartDatabaseManager().cartBox.get(key);
+    if (item != null && item.isChecked!) {
+      CartDatabaseManager().cartBox.delete(key);
+    }
+  }
+
+  for (var item in itemsToKeep) {
+    final itemKey =
+        '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+    await CartDatabaseManager().cartBox.put(itemKey, item);
+  }
+
+  log('Cart cleared. Checked items removed. Items kept: ${itemsToKeep.length}');
+  _notifyListeners();
+}
+Future<void> clearCartOnSave(String customerId) async {
+  final cartItems = CartDatabaseManager().getCartItems(customerId);
+  final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+
+  final Map<String, CartItem> uniqueItems = {};
+  for (var item in cartItems + draftItems) {
+    final key =
+        '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+    if (item.isChecked!) {
       uniqueItems[key] = item;
     }
-    for (var key in CartDatabaseManager().cartBox.keys) {
+  }
+
+  for (var key in CartDatabaseManager().cartBox.keys) {
+    final item = CartDatabaseManager().cartBox.get(key);
+    if (item != null && item.isChecked!) {
       await CartDatabaseManager().cartBox.delete(key);
     }
-    for (var draftItem in draftItems) {
+  }
+
+  for (var draftItem in draftItems) {
+    if (draftItem.isChecked!) {
       await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
     }
-    _notifyListeners();
   }
+
+  log('Checked items cleared on save. Remaining items: ${uniqueItems.length}');
+  _notifyListeners();
+}
+
 }

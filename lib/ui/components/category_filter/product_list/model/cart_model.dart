@@ -28,6 +28,9 @@ class CartItem extends HiveObject {
   @HiveField(7)
   String? draftId;
 
+  @HiveField(8)
+  bool? isChecked;
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -37,6 +40,7 @@ class CartItem extends HiveObject {
     this.customerId,
     this.cartId,
     this.draftId,
+    this.isChecked = true,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -49,6 +53,7 @@ class CartItem extends HiveObject {
       customerId: json['customer_id'] as String?,
       cartId: json['cart_id'] as String?,
       draftId: json['id'] as String?,
+      isChecked: json['isChecked'],
     );
   }
 
@@ -62,6 +67,7 @@ class CartItem extends HiveObject {
       'customer_id': customerId,
       'cart_id': cartId,
       'id': draftId,
+      'isChecked': isChecked
     };
   }
 
@@ -74,18 +80,17 @@ class CartItem extends HiveObject {
     String? customerId,
     String? cartId,
     String? draftId,
+    bool? isChcked,
   }) {
     return CartItem(
-      detail: detail ?? this.detail,
-      productName: productName ?? this.productName,
-      totalPrice: totalPrice ?? this.totalPrice,
-      isPack: isPack ?? this.isPack,
-      count: count ?? this.count,
-      customerId: customerId ?? this.customerId,
-      cartId: cartId ?? this.cartId,
-      draftId: draftId ?? this.draftId,
-    );
+        detail: detail ?? this.detail,
+        productName: productName ?? this.productName,
+        totalPrice: totalPrice ?? this.totalPrice,
+        isPack: isPack ?? this.isPack,
+        count: count ?? this.count,
+        customerId: customerId ?? this.customerId,
+        cartId: cartId ?? this.cartId,
+        draftId: draftId ?? this.draftId,
+        isChecked: isChcked ?? this.isChecked);
   }
 }
-
-

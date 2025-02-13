@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -20,6 +22,21 @@ class GroupedItemDataRows {
     return groupedItems.map((groupedItem) {
       return DataRow(
         cells: [
+          DataCell(
+            StatefulBuilder(
+              builder: (context, setState) {
+                return Checkbox(
+                  value: groupedItem.isChecked,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      groupedItem.isChecked = value ?? true;
+                    });
+                    log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked??true ? 'checked' : 'unchecked'}");
+                  },
+                );
+              },
+            ),
+          ),
           DataCell(
             TableContent(
               content:

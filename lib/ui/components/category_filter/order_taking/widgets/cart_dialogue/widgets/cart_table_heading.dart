@@ -6,6 +6,13 @@ class DataTableColumns {
     return [
       DataColumn(
         label: DialogTableHeaderText(
+          text: '',
+          fontSize: fontSize,
+          align: TextAlign.center,
+        ),
+      ),
+      DataColumn(
+        label: DialogTableHeaderText(
           text: 'Variant',
           fontSize: fontSize,
           align: TextAlign.center,

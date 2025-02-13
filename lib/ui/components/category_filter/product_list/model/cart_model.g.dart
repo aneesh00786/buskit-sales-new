@@ -25,13 +25,14 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       customerId: fields[5] as String?,
       cartId: fields[6] as String?,
       draftId: fields[7] as String?,
+      isChecked: fields[8] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CartItem obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.detail)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       ..writeByte(6)
       ..write(obj.cartId)
       ..writeByte(7)
-      ..write(obj.draftId);
+      ..write(obj.draftId)
+      ..writeByte(8)
+      ..write(obj.isChecked);
   }
 
   @override

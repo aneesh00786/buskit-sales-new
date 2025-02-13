@@ -124,34 +124,22 @@ class CartDialogueState extends State<CartDialogue> {
           '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
       };
       cartItems = uniqueItems.values.toList();
-
-      // Separate items into orders and pre-orders
       List<CartItem> orderItems =
           cartItems.where((item) => item.detail.stock! > 0).toList();
       List<CartItem> preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
-
-      // Calculate totals for orders
       double orderSubtotal = Utils().calculateSubtotal(orderItems);
       double orderTax = Utils().calculateTotalTax(orderItems);
-      double orderFinalAmount = orderSubtotal + orderTax;
-
-      // Calculate totals for pre-orders
+      double orderFinalAmount = orderSubtotal;
       double preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       double preorderTax = Utils().calculateTotalTax(preorderItems);
-      double preorderFinalAmount = preorderSubtotal + preorderTax;
-
-      // Update the state
+      double preorderFinalAmount = preorderSubtotal;
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);
         _isLoading = false;
-
-        // Order totals
         this.orderSubtotal = orderSubtotal;
         this.orderTax = orderTax;
         this.orderFinalAmount = orderFinalAmount;
-
-        // Pre-order totals
         this.preorderSubtotal = preorderSubtotal;
         this.preorderTax = preorderTax;
         this.preorderFinalAmount = preorderFinalAmount;

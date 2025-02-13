@@ -41,17 +41,21 @@ class Utils {
     return totalTax;
   }
 
-  double calculateSubtotal(List<CartItem> items) {
-    return items.fold(0.0, (sum, item) {
-      double sellingPrice = double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
-      double count = item.detail.count.toDouble();
-      return sum + (sellingPrice * count);
-    });
-  }
+double calculateSubtotal(List<CartItem> items) {
+  return items.fold(0.0, (sum, item) {
+    double sellingPrice = double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
+    int pieces = item.detail.pieces?.toInt() ?? 1;
+    double count = item.detail.count.toDouble();
+    double totalCount = item.isPack==true ? count * pieces : count;
+
+    return sum + (sellingPrice * totalCount);
+  });
+}
+
   double calculateTotalTax(List<CartItem> items) {  
     return items.fold(0.0, (sum, item) {
       double tax = item.detail.tax?.toDouble() ?? 0.0;
-      int multiplier = (item.isPack == true ? (item.detail.pieces!.toInt() ?? 1) : 1);
+      int multiplier = (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
       return sum + (tax * multiplier * item.detail.count.toDouble());
     });
   }

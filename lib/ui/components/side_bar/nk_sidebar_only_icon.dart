@@ -357,8 +357,6 @@ void handleBackNavigation(
                 existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
                 existingDraftId.isNotEmpty ? existingDraftId : draftId,
               );
-
-              // Show success dialog
               showDialog(
                 context: context,
                 barrierDismissible: false,

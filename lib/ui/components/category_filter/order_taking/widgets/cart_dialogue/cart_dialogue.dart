@@ -224,70 +224,150 @@ class CartDialogueState extends State<CartDialogue> {
                             vertical: 8.0, horizontal: 16),
                         child: SizedBox(
                           height: 40,
-                          child: Row(
+                          child: Stack(
                             children: [
-                              if (orderItems.isNotEmpty)
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: primaryColor),
-                                      color: isOrder ? primaryColor : white,
-                                      borderRadius: preorderItems.isNotEmpty
-                                          ? const BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              bottomLeft: Radius.circular(20),
-                                            )
-                                          : BorderRadius.circular(20),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          isOrder = true;
-                                          _selectedValue = _options[0];
-                                        });
-                                        setOptions();
-                                      },
-                                      child: Center(
-                                        child: CustomText(
-                                          content: 'ORDERS',
-                                          fontWeight: FontWeight.w700,
-                                          color: isOrder ? white : primaryColor,
-                                        ),
+                              Row(
+                                children: [
+                                  if (orderItems.isNotEmpty)
+                                    Expanded(
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: primaryColor),
+                                              color: isOrder
+                                                  ? primaryColor
+                                                  : white,
+                                              borderRadius: preorderItems
+                                                      .isNotEmpty
+                                                  ? const BorderRadius.only(
+                                                      topLeft:
+                                                          Radius.circular(20),
+                                                      bottomLeft:
+                                                          Radius.circular(20),
+                                                    )
+                                                  : BorderRadius.circular(20),
+                                            ),
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  isOrder = true;
+                                                  _selectedValue = _options[0];
+                                                });
+                                                setOptions();
+                                              },
+                                              child: Center(
+                                                child: CustomText(
+                                                  content: 'ORDERS',
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isOrder
+                                                      ? white
+                                                      : primaryColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          // Order count
+                                          Positioned(
+                                            right: 8,
+                                            top: 8,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 16,
+                                                minHeight: 16,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${orderItems.length}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ),
-                              if (preorderItems.isNotEmpty)
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: primaryColor),
-                                      color: !isOrder ? primaryColor : white,
-                                      borderRadius: orderItems.isNotEmpty
-                                          ? const BorderRadius.only(
-                                              topRight: Radius.circular(20),
-                                              bottomRight: Radius.circular(20),
-                                            )
-                                          : BorderRadius.circular(20),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          isOrder = false;
-                                          _selectedValue = _options[2];
-                                        });
-                                        setOptions();
-                                      },
-                                      child: Center(
-                                        child: CustomText(
-                                          content: 'PRE-ORDERS',
-                                          fontWeight: FontWeight.w700,
-                                          color: isOrder ? primaryColor : white,
-                                        ),
+                                  if (preorderItems.isNotEmpty)
+                                    Expanded(
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: primaryColor),
+                                              color: !isOrder
+                                                  ? primaryColor
+                                                  : white,
+                                              borderRadius: orderItems
+                                                      .isNotEmpty
+                                                  ? const BorderRadius.only(
+                                                      topRight:
+                                                          Radius.circular(20),
+                                                      bottomRight:
+                                                          Radius.circular(20),
+                                                    )
+                                                  : BorderRadius.circular(20),
+                                            ),
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  isOrder = false;
+                                                  _selectedValue = _options[2];
+                                                });
+                                                setOptions();
+                                              },
+                                              child: Center(
+                                                child: CustomText(
+                                                  content: 'PRE-ORDERS',
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isOrder
+                                                      ? primaryColor
+                                                      : white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          // Pre-order count
+                                          Positioned(
+                                            right: 8,
+                                            top: 8,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 16,
+                                                minHeight: 16,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${preorderItems.length}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -1285,7 +1365,6 @@ class CartDialogueState extends State<CartDialogue> {
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
-
                           _clearCartItem(itemList, true);
                         },
                         child: const Text('OK'),
@@ -1610,6 +1689,7 @@ class CartDialogueState extends State<CartDialogue> {
       },
     );
   }
+
   void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     final String customerId =
         widget.customerOrderController!.customerId.value.isNotEmpty

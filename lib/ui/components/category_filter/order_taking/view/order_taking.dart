@@ -55,9 +55,7 @@ class OrderTaking extends StatefulWidget {
   @override
   // ignore: library_private_types_in_public_api
   _OrderTakingState createState() => _OrderTakingState();
-}
-
-class _OrderTakingState extends State<OrderTaking>
+}class _OrderTakingState extends State<OrderTaking>
     with SingleTickerProviderStateMixin {
   String _selectedOption = '';
   String _id = '';

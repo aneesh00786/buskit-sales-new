@@ -44,6 +44,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
   final String? startDate;
   final String? endDate;
   final ProductsController? productsController;
+  final VoidCallback onContinueShopping;
 
    OptionWidgetCustomerDash({
     super.key,
@@ -56,6 +57,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
     this.startDate,
     this.endDate,
     this.productsController,
+    required this.onContinueShopping,
     this.isVisible = false,
   });
     CustomerAndOrderController customerOrderController =
@@ -165,7 +167,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
               OrderStatus.draft,
               customerId,
             );
-            _showOrderTypeDialog(context, provider, OrderStatus.draft, 'Draft');
+            _showOrderTypeDialog(context, provider, OrderStatus.draft, 'Draft',onContinueShopping: onContinueShopping);
           },
         ),
         OptionData(
@@ -928,7 +930,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
   }
 
   void _showOrderTypeDialog(BuildContext context, CustomersProvider provider,
-      OrderStatus selectedOrderStatus, String orderType) {
+      OrderStatus selectedOrderStatus, String orderType,{VoidCallback? onContinueShopping}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1329,6 +1331,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                                                                           customerOrderController:
                                                                               customerOrderController,
                                                                           isDashboard: false,
+                                                                          onContinueShopping: onContinueShopping,
                                                                         );
                                                                       },
                                                                     );

@@ -104,6 +104,25 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     });
   }
+    void _navigateToOrderTaking() {
+     customerOrderController
+                    .setCustomerId(customerOrderController.customerId.value);
+                log('Customer Id :${customerOrderController.customerId.value}');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderTaking(
+                      productsController:
+                          widget.productsController ?? ProductsController(),
+                      isFromCalender: widget.isFromCalendar,
+                      isDirectDialogue: widget.isDirectDialogue,
+                      isFromOrder: widget.isFromOrder,
+                    ),
+                  ),
+                ).then((value) {
+                  _refreshScreen();
+                });
+  }
 
   void _refreshScreen() {
     setState(() {
@@ -150,11 +169,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     final customerId =  widget.cusId ?? '';
     final customerName = widget.cusName??''; 
     final customerImage =  widget.cusImage ?? '';
-
     log('Customer Id _initializeCustomerData : $customerId');
     log('Customer Id _initializeCustomerData : ${widget.cusId}');
     log('Customer Id _initializeCustomerData : ${widget.productsController?.selectedCustomerId.value}');
-
     if (customerId.isEmpty) {
       log('Error: Customer ID is empty in CustomerDachScreen.');
       return;
@@ -239,23 +256,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                customerOrderController
-                    .setCustomerId(customerOrderController.customerId.value);
-                log('Customer Id :${customerOrderController.customerId.value}');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderTaking(
-                      productsController:
-                          widget.productsController ?? ProductsController(),
-                      isFromCalender: widget.isFromCalendar,
-                      isDirectDialogue: widget.isDirectDialogue,
-                      isFromOrder: widget.isFromOrder,
-                    ),
-                  ),
-                ).then((value) {
-                  _refreshScreen();
-                });
+               _navigateToOrderTaking();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -355,6 +356,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           startDate: startDate,
                           endDate: endDate,
                           productsController:widget.productsController,
+                          onContinueShopping: _navigateToOrderTaking,
                         ),
                         const SizedBox(height: 5.7),
                         Expanded(

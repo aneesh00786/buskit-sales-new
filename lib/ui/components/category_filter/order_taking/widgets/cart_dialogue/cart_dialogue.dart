@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_rowcontent.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -39,13 +40,22 @@ class CartDialogue extends StatefulWidget {
   ProductsController productsController;
   CustomerAndOrderController? customerOrderController;
   bool isDashboard;
+  final bool isFromCalender;
+  final bool isDirectDialogue;
+  final bool isFromOrder;
+  final VoidCallback? onContinueShopping;
   CartDialogue(
       {super.key,
       this.active,
       required this.cartItemCount,
       required this.productsController,
       required this.isDashboard,
-      this.customerOrderController});
+      this.isFromCalender = false,
+      this.isDirectDialogue = false,
+      this.isFromOrder = false,
+      this.customerOrderController,
+      this.onContinueShopping,
+      });
   @override
   State<CartDialogue> createState() => CartDialogueState();
 }
@@ -319,7 +329,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               deleteConfirmationDialogue,
                                           isPreOrder: false,
                                           calCulateAmount: calculateAmounts,
-                                         
                                         ),
                                       );
                                     }).toList(),
@@ -440,7 +449,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               deleteConfirmationDialogue,
                                           isPreOrder: true,
                                           calCulateAmount: calculateAmounts,
-                                          
                                         ),
                                       );
                                     }).toList(),
@@ -1001,6 +1009,9 @@ class CartDialogueState extends State<CartDialogue> {
                             color: primaryColor,
                             onTap: () {
                               Navigator.pop(context);
+                              Navigator.of(context, rootNavigator: true).pop();
+                              widget.onContinueShopping!();
+                              
                             },
                           ),
                         ],
@@ -1086,14 +1097,14 @@ class CartDialogueState extends State<CartDialogue> {
                   columnSpacing: 15,
                   columns: DataTableColumns.getColumns(fontSize),
                   rows: GroupedItemDataRows.getRows(
-                      groupedItems: groupedItems,
-                      fontSize: availableWidth / 55,
-                      availableWidth: availableWidth,
-                      context: context,
-                      productQuantityManager: productQuantityManager,
-                      deleteConfirmationDialogue: deleteConfirmationDialogue,
-                      calculateAmount: calCulateAmount,
-                      ),
+                    groupedItems: groupedItems,
+                    fontSize: availableWidth / 55,
+                    availableWidth: availableWidth,
+                    context: context,
+                    productQuantityManager: productQuantityManager,
+                    deleteConfirmationDialogue: deleteConfirmationDialogue,
+                    calculateAmount: calCulateAmount,
+                  ),
                 ),
               ),
             ),
@@ -1102,6 +1113,7 @@ class CartDialogueState extends State<CartDialogue> {
       ],
     );
   }
+
   Future<void> processSaveAndSend({
     required BuildContext context,
     required double finalAmount,

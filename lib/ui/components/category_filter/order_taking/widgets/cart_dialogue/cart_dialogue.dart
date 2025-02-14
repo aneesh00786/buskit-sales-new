@@ -64,6 +64,7 @@ class CartDialogue extends StatefulWidget {
 
 class CartDialogueState extends State<CartDialogue> {
   List<CartItem> cartItems = [];
+  List<CartItem> orderItems = [];
   List<CartItem> preorderItems = [];
   List<int> quantities = [];
   List<int> preorderQuantities = [];
@@ -133,9 +134,8 @@ class CartDialogueState extends State<CartDialogue> {
           '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
       };
       cartItems = uniqueItems.values.toList();
-      List<CartItem> orderItems =
-          cartItems.where((item) => item.detail.stock! > 0).toList();
-      List<CartItem> preorderItems =
+      orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
+      preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
       double orderSubtotal = Utils().calculateSubtotal(orderItems);
       double orderTax = Utils().calculateTotalTax(orderItems);
@@ -153,10 +153,14 @@ class CartDialogueState extends State<CartDialogue> {
         this.preorderTax = preorderTax;
         this.preorderFinalAmount = preorderFinalAmount;
       });
-
-      if (_options.isNotEmpty) {
+      if (orderItems.isNotEmpty) {
+        isOrder = true;
         _selectedValue = _options[0];
+      } else if (preorderItems.isNotEmpty) {
+        isOrder = false;
+        _selectedValue = _options[2];
       }
+      setOptions();
     } catch (e) {
       print('Error loading cart items: $e');
     }
@@ -214,7 +218,7 @@ class CartDialogueState extends State<CartDialogue> {
                       width: width,
                       title: 'My Cart',
                     ),
-                    if (cartItems.isNotEmpty || preorderItems.isNotEmpty) ...[
+                    if (orderItems.isNotEmpty || preorderItems.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 16),
@@ -222,66 +226,74 @@ class CartDialogueState extends State<CartDialogue> {
                           height: 40,
                           child: Row(
                             children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: primaryColor),
-                                    color: isOrder ? primaryColor : white,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      bottomLeft: Radius.circular(20),
+                              if (orderItems.isNotEmpty)
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: primaryColor),
+                                      color: isOrder ? primaryColor : white,
+                                      borderRadius: preorderItems.isNotEmpty
+                                          ? const BorderRadius.only(
+                                              topLeft: Radius.circular(20),
+                                              bottomLeft: Radius.circular(20),
+                                            )
+                                          : BorderRadius.circular(20),
                                     ),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isOrder = true;
-                                        _selectedValue = _options[0];
-                                      });
-                                      setOptions();
-                                    },
-                                    child: Center(
-                                      child: CustomText(
-                                        content: 'ORDERS',
-                                        fontWeight: FontWeight.w700,
-                                        color: !isOrder ? primaryColor : white,
+                                    child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          isOrder = true;
+                                          _selectedValue = _options[0];
+                                        });
+                                        setOptions();
+                                      },
+                                      child: Center(
+                                        child: CustomText(
+                                          content: 'ORDERS',
+                                          fontWeight: FontWeight.w700,
+                                          color: isOrder ? white : primaryColor,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: primaryColor),
-                                    color: !isOrder ? primaryColor : white,
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(20),
-                                      bottomRight: Radius.circular(20),
+                              if (preorderItems.isNotEmpty)
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: primaryColor),
+                                      color: !isOrder ? primaryColor : white,
+                                      borderRadius: orderItems.isNotEmpty
+                                          ? const BorderRadius.only(
+                                              topRight: Radius.circular(20),
+                                              bottomRight: Radius.circular(20),
+                                            )
+                                          : BorderRadius.circular(20),
                                     ),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isOrder = false;
-                                        _selectedValue = _options[2];
-                                      });
-                                      setOptions();
-                                    },
-                                    child: Center(
-                                      child: CustomText(
-                                        content: 'PRE-ORDERS',
-                                        fontWeight: FontWeight.w700,
-                                        color: isOrder ? primaryColor : white,
+                                    child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          isOrder = false;
+                                          _selectedValue = _options[2];
+                                        });
+                                        setOptions();
+                                      },
+                                      child: Center(
+                                        child: CustomText(
+                                          content: 'PRE-ORDERS',
+                                          fontWeight: FontWeight.w700,
+                                          color: isOrder ? primaryColor : white,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
                       ),
+                    ] else ...[
+                      Container(),
                     ],
                     if (isOrder) ...[
                       (cartItems
@@ -1520,6 +1532,7 @@ class CartDialogueState extends State<CartDialogue> {
                       final provider = Provider.of<CustomersProvider>(context,
                           listen: false);
                       _deleteVariant(groupedItem, provider);
+                      _loadCartItems();
                       Navigator.pop(context);
                     },
                     child: const Text('Yes'))
@@ -1576,8 +1589,8 @@ class CartDialogueState extends State<CartDialogue> {
               ),
               onPressed: () {
                 _deleteItem(productName, isPreorder: isPreOrder);
+                _loadCartItems();
                 log('Draft Delete Clicked : ${customerId}');
-
                 Navigator.pop(context);
                 showCustomToastDisplay(
                   context,
@@ -1597,7 +1610,6 @@ class CartDialogueState extends State<CartDialogue> {
       },
     );
   }
-
   void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     final String customerId =
         widget.customerOrderController!.customerId.value.isNotEmpty

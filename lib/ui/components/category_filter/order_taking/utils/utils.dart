@@ -42,27 +42,34 @@ class Utils {
     return totalTax;
   }
 
-  double calculateSubtotal(List<CartItem> items) {
-    return items.fold(0.0, (sum, item) {
+double calculateSubtotal(List<CartItem> items) {
+  return items.fold(0.0, (sum, item) {
+    if (item.isChecked == true) {
       double sellingPrice =
           double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
       int pieces = item.detail.pieces?.toInt() ?? 1;
       double count = item.detail.count.toDouble();
       double totalCount = item.isPack == true ? count * pieces : count;
       return sum + (sellingPrice * totalCount);
-    });
-  }
+    }
+    return sum;
+  });
+}
 
-  double calculateTotalTax(List<CartItem> items) {
-    return items.fold(0.0, (sum, item) {
+double calculateTotalTax(List<CartItem> items) {
+  return items.fold(0.0, (sum, item) {
+    if (item.isChecked == true) {
       double tax = item.detail.tax?.toDouble() ?? 0.0;
       int multiplier =
           (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
       return sum + (tax * multiplier * item.detail.count.toDouble());
-    });
-  }
+    }
+    return sum;
+  });
+}
 
-  double calculateTotalPrice(CartItem cartItem) {
+double calculateTotalPrice(CartItem cartItem) {
+  if (cartItem.isChecked == true) {
     double sellingPrice =
         double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
     int pieces = cartItem.detail.pieces?.toInt() ?? 1;
@@ -70,4 +77,7 @@ class Utils {
     double totalCount = cartItem.isPack == true ? count * pieces : count;
     return sellingPrice * totalCount;
   }
+  return 0.0;
+}
+
 }

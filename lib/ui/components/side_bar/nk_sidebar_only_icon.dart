@@ -287,8 +287,6 @@ void handleBackNavigation(
         );
       },
     );
-
-    // Perform async operations after showing the dialog.
     Future.delayed(const Duration(seconds: 2), () async {
       try {
         List<Detail> detail =

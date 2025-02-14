@@ -43,19 +43,21 @@ class CartDialogue extends StatefulWidget {
   final bool isFromCalender;
   final bool isDirectDialogue;
   final bool isFromOrder;
+  final bool? isFromCustomerDach;
   final VoidCallback? onContinueShopping;
-  CartDialogue(
-      {super.key,
-      this.active,
-      required this.cartItemCount,
-      required this.productsController,
-      required this.isDashboard,
-      this.isFromCalender = false,
-      this.isDirectDialogue = false,
-      this.isFromOrder = false,
-      this.customerOrderController,
-      this.onContinueShopping,
-      });
+  CartDialogue({
+    super.key,
+    this.active,
+    required this.cartItemCount,
+    required this.productsController,
+    required this.isDashboard,
+    this.isFromCalender = false,
+    this.isDirectDialogue = false,
+    this.isFromOrder = false,
+    this.customerOrderController,
+    this.onContinueShopping,
+    this.isFromCustomerDach = false,
+  });
   @override
   State<CartDialogue> createState() => CartDialogueState();
 }
@@ -1008,10 +1010,14 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
                             onTap: () {
-                              Navigator.pop(context);
-                              Navigator.of(context, rootNavigator: true).pop();
-                              widget.onContinueShopping!();
-                              
+                              if (widget.isFromCustomerDach == true) {
+                                Navigator.pop(context);
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                                widget.onContinueShopping!();
+                              } else {
+                                Navigator.pop(context);
+                              }
                             },
                           ),
                         ],

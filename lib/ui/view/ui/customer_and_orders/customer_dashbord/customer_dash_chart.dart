@@ -1332,6 +1332,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                                                                               customerOrderController,
                                                                           isDashboard: false,
                                                                           onContinueShopping: onContinueShopping,
+                                                                          isFromCustomerDach: true,
                                                                         );
                                                                       },
                                                                     );

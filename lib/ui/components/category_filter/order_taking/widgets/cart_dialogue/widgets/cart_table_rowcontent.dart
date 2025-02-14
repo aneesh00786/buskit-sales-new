@@ -18,6 +18,7 @@ class GroupedItemDataRows {
     required Function(BuildContext context, CartItem groupedItem,
             List<CartItem> groupedItems)
         deleteConfirmationDialogue,
+      required Function calculateAmount,
   }) {
     return groupedItems.map((groupedItem) {
       return DataRow(
@@ -29,9 +30,11 @@ class GroupedItemDataRows {
                   value: groupedItem.isChecked,
                   onChanged: (bool? value) {
                     setState(() {
-                      groupedItem.isChecked = value ?? true;
+                      groupedItem.isChecked = value ?? false;
+                    log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
+                   
                     });
-                    log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked??true ? 'checked' : 'unchecked'}");
+                     calculateAmount();
                   },
                 );
               },

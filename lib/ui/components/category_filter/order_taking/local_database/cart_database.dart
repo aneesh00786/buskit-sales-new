@@ -99,7 +99,6 @@ class CartDatabaseManager {
                 draftItems.add(cartItem);
               }
             }
-
             log('Draft items fetched from API: ${draftItems.length}');
             return draftItems;
           } else {

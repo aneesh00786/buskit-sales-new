@@ -55,7 +55,9 @@ class OrderTaking extends StatefulWidget {
   @override
   // ignore: library_private_types_in_public_api
   _OrderTakingState createState() => _OrderTakingState();
-}class _OrderTakingState extends State<OrderTaking>
+}
+
+class _OrderTakingState extends State<OrderTaking>
     with SingleTickerProviderStateMixin {
   String _selectedOption = '';
   String _id = '';
@@ -432,30 +434,36 @@ class OrderTaking extends StatefulWidget {
                   customerAndOrderController.customerId.isNotEmpty
                       ? customerAndOrderController.customerId.value
                       : widget.productsController.selectedCustomerId.value;
-              bool hasDraftId = CartDatabaseManager().cartItems.every((item) =>
-                      item.draftId != null && item.draftId!.isNotEmpty);
+              bool hasDraftId = CartDatabaseManager().cartItems.every(
+                  (item) => item.draftId != null && item.draftId!.isNotEmpty);
               log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
-              if (CartDatabaseManager().cartItems.isNotEmpty  &&
-                      customerId.isNotEmpty &&
-                      !hasDraftId &&
-                      !toDash) {
+              if (CartDatabaseManager().cartItems.isNotEmpty &&
+                  customerId.isNotEmpty &&
+                  !hasDraftId &&
+                  !toDash) {
                 log('Log 1');
                 log('To Dash $toDash');
-                List<Detail> detail =  CartDatabaseManager()
-                        .cartItems
-                        .map((e) => e.detail)
-                        .toList();
-                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
 
+                // Filter details where isChecked == true
+                List<Detail> selectedDetails = CartDatabaseManager()
+                    .cartItems
+                    .where((e) => e.isChecked == true)
+                    .map((e) => e.detail)
+                    .toList();
+
+                int selectedItemsCount =
+                    selectedDetails.length;
+
+                final cartDetails =
+                    await CartDatabaseManager().getCartAndDraftIds(customerId);
                 Future.delayed(const Duration(seconds: 1));
-
                 final existingCartId = cartDetails?['cart_id'] ?? '';
                 final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
                   cartId: existingCartId.isNotEmpty ? existingCartId : '',
-                  cartList: detail
+                  cartList: selectedDetails
                       .map((e) => SendCartData(
                             productId: e.productId ??
                                 widget.productsController.selectedCustomerId
@@ -486,21 +494,21 @@ class OrderTaking extends StatefulWidget {
                         : cartOrder.cartId,
                     orderStatus: orderStatus,
                     draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+                    selctedItemCount:
+                      selectedItemsCount, 
                   );
 
                   await placeOrder(order, (statusCode, message, response) {
                     Navigator.pop(context);
                     if (statusCode == 200) {
                       final draftId = response?['id'];
-                       CartDatabaseManager().saveCartAsDraft(
-                              customerId,
-                              existingCartId.isNotEmpty
-                                  ? existingCartId
-                                  : cartOrder.cartId,
-                              existingDraftId.isNotEmpty
-                                  ? existingDraftId
-                                  : draftId,
-                            );
+                      CartDatabaseManager().saveCartAsDraft(
+                        customerId,
+                        existingCartId.isNotEmpty
+                            ? existingCartId
+                            : cartOrder.cartId,
+                        existingDraftId.isNotEmpty ? existingDraftId : draftId,
+                      );
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -522,10 +530,6 @@ class OrderTaking extends StatefulWidget {
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  // Navigator.pop(context);
-                                  // if (isTab) {
-                                  //   Navigator.of(context, rootNavigator: true).pop();
-                                  // }
                                   Navigator.pop(context);
                                   CartDatabaseManager().clearCart(customerId);
                                 },
@@ -574,14 +578,13 @@ class OrderTaking extends StatefulWidget {
                   toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
-                List<Detail> detail = 
-                     CartDatabaseManager()
-                        .cartItems
-                        .map((e) => e.detail)
-                        .toList();
-                    
-                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
-                    
+                List<Detail> detail = CartDatabaseManager()
+                    .cartItems
+                    .map((e) => e.detail)
+                    .toList();
+
+                final cartDetails =
+                    await CartDatabaseManager().getCartAndDraftIds(customerId);
 
                 Future.delayed(const Duration(seconds: 1));
 
@@ -627,16 +630,14 @@ class OrderTaking extends StatefulWidget {
                   await placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
                       final draftId = response?['id'];
-                       CartDatabaseManager().saveCartAsDraft(
-                              customerId,
-                              existingCartId.isNotEmpty
-                                  ? existingCartId
-                                  : cartOrder.cartId,
-                              existingDraftId.isNotEmpty
-                                  ? existingDraftId
-                                  : draftId,
-                            );
-                          
+                      CartDatabaseManager().saveCartAsDraft(
+                        customerId,
+                        existingCartId.isNotEmpty
+                            ? existingCartId
+                            : cartOrder.cartId,
+                        existingDraftId.isNotEmpty ? existingDraftId : draftId,
+                      );
+
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -712,13 +713,13 @@ class OrderTaking extends StatefulWidget {
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
                 CartDatabaseManager().cartItems.clear();
-               CartDatabaseManager().clearCart(customerId);
-                  
+                CartDatabaseManager().clearCart(customerId);
+
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                 log('Log 3');
-            
+
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
                   homeController.selectedIndex.value = 0;
@@ -726,13 +727,13 @@ class OrderTaking extends StatefulWidget {
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                 CartDatabaseManager().cartItems.clear();
-                 CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');
                 Navigator.pop(context);
-                 CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId);
               }
             },
@@ -1390,7 +1391,6 @@ class OrderTaking extends StatefulWidget {
           cartItemCount: cartProvider.cartItemCount,
           productsController: widget.productsController,
           customerOrderController: customerAndOrderController,
-          isDashboard: false,
         );
       },
     );

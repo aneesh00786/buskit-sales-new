@@ -489,6 +489,7 @@ class CartOrderModel {
   String? transactionDate;
   String? paymentDetail;
   String? draftId;
+  int? selctedItemCount;
 
   CartOrderModel({
     this.customerId,
@@ -502,6 +503,7 @@ class CartOrderModel {
     this.transactionDate,
     this.paymentDetail,
     this.draftId,
+    this.selctedItemCount,
   });
 
   factory CartOrderModel.fromJson(Map<String, dynamic> json) {
@@ -517,6 +519,7 @@ class CartOrderModel {
       transactionDate: json['cheque_date'] ?? json['transaction_date'], // Handle either key
       paymentDetail: json['payment_detail'],
       draftId: json['draft_id'],
+      selctedItemCount: json['item_count'],
     );
   }
 
@@ -534,7 +537,8 @@ class CartOrderModel {
       if (transactionDate != null)
         paymentType == "1" ? 'cheque_date' : 'transaction_date': transactionDate,
       'payment_detail': paymentDetail,
-      'draft_id':draftId
+      'draft_id':draftId,
+      'item_count':selctedItemCount,
     };
   }
 }

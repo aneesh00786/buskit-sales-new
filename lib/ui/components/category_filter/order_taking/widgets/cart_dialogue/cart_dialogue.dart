@@ -39,7 +39,6 @@ class CartDialogue extends StatefulWidget {
   int cartItemCount;
   ProductsController productsController;
   CustomerAndOrderController? customerOrderController;
-  bool isDashboard;
   final bool isFromCalender;
   final bool isDirectDialogue;
   final bool isFromOrder;
@@ -50,7 +49,6 @@ class CartDialogue extends StatefulWidget {
     this.active,
     required this.cartItemCount,
     required this.productsController,
-    required this.isDashboard,
     this.isFromCalender = false,
     this.isDirectDialogue = false,
     this.isFromOrder = false,
@@ -124,9 +122,8 @@ class CartDialogueState extends State<CartDialogue> {
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value;
       cartItems = await CartDatabaseManager().getCartItems(customerId);
-      List<CartItem> draftItems = !widget.isDashboard
-          ? await CartDatabaseManager().getDraftItems(customerId)
-          : await CartDatabaseManager().getAllDraftItems();
+      List<CartItem> draftItems =  await CartDatabaseManager().getDraftItems(customerId);
+      
       final Map<String, CartItem> uniqueItems = {
         for (var item in cartItems)
           '${item.detail.variationName}_${item.detail.sellPrice}': item,

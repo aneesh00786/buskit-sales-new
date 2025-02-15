@@ -1,7 +1,9 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -26,110 +28,89 @@ class CartDatabaseManager {
     }
   }
 
-  // Future<List<CartItem>> getDraftItems(String customerId) async {
-  //   final dio = Dio();
-  //   final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
-
-  //   // Request body
-  //   final requestBody = {
-  //     "companyId": 1,
-  //     "customer_id": customerId,
-  //     "salesman_id": "",
-  //     "order_type": 4,
-  //     "payment_type": 1,
-  //     "start_date": "2025-02-01",
-  //     "end_date": "2025-02-28",
-  //     "limit": 1000,
-  //     "page": 1,
-  //   };
-
-  //   try {
-  //     final connectivityService = ConnectivityService();
-  //     final isOnline = await connectivityService.isOnline();
-
-  //     if (isOnline) {
-  //       log('Fetching draft items from API for customer ID: $customerId');
-  //       final response = await dio.post(apiUrl, data: requestBody);
-
-  //       if (response.statusCode == 200) {
-  //         final responseData = response.data;
-
-  //         if (responseData['status'] == true) {
-  //           final List<dynamic> orders = responseData['data'] ?? [];
-
-  //           List<CartItem> draftItems = [];
-  //           for (var order in orders) {
-  //             final List<dynamic> carts = order['cart'] ?? [];
-  //             for (var cart in carts) {
-  //               final detail = Detail(
-  //                 id: cart['id'],
-  //                 productId: cart['product_id'],
-  //                 variationId: cart['variation_id'],
-  //                 inNo: cart['in_no'],
-  //                 barcode: cart['barcode'],
-  //                 variationName: cart['variation_name'],
-  //                 unitType: cart['unitType'],
-  //                 price: cart['price'],
-  //                 sellPrice: cart['sell_price'],
-  //                 tax: cart['tax'],
-  //                 packtype: cart['packtype'],
-  //                 pieces: cart['pieces'],
-  //                 stock: cart['stock'],
-  //                 lowstock: cart['lowstock'],
-  //                 fullstock: cart['fullstock'],
-  //                 imageUrl: cart['image_url'],
-  //                 status: cart['status'],
-  //                 createdAt: cart['created_at'],
-  //                 updatedAt: cart['updated_at'],
-  //                 count: cart['quantity'],
-  //                 saleBy: cart['packType'],
-  //                 totalPrice: cart['total_price'],
-  //                 sellingPrice: cart['sell_price'],
-  //               );
-  //               final cartItem = CartItem(
-  //                 detail: detail,
-  //                 productName: cart['product_name'],
-  //                 totalPrice: double.tryParse(cart['total_price']) ?? 0.0,
-  //                 isPack: cart['packType'] == 'Pack',
-  //                 count: cart['quantity'],
-  //                 customerId: order['customer_id'],
-  //                 cartId: cart['cart_id'],
-  //                 draftId: order['order_id'],
-  //               );
-  //               draftItems.add(cartItem);
-  //             }
-  //           }
-
-  //           log('Draft items fetched from API: ${draftItems.length}');
-  //           return draftItems;
-  //         } else {
-  //           log('API response status is false: ${responseData['message']}');
-  //         }
-  //       } else {
-  //         log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
-  //       }
-  //     } else {
-  //       log('No internet connection. Falling back to local data.');
-  //     }
-
-  //     // Fallback to local data
-  //     final allItems = CartDatabaseManager().cartBox.values.toList();
-  //     final draftItems = allItems
-  //         .where((item) =>
-  //             item.customerId == customerId &&
-  //             item.draftId != null &&
-  //             item.draftId!.isNotEmpty)
-  //         .toList();
-  //     log('Draft items retrieved from local storage: ${draftItems.length}');
-  //     return draftItems;
-  //   } catch (e) {
-  //     log('Error fetching draft items: $e');
-  //     return [];
-  //   }
-  // }
-
   Future<List<CartItem>> getDraftItems(String customerId) async {
+    final dio = Dio();
+    final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+    final requestBody = {
+      "companyId": 1,
+      "customer_id": customerId,
+      "salesman_id": "SALES1",
+      "order_type": 4,
+      "payment_type": 1,
+      "start_date": "2025-02-01",
+      "end_date": "2025-02-28",
+      "limit": 1000,
+      "page": 1
+    };
+
     try {
+      final connectivityService = ConnectivityService();
+      final isOnline = await connectivityService.isOnline();
+      if (isOnline) {
+        log('Fetching draft items from API for customer ID: $customerId');
+        final response = await dio.post(apiUrl, data: requestBody);
+        if (response.statusCode == 200) {
+          final responseData = response.data;
+          if (responseData['status'] == true) {
+            final List<dynamic> orders = responseData['data'] ?? [];
+            List<CartItem> draftItems = [];
+            for (var order in orders) {
+              final List<dynamic> carts = order['cart'] ?? [];
+              for (var cart in carts) {
+                final detail = Detail(
+                  id: cart['id'] as int?,
+                  productId: cart['product_id'] as String?,
+                  variationId: cart['variation_id'] as String?,
+                  inNo: cart['in_no'] as String?,
+                  barcode: cart['barcode'] as String?,
+                  variationName: cart['variation_name'] as String?,
+                  unitType: cart['unitType'] as String?,
+                  price: cart['price']?.toString(),
+                  sellPrice: cart['sell_price']?.toString(),
+                  tax: num.tryParse(cart['tax']?.toString() ?? '0'),
+                  packtype: cart['packtype'] as String?,
+                  pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
+                  stock: num.tryParse(cart['stock']?.toString() ?? '0'),
+                  lowstock: num.tryParse(cart['lowstock']?.toString() ?? '0'),
+                  fullstock: num.tryParse(cart['fullstock']?.toString() ?? '0'),
+                  imageUrl: cart['image_url'] as String?,
+                  status: cart['status'] as int?,
+                  createdAt: cart['created_at'] as String?,
+                  updatedAt: cart['updated_at'] as String?,
+                  count: cart['quantity'] ?? 0,
+                  saleBy: cart['packType'] as String?,
+                  totalPrice:
+                      num.tryParse(cart['total_price']?.toString() ?? '0'),
+                  sellingPrice:
+                      num.tryParse(cart['sell_price']?.toString() ?? '0'),
+                );
+                final cartItem = CartItem(
+                  detail: detail,
+                  productName: cart['product_name'] as String? ?? '',
+                  totalPrice: double.tryParse(
+                          cart['total_price']?.toString() ?? '0.0') ??
+                      0.0,
+                  isPack: (cart['packType'] as String?) == 'Pack',
+                  count: cart['quantity'] as int?,
+                  customerId: order['customer_id'] as String?,
+                  cartId: cart['cart_id'] as String?,
+                  draftId: order['order_id'] as String?,
+                );
+                draftItems.add(cartItem);
+              }
+            }
+
+            log('Draft items fetched from API: ${draftItems.length}');
+            return draftItems;
+          } else {
+            log('API response status is false: ${responseData['message']}');
+          }
+        } else {
+          log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
+        }
+      } else {
+        log('No internet connection. Falling back to local data.');
+      }
       final allItems = CartDatabaseManager().cartBox.values.toList();
       final draftItems = allItems
           .where((item) =>
@@ -137,21 +118,36 @@ class CartDatabaseManager {
               item.draftId != null &&
               item.draftId!.isNotEmpty)
           .toList();
-      log('Draft items retrieved for customer ID: $customerId');
-      log('Number of Draft Items: ${draftItems.length}');
+      log('Draft items retrieved from local storage: ${draftItems.length}');
       return draftItems;
     } catch (e) {
       log('Error fetching draft items: $e');
       return [];
     }
   }
+
+  // Future<List<CartItem>> getDraftItems(String customerId) async {
+  //   try {
+  //     final allItems = CartDatabaseManager().cartBox.values.toList();
+  //     final draftItems = allItems
+  //         .where((item) =>
+  //             item.customerId == customerId &&
+  //             item.draftId != null &&
+  //             item.draftId!.isNotEmpty)
+  //         .toList();
+  //     log('Draft items retrieved for customer ID: $customerId');
+  //     log('Number of Draft Items: ${draftItems.length}');
+  //     return draftItems;
+  //   } catch (e) {
+  //     log('Error fetching draft items: $e');
+  //     return [];
+  //   }
+  // }
   Future<List<CartItem>> getAllDraftItems() async {
     try {
       final allItems = CartDatabaseManager().cartBox.values.toList();
       final draftItems = allItems
-          .where((item) =>
-              item.draftId != null &&
-              item.draftId!.isNotEmpty)
+          .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
           .toList();
       log('Number of Draft Items: ${draftItems.length}');
       return draftItems;
@@ -445,67 +441,67 @@ class CartDatabaseManager {
     _notifyListeners();
   }
 
-Future<void> clearCart(String customerId) async {
-  final cartItems = CartDatabaseManager().getCartItems(customerId);
-  final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+  Future<void> clearCart(String customerId) async {
+    final cartItems = CartDatabaseManager().getCartItems(customerId);
+    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
 
-  final Map<String, CartItem> uniqueItems = {};
-  for (var item in cartItems + draftItems) {
-    final key =
-        '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-    if (item.isChecked!) {
-      uniqueItems[key] = item;
+    final Map<String, CartItem> uniqueItems = {};
+    for (var item in cartItems + draftItems) {
+      final key =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      if (item.isChecked!) {
+        uniqueItems[key] = item;
+      }
     }
-  }
 
-  final itemsToKeep = uniqueItems.values
-      .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
-      .toList();
+    final itemsToKeep = uniqueItems.values
+        .where((item) => item.draftId != null && item.draftId!.isNotEmpty)
+        .toList();
 
-  for (var key in CartDatabaseManager().cartBox.keys) {
-    final item = CartDatabaseManager().cartBox.get(key);
-    if (item != null && item.isChecked!) {
-      CartDatabaseManager().cartBox.delete(key);
+    for (var key in CartDatabaseManager().cartBox.keys) {
+      final item = CartDatabaseManager().cartBox.get(key);
+      if (item != null && item.isChecked!) {
+        CartDatabaseManager().cartBox.delete(key);
+      }
     }
-  }
 
-  for (var item in itemsToKeep) {
-    final itemKey =
-        '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-    await CartDatabaseManager().cartBox.put(itemKey, item);
-  }
-
-  log('Cart cleared. Checked items removed. Items kept: ${itemsToKeep.length}');
-  _notifyListeners();
-}
-Future<void> clearCartOnSave(String customerId) async {
-  final cartItems = CartDatabaseManager().getCartItems(customerId);
-  final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-
-  final Map<String, CartItem> uniqueItems = {};
-  for (var item in cartItems + draftItems) {
-    final key =
-        '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-    if (item.isChecked!) {
-      uniqueItems[key] = item;
+    for (var item in itemsToKeep) {
+      final itemKey =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      await CartDatabaseManager().cartBox.put(itemKey, item);
     }
+
+    log('Cart cleared. Checked items removed. Items kept: ${itemsToKeep.length}');
+    _notifyListeners();
   }
 
-  for (var key in CartDatabaseManager().cartBox.keys) {
-    final item = CartDatabaseManager().cartBox.get(key);
-    if (item != null && item.isChecked!) {
-      await CartDatabaseManager().cartBox.delete(key);
+  Future<void> clearCartOnSave(String customerId) async {
+    final cartItems = CartDatabaseManager().getCartItems(customerId);
+    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+
+    final Map<String, CartItem> uniqueItems = {};
+    for (var item in cartItems + draftItems) {
+      final key =
+          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
+      if (item.isChecked!) {
+        uniqueItems[key] = item;
+      }
     }
-  }
 
-  for (var draftItem in draftItems) {
-    if (draftItem.isChecked!) {
-      await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
+    for (var key in CartDatabaseManager().cartBox.keys) {
+      final item = CartDatabaseManager().cartBox.get(key);
+      if (item != null && item.isChecked!) {
+        await CartDatabaseManager().cartBox.delete(key);
+      }
     }
+
+    for (var draftItem in draftItems) {
+      if (draftItem.isChecked!) {
+        await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
+      }
+    }
+
+    log('Checked items cleared on save. Remaining items: ${uniqueItems.length}');
+    _notifyListeners();
   }
-
-  log('Checked items cleared on save. Remaining items: ${uniqueItems.length}');
-  _notifyListeners();
-}
-
 }

@@ -348,7 +348,7 @@ class BookingRevenueDatum {
   String? paymentDetail;
   int? orderStatus;
   DateTime? orderCreatAt;
-  int? orderTotal;
+  num? orderTotal;
   int? receivedAmount;
   dynamic receivedAmountDate;
   DateTime? checkDueDate;
@@ -361,7 +361,7 @@ class BookingRevenueDatum {
   dynamic deliveryDatetime;
   int? notificationStatus;
   dynamic orderCreatedStored;
-  int? totalBookingRevenue;
+  num? totalBookingRevenue;
 
   BookingRevenueDatum({
     this.id,

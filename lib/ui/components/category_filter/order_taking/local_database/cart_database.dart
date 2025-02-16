@@ -29,102 +29,107 @@ class CartDatabaseManager {
     }
   }
 
-  Future<List<CartItem>> getDraftItems(String customerId) async {
-    final dio = Dio();
-    final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
-    final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id??0,
-      "customer_id": customerId,
-      "salesman_id": "SALES1",
-      "order_type": 4,
-      "payment_type": 1,
-      "start_date": "2025-02-01",
-      "end_date": "2025-02-28",
-      "limit": 1000,
-      "page": 1
-    };
+Future<List<CartItem>> getDraftItems(String customerId) async {
+  final dio = Dio();
+  const apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+  final requestBody = {
+    "companyId": 1,
+    "customer_id": customerId,
+    "salesman_id": "SALES1",
+    "order_type": 4,
+    "payment_type": 1,
+    "start_date": "2025-02-01",
+    "end_date": "2025-02-28",
+    "limit": 1000,
+    "page": 1
+  };
 
-    try {
-      final connectivityService = ConnectivityService();
-      final isOnline = await connectivityService.isOnline();
-      if (isOnline) {
-        log('Fetching draft items from API for customer ID: $customerId');
-        final response = await dio.post(apiUrl, data: requestBody);
-        if (response.statusCode == 200) {
-          final responseData = response.data;
-          if (responseData['status'] == true) {
-            final List<dynamic> orders = responseData['data'] ?? [];
-            List<CartItem> draftItems = [];
-            for (var order in orders) {
-              final List<dynamic> carts = order['cart'] ?? [];
-              for (var cart in carts) {
-                final detail = Detail(
-                  id: cart['id'] as int?,
-                  productId: cart['product_id'] as String?,
-                  variationId: cart['variation_id'] as String?,
-                  inNo: cart['in_no'] as String?,
-                  barcode: cart['barcode'] as String?,
-                  variationName: cart['variation_name'] as String?,
-                  unitType: cart['unitType'] as String?,
-                  price: cart['price']?.toString(),
-                  sellPrice: cart['sell_price']?.toString(),
-                  tax: num.tryParse(cart['tax']?.toString() ?? '0'),
-                  packtype: cart['packtype'] as String?,
-                  pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
-                  stock: num.tryParse(cart['stock']?.toString() ?? '0'),
-                  lowstock: num.tryParse(cart['lowstock']?.toString() ?? '0'),
-                  fullstock: num.tryParse(cart['fullstock']?.toString() ?? '0'),
-                  imageUrl: cart['image_url'] as String?,
-                  status: cart['status'] as int?,
-                  createdAt: cart['created_at'] as String?,
-                  updatedAt: cart['updated_at'] as String?,
-                  count: cart['quantity'] ?? 0,
-                  saleBy: cart['packType'] as String?,
-                  totalPrice:
-                      num.tryParse(cart['total_price']?.toString() ?? '0'),
-                  sellingPrice:
-                      num.tryParse(cart['sell_price']?.toString() ?? '0'),
-                );
-                final cartItem = CartItem(
-                  detail: detail,
-                  productName: cart['product_name'] as String? ?? '',
-                  totalPrice: double.tryParse(
-                          cart['total_price']?.toString() ?? '0.0') ??
-                      0.0,
-                  isPack: (cart['packType'] as String?) == 'Pack',
-                  count: cart['quantity'] as int?,
-                  customerId: order['customer_id'] as String?,
-                  cartId: cart['cart_id'] as String?,
-                  draftId: order['order_id'] as String?,
-                );
-                draftItems.add(cartItem);
-              }
+  try {
+    final connectivityService = ConnectivityService();
+    final isOnline = await connectivityService.isOnline();
+    if (isOnline) {
+      log('Fetching draft items from API for customer ID: $customerId');
+      final response = await dio.post(apiUrl, data: requestBody);
+      log('Response received from API: ${response.data}');
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        log('API Response Status: ${responseData['status']}');
+        if (responseData['status'] == true) {
+          final List<dynamic> orders = responseData['data'] ?? [];
+          log('Orders fetched: ${orders.length}');
+          List<CartItem> draftItems = [];
+          for (var order in orders) {
+            final List<dynamic> carts = order['cart'] ?? [];
+            log('Processing order with ${carts.length} cart items.');
+            for (var cart in carts) {
+              final detail = Detail(
+                id: cart['id'] as int?,
+                productId: cart['product_id'] as String?,
+                variationId: cart['variation_id'] as String?,
+                inNo: cart['in_no'] as String?,
+                barcode: cart['barcode'] as String?,
+                variationName: cart['variation_name'] as String?,
+                unitType: cart['unitType'] as String?,
+                price: cart['price']?.toString(),
+                sellPrice: cart['sell_price']?.toString(),
+                tax: num.tryParse(cart['tax']?.toString() ?? '0'),
+                packtype: cart['packtype'] as String?,
+                pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
+                stock: num.tryParse(cart['stock']?.toString() ?? '0'),
+                lowstock: num.tryParse(cart['lowstock']?.toString() ?? '0'),
+                fullstock: num.tryParse(cart['fullstock']?.toString() ?? '0'),
+                imageUrl: cart['image_url'] as String?,
+                status: cart['status'] as int?,
+                createdAt: cart['created_at'] as String?,
+                updatedAt: cart['updated_at'] as String?,
+                count: cart['quantity'] ?? 0,
+                saleBy: cart['packType'] as String?,
+                totalPrice: num.tryParse(cart['total_price']?.toString() ?? '0'),
+                sellingPrice: num.tryParse(cart['sell_price']?.toString() ?? '0'),
+              );
+              final cartItem = CartItem(
+                detail: detail,
+                productName: cart['product_name'] as String? ?? '',
+                totalPrice: double.tryParse(
+                        cart['total_price']?.toString() ?? '0.0') ??
+                    0.0,
+                isPack: (cart['packType'] as String?) == 'Pack',
+                count: cart['quantity'] as int?,
+                customerId: order['customer_id'] as String?,
+                cartId: cart['cart_id'] as String?,
+                draftId: order['order_id'] as String?,
+              );
+              draftItems.add(cartItem);
             }
-            log('Draft items fetched from API: ${draftItems.length}');
-            return draftItems;
-          } else {
-            log('API response status is false: ${responseData['message']}');
           }
+
+          log('Draft items fetched from API: ${draftItems.length}');
+          return draftItems;
         } else {
-          log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
+          log('API response status is false: ${responseData['message']}');
         }
       } else {
-        log('No internet connection. Falling back to local data.');
+        log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
       }
-      final allItems = CartDatabaseManager().cartBox.values.toList();
-      final draftItems = allItems
-          .where((item) =>
-              item.customerId == customerId &&
-              item.draftId != null &&
-              item.draftId!.isNotEmpty)
-          .toList();
-      log('Draft items retrieved from local storage: ${draftItems.length}');
-      return draftItems;
-    } catch (e) {
-      log('Error fetching draft items: $e');
-      return [];
+    } else {
+      log('No internet connection. Falling back to local data.');
     }
+    final allItems = CartDatabaseManager().cartBox.values.toList();
+    final draftItems = allItems
+        .where((item) =>
+            item.customerId == customerId &&
+            item.draftId != null &&
+            item.draftId!.isNotEmpty)
+        .toList();
+
+    log('Draft items retrieved from local storage: ${draftItems.length}');
+    return draftItems;
+  } catch (e) {
+    log('Error fetching draft items: $e');
+    return [];
   }
+}
+
 
   // Future<List<CartItem>> getDraftItems(String customerId) async {
   //   try {
@@ -313,7 +318,6 @@ class CartDatabaseManager {
       log('Error saving cart as draft: $e');
     }
   }
-
   Future<Map<String, String?>?> getCartAndDraftIds(String customerId) async {
     try {
       final cartItemsa = CartDatabaseManager()

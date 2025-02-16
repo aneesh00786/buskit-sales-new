@@ -451,8 +451,7 @@ class _OrderTakingState extends State<OrderTaking>
                     .map((e) => e.detail)
                     .toList();
 
-                int selectedItemsCount =
-                    selectedDetails.length;
+                int selectedItemsCount = selectedDetails.length;
 
                 final cartDetails =
                     await CartDatabaseManager().getCartAndDraftIds(customerId);
@@ -494,8 +493,7 @@ class _OrderTakingState extends State<OrderTaking>
                         : cartOrder.cartId,
                     orderStatus: orderStatus,
                     draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-                    selctedItemCount:
-                      selectedItemsCount, 
+                    selctedItemCount: selectedItemsCount,
                   );
 
                   await placeOrder(order, (statusCode, message, response) {

@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -9,13 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 void showDetailedOrderInvoiceDialog(
-    BuildContext context, var orderData, final bool invoice,
-    {bool isButtonNeeded = false,bool isContinueShop = false,
+    BuildContext context, String orderId, final bool invoice,
+    {bool isButtonNeeded = false,
     String changedTitle = 'CUSTOMER & ORDER'}) async {
   DashBoardController dashBoardController = Get.put(DashBoardController());
 
   var orderInvoiceData = await dashBoardController.loadSpecificOrderInvoiceData(
-      orderId: orderData.orderId.toString());
+      orderId: orderId.toString());
 
   showDialog(
     // ignore: use_build_context_synchronously
@@ -122,7 +123,7 @@ void showDetailedOrderInvoiceDialog(
                             color: Colors.lightBlue[100],
                             child: orderInvoiceData.imageUrl != null
                                 ? Image.network(
-                                    '${orderInvoiceData.imageUrl}',
+                                    '${ApiConstants.imageBaseUrl}${orderInvoiceData.imageUrl}',
                                     fit: BoxFit.cover,
                                   )
                                 : const Icon(Icons.person, color: Colors.blue),
@@ -400,18 +401,9 @@ void showDetailedOrderInvoiceDialog(
                       );
               }),
               const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (isButtonNeeded == true) ...[
-                      CustomButton(text: 'Convert to Order', onPressed: () {}),
-                    ],
-                    const SizedBox(width: 12),
-                    if (isContinueShop == true) ...[
-                      CustomButton(text: 'Continue Shopping', onPressed: () {}),
-                    ],
-                  ],
-                )
+              if (isButtonNeeded == true) ...[
+                CustomButton(text: 'Convert to Order', onPressed: () {}),
+              ],
             ],
           ),
         ),

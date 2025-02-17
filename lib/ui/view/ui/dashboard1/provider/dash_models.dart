@@ -498,58 +498,55 @@ class OrderRevenueDatum {
 }
 
 class ResponseModell {
-  int? statusCode;
-  bool? status;
-  String? message;
-  List<Category>? allCategory;
-  List<CategoryPerformancee>? categoryPerformance;
-  Revenuee? revenue;
-  Collection? collection;
-  Delivery? delivery;
-  List<TopSellingProductA>? topSellingProducts;
-  OrderCountListt? orderCountList;
+  final int? statusCode;
+  final bool? status;
+  final String? message;
+  final List<Category>? allCategory;
+  final List<CategoryPerformancee>? categoryPerformance;
+  final Revenuee? revenue;
+  final Collection? collection;
+  final Delivery? delivery;
+  final List<TopSellingProductA>? topSellingProducts;
+  final OrderCountListt? orderCountList;
 
   ResponseModell({
-    this.statusCode,
-    this.status,
-    this.message,
-    this.allCategory,
-    this.categoryPerformance,
-    this.revenue,
-    this.collection,
-    this.delivery,
-    this.topSellingProducts,
-    this.orderCountList,
+     this.statusCode,
+     this.status,
+     this.message,
+     this.allCategory,
+     this.categoryPerformance,
+     this.revenue,
+     this.collection,
+     this.delivery,
+     this.topSellingProducts,
+     this.orderCountList,
   });
 
   factory ResponseModell.fromJson(Map<String, dynamic> json) {
-    var categoryList = json['data']['all_category'] as List? ?? [];
+    var categoryList = json['data']?['all_category'] as List? ?? [];
     List<Category> allCategory =
         categoryList.map((e) => Category.fromJson(e)).toList();
 
-    var performanceList = json['data']['category_performance'] as List? ?? [];
+    var performanceList = json['data']?['category_performance'] as List? ?? [];
     List<CategoryPerformancee> categoryPerformance =
         performanceList.map((e) => CategoryPerformancee.fromJson(e)).toList();
 
-    var topSellingList = json['data']['top_selling_product'] as List? ?? [];
+    var topSellingList = json['data']?['top_selling_product'] as List? ?? [];
     List<TopSellingProductA> topSellingProducts =
         topSellingList.map((e) => TopSellingProductA.fromJson(e)).toList();
 
-    // var orderCountListJson = json['data']['order_count_list'] ?? {};
-    // OrderCountList orderCountList = OrderCountList.fromJson(orderCountListJson);
-
     return ResponseModell(
-      statusCode: json['status_code'] ?? 0,
-      status: json['status'] ?? false,
-      message: json['message'] ?? '',
+      statusCode: json['status_code'] as int? ?? 0,
+      status: json['status'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
       allCategory: allCategory,
       categoryPerformance: categoryPerformance,
-      revenue: Revenuee.fromJson(json['data']['revenu'] ?? {}),
-      collection: Collection.fromJson(json['data']['collection'] ?? {}),
-      delivery: Delivery.fromJson(json['data']['delivery'] ?? {}),
+      revenue: Revenuee.fromJson(json['data']?['revenu'] ?? {}),
+      collection: Collection.fromJson(json['data']?['collection'] ?? {}),
+      delivery: Delivery.fromJson(json['data']?['delivery'] ?? {}),
       topSellingProducts: topSellingProducts,
       orderCountList:
-          OrderCountListt.fromJson(json['data']['order_count_list'] ?? {}),
+          OrderCountListt.fromJson(json['data']?['order_count_list'] ?? {}),
     );
   }
 }
@@ -702,6 +699,10 @@ class TopSellingGetTimesDatum {
   DateTime? createdAt;
   int? quantity;
   String? price;
+  String? inclTax;
+  String? orderId;
+  String? cartId;
+  num? tax;
 
   TopSellingGetTimesDatum({
     this.businessName,
@@ -709,6 +710,10 @@ class TopSellingGetTimesDatum {
     this.createdAt,
     this.quantity,
     this.price,
+    this.inclTax,
+    this.orderId,
+    this.cartId,
+    this.tax,
   });
 
   factory TopSellingGetTimesDatum.fromJson(Map<String, dynamic> json) =>
@@ -718,6 +723,10 @@ class TopSellingGetTimesDatum {
         createdAt: DateTime.parse(json["created_at"]),
         quantity: json["quantity"],
         price: json["price"],
+        inclTax: json["incl_tax"],
+        orderId: json["order_id"],
+        cartId: json["cart_id"],
+        tax: num.tryParse(json["tax"].toString()) ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -726,6 +735,10 @@ class TopSellingGetTimesDatum {
         "created_at": createdAt!.toIso8601String(),
         "quantity": quantity,
         "price": price,
+        "incl_tax": inclTax,
+        "order_id": orderId,
+        "cart_id": cartId,
+        "tax": tax,
       };
 }
 

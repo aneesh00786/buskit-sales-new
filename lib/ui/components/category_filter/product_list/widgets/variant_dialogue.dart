@@ -453,7 +453,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             onTap: () {
                                               setState(() {
                                                 detail.saleBy ??= 'Pack';
-
                                                 if (detail.stock == 0) {
                                                   showDialog(
                                                     context: context,

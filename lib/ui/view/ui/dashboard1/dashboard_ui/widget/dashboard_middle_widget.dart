@@ -1088,14 +1088,13 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
             blurRadius: 5,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 25,
         height: 300,
+        width: double.infinity,
         isCommonBorder: true,
-        padding: EdgeInsets.zero,
-        margin: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1103,25 +1102,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                  ),
-                  padding: const EdgeInsets.only(
-                      right: 20, left: 20, top: 5, bottom: 5),
-                  child: Text(
-                    "Frequently Bought Products",
-                    style: cardHeadingTextStyle,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
+                dashboardContainerHeader("Frequently Bought Products"),
                 Padding(
-                  padding: const EdgeInsets.only(right: 10,),
+                  padding: const EdgeInsets.only(right: 20, top: 2),
                   child: InkWell(
                     onTap: () {
                       if (topSellingProducts.isNotEmpty) {
@@ -1163,26 +1146,26 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             (p) => p.getTimesData ?? [],
                             (data) => data.businessName,
                             (data) => formatAmount(data.price),
-                            (data) => formatAmount(product.tax),
+                            (data) => formatAmount(data.tax),
                             (data) => data.quantity.toString(),
                             (data) => formatAmount(
                               product.inclTax == "incl_tax"
-                                  ? ((double.tryParse(data.price.toString()) ??
-                                          0) *
-                                      (double.tryParse(
-                                              data.quantity.toString()) ??
-                                          0))
-                                  : (((double.tryParse(data.price.toString()) ??
+                                  ? ((double.tryParse(
+                                              data.totalPrice.toString()) ??
+                                          0)
+                                      )
+                                  : (((double.tryParse(
+                                                  data.totalPrice.toString()) ??
                                               0) *
                                           (double.tryParse(
                                                   data.quantity.toString()) ??
                                               0)) +
-                                      (double.tryParse(
-                                              product.tax.toString()) ??
+                                      (double.tryParse(data.tax.toString()) ??
                                           0.0)),
                             ),
                             (data) => DateFormat('dd-MM-yyyy')
                                 .format(data.createdAt!),
+                            (data) => data.orderId.toString(),
                             true,
                           ),
                         );
@@ -1198,9 +1181,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: primaryColor.withOpacity(0.3)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: const Icon(
+                        child: const Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Icon(
                             Icons.open_in_new,
                             size: 17,
                             color: primaryColor,
@@ -1213,33 +1196,29 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             nkSmallSizeBox(),
             Consumer<DashboardProvider>(
               builder: (context, provider, child) {
-                return FutureBuilder<model1.ResponseModell>(
+                return FutureBuilder<ResponseModell>(
                   future: provider.futureResponseModel,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: SpinKitFadingCube(
-                          color: primaryColor,
+                          color: primaryColor, // Customize color if needed
                           size: 20.0,
                         ),
                       );
                     } else if (snapshot.hasError) {
                       return Center(
-                        child: Text('Error: ${snapshot.error}'),
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(color: red),
+                        ),
                       );
                     } else if (snapshot.hasData) {
-                      topSellingProducts =
-                          snapshot.data!.topSellingProducts ?? [];
+                      topSellingProducts = snapshot.data!.topSellingProducts??[];
                       return Expanded(
                           child: topSellingProductList(topSellingProducts));
                     } else {
-                      return const Center(
-                        child: MyRegularText(
-                          label: "No data available",
-                          color: secondaryTextColor,
-                          align: TextAlign.center,
-                        ),
-                      );
+                      return const NodataWidget();
                     }
                   },
                 );

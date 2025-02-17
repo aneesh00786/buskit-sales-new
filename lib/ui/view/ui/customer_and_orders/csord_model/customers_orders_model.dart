@@ -1142,46 +1142,49 @@ class QuantityList {
 }
 
 class Count {
-  String cartId;
-  String price;
-  int quantity;
-  String totalPrice;
-  DateTime createdAt;
+  String? totalPrice;
+  DateTime? createdAt;
+  int? quantity;
+  String? price;
+  String? inclTax;
+  String? orderId;
+  String? cartId;
+  num? tax;
 
   Count({
-    required this.cartId,
-    required this.price,
-    required this.quantity,
-    required this.totalPrice,
-    required this.createdAt,
+    this.totalPrice,
+    this.createdAt,
+    this.quantity,
+    this.price,
+    this.inclTax,
+    this.orderId,
+    this.cartId,
+    this.tax,
   });
 
   factory Count.fromJson(Map<String, dynamic> json) {
-    String parseString(dynamic value) {
-      return value?.toString() ?? '';
-    }
-
-    int parseInt(dynamic value) {
-      return value is int ? value : int.tryParse(value.toString()) ?? 0;
-    }
-
     return Count(
-      cartId: parseString(json["cart_id"]),
-      price: parseString(json["price"]),
-      quantity: parseInt(json["quantity"]),
-      totalPrice: parseString(json["total_price"]),
-      createdAt: DateTime.parse(
-          json["created_at"] ?? DateTime.now().toIso8601String()),
+      totalPrice: json["total_price"],
+      createdAt: DateTime.parse(json["created_at"]),
+      quantity: json["quantity"],
+      price: json["price"],
+      inclTax: json["incl_tax"],
+      orderId: json["order_id"],
+      cartId: json["cart_id"],
+      tax: num.tryParse(json["tax"].toString()) ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "cart_id": cartId,
-      "price": price,
-      "quantity": quantity,
       "total_price": totalPrice,
-      "created_at": createdAt.toIso8601String(),
+      "created_at": createdAt!.toIso8601String(),
+      "quantity": quantity,
+      "price": price,
+      "incl_tax": inclTax,
+      "order_id": orderId,
+      "cart_id": cartId,
+      "tax": tax,
     };
   }
 }

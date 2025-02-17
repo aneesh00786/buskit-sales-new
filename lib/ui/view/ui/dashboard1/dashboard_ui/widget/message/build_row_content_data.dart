@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
 Widget buildEmptyRow() {
@@ -14,14 +15,14 @@ Widget buildEmptyRow() {
     ),
   );
 }
-
-Widget buildRowData(String data) {
+Widget buildRowData(String data, {Color? textColor = black}) {
   return Center(
     child: Text(
       data,
-      style: const TextStyle(
-        fontSize: 12,
+      style: TextStyle(
+        fontSize: 14,
         fontWeight: FontWeight.w400,
+        color: textColor,
       ),
     ),
   );

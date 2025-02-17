@@ -442,7 +442,7 @@ class OptionWidget extends StatelessWidget {
                                                           onTap: () {
                                                             showDetailedOrderInvoiceDialog(
                                                                 context,
-                                                                order,
+                                                                order.orderId??'',
                                                                 false);
                                                           },
                                                           child: Center(
@@ -522,7 +522,7 @@ class OptionWidget extends StatelessWidget {
                                                           onTap: () {
                                                             showDetailedOrderInvoiceDialog(
                                                                 context,
-                                                                order,
+                                                                order.orderId??'',
                                                                 true);
                                                           },
                                                           child: Center(
@@ -1072,7 +1072,7 @@ class OptionWidget extends StatelessWidget {
                                                                   onTap: () {
                                                                     showDetailedOrderInvoiceDialog(
                                                                         context,
-                                                                        order,
+                                                                        order.orderId??'',
                                                                         false,
                                                                         
                                                                         );

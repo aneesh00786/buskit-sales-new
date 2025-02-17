@@ -1823,16 +1823,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 
   // ignore: non_constant_identifier_names
-  Widget Frequently(
+ Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
-    frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
+    // frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
+    frequentProductLists
+        .sort((a, b) => b.count.length.compareTo(a.count.length));
 
     return MyCommnonContainer(
       boxShadow: [
         BoxShadow(
           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
           blurRadius: 5,
-          offset: Offset(4, 4),
+          offset: const Offset(4, 4),
         ),
       ],
       borderRadius: 25,
@@ -1846,23 +1848,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
-                  ),
-                ),
-                padding: const EdgeInsets.only(
-                    right: 20, left: 20, top: 5, bottom: 5),
-                child: Text(
-                  "Frequently Bought Products",
-                  style: cardHeadingTextStyle,
-                  maxLines: 1,
-                  softWrap: false,
-                ),
-              ),
+              dashboardContainerHeader("Frequently Bought Products"),
               Padding(
                 padding: const EdgeInsets.only(right: 20, top: 2),
                 child: InkWell(
@@ -1889,11 +1875,28 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           (data) => formatAmount(data.price),
                           (data) => formatAmount(data.tax),
                           (data) => data.quantity.toString(),
-                          (data) => data.totalPrice != null
-                              ? formatAmount(data.totalPrice)
-                              : 'N/A',
+                          (data) => formatAmount(
+                            data.inclTax == "incl_tax"
+                                ? ((double.tryParse(
+                                            data.totalPrice.toString()) ??
+                                        0)
+                                    //     *
+                                    // (double.tryParse(
+                                    //         data.quantity.toString()) ??
+                                    //     0)
+                                    )
+                                : (((double.tryParse(
+                                                data.totalPrice.toString()) ??
+                                            0) *
+                                        (double.tryParse(
+                                                data.quantity.toString()) ??
+                                            0)) +
+                                    (double.tryParse(data.tax.toString()) ??
+                                        0.0)),
+                          ),
                           (data) =>
                               DateFormat('dd-MM-yyyy').format(data.createdAt!),
+                          (data) => data.orderId.toString(),
                           false,
                         ),
                       );
@@ -1909,9 +1912,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: primaryColor.withOpacity(0.3)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: const Icon(
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
                           Icons.open_in_new,
                           size: 17,
                           color: primaryColor,
@@ -2031,7 +2034,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           width: colWidth4,
                           child: const Center(
                             child: MyRegularText(
-                              label: "Price",
+                              label: "Amount",
                               fontWeight: FontWeight.w600,
                               color: secondaryTextColor,
                               align: TextAlign.center,
@@ -2127,12 +2130,31 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           (data) => formatAmount(data.price),
                                           (data) => formatAmount(data.tax),
                                           (data) => data.quantity.toString(),
-                                          (data) => data.totalPrice != null
-                                              ? formatAmount(data.totalPrice)
-                                              : 'N/A',
+                                          (data) => formatAmount(
+                                            data.inclTax == "incl_tax"
+                                                ? ((double.tryParse(data
+                                                            .totalPrice
+                                                            .toString()) ??
+                                                        0)
+                                                    //     *
+                                                    // (double.tryParse(data.quantity.toString()) ??
+                                                    //     0)
+                                                    )
+                                                : (((double.tryParse(data
+                                                                .totalPrice
+                                                                .toString()) ??
+                                                            0) *
+                                                        (double.tryParse(data
+                                                                .quantity
+                                                                .toString()) ??
+                                                            0)) +
+                                                    (double.tryParse(data.tax
+                                                            .toString()) ??
+                                                        0.0)),
+                                          ),
                                           (data) => DateFormat('dd-MM-yyyy')
-                                              .format(
-                                                  data.createdAt!.toLocal()),
+                                              .format(data.createdAt!),
+                                          (data) => data.orderId.toString(),
                                           false,
                                         );
                                       },

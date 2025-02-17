@@ -122,13 +122,13 @@ class CartDialogueState extends State<CartDialogue> {
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value;
       cartItems = await CartDatabaseManager().getCartItems(customerId);
-      List<CartItem> draftItems =  await CartDatabaseManager().getDraftItems(customerId);
-      
+      List<CartItem> draftItems =
+          await CartDatabaseManager().getDraftItems(customerId);
       final Map<String, CartItem> uniqueItems = {
         for (var item in cartItems)
-          '${item.detail.variationName}_${item.detail.sellPrice}': item,
+          '${item.detail.variationName}_${item.detail.price}': item,
         for (var draft in draftItems)
-          '${draft.detail.variationName}_${draft.detail.sellPrice}': draft,
+          '${draft.detail.variationName}_${draft.detail.price}': draft,
       };
       cartItems = uniqueItems.values.toList();
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
@@ -330,7 +330,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               ),
                                             ),
                                           ),
-                                          // Pre-order count
                                           Positioned(
                                             right: 8,
                                             top: 8,
@@ -563,7 +562,12 @@ class CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: formatAmount(preorderSubtotal),
+                                content: formatAmount(
+                                  cartItems
+                                      .where((item) => item.detail.stock == 0)
+                                      .fold(0.0,
+                                          (sum, item) => sum + item.totalPrice),
+                                ),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -1807,8 +1811,6 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void _clearCartItem(List<CartItem> cartItem, bool isSave) {
-
-
     setState(() {
       cartItems.remove(cartItem);
       quantities.remove(cartItem);
@@ -1840,7 +1842,6 @@ class CartDialogueState extends State<CartDialogue> {
         item.detail.count = 0;
         if (item.detail.stock == 0) {
           preorderItems.removeWhere((preorderItem) =>
-
               preorderItem.detail.variationName == item.detail.variationName);
           log('Deleted from preorder: ${item.detail.variationName}');
         } else {

@@ -31,12 +31,18 @@ double calculateSubtotal(List<CartItem> items) {
           double.tryParse(item.detail.price?.toString() ?? '0') ?? 0.0;
       int pieces = item.detail.pieces?.toInt() ?? 1;
       double count = item.detail.count.toDouble();
-      double totalCount = item.isPack == true ? count * pieces : count;
+      double totalCount = item.isPack  == true ? count * pieces : count;
+      if (item.detail.inclTax != 'incl_tax') {
+        double tax = double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0;
+        sellingPrice += tax;
+      }
       return sum + (sellingPrice * totalCount);
     }
     return sum;
   });
 }
+
+
 double calculateTotalTax(List<CartItem> items) {
   return items.fold(0.0, (sum, item) {
     if (item.isChecked == true) {

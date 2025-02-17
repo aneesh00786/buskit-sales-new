@@ -3437,7 +3437,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     showDetailedOrderInvoiceDialog(
-                                                        context, order, false);
+                                                        context, order.orderId??'', false);
                                                   },
                                                   child: Center(
                                                     child: Text(
@@ -3507,7 +3507,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     showDetailedOrderInvoiceDialog(
-                                                        context, order, true);
+                                                        context, order.orderId??'', true);
                                                   },
                                                   child: Center(
                                                     child: Text(

@@ -96,7 +96,7 @@ Widget customerOrderDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderInvoiceDialog(context, order, false);
+                    showDetailedOrderInvoiceDialog(context, order.orderId??'', false);
                   },
                   child: Text(
                     order.orderId,
@@ -140,7 +140,7 @@ Widget customerOrderDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderInvoiceDialog(context, order, true);
+                    showDetailedOrderInvoiceDialog(context, order.orderId, true);
                   },
                   child: Center(
                     child: Text(

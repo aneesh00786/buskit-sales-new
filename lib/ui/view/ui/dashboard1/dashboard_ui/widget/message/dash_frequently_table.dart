@@ -1,4 +1,3 @@
-
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -463,29 +462,35 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                           (p) => p.getTimesData ?? [],
                                           (data) => data.businessName,
                                           (data) => formatAmount(data.price),
-                                          (data) => formatAmount(product.tax),
+                                          (data) => formatAmount(data.tax),
                                           (data) => data.quantity.toString(),
                                           (data) => formatAmount(
                                             product.inclTax == "incl_tax"
-                                                ? ((double.tryParse(data.price.toString()) ??
-                                                        0) *
-                                                    (double.tryParse(data
-                                                            .quantity
+                                                ? ((double.tryParse(data
+                                                            .totalPrice
                                                             .toString()) ??
-                                                        0))
-                                                : (((double.tryParse(data.price
+                                                        0)
+                                                    // *
+                                                    // (double.tryParse(data
+                                                    //         .quantity
+                                                    //         .toString()) ??
+                                                    //     0)
+                                                    )
+                                                : (((double.tryParse(data
+                                                                .totalPrice
                                                                 .toString()) ??
                                                             0) *
                                                         (double.tryParse(data
                                                                 .quantity
                                                                 .toString()) ??
                                                             0)) +
-                                                    (double.tryParse(product.tax
+                                                    (double.tryParse(data.tax
                                                             .toString()) ??
                                                         0.0)),
                                           ),
                                           (data) => DateFormat('dd-MM-yyyy')
                                               .format(data.createdAt!),
+                                          (data) => data.orderId.toString(),
                                           true,
                                         );
                                       },

@@ -653,7 +653,7 @@ void pendingPaymentCollectionDialog(
               DataCell(Center(
                   child: InkWell(
                       onTap: () {
-                        showDetailedOrderInvoiceDialog(context, payment, true);
+                        showDetailedOrderInvoiceDialog(context, payment.orderId??'', true);
                       },
                       child: Text(
                         payment.invoiceId.toString(),

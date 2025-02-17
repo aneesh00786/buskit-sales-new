@@ -549,9 +549,8 @@ class CustomersProvider with ChangeNotifier {
         _isLoading = true;
         log('fetchCustomer query: $_searchCustomerName');
         log('Parameters: startDate=$startDate, endDate=$endDate, page=$page');
-
         _customersFuture = _apiService.fetchCustomer(
-          salesmanId: '',
+          salesmanId: SessionHelper.loginSavedData?.salesmanId??'',
           customerName: _searchCustomerName,
           startDate: '',
           endDate: '',

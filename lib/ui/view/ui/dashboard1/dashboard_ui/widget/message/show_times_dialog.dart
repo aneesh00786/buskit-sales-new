@@ -1,6 +1,10 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -16,6 +20,7 @@ Future<dynamic> showDashTimesDialogue<T>(
   String Function(dynamic timesData) getQuantity,
   String Function(dynamic timesData) getTotalPrice,
   String Function(dynamic timesData) getPurchasedAt,
+  String Function(dynamic timesData) getOrderId,
   bool isDash,
 ) {
   List<dynamic> timesDataList = getTimesData(product);
@@ -29,7 +34,9 @@ Future<dynamic> showDashTimesDialogue<T>(
         ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.8;
+            double dialogWidth = isDash
+                ? fullScreenWidth(context) * 0.9
+                : fullScreenWidth(context) * 0.75;
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;
@@ -83,17 +90,25 @@ Future<dynamic> showDashTimesDialogue<T>(
                       height: headerHeight,
                       child: Row(
                         children: [
-                          SizedBox(width: 50, child: buildHeader('  Sl.No.')),
                           if (isDash) ...[
-                            Expanded(child: buildHeader('Customer')),
-                          ],
-                          Expanded(child: buildHeader('Price')),
-                          Expanded(child: buildHeader('Quantity')),
-                          if (isDash) ...[
+                            SizedBox(width: 50, child: buildHeader('  Sl.No.')),
+                            Expanded(flex: 2, child: buildHeader('Customer')),
+                            Expanded(child: buildHeader('Order Id')),
+                            Expanded(child: buildHeader('Date')),
+                            Expanded(child: buildHeader('Price')),
+                            Expanded(child: buildHeader('Quantity')),
                             Expanded(child: buildHeader('Tax')),
+                            Expanded(child: buildHeader('Amount')),
                           ],
-                          Expanded(child: buildHeader('Amount')),
-                          Expanded(child: buildHeader('Date')),
+                          if (!isDash) ...[
+                            SizedBox(width: 50, child: buildHeader('  Sl.No.')),
+                            Expanded(child: buildHeader('Order Id')),
+                            Expanded(child: buildHeader('Date')),
+                            Expanded(child: buildHeader('Price')),
+                            Expanded(child: buildHeader('Quantity')),
+                            Expanded(child: buildHeader('Tax')),
+                            Expanded(child: buildHeader('Amount')),
+                          ],
                         ],
                       ),
                     ),
@@ -122,37 +137,183 @@ Future<dynamic> showDashTimesDialogue<T>(
                                 height: rowHeight,
                                 child: Row(
                                   children: [
-                                    SizedBox(
-                                        width: 50,
-                                        child: buildRowData("  ${index + 1}.")),
                                     if (isDash) ...[
+                                      SizedBox(
+                                          width: 50,
+                                          child:
+                                              buildRowData("  ${index + 1}.")),
                                       Expanded(
+                                          flex: 2,
                                           child: buildRowData(
                                               getCustomer(timesData))),
-                                    ],
-                                    Expanded(
-                                        child:
-                                            buildRowData(getPrice(timesData))),
-                                    Expanded(
+                                      Expanded(
+                                          child: InkWell(
+                                        onTap: () {
+                                          showDetailedOrderInvoiceDialog(
+                                              context,
+                                              getOrderId(timesData),
+                                              false);
+                                        },
                                         child: buildRowData(
-                                            getQuantity(timesData))),
-                                    if (isDash) ...[
+                                            getOrderId(timesData),
+                                            textColor: primaryColor),
+                                      )),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getPurchasedAt(timesData))),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getPrice(timesData))),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getQuantity(timesData))),
                                       Expanded(
                                           child:
                                               buildRowData(getTax(timesData))),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getTotalPrice(timesData))),
                                     ],
-                                    Expanded(
+                                    if (!isDash) ...[
+                                      SizedBox(
+                                          width: 50,
+                                          child:
+                                              buildRowData("  ${index + 1}.")),
+                                      Expanded(
+                                          child: InkWell(
+                                        onTap: () {
+                                          showDetailedOrderInvoiceDialog(
+                                              context,
+                                              getOrderId(timesData),
+                                              false);
+                                        },
                                         child: buildRowData(
-                                            getTotalPrice(timesData))),
-                                    Expanded(
-                                        child: buildRowData(
-                                            getPurchasedAt(timesData))),
+                                            getOrderId(timesData),
+                                            textColor: primaryColor),
+                                      )),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getPurchasedAt(timesData))),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getPrice(timesData))),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getQuantity(timesData))),
+                                      Expanded(
+                                          child:
+                                              buildRowData(getTax(timesData))),
+                                      Expanded(
+                                          child: buildRowData(
+                                              getTotalPrice(timesData))),
+                                    ],
                                   ],
                                 ),
                               );
                             }
                           },
                         ),
+                      ),
+                    ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey,
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      height: rowHeight,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 50),
+                          Expanded(
+                            flex: isDash ? 5 : 3,
+                            child: CustomText(
+                              fontWeight: FontWeight.w600,
+                              textAlign: TextAlign.center,
+                              content: 'Total',
+                              fontSize: 11,
+                              maxLine: 1,
+                            ),
+                          ),
+                          // Expanded(
+                          //   child: CustomText(
+                          //     fontWeight: FontWeight.w600,
+                          //     textAlign: TextAlign.center,
+                          //     content: () {
+                          //       double total =
+                          //           timesDataList.fold(0.0, (sum, item) {
+                          //         String priceStr = getPrice(item)
+                          //             .replaceAll(RegExp(r'[^0-9.]'), '');
+                          //         double price =
+                          //             double.tryParse(priceStr) ?? 0.0;
+                          //         return sum + price;
+                          //       });
+                          //       return formatAmount(total);
+                          //     }(),
+                          //     fontSize: 11,
+                          //     maxLine: 1,
+                          //   ),
+                          // ),
+                          Expanded(
+                            child: CustomText(
+                              fontWeight: FontWeight.w600,
+                              textAlign: TextAlign.center,
+                              content: () {
+                                int total = timesDataList.fold(0, (sum, item) {
+                                  String priceStr = getQuantity(item)
+                                      .replaceAll(RegExp(r'[^0-9.]'), '');
+                                  int price = int.tryParse(priceStr) ?? 0;
+                                  return sum + price;
+                                });
+                                return total.toString();
+                              }(),
+                              fontSize: 11,
+                              maxLine: 1,
+                            ),
+                          ),
+                          Expanded(
+                            child: CustomText(
+                              fontWeight: FontWeight.w600,
+                              textAlign: TextAlign.center,
+                              content: () {
+                                double total =
+                                    timesDataList.fold(0.0, (sum, item) {
+                                  String priceStr = getTax(item)
+                                      .replaceAll(RegExp(r'[^0-9.]'), '');
+                                  double price =
+                                      double.tryParse(priceStr) ?? 0.0;
+                                  return sum + price;
+                                });
+                                return formatAmount(total);
+                              }(),
+                              fontSize: 11,
+                              maxLine: 1,
+                            ),
+                          ),
+                          Expanded(
+                            child: CustomText(
+                              fontWeight: FontWeight.w600,
+                              textAlign: TextAlign.center,
+                              content: () {
+                                double total =
+                                    timesDataList.fold(0.0, (sum, item) {
+                                  String priceStr = getTotalPrice(item)
+                                      .replaceAll(RegExp(r'[^0-9.]'),
+                                          ''); // Remove non-numeric characters
+                                  double price =
+                                      double.tryParse(priceStr) ?? 0.0;
+                                  return sum + price;
+                                });
+                                return formatAmount(total);
+                              }(),
+                              fontSize: 11,
+                              maxLine: 1,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

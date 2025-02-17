@@ -170,7 +170,7 @@ void showValueOrderDialog(
                                         child: InkWell(
                                           onTap: () {
                                             showDetailedOrderInvoiceDialog(
-                                                context, orderDetails, true);
+                                                context, orderDetails.orderId??'', true);
                                           },
                                           child: Text(
                                             orderDetails.invoiceId ?? '',

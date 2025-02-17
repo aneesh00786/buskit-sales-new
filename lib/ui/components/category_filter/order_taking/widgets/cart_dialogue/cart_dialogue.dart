@@ -1020,11 +1020,6 @@ class CartDialogueState extends State<CartDialogue> {
                                         ? customeController.customerId.value
                                         : widget.productsController
                                             .selectedCustomerId.value;
-                                final savedCartData =
-                                    await CartDatabaseManager()
-                                        .getCartAndDraftIds(customerId);
-                                final cartId = savedCartData?['cart_id'] ?? '';
-                                final draftId = savedCartData?['id'] ?? '';
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
@@ -1033,8 +1028,8 @@ class CartDialogueState extends State<CartDialogue> {
                                       //finalAmount ?? 0,
                                       paymentType: paymentType,
                                       context: context,
-                                      cartId: cartId,
-                                      draftId: draftId,
+                                      cartId: '',
+                                      draftId: '',
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1051,8 +1046,8 @@ class CartDialogueState extends State<CartDialogue> {
                                       finalAmount: 0,
                                       //finalAmount ?? 0,
                                       context: context,
-                                      cartId: cartId,
-                                      draftId: draftId);
+                                      cartId: '',
+                                      draftId: '');
                                 }
                               } else {
                                 showDialog(
@@ -1280,7 +1275,7 @@ class CartDialogueState extends State<CartDialogue> {
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
-              price: e.sellPrice.toString(),
+              price: e.price.toString(),
               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
               discount: '0',
               quantity: e.count.toInt(),
@@ -1325,7 +1320,7 @@ class CartDialogueState extends State<CartDialogue> {
               'Customer ID: ${e.customerId}, '
               'Draft ID: ${e.draftId}, '
               'Variation: ${e.detail.variationName}, '
-              'Price: ${e.detail.sellPrice}, '
+              'Price: ${e.detail.price}, '
               'Quantity: ${e.detail.count}, '
               'Total: ${e.totalPrice}, '
               'IsPack: ${e.isPack}, '
@@ -1693,8 +1688,6 @@ class CartDialogueState extends State<CartDialogue> {
       cartItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
-      CartDatabaseManager().deleteDraftItem(
-          customerId, variantToDelete.detail.variationId ?? '');
       CartDatabaseManager().deleteCartItem(variantToDelete);
       _loadCartItems();
     });
@@ -1814,19 +1807,7 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void _clearCartItem(List<CartItem> cartItem, bool isSave) {
-    if (isSave) {
-      CartDatabaseManager().clearCartOnSave(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
-    } else {
-      CartDatabaseManager().clearCart(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
-    }
+
 
     setState(() {
       cartItems.remove(cartItem);

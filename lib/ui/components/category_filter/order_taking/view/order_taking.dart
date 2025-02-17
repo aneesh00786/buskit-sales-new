@@ -452,16 +452,10 @@ class _OrderTakingState extends State<OrderTaking>
                     .toList();
 
                 int selectedItemsCount = selectedDetails.length;
-
-                final cartDetails =
-                    await CartDatabaseManager().getCartAndDraftIds(customerId);
-                Future.delayed(const Duration(seconds: 1));
-                final existingCartId = cartDetails?['cart_id'] ?? '';
-                final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
+                  cartId:'',
                   cartList: selectedDetails
                       .map((e) => SendCartData(
                             productId: e.productId ??
@@ -472,7 +466,7 @@ class _OrderTakingState extends State<OrderTaking>
                                 ? e.pieces.toString()
                                 : e.count.toString(),
                             packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                            price: e.sellPrice.toString(),
+                            price: e.price.toString(),
                             discount: '0',
                             quantity: e.count.toInt(),
                           ))
@@ -488,25 +482,15 @@ class _OrderTakingState extends State<OrderTaking>
                   CartOrderModel order = CartOrderModel(
                     customerId: customerId,
                     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                    cartId: existingCartId.isNotEmpty
-                        ? existingCartId
-                        : cartOrder.cartId,
+                    cartId: cartOrder.cartId,
                     orderStatus: orderStatus,
-                    draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+                    draftId:  '',
                     selctedItemCount: selectedItemsCount,
                   );
 
                   await placeOrder(order, (statusCode, message, response) {
                     Navigator.pop(context);
                     if (statusCode == 200) {
-                      final draftId = response?['id'];
-                      CartDatabaseManager().saveCartAsDraft(
-                        customerId,
-                        existingCartId.isNotEmpty
-                            ? existingCartId
-                            : cartOrder.cartId,
-                        existingDraftId.isNotEmpty ? existingDraftId : draftId,
-                      );
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -529,7 +513,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId);
+                                  
                                 },
                                 child: const Text('OK'),
                               ),
@@ -580,18 +564,10 @@ class _OrderTakingState extends State<OrderTaking>
                     .cartItems
                     .map((e) => e.detail)
                     .toList();
-
-                final cartDetails =
-                    await CartDatabaseManager().getCartAndDraftIds(customerId);
-
-                Future.delayed(const Duration(seconds: 1));
-
-                final existingCartId = cartDetails?['cart_id'] ?? '';
-                final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
+                  cartId: '',
                   cartList: detail
                       .map((e) => SendCartData(
                             productId: e.productId ??
@@ -602,7 +578,7 @@ class _OrderTakingState extends State<OrderTaking>
                                 ? e.pieces.toString()
                                 : e.count.toString(),
                             packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                            price: e.sellPrice.toString(),
+                            price: e.price.toString(),
                             discount: '0',
                             quantity: e.count.toInt(),
                           ))
@@ -618,23 +594,13 @@ class _OrderTakingState extends State<OrderTaking>
                   CartOrderModel order = CartOrderModel(
                     customerId: customerId,
                     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                    cartId: existingCartId.isNotEmpty
-                        ? existingCartId
-                        : cartOrder.cartId,
+                    cartId: cartOrder.cartId,
                     orderStatus: orderStatus,
-                    draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+                    draftId:  '',
                   );
 
                   await placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
-                      final draftId = response?['id'];
-                      CartDatabaseManager().saveCartAsDraft(
-                        customerId,
-                        existingCartId.isNotEmpty
-                            ? existingCartId
-                            : cartOrder.cartId,
-                        existingDraftId.isNotEmpty ? existingDraftId : draftId,
-                      );
 
                       showDialog(
                         context: context,
@@ -662,7 +628,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   //   Navigator.of(context, rootNavigator: true).pop();
                                   // }
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId);
+                                  CartDatabaseManager().clearCart();
                                 },
                                 child: const Text('OK'),
                               ),
@@ -711,7 +677,7 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().clearCart();
 
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);
@@ -726,13 +692,13 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().clearCart();
                 Navigator.pop(context);
               } else {
                 log('Log 4');
                 Navigator.pop(context);
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().clearCart();
               }
             },
             icon: const Icon(Icons.arrow_back_ios),

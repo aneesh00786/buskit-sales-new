@@ -327,7 +327,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     fontSize: fontSize)),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: formatAmount(detail.sellPrice),
+                                  content: formatAmount(detail.price),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(
@@ -647,61 +647,24 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
-                              final existingDraft = await CartDatabaseManager()
-                                  .getDraftItems(customerId);
                               CartDatabaseManager().getCartItems(customerId);
-                              final draftItemMap = existingDraft.isNotEmpty
-                                  ? {
-                                      for (var item in existingDraft)
-                                        '${item.detail.variationName}_${item.detail.sellPrice}':
-                                            item
-                                    }
-                                  : {};
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
                                 Detail detail = widget.detailsCopy[i];
-                                bool isProductAlreadyInDraft =
-                                    draftItemMap.containsKey(
-                                        '${detail.variationName}_${detail.sellPrice}');
 
                                 if (localCounts[i] > 0) {
-                                  if (isProductAlreadyInDraft) {
-                                    final draftItem = draftItemMap[
-                                        '${detail.variationName}_${detail.sellPrice}']!;
-                                    draftItem.detail.count += localCounts[i];
-                                    draftItem.totalPrice = draftItem.isPack
-                                        ? (draftItem.detail.count *
-                                                draftItem.detail.pieces! *
-                                                num.parse(draftItem
-                                                        .detail.sellPrice ??
-                                                    '0'))
-                                            .toDouble()
-                                        : (draftItem.detail.count *
-                                                num.parse(draftItem
-                                                        .detail.sellPrice ??
-                                                    '0'))
-                                            .toDouble();
-                                    log('Draft item updated: ${draftItem.detail.variationName}, New Count: ${draftItem.detail.count}, Total Price: ${draftItem.totalPrice}');
-                                    Navigator.pop(context);
-                                    for (var item in existingDraft) {
-                                      await CartDatabaseManager()
-                                          .cartBox
-                                          .put(item.customerId, item);
-                                    }
-                                  } else {
-                                    final bool isPack = detail.saleBy == 'Pack';
-                                    await CartDatabaseManager().addToCart(
-                                      customerId: customerId,
-                                      localCount: localCounts[i],
-                                      detail: detail,
-                                      isPack: isPack,
-                                      productName:
-                                          widget.product.productName ?? '',
-                                      inclTax: widget.product.inclTax??'',
-                                    );
-                                    log('Product added to cart or draft with ID: ${detail.variationId}');
-                                  }
+                                  final bool isPack = detail.saleBy == 'Pack';
+                                  await CartDatabaseManager().addToCart(
+                                    customerId: customerId,
+                                    localCount: localCounts[i],
+                                    detail: detail,
+                                    isPack: isPack,
+                                    productName:
+                                        widget.product.productName ?? '',
+                                    inclTax: widget.product.inclTax ?? '',
+                                  );
+                                  log('Product added to cart or draft with ID: ${detail.variationId}');
                                 } else {
                                   log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                 }

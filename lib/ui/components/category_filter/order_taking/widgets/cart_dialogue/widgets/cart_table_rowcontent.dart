@@ -50,7 +50,7 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 1,
-              content: formatAmount(groupedItem.detail.sellPrice ?? '0'))),
+              content: formatAmount(groupedItem.detail.price ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 2,
@@ -61,7 +61,7 @@ class GroupedItemDataRows {
               fontSize: fontSize,
               maxLines: 1,
               content: formatAmount(
-                  double.parse(groupedItem.detail.sellPrice.toString()) *
+                  double.parse(groupedItem.detail.price.toString()) *
                       (groupedItem.isPack == true
                           ? groupedItem.detail.pieces!
                           : 1)))),

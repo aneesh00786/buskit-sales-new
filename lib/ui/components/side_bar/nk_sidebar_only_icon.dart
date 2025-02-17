@@ -291,21 +291,12 @@ void handleBackNavigation(
       try {
         List<Detail> detail =
             CartDatabaseManager().cartItems.map((e) => e.detail).toList();
-
-        final cartDetails = await CartDatabaseManager().getCartAndDraftIds(
-          customerController.customerId.isNotEmpty
-              ? customerController.customerId.value
-              : productController.selectedCustomerId.value,
-        );
-
-        final existingCartId = cartDetails?['cart_id'] ?? '';
-        final existingDraftId = cartDetails?['id'] ?? '';
         final productBYData = AddToCartModel(
           customerId: customerController.customerId.isNotEmpty
               ? customerController.customerId.value
               : productController.selectedCustomerId.value,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: existingCartId.isNotEmpty ? existingCartId : '',
+          cartId: '',
           cartList: detail
               .map((e) => SendCartData(
                     productId: e.productId ??
@@ -334,27 +325,17 @@ void handleBackNavigation(
                 ? customerController.customerId.value
                 : productController.selectedCustomerId.value,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: existingCartId.isNotEmpty
-                ? existingCartId
-                : cartOrder.cartId,
+            cartId: cartOrder.cartId,
             orderStatus: orderStatus,
-            draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+            draftId:'',
           );
 
           await placeOrder(order, (statusCode, message, response) {
             if (Navigator.canPop(context)) {
-              Navigator.pop(context); // Close progress indicator
+              Navigator.pop(context);
             }
 
             if (statusCode == 200) {
-              final draftId = response?['id'];
-              CartDatabaseManager().saveCartAsDraft(
-                customerController.customerId.isNotEmpty
-                    ? customerController.customerId.value
-                    : productController.selectedCustomerId.value,
-                existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-                existingDraftId.isNotEmpty ? existingDraftId : draftId,
-              );
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -378,7 +359,7 @@ void handleBackNavigation(
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          CartDatabaseManager().clearCart(customerId);
+                          CartDatabaseManager().clearCart();
                           updateTabIndex();
                         },
                         child: const Text('OK'),

@@ -560,7 +560,6 @@ class CustomersProvider with ChangeNotifier {
               ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
               : _selectedFilter.name,
         );
-
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);

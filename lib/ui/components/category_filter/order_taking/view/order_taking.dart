@@ -1,3 +1,5 @@
+//OrderTaking
+
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -434,29 +436,30 @@ class _OrderTakingState extends State<OrderTaking>
                   customerAndOrderController.customerId.isNotEmpty
                       ? customerAndOrderController.customerId.value
                       : widget.productsController.selectedCustomerId.value;
-              bool hasDraftId = CartDatabaseManager().cartItems.every(
-                  (item) => item.draftId != null && item.draftId!.isNotEmpty);
+              bool hasDraftId = CartDatabaseManager().cartItems.every((item) =>
+                      item.draftId != null && item.draftId!.isNotEmpty);
               log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
-              if (CartDatabaseManager().cartItems.isNotEmpty &&
-                  customerId.isNotEmpty &&
-                  !hasDraftId &&
-                  !toDash) {
+              if (CartDatabaseManager().cartItems.isNotEmpty  &&
+                      customerId.isNotEmpty &&
+                      !hasDraftId &&
+                      !toDash) {
                 log('Log 1');
                 log('To Dash $toDash');
+                List<Detail> detail =  CartDatabaseManager()
+                        .cartItems
+                        .map((e) => e.detail)
+                        .toList();
+                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
 
-                // Filter details where isChecked == true
-                List<Detail> selectedDetails = CartDatabaseManager()
-                    .cartItems
-                    .where((e) => e.isChecked == true)
-                    .map((e) => e.detail)
-                    .toList();
+                Future.delayed(const Duration(seconds: 1));
 
-                int selectedItemsCount = selectedDetails.length;
+                final existingCartId = cartDetails?['cart_id'] ?? '';
+                final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId:'',
-                  cartList: selectedDetails
+                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
+                  cartList: detail
                       .map((e) => SendCartData(
                             productId: e.productId ??
                                 widget.productsController.selectedCustomerId
@@ -466,9 +469,10 @@ class _OrderTakingState extends State<OrderTaking>
                                 ? e.pieces.toString()
                                 : e.count.toString(),
                             packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                            price: e.price.toString(),
+                            price: e.sellPrice.toString(),
                             discount: '0',
                             quantity: e.count.toInt(),
+                            variantName: e.variationName??''
                           ))
                       .toList(),
                   total: widget.productsController.finalAmount.value
@@ -477,20 +481,32 @@ class _OrderTakingState extends State<OrderTaking>
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToCart(productBYData.toJson());
+                log('Add to Cart Datas : ${productBYData.toJson()}');
                 if (cartOrder != null) {
                   int orderStatus = 4;
                   CartOrderModel order = CartOrderModel(
                     customerId: customerId,
                     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                    cartId: cartOrder.cartId,
+                    cartId: existingCartId.isNotEmpty
+                        ? existingCartId
+                        : cartOrder.cartId,
                     orderStatus: orderStatus,
-                    draftId:  '',
-                    selctedItemCount: selectedItemsCount,
+                    draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
                   );
 
                   await placeOrder(order, (statusCode, message, response) {
                     Navigator.pop(context);
                     if (statusCode == 200) {
+                      final draftId = response?['id'];
+                      //  CartDatabaseManager().saveCartAsDraft(
+                      //         customerId,
+                      //         existingCartId.isNotEmpty
+                      //             ? existingCartId
+                      //             : cartOrder.cartId,
+                      //         existingDraftId.isNotEmpty
+                      //             ? existingDraftId
+                      //             : draftId,
+                      //       );
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -512,8 +528,12 @@ class _OrderTakingState extends State<OrderTaking>
                             actions: [
                               TextButton(
                                 onPressed: () {
+                                  // Navigator.pop(context);
+                                  // if (isTab) {
+                                  //   Navigator.of(context, rootNavigator: true).pop();
+                                  // }
                                   Navigator.pop(context);
-                                  
+                                  CartDatabaseManager().clearCart(customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -560,14 +580,23 @@ class _OrderTakingState extends State<OrderTaking>
                   toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
-                List<Detail> detail = CartDatabaseManager()
-                    .cartItems
-                    .map((e) => e.detail)
-                    .toList();
+                List<Detail> detail = 
+                     CartDatabaseManager()
+                        .cartItems
+                        .map((e) => e.detail)
+                        .toList();
+                    
+                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
+                    
+
+                Future.delayed(const Duration(seconds: 1));
+
+                final existingCartId = cartDetails?['cart_id'] ?? '';
+                final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: '',
+                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
                             productId: e.productId ??
@@ -581,6 +610,7 @@ class _OrderTakingState extends State<OrderTaking>
                             price: e.price.toString(),
                             discount: '0',
                             quantity: e.count.toInt(),
+                            variantName: e.variationName??''
                           ))
                       .toList(),
                   total: widget.productsController.finalAmount.value
@@ -594,14 +624,18 @@ class _OrderTakingState extends State<OrderTaking>
                   CartOrderModel order = CartOrderModel(
                     customerId: customerId,
                     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                    cartId: cartOrder.cartId,
+                    cartId: existingCartId.isNotEmpty
+                        ? existingCartId
+                        : cartOrder.cartId,
                     orderStatus: orderStatus,
-                    draftId:  '',
+                    draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
                   );
 
                   await placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
+                      
 
+                          
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -628,7 +662,8 @@ class _OrderTakingState extends State<OrderTaking>
                                   //   Navigator.of(context, rootNavigator: true).pop();
                                   // }
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart();
+                                  CartDatabaseManager().clearCart(customerId);
+                                  CartDatabaseManager().cartItems.clear();
                                 },
                                 child: const Text('OK'),
                               ),
@@ -677,13 +712,13 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart();
-
+               CartDatabaseManager().clearCart(customerId);
+                  
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                 log('Log 3');
-
+            
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
                   homeController.selectedIndex.value = 0;
@@ -691,14 +726,14 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart();
+                 CartDatabaseManager().cartItems.clear();
+                 CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');
                 Navigator.pop(context);
-                CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart();
+                 CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().clearCart(customerId);
               }
             },
             icon: const Icon(Icons.arrow_back_ios),
@@ -1355,6 +1390,7 @@ class _OrderTakingState extends State<OrderTaking>
           cartItemCount: cartProvider.cartItemCount,
           productsController: widget.productsController,
           customerOrderController: customerAndOrderController,
+          isDashboard: false,
         );
       },
     );

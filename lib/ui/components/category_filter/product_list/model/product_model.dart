@@ -1,3 +1,5 @@
+//Product Model
+
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'product_model.g.dart';
@@ -221,9 +223,9 @@ class Detail {
     this.sellingPrice,
     this.packPrice,
     this.sellingPackPrice,
-    this.inclTax
+    this.inclTax,
   });
-    Detail copyWith({
+  Detail copyWith({
     int? id,
     int? companyId,
     String? productId,
@@ -307,7 +309,7 @@ class Detail {
         vStatus = json['v_status'],
         createdAt = json['created_at'],
         updatedAt = json['updated_at'],
-        count = json['count']??0.0,
+        count = json['count'] ?? 0.0,
         saleBy = json['saleBy'],
         totalPrice = json['totalPrice'],
         sellingPrice = json['selling_price'],

@@ -1,3 +1,5 @@
+//cart_model
+
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:hive_flutter/adapters.dart';
 part 'cart_model.g.dart';
@@ -31,6 +33,9 @@ class CartItem extends HiveObject {
   @HiveField(8)
   bool? isChecked;
 
+  @HiveField(9)
+  num? draftTotal;
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -41,6 +46,7 @@ class CartItem extends HiveObject {
     this.cartId,
     this.draftId,
     this.isChecked = true,
+    this.draftTotal,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -54,6 +60,7 @@ class CartItem extends HiveObject {
       cartId: json['cart_id'] as String?,
       draftId: json['id'] as String?,
       isChecked: json['isChecked'],
+      draftTotal: json['order_total'] as num,
     );
   }
 
@@ -67,7 +74,8 @@ class CartItem extends HiveObject {
       'customer_id': customerId,
       'cart_id': cartId,
       'id': draftId,
-      'isChecked': isChecked
+      'isChecked': isChecked,
+      'order_total': draftTotal
     };
   }
 
@@ -81,6 +89,7 @@ class CartItem extends HiveObject {
     String? cartId,
     String? draftId,
     bool? isChcked,
+    num?draftTotal
   }) {
     return CartItem(
         detail: detail ?? this.detail,
@@ -91,6 +100,9 @@ class CartItem extends HiveObject {
         customerId: customerId ?? this.customerId,
         cartId: cartId ?? this.cartId,
         draftId: draftId ?? this.draftId,
-        isChecked: isChcked ?? this.isChecked);
+        isChecked: isChcked ?? this.isChecked,
+        draftTotal: draftTotal ?? this.draftTotal,
+        
+        );
   }
 }

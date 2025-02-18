@@ -1,3 +1,5 @@
+//nk Side Bar
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -291,12 +293,21 @@ void handleBackNavigation(
       try {
         List<Detail> detail =
             CartDatabaseManager().cartItems.map((e) => e.detail).toList();
+
+        final cartDetails = await CartDatabaseManager().getCartAndDraftIds(
+          customerController.customerId.isNotEmpty
+              ? customerController.customerId.value
+              : productController.selectedCustomerId.value,
+        );
+
+        final existingCartId = cartDetails?['cart_id'] ?? '';
+        final existingDraftId = cartDetails?['id'] ?? '';
         final productBYData = AddToCartModel(
           customerId: customerController.customerId.isNotEmpty
               ? customerController.customerId.value
               : productController.selectedCustomerId.value,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: '',
+          cartId: existingCartId.isNotEmpty ? existingCartId : '',
           cartList: detail
               .map((e) => SendCartData(
                     productId: e.productId ??
@@ -309,6 +320,7 @@ void handleBackNavigation(
                     price: e.sellPrice.toString(),
                     discount: '0',
                     quantity: e.count.toInt(),
+                    variantName: e.variationName??''
                   ))
               .toList(),
           total: productController.finalAmount.value.toStringAsFixed(0),
@@ -325,17 +337,27 @@ void handleBackNavigation(
                 ? customerController.customerId.value
                 : productController.selectedCustomerId.value,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: cartOrder.cartId,
+            cartId: existingCartId.isNotEmpty
+                ? existingCartId
+                : cartOrder.cartId,
             orderStatus: orderStatus,
-            draftId:'',
+            draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
           );
 
           await placeOrder(order, (statusCode, message, response) {
             if (Navigator.canPop(context)) {
-              Navigator.pop(context);
+              Navigator.pop(context); // Close progress indicator
             }
 
             if (statusCode == 200) {
+              final draftId = response?['id'];
+              // CartDatabaseManager().saveCartAsDraft(
+              //   customerController.customerId.isNotEmpty
+              //       ? customerController.customerId.value
+              //       : productController.selectedCustomerId.value,
+              //   existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+              //   existingDraftId.isNotEmpty ? existingDraftId : draftId,
+              // );
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -359,7 +381,7 @@ void handleBackNavigation(
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          CartDatabaseManager().clearCart();
+                          CartDatabaseManager().clearCart(customerId);
                           updateTabIndex();
                         },
                         child: const Text('OK'),

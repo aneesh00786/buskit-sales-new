@@ -1,3 +1,5 @@
+//Connectivity Plus
+
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -80,6 +82,7 @@ Future<void> syncOfflineOrders() async {
               packType: e['packType'],
               discount: e['discount'],
               quantity: e['quantity'],
+              variantName: e['variant_name']
             );
           }).toList(),
           total: order['order_price'].toString(),

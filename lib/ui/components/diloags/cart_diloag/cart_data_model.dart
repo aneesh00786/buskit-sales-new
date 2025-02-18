@@ -1,3 +1,5 @@
+//Cart Data Miodel
+
 class AddToCartModel {
   String customerId;
   String salesmanId;
@@ -35,6 +37,7 @@ class SendCartData {
   String price;
   String discount;
   int quantity;
+  String variantName;
 
   SendCartData({
     required this.productId,
@@ -44,6 +47,7 @@ class SendCartData {
     required this.price,
     required this.discount,
     required this.quantity,
+    required this.variantName,
   });
 
   Map<String, dynamic> toJson() {
@@ -55,6 +59,7 @@ class SendCartData {
       'price': price,
       'discount': discount,
       'quantity': quantity,
+      'variant_name':variantName
     };
   }
 }

@@ -1,3 +1,5 @@
+
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -18,9 +20,11 @@ class GroupedItemDataRows {
     required Function(BuildContext context, CartItem groupedItem,
             List<CartItem> groupedItems)
         deleteConfirmationDialogue,
-      required Function calculateAmount,
+    required Function calculateAmount,
   }) {
     return groupedItems.map((groupedItem) {
+      log('Draft id is Contains or not? == ${groupedItem.draftId}');
+      log('Incl Tax  == ${groupedItem.detail.inclTax}');
       return DataRow(
         cells: [
           DataCell(
@@ -31,10 +35,9 @@ class GroupedItemDataRows {
                   onChanged: (bool? value) {
                     setState(() {
                       groupedItem.isChecked = value ?? false;
-                    log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
-                   
+                      log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
                     });
-                     calculateAmount();
+                    calculateAmount();
                   },
                 );
               },
@@ -50,7 +53,7 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 1,
-              content: formatAmount(groupedItem.detail.price ?? '0'))),
+              content: formatAmount(groupedItem.detail.sellPrice ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 2,
@@ -61,24 +64,32 @@ class GroupedItemDataRows {
               fontSize: fontSize,
               maxLines: 1,
               content: formatAmount(
-                  double.parse(groupedItem.detail.price.toString()) *
+                  double.parse(groupedItem.detail.sellPrice.toString()) *
                       (groupedItem.isPack == true
                           ? groupedItem.detail.pieces!
                           : 1)))),
-          DataCell(TableContent(
+          DataCell(
+            TableContent(
               maxLines: 1,
               fontSize: fontSize,
-              content: formatAmount(groupedItem.detail.tax! *
-                  (groupedItem.isPack == true
-                      ? groupedItem.detail.pieces!
-                      : 1)))),
+              content: (groupedItem.draftId?.isEmpty ?? true)
+                  ? formatAmount(groupedItem.detail.tax! *
+                      (groupedItem.isPack == true
+                          ? groupedItem.detail.pieces!
+                          : 1))
+                  : formatAmount((groupedItem.draftId?.isEmpty ?? true)?groupedItem.detail.tax!*groupedItem.detail.count:groupedItem.detail.tax!),
+            ),
+          ),
           DataCell(
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
                   groupedItem,
-                  groupedItem.totalPrice.toString(),
+                  groupedItem.detail.inclTax?.isEmpty ?? true
+                      ? (groupedItem.totalPrice + groupedItem.detail.tax!)
+                          .toString()
+                      : groupedItem.totalPrice.toString(),
                   fontSize,
                   availableWidth,
                 ),
@@ -90,7 +101,10 @@ class GroupedItemDataRows {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: CustomText(
-                  content: formatAmount(groupedItem.totalPrice),
+                  content: (groupedItem.draftId?.isEmpty ?? true)
+                      ? formatAmount(groupedItem.totalPrice)
+                      :groupedItem.detail.inclTax==''? formatAmount(
+                          groupedItem.totalPrice + groupedItem.detail.tax!):formatAmount(groupedItem.totalPrice),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,
                   maxLine: 1,
@@ -147,3 +161,5 @@ class TableContent extends StatelessWidget {
     );
   }
 }
+
+

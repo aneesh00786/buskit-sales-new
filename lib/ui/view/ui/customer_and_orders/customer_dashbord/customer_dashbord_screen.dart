@@ -105,8 +105,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     });
   }
     void _navigateToOrderTaking() {
+      final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
      customerOrderController
                     .setCustomerId(customerOrderController.customerId.value);
+    cartProvider.updateCartCount(customerOrderController.customerId.value);
                 log('Customer Id :${customerOrderController.customerId.value}');
                 Navigator.push(
                   context,
@@ -256,6 +258,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
+                
                _navigateToOrderTaking();
               },
               style: ElevatedButton.styleFrom(

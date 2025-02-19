@@ -107,7 +107,7 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-    calculateAmounts();
+   // calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
     log('CartList Length : ${cartItems.length}');
@@ -121,97 +121,93 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-void _loadCartItems() async {
-  try {
-    final customerId = widget.isDashboard == true
-        ? widget.customerId
-        : (widget.customerOrderController!.customerId.value.isNotEmpty
-            ? widget.customerOrderController!.customerId.value
-            : widget.productsController.selectedCustomerId.value);
+  void _loadCartItems() async {
+    try {
+      final customerId = widget.isDashboard == true
+          ? widget.customerId
+          : (widget.customerOrderController!.customerId.value.isNotEmpty
+              ? widget.customerOrderController!.customerId.value
+              : widget.productsController.selectedCustomerId.value);
+      final cart = await CartDatabaseManager().getCartItems(customerId ?? '');
+      final draft = await CartDatabaseManager().getDraftItems(customerId ?? '');
+      final Map<String, CartItem> uniqueItems = {
+        for (var item in cart)
+          '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
+              item,
+        for (var item in draft)
+          '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
+              item,
+      };
+      cartItems = uniqueItems.values.toList();
+      orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
+      preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
+      orderSubtotal = orderItems.fold(
+        0.0,
+        (sum, item) {
+          if (item.detail.inclTax == 'incl_tax' ) {
+            log('Log 1: Adding item with incl_tax');
+            return sum + (item.totalPrice ?? 0.0);
+          } else {
+            log('Log 2: Adding item without incl_tax, including tax');
+            return sum + ((item.totalPrice ?? 0.0) );
+          }
+        },
+      );
 
-    final cart = await CartDatabaseManager().getCartItems(customerId ?? '');
-    final draft = await CartDatabaseManager().getDraftItems(customerId ?? '');
-
-    final Map<String, CartItem> uniqueItems = {
-      for (var item in cart)
-        '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
-            item,
-      for (var item in draft)
-        '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
-            item,
-    };
-
-    cartItems = uniqueItems.values.toList();
-    log('Cart Items: ${cartItems.length} - ${cartItems.map((e) => e.detail.stock).toList()}');
-
-    orderItems = cartItems.where((item) => (item.detail.stock ?? 0) > 0).toList();
-    preorderItems = cartItems.where((item) => (item.detail.stock ?? 0) == 0).toList();
-
-    log('Order Items: ${orderItems.length}');
-    log('Preorder Items: ${preorderItems.length}');
-
-    orderSubtotal = orderItems.fold(
-      0.0,
-      (sum, item) {
-        log('Processing Order Item - TotalPrice: ${item.totalPrice}, InclTax: ${item.detail.inclTax}');
-        return sum +
+      preorderSubtotal = preorderItems.fold(
+        0.0,
+        (sum, item) =>
+            sum +
             (item.detail.inclTax == 'incl_tax'
                 ? (item.totalPrice ?? 0.0)
-                : (item.totalPrice ?? 0.0) + (item.detail.tax ?? 0.0));
-      },
-    );
+                : (item.totalPrice ?? 0.0) + (item.detail.tax ?? 0.0)),
+      );
+      orderTax = orderItems.fold(
+        0.0,
+        (sum, item) {
+          log('Is Pack: ${item.isPack}');
+          return item.isPack == true
+              ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1))
+              : sum + (item.detail.tax ?? 0.0);
+        },
+      );
 
-    preorderSubtotal = preorderItems.fold(
-      0.0,
-      (sum, item) {
-        log('Processing Preorder Item - TotalPrice: ${item.totalPrice}, InclTax: ${item.detail.inclTax}');
-        return sum +
-            (item.detail.inclTax == 'incl_tax'
-                ? (item.totalPrice ?? 0.0)
-                : (item.totalPrice ?? 0.0) + (item.detail.tax ?? 0.0));
-      },
-    );
+      preorderTax = preorderItems.fold(
+        0.0,
+        (sum, item) => sum + (item.detail.tax ?? 0.0),
+      );
 
-    orderTax = orderItems.fold(
-      0.0,
-      (sum, item) {
-        log('Is Pack: ${item.isPack ?? "null"}');
-        return item.isPack == true
-            ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1))
-            : sum + (item.detail.tax ?? 0.0);
-      },
-    );
+      // Set final amounts
+      double orderFinalAmount = orderSubtotal;
+      double preorderFinalAmount = preorderSubtotal;
 
-    preorderTax = preorderItems.fold(
-      0.0,
-      (sum, item) => sum + (item.detail.tax ?? 0.0),
-    );
+      // Update state
+      setState(() {
+        quantities = List.generate(cartItems.length, (index) => 1);
+        _isLoading = false;
+        this.orderSubtotal = orderSubtotal;
+        this.orderTax = orderTax;
+        this.orderFinalAmount = orderFinalAmount;
+        this.preorderSubtotal = preorderSubtotal;
+        this.preorderTax = preorderTax;
+        this.preorderFinalAmount = preorderFinalAmount;
+      });
 
-    setState(() {
-      quantities = List.generate(cartItems.length, (index) => 1);
-      _isLoading = false;
-      this.orderSubtotal = orderSubtotal;
-      this.orderTax = orderTax;
-      this.orderFinalAmount = orderSubtotal;
-      this.preorderSubtotal = preorderSubtotal;
-      this.preorderTax = preorderTax;
-      this.preorderFinalAmount = preorderSubtotal;
-    });
+      // Determine initial selection
+      if (orderItems.isNotEmpty) {
+        isOrder = true;
+        _selectedValue = _options[0];
+      } else if (preorderItems.isNotEmpty) {
+        isOrder = false;
+        _selectedValue = _options[2];
+      }
 
-    if (orderItems.isNotEmpty) {
-      isOrder = true;
-      _selectedValue = _options[0];
-    } else if (preorderItems.isNotEmpty) {
-      isOrder = false;
-      _selectedValue = _options[2];
+      setOptions();
+    } catch (e) {
+      print('Error loading cart items: $e');
     }
-
-    setOptions();
-  } catch (e) {
-    print('Error loading cart items: $e');
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -1665,12 +1661,23 @@ void _loadCartItems() async {
             : widget.productsController.selectedCustomerId.value;
 
     setState(() {
+      // Set the variant's count (stock) to 0
+      variantToDelete.detail.count = 0;
+
+      // Update the variant in the database if necessary
+      CartDatabaseManager().updateCart(variantToDelete);
+
+      // Remove the variant from cart items
       cartItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
+
+      // Delete the variant from the draft and cart database
       CartDatabaseManager().deleteDraftItem(
           customerId, variantToDelete.detail.variationId ?? '');
       CartDatabaseManager().deleteCartItem(variantToDelete);
+
+      // Recalculate cart totals
       List<CartItem> orderItems =
           cartItems.where((item) => item.detail.stock! > 0).toList();
       List<CartItem> preorderItems =
@@ -1681,10 +1688,12 @@ void _loadCartItems() async {
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
       preorderFinalAmount = preorderSubtotal + preorderTax;
+
+      // Update cart count in the provider
       provider.updateCartCount(customerId);
     });
 
-    log('Deleted variant: ${variantToDelete.detail.variationName}');
+    log('Deleted variant: ${variantToDelete.detail.variationName} with stock set to 0');
   }
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
@@ -1822,6 +1831,7 @@ void _loadCartItems() async {
 
   void _deleteItem(String productName, {bool isPreorder = false}) {
     setState(() {
+      // Fetch items to delete
       final itemsToDeleteFromCart = cartItems
           .where((item) =>
               item.productName == productName &&
@@ -1846,6 +1856,14 @@ void _loadCartItems() async {
       for (int index in indicesToRemove.reversed) {
         quantities.removeAt(index);
       }
+
+      // Update variant count to 0
+      for (var item in itemsToDeleteFromCart) {
+        item.detail.count = 0;
+        CartDatabaseManager().updateCart(item);
+      }
+
+      // Recalculate totals
       List<CartItem> orderItems =
           cartItems.where((item) => item.detail.stock! > 0).toList();
       List<CartItem> preorderItems =

@@ -933,11 +933,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                         customer.customerId ??
                                                             ''),
                                                     onTap: () async {
-                                                      await provider
-                                                          .getCartItemCounts(
-                                                        customer.customerId ??
-                                                            '',
-                                                      );
+                                                     await   provider.updateCartCount(customer.customerId??'');
                                                       if (active == true) {
                                                         _showWarningDialog(
                                                           // ignore: use_build_context_synchronously

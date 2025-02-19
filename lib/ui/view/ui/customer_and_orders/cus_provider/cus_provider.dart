@@ -167,16 +167,19 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  void updateCartCount(String customerId) async {
-    try {
-      final cartItems = await CartDatabaseManager().getCartItems(customerId);
-      cartItemCount = cartItems.length;
-      notifyListeners();
-      log('Cart count updated for customer $customerId: $cartItemCount');
-    } catch (e) {
-      log('Error updating cart count for customer $customerId: $e');
-    }
+Future<void> updateCartCount(String customerId) async {
+  try {
+    final cartItems = await CartDatabaseManager().getCartItems(customerId);
+    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
+    cartItemCount = cartItems.length + draftItems.length;
+    log('The cart item Count $cartItemCount');
+    notifyListeners();
+    log('Cart count updated for customer $customerId: $cartItemCount');
+  } catch (e) {
+    log('Error updating cart count for customer $customerId: $e');
   }
+}
+
 
   Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
@@ -550,7 +553,8 @@ class CustomersProvider with ChangeNotifier {
         log('fetchCustomer query: $_searchCustomerName');
         log('Parameters: startDate=$startDate, endDate=$endDate, page=$page');
         _customersFuture = _apiService.fetchCustomer(
-          salesmanId: SessionHelper.loginSavedData?.salesmanId??'',
+          salesmanId:'',
+          // SessionHelper.loginSavedData?.salesmanId??'',
           customerName: _searchCustomerName,
           startDate: '',
           endDate: '',

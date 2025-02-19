@@ -1,6 +1,7 @@
 //Cart Database 
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -38,7 +39,7 @@ class CartDatabaseManager {
     final requestBody = {
       "companyId": 1,
       "customer_id": customerId,
-      "salesman_id": "SALES2",
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
       "order_type": 4,
       "payment_type": 1,
       "start_date": "2025-02-01",

@@ -1,5 +1,3 @@
-
-
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -53,21 +51,38 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 1,
-              content: formatAmount(groupedItem.detail.sellPrice ?? '0'))),
+              content: (groupedItem.draftId?.isEmpty ?? true)
+                  ? formatAmount(groupedItem.detail.sellPrice ?? '0')
+                  : formatAmount(groupedItem.detail.price ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 2,
               content: groupedItem.isPack == true
                   ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
                   : 'Pcs')),
-          DataCell(TableContent(
-              fontSize: fontSize,
-              maxLines: 1,
-              content: formatAmount(
-                  double.parse(groupedItem.detail.sellPrice.toString()) *
-                      (groupedItem.isPack == true
-                          ? groupedItem.detail.pieces!
-                          : 1)))),
+          DataCell(
+            TableContent(
+                fontSize: fontSize,
+                maxLines: 1,
+                content: (groupedItem.draftId?.isEmpty ?? true)
+                    ? formatAmount(
+                        (double.tryParse(groupedItem.detail.sellPrice?.toString() ??
+                                    '0') ??
+                                0.0) *
+                            (groupedItem.isPack == true
+                                ? (groupedItem.detail.pieces ?? 1)
+                                : 1),
+                      )
+                    : formatAmount(
+                        (double.tryParse(
+                                    groupedItem.detail.price?.toString() ??
+                                        '0') ??
+                                0.0) *
+                            (groupedItem.isPack == true
+                                ? (groupedItem.detail.pieces ?? 1)
+                                : 1),
+                      )),
+          ),
           DataCell(
             TableContent(
               maxLines: 1,
@@ -77,7 +92,9 @@ class GroupedItemDataRows {
                       (groupedItem.isPack == true
                           ? groupedItem.detail.pieces!
                           : 1))
-                  : formatAmount((groupedItem.draftId?.isEmpty ?? true)?groupedItem.detail.tax!*groupedItem.detail.count:groupedItem.detail.tax!),
+                  : formatAmount((groupedItem.draftId?.isEmpty ?? true)
+                      ? groupedItem.detail.tax! * groupedItem.detail.count
+                      : groupedItem.detail.tax!),
             ),
           ),
           DataCell(
@@ -103,8 +120,10 @@ class GroupedItemDataRows {
                 child: CustomText(
                   content: (groupedItem.draftId?.isEmpty ?? true)
                       ? formatAmount(groupedItem.totalPrice)
-                      :groupedItem.detail.inclTax==''? formatAmount(
-                          groupedItem.totalPrice + groupedItem.detail.tax!):formatAmount(groupedItem.totalPrice),
+                      : groupedItem.detail.inclTax == ''
+                          ? formatAmount(
+                              groupedItem.totalPrice + groupedItem.detail.tax!)
+                          : formatAmount(groupedItem.totalPrice),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,
                   maxLine: 1,
@@ -161,5 +180,3 @@ class TableContent extends StatelessWidget {
     );
   }
 }
-
-

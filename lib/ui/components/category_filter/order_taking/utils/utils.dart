@@ -9,7 +9,6 @@ class Utils {
       double totalPrice = cartItem.totalPrice?.toDouble() ?? 0.0;
       total += totalPrice;
     }
-
     return total;
   }
 

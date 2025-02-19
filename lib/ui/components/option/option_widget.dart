@@ -121,7 +121,7 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.estimates);
               _showEstimatesDialog(
-                  context, provider, OrderStatus.estimates, 'Estimate');
+                  context, provider, OrderStatus.estimates, 'Estimate',false);
             }),
         OptionData(
             title: 'Pre-Orders',
@@ -132,7 +132,7 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.preOrder);
              _showEstimatesDialog(
-                  context, provider, OrderStatus.preOrder, 'Pre-Order');
+                  context, provider, OrderStatus.preOrder, 'Pre-Order',false);
             }),
         OptionData(
             title: 'Draft',
@@ -143,7 +143,7 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showEstimatesDialog(
-                  context, provider, OrderStatus.draft, 'Draft');
+                  context, provider, OrderStatus.draft, 'Draft',true);
             }),
         OptionData(
             title: 'Cancelled',
@@ -154,7 +154,7 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.cancelled);
               _showEstimatesDialog(
-                  context, provider, OrderStatus.cancelled, 'Cancelled');
+                  context, provider, OrderStatus.cancelled, 'Cancelled',false);
             }),
       ];
 
@@ -832,7 +832,7 @@ class OptionWidget extends StatelessWidget {
   }
 
   void _showEstimatesDialog(BuildContext context, DashboardProvider provider,
-      OrderStatus selectedOrderStatus, String orderType) {
+      OrderStatus selectedOrderStatus, String orderType,bool isDraft) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1220,7 +1220,9 @@ class OptionWidget extends StatelessWidget {
                                                                       () {
                                                                         final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
                                                                         customerOrderController.customerId.value = customer?.customerId??'';
-                                                                    showDialog(
+                                                                  if(isDraft){
+
+                                                                   showDialog(
                                                                       context:
                                                                           context,
                                                                       builder:
@@ -1236,18 +1238,23 @@ class OptionWidget extends StatelessWidget {
                                                                           customerOrderController:
                                                                               customerOrderController,
                                                                               isDashboard: true,
+                                                                          customerId: customer?.customerId??'',
                                                                             
                                                                         );
+                                                                        
                                                                       },
                                                                     );
-                                                                    // showDetailedOrderInvoiceDialog(
-                                                                    //     context,
-                                                                    //     order,
-                                                                    //     true,
-                                                                    //     isButtonNeeded:
-                                                                    //         true,
-                                                                    //         isContinueShop: true,
-                                                                    //         );
+                                                                  } else{
+
+                                                                    showDetailedOrderInvoiceDialog(
+                                                                        context,
+                                                                        order.orderId??'',
+                                                                        true,
+                                                                        isButtonNeeded:
+                                                                            true,
+                                                                          
+                                                                            );
+                                                                  }
                                                                   },
                                                                   icon:
                                                                       const Icon(

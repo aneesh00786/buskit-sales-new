@@ -60,7 +60,6 @@ class CartDatabaseManager {
 
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
-
             List<CartItem> draftItems = [];
             for (var order in orders) {
               final List<dynamic> carts = order['cart'] ?? [];
@@ -83,10 +82,8 @@ class CartDatabaseManager {
                   fullstock: num.tryParse(cart['fullstock']?.toString() ?? '0'),
                   imageUrl: cart['image_url'] as String?,
                   status: cart['status'] as int?,
-                  createdAt: cart['created_at'] as String?,
-                  updatedAt: cart['updated_at'] as String?,
                   count: cart['quantity'] ?? 0,
-                  saleBy: cart['packType'] as String?,
+                  saleBy: cart['packtype'] as String?,
                   totalPrice:
                       num.tryParse(cart['total_price']?.toString() ?? '0'),
                   sellingPrice:
@@ -97,7 +94,6 @@ class CartDatabaseManager {
                   detail: detail,
                   productName: cart['product_name'],
                   totalPrice: double.tryParse(cart['total_price']) ?? 0.0,
-                  isPack: cart['packType'] == 'Pack',
                   count: cart['quantity'],
                   customerId: order['customer_id'],
                   cartId: cart['cart_id'],

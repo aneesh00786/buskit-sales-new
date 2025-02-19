@@ -47,7 +47,7 @@ class Utils {
       if (item.isChecked == true) {
         double tax = item.detail.tax?.toDouble() ?? 0.0;
         int multiplier =
-            (item.isPack == true ? count.toInt() * pieces : count.toInt());
+            ((item.isPack == true||item.detail.packtype=='Pack') ? count.toInt() * pieces : count.toInt());
         return item.draftId?.isEmpty ?? true
             ? sum + (tax * multiplier )
             : sum + tax * count.toDouble();

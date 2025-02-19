@@ -109,8 +109,6 @@ class DetailAdapter extends TypeAdapter<Detail> {
       imageUrl: fields[16] as String?,
       status: fields[17] as int?,
       vStatus: fields[18] as int?,
-      createdAt: fields[19] as String?,
-      updatedAt: fields[20] as String?,
       count: fields[21] as num,
       saleBy: fields[22] as String?,
       totalPrice: fields[23] as num?,
@@ -124,7 +122,7 @@ class DetailAdapter extends TypeAdapter<Detail> {
   @override
   void write(BinaryWriter writer, Detail obj) {
     writer
-      ..writeByte(28)
+      ..writeByte(26)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -163,10 +161,6 @@ class DetailAdapter extends TypeAdapter<Detail> {
       ..write(obj.status)
       ..writeByte(18)
       ..write(obj.vStatus)
-      ..writeByte(19)
-      ..write(obj.createdAt)
-      ..writeByte(20)
-      ..write(obj.updatedAt)
       ..writeByte(21)
       ..write(obj.count)
       ..writeByte(22)

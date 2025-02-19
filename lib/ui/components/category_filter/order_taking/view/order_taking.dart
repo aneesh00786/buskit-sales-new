@@ -449,9 +449,7 @@ class _OrderTakingState extends State<OrderTaking>
                         .map((e) => e.detail)
                         .toList();
                 final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
-
                 Future.delayed(const Duration(seconds: 1));
-
                 final existingCartId = cartDetails?['cart_id'] ?? '';
                 final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(

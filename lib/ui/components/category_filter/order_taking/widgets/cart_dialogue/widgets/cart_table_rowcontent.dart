@@ -57,7 +57,7 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 2,
-              content: groupedItem.isPack == true
+              content: (groupedItem.detail.packtype == 'Pack'||groupedItem.isPack==true)
                   ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
                   : 'Pcs')),
           DataCell(
@@ -69,16 +69,16 @@ class GroupedItemDataRows {
                         (double.tryParse(groupedItem.detail.sellPrice?.toString() ??
                                     '0') ??
                                 0.0) *
-                            (groupedItem.isPack == true
+                            ((groupedItem.detail.packtype == 'Pack'||groupedItem.isPack==true)
                                 ? (groupedItem.detail.pieces ?? 1)
                                 : 1),
                       )
                     : formatAmount(
                         (double.tryParse(
-                                    groupedItem.detail.price?.toString() ??
+                                    groupedItem.detail.sellPrice?.toString() ??
                                         '0') ??
                                 0.0) *
-                            (groupedItem.isPack == true
+                            ((groupedItem.detail.packtype == 'Pack'||groupedItem.isPack==true)
                                 ? (groupedItem.detail.pieces ?? 1)
                                 : 1),
                       )),
@@ -90,7 +90,7 @@ class GroupedItemDataRows {
               content: (groupedItem.draftId?.isEmpty ?? true)
                   ? formatAmount(groupedItem.detail.tax! *
                       (groupedItem.isPack == true
-                          ? groupedItem.detail.pieces!
+                          ? groupedItem.detail.pieces!* groupedItem.detail.count
                           : 1))
                   : formatAmount((groupedItem.draftId?.isEmpty ?? true)
                       ? groupedItem.detail.tax! * groupedItem.detail.count

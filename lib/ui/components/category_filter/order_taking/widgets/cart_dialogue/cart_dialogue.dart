@@ -187,8 +187,7 @@ class CartDialogueState extends State<CartDialogue> {
                 0.0,
                 (sum, item) =>
                     sum +
-                    (item.detail.tax! *item.detail.count ??
-                        0.0)); 
+                    (item.detail.tax!)); 
         preorderTax = Utils().calculateTotalTax(preorderItems) +
             draftItems.where((item) => item.detail.stock == 0).fold(
                 0.0,

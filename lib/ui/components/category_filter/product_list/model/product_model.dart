@@ -168,11 +168,6 @@ class Detail {
   @HiveField(18)
   int? vStatus;
 
-  @HiveField(19)
-  String? createdAt;
-
-  @HiveField(20)
-  String? updatedAt;
 
   @HiveField(21)
   num count;
@@ -215,8 +210,6 @@ class Detail {
     this.imageUrl,
     this.status,
     this.vStatus,
-    this.createdAt,
-    this.updatedAt,
     this.count = 0,
     this.saleBy,
     this.totalPrice,
@@ -245,8 +238,6 @@ class Detail {
     String? imageUrl,
     int? status,
     int? vStatus,
-    String? createdAt,
-    String? updatedAt,
     num? count,
     String? saleBy,
     num? totalPrice,
@@ -275,8 +266,6 @@ class Detail {
       imageUrl: imageUrl ?? this.imageUrl,
       status: status ?? this.status,
       vStatus: vStatus ?? this.vStatus,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
       count: count ?? this.count,
       saleBy: saleBy ?? this.saleBy,
       totalPrice: totalPrice ?? this.totalPrice,
@@ -307,8 +296,6 @@ class Detail {
         imageUrl = json['image_url'],
         status = json['status'],
         vStatus = json['v_status'],
-        createdAt = json['created_at'],
-        updatedAt = json['updated_at'],
         count = json['count'] ?? 0.0,
         saleBy = json['saleBy'],
         totalPrice = json['totalPrice'],
@@ -338,8 +325,6 @@ class Detail {
     data['image_url'] = this.imageUrl;
     data['status'] = this.status;
     data['v_status'] = this.vStatus;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
     data['count'] = this.count;
     data['saleBy'] = this.saleBy;
     data['totalPrice'] = this.totalPrice;

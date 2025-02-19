@@ -337,6 +337,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
+                  log("Snapshot error : ${snapshot.error}");
                   return Center(child: NodataWidget());
                 } else {
                   final responseModel = snapshot.data;

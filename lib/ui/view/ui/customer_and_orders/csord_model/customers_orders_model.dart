@@ -765,7 +765,7 @@ class RecentOrder {
   final int paymentType;
   final int creditPeriod;
   final int receivedAmount;
-  final String? receivedAmountDate; // This can remain nullable
+  final String? receivedAmountDate;
   final String orderId;
   final String orderCreatAt;
   final num orderTotal;
@@ -773,13 +773,12 @@ class RecentOrder {
   final int paymentStatus;
   final String customerId;
   List<dynamic>? duedate;
-  // final int? receivableAmount;
 
   RecentOrder({
     required this.paymentType,
     required this.creditPeriod,
     required this.receivedAmount,
-    this.receivedAmountDate, // Nullable
+    this.receivedAmountDate,
     required this.orderId,
     required this.orderCreatAt,
     required this.orderTotal,
@@ -787,7 +786,6 @@ class RecentOrder {
     required this.paymentStatus,
     required this.customerId,
     this.duedate,
-    // this.receivableAmount, // Nullable
   });
 
   factory RecentOrder.fromJson(Map<String, dynamic> json) {
@@ -798,7 +796,7 @@ class RecentOrder {
       receivedAmountDate: json['received_amount_date'] as String?,
       orderId: json['order_id'] as String,
       orderCreatAt: json['order_creat_at'] as String,
-      orderTotal: json['order_total'] as int,
+      orderTotal: json['order_total'] as num,
       orderStatus: json['order_status'] as int,
       paymentStatus: json['payment_status'] as int,
       customerId: json['customer_id'] as String,

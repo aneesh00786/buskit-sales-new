@@ -233,11 +233,12 @@ class CartDialogueState extends State<CartDialogue> {
       dialogWidth = width * 0.85;
       dialogHeight = height * 0.7;
     } else {
-      dialogWidth = width * 0.9;
+      dialogWidth = width * 0.99;
       dialogHeight = height * 0.5;
     }
     return Dialog(
       backgroundColor: Colors.white,
+      insetPadding: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
@@ -250,7 +251,7 @@ class CartDialogueState extends State<CartDialogue> {
           return SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: dialogWidth,
+                maxWidth: availableWidth,
               ),
               child: IntrinsicHeight(
                 child: Column(

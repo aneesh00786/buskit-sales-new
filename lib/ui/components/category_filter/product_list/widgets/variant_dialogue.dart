@@ -327,7 +327,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     fontSize: fontSize)),
                                 DataCell(Center(
                                     child: CustomText(
-                                  content: formatAmount(detail.price),
+                                  content: formatAmount(detail.sellPrice),
                                   fontSize: fontSize,
                                 ))),
                                 DataCell(Center(

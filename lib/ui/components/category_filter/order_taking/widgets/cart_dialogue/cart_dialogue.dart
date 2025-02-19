@@ -121,106 +121,97 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-  void _loadCartItems() async {
-    try {
-      final customerId = widget.isDashboard == true
-          ? widget.customerId
-          : (widget.customerOrderController!.customerId.value.isNotEmpty
-              ? widget.customerOrderController!.customerId.value
-              : widget.productsController.selectedCustomerId.value);
-      cartItems = await CartDatabaseManager().getCartItems(customerId ?? '');
-      List<CartItem> draftItems =
-          await CartDatabaseManager().getDraftItems(customerId ?? '');
-      final Map<String, CartItem> uniqueItems = {
-        for (var item in cartItems)
-          '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
-              item,
-        for (var draft in draftItems)
-          '${draft.detail.variationName}_${draft.detail.price}_${draft.detail.variationId}':
-              draft,
-      };
-      cartItems = uniqueItems.values.toList();
-      orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
-      preorderItems =
-          cartItems.where((item) => item.detail.stock == 0).toList();
-      if (draftItems.isEmpty && cartItems.isNotEmpty) {
-        orderSubtotal = Utils().calculateSubtotal(orderItems);
-        preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-        orderTax = Utils().calculateTotalTax(orderItems);
-        preorderTax = Utils().calculateTotalTax(preorderItems);
-        log("Order Final Amount======: $orderSubtotal");
-      } else if (cartItems.isEmpty && draftItems.isNotEmpty) {
-        log('Draft Subtotal Before: $orderSubtotal');
-        orderSubtotal = draftItems
-            .where((item) => item.detail.stock! > 0)
-            .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
-        log('Draft Subtotal After: $orderSubtotal');
-        log("Order Final Amount======1: $orderSubtotal");
-        preorderSubtotal = draftItems
-            .where((item) => item.detail.stock == 0)
-            .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
-        orderTax = draftItems
-            .where((item) => item.detail.stock! > 0)
-            .fold(0.0, (sum, item) => sum + (item.detail.tax ?? 0.0));
-        preorderTax = draftItems
-            .where((item) => item.detail.stock == 0)
-            .fold(0.0, (sum, item) => sum + (item.detail.tax ?? 0.0));
-      } else if (cartItems.isNotEmpty && draftItems.isNotEmpty) {
-        orderSubtotal = draftItems.where((item) => item.detail.stock! > 0).fold(
-              0.0,
-              (sum, item) =>
-                  sum +
-                  (item.totalPrice ?? 0.0) +
-                  (item.detail.inclTax == '' ? (item.detail.tax ?? 0.0) : 0.0),
-            );
-        log("Order Final Amount======2: $orderSubtotal");
-        preorderSubtotal = Utils().calculateSubtotal(preorderItems) +
-            draftItems
-                .where((item) => item.detail.stock == 0)
-                .fold(0.0,
-              (sum, item) =>
-                  sum +
-                  (item.totalPrice ?? 0.0) +
-                  (item.detail.inclTax == '' ? (item.detail.tax ?? 0.0) : 0.0),);
-        orderTax =
-            draftItems.where((item) => item.detail.stock! > 0).fold(
-                0.0,
-                (sum, item) =>
-                    sum +
-                    (item.detail.tax!)); 
-        preorderTax = Utils().calculateTotalTax(preorderItems) +
-            draftItems.where((item) => item.detail.stock == 0).fold(
-                0.0,
-                (sum, item) =>
-                    sum +
-                    (item.detail.tax ?? 0.0));
-      }
+void _loadCartItems() async {
+  try {
+    final customerId = widget.isDashboard == true
+        ? widget.customerId
+        : (widget.customerOrderController!.customerId.value.isNotEmpty
+            ? widget.customerOrderController!.customerId.value
+            : widget.productsController.selectedCustomerId.value);
 
-      double orderFinalAmount = orderSubtotal;
-      double preorderFinalAmount = preorderSubtotal;
-      setState(() {
-        quantities = List.generate(cartItems.length, (index) => 1);
-        _isLoading = false;
-        this.orderSubtotal = orderSubtotal;
-        this.orderTax = orderTax;
-        this.orderFinalAmount = orderFinalAmount;
-        this.preorderSubtotal = preorderSubtotal;
-        this.preorderTax = preorderTax;
-        this.preorderFinalAmount = preorderFinalAmount;
-      });
-      if (orderItems.isNotEmpty) {
-        isOrder = true;
-        _selectedValue = _options[0];
-      } else if (preorderItems.isNotEmpty) {
-        isOrder = false;
-        _selectedValue = _options[2];
-      }
+    final cart = await CartDatabaseManager().getCartItems(customerId ?? '');
+    final draft = await CartDatabaseManager().getDraftItems(customerId ?? '');
 
-      setOptions();
-    } catch (e) {
-      print('Error loading cart items: $e');
+    final Map<String, CartItem> uniqueItems = {
+      for (var item in cart)
+        '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
+            item,
+      for (var item in draft)
+        '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
+            item,
+    };
+
+    cartItems = uniqueItems.values.toList();
+    log('Cart Items: ${cartItems.length} - ${cartItems.map((e) => e.detail.stock).toList()}');
+
+    orderItems = cartItems.where((item) => (item.detail.stock ?? 0) > 0).toList();
+    preorderItems = cartItems.where((item) => (item.detail.stock ?? 0) == 0).toList();
+
+    log('Order Items: ${orderItems.length}');
+    log('Preorder Items: ${preorderItems.length}');
+
+    orderSubtotal = orderItems.fold(
+      0.0,
+      (sum, item) {
+        log('Processing Order Item - TotalPrice: ${item.totalPrice}, InclTax: ${item.detail.inclTax}');
+        return sum +
+            (item.detail.inclTax == 'incl_tax'
+                ? (item.totalPrice ?? 0.0)
+                : (item.totalPrice ?? 0.0) + (item.detail.tax ?? 0.0));
+      },
+    );
+
+    preorderSubtotal = preorderItems.fold(
+      0.0,
+      (sum, item) {
+        log('Processing Preorder Item - TotalPrice: ${item.totalPrice}, InclTax: ${item.detail.inclTax}');
+        return sum +
+            (item.detail.inclTax == 'incl_tax'
+                ? (item.totalPrice ?? 0.0)
+                : (item.totalPrice ?? 0.0) + (item.detail.tax ?? 0.0));
+      },
+    );
+
+    orderTax = orderItems.fold(
+      0.0,
+      (sum, item) {
+        log('Is Pack: ${item.isPack ?? "null"}');
+        return item.isPack == true
+            ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1))
+            : sum + (item.detail.tax ?? 0.0);
+      },
+    );
+
+    preorderTax = preorderItems.fold(
+      0.0,
+      (sum, item) => sum + (item.detail.tax ?? 0.0),
+    );
+
+    setState(() {
+      quantities = List.generate(cartItems.length, (index) => 1);
+      _isLoading = false;
+      this.orderSubtotal = orderSubtotal;
+      this.orderTax = orderTax;
+      this.orderFinalAmount = orderSubtotal;
+      this.preorderSubtotal = preorderSubtotal;
+      this.preorderTax = preorderTax;
+      this.preorderFinalAmount = preorderSubtotal;
+    });
+
+    if (orderItems.isNotEmpty) {
+      isOrder = true;
+      _selectedValue = _options[0];
+    } else if (preorderItems.isNotEmpty) {
+      isOrder = false;
+      _selectedValue = _options[2];
     }
+
+    setOptions();
+  } catch (e) {
+    print('Error loading cart items: $e');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

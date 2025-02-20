@@ -258,7 +258,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                
                _navigateToOrderTaking();
               },
               style: ElevatedButton.styleFrom(

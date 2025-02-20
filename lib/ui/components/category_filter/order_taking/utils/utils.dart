@@ -25,9 +25,9 @@ class Utils {
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
         double sellingPrice = item.draftId?.isEmpty ?? true
-            ? double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ??
+            ? double.tryParse(item.detail.sellPrice?.toString() ?? '0') ??
                 0.0
-            : double.tryParse(item.detail.sellingPrice?.toString() ?? '') ??
+            : double.tryParse(item.detail.sellPrice?.toString() ?? '') ??
                 0.0;
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
@@ -75,7 +75,7 @@ class Utils {
   double calculateTotalPrice(CartItem cartItem) {
     if (cartItem.isChecked == true) {
       double sellingPrice =
-          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+          double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
       double totalCount = cartItem.isPack == true ? count * pieces : count;

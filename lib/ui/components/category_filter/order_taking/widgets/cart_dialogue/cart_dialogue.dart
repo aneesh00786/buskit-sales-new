@@ -167,7 +167,7 @@ class CartDialogueState extends State<CartDialogue> {
         (sum, item) {
           log('Is Pack: ${item.isPack}');
           log('Item Count : ${item.detail.count}');
-          return item.isPack == true
+          return item.isPack == true && (item.draftId?.isNotEmpty??true)
               ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1) * (item.detail.count))
               : sum + ((item.detail.tax ?? 0.0) * (item.detail.count));
         },
@@ -1656,25 +1656,15 @@ class CartDialogueState extends State<CartDialogue> {
         widget.customerOrderController!.customerId.value.isNotEmpty
             ? widget.customerOrderController!.customerId.value
             : widget.productsController.selectedCustomerId.value;
-
     setState(() {
-      // Set the variant's count (stock) to 0
       variantToDelete.detail.count = 0;
-
-      // Update the variant in the database if necessary
       CartDatabaseManager().updateCart(variantToDelete);
-
-      // Remove the variant from cart items
       cartItems.removeWhere((item) =>
           item.productName == variantToDelete.productName &&
           item.detail.variationName == variantToDelete.detail.variationName);
-
-      // Delete the variant from the draft and cart database
       CartDatabaseManager().deleteDraftItem(
           customerId, variantToDelete.detail.variationId ?? '');
       CartDatabaseManager().deleteCartItem(variantToDelete);
-
-      // Recalculate cart totals
       List<CartItem> orderItems =
           cartItems.where((item) => item.detail.stock! > 0).toList();
       List<CartItem> preorderItems =
@@ -1685,8 +1675,6 @@ class CartDialogueState extends State<CartDialogue> {
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
       preorderFinalAmount = preorderSubtotal + preorderTax;
-
-      // Update cart count in the provider
       provider.updateCartCount(customerId);
     });
 
@@ -1719,6 +1707,7 @@ class CartDialogueState extends State<CartDialogue> {
                       cartItem.detail.count--;
                       cartItem.totalPrice =
                           Utils().calculateTotalPrice(cartItem);
+                          
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       CartDatabaseManager().updateCart(cartItem);
                       setState(() {

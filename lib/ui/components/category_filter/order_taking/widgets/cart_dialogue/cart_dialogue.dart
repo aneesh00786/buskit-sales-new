@@ -107,7 +107,7 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-   // calculateAmounts();
+    // calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
     log('CartList Length : ${cartItems.length}');
@@ -145,12 +145,12 @@ class CartDialogueState extends State<CartDialogue> {
       orderSubtotal = orderItems.fold(
         0.0,
         (sum, item) {
-          if (item.draftId?.isNotEmpty??false) {
+          if (item.draftId?.isNotEmpty ?? false) {
             log('Log 1: Adding item with incl_tax');
-            return item.draftTotal?.toDouble()??0.0;
+            return item.draftTotal?.toDouble() ?? 0.0;
           } else {
             log('Log 2: Adding item without incl_tax, including tax');
-            return sum + ((item.totalPrice ?? 0.0) );
+            return sum + ((item.totalPrice ?? 0.0));
           }
         },
       );
@@ -165,11 +165,18 @@ class CartDialogueState extends State<CartDialogue> {
       orderTax = orderItems.fold(
         0.0,
         (sum, item) {
-          log('Is Pack: ${item.isPack}');
-          log('Item Count : ${item.detail.count}');
-          return item.isPack == true && (item.draftId?.isNotEmpty??true)
-              ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1) * (item.detail.count))
-              : sum + ((item.detail.tax ?? 0.0) * (item.detail.count));
+          final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+          if (item.draftId?.isNotEmpty ?? false) {
+            log('Skipping draft item: ${item.detail.variationName}');
+            return sum + itemTax;
+          } else if (item.isPack == true) {
+            return sum +
+                (itemTax *
+                    (item.detail.pieces ?? 1) *
+                    (item.detail.count ?? 1));
+          } else {
+            return sum + (itemTax * (item.detail.count ?? 1));
+          }
         },
       );
 
@@ -1707,7 +1714,7 @@ class CartDialogueState extends State<CartDialogue> {
                       cartItem.detail.count--;
                       cartItem.totalPrice =
                           Utils().calculateTotalPrice(cartItem);
-                          
+
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       CartDatabaseManager().updateCart(cartItem);
                       setState(() {

@@ -145,9 +145,9 @@ class CartDialogueState extends State<CartDialogue> {
       orderSubtotal = orderItems.fold(
         0.0,
         (sum, item) {
-          if (item.detail.inclTax == 'incl_tax' ) {
+          if (item.draftId?.isNotEmpty??false) {
             log('Log 1: Adding item with incl_tax');
-            return sum + (item.totalPrice ?? 0.0);
+            return item.draftTotal?.toDouble()??0.0;
           } else {
             log('Log 2: Adding item without incl_tax, including tax');
             return sum + ((item.totalPrice ?? 0.0) );

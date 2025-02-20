@@ -53,11 +53,12 @@ class GroupedItemDataRows {
               maxLines: 1,
               content: (groupedItem.draftId?.isEmpty ?? true)
                   ? formatAmount(groupedItem.detail.sellPrice ?? '0')
-                  : formatAmount(groupedItem.detail.price ?? '0'))),
+                  : formatAmount(groupedItem.detail.sellPrice ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 2,
-              content: (groupedItem.detail.packtype == 'Pack'||groupedItem.isPack==true)
+              content: (groupedItem.detail.packtype == 'Pack' ||
+                      groupedItem.isPack == true)
                   ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
                   : 'Pcs')),
           DataCell(
@@ -66,10 +67,12 @@ class GroupedItemDataRows {
                 maxLines: 1,
                 content: (groupedItem.draftId?.isEmpty ?? true)
                     ? formatAmount(
-                        (double.tryParse(groupedItem.detail.sellPrice?.toString() ??
-                                    '0') ??
+                        (double.tryParse(
+                                    groupedItem.detail.sellPrice?.toString() ??
+                                        '0') ??
                                 0.0) *
-                            ((groupedItem.detail.packtype == 'Pack'||groupedItem.isPack==true)
+                            ((groupedItem.detail.packtype == 'Pack' ||
+                                    groupedItem.isPack == true)
                                 ? (groupedItem.detail.pieces ?? 1)
                                 : 1),
                       )
@@ -78,7 +81,8 @@ class GroupedItemDataRows {
                                     groupedItem.detail.sellPrice?.toString() ??
                                         '0') ??
                                 0.0) *
-                            ((groupedItem.detail.packtype == 'Pack'||groupedItem.isPack==true)
+                            ((groupedItem.detail.packtype == 'Pack' ||
+                                    groupedItem.isPack == true)
                                 ? (groupedItem.detail.pieces ?? 1)
                                 : 1),
                       )),
@@ -90,7 +94,8 @@ class GroupedItemDataRows {
               content: (groupedItem.draftId?.isEmpty ?? true)
                   ? formatAmount(groupedItem.detail.tax! *
                       (groupedItem.isPack == true
-                          ? groupedItem.detail.pieces!* groupedItem.detail.count
+                          ? groupedItem.detail.pieces! *
+                              groupedItem.detail.count
                           : 1))
                   : formatAmount((groupedItem.draftId?.isEmpty ?? true)
                       ? groupedItem.detail.tax! * groupedItem.detail.count
@@ -103,10 +108,10 @@ class GroupedItemDataRows {
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
                   groupedItem,
-                  groupedItem.detail.inclTax?.isEmpty ?? true
-                      ? (groupedItem.totalPrice + groupedItem.detail.tax!)
-                          .toString()
-                      : groupedItem.totalPrice.toString(),
+                  groupedItem.detail.inclTax == 'incl_tax'
+                      ? groupedItem.totalPrice.toString()
+                      : (groupedItem.totalPrice + groupedItem.detail.tax!)
+                          .toString(),
                   fontSize,
                   availableWidth,
                 ),

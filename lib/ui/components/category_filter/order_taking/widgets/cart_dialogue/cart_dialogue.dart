@@ -132,10 +132,10 @@ class CartDialogueState extends State<CartDialogue> {
       final draft = await CartDatabaseManager().getDraftItems(customerId ?? '');
       final Map<String, CartItem> uniqueItems = {
         for (var item in cart)
-          '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
+          '${item.detail.variationName}_${item.detail.sellPrice}_${item.detail.variationId}':
               item,
         for (var item in draft)
-          '${item.detail.variationName}_${item.detail.price}_${item.detail.variationId}':
+          '${item.detail.variationName}_${item.detail.sellPrice}_${item.detail.variationId}':
               item,
       };
       cartItems = uniqueItems.values.toList();
@@ -154,7 +154,6 @@ class CartDialogueState extends State<CartDialogue> {
           }
         },
       );
-
       preorderSubtotal = preorderItems.fold(
         0.0,
         (sum, item) =>
@@ -167,9 +166,10 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) {
           log('Is Pack: ${item.isPack}');
+          log('Item Count : ${item.detail.count}');
           return item.isPack == true
-              ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1))
-              : sum + (item.detail.tax ?? 0.0);
+              ? sum + ((item.detail.tax ?? 0.0) * (item.detail.pieces ?? 1) * (item.detail.count))
+              : sum + ((item.detail.tax ?? 0.0) * (item.detail.count));
         },
       );
 
@@ -177,12 +177,8 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) => sum + (item.detail.tax ?? 0.0),
       );
-
-      // Set final amounts
       double orderFinalAmount = orderSubtotal;
       double preorderFinalAmount = preorderSubtotal;
-
-      // Update state
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);
         _isLoading = false;
@@ -1513,7 +1509,7 @@ class CartDialogueState extends State<CartDialogue> {
                     ? (e.detail.count * e.detail.pieces!).toString()
                     : e.detail.count.toString(),
                 'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                'price': e.detail.price.toString(),
+                'price': e.detail.sellPrice.toString(),
                 'discount': '0',
                 'quantity': e.detail.count.toInt(),
               })

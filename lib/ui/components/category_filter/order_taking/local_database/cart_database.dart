@@ -94,7 +94,9 @@ class CartDatabaseManager {
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['product_name'],
-                  totalPrice: double.tryParse(cart['total_price']) ?? 0.0,
+                  totalPrice:
+                  // cart['packtype'] == 'pack' ? double.tryParse(cart['selling_pack_price']) ?? 0.0 : double.tryParse(cart['selling_price']) ?? 0.0,
+                  double.tryParse(cart['total_price']) ?? 0.0,
                   count: cart['quantity'],
                   customerId: order['customer_id'],
                   cartId: cart['cart_id'],

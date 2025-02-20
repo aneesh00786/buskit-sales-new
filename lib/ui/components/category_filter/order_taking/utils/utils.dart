@@ -25,8 +25,10 @@ class Utils {
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
         double sellingPrice = item.draftId?.isEmpty ?? true
-            ? double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0
-            : double.tryParse(item.detail.sellPrice?.toString() ?? '') ?? 0.0;
+            ? double.tryParse(item.detail.sellingPrice?.toString() ?? '0') ??
+                0.0
+            : double.tryParse(item.detail.sellingPrice?.toString() ?? '') ??
+                0.0;
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
         double totalCount = item.isPack == true ? count * pieces : count;
@@ -40,19 +42,32 @@ class Utils {
       return sum;
     });
   }
+
+  // double calculateTotalTax(List<CartItem> items) {
+  //   return items.fold(0.0, (sum, item) {
+  //     int pieces = item.detail.pieces?.toInt() ?? 1;
+  //     double count = item.detail.count.toDouble();
+  //     if (item.isChecked == true) {
+  //       double tax = item.detail.tax?.toDouble() ?? 0.0;
+  //       int multiplier =
+  //           ((item.isPack == true||item.detail.packtype=='Pack') ? count.toInt() * pieces : count.toInt());
+  //       return item.draftId?.isEmpty ?? true
+  //           ? sum + (tax * multiplier )
+  //           : sum + tax * count.toDouble();
+  //     }
+  //     log('Count for Tax : ${count.toDouble()}');
+  //     return sum;
+  //   });
+  // }
+
   double calculateTotalTax(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {
-      int pieces = item.detail.pieces?.toInt() ?? 1;
-      double count = item.detail.count.toDouble();
       if (item.isChecked == true) {
         double tax = item.detail.tax?.toDouble() ?? 0.0;
         int multiplier =
-            ((item.isPack == true||item.detail.packtype=='Pack') ? count.toInt() * pieces : count.toInt());
-        return item.draftId?.isEmpty ?? true
-            ? sum + (tax * multiplier )
-            : sum + tax * count.toDouble();
+            (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
+        return sum + (tax * multiplier * item.detail.count.toDouble());
       }
-      log('Count for Tax : ${count.toDouble()}');
       return sum;
     });
   }
@@ -60,7 +75,7 @@ class Utils {
   double calculateTotalPrice(CartItem cartItem) {
     if (cartItem.isChecked == true) {
       double sellingPrice =
-          double.tryParse(cartItem.detail.price?.toString() ?? '0') ?? 0.0;
+          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
       double totalCount = cartItem.isPack == true ? count * pieces : count;
@@ -68,4 +83,20 @@ class Utils {
     }
     return 0.0;
   }
+
+  // double calculateTotalPrice(CartItem cartItem) {
+  //   if (cartItem.isChecked == true) {
+  //     double sellingPrice = cartItem.isPack ?? false
+  //         ? double.tryParse(
+  //                 cartItem.detail.sellingPackPrice?.toString() ?? '0') ??
+  //             0.0
+  //         : double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ??
+  //             0.0;
+  //     int pieces = cartItem.detail.pieces?.toInt() ?? 1;
+  //     double count = cartItem.detail.count.toDouble();
+  //     double totalCount = cartItem.isPack == true ? count * pieces : count;
+  //     return sellingPrice * totalCount;
+  //   }
+  //   return 0.0;
+  // }
 }

@@ -74,7 +74,6 @@ class CartDialogueState extends State<CartDialogue> {
   List<int> draftQuantity = [];
   double orderSubtotal = 0.0;
   double orderTax = 0.0;
-  double orderFinalAmount = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
   double preorderFinalAmount = 0.0;
@@ -189,14 +188,12 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) => sum + (item.detail.tax ?? 0.0),
       );
-      double orderFinalAmount = orderSubtotal;
       double preorderFinalAmount = preorderSubtotal;
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);
         _isLoading = false;
         this.orderSubtotal = orderSubtotal;
         this.orderTax = orderTax;
-        this.orderFinalAmount = orderFinalAmount;
         this.preorderSubtotal = preorderSubtotal;
         this.preorderTax = preorderTax;
         this.preorderFinalAmount = preorderFinalAmount;
@@ -460,8 +457,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: double.parse(
-                            orderFinalAmount.toStringAsFixed(2) ?? ''),
+                        content: orderSubtotal,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,
@@ -1685,7 +1681,6 @@ class CartDialogueState extends State<CartDialogue> {
           cartItems.where((item) => item.detail.stock == 0).toList();
       orderSubtotal = Utils().calculateSubtotal(orderItems);
       orderTax = Utils().calculateTotalTax(orderItems);
-      orderFinalAmount = orderSubtotal + orderTax;
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
       preorderFinalAmount = preorderSubtotal + preorderTax;
@@ -1810,40 +1805,25 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-void calculateDraftAmounts() {
-  setState(() {
-    // Calculate the order subtotal
-    orderSubtotal = cartItems.fold(0.0, (sum, item) {
-      if (item.isChecked == true) {
-        num itemTotalPrice = item.totalPrice;
-        num itemTax = item.detail.tax ?? 0.0;
-        log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
-        return sum +
-            itemTotalPrice +
-            (item.detail.inclTax == '' ? itemTax : 0);
-      } else {
-        return sum;
-      }
+  void calculateDraftAmounts() {
+    setState(() {
+      orderSubtotal = cartItems.fold(0.0, (sum, item) {
+        if (item.isChecked == true) {
+          num itemTotalPrice = item.totalPrice;
+          num itemTax = item.detail.tax ?? 0.0;
+          log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
+          return sum +
+              itemTotalPrice +
+              (item.detail.inclTax == '' ? itemTax : 0);
+        } else {
+          return sum;
+        }
+      
+      });
+
+      log("Updated subtotal: $orderSubtotal");
     });
-
-    // Calculate the total tax for checked items
-    orderTax = cartItems.fold(0.0, (sum, item) {
-      if (item.isChecked == true) {
-        double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-        return sum + itemTax;
-      }
-      return sum;
-    });
-
-    // Set orderFinalAmount to the calculated subtotal
-    orderFinalAmount = orderSubtotal;
-
-    // Log results
-    log("Updated orderSubtotal: $orderSubtotal");
-    log("Updated orderTax: $orderTax");
-  });
-}
-
+  }
 
   void calculateAmounts() {
     List<CartItem> orderItems =
@@ -1856,7 +1836,6 @@ void calculateDraftAmounts() {
       if (isOrder) {
         orderSubtotal = Utils().calculateSubtotal(orderItems);
         orderTax = Utils().calculateTotalTax(orderItems);
-        orderFinalAmount = orderSubtotal;
         log("Order Subtotal: \$orderSubtotal, Order Tax: \$orderTax, Final Amount: \$orderFinalAmount");
       } else {
         preorderSubtotal = Utils().calculateSubtotal(preorderItems);
@@ -1930,7 +1909,6 @@ void calculateDraftAmounts() {
           cartItems.where((item) => item.detail.stock == 0).toList();
       orderSubtotal = Utils().calculateSubtotal(orderItems);
       orderTax = Utils().calculateTotalTax(orderItems);
-      orderFinalAmount = orderSubtotal + orderTax;
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
       preorderFinalAmount = preorderSubtotal + preorderTax;

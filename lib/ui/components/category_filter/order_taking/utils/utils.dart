@@ -33,7 +33,9 @@ class Utils {
         double totalCount = item.isPack == true ? count * pieces : count;
         if (item.detail.inclTax != 'incl_tax') {
           double tax =
-              double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0;
+              // double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0;
+              (double.tryParse(item.detail.unitTax?.toString() ?? '0') ?? 0.0) *
+                  (item.detail.packtype == "Pack" ? pieces : 1);
           sellingPrice += tax;
         }
         return sum + (sellingPrice * totalCount);
@@ -111,8 +113,10 @@ class Utils {
       double totalTax = cartItem.detail.tax?.toDouble() ?? 0.0;
       num initialCount = cartItem.detail.initialQuantity ?? 1;
       double fixedPerItemTax = totalTax / initialCount;
-      double sellPrice = cartItem.detail.packtype == "Pack"? double.parse(cartItem.detail.sellPrice ?? '0') *
-          cartItem.detail.pieces!:double.parse(cartItem.detail.sellPrice ?? '');
+      double sellPrice = cartItem.detail.packtype == "Pack"
+          ? double.parse(cartItem.detail.sellPrice ?? '0') *
+              cartItem.detail.pieces!
+          : double.parse(cartItem.detail.sellPrice ?? '');
       double baseTotalPrice = cartItem.detail.totalPrice?.toDouble() ?? 0.0;
       double taxToSubtract =
           (cartItem.detail.inclTax == '') ? fixedPerItemTax : 0.0;

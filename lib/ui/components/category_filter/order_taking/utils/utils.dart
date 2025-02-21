@@ -11,6 +11,7 @@ class Utils {
     }
     return total;
   }
+
   double getTotalTax(List<CartItem> cartItems) {
     double totalTax = 0.0;
     for (var cartItem in cartItems) {
@@ -20,23 +21,50 @@ class Utils {
     return totalTax;
   }
 
+  // double calculateSubtotal(List<CartItem> items) {
+  //   return items.fold(0.0, (sum, item) {
+  //     if (item.isChecked == true) {
+  //       double sellingPrice = item.draftId?.isEmpty ?? true
+  //           ? double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0
+  //           : double.tryParse(item.detail.sellPrice?.toString() ?? '')! *item.detail.count;
+  //       int pieces = item.detail.pieces?.toInt() ?? 1;
+  //       num count = item.detail.count;
+  //       num totalCount = item.isPack == true ? count * pieces : count;
+  //       if (item.detail.inclTax != 'incl_tax') {
+  //         double tax = item.draftId?.isEmpty ?? true?
+  //         double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0:
+  //           (double.tryParse(item.detail.unitTax?.toString() ?? '0') ?? 0.0) * (item.detail.packtype=="Pack" ? pieces : 1);
+  //         sellingPrice += tax;
+  //       }
+  //       return sum + (sellingPrice * totalCount);
+  //     }
+  //     return sum;
+  //   });
+  // }
+
   double calculateSubtotal(List<CartItem> items) {
+    log('Cart Subtotal');
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
-        double sellingPrice = item.draftId?.isEmpty ?? true
-            ? double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0
-            : double.tryParse(item.detail.sellPrice?.toString() ?? '')! *
-                item.detail.pieces!;
+        double sellingPrice =
+            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+        log('Item Selling Price: $sellingPrice');
         int pieces = item.detail.pieces?.toInt() ?? 1;
+        log('Item Pieces: $pieces');
         num count = item.detail.count;
+        log('Item Count: $count');
         num totalCount = item.isPack == true ? count * pieces : count;
+        log('Total Count (with pack consideration): $totalCount');
+        double tax =
+            (double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0);
+        log('Tax: $tax');
         if (item.detail.inclTax != 'incl_tax') {
-          double tax = item.draftId?.isEmpty ?? true?
-          double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0:
-            (double.tryParse(item.detail.unitTax?.toString() ?? '0') ?? 0.0) * (item.detail.packtype=="Pack" ? pieces : 1);
           sellingPrice += tax;
+          log('Updated Selling Price with Tax: $sellingPrice');
         }
-        return sum + (sellingPrice * totalCount);
+        double itemTotal = sellingPrice * totalCount;
+        log('Item Total: $itemTotal');
+        return sum + itemTotal;
       }
       return sum;
     });
@@ -79,7 +107,7 @@ class Utils {
           ? double.parse(cartItem.detail.sellPrice ?? '') *
               cartItem.detail.pieces!
           : double.parse(cartItem.detail.sellPrice ?? '');
-      double baseTotalPrice = cartItem.detail.totalPrice?.toDouble() ?? 0;
+      double baseTotalPrice = cartItem.totalPrice?.toDouble() ?? 0;
       double finalTotalPrice = baseTotalPrice + sellPrice + totalTaxToAdd;
       return finalTotalPrice;
     } else {
@@ -93,9 +121,11 @@ class Utils {
       double totalTax = cartItem.detail.tax?.toDouble() ?? 0.0;
       num initialCount = cartItem.detail.initialQuantity ?? 1;
       double fixedPerItemTax = totalTax / initialCount;
-      double sellPrice = cartItem.detail.packtype == "Pack"? double.parse(cartItem.detail.sellPrice ?? '0') *
-          cartItem.detail.pieces!:double.parse(cartItem.detail.sellPrice ?? '');
-      double baseTotalPrice = cartItem.detail.totalPrice?.toDouble() ?? 0.0;
+      double sellPrice = cartItem.detail.packtype == "Pack"
+          ? double.parse(cartItem.detail.sellPrice ?? '0') *
+              cartItem.detail.pieces!
+          : double.parse(cartItem.detail.sellPrice ?? '');
+      double baseTotalPrice = cartItem.totalPrice?.toDouble() ?? 0.0;
       double taxToSubtract =
           (cartItem.detail.inclTax == '') ? fixedPerItemTax : 0.0;
       double updatedTotalPrice = baseTotalPrice - (sellPrice + taxToSubtract);

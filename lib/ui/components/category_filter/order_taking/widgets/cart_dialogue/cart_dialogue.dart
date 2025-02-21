@@ -148,7 +148,7 @@ class CartDialogueState extends State<CartDialogue> {
           if (item.draftId?.isNotEmpty ?? false) {
             log('Log 1: Adding item with incl_tax');
             return sum +
-                item.totalPrice +
+                item.totalPrice! +
                 (item.detail.inclTax == ''
                     ? (item.detail.unitTax ?? 0.0) * (item.detail.count)
                     : 0.0);
@@ -393,6 +393,7 @@ class CartDialogueState extends State<CartDialogue> {
                                               deleteConfirmationDialogue,
                                           isPreOrder: false,
                                           calCulateAmount: calculateAmounts,
+                                          calCulateDraftAmount: calculateDraftAmounts,
                                         ),
                                       );
                                     }).toList(),
@@ -513,7 +514,8 @@ class CartDialogueState extends State<CartDialogue> {
                                               deleteConfirmationDialogue,
                                           isPreOrder: true,
                                           calCulateAmount: calculateAmounts,
-                                        ),
+                                          calCulateDraftAmount: calculateDraftAmounts
+                                        )
                                       );
                                     }).toList(),
                                   ),
@@ -1108,6 +1110,7 @@ class CartDialogueState extends State<CartDialogue> {
         deleteConfirmationDialogue,
     required bool isPreOrder,
     required Function calCulateAmount,
+    required Function calCulateDraftAmount,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1172,6 +1175,7 @@ class CartDialogueState extends State<CartDialogue> {
                     productQuantityManager: productQuantityManager,
                     deleteConfirmationDialogue: deleteConfirmationDialogue,
                     calculateAmount: calCulateAmount,
+                    
                   ),
                 ),
               ),
@@ -1715,24 +1719,28 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     if (cartItem.detail.count > 0) {
                       cartItem.detail.count--;
-                      if (cartItem.draftId?.isEmpty ?? true) {
+                      if (cartItem.draftId==null) {
                         cartItem.totalPrice =
                             Utils().calculateTotalPrice(cartItem);
+                        calculateAmounts();
                       } else {
-                        cartItem.detail.totalPrice =
-                            Utils().decreaseDraftTotalPrice(cartItem);
                         cartItem.totalPrice =
-                            cartItem.detail.totalPrice?.toDouble() ?? 0;
-                        cartItem.draftTotal = cartItem.totalPrice;
+                            Utils().decreaseDraftTotalPrice(cartItem);
+                        setState(() {
+                          calculateDraftAmounts();
+                        });
+                        double unitTax =
+                            cartItem.detail.unitTax?.toDouble() ?? 0.0;
+                        orderTax -= unitTax;
+                        log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
+                        log('Draft ID On Cart ${cartItem.draftId}');
+                        CartDatabaseManager().updateCart(cartItem);
                       }
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
                       CartDatabaseManager().updateCart(cartItem);
                       CartDatabaseManager()
                           .getDraftItems(cartItem.customerId ?? '');
-                      setState(() {
-                        calculateAmounts();
-                      });
                     }
                   });
                 },
@@ -1765,26 +1773,23 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    if (cartItem.draftId?.isEmpty ?? true) {
-                      // Calculate regular total price
+                    if (cartItem.draftId==null) {
+                      log('This works');
                       cartItem.totalPrice =
                           Utils().calculateTotalPrice(cartItem);
+                      calculateAmounts();
                     } else {
-                      // Adjust draft total price
-                      cartItem.detail.totalPrice =
-                          Utils().calculateDraftTotalPrice(cartItem);
+                      log('Or this works');
                       cartItem.totalPrice =
-                          cartItem.detail.totalPrice?.toDouble() ?? 0;
-                      cartItem.draftTotal = cartItem.totalPrice;
+                          Utils().calculateDraftTotalPrice(cartItem);
+                      calculateDraftAmounts();
+                      double unitTax =
+                          cartItem.detail.unitTax?.toDouble() ?? 0.0;
+                      orderTax += unitTax;
                     }
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');
                     CartDatabaseManager().updateCart(cartItem);
-                    CartDatabaseManager()
-                        .getDraftItems(cartItem.customerId ?? '');
-                    setState(() {
-                      calculateAmounts();
-                    });
                   });
                 },
                 child: Padding(
@@ -1805,24 +1810,42 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
+void calculateDraftAmounts() {
+  setState(() {
+    orderSubtotal = cartItems.fold(0.0, (sum, item) {
+      if (item.isChecked == true) {
+        num itemTotalPrice = item.totalPrice;
+        num itemTax = item.detail.tax ?? 0.0;
+        log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
+        return sum + itemTotalPrice + (item.detail.inclTax == '' ? itemTax : 0);
+      } else {
+        return sum;
+      }
+    });
+
+    log("Updated subtotal: $orderSubtotal");
+  });
+}
+
+
   void calculateAmounts() {
     List<CartItem> orderItems =
         cartItems.where((item) => item.detail.stock! > 0).toList();
     List<CartItem> preorderItems =
         cartItems.where((item) => item.detail.stock == 0).toList();
-    log("Order Items: ${orderItems.length}");
-    log("Preorder Items: ${preorderItems.length}");
+    log("Order Items: \${orderItems.length}");
+    log("Preorder Items: \${preorderItems.length}");
     setState(() {
       if (isOrder) {
         orderSubtotal = Utils().calculateSubtotal(orderItems);
         orderTax = Utils().calculateTotalTax(orderItems);
         orderFinalAmount = orderSubtotal;
-        log("Order Subtotal: $orderSubtotal, Order Tax: $orderTax, Final Amount: $orderFinalAmount");
+        log("Order Subtotal: \$orderSubtotal, Order Tax: \$orderTax, Final Amount: \$orderFinalAmount");
       } else {
         preorderSubtotal = Utils().calculateSubtotal(preorderItems);
         preorderTax = Utils().calculateTotalTax(preorderItems);
         preorderFinalAmount = preorderSubtotal;
-        log("Preorder Subtotal: $preorderSubtotal, Preorder Tax: $preorderTax, Final Amount: $preorderFinalAmount");
+        log("Preorder Subtotal: \$preorderSubtotal, Preorder Tax: \$preorderTax, Final Amount: \$preorderFinalAmount");
       }
     });
   }

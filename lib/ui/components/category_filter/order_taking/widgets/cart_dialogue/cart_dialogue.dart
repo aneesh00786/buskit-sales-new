@@ -1175,6 +1175,7 @@ class CartDialogueState extends State<CartDialogue> {
                     productQuantityManager: productQuantityManager,
                     deleteConfirmationDialogue: deleteConfirmationDialogue,
                     calculateAmount: calCulateAmount,
+                    calCulateDraftAmount: calCulateDraftAmount,
                     
                   ),
                 ),

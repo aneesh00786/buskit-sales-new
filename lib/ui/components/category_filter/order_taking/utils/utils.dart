@@ -125,7 +125,7 @@ class Utils {
           ? double.parse(cartItem.detail.sellPrice ?? '0') *
               cartItem.detail.pieces!
           : double.parse(cartItem.detail.sellPrice ?? '');
-      double baseTotalPrice = cartItem.totalPrice?.toDouble() ?? 0.0;
+      double baseTotalPrice = cartItem.totalPrice.toDouble();
       double taxToSubtract =
           (cartItem.detail.inclTax == '') ? fixedPerItemTax : 0.0;
       double updatedTotalPrice = baseTotalPrice - (sellPrice + taxToSubtract);

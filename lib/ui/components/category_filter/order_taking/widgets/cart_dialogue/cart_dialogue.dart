@@ -1810,31 +1810,40 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void calculateDraftAmounts() {
-    setState(() {
-      orderSubtotal = cartItems.fold(0.0, (sum, item) {
-        if (item.isChecked == true) {
-          num itemTotalPrice = item.totalPrice;
-          num itemTax = item.detail.tax ?? 0.0;
-          log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
-          orderTax = cartItems.fold(0.0, (sum, item) {
-            if (item.isChecked == true) {
-              double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-              return sum + itemTax;
-            }
-            return sum;
-          });
-          return sum +
-              itemTotalPrice +
-              (item.detail.inclTax == '' ? itemTax : 0);
-        } else {
-          return sum;
-        }
-      });
-
-      log("Updated subtotal: $orderSubtotal");
+void calculateDraftAmounts() {
+  setState(() {
+    // Calculate the order subtotal
+    orderSubtotal = cartItems.fold(0.0, (sum, item) {
+      if (item.isChecked == true) {
+        num itemTotalPrice = item.totalPrice;
+        num itemTax = item.detail.tax ?? 0.0;
+        log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
+        return sum +
+            itemTotalPrice +
+            (item.detail.inclTax == '' ? itemTax : 0);
+      } else {
+        return sum;
+      }
     });
-  }
+
+    // Calculate the total tax for checked items
+    orderTax = cartItems.fold(0.0, (sum, item) {
+      if (item.isChecked == true) {
+        double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+        return sum + itemTax;
+      }
+      return sum;
+    });
+
+    // Set orderFinalAmount to the calculated subtotal
+    orderFinalAmount = orderSubtotal;
+
+    // Log results
+    log("Updated orderSubtotal: $orderSubtotal");
+    log("Updated orderTax: $orderTax");
+  });
+}
+
 
   void calculateAmounts() {
     List<CartItem> orderItems =

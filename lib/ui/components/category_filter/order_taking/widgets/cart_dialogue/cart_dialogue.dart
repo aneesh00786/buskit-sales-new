@@ -147,13 +147,18 @@ class CartDialogueState extends State<CartDialogue> {
         (sum, item) {
           if (item.draftId?.isNotEmpty ?? false) {
             log('Log 1: Adding item with incl_tax');
-            return item.draftTotal?.toDouble() ?? 0.0;
+            return sum +
+                item.totalPrice +
+                (item.detail.inclTax == ''
+                    ? (item.detail.unitTax ?? 0.0) * (item.detail.count)
+                    : 0.0);
           } else {
             log('Log 2: Adding item without incl_tax, including tax');
-            return sum + ((item.totalPrice ?? 0.0));
+            return sum + (item.totalPrice ?? 0.0);
           }
         },
       );
+
       preorderSubtotal = preorderItems.fold(
         0.0,
         (sum, item) =>
@@ -1760,7 +1765,7 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                     if (cartItem.draftId?.isEmpty ?? true) {
+                    if (cartItem.draftId?.isEmpty ?? true) {
                       // Calculate regular total price
                       cartItem.totalPrice =
                           Utils().calculateTotalPrice(cartItem);

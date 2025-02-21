@@ -393,7 +393,8 @@ class CartDialogueState extends State<CartDialogue> {
                                               deleteConfirmationDialogue,
                                           isPreOrder: false,
                                           calCulateAmount: calculateAmounts,
-                                          calCulateDraftAmount: calculateDraftAmounts,
+                                          calCulateDraftAmount:
+                                              calculateDraftAmounts,
                                         ),
                                       );
                                     }).toList(),
@@ -499,24 +500,23 @@ class CartDialogueState extends State<CartDialogue> {
                                           .toList();
 
                                       return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                        child: _buildGroupedItems(
-                                          productName: productName,
-                                          groupedItems: groupedItems,
-                                          availableWidth: availableWidth,
-                                          fontSize: fontSize,
-                                          rowHeight: rowHeight,
-                                          context: context,
-                                          productQuantityManager:
-                                              productQuantityManager,
-                                          deleteConfirmationDialogue:
-                                              deleteConfirmationDialogue,
-                                          isPreOrder: true,
-                                          calCulateAmount: calculateAmounts,
-                                          calCulateDraftAmount: calculateDraftAmounts
-                                        )
-                                      );
+                                          padding:
+                                              const EdgeInsets.only(bottom: 20),
+                                          child: _buildGroupedItems(
+                                              productName: productName,
+                                              groupedItems: groupedItems,
+                                              availableWidth: availableWidth,
+                                              fontSize: fontSize,
+                                              rowHeight: rowHeight,
+                                              context: context,
+                                              productQuantityManager:
+                                                  productQuantityManager,
+                                              deleteConfirmationDialogue:
+                                                  deleteConfirmationDialogue,
+                                              isPreOrder: true,
+                                              calCulateAmount: calculateAmounts,
+                                              calCulateDraftAmount:
+                                                  calculateDraftAmounts));
                                     }).toList(),
                                   ),
                                 ),
@@ -1176,7 +1176,6 @@ class CartDialogueState extends State<CartDialogue> {
                     deleteConfirmationDialogue: deleteConfirmationDialogue,
                     calculateAmount: calCulateAmount,
                     calCulateDraftAmount: calCulateDraftAmount,
-                    
                   ),
                 ),
               ),
@@ -1718,21 +1717,21 @@ class CartDialogueState extends State<CartDialogue> {
               child: InkWell(
                 onTap: () {
                   setState(() {
-                    if (cartItem.detail.count > 0) {
+                    if (cartItem.detail.count > 1) {
                       cartItem.detail.count--;
-                      if (cartItem.draftId==null) {
+                      if (cartItem.draftId == null) {
                         cartItem.totalPrice =
                             Utils().calculateTotalPrice(cartItem);
                         calculateAmounts();
                       } else {
                         cartItem.totalPrice =
                             Utils().decreaseDraftTotalPrice(cartItem);
-                        setState(() {
-                          calculateDraftAmounts();
-                        });
-                        double unitTax =
-                            cartItem.detail.unitTax?.toDouble() ?? 0.0;
-                        orderTax -= unitTax;
+                        calculateDraftAmounts();
+                        if (cartItem.isChecked == true) {
+                          double unitTax =
+                              cartItem.detail.unitTax?.toDouble() ?? 0.0;
+                          orderTax -= unitTax;
+                        }
                         log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                         log('Draft ID On Cart ${cartItem.draftId}');
                         CartDatabaseManager().updateCart(cartItem);
@@ -1774,7 +1773,7 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    if (cartItem.draftId==null) {
+                    if (cartItem.draftId == null) {
                       log('This works');
                       cartItem.totalPrice =
                           Utils().calculateTotalPrice(cartItem);
@@ -1811,23 +1810,31 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-void calculateDraftAmounts() {
-  setState(() {
-    orderSubtotal = cartItems.fold(0.0, (sum, item) {
-      if (item.isChecked == true) {
-        num itemTotalPrice = item.totalPrice;
-        num itemTax = item.detail.tax ?? 0.0;
-        log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
-        return sum + itemTotalPrice + (item.detail.inclTax == '' ? itemTax : 0);
-      } else {
-        return sum;
-      }
+  void calculateDraftAmounts() {
+    setState(() {
+      orderSubtotal = cartItems.fold(0.0, (sum, item) {
+        if (item.isChecked == true) {
+          num itemTotalPrice = item.totalPrice;
+          num itemTax = item.detail.tax ?? 0.0;
+          log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
+          orderTax = cartItems.fold(0.0, (sum, item) {
+            if (item.isChecked == true) {
+              double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+              return sum + itemTax;
+            }
+            return sum;
+          });
+          return sum +
+              itemTotalPrice +
+              (item.detail.inclTax == '' ? itemTax : 0);
+        } else {
+          return sum;
+        }
+      });
+
+      log("Updated subtotal: $orderSubtotal");
     });
-
-    log("Updated subtotal: $orderSubtotal");
-  });
-}
-
+  }
 
   void calculateAmounts() {
     List<CartItem> orderItems =

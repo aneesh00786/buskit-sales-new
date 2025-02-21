@@ -89,7 +89,8 @@ class CartDatabaseManager {
                       num.tryParse(cart['total_price']?.toString() ?? '0'),
                   sellingPrice:
                       num.tryParse(cart['sell_price']?.toString() ?? '0'),
-                  inclTax: cart['incl_tax']
+                  inclTax: cart['incl_tax'],
+                  initialQuantity: cart['quantity']
                 );
                 final cartItem = CartItem(
                   detail: detail,

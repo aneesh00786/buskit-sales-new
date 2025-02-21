@@ -37,7 +37,6 @@ class ProductVariantDialogue extends StatefulWidget {
   @override
   State<ProductVariantDialogue> createState() => _ProductVariantDialogueState();
 }
-
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
@@ -49,7 +48,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     super.initState();
     localCounts = List<int>.filled(widget.detailsCopy.length, 0);
   }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;

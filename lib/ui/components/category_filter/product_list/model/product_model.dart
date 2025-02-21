@@ -190,6 +190,9 @@ class Detail {
   @HiveField(27)
   String? inclTax;
 
+  @HiveField(28)
+  num? initialQuantity;
+
   Detail({
     this.id,
     this.companyId,
@@ -217,6 +220,7 @@ class Detail {
     this.packPrice,
     this.sellingPackPrice,
     this.inclTax,
+    this.initialQuantity,
   });
   Detail copyWith({
     int? id,
@@ -245,6 +249,7 @@ class Detail {
     num? packPrice,
     num? sellingPackPrice,
     String? inclTax,
+    num? initialQuantity,
   }) {
     return Detail(
       id: id ?? this.id,
@@ -273,6 +278,7 @@ class Detail {
       packPrice: packPrice ?? this.packPrice,
       sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
       inclTax: inclTax ?? this.inclTax,
+      initialQuantity: initialQuantity ?? this.initialQuantity,
     );
   }
 
@@ -302,7 +308,8 @@ class Detail {
         sellingPrice = json['selling_price'],
         packPrice = json['pack_price'],
         sellingPackPrice = json['selling_pack_price'],
-        inclTax = json['incl_tax'];
+        inclTax = json['incl_tax'],
+        initialQuantity = json['quantity'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -332,6 +339,7 @@ class Detail {
     data['pack_price'] = this.packPrice;
     data['selling_pack_price'] = this.sellingPackPrice;
     data['incl_tax'] = this.inclTax;
+    data['quantity'] = this.initialQuantity;
     return data;
   }
 }

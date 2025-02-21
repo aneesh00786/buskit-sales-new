@@ -108,10 +108,16 @@ class GroupedItemDataRows {
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
                   groupedItem,
-                  groupedItem.detail.inclTax == 'incl_tax'
-                      ? groupedItem.totalPrice.toString()
-                      : (groupedItem.totalPrice + groupedItem.detail.tax!)
-                          .toString(),
+                  groupedItem.draftId?.isEmpty ?? true
+                      ? (groupedItem.detail.inclTax == 'incl_tax'
+                          ? groupedItem.totalPrice.toString()
+                          : (groupedItem.totalPrice + groupedItem.detail.tax!)
+                              .toString())
+                      : (groupedItem.detail.inclTax == 'incl_tax'
+                          ? groupedItem.detail.totalPrice.toString()
+                          : (groupedItem.detail.totalPrice ??
+                                  0 + groupedItem.detail.tax!)
+                              .toString()),
                   fontSize,
                   availableWidth,
                 ),

@@ -111,7 +111,6 @@ class ProductsController extends GetxController {
     }
     return fullname.length > 15 ? '${fullname.substring(0, 15)}...' : fullname;
   }
-
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
     isLoading.value = true;
     List<ProductModel> fetchedProducts =

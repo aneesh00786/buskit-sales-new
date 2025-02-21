@@ -25,10 +25,8 @@ class Utils {
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
         double sellingPrice = item.draftId?.isEmpty ?? true
-            ? double.tryParse(item.detail.sellPrice?.toString() ?? '0') ??
-                0.0
-            : double.tryParse(item.detail.sellPrice?.toString() ?? '') ??
-                0.0;
+            ? double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0
+            : double.tryParse(item.detail.sellPrice?.toString() ?? '') ?? 0.0;
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
         double totalCount = item.isPack == true ? count * pieces : count;
@@ -73,16 +71,53 @@ class Utils {
   }
 
   double calculateTotalPrice(CartItem cartItem) {
+    log('This Works');
     if (cartItem.isChecked == true) {
       double sellingPrice =
-          double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ?? 0.0;
+          double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ??
+              0.0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
       double totalCount = cartItem.isPack == true ? count * pieces : count;
       return sellingPrice * totalCount;
+    } else {
+      return 0.0;
     }
+  }
+double calculateDraftTotalPrice(CartItem cartItem) {
+  if (cartItem.isChecked == true) {
+    double totalTax = cartItem.detail.tax?.toDouble() ?? 0.0;
+    num initialCount = cartItem.detail.initialQuantity ?? 1;
+    double fixedPerItemTax = totalTax / initialCount;
+    double totalTaxToAdd = fixedPerItemTax; 
+    double sellPrice = double.parse(cartItem.detail.sellPrice??'')*cartItem.detail.pieces!;
+    double baseTotalPrice = cartItem.detail.totalPrice?.toDouble()??0;
+    double finalTotalPrice = baseTotalPrice +sellPrice+ totalTaxToAdd;  
+    return finalTotalPrice;
+  } else {
+    log('Item is not checked.');
     return 0.0;
   }
+}
+double decreaseDraftTotalPrice(CartItem cartItem) {
+  if (cartItem.isChecked == true) {
+    double totalTax = cartItem.detail.tax?.toDouble() ?? 0.0;
+    num initialCount = cartItem.detail.initialQuantity ?? 1;
+    double fixedPerItemTax = totalTax / initialCount;
+    double sellPrice = double.parse(cartItem.detail.sellPrice ?? '0') * cartItem.detail.pieces!;
+    double baseTotalPrice = cartItem.detail.totalPrice?.toDouble() ?? 0.0;
+    double updatedTotalPrice = baseTotalPrice - (sellPrice + fixedPerItemTax);
+    return updatedTotalPrice >= 0 ? updatedTotalPrice : 0.0;
+  } else {
+    log('Item is not checked.');
+    return 0.0;
+  }
+}
+
+
+
+
+
 
   // double calculateTotalPrice(CartItem cartItem) {
   //   if (cartItem.isChecked == true) {

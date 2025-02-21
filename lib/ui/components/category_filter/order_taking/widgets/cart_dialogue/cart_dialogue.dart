@@ -107,7 +107,7 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-    // calculateAmounts();
+    calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
     log('CartList Length : ${cartItems.length}');

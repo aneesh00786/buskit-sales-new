@@ -32,9 +32,10 @@ class Utils {
         double count = item.detail.count.toDouble();
         double totalCount = item.isPack == true ? count * pieces : count;
         if (item.detail.inclTax != 'incl_tax') {
-          double tax =
-              // double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0;
-              (double.tryParse(item.detail.unitTax?.toString() ?? '0') ?? 0.0) *
+          double tax = item.draftId?.isEmpty ?? true
+              ? double.tryParse(item.detail.tax?.toString() ?? '0') ?? 0.0
+              : (double.tryParse(item.detail.unitTax?.toString() ?? '0') ??
+                      0.0) *
                   (item.detail.packtype == "Pack" ? pieces : 1);
           sellingPrice += tax;
         }

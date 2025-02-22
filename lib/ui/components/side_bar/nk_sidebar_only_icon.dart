@@ -68,7 +68,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
 
   @override
   void dispose() {
-    navigatorState.pop();
     super.dispose();
   }
 

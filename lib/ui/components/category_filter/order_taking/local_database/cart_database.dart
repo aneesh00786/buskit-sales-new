@@ -134,6 +134,67 @@ class CartDatabaseManager {
       return [];
     }
   }
+  Future<List<Map<String, String?>>> getDraftAndCartIdsFromApi(String customerId) async {
+  final dio = Dio();
+  final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+
+  // Request body
+  final requestBody = {
+    "companyId": 1,
+    "customer_id": customerId,
+    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    "order_type": 4,
+    "payment_type": 1,
+    "start_date": "2025-02-01",
+    "end_date": "2025-02-28",
+    "limit": 1000,
+    "page": 1,
+  };
+  log('Request Body of FetchAll Order: $requestBody');
+
+  try {
+    final connectivityService = ConnectivityService();
+    final isOnline = await connectivityService.isOnline();
+
+    if (isOnline) {
+      log('Fetching draft and cart IDs from API for customer ID: $customerId');
+      final response = await dio.post(apiUrl, data: requestBody);
+
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+
+        if (responseData['status'] == true) {
+          final List<dynamic> orders = responseData['data'] ?? [];
+          List<Map<String, String?>> draftAndCartIds = [];
+
+          for (var order in orders) {
+            final List<dynamic> carts = order['cart'] ?? [];
+            for (var cart in carts) {
+              draftAndCartIds.add({
+                'cart_id': cart['cart_id'] as String?,
+                'draft_id': order['order_id'] as String?,
+              });
+            }
+          }
+
+          log('Draft and Cart IDs fetched from API: $draftAndCartIds');
+          return draftAndCartIds;
+        } else {
+          log('API response status is false: ${responseData['message']}');
+        }
+      } else {
+        log('Error fetching draft and cart IDs from API: ${response.statusCode} ${response.data}');
+      }
+    } else {
+      log('No internet connection.');
+    }
+  } catch (e) {
+    log('Error fetching draft and cart IDs: $e');
+  }
+
+  return [];
+}
+
 
   // Future<List<CartItem>> getDraftItems(String customerId) async {
   //   try {
@@ -152,22 +213,6 @@ class CartDatabaseManager {
   //     return [];
   //   }
   // }
-  Future<List<CartItem>> getAllDraftItems() async {
-    try {
-      final allItems = CartDatabaseManager().cartBox.values.toList();
-      final draftItems = allItems
-          .where((item) =>
-              item.draftId != null &&
-              item.draftId!.isNotEmpty)
-          .toList();
-      log('Number of Draft Items: ${draftItems.length}');
-      return draftItems;
-    } catch (e) {
-      log('Error fetching draft items: $e');
-      return [];
-    }
-  }
-
   void addListener(VoidCallback listener) {
     _listeners.add(listener);
   }

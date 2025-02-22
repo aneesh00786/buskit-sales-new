@@ -54,7 +54,6 @@ class OrderTaking extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _OrderTakingState createState() => _OrderTakingState();
 }
 
@@ -214,159 +213,6 @@ class _OrderTakingState extends State<OrderTaking>
       filteredCustomers = results;
     });
   }
-
-  // void handleBackNavigation(
-  //   BuildContext context,
-  //   bool toDashBoard,
-  // ) {
-  //   final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-  // final GlobalKey<CartDialogueState> cartDialogKey =
-  //     GlobalKey<CartDialogueState>();
-  //   bool hasDraftId = CartDatabaseManager()
-  //       .cartItems
-  //       .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
-  //   if (CartDatabaseManager().cartItems.isNotEmpty &&
-  //       widget.productsController.selectedCustomerId.value.isNotEmpty &&
-  //       !hasDraftId) {
-  //     _showCartDialog(
-  //       cartDialogKey,
-  //     );
-  //     Future.delayed(Duration(seconds: 1));
-  //     showDialog(
-  //       context: context,
-  //       barrierDismissible: false,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: Center(
-  //             child: Container(
-  //               height: 150,
-  //               width: 150,
-  //               child: Lottie.asset(
-  //                   'assets/images/Animation - cart_has_data.json'),
-  //             ),
-  //           ),
-  //           content: CustomText(
-  //             content: 'Would you like to save this as a draft?',
-  //             fontSize: 25,
-  //           ),
-  //           actions: [
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.end,
-  //               children: [
-  //                 TextButton(
-  //                   onPressed: () {
-  //                     if (toDashBoard) {
-  //                       Navigator.pop(context);
-  //                       Navigator.of(context, rootNavigator: true).pop();
-  //                       Future.delayed(const Duration(milliseconds: 300), () {
-  //                         homeController.sidebarXController.selectIndex(0);
-  //                         homeController.selectedIndex.value = 0;
-  //                         Get.toNamed(AppRoutes.dashboard, id: 2);
-  //                         widget.productsController.selectedCustomerName.value =
-  //                             '';
-  //                         widget.productsController.selectedCustomerImageUrl
-  //                             .value = '';
-  //                       });
-  //                       CartDatabaseManager().cartItems.clear();
-  //                       CartDatabaseManager().clearCartOnSave(
-  //                         customerAndOrderController.customerId.isNotEmpty
-  //                             ? customerAndOrderController.customerId.value
-  //                             : widget
-  //                                 .productsController.selectedCustomerId.value,
-  //                       );
-  //                     } else if (widget.isDirectDialogue) {
-  //                       Navigator.pop(context);
-  //                       Navigator.of(context, rootNavigator: true).pop();
-  //                       Future.delayed(const Duration(milliseconds: 300), () {
-  //                         homeController.sidebarXController.selectIndex(0);
-  //                         homeController.selectedIndex.value = 0;
-  //                         Get.toNamed(AppRoutes.dashboard, id: 2);
-  //                         customerAndOrderController.customerId.value = '';
-  //                         widget.productsController.selectedCustomerName.value =
-  //                             '';
-  //                         widget.productsController.selectedCustomerId.value =
-  //                             '';
-  //                         widget.productsController.selectedCustomerImageUrl
-  //                             .value = '';
-  //                       });
-  //                       CartDatabaseManager().cartItems.clear();
-  //                       CartDatabaseManager().clearCartOnSave(
-  //                         customerAndOrderController.customerId.isNotEmpty
-  //                             ? customerAndOrderController.customerId.value
-  //                             : widget
-  //                                 .productsController.selectedCustomerId.value,
-  //                       );
-  //                     } else {
-  //                       Navigator.pop(context);
-  //                       Navigator.of(context, rootNavigator: true).pop();
-  //                       CartDatabaseManager().cartItems.clear();
-  //                       CartDatabaseManager().clearCartOnSave(
-  //                         customerAndOrderController.customerId.isNotEmpty
-  //                             ? customerAndOrderController.customerId.value
-  //                             : widget
-  //                                 .productsController.selectedCustomerId.value,
-  //                       );
-  //                       setState(() {
-  //                         cartProvider.cartItemCount = 0;
-  //                       });
-  //                       customerSearchController.clear();
-  //                     }
-  //                   },
-  //                   child: Text('Clear cart'),
-  //                 ),
-  //                 TextButton(
-  //                   onPressed: () async {
-  //   if (cartDialogKey.currentState != null) {
-  //     cartDialogKey.currentState!
-  //         .performSpecificAction(false);
-  //     if (toDashBoard) {
-  //       log('Log NO : 1 :');
-  //       Navigator.pop(context);
-  //       Navigator.of(context, rootNavigator: true).pop();
-  //       Future.delayed(Duration(milliseconds: 300), () {
-  //         homeController.sidebarXController.selectIndex(0);
-  //         homeController.selectedIndex.value = 0;
-  //         Get.toNamed(AppRoutes.dashboard, id: 2);
-  //       });
-  //     } else if (widget.isDirectDialogue) {
-  //       log('Log NO : 2 :');
-  //       Navigator.pop(context);
-  //       Navigator.of(context, rootNavigator: true).pop();
-  //       Future.delayed(Duration(milliseconds: 300), () {
-  //         homeController.sidebarXController.selectIndex(0);
-  //         homeController.selectedIndex.value = 0;
-  //         Get.toNamed(AppRoutes.dashboard, id: 2);
-  //         widget.productsController.selectedCustomerName
-  //             .value = '';
-  //         widget.productsController.selectedCustomerImageUrl
-  //             .value = '';
-  //       });
-  //       CartDatabaseManager().cartItems.clear();
-  //       CartDatabaseManager().clearCart(
-  //         customerAndOrderController.customerId.isNotEmpty
-  //             ? customerAndOrderController.customerId.value
-  //             : widget.productsController.selectedCustomerId
-  //                 .value,
-  //       );
-  //     } else {
-  //       log('Log NO : 3 :');
-  //       Navigator.of(context, rootNavigator: true).pop();
-  //     }
-  //   }
-  // },
-  //                   child: Text('Ok'),
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   } else {
-  //     Navigator.pop(context);
-  //   }
-  // }
-
   void showSaveDraftConfirmationDialog() {
     showDialog(
       context: context,
@@ -396,23 +242,6 @@ class _OrderTakingState extends State<OrderTaking>
       },
     );
   }
-
-  // void triggerLeadingIcon(bool toDashBoard) {
-  //   if (CartDatabaseManager().cartItems.isNotEmpty &&
-  //       widget.productsController.selectedCustomerId.value.isNotEmpty) {
-  //     handleBackNavigation(context, toDashBoard);
-  //     log('Condition1 - Showing draft dialog');
-  //   } else if (widget.isFromCalender == true || widget.isFromOrder == true) {
-  //     handleBackNavigation(context, false);
-  //     log('Condition2');
-  //   } else {
-  //     _navigateToDashboard();
-  //     log('Condition3');
-  //   }
-  //   log('Is Direct: ${widget.isDirectDialogue}');
-  //   log('Is From Calendar: ${widget.isFromCalender}');
-  // }
-
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -490,20 +319,9 @@ class _OrderTakingState extends State<OrderTaking>
                     orderStatus: orderStatus,
                     draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
                   );
-
                   await placeOrder(order, (statusCode, message, response) {
                     Navigator.pop(context);
                     if (statusCode == 200) {
-                      final draftId = response?['id'];
-                      //  CartDatabaseManager().saveCartAsDraft(
-                      //         customerId,
-                      //         existingCartId.isNotEmpty
-                      //             ? existingCartId
-                      //             : cartOrder.cartId,
-                      //         existingDraftId.isNotEmpty
-                      //             ? existingDraftId
-                      //             : draftId,
-                      //       );
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -525,10 +343,6 @@ class _OrderTakingState extends State<OrderTaking>
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  // Navigator.pop(context);
-                                  // if (isTab) {
-                                  //   Navigator.of(context, rootNavigator: true).pop();
-                                  // }
                                   Navigator.pop(context);
                                   CartDatabaseManager().clearCart(customerId);
                                 },
@@ -582,12 +396,8 @@ class _OrderTakingState extends State<OrderTaking>
                         .cartItems
                         .map((e) => e.detail)
                         .toList();
-                    
                 final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
-                    
-
                 Future.delayed(const Duration(seconds: 1));
-
                 final existingCartId = cartDetails?['cart_id'] ?? '';
                 final existingDraftId = cartDetails?['id'] ?? '';
                 final productBYData = AddToCartModel(
@@ -627,12 +437,8 @@ class _OrderTakingState extends State<OrderTaking>
                     orderStatus: orderStatus,
                     draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
                   );
-
                   await placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
-                      
-
-                          
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -654,10 +460,6 @@ class _OrderTakingState extends State<OrderTaking>
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  // Navigator.pop(context);
-                                  // if (isTab) {
-                                  //   Navigator.of(context, rootNavigator: true).pop();
-                                  // }
                                   Navigator.pop(context);
                                   CartDatabaseManager().clearCart(customerId);
                                   CartDatabaseManager().cartItems.clear();

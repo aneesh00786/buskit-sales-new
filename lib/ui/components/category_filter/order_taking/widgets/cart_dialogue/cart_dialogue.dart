@@ -147,7 +147,7 @@ class CartDialogueState extends State<CartDialogue> {
           if (item.draftId?.isNotEmpty ?? false) {
             log('Log 1: Adding item with incl_tax');
             return sum +
-                item.totalPrice! +
+                item.totalPrice +
                 (item.detail.inclTax == ''
                     ? (item.detail.unitTax ?? 0.0) * (item.detail.count)
                     : 0.0);
@@ -163,8 +163,8 @@ class CartDialogueState extends State<CartDialogue> {
         (sum, item) =>
             sum +
             (item.detail.inclTax == 'incl_tax'
-                ? (item.totalPrice ?? 0.0)
-                : (item.totalPrice ?? 0.0) + (item.detail.tax ?? 0.0)),
+                ? (item.totalPrice)
+                : (item.totalPrice) + (item.detail.tax ?? 0.0)),
       );
       orderTax = orderItems.fold(
         0.0,
@@ -998,8 +998,21 @@ class CartDialogueState extends State<CartDialogue> {
                                 final savedCartData =
                                     await CartDatabaseManager()
                                         .getCartAndDraftIds(customerId);
+
                                 final cartId = savedCartData?['cart_id'] ?? '';
                                 final draftId = savedCartData?['id'] ?? '';
+                                final fetchedCartDraftData =
+                                    await CartDatabaseManager()
+                                        .getDraftAndCartIdsFromApi(customerId);
+                                final cartIdApi = fetchedCartDraftData
+                                        .isNotEmpty
+                                    ? fetchedCartDraftData.last['cart_id'] ?? ''
+                                    : '';
+                                final draftIdApi = fetchedCartDraftData
+                                        .isNotEmpty
+                                    ? fetchedCartDraftData.last['draft_id'] ??
+                                        ''
+                                    : '';
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
@@ -1008,8 +1021,8 @@ class CartDialogueState extends State<CartDialogue> {
                                       //finalAmount ?? 0,
                                       paymentType: paymentType,
                                       context: context,
-                                      cartId: cartId,
-                                      draftId: draftId,
+                                      cartId: cartIdApi,
+                                      draftId: draftIdApi,
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1026,8 +1039,8 @@ class CartDialogueState extends State<CartDialogue> {
                                       finalAmount: 0,
                                       //finalAmount ?? 0,
                                       context: context,
-                                      cartId: cartId,
-                                      draftId: draftId);
+                                      cartId: cartIdApi,
+                                      draftId: draftIdApi);
                                 }
                               } else {
                                 showDialog(
@@ -1311,7 +1324,6 @@ class CartDialogueState extends State<CartDialogue> {
             Navigator.pop(context);
             if (statusCode == 200) {
               log('ItemList Length ${itemList.length}');
-
               _clearCartItem(itemList, true);
               showDialog(
                 context: context,
@@ -1332,10 +1344,14 @@ class CartDialogueState extends State<CartDialogue> {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
-
+                          await CartDatabaseManager().getDraftItems(
+                              customeController.customerId.isNotEmpty
+                                  ? customeController.customerId.value
+                                  : widget.productsController.selectedCustomerId
+                                      .value);
                           _clearCartItem(itemList, true);
                         },
                         child: const Text('OK'),
@@ -1818,7 +1834,6 @@ class CartDialogueState extends State<CartDialogue> {
         } else {
           return sum;
         }
-      
       });
 
       log("Updated subtotal: $orderSubtotal");

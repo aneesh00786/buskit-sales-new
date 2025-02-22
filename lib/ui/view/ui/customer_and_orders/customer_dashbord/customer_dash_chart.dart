@@ -113,7 +113,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           CustomersProvider provider, OrderDataas orderCountList) =>
       [
         OptionData(
-          title: 'Orders',
+          title: 'Order',
           count: orderCountList.totalOrder.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
@@ -127,7 +127,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           },
         ),
         OptionData(
-          title: 'Estimates',
+          title: 'Estimate',
           count: orderCountList.estimateOrder.toString(),
           svg: Assets.iconsIcDashboardEstimates,
           svgBgColor: const Color.fromARGB(255, 226, 249, 243),
@@ -142,7 +142,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
           },
         ),
         OptionData(
-          title: 'Pre-Orders',
+          title: 'Booking',
           count: orderCountList.preorderOrder.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
           svgBgColor: const Color.fromARGB(255, 230, 247, 251),
@@ -153,7 +153,7 @@ class OptionWidgetCustomerDash extends StatelessWidget {
               customerId,
             );
             _showOrderTypeDialog(
-                context, provider, OrderStatus.preOrder, 'Pre-Order');
+                context, provider, OrderStatus.preOrder, 'Booking');
           },
         ),
         OptionData(
@@ -167,7 +167,8 @@ class OptionWidgetCustomerDash extends StatelessWidget {
               OrderStatus.draft,
               customerId,
             );
-            _showOrderTypeDialog(context, provider, OrderStatus.draft, 'Draft',onContinueShopping: onContinueShopping);
+            _showOrderTypeDialog(context, provider, OrderStatus.draft, 'Draft',
+                onContinueShopping: onContinueShopping);
           },
         ),
         OptionData(
@@ -267,11 +268,11 @@ class OptionWidgetCustomerDash extends StatelessWidget {
 
   String _getCountForTitle(String title, OrderDataas orderCountList) {
     switch (title.toLowerCase()) {
-      case 'orders':
+      case 'order':
         return orderCountList.totalOrder.toString() ?? "0";
-      case 'estimates':
+      case 'estimate':
         return orderCountList.estimateOrder.toString() ?? "0";
-      case 'pre-orders':
+      case 'booking':
         return orderCountList.preorderOrder.toString() ?? "0";
       case 'draft':
         return orderCountList.draftOrder.toString() ?? "0";
@@ -1314,35 +1315,48 @@ class OptionWidgetCustomerDash extends StatelessWidget {
                                                               child: IconButton(
                                                                   onPressed:
                                                                       () {
-                                                                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                    showDialog(
-                                                                      context:
+                                                                    if (orderType ==
+                                                                        'Draft') {
+                                                                      final cartProvider = Provider.of<
+                                                                              CustomersProvider>(
                                                                           context,
-                                                                      builder:
-                                                                          (BuildContext
-                                                                              context) {
-                                                                        return CartDialogue(
-                                                                          active:
-                                                                              true,
-                                                                          cartItemCount:
-                                                                              cartProvider.cartItemCount,
-                                                                          productsController:
-                                                                              productsController??ProductsController(),
-                                                                          customerOrderController:
-                                                                              customerOrderController,
-                                                                          
-                                                                          onContinueShopping: onContinueShopping,
-                                                                          isFromCustomerDach: true,
-                                                                          isDashboard: false,
-                                                                        );
-                                                                      },
-                                                                    );
-                                                                    // showDetailedOrderInvoiceDialog(
-                                                                    //     context,
-                                                                    //     order,
-                                                                    //     true,
-                                                                    //     isButtonNeeded:
-                                                                    //         true);
+                                                                          listen:
+                                                                              false);
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (BuildContext
+                                                                                context) {
+                                                                          return CartDialogue(
+                                                                            active:
+                                                                                true,
+                                                                            cartItemCount:
+                                                                                cartProvider.cartItemCount,
+                                                                            productsController:
+                                                                                productsController ?? ProductsController(),
+                                                                            customerOrderController:
+                                                                                customerOrderController,
+                                                                            onContinueShopping:
+                                                                                onContinueShopping,
+                                                                            isFromCustomerDach:
+                                                                                true,
+                                                                            isDashboard:
+                                                                                false,
+                                                                          );
+                                                                        },
+                                                                      );
+                                                                    }
+                                                                    if (orderType !=
+                                                                        'Draft') {
+                                                                      showDetailedOrderInvoiceDialog(
+                                                                          context,
+                                                                          order
+                                                                              .orderId,
+                                                                          true,
+                                                                          isButtonNeeded:
+                                                                              true);
+                                                                    }
                                                                   },
                                                                   icon:
                                                                       const Icon(

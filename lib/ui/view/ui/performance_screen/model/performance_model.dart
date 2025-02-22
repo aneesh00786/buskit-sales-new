@@ -666,3 +666,95 @@ class SalesmanInOut {
       };
 }
 
+class ScheduleListResponse {
+  int? statusCode;
+  bool? status;
+  String? message;
+  List<ScheduleListData>? data;
+
+  ScheduleListResponse({
+    this.statusCode,
+    this.status,
+    this.message,
+    this.data,
+  });
+
+  factory ScheduleListResponse.fromJson(Map<String, dynamic> json) =>
+      ScheduleListResponse(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+        data: List<ScheduleListData>.from(
+            json["data"].map((x) => ScheduleListData.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "data": List<dynamic>.from(data!.map((x) => x.toJson())),
+      };
+}
+
+class ScheduleListData {
+  String? customerId;
+  String? salesmanId;
+  DateTime? start;
+  DateTime? end;
+  dynamic checkIn;
+  dynamic checkOut;
+  int? count;
+  List<ScheduleListCustomer>? customer;
+
+  ScheduleListData({
+    this.customerId,
+    this.salesmanId,
+    this.start,
+    this.end,
+    this.checkIn,
+    this.checkOut,
+    this.count,
+    this.customer,
+  });
+
+  factory ScheduleListData.fromJson(Map<String, dynamic> json) =>
+      ScheduleListData(
+        customerId: json["customer_id"],
+        salesmanId: json["salesman_id"],
+        start: DateTime.parse(json["start"]),
+        end: DateTime.parse(json["end"]),
+        checkIn: json["check_in"],
+        checkOut: json["check_out"],
+        count: json["count"],
+        customer: List<ScheduleListCustomer>.from(
+            json["customer"].map((x) => ScheduleListCustomer.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "customer_id": customerId,
+        "salesman_id": salesmanId,
+        "start": start!.toIso8601String(),
+        "end": end!.toIso8601String(),
+        "check_in": checkIn,
+        "check_out": checkOut,
+        "count": count,
+        "customer": List<dynamic>.from(customer!.map((x) => x.toJson())),
+      };
+}
+
+class ScheduleListCustomer {
+  String? businessName;
+
+  ScheduleListCustomer({
+    this.businessName,
+  });
+
+  factory ScheduleListCustomer.fromJson(Map<String, dynamic> json) =>
+      ScheduleListCustomer(
+        businessName: json["business_name"] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        "business_name": businessName,
+      };
+}

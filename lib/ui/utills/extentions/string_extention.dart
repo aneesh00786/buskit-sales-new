@@ -107,7 +107,7 @@ String addCurrencySymbol() {
 String getStatusName(int status) {
   switch (status) {
     case 0:
-      return 'Pre-Order';
+      return 'Booking';
     case 1:
       return 'Out for Delivery';
     case 2:

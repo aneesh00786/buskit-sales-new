@@ -99,4 +99,7 @@ mixin class ApiConstants {
   static const String waiting_for_approval = "waiting_for_approvel";
   static const String localHost = 'http://16.50.232.153:3000/';
   
+    //PERFORMANCE
+  static const String fetch_schedule = "fetch_schedule";
+  static const String get_weekly_type = "get_weekly_type";
 }

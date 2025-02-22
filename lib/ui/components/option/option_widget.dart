@@ -103,7 +103,7 @@ class OptionWidget extends StatelessWidget {
           BuildContext context, DashboardProvider provider) =>
       [
         OptionData(
-            title: 'Orders',
+            title: 'Order',
             count: orderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color.fromARGB(255, 229, 242, 254),
@@ -113,7 +113,7 @@ class OptionWidget extends StatelessWidget {
               _showOrderStatusDialog(context, provider, OrderStatus.delivered);
             }),
         OptionData(
-            title: 'Estimates',
+            title: 'Estimate',
             count: eastimatesCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardEstimates,
             svgBgColor: const Color.fromARGB(255, 226, 249, 243),
@@ -121,18 +121,18 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.estimates);
               _showEstimatesDialog(
-                  context, provider, OrderStatus.estimates, 'Estimate',false);
+                  context, provider, OrderStatus.estimates, 'Estimate', false);
             }),
         OptionData(
-            title: 'Pre-Orders',
+            title: 'Booking',
             count: preOrderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardPreOrder,
             svgBgColor: const Color.fromARGB(255, 230, 247, 251),
             color: Color.fromARGB(255, 45, 104, 116),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.preOrder);
-             _showEstimatesDialog(
-                  context, provider, OrderStatus.preOrder, 'Pre-Order',false);
+              _showEstimatesDialog(
+                  context, provider, OrderStatus.preOrder, 'Booking', false);
             }),
         OptionData(
             title: 'Draft',
@@ -143,7 +143,7 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showEstimatesDialog(
-                  context, provider, OrderStatus.draft, 'Draft',true);
+                  context, provider, OrderStatus.draft, 'Draft', true);
             }),
         OptionData(
             title: 'Cancelled',
@@ -154,9 +154,10 @@ class OptionWidget extends StatelessWidget {
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.cancelled);
               _showEstimatesDialog(
-                  context, provider, OrderStatus.cancelled, 'Cancelled',false);
+                  context, provider, OrderStatus.cancelled, 'Cancelled', false);
             }),
       ];
+
 
   Widget orderOptions(OptionData optionData, OrderCountListt? orderCountList,
       BuildContext context) {
@@ -1421,11 +1422,11 @@ class OptionWidget extends StatelessWidget {
 
   String _getCountForTitle(String title, OrderCountListt? orderCountList) {
     switch (title.toLowerCase()) {
-      case 'orders':
+      case 'order':
         return orderCountList?.totalOrder.toString() ?? "0";
-      case 'estimates':
+      case 'estimate':
         return orderCountList?.estimateOrder.toString() ?? "0";
-      case 'pre-orders':
+      case 'booking':
         return orderCountList?.preorderOrder.toString() ?? "0";
       case 'draft':
         return orderCountList?.draftOrder.toString() ?? "0";

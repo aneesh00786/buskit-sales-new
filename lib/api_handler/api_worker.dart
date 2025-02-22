@@ -1496,4 +1496,45 @@ class ApiWorker with ApiConstants {
     });
     return ButtonAction.fromJson(response.data);
   }
+
+  Future<ScheduleListResponse> fetchSchedule(
+      String endDate, String startDate) async {
+    final response = await dio
+        .postbycustom(ApiConstants.fetch_schedule,
+            data: FormData.fromMap({
+              "end_date": endDate,
+              "salesman_id": SessionHelper.loginSavedData?.salesmanId,
+              "start_date": startDate,
+              "company_id": companyId,
+            }))
+        .onError((DioError error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(
+        error,
+      ));
+    });
+    return ScheduleListResponse.fromJson(response.data);
+  }
+
+  Future<String> getWeeklyType() async {
+    try {
+      final response = await dio.postbycustom(
+        ApiConstants.get_weekly_type,
+        data: FormData.fromMap({
+          "companyId": companyId,
+        }),
+      );
+
+      // Ensure response is in expected format
+      if (response.data is Map<String, dynamic> &&
+          response.data.containsKey('data')) {
+        return response.data['data'].toString();
+      } else {
+        throw Exception("Unexpected response format");
+      }
+    } catch (error) {
+      log(error.toString());
+      throw DioExceptionHandler.fromDioError(error as DioException);
+    }
+  }
 }

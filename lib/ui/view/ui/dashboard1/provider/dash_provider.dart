@@ -557,7 +557,8 @@ Future<ProductResponse> fetchCustomerDashboardCartData({
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": cusId,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      // "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      "salesman_id": '',
       "order_type": orderType,
       "payment_type": "1",
       "start_date": startDate,

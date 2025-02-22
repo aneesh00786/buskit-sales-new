@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/setti
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/checkin_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/custom_perfo_bar_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/customer_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/options_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_dialogue.dart';
@@ -310,13 +311,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       context, _selectedMonthName ?? '', 2, true),
                 ),
                 OptionData(
-                  title: 'Visits',
-                  count: targetContent?.visit?.toString() ?? '0',
-                  svg: "assets/icons/location.png",
-                  svgBgColor: const Color.fromARGB(255, 249, 219, 193),
-                  onTap: () => _showTileDialog(
-                      context, _selectedMonthName ?? '', 3, false),
-                ),
+                    title: 'Visits',
+                    count: targetContent?.visit?.toString() ?? '0',
+                    svg: "assets/icons/location.png",
+                    svgBgColor: const Color.fromARGB(255, 249, 219, 193),
+                    onTap: () {
+                      Get.dialog(
+                      StaffRouteDialog(staffController: staffController),
+                      );
+                    }
+                    ),
                 OptionData(
                   title: 'Customers',
                   count: targetContent?.customer?.toString() ?? '0',

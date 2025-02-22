@@ -44,6 +44,8 @@ class _TableeeState extends State<Tableee> {
   void initState() {
     super.initState();
 
+    Provider.of<CustomersProvider>(context, listen: false).currentPage = 1;
+
     _scrollController1.addListener(() {
       if (_scrollController2.hasClients &&
           _scrollController1.position.pixels !=
@@ -885,11 +887,10 @@ class _TableeeState extends State<Tableee> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
-              borderSide: const BorderSide(
-                  color: Colors.red, width: 1.5),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
             ),
             filled: true,
-            fillColor: Colors.white, 
+            fillColor: Colors.white,
           ),
         ),
       ),
@@ -1077,7 +1078,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Payments',
+                        'Payment',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1091,7 +1092,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Pre-Order',
+                        'Booking',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1105,7 +1106,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Estimates',
+                        'Estimate',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1119,7 +1120,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Drafts',
+                        'Draft',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1147,7 +1148,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Visits',
+                        'Visit',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1184,7 +1185,6 @@ class TopTotalWidget extends StatelessWidget {
   }
 }
 
-
 class BottomTotalWidget extends StatelessWidget {
   const BottomTotalWidget({
     super.key,
@@ -1202,7 +1202,7 @@ class BottomTotalWidget extends StatelessWidget {
     }
     return Row(
       children: [
-       _buildTableCell(
+        _buildTableCell(
           padding: EdgeInsets.zero,
           Container(
             width: 200,
@@ -1211,123 +1211,119 @@ class BottomTotalWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: provider.filteredCustomers.length >= 10
-                      ? Container(
-                          width: 3 * 62.0,
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.circular(3.0),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 40,
-                                width: 40,
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.keyboard_double_arrow_left,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: provider.currentPage > 1
-                                      ? () {
-                                          provider.goToPreviousPage();
-                                        }
-                                      : null,
-                                ),
+                    padding: const EdgeInsets.all(10.0),
+                    child:
+                        // provider.filteredCustomers.length >= 10
+                        // provider.totalPages == 1
+                        // ?
+                        Container(
+                      width: 3 * 62.0,
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(3.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.keyboard_double_arrow_left,
+                                size: 20,
+                                color: Colors.white,
                               ),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: provider.totalPages > 1
-                                      ? List.generate(3, (index) {
-                                          int firstPage;
+                              onPressed: provider.currentPage > 1
+                                  ? () {
+                                      provider.goToPreviousPage();
+                                    }
+                                  : null,
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: provider.totalPages > 1
+                                  ? List.generate(3, (index) {
+                                      int firstPage;
 
-                                          if (provider.totalPages == 2) {
-                                            firstPage = 1;
-                                          } else if (provider.currentPage ==
-                                              1) {
-                                            firstPage = 1;
-                                          } else if (provider.currentPage ==
-                                              provider.totalPages) {
-                                            firstPage = provider.totalPages - 2;
-                                          } else {
-                                            firstPage =
-                                                provider.currentPage - 1;
-                                          }
+                                      if (provider.totalPages == 2) {
+                                        firstPage = 1;
+                                      } else if (provider.currentPage == 1) {
+                                        firstPage = 1;
+                                      } else if (provider.currentPage ==
+                                          provider.totalPages) {
+                                        firstPage = provider.totalPages - 2;
+                                      } else {
+                                        firstPage = provider.currentPage - 1;
+                                      }
 
-                                          int visiblePage = firstPage + index;
-                                          if (visiblePage < 1 ||
-                                              visiblePage >
-                                                  provider.totalPages) {
-                                            return Container();
-                                          }
+                                      int visiblePage = firstPage + index;
+                                      if (visiblePage < 1 ||
+                                          visiblePage > provider.totalPages) {
+                                        return Container();
+                                      }
 
-                                          return GestureDetector(
-                                            onTap: () {
-                                              provider.currentPage =
-                                                  visiblePage;
-                                              provider.refreshCurrentPage();
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(2.0),
-                                              child: Container(
-                                                height: 40,
-                                                width: 25,
-                                                decoration: BoxDecoration(
+                                      return GestureDetector(
+                                        onTap: () {
+                                          provider.currentPage = visiblePage;
+                                          provider.refreshCurrentPage();
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: Container(
+                                            height: 40,
+                                            width: 25,
+                                            decoration: BoxDecoration(
+                                              color: provider.currentPage ==
+                                                      visiblePage
+                                                  ? Colors.white
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '$visiblePage',
+                                                style: TextStyle(
+                                                  fontSize: 13,
                                                   color: provider.currentPage ==
                                                           visiblePage
-                                                      ? Colors.white
-                                                      : Colors.transparent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    '$visiblePage',
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      color:
-                                                          provider.currentPage ==
-                                                                  visiblePage
-                                                              ? primaryColor
-                                                              : Colors.white,
-                                                    ),
-                                                  ),
+                                                      ? primaryColor
+                                                      : Colors.white,
                                                 ),
                                               ),
                                             ),
-                                          );
-                                        })
-                                      : [],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 40,
-                                width: 40,
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.keyboard_double_arrow_right,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed:
-                                      provider.currentPage < provider.totalPages
-                                          ? () {
-                                              provider.goToNextPage();
-                                            }
-                                          : null,
-                                ),
-                              ),
-                            ],
+                                          ),
+                                        ),
+                                      );
+                                    })
+                                  : [],
+                            ),
                           ),
-                        )
-                      : Container(),
-                ),
+                          SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.keyboard_double_arrow_right,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                              onPressed:
+                                  provider.currentPage < provider.totalPages
+                                      ? () {
+                                          provider.goToNextPage();
+                                        }
+                                      : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    // : Container(),
+                    ),
                 const Spacer(),
                 Container(
                   color: Colors.grey[200],
@@ -3437,7 +3433,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     showDetailedOrderInvoiceDialog(
-                                                        context, order.orderId??'', false);
+                                                        context,
+                                                        order.orderId ?? '',
+                                                        false);
                                                   },
                                                   child: Center(
                                                     child: Text(
@@ -3507,7 +3505,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     showDetailedOrderInvoiceDialog(
-                                                        context, order.orderId??'', true);
+                                                        context,
+                                                        order.orderId ?? '',
+                                                        true);
                                                   },
                                                   child: Center(
                                                     child: Text(

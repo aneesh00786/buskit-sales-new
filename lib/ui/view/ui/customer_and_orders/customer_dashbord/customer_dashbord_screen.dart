@@ -1732,12 +1732,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                               categoryPerformance.data.revenue
                                                       .bookingRevenueData
                                                   as List<dynamic>,
-                                              'Pre-Order');
+                                              'Booking');
                                         }
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue.shade900,
-                                        'Pre-Order : ${formatAmount(paymentCompleted)}',
+                                        'Booking : ${formatAmount(paymentCompleted)}',
                                       ),
                                     ),
                                     const SizedBox(width: 10),

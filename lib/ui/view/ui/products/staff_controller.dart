@@ -294,4 +294,39 @@ Future<respo.Response> updateCategoryTarget(
         cityTextController.clear(),
         stateTextController.clear(),
       };
+
+      RxBool isScheduleLoading = false.obs;
+
+  RxList<ScheduleListData> scheduleList = <ScheduleListData>[].obs;
+
+  String formatDate(DateTime date) {
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(date);
+  }
+
+  Future<List<ScheduleListData>?> loadScheduleData(DateTime startDate, DateTime endDate) async {
+    try {
+      isScheduleLoading.value = true;
+
+      log('Fetching schedule for salesman: , from: $startDate, to: $endDate');
+
+      var data = await ApiWorker().fetchSchedule(
+          formatDate(endDate), formatDate(startDate));
+
+      if (data.data != null) {
+        scheduleList.assignAll(data.data!);
+      } else {
+        log('No schedule data available.');
+        scheduleList.assignAll([]);
+      }
+
+      return data.data;
+    } catch (e, stacktrace) {
+      log('Error fetching schedule: $e');
+      log('Stacktrace: $stacktrace');
+      return null;
+    } finally {
+      isScheduleLoading.value = false;
+    }
+  }
 }

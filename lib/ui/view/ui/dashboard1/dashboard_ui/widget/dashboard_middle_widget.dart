@@ -871,11 +871,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       InkWell(
                                         onTap: () {
                                           showValueDialog(context,
-                                              categoryPerformance, 'Pre-Order');
+                                              categoryPerformance, 'Booking');
                                         },
                                         child: _buildLegendItem(
                                           const Color(0xff1d3d63),
-                                          'Pre-Order : ${formatAmount(bookingRevenueLength)}',
+                                          'Booking : ${formatAmount(bookingRevenueLength)}',
                                         ),
                                       ),
                                       nkSmallSizeBox(),

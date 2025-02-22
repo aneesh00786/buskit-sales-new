@@ -46,14 +46,11 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
   Widget build(BuildContext context) {
     return Container(
       height: AppDimensions.instance.height*1,
-      //color: secondaryColor,
             child: Expanded(
               child: CategoryList(
               categories: widget.categoryData ?? [],
               productsController: productsController,
-              onDrawerToggle: () {
-                
-              },
+              onDrawerToggle: () {},
               onOptionSelected: (p0) {},
                         ),
             ),

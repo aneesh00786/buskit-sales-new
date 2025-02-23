@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -213,6 +212,7 @@ class _OrderTakingState extends State<OrderTaking>
       filteredCustomers = results;
     });
   }
+
   void showSaveDraftConfirmationDialog() {
     showDialog(
       context: context,
@@ -242,6 +242,7 @@ class _OrderTakingState extends State<OrderTaking>
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -264,42 +265,47 @@ class _OrderTakingState extends State<OrderTaking>
                   customerAndOrderController.customerId.isNotEmpty
                       ? customerAndOrderController.customerId.value
                       : widget.productsController.selectedCustomerId.value;
-              bool hasDraftId = CartDatabaseManager().cartItems.every((item) =>
-                      item.draftId != null && item.draftId!.isNotEmpty);
+              bool hasDraftId = CartDatabaseManager().cartItems.every(
+                  (item) => item.draftId != null && item.draftId!.isNotEmpty);
               log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
-              if (CartDatabaseManager().cartItems.isNotEmpty  &&
-                      customerId.isNotEmpty &&
-                      !hasDraftId &&
-                      !toDash) {
+              if (CartDatabaseManager().cartItems.isNotEmpty &&
+                  customerId.isNotEmpty &&
+                  !hasDraftId &&
+                  !toDash) {
                 log('Log 1');
                 log('To Dash $toDash');
-                List<Detail> detail =  CartDatabaseManager()
-                        .cartItems
-                        .map((e) => e.detail)
-                        .toList();
-                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
-                Future.delayed(const Duration(seconds: 1));
-                final existingCartId = cartDetails?['cart_id'] ?? '';
-                final existingDraftId = cartDetails?['id'] ?? '';
+                List<Detail> detail = CartDatabaseManager()
+                    .cartItems
+                    .map((e) => e.detail)
+                    .toList();
+                final cartDetails = await CartDatabaseManager()
+                    .getDraftAndCartIdsFromApi(customerId);
+                await Future.delayed(const Duration(seconds: 1));
+                final firstOrder = cartDetails.isNotEmpty
+                    ? cartDetails.first
+                    : {'cart_id': '', 'draft_id': ''};
+                final existingCartId = firstOrder['cart_id'] ?? '';
+                final existingDraftId = firstOrder['draft_id'] ?? '';
+                log('Existing cart ID $existingCartId');
+                log('Existing Draft ID $existingDraftId');
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
                   cartId: existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
-                            productId: e.productId ??
-                                widget.productsController.selectedCustomerId
-                                    .value,
-                            variantId: e.variationId ?? '',
-                            pack: e.saleBy == 'Pack'
-                                ? e.pieces.toString()
-                                : e.count.toString(),
-                            packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                            price: e.sellPrice.toString(),
-                            discount: '0',
-                            quantity: e.count.toInt(),
-                            variantName: e.variationName??''
-                          ))
+                          productId: e.productId ??
+                              widget
+                                  .productsController.selectedCustomerId.value,
+                          variantId: e.variationId ?? '',
+                          pack: e.saleBy == 'Pack'
+                              ? e.pieces.toString()
+                              : e.count.toString(),
+                          packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                          price: e.sellPrice.toString(),
+                          discount: '0',
+                          quantity: e.count.toInt(),
+                          variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
@@ -391,12 +397,12 @@ class _OrderTakingState extends State<OrderTaking>
                   toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
-                List<Detail> detail = 
-                     CartDatabaseManager()
-                        .cartItems
-                        .map((e) => e.detail)
-                        .toList();
-                final cartDetails =  await CartDatabaseManager().getCartAndDraftIds(customerId);
+                List<Detail> detail = CartDatabaseManager()
+                    .cartItems
+                    .map((e) => e.detail)
+                    .toList();
+                final cartDetails =
+                    await CartDatabaseManager().getCartAndDraftIds(customerId);
                 Future.delayed(const Duration(seconds: 1));
                 final existingCartId = cartDetails?['cart_id'] ?? '';
                 final existingDraftId = cartDetails?['id'] ?? '';
@@ -406,19 +412,18 @@ class _OrderTakingState extends State<OrderTaking>
                   cartId: existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
-                            productId: e.productId ??
-                                widget.productsController.selectedCustomerId
-                                    .value,
-                            variantId: e.variationId ?? '',
-                            pack: e.saleBy == 'Pack'
-                                ? e.pieces.toString()
-                                : e.count.toString(),
-                            packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                            price: e.sellPrice.toString(),
-                            discount: '0',
-                            quantity: e.count.toInt(),
-                            variantName: e.variationName??''
-                          ))
+                          productId: e.productId ??
+                              widget
+                                  .productsController.selectedCustomerId.value,
+                          variantId: e.variationId ?? '',
+                          pack: e.saleBy == 'Pack'
+                              ? e.pieces.toString()
+                              : e.count.toString(),
+                          packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                          price: e.sellPrice.toString(),
+                          discount: '0',
+                          quantity: e.count.toInt(),
+                          variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
@@ -511,13 +516,13 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
                 CartDatabaseManager().cartItems.clear();
-               CartDatabaseManager().clearCart(customerId);
-                  
+                CartDatabaseManager().clearCart(customerId);
+
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                 log('Log 3');
-            
+
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
                   homeController.selectedIndex.value = 0;
@@ -525,13 +530,13 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                 CartDatabaseManager().cartItems.clear();
-                 CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');
                 Navigator.pop(context);
-                 CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId);
               }
             },
@@ -735,7 +740,10 @@ class _OrderTakingState extends State<OrderTaking>
                                                         customer.customerId ??
                                                             ''),
                                                     onTap: () async {
-                                                     await provider.updateCartCount(customer.customerId??'');
+                                                      await provider
+                                                          .updateCartCount(customer
+                                                                  .customerId ??
+                                                              '');
                                                       if (active == true) {
                                                         _showWarningDialog(
                                                           context,
@@ -750,153 +758,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                             ),
                                                           ),
                                                         );
-                                                      }
-                                                      //else if (active ==
-                                                      //         false &&
-                                                      //     CartDatabaseManager()
-                                                      //         .cartItems
-                                                      //         .isNotEmpty) {
-                                                      //   if (mounted) {
-                                                      //     _showWarningDialog(
-                                                      //       context,
-                                                      //       'Your order saved as draft.',
-                                                      //       Center(
-                                                      //         child: Container(
-                                                      //             height: 150,
-                                                      //             width: 150,
-                                                      //             child: Lottie
-                                                      //                 .asset(
-                                                      //                     'assets/images/Animation - 1726906882515.json')),
-                                                      //       ),
-                                                      //     );
-                                                      //   }
-                                                      //   List<Detail> detail =
-                                                      //       CartDatabaseManager()
-                                                      //           .cartItems
-                                                      //           .map((e) =>
-                                                      //               e.detail)
-                                                      //           .toList();
-                                                      //   final productBYData =
-                                                      //       AddToCartModel(
-                                                      //     customerId:
-                                                      //         customerAndOrderController
-                                                      //             .customerId
-                                                      //             .value,
-                                                      //     salesmanId:
-                                                      //         SessionHelper
-                                                      //             .loginSavedData!
-                                                      //             .salesmanId!,
-                                                      //     cartId: '',
-                                                      //     cartList: detail
-                                                      //         .map((e) =>
-                                                      //             SendCartData(
-                                                      //               productId:
-                                                      //                   e.productId ??
-                                                      //                       '',
-                                                      //               variantId:
-                                                      //                   e.variationId ??
-                                                      //                       '',
-                                                      //               pack: e.saleBy ==
-                                                      //                       'Pack'
-                                                      //                   ? e.pieces
-                                                      //                       .toString()
-                                                      //                   : e.count
-                                                      //                       .toString(),
-                                                      //               packType: e.saleBy ==
-                                                      //                       'Pack'
-                                                      //                   ? 'Pack'
-                                                      //                   : 'Pcs',
-                                                      //               price: e
-                                                      //                   .price
-                                                      //                   .toString(),
-                                                      //               discount:
-                                                      //                   '0',
-                                                      //               quantity: e
-                                                      //                   .count
-                                                      //                   .toInt(),
-                                                      //             ))
-                                                      //         .toList(),
-                                                      //     total: widget
-                                                      //         .productsController
-                                                      //         .finalAmount
-                                                      //         .value
-                                                      //         .toStringAsFixed(
-                                                      //             0),
-                                                      //     discount: '0',
-                                                      //   );
-
-                                                      //   CartOrderModel?
-                                                      //       cartOrder =
-                                                      //       await ApiWorker()
-                                                      //           .addToCart(
-                                                      //               productBYData
-                                                      //                   .toJson());
-                                                      //   log('CartId :${cartOrder?.cartId}');
-
-                                                      //   if (cartOrder != null) {
-                                                      //     int orderStatus = 4;
-                                                      //     CartOrderModel order =
-                                                      //         CartOrderModel(
-                                                      //       customerId:
-                                                      //           customerAndOrderController
-                                                      //               .customerId
-                                                      //               .value,
-                                                      //       salesmanId: SessionHelper
-                                                      //           .loginSavedData!
-                                                      //           .salesmanId!,
-                                                      //       cartId: cartOrder
-                                                      //           .cartId,
-                                                      //       orderStatus:
-                                                      //           orderStatus,
-                                                      //     );
-
-                                                      //     log('CartId :${cartOrder.cartId}');
-                                                      //     await widget
-                                                      //         .productsController
-                                                      //         .placeOrder(
-                                                      //             order);
-                                                      //     setState(() {
-                                                      //       CartDatabaseManager()
-                                                      //           .cartItems
-                                                      //           .clear();
-                                                      //       CartDatabaseManager()
-                                                      //           .clearCartOnSave(customer
-                                                      //                   .customerId ??
-                                                      //               '');
-                                                      //     });
-
-                                                      //     customerAndOrderController
-                                                      //         .setCustomerId(
-                                                      //             customer.customerId ??
-                                                      //                 '');
-                                                      //     widget
-                                                      //             .productsController
-                                                      //             .selectedCustomerName
-                                                      //             .value =
-                                                      //         widget
-                                                      //             .productsController
-                                                      //             .getFormattedCustomerName(
-                                                      //                 customer
-                                                      //                     .businessName);
-                                                      //     widget
-                                                      //         .productsController
-                                                      //         .selectedCustomerId
-                                                      //         .value = customer
-                                                      //             .customerId ??
-                                                      //         '';
-                                                      //     widget
-                                                      //         .productsController
-                                                      //         .selectedCustomerImageUrl
-                                                      //         .value = customer
-                                                      //             .imageUrl ??
-                                                      //         '';
-                                                      //     customerSearchController
-                                                      //         .clear();
-
-                                                      //     log('Selected Customer Name :${widget.productsController.selectedCustomerName.value}');
-                                                      //   }
-                                                      // }
-                                                      else {
+                                                      } else {
                                                         customerAndOrderController
                                                             .setCustomerId(customer
                                                                     .customerId ??

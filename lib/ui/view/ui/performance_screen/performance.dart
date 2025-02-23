@@ -176,7 +176,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                           _tabController.index + 1,
                                       staffId: salesmanId,
                                     );
-                                    
                                   }
                                 },
                                 underline: SizedBox(),
@@ -243,18 +242,14 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           selectedTabIndex: _tabController.index + 1,
                           staffId: salesmanId,
                         );
-                        final provider =
-                                        Provider.of<CustomersProvider>(context,
-                                            listen: false);
-                                    final categoryPerformance = staffController
-                                        .salesmanTargetList
-                                        .value
-                                        .categoryPerformance;
-                                    provider.createBarGroups(
-                                        categoryPerformance:
-                                            categoryPerformance ?? [],
-                                        staffProjection: staffProjection,
-                                        targetType: targetType);
+                        final provider = Provider.of<CustomersProvider>(context,
+                            listen: false);
+                        final categoryPerformance = staffController
+                            .salesmanTargetList.value.categoryPerformance;
+                        provider.createBarGroups(
+                            categoryPerformance: categoryPerformance ?? [],
+                            staffProjection: staffProjection,
+                            targetType: targetType);
                       } else {
                         showNoInternetSnackBar(context);
                       }
@@ -317,10 +312,9 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     svgBgColor: const Color.fromARGB(255, 249, 219, 193),
                     onTap: () {
                       Get.dialog(
-                      StaffRouteDialog(staffController: staffController),
+                        StaffRouteDialog(staffController: staffController),
                       );
-                    }
-                    ),
+                    }),
                 OptionData(
                   title: 'Customers',
                   count: targetContent?.customer?.toString() ?? '0',

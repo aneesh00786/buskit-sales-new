@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_print
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -109,12 +108,10 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
   void _onMonthChanged(DateTime focusedDay) {
     final startOfMonth = DateTime(focusedDay.year, focusedDay.month, 1);
     final endOfMonth = DateTime(focusedDay.year, focusedDay.month + 1, 0);
-
     widget.staffController.loadScheduleData(
       startOfMonth,
       endOfMonth,
     );
-
     setState(() {
       _focusedDay = focusedDay;
     });

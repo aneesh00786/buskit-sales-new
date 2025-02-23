@@ -1222,7 +1222,6 @@ class OptionWidget extends StatelessWidget {
                                                                         final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
                                                                         customerOrderController.customerId.value = customer?.customerId??'';
                                                                   if(isDraft){
-
                                                                    showDialog(
                                                                       context:
                                                                           context,

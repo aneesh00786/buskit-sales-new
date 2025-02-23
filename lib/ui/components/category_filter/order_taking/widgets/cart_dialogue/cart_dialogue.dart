@@ -70,8 +70,6 @@ class CartDialogueState extends State<CartDialogue> {
   List<CartItem> cartItems = [];
   List<CartItem> orderItems = [];
   List<CartItem> preorderItems = [];
-  List<CartItem> orderDraftItems = [];
-  List<CartItem> preorderDraftItems = [];
   List<int> quantities = [];
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
@@ -127,33 +125,15 @@ class CartDialogueState extends State<CartDialogue> {
           : (widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value);
-      final cartItemss = CartDatabaseManager().getCartItems(customerId ?? '');
-      final draftItemss =
-          await CartDatabaseManager().getDraftItems(customerId ?? '');
-      log('Draft Length : ${draftItemss.length}');
-      orderItems = cartItemss.where((item) => item.detail.stock! > 0).toList();
+      final cartItems =
+          await CartDatabaseManager().getCartItems(customerId ?? '');
+      orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
-          cartItemss.where((item) => item.detail.stock == 0).toList();
-      orderDraftItems =
-          draftItemss.where((item) => item.detail.stock! > 0).toList();
-      preorderDraftItems =
-          draftItemss.where((item) => item.detail.stock == 0).toList();
-      orderItems.addAll(orderDraftItems);
-      preorderItems.addAll(preorderDraftItems);
+          cartItems.where((item) => item.detail.stock == 0).toList();
       orderSubtotal = orderItems.fold(
         0.0,
         (sum, item) {
-          if (item.draftId?.isNotEmpty ?? false) {
-            log('Log 1: Adding item with incl_tax');
-            return sum +
-                item.totalPrice +
-                (item.detail.inclTax == ''
-                    ? (item.detail.unitTax ?? 0.0) * (item.detail.count)
-                    : 0.0);
-          } else {
-            log('Log 2: Adding item without incl_tax, including tax');
-            return sum + (item.totalPrice ?? 0.0);
-          }
+          return sum + (item.totalPrice);
         },
       );
       preorderSubtotal = preorderItems.fold(
@@ -168,10 +148,7 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) {
           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-          if (item.draftId?.isNotEmpty ?? false) {
-            log('Skipping draft item: ${item.detail.variationName}');
-            return sum + itemTax;
-          } else if (item.isPack == true) {
+          if (item.isPack == true) {
             return sum +
                 (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
           } else {
@@ -179,20 +156,15 @@ class CartDialogueState extends State<CartDialogue> {
           }
         },
       );
-
       preorderTax = preorderItems.fold(
         0.0,
         (sum, item) => sum + (item.detail.tax ?? 0.0),
       );
-      log('Order ITEMS : $orderItems');
-      log('Pre Order ITEMS : $preorderItems');
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);
         _isLoading = false;
         this.orderItems = orderItems;
         this.preorderItems = preorderItems;
-        this.orderDraftItems = orderDraftItems;
-        this.preorderDraftItems = preorderDraftItems;
         this.orderSubtotal = orderSubtotal;
         this.orderTax = orderTax;
         this.preorderSubtotal = preorderSubtotal;
@@ -205,7 +177,6 @@ class CartDialogueState extends State<CartDialogue> {
         isOrder = false;
         _selectedValue = _options[2];
       }
-
       setOptions();
     } catch (e) {
       print('Error loading cart items: $e');
@@ -265,10 +236,7 @@ class CartDialogueState extends State<CartDialogue> {
                       width: width,
                       title: 'My Cart',
                     ),
-                    if (orderItems.isNotEmpty ||
-                        preorderItems.isNotEmpty ||
-                        preorderDraftItems.isNotEmpty ||
-                        orderDraftItems.isNotEmpty) ...[
+                    if (orderItems.isNotEmpty || preorderItems.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 16),
@@ -276,68 +244,133 @@ class CartDialogueState extends State<CartDialogue> {
                           height: 40,
                           child: Row(
                             children: [
-                              if (orderItems.isNotEmpty ||
-                                  orderDraftItems.isNotEmpty)
+                              if (orderItems.isNotEmpty)
                                 Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: primaryColor),
-                                      color: isOrder ? primaryColor : white,
-                                      borderRadius: preorderItems.isNotEmpty
-                                          ? const BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              bottomLeft: Radius.circular(20),
-                                            )
-                                          : BorderRadius.circular(20),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          isOrder = true;
-                                          _selectedValue = _options[0];
-                                        });
-                                        setOptions();
-                                      },
-                                      child: Center(
-                                        child: CustomText(
-                                          content: 'ORDERS',
-                                          fontWeight: FontWeight.w700,
-                                          color: isOrder ? white : primaryColor,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: primaryColor),
+                                          color: isOrder ? primaryColor : white,
+                                          borderRadius: preorderItems.isNotEmpty
+                                              ? const BorderRadius.only(
+                                                  topLeft: Radius.circular(20),
+                                                  bottomLeft:
+                                                      Radius.circular(20),
+                                                )
+                                              : BorderRadius.circular(20),
+                                        ),
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              isOrder = true;
+                                              _selectedValue = _options[0];
+                                            });
+                                            setOptions();
+                                          },
+                                          child: Center(
+                                            child: CustomText(
+                                              content: 'ORDERS',
+                                              fontWeight: FontWeight.w700,
+                                              color: isOrder
+                                                  ? white
+                                                  : primaryColor,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${orderItems.length}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              if (preorderItems.isNotEmpty ||
-                                  preorderDraftItems.isNotEmpty)
+                              if (preorderItems.isNotEmpty)
                                 Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: primaryColor),
-                                      color: !isOrder ? primaryColor : white,
-                                      borderRadius: orderItems.isNotEmpty
-                                          ? const BorderRadius.only(
-                                              topRight: Radius.circular(20),
-                                              bottomRight: Radius.circular(20),
-                                            )
-                                          : BorderRadius.circular(20),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          isOrder = false;
-                                          _selectedValue = _options[2];
-                                        });
-                                        setOptions();
-                                      },
-                                      child: Center(
-                                        child: CustomText(
-                                          content: 'PRE-ORDERS',
-                                          fontWeight: FontWeight.w700,
-                                          color: isOrder ? primaryColor : white,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: primaryColor),
+                                          color:
+                                              !isOrder ? primaryColor : white,
+                                          borderRadius: orderItems.isNotEmpty
+                                              ? const BorderRadius.only(
+                                                  topRight: Radius.circular(20),
+                                                  bottomRight:
+                                                      Radius.circular(20),
+                                                )
+                                              : BorderRadius.circular(20),
+                                        ),
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              isOrder = false;
+                                              _selectedValue = _options[2];
+                                            });
+                                            setOptions();
+                                          },
+                                          child: Center(
+                                            child: CustomText(
+                                              content: 'PRE-ORDERS',
+                                              fontWeight: FontWeight.w700,
+                                              color: isOrder
+                                                  ? primaryColor
+                                                  : white,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${preorderItems.length}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                             ],
@@ -393,8 +426,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               deleteConfirmationDialogue,
                                           isPreOrder: false,
                                           calCulateAmount: calculateAmounts,
-                                          calCulateDraftAmount:
-                                              calculateDraftAmounts,
                                         ),
                                       );
                                     }).toList(),
@@ -502,20 +533,19 @@ class CartDialogueState extends State<CartDialogue> {
                                           padding:
                                               const EdgeInsets.only(bottom: 20),
                                           child: _buildGroupedItems(
-                                              productName: productName,
-                                              groupedItems: groupedItems,
-                                              availableWidth: availableWidth,
-                                              fontSize: fontSize,
-                                              rowHeight: rowHeight,
-                                              context: context,
-                                              productQuantityManager:
-                                                  productQuantityManager,
-                                              deleteConfirmationDialogue:
-                                                  deleteConfirmationDialogue,
-                                              isPreOrder: true,
-                                              calCulateAmount: calculateAmounts,
-                                              calCulateDraftAmount:
-                                                  calculateDraftAmounts));
+                                            productName: productName,
+                                            groupedItems: groupedItems,
+                                            availableWidth: availableWidth,
+                                            fontSize: fontSize,
+                                            rowHeight: rowHeight,
+                                            context: context,
+                                            productQuantityManager:
+                                                productQuantityManager,
+                                            deleteConfirmationDialogue:
+                                                deleteConfirmationDialogue,
+                                            isPreOrder: true,
+                                            calCulateAmount: calculateAmounts,
+                                          ));
                                     }).toList(),
                                   ),
                                 ),
@@ -992,6 +1022,8 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             onTap: () async {
                               if (widget.active == true) {
+                                final finalAmount =
+                                    double.parse(totalQuickController.text);
                                 final customerId =
                                     customeController.customerId.isNotEmpty
                                         ? customeController.customerId.value
@@ -1002,19 +1034,19 @@ class CartDialogueState extends State<CartDialogue> {
                                         .getDraftAndCartIdsFromApi(customerId);
                                 final cartIdApi = fetchedCartDraftData
                                         .isNotEmpty
-                                    ? fetchedCartDraftData.last['cart_id'] ?? ''
+                                    ? fetchedCartDraftData.first['cart_id'] ??
+                                        ''
                                     : '';
                                 final draftIdApi = fetchedCartDraftData
                                         .isNotEmpty
-                                    ? fetchedCartDraftData.last['draft_id'] ??
+                                    ? fetchedCartDraftData.first['draft_id'] ??
                                         ''
                                     : '';
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     await processSaveAndSend(
-                                      finalAmount: 0,
-                                      //finalAmount ?? 0,
+                                      finalAmount: finalAmount,
                                       paymentType: paymentType,
                                       context: context,
                                       cartId: cartIdApi,
@@ -1032,8 +1064,7 @@ class CartDialogueState extends State<CartDialogue> {
                                   }
                                 } else {
                                   await processSaveAndSend(
-                                      finalAmount: 0,
-                                      //finalAmount ?? 0,
+                                      finalAmount: finalAmount,
                                       context: context,
                                       cartId: cartIdApi,
                                       draftId: draftIdApi);
@@ -1079,7 +1110,8 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
                             onTap: () {
-                              if (widget.isFromCustomerDach == true) {
+                              if (widget.isFromCustomerDach == true ||
+                                  widget.isDashboard == true) {
                                 Navigator.pop(context);
                                 Navigator.of(context, rootNavigator: true)
                                     .pop();
@@ -1115,7 +1147,6 @@ class CartDialogueState extends State<CartDialogue> {
         deleteConfirmationDialogue,
     required bool isPreOrder,
     required Function calCulateAmount,
-    required Function calCulateDraftAmount,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1180,7 +1211,6 @@ class CartDialogueState extends State<CartDialogue> {
                     productQuantityManager: productQuantityManager,
                     deleteConfirmationDialogue: deleteConfirmationDialogue,
                     calculateAmount: calCulateAmount,
-                    calCulateDraftAmount: calCulateDraftAmount,
                   ),
                 ),
               ),
@@ -1221,7 +1251,7 @@ class CartDialogueState extends State<CartDialogue> {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
-          _clearCartItem(itemList, true);
+          _clearCartItem(itemList);
 
           showDialog(
             context: context,
@@ -1235,7 +1265,7 @@ class CartDialogueState extends State<CartDialogue> {
                     setState(() {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
-                      _clearCartItem(itemList, true);
+                      _clearCartItem(itemList);
                     });
                   },
                   child: const Text('OK'),
@@ -1320,7 +1350,7 @@ class CartDialogueState extends State<CartDialogue> {
             Navigator.pop(context);
             if (statusCode == 200) {
               log('ItemList Length ${itemList.length}');
-              _clearCartItem(itemList, true);
+              _clearCartItem(itemList);
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -1343,14 +1373,14 @@ class CartDialogueState extends State<CartDialogue> {
                         onPressed: () async {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
-                          await CartDatabaseManager().getDraftItems(
-                              customeController.customerId.isNotEmpty
-                                  ? customeController.customerId.value
-                                  : widget.productsController.selectedCustomerId
-                                      .value);
+                          // await CartDatabaseManager().getDraftItems(
+                          //     customeController.customerId.isNotEmpty
+                          //         ? customeController.customerId.value
+                          //         : widget.productsController.selectedCustomerId
+                          //             .value);
                           Provider.of<DashboardProvider>(context, listen: false)
                               .fetchData();
-                          _clearCartItem(itemList, true);
+                          _clearCartItem(itemList);
                         },
                         child: const Text('OK'),
                       ),
@@ -1464,7 +1494,7 @@ class CartDialogueState extends State<CartDialogue> {
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop();
-                _clearCartItem(cartItems, true);
+                _clearCartItem(cartItems);
               },
               child: const Text('OK'),
             ),
@@ -1725,28 +1755,14 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     if (cartItem.detail.count > 1) {
                       cartItem.detail.count--;
-                      if (cartItem.draftId == null) {
-                        cartItem.totalPrice =
-                            Utils().calculateTotalPrice(cartItem);
-                        calculateAmounts();
-                      } else {
-                        cartItem.totalPrice =
-                            Utils().decreaseDraftTotalPrice(cartItem);
-                        calculateDraftAmounts();
-                        if (cartItem.isChecked == true) {
-                          double unitTax =
-                              cartItem.detail.unitTax?.toDouble() ?? 0.0;
-                          orderTax -= unitTax;
-                        }
-                        log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
-                        log('Draft ID On Cart ${cartItem.draftId}');
-                        CartDatabaseManager().updateCart(cartItem);
-                      }
+                      cartItem.totalPrice =
+                          Utils().calculateTotalPrice(cartItem);
+                      calculateAmounts();
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
                       CartDatabaseManager().updateCart(cartItem);
                       CartDatabaseManager()
-                          .getDraftItems(cartItem.customerId ?? '');
+                          .getCartItems(cartItem.customerId ?? '');
                     }
                   });
                 },
@@ -1779,20 +1795,9 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    if (cartItem.draftId == null) {
-                      log('This works');
-                      cartItem.totalPrice =
-                          Utils().calculateTotalPrice(cartItem);
-                      calculateAmounts();
-                    } else {
-                      log('Or this works');
-                      cartItem.totalPrice =
-                          Utils().calculateDraftTotalPrice(cartItem);
-                      calculateDraftAmounts();
-                      double unitTax =
-                          cartItem.detail.unitTax?.toDouble() ?? 0.0;
-                      orderTax += unitTax;
-                    }
+                    log('This works');
+                    cartItem.totalPrice = Utils().calculateTotalPrice(cartItem);
+                    calculateAmounts();
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');
                     CartDatabaseManager().updateCart(cartItem);
@@ -1816,40 +1821,6 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void calculateDraftAmounts() {
-    setState(() {
-      if (isOrder) {
-        orderSubtotal = orderDraftItems.fold(0.0, (sum, item) {
-          if (item.isChecked == true) {
-            num itemTotalPrice = item.totalPrice;
-            num itemTax = item.detail.tax ?? 0.0;
-            log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
-            return sum +
-                itemTotalPrice +
-                (item.detail.inclTax == '' ? itemTax : 0);
-          } else {
-            return sum;
-          }
-        });
-      } else {
-        preorderSubtotal = preorderDraftItems.fold(0.0, (sum, item) {
-          if (item.isChecked == true) {
-            num itemTotalPrice = item.totalPrice;
-            num itemTax = item.detail.tax ?? 0.0;
-            log("Item ID: ${item.detail.id}, Total Price: $itemTotalPrice, Tax: $itemTax");
-            return sum +
-                itemTotalPrice +
-                (item.detail.inclTax == '' ? itemTax : 0);
-          } else {
-            return sum;
-          }
-        });
-      }
-
-      log("Updated subtotal: $orderSubtotal");
-    });
-  }
-
   void calculateAmounts() {
     setState(() {
       if (isOrder) {
@@ -1862,20 +1833,14 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
-  void _clearCartItem(List<CartItem> cartItem, bool isSave) {
-    if (isSave) {
-      CartDatabaseManager().clearCartOnSave(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
-    } else {
-      CartDatabaseManager().clearCart(
-        customeController.customerId.isNotEmpty
-            ? customeController.customerId.value
-            : widget.productsController.selectedCustomerId.value,
-      );
-    }
+  void _clearCartItem(
+    List<CartItem> cartItem,
+  ) {
+    CartDatabaseManager().clearCart(
+      customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value,
+    );
 
     setState(() {
       cartItems.remove(cartItem);

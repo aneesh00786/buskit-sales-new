@@ -7,19 +7,19 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 
 class GroupedItemDataRows {
-  static List<DataRow> getRows(
-      {required List<CartItem> groupedItems,
-      required double fontSize,
-      required double availableWidth,
-      required BuildContext context,
-      required Function(CartItem groupedItem, String totalPrice,
-              double fontSize, double availableWidth)
-          productQuantityManager,
-      required Function(BuildContext context, CartItem groupedItem,
-              List<CartItem> groupedItems)
-          deleteConfirmationDialogue,
-      required Function calculateAmount,
-      required Function calCulateDraftAmount}) {
+  static List<DataRow> getRows({
+    required List<CartItem> groupedItems,
+    required double fontSize,
+    required double availableWidth,
+    required BuildContext context,
+    required Function(CartItem groupedItem, String totalPrice, double fontSize,
+            double availableWidth)
+        productQuantityManager,
+    required Function(BuildContext context, CartItem groupedItem,
+            List<CartItem> groupedItems)
+        deleteConfirmationDialogue,
+    required Function calculateAmount,
+  }) {
     return groupedItems.map((groupedItem) {
       log('Draft id is Contains or not? == ${groupedItem.draftId}');
       log('Incl Tax  == ${groupedItem.detail.inclTax}');
@@ -35,9 +35,8 @@ class GroupedItemDataRows {
                       groupedItem.isChecked = value ?? false;
                       log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
                     });
-                    groupedItem.draftId == null
-                        ? calculateAmount()
-                        : calCulateDraftAmount();
+
+                    calculateAmount();
                   },
                 );
               },

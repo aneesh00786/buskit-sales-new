@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -37,6 +38,8 @@ void main() async {
   Hive.registerAdapter(DraftAdapter());
   Hive.registerAdapter(CategoryDataAdapter());
   Hive.registerAdapter(SubCategoryItemAdapter());
+  Hive.registerAdapter(AddToCartModelAdapter());
+  Hive.registerAdapter(SendCartDataAdapter());
   await Hive.openBox<CartItem>('cartBox');
   await Hive.openBox<CartItem>('cartPreorderBox');
   await Hive.openBox<Draft>('draftBox');

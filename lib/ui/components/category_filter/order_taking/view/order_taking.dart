@@ -26,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../../category_list.dart';
@@ -282,7 +283,7 @@ class _OrderTakingState extends State<OrderTaking>
                     .getDraftAndCartIdsFromApi(customerId);
                 await Future.delayed(const Duration(seconds: 1));
                 final firstOrder = cartDetails.isNotEmpty
-                    ? cartDetails.first
+                    ? cartDetails.last
                     : {'cart_id': '', 'draft_id': ''};
                 final existingCartId = firstOrder['cart_id'] ?? '';
                 final existingDraftId = firstOrder['draft_id'] ?? '';
@@ -291,7 +292,7 @@ class _OrderTakingState extends State<OrderTaking>
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
+                  cartId: '',
                   cartList: detail
                       .map((e) => SendCartData(
                           productId: e.productId ??
@@ -311,20 +312,27 @@ class _OrderTakingState extends State<OrderTaking>
                       .toStringAsFixed(0),
                   discount: '0',
                 );
+                // final draftBox = await Hive.openBox<AddToCartModel>('draftBox');
+                // final allOrdersJson =
+                //     draftBox.values.map((order) => order.toJson()).toList();
+                // final combinedOrderData = {'data': allOrdersJson};
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToCart(productBYData.toJson());
                 log('Add to Cart Datas : ${productBYData.toJson()}');
                 if (cartOrder != null) {
                   int orderStatus = 4;
                   CartOrderModel order = CartOrderModel(
-                    customerId: customerId,
-                    salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                    cartId: existingCartId.isNotEmpty
-                        ? existingCartId
-                        : cartOrder.cartId,
-                    orderStatus: orderStatus,
-                    draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-                  );
+                      customerId: customerId,
+                      salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+                      cartId:
+                           existingCartId.isNotEmpty
+                              ? existingCartId
+                              :
+                          cartOrder.cartId,
+                      orderStatus: orderStatus,
+                      draftId:
+                      existingDraftId.isNotEmpty ? existingDraftId : '',
+                      );
                   await placeOrder(order, (statusCode, message, response) {
                     Navigator.pop(context);
                     if (statusCode == 200) {
@@ -350,7 +358,6 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -401,15 +408,21 @@ class _OrderTakingState extends State<OrderTaking>
                     .cartItems
                     .map((e) => e.detail)
                     .toList();
-                final cartDetails =
-                    await CartDatabaseManager().getCartAndDraftIds(customerId);
-                Future.delayed(const Duration(seconds: 1));
-                final existingCartId = cartDetails?['cart_id'] ?? '';
-                final existingDraftId = cartDetails?['id'] ?? '';
+               final cartDetails = await CartDatabaseManager()
+                    .getDraftAndCartIdsFromApi(customerId);
+                await Future.delayed(const Duration(seconds: 1));
+                final firstOrder = cartDetails.isNotEmpty
+                    ? cartDetails.first
+                    : {'cart_id': '', 'draft_id': ''};
+                final existingCartId = firstOrder['cart_id'] ?? '';
+                final existingDraftId = firstOrder['draft_id'] ?? '';
+                log('Existing cart ID $existingCartId');
+                log('Existing Draft ID $existingDraftId');
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
+                  cartId: 
+                  existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
                           productId: e.productId ??
@@ -434,14 +447,17 @@ class _OrderTakingState extends State<OrderTaking>
                 if (cartOrder != null) {
                   int orderStatus = 4;
                   CartOrderModel order = CartOrderModel(
-                    customerId: customerId,
-                    salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                    cartId: existingCartId.isNotEmpty
-                        ? existingCartId
-                        : cartOrder.cartId,
-                    orderStatus: orderStatus,
-                    draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-                  );
+                      customerId: customerId,
+                      salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+                      cartId:
+                          existingCartId.isNotEmpty
+                              ? existingCartId
+                              :
+                          cartOrder.cartId,
+                      orderStatus: orderStatus,
+                      draftId:
+                      existingDraftId.isNotEmpty ? existingDraftId : '',
+                      );
                   await placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
                       showDialog(
@@ -466,8 +482,8 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId);
                                   CartDatabaseManager().cartItems.clear();
+                                  CartDatabaseManager().clearCart(customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -498,6 +514,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
+                                 
                                 },
                                 child: const Text('OK'),
                               ),

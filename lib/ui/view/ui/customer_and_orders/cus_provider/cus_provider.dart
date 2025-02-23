@@ -53,9 +53,7 @@ class CustomersProvider with ChangeNotifier {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    final dateFormat = DateFormat('yyyy-MM-dd'); // Change format if needed
-
+    final dateFormat = DateFormat('yyyy-MM-dd');
     _selectedStartDate = dateFormat.format(firstDayOfMonth);
     _selectedEndDate = dateFormat.format(lastDayOfMonth);
   }
@@ -170,8 +168,7 @@ class CustomersProvider with ChangeNotifier {
 Future<void> updateCartCount(String customerId) async {
   try {
     final cartItems = await CartDatabaseManager().getCartItems(customerId);
-    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-    cartItemCount = cartItems.length + draftItems.length;
+    cartItemCount = cartItems.length;
     log('The cart item Count $cartItemCount');
     notifyListeners();
     log('Cart count updated for customer $customerId: $cartItemCount');

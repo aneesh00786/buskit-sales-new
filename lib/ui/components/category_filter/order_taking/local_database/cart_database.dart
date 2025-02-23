@@ -18,26 +18,11 @@ class CartDatabaseManager {
   final Box<Draft> draftBox = Hive.box<Draft>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
-  List<CartItem> getCartItems(String customerId) {
-    try {
-      final customerCartItems = cartBox.values
-          .where((item) => item.customerId == customerId)
-          .toList();
-      log('Cart items retrieved for customer $customerId: ${customerCartItems.length}');
-      return customerCartItems;
-    } catch (e) {
-      log('Error retrieving cart items for customer $customerId: $e');
-      return [];
-    }
-  }
-
   Future<List<CartItem>> getDraftItems(String customerId) async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
-
-    // Request body
     final requestBody = {
-      "companyId": 1,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? '',
       "customer_id": customerId,
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "order_type": 4,
@@ -48,6 +33,7 @@ class CartDatabaseManager {
       "page": 1,
     };
     log('Request Body of FetchAll Order $requestBody');
+
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
@@ -55,13 +41,10 @@ class CartDatabaseManager {
       if (isOnline) {
         log('Fetching draft items from API for customer ID: $customerId');
         final response = await dio.post(apiUrl, data: requestBody);
-
         if (response.statusCode == 200) {
           final responseData = response.data;
-
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
-            List<CartItem> draftItems = [];
             for (var order in orders) {
               final List<dynamic> carts = order['cart'] ?? [];
               for (var cart in carts) {
@@ -74,7 +57,6 @@ class CartDatabaseManager {
                   variationName: cart['variation_name'] as String?,
                   unitType: cart['unitType'] as String?,
                   price: cart['price']?.toString(),
-                  sellPrice: cart['sell_price']?.toString(),
                   tax: num.tryParse(cart['tax']?.toString() ?? '0'),
                   packtype: cart['packtype'] as String?,
                   pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
@@ -84,9 +66,7 @@ class CartDatabaseManager {
                   imageUrl: cart['image_url'] as String?,
                   status: cart['status'] as int?,
                   count: cart['quantity'] ?? 0,
-                  saleBy: cart['packtype'] as String?,
-                  totalPrice:
-                      num.tryParse(cart['total_price']?.toString() ?? '0'),
+                  saleBy: cart['packtype'] as String,
                   sellingPrice:
                       num.tryParse(cart['sell_price']?.toString() ?? '0'),
                   inclTax: cart['incl_tax'],
@@ -94,20 +74,18 @@ class CartDatabaseManager {
                   unitTax: cart['unit_tax'],
                 );
                 final cartItem = CartItem(
-                    detail: detail,
-                    productName: cart['product_name'],
-                    totalPrice: double.tryParse(cart['total_price']) ?? 0.0,
-                    count: cart['quantity'],
-                    customerId: order['customer_id'],
-                    cartId: cart['cart_id'],
-                    draftId: order['order_id'],
-                    draftTotal: order['order_total']);
-                draftItems.add(cartItem);
+                  detail: detail,
+                  productName: cart['product_name'],
+                  totalPrice: double.tryParse(cart['total_price']) ?? 0.0,
+                  count: cart['quantity'],
+                  customerId: order['customer_id'],
+                  cartId: cart['cart_id'],
+                  draftId: cart['order_id'],
+                  isPack: cart['packtype'] == "Pack" ? true : false,
+                );
+                cartBox.add(cartItem);
               }
             }
-
-            log('Draft items fetched from API: ${draftItems.length}');
-            return draftItems;
           } else {
             log('API response status is false: ${responseData['message']}');
           }
@@ -115,22 +93,25 @@ class CartDatabaseManager {
           log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
         }
       } else {
-        log('No internet connection. Falling back to local data.');
+        log('No internet connection. Skipping API fetch.');
       }
-
-      // Fallback to local data
-      final allItems = CartDatabaseManager().cartBox.values.toList();
-      final draftItems = allItems
-          .where((item) =>
-              item.customerId == customerId &&
-              item.draftId != null &&
-              item.draftId!.isNotEmpty)
-          .toList();
-      log('Draft items retrieved from local storage: ${draftItems.length}');
-      return draftItems;
+      return [];
     } catch (e) {
       log('Error fetching draft items: $e');
       return [];
+    }
+  }
+
+  Future<List<CartItem>> getCartItems(String customerId) async {
+    try {
+      final customerCartItems = cartBox.values
+          .where((item) => item.customerId == customerId)
+          .toList();
+      log('Cart items retrieved for customer $customerId: ${customerCartItems.length}');
+      return Future.value(customerCartItems);
+    } catch (e) {
+      log('Error retrieving cart items for customer $customerId: $e');
+      return Future.value([]);
     }
   }
 
@@ -139,7 +120,7 @@ class CartDatabaseManager {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
     final requestBody = {
-      "companyId": 1,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": customerId,
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "order_type": 4,
@@ -185,6 +166,7 @@ class CartDatabaseManager {
     }
     return [];
   }
+
   void addListener(VoidCallback listener) {
     _listeners.add(listener);
   }
@@ -374,27 +356,6 @@ class CartDatabaseManager {
     }
   }
 
-  void deleteDraftItem(String customerId, String variationId) {
-    final existingDraft = draftBox.get(customerId);
-    if (existingDraft != null) {
-      final updatedItems = existingDraft.items
-          .where((draftItem) => draftItem.detail.variationId != variationId)
-          .toList();
-      final updatedDraft = Draft(
-        customerId: existingDraft.customerId,
-        items: updatedItems,
-        cartId: '',
-        draftId: '',
-      );
-
-      draftBox.put(customerId, updatedDraft);
-      log('Draft item with variationId: $variationId deleted for customer ID: $customerId');
-      _notifyListeners();
-    } else {
-      log('No draft found for customer ID: $customerId to delete item.');
-    }
-  }
-
   void clearDraftForCustomer(String customerId) {
     if (draftBox.containsKey(customerId)) {
       draftBox.delete(customerId);
@@ -414,36 +375,6 @@ class CartDatabaseManager {
   Future<void> clearCart(String customerId) async {
     await cartBox.clear();
     log('All Cart cleared.');
-    _notifyListeners();
-  }
-
-  Future<void> clearCartOnSave(String customerId) async {
-    final cartItems = CartDatabaseManager().getCartItems(customerId);
-    final draftItems = await CartDatabaseManager().getDraftItems(customerId);
-
-    final Map<String, CartItem> uniqueItems = {};
-    for (var item in cartItems + draftItems) {
-      final key =
-          '${item.detail.variationName ?? ''}_${item.detail.sellPrice ?? ''}';
-      if (item.isChecked!) {
-        uniqueItems[key] = item;
-      }
-    }
-
-    for (var key in CartDatabaseManager().cartBox.keys) {
-      final item = CartDatabaseManager().cartBox.get(key);
-      if (item != null && item.isChecked!) {
-        await CartDatabaseManager().cartBox.delete(key);
-      }
-    }
-
-    for (var draftItem in draftItems) {
-      if (draftItem.isChecked!) {
-        await CartDatabaseManager().cartBox.delete(draftItem.draftId!);
-      }
-    }
-
-    log('Checked items cleared on save. Remaining items: ${uniqueItems.length}');
     _notifyListeners();
   }
 }

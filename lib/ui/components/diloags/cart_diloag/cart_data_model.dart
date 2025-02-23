@@ -1,20 +1,34 @@
-//Cart Data Miodel
+import 'package:hive/hive.dart';
 
-class AddToCartModel {
+part 'cart_data_model.g.dart';
+
+@HiveType(typeId: 8)
+class AddToCartModel extends HiveObject {
+  @HiveField(0)
   String customerId;
+
+  @HiveField(1)
   String salesmanId;
+
+  @HiveField(2)
   String total;
+
+  @HiveField(3)
   String discount;
+
+  @HiveField(4)
   String cartId;
+
+  @HiveField(5)
   List<SendCartData> cartList;
 
   AddToCartModel({
     required this.customerId,
     required this.salesmanId,
-    required this.cartList,
     required this.total,
     required this.discount,
     required this.cartId,
+    required this.cartList,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,14 +43,30 @@ class AddToCartModel {
   }
 }
 
-class SendCartData {
+@HiveType(typeId: 9)
+class SendCartData extends HiveObject {
+  @HiveField(0)
   String productId;
+
+  @HiveField(1)
   String variantId;
+
+  @HiveField(2)
   String pack;
+
+  @HiveField(3)
   String packType;
+
+  @HiveField(4)
   String price;
+
+  @HiveField(5)
   String discount;
+
+  @HiveField(6)
   int quantity;
+
+  @HiveField(7)
   String variantName;
 
   SendCartData({
@@ -53,13 +83,13 @@ class SendCartData {
   Map<String, dynamic> toJson() {
     return {
       'product_id': productId,
-      'Varient': variantId, 
+      'Varient': variantId,
       'Pack': pack,
       'packType': packType,
       'price': price,
       'discount': discount,
       'quantity': quantity,
-      'variant_name':variantName
+      'variant_name': variantName,
     };
   }
 }

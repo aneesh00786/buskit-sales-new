@@ -636,20 +636,15 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ? customerAndOrderController.customerId.value
                                 : widget
                                     .productController.selectedCustomerId.value;
-
-                            log('Customer ID: ${customerAndOrderController.customerId.value}');
-                            log('Selected Customer Name: ${widget.productController.selectedCustomerName.value}');
-                            log('Selected Customer Id: ${widget.productController.selectedCustomerId.value}');
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
-                              CartDatabaseManager().getCartItems(customerId);
+                              // CartDatabaseManager().getDraftItems(customerId);
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
                                 Detail detail = widget.detailsCopy[i];
-
                                 if (localCounts[i] > 0) {
                                   final bool isPack = detail.saleBy == 'Pack';
                                   await CartDatabaseManager().addToCart(

@@ -2,16 +2,14 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/option/widgets/option_dialogues/show_dash_main_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-// import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart' as font;
-// import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -19,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,8 +40,9 @@ class OptionWidget extends StatelessWidget {
   final OrderStatus? customOrderStatusType;
   final String? startDate;
   final String? endDate;
+  HomeController? homeController;
 
-   OptionWidget({
+  OptionWidget({
     super.key,
     this.optionFun,
     required this.userType,
@@ -57,11 +57,11 @@ class OptionWidget extends StatelessWidget {
     this.endDate,
     this.isVisible = false,
     this.cancelledCount,
+    this.homeController,
   });
-      CustomerAndOrderController customerOrderController =
+  CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
-      ProductsController productsController =
-      Get.put(ProductsController());
+  ProductsController productsController = Get.put(ProductsController());
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
@@ -158,7 +158,6 @@ class OptionWidget extends StatelessWidget {
             }),
       ];
 
-
   Widget orderOptions(OptionData optionData, OrderCountListt? orderCountList,
       BuildContext context) {
     Image svgComponent = Image.asset(
@@ -236,8 +235,8 @@ class OptionWidget extends StatelessWidget {
         ),
       ),
     );
-    
   }
+
   void _showOrderStatusDialog(BuildContext context, DashboardProvider provider,
       OrderStatus selectedOrderStatus) {
     showDialog(
@@ -443,7 +442,8 @@ class OptionWidget extends StatelessWidget {
                                                           onTap: () {
                                                             showDetailedOrderInvoiceDialog(
                                                                 context,
-                                                                order.orderId??'',
+                                                                order.orderId ??
+                                                                    '',
                                                                 false);
                                                           },
                                                           child: Center(
@@ -523,7 +523,8 @@ class OptionWidget extends StatelessWidget {
                                                           onTap: () {
                                                             showDetailedOrderInvoiceDialog(
                                                                 context,
-                                                                order.orderId??'',
+                                                                order.orderId ??
+                                                                    '',
                                                                 true);
                                                           },
                                                           child: Center(
@@ -833,7 +834,7 @@ class OptionWidget extends StatelessWidget {
   }
 
   void _showEstimatesDialog(BuildContext context, DashboardProvider provider,
-      OrderStatus selectedOrderStatus, String orderType,bool isDraft) {
+      OrderStatus selectedOrderStatus, String orderType, bool isDraft) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1072,11 +1073,11 @@ class OptionWidget extends StatelessWidget {
                                                                 child: InkWell(
                                                                   onTap: () {
                                                                     showDetailedOrderInvoiceDialog(
-                                                                        context,
-                                                                        order.orderId??'',
-                                                                        false,
-                                                                        
-                                                                        );
+                                                                      context,
+                                                                      order.orderId ??
+                                                                          '',
+                                                                      false,
+                                                                    );
                                                                   },
                                                                   child: Center(
                                                                     child: Text(
@@ -1219,42 +1220,50 @@ class OptionWidget extends StatelessWidget {
                                                               child: IconButton(
                                                                   onPressed:
                                                                       () {
-                                                                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                        customerOrderController.customerId.value = customer?.customerId??'';
-                                                                  if(isDraft){
-                                                                   showDialog(
-                                                                      context:
-                                                                          context,
-                                                                      builder:
-                                                                          (BuildContext
-                                                                              context) {
-                                                                        return CartDialogue(
-                                                                          active:
-                                                                              true,
-                                                                          cartItemCount:
-                                                                              cartProvider.cartItemCount,
-                                                                          productsController:
-                                                                              productsController,
-                                                                          customerOrderController:
-                                                                              customerOrderController,
-                                                                              isDashboard: true,
-                                                                          customerId: customer?.customerId??'',
-                                                                            
-                                                                        );
-                                                                        
-                                                                      },
-                                                                    );
-                                                                  } else{
-
-                                                                    showDetailedOrderInvoiceDialog(
+                                                                    final cartProvider = Provider.of<
+                                                                            CustomersProvider>(
                                                                         context,
-                                                                        order.orderId??'',
+                                                                        listen:
+                                                                            false);
+                                                                    customerOrderController
+                                                                        .customerId
+                                                                        .value = customer
+                                                                            ?.customerId ??
+                                                                        '';
+                                                                    if (isDraft) {
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (BuildContext
+                                                                                context) {
+                                                                          return CartDialogue(
+                                                                            active:
+                                                                                true,
+                                                                            cartItemCount:
+                                                                                cartProvider.cartItemCount,
+                                                                            productsController:
+                                                                                productsController,
+                                                                            customerOrderController:
+                                                                                customerOrderController,
+                                                                            isDashboard:
+                                                                                true,
+                                                                            customerId:
+                                                                                customer?.customerId ?? '',
+                                                                            
+                                                                          );
+                                                                        },
+                                                                      );
+                                                                    } else {
+                                                                      showDetailedOrderInvoiceDialog(
+                                                                        context,
+                                                                        order.orderId ??
+                                                                            '',
                                                                         true,
                                                                         isButtonNeeded:
                                                                             true,
-                                                                          
-                                                                            );
-                                                                  }
+                                                                      );
+                                                                    }
                                                                   },
                                                                   icon:
                                                                       const Icon(
@@ -1436,6 +1445,7 @@ class OptionWidget extends StatelessWidget {
     }
   }
 
+
   // String getOrderStatusString(OrderStatus status) {
   //   switch (status) {
   //     case OrderStatus.preOrder:
@@ -1518,7 +1528,6 @@ class OptionWidget extends StatelessWidget {
   //   }
   // }
 
-
   Widget _buildTableHeader1(String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -1536,8 +1545,6 @@ class OptionWidget extends StatelessWidget {
     );
   }
 }
-
-
 
 String _getPaymentTypeName(int paymentType) {
   switch (paymentType) {
@@ -1562,7 +1569,6 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
         // fontFamily: 'Poppins_Regular',
       ));
 }
-
 
 class OptionData {
   String title;

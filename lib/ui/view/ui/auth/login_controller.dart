@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -150,6 +151,7 @@ class LoginController extends GetxController {
         });
         await calenderMapController
             .fetchCalenderEvents(initialDay ?? DateTime.now());
+        await CartDatabaseManager().getDraftItems();
         Get.offAllNamed(AppRoutes.home);
         return true;
       } else if (loginResponce?.statusCode == 422 ||

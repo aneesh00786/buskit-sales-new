@@ -104,12 +104,11 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
+    Provider.of<CustomersProvider>(context,listen: false).getCartItemCounts(widget.customerOrderController?.customerId.value??'');
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
-    log('CartList Length : ${cartItems.length}');
   }
-
   void setOptions() {
     setState(() {
       filteredOptions = isOrder
@@ -117,7 +116,6 @@ class CartDialogueState extends State<CartDialogue> {
           : ['Pre Order', 'Estimate'];
     });
   }
-
   void _loadCartItems() async {
     try {
       final customerId = widget.isDashboard == true
@@ -127,6 +125,7 @@ class CartDialogueState extends State<CartDialogue> {
               : widget.productsController.selectedCustomerId.value);
       final cartItems =
           await CartDatabaseManager().getCartItems(customerId ?? '');
+      log('CartItems Length : ${cartItems.length}');
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
@@ -1246,13 +1245,11 @@ class CartDialogueState extends State<CartDialogue> {
       try {
         log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
-
         if (!isOnline) {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
           _clearCartItem(itemList);
-
           showDialog(
             context: context,
             builder: (context) => AlertDialog(

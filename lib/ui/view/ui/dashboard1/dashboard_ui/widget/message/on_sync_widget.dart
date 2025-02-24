@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +65,8 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       _isSyncing = true;
     });
     await Future.delayed(const Duration(seconds: 2));
+    await CartDatabaseManager().getDraftItems();
+    log('This Works Now');
     await _updateLastSyncTime();
     setState(() {
       _isSyncing = false;

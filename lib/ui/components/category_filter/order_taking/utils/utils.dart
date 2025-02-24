@@ -34,7 +34,7 @@ class Utils {
       if (item.isChecked == true) {
         double tax = item.detail.tax?.toDouble() ?? 0.0;
         int multiplier =
-            (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
+            (item.isPack == true||item.detail.packtype=="Pack" ? (item.detail.pieces!.toInt()) : 1);
         return sum + (tax * multiplier * item.detail.count.toDouble());
       }
       return sum;
@@ -45,11 +45,11 @@ class Utils {
     log('This Works');
     if (cartItem.isChecked == true) {
       double sellingPrice =
-          double.tryParse(cartItem.detail.sellingPrice?.toString() ?? '0') ??
+          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ??
               0.0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
-      double totalCount = cartItem.isPack == true ? count * pieces : count;
+      double totalCount =  cartItem.isPack == true ? count * pieces : count;
       return sellingPrice * totalCount;
     } else {
       return 0.0;

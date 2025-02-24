@@ -42,7 +42,7 @@ void main() async {
   Hive.registerAdapter(SendCartDataAdapter());
   await Hive.openBox<CartItem>('cartBox');
   await Hive.openBox<CartItem>('cartPreorderBox');
-  await Hive.openBox<Draft>('draftBox');
+  await Hive.openBox<CartItem>('draftBox');
   await Hive.openBox('dashboardBox');
   await Hive.openBox('customerBox');
   await Hive.openBox('chatBox');
@@ -53,7 +53,6 @@ void main() async {
   await Hive.openBox('ordersBox');
   await Hive.openBox('calendarEventsBox');
   DatabaseHelper.database;
-
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,

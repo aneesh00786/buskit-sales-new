@@ -276,9 +276,6 @@ void handleBackNavigation(
   bool hasDraft,
 ) {
   if (!hasDraft) {
-    log('CartList Length : ${CartDatabaseManager().cartItems}');
-
-    // Show a progress indicator while saving the draft.
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -342,21 +339,14 @@ void handleBackNavigation(
             orderStatus: orderStatus,
             draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
           );
-
+          
           await placeOrder(order, (statusCode, message, response) {
             if (Navigator.canPop(context)) {
-              Navigator.pop(context); // Close progress indicator
+              Navigator.pop(context);
             }
 
             if (statusCode == 200) {
               final draftId = response?['id'];
-              // CartDatabaseManager().saveCartAsDraft(
-              //   customerController.customerId.isNotEmpty
-              //       ? customerController.customerId.value
-              //       : productController.selectedCustomerId.value,
-              //   existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-              //   existingDraftId.isNotEmpty ? existingDraftId : draftId,
-              // );
               showDialog(
                 context: context,
                 barrierDismissible: false,

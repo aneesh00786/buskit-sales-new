@@ -36,6 +36,11 @@ class CartItem extends HiveObject {
   @HiveField(9)
   num? draftTotal;
 
+  @HiveField(10)
+  String? salesmanId;
+
+
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -47,22 +52,25 @@ class CartItem extends HiveObject {
     this.draftId,
     this.isChecked = true,
     this.draftTotal,
+    this.salesmanId,
   });
 
-  factory CartItem.fromJson(Map<String, dynamic> json) {
-    return CartItem(
-      detail: Detail.fromJson(json['detail']),
-      productName: json['productName'] as String,
-      totalPrice: json['totalPrice'] as double,
-      isPack: json['isPack'] as bool?,
-      count: json['count'] as int?,
-      customerId: json['customer_id'] as String?,
-      cartId: json['cart_id'] as String?,
-      draftId: json['id'] as String?,
-      isChecked: json['isChecked'],
-      draftTotal: json['order_total'] as num,
-    );
-  }
+factory CartItem.fromJson(Map<String, dynamic> json) {
+  return CartItem(
+    detail: Detail.fromJson(json['detail'] ?? {}),
+    productName: json['productName'] ?? '',
+    totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
+    isPack: json['isPack'] as bool?,
+    count: json['count'] as int?,
+    customerId: json['customer_id'] as String?,
+    cartId: json['cart_id'] as String?,
+    draftId: json['id'] as String?,
+    isChecked: json['isChecked'] as bool? ?? true,
+    draftTotal: json['order_total'] as num? ?? 0,
+    salesmanId: json['salesman_id'] as String?,
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -75,7 +83,8 @@ class CartItem extends HiveObject {
       'cart_id': cartId,
       'id': draftId,
       'isChecked': isChecked,
-      'order_total': draftTotal
+      'order_total': draftTotal,
+      'salesman_id':salesmanId,
     };
   }
 
@@ -89,7 +98,8 @@ class CartItem extends HiveObject {
     String? cartId,
     String? draftId,
     bool? isChcked,
-    num?draftTotal
+    num?draftTotal,
+    String?salesmanId,
   }) {
     return CartItem(
         detail: detail ?? this.detail,
@@ -102,6 +112,7 @@ class CartItem extends HiveObject {
         draftId: draftId ?? this.draftId,
         isChecked: isChcked ?? this.isChecked,
         draftTotal: draftTotal ?? this.draftTotal,
+        salesmanId: salesmanId ?? this.salesmanId,
         
         );
   }

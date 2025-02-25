@@ -360,9 +360,9 @@ Future<void> moveCartItemsToDraft(String customerId) async {
 
   void deleteCartItem(CartItem item) {
     final key = item.key;
-    if (draftBox.containsKey(key)) {
+    if (cartBox.containsKey(key)) {
       log('Item found with key: $key, proceeding to delete');
-      draftBox.delete(key);
+      cartBox.delete(key);
     } else {
       log('Item with key: $key does not exist in cartBox');
     }

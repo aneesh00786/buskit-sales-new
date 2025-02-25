@@ -32,9 +32,9 @@ class Utils {
   double calculateTotalTax(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
-        double tax = item.detail.unitTax?.toDouble() ?? 0.0;
+        double tax = item.detail.tax?.toDouble() ?? 0.0;
         int multiplier =
-            (item.isPack == true||item.detail.packtype=="Pack" ? (item.detail.pieces!.toInt()) : 1);
+            (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
         return sum + (tax * multiplier * item.detail.count.toDouble());
       }
       return sum;
@@ -49,7 +49,10 @@ class Utils {
               0.0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
+      num tax = cartItem.detail.tax??0;
+      log('Tax Amount = $tax');
       double totalCount =  cartItem.isPack == true ? count * pieces : count;
+      sellingPrice = cartItem.detail.inclTax=="incl_tax"?sellingPrice:sellingPrice+tax;
       return sellingPrice * totalCount;
     } else {
       return 0.0;

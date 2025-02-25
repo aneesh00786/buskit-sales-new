@@ -157,7 +157,15 @@ class CartDialogueState extends State<CartDialogue> {
       );
       preorderTax = preorderItems.fold(
         0.0,
-        (sum, item) => sum + (item.detail.tax ?? 0.0),
+       (sum, item) {
+          final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+          if (item.isPack == true) {
+            return sum +
+                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+          } else {
+            return sum + (itemTax * (item.detail.count));
+          }
+        },
       );
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);

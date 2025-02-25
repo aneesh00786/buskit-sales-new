@@ -49,6 +49,7 @@ mixin class ApiConstants {
   static const String salesman_dash_navcontents = "salesman_dash_navcontents";
   static const String fetchAllSetting = "fetchAllSetting";
   static const String fetchLeadsCount = "fetchLeadsCount";
+  static const String UpdateCheckInOut = "UpdateCheckInOut";
 
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
@@ -99,7 +100,11 @@ mixin class ApiConstants {
   static const String waiting_for_approval = "waiting_for_approvel";
   static const String localHost = 'http://16.50.232.153:3000/';
   
-    //PERFORMANCE
+  //PERFORMANCE
   static const String fetch_schedule = "fetch_schedule";
   static const String get_weekly_type = "get_weekly_type";
+  static const String fetch_SalesmanValueTarget = "fetch_SalesmanValueTarget";
+  static const String get_StaffTimesheet = "get_StaffTimesheet";
+  static const String update_ValueBasedtargetValue =
+      "Update_ValueBasedtargetValue";
 }

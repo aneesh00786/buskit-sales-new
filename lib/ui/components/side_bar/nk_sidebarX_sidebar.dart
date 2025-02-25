@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
@@ -17,8 +18,10 @@ import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../../../database/session/sessionmanager.dart';
@@ -43,6 +46,21 @@ class NkSidebarXSideBar extends StatefulWidget {
 
 class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   bool _onSwitchSelected = false;
+    bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    ApiWorker().loadSwitchState().then((value) {
+      if (mounted) {
+        setState(() {
+          _onSwitchSelected = value;
+          _isLoading = false;
+        });
+      }
+    });
+    log('Switch state: $_onSwitchSelected');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,33 +168,93 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                       ),
                       SizedBox(
                         height: 35,
-                        child: LiteRollingSwitch(
-                          width: 80,
-                          onSwipe: (value) {
-                            setState(() {
-                              _onSwitchSelected = value;
-                            });
-                          },
-                          onTap: (value) {
-                            setState(() {
-                              _onSwitchSelected = value;
-                            });
-                          },
-                          onDoubleTap: () {},
-                          value: _onSwitchSelected,
-                          textOn: 'In',
-                          textOff: 'Out',
-                          textOnColor: white,
-                          textOffColor: white,
-                          colorOn: const Color.fromARGB(255, 100, 224, 164),
-                          colorOff: const Color.fromARGB(255, 244, 152, 152),
-                          iconOn: Icons.done,
-                          iconOff: Icons.close,
-                          textSize: 16.0,
-                          onChanged: (bool state) {
-                            print('Current State of SWITCH IS: $state');
-                          },
-                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(color: white)
+                            : GestureDetector(
+                                onTap: () => _handleSwitchToggle(context),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  width: 100,
+                                  height: 40,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 5),
+                                  decoration: BoxDecoration(
+                                    color: _onSwitchSelected
+                                        ? const Color.fromARGB(
+                                            255, 100, 224, 164)
+                                        : const Color.fromARGB(
+                                            255, 244, 152, 152),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 15),
+                                          child: Text(
+                                            'Out',
+                                            style: TextStyle(
+                                              color: _onSwitchSelected
+                                                  ? Colors.transparent
+                                                  : Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 15),
+                                          child: Text(
+                                            'In',
+                                            style: TextStyle(
+                                              color: !_onSwitchSelected
+                                                  ? Colors.transparent
+                                                  : Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      AnimatedAlign(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        alignment: _onSwitchSelected
+                                            ? Alignment.centerRight
+                                            : Alignment.centerLeft,
+                                        child: CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor: Colors.white,
+                                          child: _isLoading
+                                              ? const SizedBox(
+                                                  width: 14,
+                                                  height: 14,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          strokeWidth: 2),
+                                                )
+                                              : Icon(
+                                                  _onSwitchSelected
+                                                      ? Icons.check
+                                                      : Icons.close,
+                                                  size: 20,
+                                                  color: _onSwitchSelected
+                                                      ? const Color.fromARGB(
+                                                          255, 100, 224, 164)
+                                                      : const Color.fromARGB(
+                                                          255, 244, 152, 152),
+                                                ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -194,5 +272,115 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
         items: widget._itemList,
       );
     });
+  }
+
+  Future<bool> _handleLocationPermission(BuildContext context) async {
+    PermissionStatus status = await Permission.locationWhenInUse.status;
+
+    if (status.isDenied) {
+      status = await Permission.locationWhenInUse.request();
+      if (status.isGranted) {
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location permission denied')),
+        );
+        return false;
+      }
+    } else if (status.isPermanentlyDenied) {
+      // Show dialog to open settings
+      bool? openSettings = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+              'Location permission is permanently denied. Open settings to enable it.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              child: const Text('Open Settings'),
+              onPressed: () {
+                openAppSettings();
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        ),
+      );
+      return openSettings ?? false;
+    }
+
+    return true; // Already granted
+  }
+
+  void _handleSwitchToggle(BuildContext context) async {
+    bool newState = !_onSwitchSelected;
+
+    // Show confirmation dialog
+    bool? confirmAction = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
+          content: Text(
+              'Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              child: const Text('Confirm'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmAction == true) {
+      if (!await _handleLocationPermission(context)) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+        final response = await ApiWorker().updateAdminCheckInOut(
+          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+          time: DateFormat('HH:mm').format(DateTime.now()),
+          direction: newState ? "in" : "out",
+          lat: position.latitude.toString(),
+          long: position.longitude.toString(),
+        );
+
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(newState);
+
+          if (mounted) {
+            setState(() {
+              _onSwitchSelected = newState;
+            });
+          }
+        }
+      } catch (e) {
+        print('Error: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    }
   }
 }

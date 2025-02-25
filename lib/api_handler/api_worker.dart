@@ -28,11 +28,13 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_re
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/pagination_model.dart';
 import '../ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -280,30 +282,30 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<Response> updateCategoryTargetValue(
-    String salesmanId,
-    String month,
-    String year,
-    Map<dynamic, String> categoryData,
-    Map<dynamic, String> weeklyTarget,
-  ) async {
-    log(companyId.toString());
-    final response = await dio
-        .postbycustom(ApiConstants.update_CategorytargetValue,
-            data: ({
-              "categories": categoryData,
-              "weekly_target": weeklyTarget,
-              "sales_id": salesmanId,
-              "year": year,
-              "month": month,
-              "companyId": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
-  }
+  // Future<Response> updateCategoryTargetValue(
+  //   String salesmanId,
+  //   String month,
+  //   String year,
+  //   Map<dynamic, String> categoryData,
+  //   Map<dynamic, String> weeklyTarget,
+  // ) async {
+  //   log(companyId.toString());
+  //   final response = await dio
+  //       .postbycustom(ApiConstants.update_CategorytargetValue,
+  //           data: ({
+  //             "categories": categoryData,
+  //             "weekly_target": weeklyTarget,
+  //             "sales_id": salesmanId,
+  //             "year": year,
+  //             "month": month,
+  //             "companyId": companyId,
+  //           }))
+  //       .onError((DioException error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   return response;
+  // }
 
   /// ************************ DASHBOARD SECTION ***************** ///
 
@@ -1497,7 +1499,7 @@ class ApiWorker with ApiConstants {
     return ButtonAction.fromJson(response.data);
   }
 
-  Future<ScheduleListResponse> fetchSchedule(
+    Future<ScheduleListResponse> fetchSchedule(
       String endDate, String startDate) async {
     final response = await dio
         .postbycustom(ApiConstants.fetch_schedule,
@@ -1536,5 +1538,180 @@ class ApiWorker with ApiConstants {
       log(error.toString());
       throw DioExceptionHandler.fromDioError(error as DioException);
     }
+  }
+
+  Future<SalesmanValueTargetResponse> fetchSalesmanValueTarget(
+      String salesmanId, String year, String? month) async {
+    final request = {
+      "salesman_id": salesmanId,
+      "year": year,
+      if (month != null) "month": month,
+      "companyId": companyId,
+    };
+
+    log("fetchSalesmanValueTarget zzz $request");
+
+    final response = await dio.postbycustom(
+      ApiConstants.fetch_SalesmanValueTarget,
+      data: {
+        "salesman_id": salesmanId,
+        "year": year,
+        if (month != null) "month": month,
+        "companyId": companyId,
+      },
+    ).onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    log(" Salesman Value Target Response : $response");
+    return SalesmanValueTargetResponse.fromJson(response.data);
+  }
+
+  Future<SalesmanTargetTableResponse> fetchSalesmanTarget(
+      String salesmanId, String month, String year) async {
+    var request = {
+      "salesman_id": salesmanId,
+      "year": year,
+      "month": month,
+      "companyId": companyId,
+    };
+
+    log("fetchSalesmanTarget request : $request");
+
+    final response = await dio.postbycustom(
+      ApiConstants.fetch_salesmanTarget,
+      data: {
+        "salesman_id": salesmanId,
+        "year": year,
+        "month": month,
+        "companyId": companyId,
+      },
+    ).onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    log(" Salesman Target Response : $response");
+    return SalesmanTargetTableResponse.fromJson(response.data);
+  }
+
+  Future<StaffTimesheetResponse> getTimeSheetData({
+    String? startDate,
+    String? endDate,
+  }) async {
+    log("🔍 API Request: startDate=$startDate, endDate=$endDate, id=${SessionHelper.loginSavedData?.id}");
+
+    try {
+      final response = await dio.postbycustom(
+        ApiConstants.get_StaffTimesheet,
+        data: FormData.fromMap({
+          "startdate": startDate,
+          "enddate": endDate,
+          "id":
+              // 9
+              SessionHelper.loginSavedData?.id,
+        }),
+      );
+
+      log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
+      return StaffTimesheetResponse.fromJson(response.data);
+    } catch (e) {
+      log("❌ API Error: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> loadSwitchState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    log('loadSwitchState: ${prefs.getBool('switch_state')}');
+    return prefs.getBool('switch_state') ?? false;
+  }
+
+  Future<void> saveSwitchState(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('switch_state', value);
+    log('saveSwitchSate: $value');
+  }
+
+  Future<Response> updateAdminCheckInOut({
+    String? date,
+    String? time,
+    String? direction,
+    String? lat,
+    String? long,
+  }) async {
+    var response = await dio
+        .postbycustom(ApiConstants.UpdateCheckInOut,
+            data: FormData.fromMap(
+              {
+                "companyId": companyId,
+                "date": date,
+                "sales_id": SessionHelper.loginSavedData?.id,
+                "time": time,
+                "direction": direction,
+                "latitude": lat,
+                "longitude": long
+              },
+            ))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
+
+  Future<Response> updateValueBasedTargetValue(
+    String salesmanId,
+    String year,
+    String month,
+    Map<String, dynamic> monthTarget,
+    Map<String, dynamic> weeklyTarget,
+  ) async {
+    log(monthTarget.toString());
+
+    final request = {
+      "sales_id": salesmanId,
+      "year": year,
+      "month_target": monthTarget,
+      "weekly_target": weeklyTarget,
+      "month_to_insert": month,
+      "companyId": companyId,
+    };
+
+    log("request: $request");
+
+    final response = await dio
+        .postbycustom(ApiConstants.update_ValueBasedtargetValue,
+            data: (request))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
+
+  Future<Response> updateCategoryTargetValue(
+    String salesmanId,
+    String month,
+    String year,
+    Map<dynamic, dynamic> categoryData,
+    Map<dynamic, dynamic> weeklyTarget,
+    Map<dynamic, dynamic> weeklyProjection,
+  ) async {
+    final response = await dio
+        .postbycustom(ApiConstants.update_CategorytargetValue,
+            data: ({
+              "categories": categoryData,
+              "weekly_target": weeklyTarget,
+              "weekly_projection": weeklyProjection,
+              "sales_id": salesmanId,
+              "year": int.parse(year),
+              "month": month,
+              "companyId": companyId,
+            }))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
   }
 }

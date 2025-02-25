@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -10,13 +12,15 @@ import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/bottom_tables/target_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/bottom_tables/value_target_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/checkin_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/custom_perfo_bar_chart.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/customer_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_timesheet_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/options_widget.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +39,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     with SingleTickerProviderStateMixin {
   bool isActive = false;
   StaffController staffController = Get.put(StaffController());
-  late final TabController _tabController;
+  // late final TabController _tabController;
   List<TextEditingController> _targetControllers = [];
   final int currentYear = DateTime.now().year;
   final int currentMonth = DateTime.now().month;
@@ -46,6 +50,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String staffProjection = '';
   String targetType = '';
   Future<void> _loadSettings() async {
+    await _loadWeeklyType();
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
@@ -66,26 +71,42 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     }
   }
 
+  Future<void> _loadWeeklyType() async {
+    final weeklyType = await ApiWorker().getWeeklyType();
+    staffController.isWeekly.value = weeklyType == "true";
+    log("Weekly state : $weeklyType : ${staffController.isWeekly.value}");
+  }
+
   @override
   void initState() {
     super.initState();
     ApiWorker().fetchAllSettings(companyId);
     _loadSettings();
-    _tabController = TabController(
+    // _tabController = TabController(
+    //   length: 12,
+    //   vsync: this,
+    //   initialIndex: currentMonth - 1,
+    // );
+    staffController.tabController = TabController(
       length: 12,
       vsync: this,
       initialIndex: currentMonth - 1,
     );
     _selectedMonthName = DateFormat.MMMM().format(DateTime(0, currentMonth));
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
+    staffController.loadSalesmanTargetForSelectedTab(
+      currentYear: selectedValue,
+      selectedTabIndex: staffController.tabController.index + 1,
+      staffId: salesmanId,
+    );
+    staffController.tabController.addListener(() {
+      if (!staffController.tabController.indexIsChanging) {
         setState(() {
-          _selectedMonthName =
-              DateFormat.MMMM().format(DateTime(0, _tabController.index + 1));
+          _selectedMonthName = DateFormat.MMMM()
+              .format(DateTime(0, staffController.tabController.index + 1));
         });
         staffController.loadSalesmanTargetForSelectedTab(
           currentYear: selectedValue,
-          selectedTabIndex: _tabController.index + 1,
+          selectedTabIndex: staffController.tabController.index + 1,
           staffId: salesmanId,
         );
       }
@@ -173,7 +194,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                         .loadSalesmanTargetForSelectedTab(
                                       currentYear: selectedValue,
                                       selectedTabIndex:
-                                          _tabController.index + 1,
+                                          staffController.tabController.index +
+                                              1,
                                       staffId: salesmanId,
                                     );
                                   }
@@ -227,19 +249,22 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 children: List.generate(12, (index) {
                   final monthName =
                       DateFormat.MMMM().format(DateTime(0, index + 1));
-                  final isSelected = _tabController.index == index;
+                  final isSelected =
+                      staffController.tabController.index == index;
 
                   return GestureDetector(
                     onTap: () async {
                       bool isConnected = await ConnectivityService().isOnline();
                       if (isConnected) {
                         setState(() {
-                          _tabController.index = index;
+                          staffController.tabController.index = index;
                           _selectedMonthName = monthName;
+                          staffController.selectedTabIndex.value = index;
                         });
                         staffController.loadSalesmanTargetForSelectedTab(
                           currentYear: selectedValue,
-                          selectedTabIndex: _tabController.index + 1,
+                          selectedTabIndex:
+                              staffController.tabController.index + 1,
                           staffId: salesmanId,
                         );
                         final provider = Provider.of<CustomersProvider>(context,
@@ -263,8 +288,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             ? Border.all(color: Colors.grey.shade300)
                             : null,
                         borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5)),
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15)),
                       ),
                       child: CustomText(
                         content: monthName,
@@ -279,12 +304,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           ),
           nkMediumSizeBox(),
           Obx(() {
-            if (staffController.isTargetLoading.value) {
+            if (staffController.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
             }
             final performanceData = staffController.salesmanTargetList.value;
             if (performanceData.navbarAndTargetContent == null) {
-              return const Center(child: Text("No Data Available"));
+              return const Center(
+                  child: Text(
+                "No Data Available",
+                style: TextStyle(color: red),
+              ));
             }
             final targetContent = performanceData.navbarAndTargetContent;
             return OptionsWidget(
@@ -294,8 +323,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   count: targetContent?.timesheet?.toString() ?? '0',
                   svg: "assets/icons/event.png",
                   svgBgColor: const Color.fromARGB(255, 206, 252, 224),
-                  onTap: () => _showTileDialog(
-                      context, _selectedMonthName ?? '', 1, true),
+                  onTap: () {
+                    Get.dialog(
+                      StaffTimeSheetDialog(staffController: staffController)
+                    );
+                  }
+                  // => _showTileDialog(
+                  //     context, _selectedMonthName ?? '', 1, true),
                 ),
                 OptionData(
                   title: 'Check-in/out',
@@ -314,7 +348,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       Get.dialog(
                         StaffRouteDialog(staffController: staffController),
                       );
-                    }),
+                    }
+                    // _showTileDialog(
+                    //     context, _selectedMonthName ?? '', 3, false),
+                    ),
                 OptionData(
                   title: 'Customers',
                   count: targetContent?.customer?.toString() ?? '0',
@@ -338,19 +375,23 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 0.4,
-                      ),
+                      // border: Border.all(
+                      //   color: Colors.grey,
+                      //   width: 0.4,
+                      // ),
                     ),
                     child: Obx(() {
-                      if (staffController.isTargetLoading.value) {
+                      if (staffController.isLoading.value) {
                         return const Center(child: CircularProgressIndicator());
                       }
                       final performanceData =
                           staffController.salesmanTargetList.value;
                       if (performanceData.navbarAndTargetContent == null) {
-                        return const Center(child: Text("No Data Available"));
+                        return const Center(
+                            child: Text(
+                          "No Data Available",
+                          style: TextStyle(color: Colors.green),
+                        ));
                       }
                       final categoryPerformance =
                           performanceData.categoryPerformance;
@@ -386,7 +427,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 ),
                 nkMediumSizeBox(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                   child: Container(
                     decoration: BoxDecoration(
                       boxShadow: [
@@ -405,14 +447,19 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         width: 0.5,
                       ),
                     ),
-                    child: StaffTargetDialog(
-                        staffController: staffController,
-                        currentYear: currentYear,
-                        tabController: _tabController,
-                        tabControllers: _targetControllers,
-                        staffProjection: staffProjection,
-                        targetType: targetType,
-                        selectedMonthname: _selectedMonthName ?? ''),
+                    child: (targetType == '1')
+                        ? StaffTargetDialog(
+                            staffController: staffController,
+                            isProjection: staffProjection == '1' ? true : false,
+                            isTarget: targetType == '1' ? true : false,
+                            isWeekly: staffController.isWeekly.value,
+                          )
+                        : StaffValueTargetDialog(
+                            staffController: staffController,
+                            isProjection: staffProjection == '1' ? true : false,
+                            isTarget: targetType == '1' ? true : false,
+                            isWeekly: staffController.isWeekly.value,
+                          ),
                   ),
                 )
               ],

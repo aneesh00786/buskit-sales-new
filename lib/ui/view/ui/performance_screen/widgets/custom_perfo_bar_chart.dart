@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
+import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -46,43 +47,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
         staffProjection: widget.staffProjection,
         targetType: widget.targetType);
   }
-  // void createBarGroups() {
-  //   barGroups = widget.categoryPerformance.asMap().entries.map((entry) {
-  //     int index = entry.key;
-  //     CategoryPerformance perf = entry.value;
-  //     num target = perf.actualTarget ?? 0.0;
-  //     num projection = perf.actualProjection ?? 0.0;
-  //     Object actual = perf.actualSales ?? 0.0;
-  //     return BarChartGroupData(
-  //       x: index,
-  //       barRods: [
-  //         if (widget.targetType == "1")
-  //           BarChartRodData(
-  //             toY: double.parse(target.toString()),
-  //             color: const Color(0xff3b6491),
-  //             width: 8,
-  //             borderRadius: BorderRadius.zero,
-  //             borderSide: BorderSide.none,
-  //           ),
-  //         if (widget.staffProjection == "1")
-  //           BarChartRodData(
-  //             toY: double.parse(projection.toString()),
-  //             color: const Color(0xff15396a),
-  //             width: 8,
-  //             borderRadius: BorderRadius.zero,
-  //             borderSide: BorderSide.none,
-  //           ),
-  //         BarChartRodData(
-  //           toY: double.parse(actual.toString()),
-  //           color: const Color(0xff7a8f3d),
-  //           width: 8,
-  //           borderRadius: BorderRadius.zero,
-  //           borderSide: BorderSide.none,
-  //         ),
-  //       ],
-  //     );
-  //   }).toList();
-  // }
 
   void _showSalesmanPopup(int cid, String category) async {
     bool isConnected = await ConnectivityService().isOnline();
@@ -283,93 +247,110 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Consumer<CustomersProvider>(
-          builder: (context, provider, child) => Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: ScrollbarTheme(
-                data: ScrollbarThemeData(
-                  thumbColor: MaterialStateProperty.all(Colors.blue),
-                  thickness: MaterialStateProperty.all(5),
-                  radius: const Radius.circular(8),
-                ),
-                child: Scrollbar(
-                  controller:
-                      Provider.of<DashboardProvider>(context, listen: false)
-                          .scrollController,
-                  interactive: true,
-                  thickness: 5,
-                  thumbVisibility: true,
-                  trackVisibility: true,
+    return widget.categoryPerformance.isEmpty
+        ? SizedBox(
+            height: 200, // Set an appropriate height
+            child: Center(
+              child: Text(
+                'No data available',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ),
+          )
+        : Column(
+            children: [
+              Consumer<CustomersProvider>(
+                builder: (context, provider, child) => Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: SingleChildScrollView(
-                      controller:
-                          Provider.of<DashboardProvider>(context, listen: false)
-                              .scrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const ClampingScrollPhysics(),
-                      child: SizedBox(
-                        width: provider.barGroups.length * 66.0,
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbColor: MaterialStateProperty.all(Colors.blue),
+                        thickness: MaterialStateProperty.all(5),
+                        radius: const Radius.circular(8),
+                      ),
+                      child: Scrollbar(
+                        controller: Provider.of<DashboardProvider>(context,
+                                listen: false)
+                            .scrollController,
+                        interactive: true,
+                        thickness: 5,
+                        thumbVisibility: true,
+                        trackVisibility: true,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 3.0),
-                          child: BarChart(
-                            BarChartData(
-                              alignment: BarChartAlignment.spaceAround,
-                              barGroups: provider.barGroups,
-                              titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: getLeftTitles,
-                                    reservedSize: 40,
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: SingleChildScrollView(
+                            controller: Provider.of<DashboardProvider>(context,
+                                    listen: false)
+                                .scrollController,
+                            scrollDirection: Axis.horizontal,
+                            physics: const ClampingScrollPhysics(),
+                            child: SizedBox(
+                              width: provider.barGroups.length * 66.0,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3.0),
+                                child: BarChart(
+                                  BarChartData(
+                                    alignment: BarChartAlignment.spaceAround,
+                                    barGroups: provider.barGroups,
+                                    titlesData: FlTitlesData(
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: getLeftTitles,
+                                          reservedSize: 40,
+                                        ),
+                                      ),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: getBottomTitles,
+                                          reservedSize: 40,
+                                        ),
+                                      ),
+                                      topTitles: AxisTitles(
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
+                                      ),
+                                      rightTitles: AxisTitles(
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(
+                                      show: true,
+                                      border: Border.all(
+                                        color: const Color(0xffe0e0e0),
+                                        width: 0.9,
+                                      ),
+                                    ),
+                                    barTouchData: BarTouchData(
+                                      touchCallback: (FlTouchEvent event,
+                                          BarTouchResponse? touchResponse) {
+                                        if (touchResponse != null &&
+                                            touchResponse.spot != null &&
+                                            event is FlTapUpEvent) {
+                                          final int index = touchResponse
+                                              .spot!.touchedBarGroupIndex;
+                                          CategoryPerformance perf = widget
+                                              .categoryPerformance
+                                              .firstWhere(
+                                            (performance) =>
+                                                performance.category ==
+                                                widget
+                                                    .categoryPerformance[index]
+                                                    .category,
+                                          );
+                                          _showSalesmanPopup(
+                                              perf.cid ?? 0,
+                                              widget.categoryPerformance[index]
+                                                      .category ??
+                                                  '');
+                                        }
+                                      },
+                                    ),
                                   ),
                                 ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: getBottomTitles,
-                                    reservedSize: 40,
-                                  ),
-                                ),
-                                topTitles: const AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                rightTitles: const AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                              ),
-                              borderData: FlBorderData(
-                                show: true,
-                                border: Border.all(
-                                  color: const Color(0xffe0e0e0),
-                                  width: 0.9,
-                                ),
-                              ),
-                              barTouchData: BarTouchData(
-                                touchCallback: (FlTouchEvent event,
-                                    BarTouchResponse? touchResponse) {
-                                  if (touchResponse != null &&
-                                      touchResponse.spot != null &&
-                                      event is FlTapUpEvent) {
-                                    final int index = touchResponse
-                                        .spot!.touchedBarGroupIndex;
-                                    CategoryPerformance perf =
-                                        widget.categoryPerformance.firstWhere(
-                                      (performance) =>
-                                          performance.category ==
-                                          widget.categoryPerformance[index]
-                                              .category,
-                                    );
-                                    _showSalesmanPopup(
-                                        perf.cid ?? 0,
-                                        widget.categoryPerformance[index]
-                                                .category ??
-                                            '');
-                                  }
-                                },
                               ),
                             ),
                           ),
@@ -379,22 +360,137 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (widget.targetType == "1")
-              _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
-            if (widget.staffProjection == "1")
-              _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
-            _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
-          ],
-        ),
-      ],
-    );
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.targetType == "1")
+                    _buildLegend(
+                        color: const Color(0xff3b6491), label: 'Target'),
+                  if (widget.staffProjection == "1")
+                    _buildLegend(
+                        color: const Color(0xff15396a), label: 'Projection'),
+                  _buildLegend(
+                      color: const Color(0xff7a8f3d), label: 'Actuals'),
+                ],
+              ),
+            ],
+          );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Column(
+  //     children: [
+  //       Consumer<CustomersProvider>(
+  //         builder: (context, provider, child) => Expanded(
+  //           child: Padding(
+  //             padding: const EdgeInsets.only(bottom: 8.0),
+  //             child: ScrollbarTheme(
+  //               data: ScrollbarThemeData(
+  //                 thumbColor: MaterialStateProperty.all(Colors.blue),
+  //                 thickness: MaterialStateProperty.all(5),
+  //                 radius: const Radius.circular(8),
+  //               ),
+  //               child: Scrollbar(
+  //                 controller:
+  //                     Provider.of<DashboardProvider>(context, listen: false)
+  //                         .scrollController,
+  //                 interactive: true,
+  //                 thickness: 5,
+  //                 thumbVisibility: true,
+  //                 trackVisibility: true,
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.only(bottom: 10.0),
+  //                   child: SingleChildScrollView(
+  //                     controller:
+  //                         Provider.of<DashboardProvider>(context, listen: false)
+  //                             .scrollController,
+  //                     scrollDirection: Axis.horizontal,
+  //                     physics: const ClampingScrollPhysics(),
+  //                     child: SizedBox(
+  //                       width: provider.barGroups.length * 66.0,
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.only(top: 3.0),
+  //                         child: BarChart(
+  //                           BarChartData(
+  //                             alignment: BarChartAlignment.spaceAround,
+  //                             barGroups: provider.barGroups,
+  //                             titlesData: FlTitlesData(
+  //                               leftTitles: AxisTitles(
+  //                                 sideTitles: SideTitles(
+  //                                   showTitles: true,
+  //                                   getTitlesWidget: getLeftTitles,
+  //                                   reservedSize: 40,
+  //                                 ),
+  //                               ),
+  //                               bottomTitles: AxisTitles(
+  //                                 sideTitles: SideTitles(
+  //                                   showTitles: true,
+  //                                   getTitlesWidget: getBottomTitles,
+  //                                   reservedSize: 40,
+  //                                 ),
+  //                               ),
+  //                               topTitles: AxisTitles(
+  //                                 sideTitles: SideTitles(showTitles: false),
+  //                               ),
+  //                               rightTitles: AxisTitles(
+  //                                 sideTitles: SideTitles(showTitles: false),
+  //                               ),
+  //                             ),
+  //                             borderData: FlBorderData(
+  //                               show: true,
+  //                               border: Border.all(
+  //                                 color: const Color(0xffe0e0e0),
+  //                                 width: 0.9,
+  //                               ),
+  //                             ),
+  //                             barTouchData: BarTouchData(
+  //                               touchCallback: (FlTouchEvent event,
+  //                                   BarTouchResponse? touchResponse) {
+  //                                 if (touchResponse != null &&
+  //                                     touchResponse.spot != null &&
+  //                                     event is FlTapUpEvent) {
+  //                                   final int index = touchResponse
+  //                                       .spot!.touchedBarGroupIndex;
+  //                                   CategoryPerformance perf =
+  //                                       widget.categoryPerformance.firstWhere(
+  //                                     (performance) =>
+  //                                         performance.category ==
+  //                                         widget.categoryPerformance[index]
+  //                                             .category,
+  //                                   );
+  //                                   _showSalesmanPopup(
+  //                                       perf.cid ?? 0,
+  //                                       widget.categoryPerformance[index]
+  //                                               .category ??
+  //                                           '');
+  //                                 }
+  //                               },
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //       Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           if (widget.targetType == "1")
+  //             _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+  //           if (widget.staffProjection == "1")
+  //             _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
+  //           _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildLegend({required Color color, required String label}) {
     return Row(

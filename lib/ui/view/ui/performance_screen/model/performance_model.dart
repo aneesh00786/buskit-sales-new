@@ -758,3 +758,176 @@ class ScheduleListCustomer {
         "business_name": businessName,
       };
 }
+
+//####################################### VALUE TARGET ###########################################
+class SalesmanValueTargetResponse {
+  bool success;
+  List<SalesmanValueTargetData> data;
+
+  SalesmanValueTargetResponse({
+    required this.success,
+    required this.data,
+  });
+
+  factory SalesmanValueTargetResponse.fromJson(Map<String, dynamic> json) =>
+      SalesmanValueTargetResponse(
+        success: json["success"],
+        data: List<SalesmanValueTargetData>.from(
+            json["data"].map((x) => SalesmanValueTargetData.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "success": success,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+      };
+}
+
+class SalesmanValueTargetData {
+  int? id;
+  int? target;
+  int? projection;
+  String? salesId;
+  String? month;
+  String? year;
+  int? companyId;
+  WeeklyTargetProjection? weeklyTargetProjection;
+  String? actualTotal;
+  String? orderTotal;
+
+  SalesmanValueTargetData({
+    required this.id,
+    required this.target,
+    required this.projection,
+    required this.salesId,
+    required this.month,
+    required this.year,
+    required this.companyId,
+    required this.weeklyTargetProjection,
+    required this.actualTotal,
+    required this.orderTotal,
+  });
+
+  factory SalesmanValueTargetData.fromJson(Map<String, dynamic> json) =>
+      SalesmanValueTargetData(
+        id: json["id"],
+        target: json["target"],
+        projection: json["projection"],
+        salesId: json["sales_id"],
+        month: json["month"],
+        year: json["year"],
+        companyId: json["company_id"],
+        weeklyTargetProjection: json["weekly_target_projection"] != null
+            ? WeeklyTargetProjection.fromJson(json["weekly_target_projection"])
+            : null,
+        actualTotal: json["actual_total"].toString(),
+        orderTotal: json["order_total"].toString(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "target": target,
+        "projection": projection,
+        "sales_id": salesId,
+        "month": month,
+        "year": year,
+        "company_id": companyId,
+        "weekly_target_projection": weeklyTargetProjection?.toJson(),
+        "actual_total": actualTotal,
+        "order_total": orderTotal,
+      };
+}
+
+class WeeklyTargetProjection {
+  Map<String, WeekData>? weeks;
+
+  WeeklyTargetProjection({required this.weeks});
+
+  factory WeeklyTargetProjection.fromJson(Map<String, dynamic> json) {
+    Map<String, WeekData> parsedWeeks = {};
+
+    json.forEach((key, value) {
+      parsedWeeks[key] = WeekData.fromJson(key, value);
+    });
+
+    return WeeklyTargetProjection(weeks: parsedWeeks);
+  }
+
+  Map<String, dynamic> toJson() => {
+        for (var entry in weeks!.entries) entry.key: entry.value.toJson(),
+      };
+}
+
+class WeekData {
+  int? value;
+  int? projection;
+
+  WeekData({
+    required this.value,
+    required this.projection,
+  });
+
+  factory WeekData.fromJson(String key, Map<String, dynamic> json) {
+    return WeekData(
+      value: json[key] ?? 0,
+      projection: json["${key}_projection"] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "value": value,
+        "projection": projection,
+      };
+}
+
+class StaffTimesheetResponse {
+  int? statusCode;
+  bool? status;
+  String? message;
+  Map<String, StaffTimesheetData>? data;
+
+  StaffTimesheetResponse({
+    this.statusCode,
+    this.status,
+    this.message,
+    this.data,
+  });
+
+  factory StaffTimesheetResponse.fromJson(Map<String, dynamic> json) =>
+      StaffTimesheetResponse(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+        data: Map.from(json["data"]).map((k, v) =>
+            MapEntry<String, StaffTimesheetData>(
+                k, StaffTimesheetData.fromJson(v))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "data": Map.from(data!)
+            .map((k, v) => MapEntry<String, dynamic>(k, v.toJson())),
+      };
+}
+
+class StaffTimesheetData {
+  String? checkIn;
+  String? checkOut;
+
+  StaffTimesheetData({
+    this.checkIn,
+    this.checkOut,
+  });
+
+  factory StaffTimesheetData.fromJson(Map<String, dynamic> json) =>
+      StaffTimesheetData(
+        checkIn: json["check_in"],
+        checkOut: json["check_out"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "check_in": checkIn,
+        "check_out": checkOut,
+      };
+}

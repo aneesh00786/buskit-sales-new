@@ -1211,119 +1211,114 @@ class BottomTotalWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child:
-                        // provider.filteredCustomers.length >= 10
-                        // provider.totalPages == 1
-                        // ?
-                        Container(
-                      width: 3 * 62.0,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.circular(3.0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.keyboard_double_arrow_left,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                              onPressed: provider.currentPage > 1
-                                  ? () {
-                                      provider.goToPreviousPage();
-                                    }
-                                  : null,
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    width: 3 * 62.0,
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(3.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.keyboard_double_arrow_left,
+                              size: 20,
+                              color: Colors.white,
                             ),
+                            onPressed: provider.currentPage > 1
+                                ? () {
+                                    provider.goToPreviousPage();
+                                  }
+                                : null,
                           ),
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: provider.totalPages > 1
-                                  ? List.generate(3, (index) {
-                                      int firstPage;
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: provider.totalPages > 1
+                                ? List.generate(3, (index) {
+                                    int firstPage;
 
-                                      if (provider.totalPages == 2) {
-                                        firstPage = 1;
-                                      } else if (provider.currentPage == 1) {
-                                        firstPage = 1;
-                                      } else if (provider.currentPage ==
-                                          provider.totalPages) {
-                                        firstPage = provider.totalPages - 2;
-                                      } else {
-                                        firstPage = provider.currentPage - 1;
-                                      }
+                                    if (provider.totalPages == 2) {
+                                      firstPage = 1;
+                                    } else if (provider.currentPage == 1) {
+                                      firstPage = 1;
+                                    } else if (provider.currentPage ==
+                                        provider.totalPages) {
+                                      firstPage = provider.totalPages - 2;
+                                    } else {
+                                      firstPage = provider.currentPage - 1;
+                                    }
 
-                                      int visiblePage = firstPage + index;
-                                      if (visiblePage < 1 ||
-                                          visiblePage > provider.totalPages) {
-                                        return Container();
-                                      }
+                                    int visiblePage = firstPage + index;
+                                    if (visiblePage < 1 ||
+                                        visiblePage > provider.totalPages) {
+                                      return Container();
+                                    }
 
-                                      return GestureDetector(
-                                        onTap: () {
-                                          provider.currentPage = visiblePage;
-                                          provider.refreshCurrentPage();
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(2.0),
-                                          child: Container(
-                                            height: 40,
-                                            width: 25,
-                                            decoration: BoxDecoration(
-                                              color: provider.currentPage ==
-                                                      visiblePage
-                                                  ? Colors.white
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                '$visiblePage',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: provider.currentPage ==
-                                                          visiblePage
-                                                      ? primaryColor
-                                                      : Colors.white,
-                                                ),
+                                    return GestureDetector(
+                                      onTap: () {
+                                        provider.currentPage = visiblePage;
+                                        provider.refreshCurrentPage();
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(2.0),
+                                        child: Container(
+                                          height: 40,
+                                          width: 25,
+                                          decoration: BoxDecoration(
+                                            color: provider.currentPage ==
+                                                    visiblePage
+                                                ? Colors.white
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '$visiblePage',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: provider.currentPage ==
+                                                        visiblePage
+                                                    ? primaryColor
+                                                    : Colors.white,
                                               ),
                                             ),
                                           ),
                                         ),
-                                      );
-                                    })
-                                  : [],
-                            ),
+                                      ),
+                                    );
+                                  })
+                                : [],
                           ),
-                          SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.keyboard_double_arrow_right,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                              onPressed:
-                                  provider.currentPage < provider.totalPages
-                                      ? () {
-                                          provider.goToNextPage();
-                                        }
-                                      : null,
+                        ),
+                        SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.keyboard_double_arrow_right,
+                              size: 20,
+                              color: Colors.white,
                             ),
+                            onPressed:
+                                provider.currentPage < provider.totalPages
+                                    ? () {
+                                        provider.goToNextPage();
+                                      }
+                                    : null,
                           ),
-                        ],
-                      ),
-                    )
-                    // : Container(),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
                 const Spacer(),
                 Container(
                   color: Colors.grey[200],
@@ -1453,7 +1448,7 @@ class BottomTotalWidget extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
-                    140,
+                    160,
                   ),
                   _buildTableCell(
                     const Text(
@@ -1463,7 +1458,7 @@ class BottomTotalWidget extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
-                    100,
+                    120,
                   ),
                 ],
               ),
@@ -2040,6 +2035,7 @@ class CustomButton extends StatelessWidget {
 }
 
 enum EventType {
+  select,
   weekly,
   fortnightly,
   monthly,
@@ -2049,6 +2045,8 @@ enum EventType {
 extension EventTypeExtension on EventType {
   String get displayName {
     switch (this) {
+      case EventType.select:
+        return "-Select-";
       case EventType.weekly:
         return "Weekly";
       case EventType.fortnightly:
@@ -2057,13 +2055,13 @@ extension EventTypeExtension on EventType {
         return "Monthly";
       case EventType.daily:
         return "Daily";
-      default:
-        return "";
     }
   }
 
   int get value {
     switch (this) {
+      case EventType.select:
+        return 0;
       case EventType.weekly:
         return 2;
       case EventType.fortnightly:
@@ -2072,13 +2070,13 @@ extension EventTypeExtension on EventType {
         return 4;
       case EventType.daily:
         return 5;
-      default:
-        return 0;
     }
   }
 
   static EventType fromValue(int value) {
     switch (value) {
+      case 0:
+        return EventType.select;
       case 2:
         return EventType.weekly;
       case 3:
@@ -2379,11 +2377,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double totalTableWidth =
-        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160 + 100;
+        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160 + 120;
 
     double fixedRowHeight = isLandscape
         ? fullScreenHeight(context) / 9.05
-        : (fullScreenHeight(context) - (63 * 3)) / 10;
+        : (fullScreenHeight(context) - (66 * 3)) / 10;
 
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
       if (provider.isLoading) {
@@ -2391,7 +2389,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       } else if (provider.errorMessage.isNotEmpty) {
         return Center(
           child: Text(
-            provider.errorMessage.endsWith("Failed to load data")
+            provider.errorMessage.endsWith("404")
                 ? "NO CUSTOMERS FOUND"
                 : provider.errorMessage,
           ),

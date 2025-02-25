@@ -148,7 +148,7 @@ class CustomersProvider with ChangeNotifier {
       );
     }).toList();
 
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future<int> getCartItemCounts(String customerId) async {
@@ -206,6 +206,7 @@ Future<void> updateCartCount(String customerId) async {
   void updateSearchQuery(String query) async {
     log("updateSearchQuery query : $query");
     _searchCustomerName = query;
+    _currentPage = 1;
 
     try {
       if (query.isEmpty) {
@@ -492,10 +493,6 @@ Future<void> updateCartCount(String customerId) async {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
-    if (page <= 0) {
-      throw ArgumentError('Page must be greater than 0');
-    }
-
     _errorMessage = '';
     NotificationController notificationController =
         Get.find<NotificationController>();
@@ -507,8 +504,8 @@ Future<void> updateCartCount(String customerId) async {
         _selectedFilter == FilterDateEnum.range) {
       try {
         final now = DateTime.now();
-        String startDate = '';
-        String endDate = '';
+        String startDate;
+        String endDate;
 
         switch (_selectedFilter) {
           case FilterDateEnum.thisMonth:
@@ -540,28 +537,25 @@ Future<void> updateCartCount(String customerId) async {
             startDate = _selectedStartDate;
             endDate = _selectedEndDate;
             if (startDate.isEmpty || endDate.isEmpty) {
-              throw ArgumentError(
-                  'Invalid date range: startDate or endDate is empty.');
+              return;
             }
             break;
         }
 
         _isLoading = true;
-        log('fetchCustomer query: $_searchCustomerName');
-        log('Parameters: startDate=$startDate, endDate=$endDate, page=$page');
+        log("fetchCustomer query : $_searchCustomerName");
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          // salesmanId: '',
-         // SessionHelper.loginSavedData?.salesmanId??'',
           customerName: _searchCustomerName,
-          startDate: '',
-          endDate: '',
+          startDate: "",
+          endDate: "",
           limit: 10,
           page: page,
           valueFromDw: _selectedFilter.name == 'Range'
               ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
               : _selectedFilter.name,
         );
+        log('Selecetd Filters : ${_selectedFilter.name}');
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
@@ -571,16 +565,16 @@ Future<void> updateCartCount(String customerId) async {
           notifyListeners();
         }).catchError((error) {
           _isLoading = false;
-          _errorMessage = 'Failed to fetch customer data: $error';
+          _errorMessage = 'Failed to fetch customer data 3: $error';
           notifyListeners();
         });
       } catch (e, stackTrace) {
         _isLoading = false;
-        log('Error fetching customers: $e', error: e, stackTrace: stackTrace);
+        _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
         rethrow;
       }
     } else {
-      await fetchCustomerData(page: page);
+      await fetchCustomerData();
     }
   }
 

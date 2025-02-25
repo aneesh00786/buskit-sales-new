@@ -134,7 +134,7 @@ class GroupedItemDataRows {
                       ? formatAmount(groupedItem.totalPrice)
                       : groupedItem.detail.inclTax == ''
                           ? formatAmount(
-                              groupedItem.totalPrice + groupedItem.detail.tax!)
+                              groupedItem.totalPrice + groupedItem.detail.unitTax!*groupedItem.detail.count)
                           : formatAmount(groupedItem.totalPrice),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,

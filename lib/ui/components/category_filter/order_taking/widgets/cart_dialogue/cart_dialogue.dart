@@ -1811,7 +1811,9 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     cartItem.detail.count++;
                     log('This works');
-                    cartItem.totalPrice = Utils().calculateTotalPrice(cartItem);
+                    cartItem.totalPrice = cartItem.draftId == null
+                          ? Utils().calculateTotalPrice(cartItem)
+                          : Utils().calculateDraftTotalPrice(cartItem);
                     calculateAmounts(cartItem);
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');

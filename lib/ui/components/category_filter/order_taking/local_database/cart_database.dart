@@ -50,13 +50,9 @@ Future<List<CartItem>> getDraftItems() async {
 
         if (responseData['status'] == true) {
           final List<dynamic> orders = responseData['data'] ?? [];
-
-          // Clear draftBox before adding new items
           await draftBox.clear();
-
           for (var order in orders) {
             final List<dynamic> carts = order['cart'] ?? [];
-
             for (var cart in carts) {
               final detail = Detail(
                 id: cart['id'] as int?,

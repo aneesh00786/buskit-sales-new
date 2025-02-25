@@ -94,13 +94,10 @@ class Utils {
           double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
-      num tax = cartItem.detail.tax ?? 0;
+      num tax = cartItem.detail.unitTax ?? 0;
       log('Tax Amount = $tax');
-      double totalCount = cartItem.isPack == true ? count * pieces : count;
-      sellingPrice = cartItem.detail.inclTax == "incl_tax"
-          ? sellingPrice
-          : sellingPrice + tax;
-      return sellingPrice * totalCount;
+      double totalCount = cartItem.detail.packtype == "Pack" ? count * pieces : count;
+      return cartItem.detail.inclTax == "incl_tax"?sellingPrice * totalCount:sellingPrice * totalCount+tax*count;
     } else {
       return 0.0;
     }

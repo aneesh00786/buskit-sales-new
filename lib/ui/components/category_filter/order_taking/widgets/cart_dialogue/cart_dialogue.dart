@@ -104,11 +104,13 @@ class CartDialogueState extends State<CartDialogue> {
     super.initState();
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
-    Provider.of<CustomersProvider>(context,listen: false).getCartItemCounts(widget.customerOrderController?.customerId.value??'');
+    Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
+        widget.customerOrderController?.customerId.value ?? '');
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
   }
+
   void setOptions() {
     setState(() {
       filteredOptions = isOrder
@@ -116,6 +118,7 @@ class CartDialogueState extends State<CartDialogue> {
           : ['Pre Order', 'Estimate'];
     });
   }
+
   void _loadCartItems() async {
     try {
       final customerId = widget.isDashboard == true
@@ -132,7 +135,9 @@ class CartDialogueState extends State<CartDialogue> {
       orderSubtotal = orderItems.fold(
         0.0,
         (sum, item) {
-          return sum + (item.totalPrice);
+          return item.draftId != null && item.detail.inclTax == ""
+              ? sum + (item.totalPrice + num.parse(item.detail.tax.toString()))
+              : sum + (item.totalPrice);
         },
       );
       preorderSubtotal = preorderItems.fold(
@@ -157,11 +162,12 @@ class CartDialogueState extends State<CartDialogue> {
       );
       preorderTax = preorderItems.fold(
         0.0,
-       (sum, item) {
+        (sum, item) {
           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-          if (item.isPack == true) {
-            return sum +
-                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+          if (item.isPack == true||item.detail.packtype == "Pack") {
+            return item.draftId==null?sum +
+                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count)):sum +
+                (itemTax  * (item.detail.count));
           } else {
             return sum + (itemTax * (item.detail.count));
           }

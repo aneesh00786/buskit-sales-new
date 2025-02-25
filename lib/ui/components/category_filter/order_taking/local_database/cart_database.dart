@@ -278,7 +278,6 @@ Future<void> moveCartItemsToDraft(String customerId) async {
       count: cartItem.count,
       customerId: cartItem.customerId,
       cartId: cartItem.cartId,
-      draftId: cartItem.draftId,
       isChecked: cartItem.isChecked,
       draftTotal: cartItem.draftTotal,
       salesmanId: cartItem.salesmanId,

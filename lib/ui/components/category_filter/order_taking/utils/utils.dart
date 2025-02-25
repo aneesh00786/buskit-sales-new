@@ -32,7 +32,7 @@ class Utils {
   double calculateTotalTax(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
-        double tax = item.detail.tax?.toDouble() ?? 0.0;
+        double tax = item.detail.unitTax?.toDouble() ?? 0.0;
         int multiplier =
             (item.isPack == true||item.detail.packtype=="Pack" ? (item.detail.pieces!.toInt()) : 1);
         return sum + (tax * multiplier * item.detail.count.toDouble());

@@ -67,7 +67,7 @@ Future<List<CartItem>> getDraftItems() async {
                 variationName: cart['variation_name'] as String?,
                 unitType: cart['unitType'] as String?,
                 price: cart['price']?.toString(),
-                tax: num.tryParse(cart['unit_tax']?.toString() ?? '0'),
+                tax: num.tryParse(cart['tax']?.toString() ?? '0'),
                 packtype: cart['packtype'] as String?,
                 pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
                 stock: num.tryParse(cart['stock']?.toString() ?? '0'),
@@ -89,9 +89,10 @@ Future<List<CartItem>> getDraftItems() async {
                 count: cart['quantity'],
                 customerId: order['customer_id'],
                 cartId: cart['cart_id'],
-                draftId: cart['order_id'],
+                draftId: order['order_id'],
                 isPack: cart['packtype'] == "Pack" ? true : false,
               );
+              log('Draft ID : ${cartItem.draftId}');
               await draftBox.add(cartItem);
               fetchedItems.add(cartItem);
             }

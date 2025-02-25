@@ -94,11 +94,11 @@ class GroupedItemDataRows {
               fontSize: fontSize,
               content: (groupedItem.draftId?.isEmpty ?? true)
                   ? formatAmount(groupedItem.detail.tax! *
-                      (groupedItem.isPack == true
+                      (groupedItem.isPack == true||groupedItem.detail.packtype == 'Pack'
                           ? groupedItem.detail.pieces! *
                               groupedItem.detail.count
                           : 1))
-                  : formatAmount((groupedItem.draftId?.isEmpty ?? true)
+                  : formatAmount((groupedItem.draftId?.isNotEmpty ?? true)
                       ? groupedItem.detail.tax! * groupedItem.detail.count
                       : groupedItem.detail.tax!),
             ),

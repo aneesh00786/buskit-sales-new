@@ -65,6 +65,17 @@ class Utils {
       return sum;
     });
   }
+  double calculateDraftTotalTax(List<CartItem> items) {
+    return items.fold(0.0, (sum, item) {
+      if (item.isChecked == true) {
+        double tax = item.detail.unitTax?.toDouble() ?? 0.0;
+        int multiplier =
+            (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
+        return sum + (tax  * item.detail.count.toDouble());
+      }
+      return sum;
+    });
+  }
 
   double calculateTotalPrice(CartItem cartItem) {
     log('This Works');

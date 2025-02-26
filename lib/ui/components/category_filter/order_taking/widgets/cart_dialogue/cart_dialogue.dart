@@ -136,10 +136,10 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) {
           log('Total price init : ${item.totalPrice}');
-          log('Total unitTax init : ${item.detail.tax??0}');
+          log('Total unitTax init : ${item.detail.tax ?? 0}');
           log('Total count init : ${item.detail.count}');
           return item.draftId != null && item.detail.inclTax == ""
-              ? sum + item.totalPrice+item.detail.tax!
+              ? sum + item.totalPrice + item.detail.tax!
               : sum + (item.totalPrice);
         },
       );
@@ -154,11 +154,11 @@ class CartDialogueState extends State<CartDialogue> {
       orderTax = orderItems.fold(
         0.0,
         (sum, item) {
-          final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+          final double itemTax = item.detail.unitTax?.toDouble() ?? 0.0;
           if (item.isPack == true || item.detail.packtype == "Pack") {
             return item.draftId == null
                 ? sum +
-                    (itemTax * (item.detail.pieces ?? 1) * (item.detail.count))
+                    (itemTax  * (item.detail.count))
                 : sum + (itemTax * (item.detail.count));
           } else {
             return sum + (itemTax * (item.detail.count));
@@ -184,11 +184,10 @@ class CartDialogueState extends State<CartDialogue> {
         _isLoading = false;
         this.orderItems = orderItems;
         this.preorderItems = preorderItems;
-       // this.orderSubtotal = orderSubtotal;
+        // this.orderSubtotal = orderSubtotal;
         this.orderTax = orderTax;
         this.preorderSubtotal = preorderSubtotal;
         this.preorderTax = preorderTax;
-        
       });
       if (orderItems.isNotEmpty) {
         isOrder = true;
@@ -1813,10 +1812,10 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    
+
                     cartItem.totalPrice = cartItem.draftId == null
-                          ? Utils().calculateTotalPrice(cartItem)
-                          : Utils().calculateDraftTotalPrice(cartItem);
+                        ? Utils().calculateTotalPrice(cartItem)
+                        : Utils().calculateDraftTotalPrice(cartItem);
                     calculateAmounts(cartItem);
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');
@@ -1847,7 +1846,9 @@ class CartDialogueState extends State<CartDialogue> {
         orderSubtotal = cartItem.draftId == null
             ? Utils().calculateSubtotal(orderItems)
             : Utils().calculateDraftSubtotal(orderItems);
-        orderTax = Utils().calculateTotalTax(orderItems);
+        orderTax = cartItem.draftId == null
+            ? Utils().calculateTotalTax(orderItems)
+            : Utils().calculateDraftTotalTax(orderItems);
       } else {
         preorderSubtotal = Utils().calculateSubtotal(preorderItems);
         preorderTax = Utils().calculateTotalTax(preorderItems);

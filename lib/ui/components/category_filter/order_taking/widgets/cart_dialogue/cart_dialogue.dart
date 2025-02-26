@@ -145,12 +145,12 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) {
           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-
           if (item.isPack == true || item.detail.packtype == "Pack") {
+            log('Item Tax ${itemTax*(item.detail.pieces??1)}');
             return
-                //item.draftId == null
-                //? sum +
-                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+                // item.draftId == null
+                // ? sum +
+              sum +  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
             //: sum + (itemTax * (item.detail.count));
           } else {
             return sum + (itemTax * (item.detail.count));

@@ -20,90 +20,94 @@ class CartDatabaseManager {
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
-Future<List<CartItem>> getDraftItems() async {
-  final dio = Dio();
-  final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
-  final requestBody = {
-    "companyId": SessionHelper.loginSavedData?.company_id ?? '',
-    "customer_id": "",
-    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-    "order_type": 4,
-    "payment_type": 1,
-    "start_date": "2025-02-01",
-    "end_date": "2025-02-28",
-    "limit": 1000,
-    "page": 1,
-  };
+  Future<List<CartItem>> getDraftItems() async {
+    final dio = Dio();
+    final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+    final requestBody = {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? '',
+      "customer_id": "",
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "order_type": 4,
+      "payment_type": 1,
+      "start_date": "2025-02-01",
+      "end_date": "2025-02-28",
+      "limit": 1000,
+      "page": 1,
+    };
 
-  log('Request Body of FetchAll Order $requestBody');
-  final List<CartItem> fetchedItems = [];
+    log('Request Body of FetchAll Order $requestBody');
+    final List<CartItem> fetchedItems = [];
 
-  try {
-    final connectivityService = ConnectivityService();
-    final isOnline = await connectivityService.isOnline();
+    try {
+      final connectivityService = ConnectivityService();
+      final isOnline = await connectivityService.isOnline();
 
-    if (isOnline) {
-      final response = await dio.post(apiUrl, data: requestBody);
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        if (responseData['status'] == true) {
-          final List<dynamic> orders = responseData['data'] ?? [];
-          await draftBox.clear();
-          for (var order in orders) {
-            final List<dynamic> carts = order['cart'] ?? [];
-            for (var cart in carts) {
-              final detail = Detail(
-                productId: cart['product_id'] as String?,
-                variationId: cart['variation_id'] as String?,
-                price: cart['price']?.toString(),
-                tax: num.tryParse(cart['tax']?.toString() ?? '0'),
-                packtype: cart['packtype'] as String?,
-                pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
-                count: cart['quantity'] ?? 0,
-                sellPrice: cart['sell_price']?.toString() ?? '0',
-                inclTax: cart['incl_tax'],
-                inNo: cart['in_no'] as String?,
-                barcode: cart['barcode'] as String?,
-                variationName: cart['variation_name'] as String?,
-                unitType: cart['unitType'] as String?,
-                stock: num.tryParse(cart['stock']?.toString() ?? '0'),
-                lowstock: num.tryParse(cart['lowstock']?.toString() ?? '0'),
-                fullstock: num.tryParse(cart['fullstock']?.toString() ?? '0'),
-                saleBy: cart['packtype'] as String,
-                unitTax: cart['unit_tax'],
-              );
-              final cartItem = CartItem(
-                detail: detail,
-                productName: cart['product_name'],
-                totalPrice: double.tryParse(cart['total_price']) ?? 0.0,
-                count: cart['quantity'],
-                customerId: order['customer_id'],
-                cartId: cart['cart_id'],
-                draftId: order['order_id'],
-                isPack: cart['packtype'] == "Pack" ? true : false,
-              );
-              log('Draft ID : ${cartItem.draftId}');
-              log('Cart Items JSON ${cartItem.toJson()}');
-              await draftBox.add(cartItem);
-              fetchedItems.add(cartItem);
+      if (isOnline) {
+        final response = await dio.post(apiUrl, data: requestBody);
+        if (response.statusCode == 200) {
+          final responseData = response.data;
+          if (responseData['status'] == true) {
+            final List<dynamic> orders = responseData['data'] ?? [];
+            await draftBox.clear();
+            for (var order in orders) {
+              final List<dynamic> carts = order['cart'] ?? [];
+              for (var cart in carts) {
+                final detail = Detail(
+                  productId: cart['product_id'] as String? ?? '',
+                  variationId: cart['variation_id'] as String? ?? '',
+                  price: cart['price']?.toString() ?? '0',
+                  tax: num.tryParse(cart['tax']?.toString() ?? '0') ?? 0,
+                  packtype: cart['packtype'] as String? ?? '',
+                  pieces: num.tryParse(cart['pieces']?.toString() ?? '0') ?? 0,
+                  count: num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
+                  sellPrice: cart['sell_price']?.toString() ?? '0',
+                  inclTax: cart['incl_tax'] as String? ?? '',
+                  inNo: cart['in_no'] as String? ?? '',
+                  barcode: cart['barcode'] as String? ?? '',
+                  variationName: cart['variation_name'] as String? ?? '',
+                  unitType: cart['unitType'] as String? ?? '',
+                  stock: num.tryParse(cart['stock']?.toString() ?? '0') ?? 0,
+                  lowstock:
+                      num.tryParse(cart['lowstock']?.toString() ?? '0') ?? 0,
+                  fullstock:
+                      num.tryParse(cart['fullstock']?.toString() ?? '0') ?? 0,
+                  saleBy: cart['packtype'] as String? ?? '',
+                  unitTax:
+                      num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
+                );
+                final cartItem = CartItem(
+                  detail: detail,
+                  productName: cart['product_name'] as String? ?? '',
+                  totalPrice:
+                      double.tryParse(cart['total_price']?.toString() ?? '0') ??
+                          0.0,
+                  customerId: order['customer_id'] as String? ?? '',
+                  cartId: cart['cart_id'] as String? ?? '',
+                  draftId: order['order_id'] as String? ?? '',
+                  isPack: (cart['packtype'] as String? ?? '') == "Pack",
+                );
+
+                log('Draft ID : ${cartItem.draftId}');
+                log('Cart Items JSON ${cartItem.toJson()}');
+                await draftBox.add(cartItem);
+                fetchedItems.add(cartItem);
+              }
             }
+          } else {
+            log('API response status is false: ${responseData['message']}');
           }
         } else {
-          log('API response status is false: ${responseData['message']}');
+          log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
         }
       } else {
-        log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
+        log('No internet connection. Skipping API fetch.');
       }
-    } else {
-      log('No internet connection. Skipping API fetch.');
+      return fetchedItems;
+    } catch (e) {
+      log('Error fetching draft items: $e');
+      return [];
     }
-    return fetchedItems;
-  } catch (e) {
-    log('Error fetching draft items: $e');
-    return [];
   }
-}
-
 
   Future<List<CartItem>> getCartItems(String customerId) async {
     try {
@@ -256,37 +260,35 @@ Future<List<CartItem>> getDraftItems() async {
     _notifyListeners();
   }
 
-Future<void> moveCartItemsToDraft(String customerId) async {
-  final List<CartItem> cartItems = cartBox.values
-      .where((item) => item.customerId == customerId)
-      .toList();
-  for (final CartItem cartItem in cartItems) {
-    final CartItem draftItem = CartItem(
-      detail: cartItem.detail,
-      productName: cartItem.productName,
-      totalPrice: cartItem.totalPrice,
-      isPack: cartItem.isPack,
-      count: cartItem.count,
-      customerId: cartItem.customerId,
-      cartId: cartItem.cartId,
-      isChecked: cartItem.isChecked,
-      draftTotal: cartItem.draftTotal,
-      salesmanId: cartItem.salesmanId,
-    );
-    await draftBox.add(draftItem);
+  Future<void> moveCartItemsToDraft(String customerId) async {
+    final List<CartItem> cartItems =
+        cartBox.values.where((item) => item.customerId == customerId).toList();
+    for (final CartItem cartItem in cartItems) {
+      final CartItem draftItem = CartItem(
+        detail: cartItem.detail,
+        productName: cartItem.productName,
+        totalPrice: cartItem.totalPrice,
+        isPack: cartItem.isPack,
+        count: cartItem.count,
+        customerId: cartItem.customerId,
+        cartId: cartItem.cartId,
+        isChecked: cartItem.isChecked,
+        draftTotal: cartItem.draftTotal,
+        salesmanId: cartItem.salesmanId,
+      );
+      await draftBox.add(draftItem);
+    }
+    final List<int> indicesToRemove = cartBox.keys
+        .where((key) => cartBox.get(key)?.customerId == customerId)
+        .cast<int>()
+        .toList();
+
+    for (final int index in indicesToRemove) {
+      await cartBox.delete(index);
+    }
+
+    log('Cart items moved to draftBox and cartBox cleared for customer: $customerId');
   }
-  final List<int> indicesToRemove = cartBox.keys
-      .where((key) => cartBox.get(key)?.customerId == customerId)
-      .cast<int>()
-      .toList();
-
-  for (final int index in indicesToRemove) {
-    await cartBox.delete(index);
-  }
-
-  log('Cart items moved to draftBox and cartBox cleared for customer: $customerId');
-}
-
 
   Future<void> updateCartItemCount(Detail detail, int newCount) async {
     if (newCount <= 0) {

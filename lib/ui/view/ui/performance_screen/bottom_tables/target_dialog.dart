@@ -115,8 +115,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
 
   Future<void> _loadWeeklyType() async {
     final weeklyType = await ApiWorker().getWeeklyType();
-    isWeekly = weeklyType == "true";
-    log("Weekly state : ${weeklyType} $isWeekly");
+    widget.staffController.isWeekly.value = weeklyType == "true";
+    log("Weekly state : $weeklyType : ${widget.staffController.isWeekly.value}");
+    Future.delayed(Duration(seconds: 1));
   }
 
   void _initializeControllers() {
@@ -453,26 +454,19 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         ]
     };
 
-    log('Formatted Data before API Call: $formattedData');
-
     final weeklyTargetRequest =
         buildTargetRequestData(categoryIds, relevantWeeks);
     final weeklyProjectionRequest =
         buildProjectionRequestData(categoryIds, relevantWeeks);
 
-    log('Request Weekly Target Data: $weeklyTargetRequest');
-    log('Request Weekly Projection Data: $weeklyProjectionRequest');
-
     widget.staffController.updateCategoryTarget(
       SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
       selectedMonthName,
       currentYear.toString(),
-      formattedData,
-      weeklyTargetRequest,
-      weeklyProjectionRequest,
+      widget.isWeekly ? {} : formattedData,
+      widget.isWeekly ? weeklyTargetRequest : {},
+      widget.isWeekly ? weeklyProjectionRequest : {},
     );
-
-    print('Updated Targets Sent to API: $formattedData');
   }
 
   Widget _buildTableHeader(String text) {

@@ -38,8 +38,8 @@ class PerformanceScreen extends StatefulWidget {
 class _PerformanceScreenState extends State<PerformanceScreen>
     with SingleTickerProviderStateMixin {
   bool isActive = false;
+  bool isLoadingSettings = true;
   StaffController staffController = Get.put(StaffController());
-  // late final TabController _tabController;
   List<TextEditingController> _targetControllers = [];
   final int currentYear = DateTime.now().year;
   final int currentMonth = DateTime.now().month;
@@ -49,6 +49,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String selectedValue = "2025";
   String staffProjection = '';
   String targetType = '';
+
   Future<void> _loadSettings() async {
     await _loadWeeklyType();
     try {
@@ -75,18 +76,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     final weeklyType = await ApiWorker().getWeeklyType();
     staffController.isWeekly.value = weeklyType == "true";
     log("Weekly state : $weeklyType : ${staffController.isWeekly.value}");
+    Future.delayed(Duration(seconds: 1));
   }
 
   @override
   void initState() {
     super.initState();
+    _initializeSettings();
+
     ApiWorker().fetchAllSettings(companyId);
     _loadSettings();
-    // _tabController = TabController(
-    //   length: 12,
-    //   vsync: this,
-    //   initialIndex: currentMonth - 1,
-    // );
     staffController.tabController = TabController(
       length: 12,
       vsync: this,
@@ -119,6 +118,17 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     );
   }
 
+  Future<void> _initializeSettings() async {
+    setState(() => isLoadingSettings = true); // Set loading state
+
+    await Future.wait([
+      _loadSettings(),
+      _loadWeeklyType(),
+    ]);
+
+    setState(() => isLoadingSettings = false); // Update state when done
+  }
+
   void updateControllers(int count) {
     if (_targetControllers.length < count) {
       _targetControllers.addAll(
@@ -138,6 +148,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   @override
   Widget build(BuildContext context) {
     bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
+
+    if (isLoadingSettings) {
+      return const Center(
+          child:
+              CircularProgressIndicator()); // Show loader until settings are ready
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,
@@ -319,18 +336,17 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             return OptionsWidget(
               options: [
                 OptionData(
-                  title: 'Timesheet',
-                  count: targetContent?.timesheet?.toString() ?? '0',
-                  svg: "assets/icons/event.png",
-                  svgBgColor: const Color.fromARGB(255, 206, 252, 224),
-                  onTap: () {
-                    Get.dialog(
-                      StaffTimeSheetDialog(staffController: staffController)
-                    );
-                  }
-                  // => _showTileDialog(
-                  //     context, _selectedMonthName ?? '', 1, true),
-                ),
+                    title: 'Timesheet',
+                    count: targetContent?.timesheet?.toString() ?? '0',
+                    svg: "assets/icons/event.png",
+                    svgBgColor: const Color.fromARGB(255, 206, 252, 224),
+                    onTap: () {
+                      Get.dialog(StaffTimeSheetDialog(
+                          staffController: staffController));
+                    }
+                    // => _showTileDialog(
+                    //     context, _selectedMonthName ?? '', 1, true),
+                    ),
                 OptionData(
                   title: 'Check-in/out',
                   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
@@ -418,7 +434,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           child: CustomPerfoBarChart(
                             categoryPerformance: categoryPerformance!,
                             staffProjection: staffProjection,
-                            targetType: targetType,
+                            targetType: '1',
+                            // targetType: targetType,
                           ),
                         ),
                       );

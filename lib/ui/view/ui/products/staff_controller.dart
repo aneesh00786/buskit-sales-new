@@ -1,7 +1,7 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -9,11 +9,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/check
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sales_target_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
-import 'package:dio/src/response.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:dio/src/response.dart' as respo;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -47,15 +44,6 @@ class StaffController extends GetxController {
     "Status",
     ""
   ].obs;
-
-  // List<NkCustomProgressData> progressList = [
-  //   NkCustomProgressData(
-  //       progress: 100, progressColor: Color(0xFF3B6491), progressText: '20%'),
-  //   NkCustomProgressData(
-  //       progress: 100, progressColor: Color(0xFF15396A), progressText: '60%'),
-  //   NkCustomProgressData(
-  //       progress: 100, progressColor: Color(0xFF7A8F3D), progressText: '80%'),
-  // ];
 
   RxBool isWeekly = true.obs;
   RxInt selectedTabIndex = 0.obs;
@@ -157,30 +145,29 @@ class StaffController extends GetxController {
         staffId, selectedMonthName, currentYear, selectedMonthName);
   }
 
-// Future<respo.Response> updateCategoryTarget(
-//   String salesmanId,
-//   String month,
-//   String year,
-//   Map<dynamic, String> categoryData,
-//   Map<dynamic, String> weeklyTarget,
-// ) async {
-//   try {
-//     final data = await ApiWorker().updateCategoryTargetValue(
-//       salesmanId,
-//       month,
-//       year,
-//       categoryData,
-//       weeklyTarget,
-//     );
-//     print(data.statusMessage);
+  // Future<respo.Response> updateCategoryTarget(
+  //   String salesmanId,
+  //   String month,
+  //   String year,
+  //   Map<dynamic, String> categoryData,
+  //   Map<dynamic, String> weeklyTarget,
+  // ) async {
+  //   try {
+  //     final data = await ApiWorker().updateCategoryTargetValue(
+  //       salesmanId,
+  //       month,
+  //       year,
+  //       categoryData,
+  //       weeklyTarget,
+  //     );
+  //     print(data.statusMessage);
 
-//     // Return the Response<dynamic> object
-//     return data;
-//   } catch (e) {
-//     print('Error: $e');
-//     rethrow; // Preserve and rethrow the exception
-//   }
-// }
+  //     return data;
+  //   } catch (e) {
+  //     print('Error: $e');
+  //     rethrow;
+  //   }
+  // }
 
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
@@ -199,19 +186,6 @@ class StaffController extends GetxController {
       );
     }
   }
-
-  // addSalesman({required String idPath, required String browserPath}) async {
-  //   var mapData = await addStaffMapData(idPath, browserPath);
-  //   await _apiWorker.addStaff(mapData).onError((error, stackTrace) {
-  //     btnController.error();
-  //     btnController.reset();
-  //     return Future.error(error.toString());
-  //   });
-  //   btnController.success();
-  //   Get.back();
-  //   clearAllFileds;
-  //   loadStaffDataList;
-  // }
 
   Future<Map<String, dynamic>> addStaffMapData(
       String idPath, String browserPath) async {
@@ -232,22 +206,6 @@ class StaffController extends GetxController {
 
     return data;
   }
-
-  // Future<List<StaffData>> get loadStaffDataList async {
-  //   var data = await _apiWorker.getSalesManList(searchModel);
-  //   staffDataList.value = data.staffData!;
-  //   return data.staffData!;
-  // }
-
-//// CV ADD THIS GET CUSTOMER////
-//   Future<FetchSalesmanOfCustomer> getFetchSalesmanOfCustomer(String id) async {
-//     var data = await _apiWorker.fetchSalesmanOfCustomer(id);
-//     if (data.statusCode == 200) {
-//       customerData.value = data.data!;
-//       refresh();
-//     }
-//     return data;
-//   }
 
   ////fetch customer////
   Future<Iterable<CustomerAndOrderData>> loadCustomer(String? id) async {
@@ -271,36 +229,6 @@ class StaffController extends GetxController {
     return data.data!;
   }
 
-/*  Future<Iterable<CustomerAndOrderData>> get loadCustomer async {
-    */ /*  log("SALESMAN ${selectedStaff.value.salesmanId}");*/ /*
-    print("StartDate ${searchModel.startDate}");
-    var data = await _apiWorker.getCustomer('', searchModel, PaginationModel());
-    customerAndOrderList.assignAll(data.custAndOrderdata!);
-    refresh();
-    return data.custAndOrderdata!;
-  }*/
-
-  // Future<Map<String, dynamic>> get loadDataOfStaffCategory async =>
-  //     jsonDecode(await rootBundle.loadString(Assets.jsonDataStaffCategoryName));
-
-  // updateCalender(DateTime? startDate, DateTime? endDate) {
-  //   selectedDate = endDate ?? DateTime.now();
-  //   if (startDate != null && endDate != null) {
-  //     searchModel.startDate = NKDateUtils.apiDayFormat(startDate);
-  //     searchModel.endDate = NKDateUtils.apiDayFormat(endDate);
-  //     loadStaffDataList;
-  //     loadCustomer;
-  //     loadOrderData;
-  //   } else {
-  //     searchModel.startDate = "";
-  //     searchModel.endDate = "";
-  //     loadStaffDataList;
-  //     loadCustomer;
-  //     loadOrderData;
-  //   }
-  //   refresh();
-  // }
-
   get clearAllFileds => {
         salesmanNameTextController.clear(),
         emailTextController.clear(),
@@ -313,11 +241,14 @@ class StaffController extends GetxController {
       };
 
   RxBool isScheduleLoading = false.obs;
+
   RxList<ScheduleListData> scheduleList = <ScheduleListData>[].obs;
+
   String formatDate(DateTime date) {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     return formatter.format(date);
   }
+
   Future<List<ScheduleListData>?> loadScheduleData(
       DateTime startDate, DateTime endDate) async {
     try {

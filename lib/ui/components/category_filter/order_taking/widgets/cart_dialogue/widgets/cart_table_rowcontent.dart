@@ -52,9 +52,7 @@ class GroupedItemDataRows {
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 1,
-              content: (groupedItem.draftId?.isEmpty ?? true)
-                  ? formatAmount(groupedItem.detail.sellPrice ?? '0')
-                  : formatAmount(groupedItem.detail.sellPrice ?? '0'))),
+              content: formatAmount(groupedItem.detail.sellPrice ?? '0'))),
           DataCell(TableContent(
               fontSize: fontSize,
               maxLines: 2,
@@ -66,45 +64,25 @@ class GroupedItemDataRows {
             TableContent(
                 fontSize: fontSize,
                 maxLines: 1,
-                content: (groupedItem.draftId?.isEmpty ?? true)
-                    ? formatAmount(
-                        (double.tryParse(
-                                    groupedItem.detail.sellPrice?.toString() ??
-                                        '0') ??
-                                0.0) *
-                            ((groupedItem.detail.packtype == 'Pack' ||
-                                    groupedItem.isPack == true)
-                                ? (groupedItem.detail.pieces ?? 1)
-                                : 1),
-                      )
-                    : formatAmount(
-                        (double.tryParse(
-                                    groupedItem.detail.sellPrice?.toString() ??
-                                        '0') ??
-                                0.0) *
-                            ((groupedItem.detail.packtype == 'Pack' ||
-                                    groupedItem.isPack == true)
-                                ? (groupedItem.detail.pieces ?? 1)
-                                : 1),
-                      )),
+                content: formatAmount(
+                  (double.tryParse(groupedItem.detail.sellPrice?.toString() ??
+                              '0') ??
+                          0.0) *
+                      ((groupedItem.detail.packtype == 'Pack' ||
+                              groupedItem.isPack == true)
+                          ? (groupedItem.detail.pieces ?? 1)
+                          : 1),
+                )),
           ),
           DataCell(
             TableContent(
-              maxLines: 1,
-              fontSize: fontSize,
-              content: (groupedItem.draftId?.isEmpty ?? true)
-                  ? formatAmount(groupedItem.detail.tax! *
-                      (groupedItem.isPack == true ||
-                              groupedItem.detail.packtype == 'Pack'
-                          ? groupedItem.detail.pieces! *
-                              groupedItem.detail.count
-                          : 1))
-                  : formatAmount((groupedItem.draftId != null &&
-                              groupedItem.detail.inclTax == "Incl_tax" ||
-                          groupedItem.detail.packtype == 'Pack')
-                      ? groupedItem.detail.unitTax!
-                      : groupedItem.detail.tax!),
-            ),
+                maxLines: 1,
+                fontSize: fontSize,
+                content: formatAmount(groupedItem.detail.tax! *
+                    (groupedItem.isPack == true ||
+                            groupedItem.detail.packtype == 'Pack'
+                        ? groupedItem.detail.pieces! * groupedItem.detail.count
+                        : 1))),
           ),
           DataCell(
             Center(
@@ -112,16 +90,10 @@ class GroupedItemDataRows {
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
                   groupedItem,
-                  groupedItem.draftId?.isEmpty ?? true
-                      ? (groupedItem.detail.inclTax == 'incl_tax'
-                          ? groupedItem.totalPrice.toString()
-                          : (groupedItem.totalPrice + groupedItem.detail.tax!)
-                              .toString())
-                      : (groupedItem.detail.inclTax == 'incl_tax'
-                          ? groupedItem.detail.totalPrice.toString()
-                          : (groupedItem.detail.totalPrice ??
-                                  0 + groupedItem.detail.tax!)
-                              .toString()),
+                  (groupedItem.detail.inclTax == 'incl_tax'
+                      ? groupedItem.totalPrice.toString()
+                      : (groupedItem.totalPrice + groupedItem.detail.tax!)
+                          .toString()),
                   fontSize,
                   availableWidth,
                 ),
@@ -133,13 +105,7 @@ class GroupedItemDataRows {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: CustomText(
-                  content: (groupedItem.draftId?.isEmpty ?? true)
-                      ? formatAmount(groupedItem.totalPrice)
-                      : (groupedItem.detail.inclTax == "incl_tax"&&groupedItem.draftId!=null)
-                          ? formatAmount(groupedItem.totalPrice)
-                          : formatAmount(groupedItem.totalPrice +
-                              (groupedItem.detail.unitTax! *
-                                  groupedItem.detail.count)),
+                  content: formatAmount(groupedItem.totalPrice),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,
                   maxLine: 1,

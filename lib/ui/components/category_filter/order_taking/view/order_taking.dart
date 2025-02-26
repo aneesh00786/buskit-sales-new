@@ -313,10 +313,8 @@ class _OrderTakingState extends State<OrderTaking>
                       .toStringAsFixed(0),
                   discount: '0',
                 );
-
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToCart(productBYData.toJson());
-
                 log('Add to Cart Datas : ${productBYData.toJson()}');
                 if (cartOrder != null) {
                   int orderStatus = 4;

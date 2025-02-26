@@ -146,12 +146,9 @@ class CartDialogueState extends State<CartDialogue> {
         (sum, item) {
           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
           if (item.isPack == true || item.detail.packtype == "Pack") {
-            log('Item Tax ${itemTax*(item.detail.pieces??1)}');
-            return
-                // item.draftId == null
-                // ? sum +
-              sum +  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-            //: sum + (itemTax * (item.detail.count));
+            log('Item Tax ${itemTax * (item.detail.pieces ?? 1)}');
+            return sum +
+                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
           } else {
             return sum + (itemTax * (item.detail.count));
           }
@@ -162,10 +159,8 @@ class CartDialogueState extends State<CartDialogue> {
         (sum, item) {
           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
           if (item.isPack == true || item.detail.packtype == "Pack") {
-            return item.draftId == null
-                ? sum +
-                    (itemTax * (item.detail.pieces ?? 1) * (item.detail.count))
-                : sum + (itemTax * (item.detail.count));
+            return sum +
+                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
           } else {
             return sum + (itemTax * (item.detail.count));
           }
@@ -176,7 +171,7 @@ class CartDialogueState extends State<CartDialogue> {
         _isLoading = false;
         this.orderItems = orderItems;
         this.preorderItems = preorderItems;
-        // this.orderSubtotal = orderSubtotal;
+        this.orderSubtotal = orderSubtotal;
         this.orderTax = orderTax;
         this.preorderSubtotal = preorderSubtotal;
         this.preorderTax = preorderTax;

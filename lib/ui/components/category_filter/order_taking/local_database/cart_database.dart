@@ -252,6 +252,7 @@ class CartDatabaseManager {
         isPack: isPack,
         customerId: customerId,
         count: localCount,
+        boxType:false,
       );
       await cartBox.add(newCartItem);
       log('New product added to cart: ${newCartItem.detail.variationName}, '
@@ -275,6 +276,7 @@ class CartDatabaseManager {
         isChecked: cartItem.isChecked,
         draftTotal: cartItem.draftTotal,
         salesmanId: cartItem.salesmanId,
+        boxType: true,
       );
       await draftBox.add(draftItem);
     }
@@ -352,11 +354,20 @@ class CartDatabaseManager {
 
   void deleteCartItem(CartItem item) {
     final key = item.key;
-    if (cartBox.containsKey(key)) {
+    if(item.boxType==false){
+      if (cartBox.containsKey(key)) {
       log('Item found with key: $key, proceeding to delete');
       cartBox.delete(key);
     } else {
       log('Item with key: $key does not exist in cartBox');
+    }
+    }else{
+      if (draftBox.containsKey(key)) {
+      log('Item found with key: $key, proceeding to delete');
+      draftBox.delete(key);
+    } else {
+      log('Item with key: $key does not exist in cartBox');
+    }
     }
     _notifyListeners();
   }

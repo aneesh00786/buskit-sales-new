@@ -195,7 +195,7 @@ class Detail {
   @HiveField(29)
   num? unitTax;
 
-  @HiveField(29)
+  @HiveField(30)
   String? pack;
 
 

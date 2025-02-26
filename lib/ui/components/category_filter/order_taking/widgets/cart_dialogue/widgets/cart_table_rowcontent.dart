@@ -94,12 +94,15 @@ class GroupedItemDataRows {
               fontSize: fontSize,
               content: (groupedItem.draftId?.isEmpty ?? true)
                   ? formatAmount(groupedItem.detail.tax! *
-                      (groupedItem.isPack == true||groupedItem.detail.packtype == 'Pack'
+                      (groupedItem.isPack == true ||
+                              groupedItem.detail.packtype == 'Pack'
                           ? groupedItem.detail.pieces! *
                               groupedItem.detail.count
                           : 1))
-                  : formatAmount((groupedItem.draftId?.isNotEmpty ?? true)
-                      ? groupedItem.detail.tax! * groupedItem.detail.count
+                  : formatAmount((groupedItem.draftId != null &&
+                              groupedItem.detail.inclTax == "Incl_tax" ||
+                          groupedItem.detail.packtype == 'Pack')
+                      ? groupedItem.detail.unitTax!
                       : groupedItem.detail.tax!),
             ),
           ),
@@ -132,10 +135,11 @@ class GroupedItemDataRows {
                 child: CustomText(
                   content: (groupedItem.draftId?.isEmpty ?? true)
                       ? formatAmount(groupedItem.totalPrice)
-                      : groupedItem.detail.inclTax == ''
-                          ? formatAmount(
-                              groupedItem.totalPrice + groupedItem.detail.unitTax!*groupedItem.detail.count)
-                          : formatAmount(groupedItem.totalPrice),
+                      : (groupedItem.detail.inclTax == "incl_tax"&&groupedItem.draftId!=null)
+                          ? formatAmount(groupedItem.totalPrice)
+                          : formatAmount(groupedItem.totalPrice +
+                              (groupedItem.detail.unitTax! *
+                                  groupedItem.detail.count)),
                   textAlign: TextAlign.right,
                   fontSize: fontSize,
                   maxLine: 1,

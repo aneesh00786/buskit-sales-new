@@ -44,10 +44,8 @@ Future<List<CartItem>> getDraftItems() async {
 
     if (isOnline) {
       final response = await dio.post(apiUrl, data: requestBody);
-
       if (response.statusCode == 200) {
         final responseData = response.data;
-
         if (responseData['status'] == true) {
           final List<dynamic> orders = responseData['data'] ?? [];
           await draftBox.clear();
@@ -55,27 +53,23 @@ Future<List<CartItem>> getDraftItems() async {
             final List<dynamic> carts = order['cart'] ?? [];
             for (var cart in carts) {
               final detail = Detail(
-                id: cart['id'] as int?,
                 productId: cart['product_id'] as String?,
                 variationId: cart['variation_id'] as String?,
-                inNo: cart['in_no'] as String?,
-                barcode: cart['barcode'] as String?,
-                variationName: cart['variation_name'] as String?,
-                unitType: cart['unitType'] as String?,
                 price: cart['price']?.toString(),
                 tax: num.tryParse(cart['tax']?.toString() ?? '0'),
                 packtype: cart['packtype'] as String?,
                 pieces: num.tryParse(cart['pieces']?.toString() ?? '0'),
+                count: cart['quantity'] ?? 0,
+                sellPrice: cart['sell_price']?.toString() ?? '0',
+                inclTax: cart['incl_tax'],
+                inNo: cart['in_no'] as String?,
+                barcode: cart['barcode'] as String?,
+                variationName: cart['variation_name'] as String?,
+                unitType: cart['unitType'] as String?,
                 stock: num.tryParse(cart['stock']?.toString() ?? '0'),
                 lowstock: num.tryParse(cart['lowstock']?.toString() ?? '0'),
                 fullstock: num.tryParse(cart['fullstock']?.toString() ?? '0'),
-                imageUrl: cart['image_url'] as String?,
-                status: cart['status'] as int?,
-                count: cart['quantity'] ?? 0,
                 saleBy: cart['packtype'] as String,
-                sellPrice: cart['sell_price']?.toString() ?? '0',
-                inclTax: cart['incl_tax'],
-                initialQuantity: cart['quantity'],
                 unitTax: cart['unit_tax'],
               );
               final cartItem = CartItem(
@@ -89,6 +83,7 @@ Future<List<CartItem>> getDraftItems() async {
                 isPack: cart['packtype'] == "Pack" ? true : false,
               );
               log('Draft ID : ${cartItem.draftId}');
+              log('Cart Items JSON ${cartItem.toJson()}');
               await draftBox.add(cartItem);
               fetchedItems.add(cartItem);
             }

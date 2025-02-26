@@ -135,8 +135,11 @@ class CartDialogueState extends State<CartDialogue> {
       orderSubtotal = orderItems.fold(
         0.0,
         (sum, item) {
+          log('Total price init : ${item.totalPrice}');
+          log('Total unitTax init : ${item.detail.tax??0}');
+          log('Total count init : ${item.detail.count}');
           return item.draftId != null && item.detail.inclTax == ""
-              ? sum + (item.totalPrice + num.parse(item.detail.tax.toString()))
+              ? sum + item.totalPrice+item.detail.tax!
               : sum + (item.totalPrice);
         },
       );
@@ -181,10 +184,11 @@ class CartDialogueState extends State<CartDialogue> {
         _isLoading = false;
         this.orderItems = orderItems;
         this.preorderItems = preorderItems;
-        this.orderSubtotal = orderSubtotal;
+       // this.orderSubtotal = orderSubtotal;
         this.orderTax = orderTax;
         this.preorderSubtotal = preorderSubtotal;
         this.preorderTax = preorderTax;
+        
       });
       if (orderItems.isNotEmpty) {
         isOrder = true;
@@ -1561,7 +1565,6 @@ class CartDialogueState extends State<CartDialogue> {
 
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final isQuickSale = _selectedValue == "Quick Sale";
-
     final orderData = {
       'customer_id': customeController.customerId.isNotEmpty
           ? customeController.customerId.value
@@ -1810,7 +1813,7 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    log('This works');
+                    
                     cartItem.totalPrice = cartItem.draftId == null
                           ? Utils().calculateTotalPrice(cartItem)
                           : Utils().calculateDraftTotalPrice(cartItem);

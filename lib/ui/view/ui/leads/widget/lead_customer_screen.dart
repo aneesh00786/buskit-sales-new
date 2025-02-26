@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controlle
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class LeadCustomerScreen extends StatefulWidget {
   final CustomersController leadsCustomerController;
@@ -47,8 +48,12 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
         : MediaQuery.of(context).size.height / 10 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
-        padding: EdgeInsets.zero,
-        child: _buildTableLayout(context, fixedRowHeight));
+      padding: EdgeInsets.zero,
+      borderRadius: 0,
+      child: Obx(() {
+        return _buildTableLayout(context, fixedRowHeight);
+      }),
+    );
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
@@ -124,12 +129,15 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 10),
-                                      CustomText(
-                                        content:
-                                            leadCustomerData.businessName ?? '',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        overflow: TextOverflow.ellipsis,
+                                      Expanded(
+                                        child: CustomText(
+                                          content:
+                                              leadCustomerData.businessName ??
+                                                  '',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -245,15 +253,38 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.address ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.town ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.state ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.zipcode.toString() ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.businessNo ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.email ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.fullname ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.mobileno ?? '',),
-
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.address ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.town ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.state ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.zipcode.toString() ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.businessNo ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.email ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.fullname ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.mobileno ?? '',
+          ),
         ],
       ),
     );

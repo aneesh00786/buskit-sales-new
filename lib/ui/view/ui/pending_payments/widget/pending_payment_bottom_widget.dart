@@ -1,22 +1,16 @@
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_collect_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/order_details_diloag/order_details_diloag.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:intl/intl.dart';
@@ -62,7 +56,6 @@ class _PendingPaymentBottomWidgetState
           children: [
             _buildHeader(context),
             _buildOrderList(context, widget.orderController),
-            // _buildPageChanger(context),
           ],
         ),
       );
@@ -114,12 +107,15 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildHeaderText(String text, double fontSize) {
     return Center(
-      child: CustomText(
-        content: text,
+      child: Text(
+        text,
         textAlign: TextAlign.center,
-        fontSize: fontSize,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
+        style: const TextStyle(
+          fontSize: 12,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins_Regular',
+        ),
       ),
     );
   }
@@ -185,11 +181,6 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildCustomerDetails(
       CustomerData customerData, BuildContext context) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 5 : 8;
-    if (MediaQuery.of(context).orientation != Orientation.portrait) {
-      fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
-    }
-
     return GestureDetector(
       onTap: () => {},
       child: Row(
@@ -198,19 +189,20 @@ class _PendingPaymentBottomWidgetState
           const SizedBox(width: 8),
           ClipOval(
             child: Container(
-              height: 40,
-              width: 40,
+              height: 24,
+              width: 24,
               color: Colors.grey[200],
               child: Image.network(
                 'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
                 fit: BoxFit.cover,
-                width: 25,
-                height: 25,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[200],
-                    child:
-                        const Icon(Icons.person, color: Colors.blue, size: 25),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.grey,
+                      size: 30,
+                    ),
                   );
                 },
               ),
@@ -222,32 +214,34 @@ class _PendingPaymentBottomWidgetState
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CustomText(
-                  content: customerData.businessName ?? '',
-                  fontSize: 12,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  maxLine: 1,
+                Text(
+                  customerData.businessName,
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                CustomText(
-                  content: customerData.fullname ?? '',
-                  fontSize: 11,
-                  color: Colors.black,
-                  maxLine: 1,
+                Text(
+                  customerData.fullname,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 10,
+                  ),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                // Text(
-                //   customerData. ?? '',
-                //   style: const TextStyle(fontSize: 11, color: Colors.black),
-                //   maxLines: 1,
-                //   overflow: TextOverflow.ellipsis,
-                // ),
-                CustomText(
-                  content: customerData.email ?? '',
-                  fontSize: 10,
-                  color: Colors.black,
-                  maxLine: 1,
+                Text(
+                  customerData.email,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 10,
+                  ),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -260,24 +254,22 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildOrderNumber(CustomerData customerData, BuildContext context) {
     return Center(
-        child: Text(
-      customerData.orderId ?? '',
-      style: TextStyle(
-          fontSize: ResponsiveInfo.isMobileDimension(context) ? 8 : 12,
-          fontWeight: FontWeight.w800),
+        child: _buildRegularText(
+      customerData.orderId,
+      context,
+      maxLines: 1,
     ));
   }
 
   Widget _buildOrderCreatedDate(
       CustomerData customerData, BuildContext context) {
     return Center(
-      child: Text(
+      child: _buildRegularText(
         NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
           customerData.orderCreatAt.toString(),
         )),
-        style: TextStyle(
-            fontSize: ResponsiveInfo.isMobileDimension(context) ? 8 : 12,
-            fontWeight: FontWeight.w500),
+        context,
+        maxLines: 1,
       ),
     );
   }
@@ -287,15 +279,17 @@ class _PendingPaymentBottomWidgetState
     String? orderCreatAt = customerData.orderCreatAt.toString();
     String? dueDate;
 
-    if (creditPeriod != null && orderCreatAt != null) {
-      DateTime orderDate = DateTime.parse(orderCreatAt);
-      DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
-      dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
-    }
+    DateTime orderDate = DateTime.parse(orderCreatAt);
+
+    DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
+
+    dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
 
     return Center(
-      child: Text(
+      child: _buildRegularText(
         dueDate.toString(),
+        context,
+        maxLines: 1,
       ),
     );
   }
@@ -307,24 +301,15 @@ class _PendingPaymentBottomWidgetState
     DateTime currentDate = DateTime.now();
     int daysDifference = currentDate.difference(orderCreatedDate).inDays;
     return Center(
-      child: Text('$daysDifference'),
+      child: _buildRegularText('$daysDifference', context),
     );
   }
 
   Widget _buildOrderPrice(CustomerData customerData, BuildContext context) {
     return Center(
-        child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            formatAmount(customerData.orderTotal),
-            style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 11),
-          ),
-        ],
-      ),
-    ));
+      child: _buildRegularText(formatAmount(customerData.orderTotal), context,
+          fontWeight: FontWeight.w600, maxLines: 1),
+    );
   }
 
   Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
@@ -357,7 +342,7 @@ class _PendingPaymentBottomWidgetState
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     style: const TextStyle(
-                      fontSize: 8.0,
+                      fontSize: 10.0,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -963,7 +948,7 @@ class _PendingPaymentBottomWidgetState
       height: 58,
       color: Colors.grey[200],
       child: Padding(
-        padding:  EdgeInsets.only(top: 10,bottom: 10,right: MediaQuery.of(context).size.width*0.28),
+        padding: const EdgeInsets.all(10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

@@ -26,13 +26,13 @@ class _LeadsScreenState extends State<LeadsScreen> {
 
   @override
   void initState() {
-    leadsController.loadLeadsCustomerData().then((value) {
+    leadsController.loadLeadsCustomerData.then((value) {
       leadsController.leadsCustomerDataList.value = value;
     });
-    leadsCustomerController.loadLeadsCustomerData().then((value) {
+    leadsCustomerController.loadLeadsCustomerData.then((value) {
       leadsCustomerController.customersDataList.value = value;
     });
-    rejectedLeadsController.loadRejectedLeadsData().then((value) {
+    rejectedLeadsController.loadRejectedLeadsData.then((value) {
       rejectedLeadsController.rejectedLeadsDataList.value = value;
     });
     super.initState();

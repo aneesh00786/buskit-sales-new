@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -10,8 +9,7 @@ import 'package:get/get.dart';
 enum CustomerStatus { newReq, assignedTo, rejected }
 
 class CustomersController extends GetxController {
-  final ApiWorker _apiWorker = Get.find();
-  RxInt selectedTabIndex = 0.obs; // Track the selected tab index
+  RxInt selectedTabIndex = 0.obs;
 
   RxList<LeadCustomerData> customersDataList = <LeadCustomerData>[].obs;
 
@@ -138,18 +136,21 @@ class CustomersController extends GetxController {
   //   return data;
   // }
 
-Future<List<LeadCustomerData>> loadLeadsCustomerData() async {
-  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-  try {
-    var data = await _apiWorker.getLeadsData(salesmanId, paginationModel: PaginationModel());
-    customersDataList.assignAll(data.leadCustomerData!);
-    return data.leadCustomerData!;
-  } catch (e) {
-    log('Error fetching leads customer data: $e');
-    return [];
+  RxBool isLeadsCustomerDataLoading = false.obs;
+  Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
+    isLeadsCustomerDataLoading.value = true;
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+    try {
+      var data = await ApiWorker().getLeadsCustomerData(salesmanId,
+          paginationModel: PaginationModel());
+      customersDataList.assignAll(data.leadCustomerData!);
+      return data.leadCustomerData!;
+    } catch (e) {
+      rethrow;
+    } finally {
+      isLeadsCustomerDataLoading.value = false;
+    }
   }
-}
-
 
   /// Widget Section
   // CustomerStatus typeToConvertStatus(int statusType) {

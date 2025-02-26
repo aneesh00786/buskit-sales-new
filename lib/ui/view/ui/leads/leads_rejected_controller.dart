@@ -78,23 +78,21 @@ class RejectedLeadsController extends GetxController {
     // loadRejectedLeadsData();
   }
 
-Future updateRejectedLead(LeadCustomerData leadData) async {
-  final companyId = SessionHelper.loginSavedData?.company_id??0;
-  final sendData = leadData.toUpdateJson();
-  sendData['companyId'] = companyId;
-  var data = await ApiWorker()
-      .updateCustomer(sendData)
-      .onError((error, stackTrace) {
-    btnController.error();
-    btnController.reset();
-    return Future.error(error.toString());
-  });
-  if (data.statusCode == 200) {
-    btnController.success();
-    Get.back<LeadCustomerData>(result: leadData);
+  Future updateRejectedLead(LeadCustomerData leadData) async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final sendData = leadData.toUpdateJson();
+    sendData['companyId'] = companyId;
+    var data =
+        await ApiWorker().updateCustomer(sendData).onError((error, stackTrace) {
+      btnController.error();
+      btnController.reset();
+      return Future.error(error.toString());
+    });
+    if (data.statusCode == 200) {
+      btnController.success();
+      Get.back<LeadCustomerData>(result: leadData);
+    }
   }
-}
-
 
   // Future addRejectedLead(
   //     {required String browserPath,
@@ -128,7 +126,7 @@ Future updateRejectedLead(LeadCustomerData leadData) async {
     });
     btnController.success();
     Get.back();
-    loadRejectedLeadsData();
+    loadRejectedLeadsData;
   }
 
   // Future<Map<String, dynamic>> addStaffMapData(
@@ -160,22 +158,20 @@ Future updateRejectedLead(LeadCustomerData leadData) async {
   //   return data;
   // }
 
-Future<List<LeadCustomerData>> loadRejectedLeadsData() async {
-  try {
-    // Fetch rejected leads data using the API
-    var data = await ApiWorker().getLeadsRejectedData(paginationModel: PaginationModel());
-    
-    // Assign the fetched data to the list
-    rejectedLeadsDataList.assignAll(data.leadCustomerData!);
-    
-    return data.leadCustomerData!;
-  } catch (e) {
-    log('Error fetching rejected leads data: $e');
-    // Handle error, return an empty list or handle as needed
-    return [];
+  RxBool isLeadsRejectsDataLoading = false.obs;
+  Future<List<LeadCustomerData>> get loadRejectedLeadsData async {
+    isLeadsRejectsDataLoading.value = false;
+    try {
+      var data = await ApiWorker()
+          .getLeadsRejectedData(paginationModel: PaginationModel());
+      rejectedLeadsDataList.assignAll(data.leadCustomerData!);
+      return data.leadCustomerData!;
+    } catch (e) {
+      rethrow;
+    } finally {
+      isLeadsRejectsDataLoading.value = false;
+    }
   }
-}
-
 
   /// Widget Section
   CustomerStatus typeToConvertStatus(int statusType) {

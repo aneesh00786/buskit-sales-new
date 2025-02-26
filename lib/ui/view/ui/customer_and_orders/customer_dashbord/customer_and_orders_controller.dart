@@ -97,7 +97,7 @@ class CustomerAndOrderController extends GetxController {
   Future deleteCustomer(String customerId, int index) async {
     final companyId = SessionHelper.loginSavedData?.company_id??0;
     var map = {"id": customerId,"companyId":companyId};
-    var data = await ApiWorker().deleteCustomer(map);
+    var data = await ApiWorker().deleteCustomer(customerId);
     if (data.statusCode == 200 && data.data["status"] == true) {
       customerAndOrderList.removeAt(index);
     }

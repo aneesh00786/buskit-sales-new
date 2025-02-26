@@ -440,9 +440,9 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                       log("No subcategory found. Products not fetched.");
                     }
                     await Future.delayed(const Duration(microseconds: 500));
-                    await leadsController.loadLeadsCustomerData();
-                    await leadsCustomerController.loadLeadsCustomerData();
-                    await leadsRejectedController.loadRejectedLeadsData();
+                    await leadsController.loadLeadsCustomerData;
+                    await leadsCustomerController.loadLeadsCustomerData;
+                    await leadsRejectedController.loadRejectedLeadsData;
                     await Future.delayed(const Duration(microseconds: 500));
                     ApiWorker().getRecentOrdersData(
                       searchModel: searchData,

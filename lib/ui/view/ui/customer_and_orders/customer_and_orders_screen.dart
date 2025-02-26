@@ -43,7 +43,6 @@ class _TableeeState extends State<Tableee> {
   @override
   void initState() {
     super.initState();
-
     Provider.of<CustomersProvider>(context, listen: false).currentPage = 1;
 
     _scrollController1.addListener(() {
@@ -127,7 +126,7 @@ class _TableeeState extends State<Tableee> {
                   child: FrozenHeaderTable(
                 scrollController: _scrollController1,
               )),
-              const SizedBox(height: 58),
+              // const SizedBox(height: 58),
             ],
           ),
           Positioned(
@@ -914,7 +913,7 @@ class TopTotalWidget extends StatelessWidget {
     final CustomerAndOrderController customerAndOrderController =
         CustomerAndOrderController();
     double totalTableWidth =
-        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 100;
+        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160 + 120;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1060,7 +1059,7 @@ class TopTotalWidget extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      140,
+                      120,
                     ),
                     _buildTableHeader(
                       const Text(
@@ -1158,7 +1157,7 @@ class TopTotalWidget extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      140,
+                      180,
                     ),
                     _buildTableHeader(
                       const Center(
@@ -1172,7 +1171,7 @@ class TopTotalWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      100,
+                      120,
                     ),
                   ],
                 ),
@@ -1355,6 +1354,10 @@ class BottomTotalWidget extends StatelessWidget {
                               fontSize: 17, fontWeight: FontWeight.w700)),
                     ),
                     120,
+                  ),
+                  _buildTableCell(
+                    SizedBox.shrink(),
+                    20,
                   ),
                   _buildTableCell(
                     Column(
@@ -2394,8 +2397,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                 : provider.errorMessage,
           ),
         );
-        // return noCustomerDataWidget(provider, totalTableWidth,
-        //     widget.scrollController, customerAndOrderController);
       } else if (provider.customersFuture == null) {
         return const Center(child: Text('No data available'));
       } else {
@@ -2416,31 +2417,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     width: 260,
                     child: Column(
                       children: [
-                        // _buildTableHeader(
-                        //   Padding(
-                        //     padding: const EdgeInsets.all(10),
-                        //     child: TextField(
-                        //       onChanged: (query) {
-                        //         provider.updateSearchQuery(query);
-                        //       },
-                        //       decoration: InputDecoration(
-                        //         hintText: 'Search',
-                        //         hintStyle: const TextStyle(color: Colors.grey),
-                        //         fillColor: Colors.white,
-                        //         filled: true,
-                        //         border: OutlineInputBorder(
-                        //           borderRadius: BorderRadius.circular(3.2),
-                        //           borderSide: BorderSide.none,
-                        //         ),
-                        //         contentPadding: const EdgeInsets.symmetric(
-                        //           horizontal: 9.5,
-                        //           vertical: 9.5,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        //   260,
-                        // ),
                         Expanded(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.vertical,
@@ -2646,223 +2622,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Container(
-                            //   color: primaryColor,
-                            //   child: Row(
-                            //     children: [
-                            //       _buildTableHeader(
-                            //         Row(
-                            //           children: [
-                            //             const Padding(
-                            //               padding: EdgeInsets.all(8.0),
-                            //               child: Text(
-                            //                 'Sale',
-                            //                 style: TextStyle(
-                            //                   fontSize: 12,
-                            //                   color: Colors.white,
-                            //                   fontWeight: FontWeight.bold,
-                            //                   fontFamily: 'Poppins_Regular',
-                            //                 ),
-                            //                 maxLines: 2,
-                            //                 overflow: TextOverflow.ellipsis,
-                            //               ),
-                            //             ),
-                            //             Obx(() {
-                            //               return Padding(
-                            //                 padding: const EdgeInsets.only(
-                            //                     bottom: 20, top: 20),
-                            //                 child: Container(
-                            //                   decoration: BoxDecoration(
-                            //                     color: Colors.white,
-                            //                     borderRadius:
-                            //                         BorderRadius.circular(2.0),
-                            //                   ),
-                            //                   child: DropdownButton<String>(
-                            //                     iconSize: 14,
-                            //                     value:
-                            //                         customerAndOrderController
-                            //                             .selectedYear.value,
-                            //                     onChanged: (String? newValue) {
-                            //                       if (newValue != null) {
-                            //                         customerAndOrderController
-                            //                             .updateSelectedYear(
-                            //                                 newValue);
-                            //                       }
-                            //                     },
-                            //                     items:
-                            //                         customerAndOrderController
-                            //                             .years
-                            //                             .map<
-                            //                                 DropdownMenuItem<
-                            //                                     String>>((String
-                            //                                 value) {
-                            //                       return DropdownMenuItem<
-                            //                           String>(
-                            //                         value: value,
-                            //                         child: Padding(
-                            //                           padding: const EdgeInsets
-                            //                               .symmetric(
-                            //                               horizontal: 4.0),
-                            //                           child: Text(
-                            //                             value,
-                            //                             style: TextStyle(
-                            //                               fontSize:
-                            //                                   value.length > 4
-                            //                                       ? 8.0
-                            //                                       : 12.0,
-                            //                               color: Colors.black,
-                            //                               fontWeight:
-                            //                                   FontWeight.bold,
-                            //                               fontFamily:
-                            //                                   'Poppins_Regular',
-                            //                             ),
-                            //                             maxLines: 2,
-                            //                             overflow: TextOverflow
-                            //                                 .ellipsis,
-                            //                           ),
-                            //                         ),
-                            //                       );
-                            //                     }).toList(),
-                            //                     dropdownColor: Colors.white,
-                            //                     isExpanded: false,
-                            //                     underline: Container(),
-                            //                   ),
-                            //                 ),
-                            //               );
-                            //             })
-                            //           ],
-                            //         ),
-                            //         120,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Sales',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Delivery',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Payments',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Pre-Order',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Estimates',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Drafts',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Cancelled',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         140,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Text(
-                            //           'Visits',
-                            //           style: TextStyle(
-                            //             fontSize: 12,
-                            //             color: Colors.white,
-                            //             fontWeight: FontWeight.bold,
-                            //             fontFamily: 'Poppins_Regular',
-                            //           ),
-                            //           maxLines: 2,
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ),
-                            //         160,
-                            //       ),
-                            //       _buildTableHeader(
-                            //         const Center(
-                            //           child: Text(
-                            //             'SE',
-                            //             style: TextStyle(
-                            //               fontSize: 12,
-                            //               color: Colors.white,
-                            //               fontWeight: FontWeight.bold,
-                            //               fontFamily: 'Poppins_Regular',
-                            //             ),
-                            //           ),
-                            //         ),
-                            //         100,
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
                             Expanded(
                               child: SingleChildScrollView(
                                 physics: const ClampingScrollPhysics(),
@@ -3232,7 +2991,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   ),
                                                 ),
                                               ),
-                                              100,
+                                              120,
                                             ),
                                           ],
                                         ),

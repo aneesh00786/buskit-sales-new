@@ -314,7 +314,7 @@ class _OrderTakingState extends State<OrderTaking>
                   discount: '0',
                 );
                 CartOrderModel? cartOrder =
-                    await ApiWorker().addToCart(productBYData.toJson());
+                    await ApiWorker().addToDraft(productBYData.toJson());
                 log('Add to Cart Datas : ${productBYData.toJson()}');
                 if (cartOrder != null) {
                   int orderStatus = 4;
@@ -438,7 +438,7 @@ class _OrderTakingState extends State<OrderTaking>
                   discount: '0',
                 );
                 CartOrderModel? cartOrder =
-                    await ApiWorker().addToCart(productBYData.toJson());
+                    await ApiWorker().addToDraft(productBYData.toJson());
                 if (cartOrder != null) {
                   int orderStatus = 4;
                   CartOrderModel order = CartOrderModel(

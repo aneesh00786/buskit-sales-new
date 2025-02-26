@@ -338,9 +338,13 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                     child: const Text('Cancel'),
                                   ),
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(true),
-                                    child: const Text('Delete'),
+                                    onPressed: () {
+                                      widget.leadsController.deleteLeads(
+                                          leadCustomerData.customerId
+                                              .toString());
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Confirm'),
                                   ),
                                 ],
                               );

@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,7 +21,10 @@ class LeadsStatusSelect extends StatefulWidget {
 class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
   late String _selectedValue = 'Select';
   final LeadsController _leadsController = Get.put(LeadsController());
-
+  final CustomersController _leadsCustomerController =
+      Get.put(CustomersController());
+  final RejectedLeadsController _leadsRejectController =
+      Get.put(RejectedLeadsController());
   void _onDropdownChanged(String? newValue) async {
     bool isConnected = await ConnectivityService().isOnline();
     if (!mounted) return;
@@ -39,6 +43,9 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
       }
       print('Customer ID: ${widget.customerId}');
       print('Selected value: $newValue');
+      _leadsController.loadLeadsCustomerData;
+      _leadsCustomerController.loadLeadsCustomerData;
+      _leadsRejectController.loadRejectedLeadsData;
     }
   }
 
@@ -94,7 +101,10 @@ class LeadsRejectedStatusSelect extends StatefulWidget {
 
 class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
   late String _selectedValue = 'Rejected';
-  final RejectedLeadsController _rejectedLeadsController =
+  final LeadsController _leadsController = Get.put(LeadsController());
+  final CustomersController _leadsCustomerController =
+      Get.put(CustomersController());
+  final RejectedLeadsController _leadsRejectController =
       Get.put(RejectedLeadsController());
 
   @override
@@ -116,16 +126,19 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
       setState(() {
         _selectedValue = newValue;
       });
+
       if (_selectedValue == 'Accept') {
-        _rejectedLeadsController.handleRejectedLeadStatus(
+        _leadsRejectController.handleRejectedLeadStatus(
             widget.customerId, 'accept');
       } else if (_selectedValue == 'Move to Leads') {
-        _rejectedLeadsController.handleRejectedLeadStatus(
+        _leadsRejectController.handleRejectedLeadStatus(
             widget.customerId, 'move_lead');
       }
-
       print('Customer ID: ${widget.customerId}');
       print('Selected value: $newValue');
+      _leadsController.loadLeadsCustomerData;
+      _leadsCustomerController.loadLeadsCustomerData;
+      _leadsRejectController.loadRejectedLeadsData;
     }
   }
 

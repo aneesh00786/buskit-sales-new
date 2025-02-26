@@ -22,6 +22,7 @@ mixin class ApiConstants {
   static const String fetch_cart = "fetch_cart";
   static const String customer_order_history = "customer_order_history";
   static const String add_to_cart = "add_to_cart";
+  static const String add_to_draft = "add_to_draft";
   static const String cart_delete = "cart_delete";
   static const String fetch_one_customer = "fetch_one_customer";
   static const String add_events = "add_events";
@@ -44,7 +45,7 @@ mixin class ApiConstants {
   static const String handle_lead = "handle_lead";
   static const String fetch_leads_reject = "fetch_leads_reject";
   static const String fetch_specific_order = "fetch_specific_order";
-  static const String update_CategorytargetValue = "Update_CategoryProjectionValue";
+  static const String update_CategorytargetValue = "Update_CategorytargetValue";
   static const String salesman_dashview = "salesman_dashview";
   static const String salesman_dash_navcontents = "salesman_dash_navcontents";
   static const String fetchAllSetting = "fetchAllSetting";
@@ -63,6 +64,7 @@ mixin class ApiConstants {
   static const String fetch_leads = "fetch_leads";
   static const String update_customer = "update_customer";
   static const String fetch_salesmanTarget = "fetch_salesmanTarget";
+  static const String fetch_leads_customer = "fetch_leads_customer";
 
   /// CALENDAR API
   static const String search_salesman = "search_salesman";

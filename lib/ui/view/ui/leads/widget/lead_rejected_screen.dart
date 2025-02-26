@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class LeadRejectedScreen extends StatefulWidget {
   final RejectedLeadsController rejectedLeadsController;
@@ -49,8 +50,12 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
         : MediaQuery.of(context).size.height / 10 -
             MediaQuery.of(context).size.height * 0.032;
     return MyCommnonContainer(
-        padding: EdgeInsets.zero,
-        child: _buildTableLayout(context, fixedRowHeight));
+      borderRadius: 0,
+      padding: EdgeInsets.zero,
+      child: Obx(() {
+        return _buildTableLayout(context, fixedRowHeight);
+      }),
+    );
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {

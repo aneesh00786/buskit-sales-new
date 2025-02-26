@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+
 enum CustomerStatus { newReq, assignedTo, rejected }
 
 class LeadsController extends GetxController {
@@ -66,9 +67,11 @@ class LeadsController extends GetxController {
     selectedTabIndex.value = newIndex;
     // loadOrderData(chartIndex: newIndex);
   }
-    void deleteLead(int id) {
+
+  void deleteLead(int id) {
     leadsCustomerDataList.removeWhere((lead) => lead.id == id);
   }
+
   Future updateLeads(LeadCustomerData leadData) async {
     var data = await ApiWorker()
         .updateCustomer(leadData.toUpdateJson())
@@ -150,16 +153,23 @@ class LeadsController extends GetxController {
     return data;
   }
 
-Future<List<LeadCustomerData>> loadLeadsCustomerData() async {
-  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-  var data = await ApiWorker().getLeadsData(
-    salesmanId,
-    paginationModel: PaginationModel(),
-  );
-  leadsCustomerDataList.assignAll(data.leadCustomerData!);
-  return data.leadCustomerData!;
-}
-
+  RxBool isLeadsCustomerDataLoading = false.obs;
+  Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
+    isLeadsCustomerDataLoading.value = true;
+    try {
+      final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+      var data = await ApiWorker().getLeadsData(
+        salesmanId,
+        paginationModel: PaginationModel(),
+      );
+      leadsCustomerDataList.assignAll(data.leadCustomerData!);
+      return data.leadCustomerData!;
+    } catch (e) {
+      rethrow;
+    } finally {
+      isLeadsCustomerDataLoading.value = false;
+    }
+  }
 
   /// Widget Section
   CustomerStatus typeToConvertStatus(int statusType) {
@@ -245,5 +255,10 @@ Future<List<LeadCustomerData>> loadLeadsCustomerData() async {
         color: switchColor,
       ),
     );
+  }
+
+  void deleteLeads(String customerId) {
+    ApiWorker().deleteCustomer(customerId);
+    loadLeadsCustomerData;
   }
 }

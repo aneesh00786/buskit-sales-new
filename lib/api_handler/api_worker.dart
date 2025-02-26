@@ -599,6 +599,40 @@ class ApiWorker with ApiConstants {
       return null;
     }
   }
+  Future<CartOrderModel?> addToDraft(Map<String, dynamic> sendData) async {
+    sendData['companyId'] = companyId;
+    log('[addToDraft] Request Data: ${sendData.toString()}');
+    try {
+      final response = await dio
+          .postbycustom(
+        '${ApiConstants.add_to_draft}',
+        data: FormData.fromMap(sendData),
+      )
+          .onError((DioError error, stackTrace) {
+        log('[addToCart] DioError occurred.');
+        log('[addToCart] Error Type: ${error.type}');
+        log('[addToCart] Error Message: ${error.message}');
+        log('[addToCart] Error Data: ${error.response?.data}');
+        log('[addToCart] Status Code: ${error.response?.statusCode}');
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+      if (response.statusCode == 200) {
+        if (response.data['cart_id'] == null) {
+          log('[addToCart] Cart ID is null in response.');
+          return null;
+        }
+
+        log('[addToCart] Response Data: ${response.data}');
+        return CartOrderModel.fromJson(response.data);
+      } else {
+        log('[addToCart] Unexpected status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      log('[addToCart] Exception: $e');
+      return null;
+    }
+  }
 
   Future<Response> deleteCartItem(String cartId, String variationId) async {
     final response = await dio
@@ -612,12 +646,13 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<Response> deleteCustomer(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${FormData.fromMap(sendData).fields}");
-    final response = await dio
-        .postbycustom(ApiConstants.delete_customer,
-            data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+    Future<Response> deleteCustomer(String id) async {
+    // sendData['companyId'] = companyId;
+    final response =
+        await dio.postbycustom(ApiConstants.delete_customer, data: {
+      "companyId": companyId,
+      "id": id,
+    }).onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -1713,5 +1748,23 @@ class ApiWorker with ApiConstants {
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
     return response;
+  }
+
+    Future<LeadResponce> getLeadsCustomerData(String salesManId,
+      {PaginationModel? paginationModel}) async {
+    final response = await dio
+        .postbycustom(ApiConstants.fetch_leads_customer,
+            data: FormData.fromMap({
+              "page": paginationModel!.currentPage,
+              "limit": 10,
+              "salesman_id": "",
+              "companyId": companyId,
+            }))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+
+    return LeadResponce.fromJson(response.data);
   }
 }

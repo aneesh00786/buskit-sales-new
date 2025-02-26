@@ -346,6 +346,7 @@ void handleBackNavigation(
             }
 
             if (statusCode == 200) {
+              CartDatabaseManager().moveCartItemsToDraft(customerId);
               final draftId = response?['id'];
               showDialog(
                 context: context,

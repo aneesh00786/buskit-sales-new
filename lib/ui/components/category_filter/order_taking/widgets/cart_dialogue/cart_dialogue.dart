@@ -154,11 +154,13 @@ class CartDialogueState extends State<CartDialogue> {
       orderTax = orderItems.fold(
         0.0,
         (sum, item) {
-          final double itemTax = item.detail.unitTax?.toDouble() ?? 0.0;
+          final double itemTax = item.draftId == null
+              ? item.detail.tax?.toDouble() ?? 0.0
+              : item.detail.unitTax?.toDouble() ?? 0;
           if (item.isPack == true || item.detail.packtype == "Pack") {
             return item.draftId == null
                 ? sum +
-                    (itemTax  * (item.detail.count))
+                    (itemTax * (item.detail.pieces ?? 1) * (item.detail.count))
                 : sum + (itemTax * (item.detail.count));
           } else {
             return sum + (itemTax * (item.detail.count));

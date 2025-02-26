@@ -10,6 +10,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../api_handler/api_worker.dart';
+
 class StaffValueTargetDialog extends StatefulWidget {
   final StaffController staffController;
   final bool isTarget;
@@ -45,10 +47,18 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   @override
   void initState() {
     super.initState();
+    _loadWeeklyType();
     _initializeState();
     log("WEEKLY ${widget.isWeekly}");
 
     widget.staffController.tabController.addListener(_handleTabChange);
+  }
+
+  Future<void> _loadWeeklyType() async {
+    final weeklyType = await ApiWorker().getWeeklyType();
+    widget.staffController.isWeekly.value = weeklyType == "true";
+    log("Weekly state : $weeklyType : ${widget.staffController.isWeekly.value}");
+    Future.delayed(Duration(seconds: 1));
   }
 
   @override
@@ -572,7 +582,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
       int target = 0;
       if (weekData is Map<String, dynamic>) {
-        target = weekData[weekKey] ?? 0;
+        target = weekData["value"] ?? 0; // key is value
       }
 
       int projection = 0;

@@ -327,8 +327,9 @@ class _OrderTakingState extends State<OrderTaking>
                     orderStatus: orderStatus,
                     draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
                   );
-                  await placeOrder(order, (statusCode, message, response) async{
-                     CartDatabaseManager().moveCartItemsToDraft(customerId);
+                  await placeOrder(order,
+                      (statusCode, message, response) async {
+                    CartDatabaseManager().moveCartItemsToDraft(customerId);
                     Navigator.pop(context);
                     if (statusCode == 200) {
                       showDialog(

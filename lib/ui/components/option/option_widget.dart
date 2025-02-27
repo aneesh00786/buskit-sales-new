@@ -1250,7 +1250,20 @@ class OptionWidget extends StatelessWidget {
                                                                                 true,
                                                                             customerId:
                                                                                 customer?.customerId ?? '',
-                                                                            
+                                                                            onContinueShopping:
+                                                                                () {
+                                                                              final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                              customerOrderController.setCustomerId(customer?.customerId ?? '');
+                                                                              cartProvider.updateCartCount(customer?.customerId??'');
+                                                                              productsController.selectedCustomerName.value = customer?.businessName??'';
+                                                                              productsController.selectedCustomerImageUrl.value = customer?.imageUrl??'';
+                                                                              productsController.selectedCustomerId.value = customer?.customerId??'';
+                                                                              Future.delayed(const Duration(milliseconds: 300), () {
+                                                                                homeController?.sidebarXController.selectIndex(2);
+                                                                                homeController?.selectedIndex.value = 2;
+                                                                                Get.toNamed(AppRoutes.product, id: 2);
+                                                                              });
+                                                                            },
                                                                           );
                                                                         },
                                                                       );
@@ -1444,7 +1457,6 @@ class OptionWidget extends StatelessWidget {
         return "0";
     }
   }
-
 
   // String getOrderStatusString(OrderStatus status) {
   //   switch (status) {

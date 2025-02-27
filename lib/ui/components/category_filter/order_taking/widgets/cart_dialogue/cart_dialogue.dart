@@ -106,7 +106,7 @@ class CartDialogueState extends State<CartDialogue> {
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
         widget.customerOrderController?.customerId.value ?? '');
-     calculateAmounts();
+    calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
   }
@@ -121,9 +121,8 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _loadCartItems() async {
     try {
-      final customerId = widget.isDashboard == true
-          ? widget.customerId
-          : (widget.customerOrderController!.customerId.value.isNotEmpty
+      final customerId =
+          (widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value);
       final cartItems =
@@ -133,9 +132,9 @@ class CartDialogueState extends State<CartDialogue> {
       preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
       orderSubtotal = orderItems.fold(
-  0.0,
-  (sum, item) => item.isChecked! ? sum + item.totalPrice : sum,
-);
+        0.0,
+        (sum, item) => item.isChecked! ? sum + item.totalPrice : sum,
+      );
 
       preorderSubtotal = preorderItems.fold(0.0, (sum, item) {
         return sum + (item.totalPrice);
@@ -638,8 +637,9 @@ class CartDialogueState extends State<CartDialogue> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: filteredOptions.map((option) {
                               totalQuickController.text = isOrder
-                                  ? '\$${double.parse(orderSubtotal.toString())}'
-                                  : '\$${double.parse(preorderSubtotal.toString())}';
+                                  ? '\$${orderSubtotal?.toStringAsFixed(2) ?? '0.00'}'
+                                  : '\$${preorderSubtotal?.toStringAsFixed(2) ?? '0.00'}';
+
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
@@ -1023,92 +1023,111 @@ class CartDialogueState extends State<CartDialogue> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomCartButton(
-                            text: 'Save & Send',
-                            size: width > 1200 ? 14 : 10,
-                            onTap: () async {
-                              if (widget.active == true) {
-                                final finalAmount =
-                                    double.parse(totalQuickController.text);
-                                final customerId =
-                                    customeController.customerId.isNotEmpty
-                                        ? customeController.customerId.value
-                                        : widget.productsController
-                                            .selectedCustomerId.value;
-                                final fetchedCartDraftData =
-                                    await CartDatabaseManager()
-                                        .getDraftAndCartIdsFromApi(customerId);
-                                final cartIdApi = fetchedCartDraftData
-                                        .isNotEmpty
-                                    ? fetchedCartDraftData.first['cart_id'] ??
-                                        ''
-                                    : '';
-                                final draftIdApi = fetchedCartDraftData
-                                        .isNotEmpty
-                                    ? fetchedCartDraftData.first['draft_id'] ??
-                                        ''
-                                    : '';
-                                if (_selectedValue == "Quick Sale") {
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
+                              text: 'Save & Send',
+                              size: width > 1200 ? 14 : 10,
+                              onTap: () async {
+                                if (widget.active == true) {
+                                  final sanitizedText = totalQuickController
+                                      .text
+                                      .replaceAll(RegExp(r'[^\d.]'), '')
+                                      .trim();
+                                  if (sanitizedText.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text('Invalid amount entered'),
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final finalAmount =
+                                      double.parse(sanitizedText);
+                                  final customerId =
+                                      customeController.customerId.isNotEmpty
+                                          ? customeController.customerId.value
+                                          : widget.productsController
+                                              .selectedCustomerId.value;
+                                  final fetchedCartDraftData =
+                                      await CartDatabaseManager()
+                                          .getDraftAndCartIdsFromApi(
+                                              customerId);
+                                  final cartIdApi = fetchedCartDraftData
+                                          .isNotEmpty
+                                      ? fetchedCartDraftData.first['cart_id'] ??
+                                          ''
+                                      : '';
+                                  final draftIdApi =
+                                      fetchedCartDraftData.isNotEmpty
+                                          ? fetchedCartDraftData
+                                                  .first['draft_id'] ??
+                                              ''
+                                          : '';
+                                  if (_selectedValue == "Quick Sale") {
+                                    if (_formKey.currentState?.validate() ??
+                                        false) {
+                                      await processSaveAndSend(
+                                        finalAmount: finalAmount,
+                                        paymentType: paymentType,
+                                        context: context,
+                                        cartId: cartIdApi,
+                                        draftId: draftIdApi,
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          backgroundColor: Colors.red,
+                                          content: Text(
+                                              'Please fill all required fields'),
+                                          duration: Duration(seconds: 3),
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    log('CustomerId : $customerId');
                                     await processSaveAndSend(
                                       finalAmount: finalAmount,
-                                      paymentType: paymentType,
                                       context: context,
                                       cartId: cartIdApi,
                                       draftId: draftIdApi,
                                     );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: Colors.red,
-                                        content: Text(
-                                            'Please fill all required fields'),
-                                        duration: Duration(seconds: 3),
-                                      ),
-                                    );
                                   }
                                 } else {
-                                  await processSaveAndSend(
-                                      finalAmount: finalAmount,
-                                      context: context,
-                                      cartId: cartIdApi,
-                                      draftId: draftIdApi);
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Center(
+                                          child: Icon(
+                                            Icons.warning_amber_rounded,
+                                            color: Colors.red,
+                                            size: 60,
+                                          ),
+                                        ),
+                                        content: CustomText(
+                                          content:
+                                              'Please check-in before processing the order',
+                                          fontSize: 18,
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.of(context,
+                                                      rootNavigator: true)
+                                                  .pop();
+                                            },
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                 }
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Center(
-                                        child: Icon(
-                                          Icons.warning_amber_rounded,
-                                          color: Colors.red,
-                                          size: 60,
-                                        ),
-                                      ),
-                                      content: CustomText(
-                                        content:
-                                            'Please check-in before processing the order',
-                                        fontSize: 18,
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop();
-                                          },
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                          ),
+                              }),
                           const SizedBox(width: 30),
                           CustomCartButton(
                             text: 'Continue Shopping',
@@ -1233,10 +1252,10 @@ class CartDialogueState extends State<CartDialogue> {
     required String cartId,
     required String draftId,
   }) async {
-    List<CartItem> itemList =
-        cartItems.where((item) => item.isChecked ?? true).toList();
+    List<CartItem> itemList = isOrder
+        ? orderItems.where((item) => item.isChecked ?? true).toList()
+        : orderItems.where((item) => item.isChecked ?? true).toList();
     final connectivityService = ConnectivityService();
-
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
             widget.productsController.selectedCustomerId.value.isNotEmpty)) {

@@ -106,7 +106,7 @@ class CartDialogueState extends State<CartDialogue> {
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
         widget.customerOrderController?.customerId.value ?? '');
-    // calculateAmounts();
+     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
   }
@@ -133,11 +133,10 @@ class CartDialogueState extends State<CartDialogue> {
       preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
       orderSubtotal = orderItems.fold(
-        0.0,
-        (sum, item) {
-          return sum + (item.totalPrice);
-        },
-      );
+  0.0,
+  (sum, item) => item.isChecked! ? sum + item.totalPrice : sum,
+);
+
       preorderSubtotal = preorderItems.fold(0.0, (sum, item) {
         return sum + (item.totalPrice);
       });
@@ -1760,7 +1759,7 @@ class CartDialogueState extends State<CartDialogue> {
                       cartItem.detail.count--;
                       cartItem.totalPrice =
                           Utils().calculateTotalPrice(cartItem);
-                      calculateAmounts(cartItem);
+                      calculateAmounts();
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
                       CartDatabaseManager().updateCart(cartItem);
@@ -1801,7 +1800,7 @@ class CartDialogueState extends State<CartDialogue> {
 
                     cartItem.totalPrice = Utils().calculateTotalPrice(cartItem);
 
-                    calculateAmounts(cartItem);
+                    calculateAmounts();
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');
                     CartDatabaseManager().updateCart(cartItem);
@@ -1825,7 +1824,7 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void calculateAmounts(CartItem cartItem) {
+  void calculateAmounts() {
     setState(() {
       if (isOrder) {
         orderSubtotal = Utils().calculateSubtotal(orderItems);

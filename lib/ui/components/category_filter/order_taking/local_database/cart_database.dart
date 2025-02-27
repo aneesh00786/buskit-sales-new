@@ -358,16 +358,16 @@ class CartDatabaseManager {
       if (cartBox.containsKey(key)) {
       log('Item found with key: $key, proceeding to delete');
       cartBox.delete(key);
-    } else {
-      log('Item with key: $key does not exist in cartBox');
-    }
+      } else {
+        log('Item with key: $key does not exist in cartBox');
+      }
     }else{
       if (draftBox.containsKey(key)) {
       log('Item found with key: $key, proceeding to delete');
       draftBox.delete(key);
-    } else {
-      log('Item with key: $key does not exist in cartBox');
-    }
+      } else {
+        log('Item with key: $key does not exist in cartBox');
+      }
     }
     _notifyListeners();
   }

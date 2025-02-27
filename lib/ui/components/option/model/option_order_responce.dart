@@ -42,6 +42,7 @@ class OptionOrderData {
   int? orderStatus;
   String? cartId;
   String? orderCreatAt;
+  String? generatedDate;
   String? deliveryDatetime;
   num? orderTotal;
   List<CustomerCart>? cart;
@@ -57,6 +58,7 @@ class OptionOrderData {
     this.orderStatus,
     this.cartId,
     this.orderCreatAt,
+    this.generatedDate,
     this.deliveryDatetime,
     this.orderTotal,
     this.cart,
@@ -72,6 +74,7 @@ class OptionOrderData {
     orderStatus = json['order_status'] as int?;
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
+    generatedDate = json['generated_date'] as String?;
     deliveryDatetime = json['delivery_datetime'] as String?;
     orderTotal = json['order_total'] as num?;
     customer = (json['customer'] as List?)
@@ -113,6 +116,7 @@ class OptionOrderData {
     json['order_status'] = orderStatus;
     json['cart_id'] = cartId;
     json['order_creat_at'] = orderCreatAt;
+    json['generated_date'] = generatedDate;
     json['delivery_datetime'] = deliveryDatetime;
     json['order_total'] = orderTotal;
     json['cart'] = cart?.map((e) => e.toJson()).toList();

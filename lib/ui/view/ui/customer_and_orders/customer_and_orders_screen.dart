@@ -105,7 +105,7 @@ class _TableeeState extends State<Tableee> {
         surfaceTintColor: white,
         actions: [
           SizedBox(
-              width: MediaQuery.of(context).size.width * 0.92,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: calender()),
           const Spacer()
         ],

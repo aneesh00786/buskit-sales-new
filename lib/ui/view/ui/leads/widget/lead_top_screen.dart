@@ -27,7 +27,7 @@ class LeadTopScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -37,7 +37,10 @@ class LeadTopScreen extends StatelessWidget {
             // AddLeadsBt(),
             addLeads(context),
             Spacer(),
-            NotificationWidget(startDate: '', endDate: '',),
+            NotificationWidget(
+              startDate: '',
+              endDate: '',
+            ),
             profiloe(),
           ],
         ),
@@ -80,90 +83,88 @@ class LeadTopScreen extends StatelessWidget {
   //   );
   // }
 }
-  Widget profiloe() {
-    return Consumer<DashboardProvider>(builder: (context, provider, child) {
-      HomeController homeController = Get.put(HomeController());
-      log('Profile pic Path :${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
-      return FutureBuilder<AdminResponse>(
-        future: provider.adminResponse,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: SpinKitFadingCube(
-                color: primaryColor, 
-                size: 20.0,
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final admin = snapshot.data!.data.first;
-            return SizedBox(
-              width: 110,
-              child: Container(
-                height: 44,
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      CircleAvatar(
-                        backgroundColor: const Color(0xffe6ecff),
-                        radius: 15,
-                        child: admin.imagePath != null
-                            ? CachedNetworkImage(
-                                imageUrl:
-                                    '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    Icon(Icons.error),
-                                imageBuilder: (context, imageProvider) =>
-                                    Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: imageProvider,
-                                      fit: BoxFit.cover,
-                                    ),
+
+Widget profiloe() {
+  return Consumer<DashboardProvider>(builder: (context, provider, child) {
+    HomeController homeController = Get.put(HomeController());
+    log('Profile pic Path :${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
+    return FutureBuilder<AdminResponse>(
+      future: provider.adminResponse,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: SpinKitFadingCube(
+              color: primaryColor,
+              size: 20.0,
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final admin = snapshot.data!.data.first;
+          return SizedBox(
+            width: 110,
+            child: Container(
+              height: 44,
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    CircleAvatar(
+                      backgroundColor: const Color(0xffe6ecff),
+                      radius: 15,
+                      child: admin.imagePath != null
+                          ? CachedNetworkImage(
+                              imageUrl:
+                                  '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: imageProvider,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
-                              )
-                            : Icon(Icons
-                                .person),
-                      ),
-                      const SizedBox(
-                        width: 4.5,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyRegularText(
-                              label: homeController.userDetails?.fullname ??
-                                  '',
-                              fontSize: 10.5),
-                          // SizedBox(
-                          //   height: 2.5,
-                          // ),
-                          MyRegularText(
-                            label: "Salesman",
-                            fontSize: 8.5,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+                              ),
+                            )
+                          : Icon(Icons.person),
+                    ),
+                    const SizedBox(
+                      width: 4.5,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MyRegularText(
+                            label: homeController.userDetails?.fullname ?? '',
+                            fontSize: 10.5),
+                        // SizedBox(
+                        //   height: 2.5,
+                        // ),
+                        MyRegularText(
+                          label: "Salesman",
+                          fontSize: 8.5,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ],
+                    )
+                  ],
                 ),
               ),
-            );
-          } else {
-            return NodataWidget();
-          }
-        },
-      );
-    });
-  }
- 
+            ),
+          );
+        } else {
+          return NodataWidget();
+        }
+      },
+    );
+  });
+}

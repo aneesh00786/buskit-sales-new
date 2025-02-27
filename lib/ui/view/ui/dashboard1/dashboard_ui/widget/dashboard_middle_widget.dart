@@ -8,7 +8,6 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/doughnut_default_delivery.dart';
@@ -17,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersst
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/dashboard_customer_dailog/dashboard_customer_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/dashboard_quantity_dailog/dashboard_quantity_dialog.dart';
@@ -54,6 +52,7 @@ import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:image/image.dart' as img;
+
 class DashBoardMiddleWidget extends StatefulWidget {
   final DashBoardController dashBoardController;
   BuildContext context;
@@ -469,7 +468,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Order Status'),
                 Padding(
-                  padding: const EdgeInsets.only(right: 10,),
+                  padding: const EdgeInsets.only(
+                    right: 10,
+                  ),
                   child: InkWell(
                     onTap: () {
                       showOrderStatusChartDialog(
@@ -621,7 +622,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     if (staffProjection == "1" && targetType == "1") {
       displayText = "Category Target / Projection / Actuals";
     } else if (staffProjection == "1" && targetType == "0") {
-      displayText = "Category Projection / Actuals";
+      displayText = "Category Actuals";
+      // displayText = "Category Projection / Actuals";
     } else if (staffProjection == "0" && targetType == "1") {
       displayText = "Category Target / Actuals";
     } else {
@@ -673,7 +675,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                         onTap: () {
                           showCategoryChartDialog(
                             context,
-                            "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
+                            "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' && targetType == '1' ? "Projection / " : ''}Actuals",
+                            // "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
                             staffProjection,
                             targetType,
                           );
@@ -738,8 +741,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             child: CustomBarChart(
                               categoryPerformance: categoryPerformance!,
                               allCategory: categories!,
-                              staffProjection: staffProjection,
-                              targetType: targetType,
+                              staffProjection:
+                                  targetType == '1' ? staffProjection : '0',
+                              targetType: targetType == '1' ? '1' : '0',
                             ),
                           );
                         } else {
@@ -838,7 +842,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           final bookingRevenueLength =
                               categoryPerformance.bookingRevenueData!.isNotEmpty
                                   ? categoryPerformance.bookingRevenueData!
-                                      .map((e) => e.total ?? 0.0)
+                                      .map((e) => e.orderTotal ?? 0.0)
                                       .reduce((a, b) => a + b)
                                   : 0.0;
 
@@ -1151,9 +1155,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             (data) => formatAmount(
                               product.inclTax == "incl_tax"
                                   ? ((double.tryParse(
-                                              data.totalPrice.toString()) ??
-                                          0)
-                                      )
+                                          data.totalPrice.toString()) ??
+                                      0))
                                   : (((double.tryParse(
                                                   data.totalPrice.toString()) ??
                                               0) *
@@ -1214,7 +1217,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                         ),
                       );
                     } else if (snapshot.hasData) {
-                      topSellingProducts = snapshot.data!.topSellingProducts??[];
+                      topSellingProducts =
+                          snapshot.data!.topSellingProducts ?? [];
                       return Expanded(
                           child: topSellingProductList(topSellingProducts));
                     } else {

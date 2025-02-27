@@ -1306,7 +1306,7 @@ class ApiWorker with ApiConstants {
           "order_status": orderStatus,
           "start_date": '',
           "end_date": '',
-          "limit": 20,
+          "limit": 10,
           "page": page,
           "companyId": companyId,
           "salesman_id": salesmanId,

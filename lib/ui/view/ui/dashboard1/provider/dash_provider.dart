@@ -319,7 +319,8 @@ class ApiService {
       'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
       'last_date': endDate,
       'start_date': startDate,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? ''
+      "salesman_id": '',
+      // SessionHelper.loginSavedData?.salesmanId ?? ''
     };
 
     try {

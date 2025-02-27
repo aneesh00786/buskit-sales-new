@@ -131,7 +131,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             userId: "",
             startDate: widget.dashBoardController.selectedStartDate.value,
             endDate: widget.dashBoardController.selectedEndDate.value,
-            homeController: widget.homeController,
           );
         }),
       ],

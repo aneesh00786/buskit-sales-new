@@ -372,14 +372,14 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Obx(() {
-        // if (widget.staffController.isTimesheetLoading.value) {
-        //   return Container(
-        //     width: MediaQuery.of(context).size.width * 0.7,
-        //     height: 200,
-        //     padding: const EdgeInsets.all(20.0),
-        //     child: const Center(child: Text('LOADING')),
-        //   );
-        // }
+        if (widget.staffController.isTimesheetLoading.value) {
+          return Container(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: 200,
+            // padding: const EdgeInsets.all(20.0),
+            child: const Center(child: Text('LOADING')),
+          );
+        }
 
         if (widget.staffController.staffTimesheetData.isEmpty) {
           return Container(

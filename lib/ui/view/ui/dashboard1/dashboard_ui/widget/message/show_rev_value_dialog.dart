@@ -187,7 +187,7 @@ void showValueDialog(
                                                     .orderTotal
                                                 : categoryData
                                                     .bookingRevenueData![index]
-                                                    .total,
+                                                    .orderTotal,
                                           ),
                                         ),
                                       ),
@@ -244,7 +244,7 @@ void showValueDialog(
                                                     .isNotEmpty
                                             ? formatAmount(categoryData
                                                 .bookingRevenueData!
-                                                .map((e) => e.total ?? 0.0)
+                                                .map((e) => e.orderTotal ?? 0.0)
                                                 .fold(0.0, (a, b) => a + b))
                                             : formatAmount(0.0),
                                     style: const TextStyle(

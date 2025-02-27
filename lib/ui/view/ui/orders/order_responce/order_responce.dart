@@ -84,6 +84,8 @@ class OrderData {
   num? orderTotal;
   String? fullname;
   String? lastname;
+  String? editedFullname;
+  String? editedLastname;
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
   List<CustomerAssignedSalesman>? salesman;
@@ -103,6 +105,8 @@ class OrderData {
     this.orderTotal,
     this.fullname,
     this.lastname,
+    this.editedFullname,
+    this.editedLastname,
     this.cart,
     this.salesman,
     // this.receivableAmount,
@@ -121,6 +125,9 @@ class OrderData {
     orderTotal = num.tryParse(json['order_total'].toString())??0;
     fullname = json['fullname'] as String?;
     lastname = json['lastname'] as String?;
+    editedFullname = json['edited_fullname'] as String?;
+    editedLastname = json['edited_lastname'] as String?;
+    
     invoice = (json['invoice'] as List?)
         ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -170,6 +177,8 @@ class OrderData {
     json['order_total'] = orderTotal;
     json['fullname'] = fullname;
     json['lastname'] = lastname;
+    json['edited_fullname'] = editedFullname;
+    json['edited_lastname'] = editedLastname;
     json['cart'] = cart?.map((e) => e.toJson()).toList();
     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();

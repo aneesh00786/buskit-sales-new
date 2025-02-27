@@ -37,7 +37,7 @@ class OrderController extends GetxController {
   var currentPage = 1.obs;
   var totalPages = 0.obs;
   RxBool isOrderLoading = false.obs;
-  
+
   Future<void> loadOrderCountData() async {
     isCountLoading(true);
     try {
@@ -97,10 +97,11 @@ class OrderController extends GetxController {
 //     return data.data!;
 //   }
 
-
-
   Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     orderDataList.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      orderDataList.clear();
+    });
     isOrderLoading.value = true;
 
     switch (selectedIndex) {
@@ -152,6 +153,7 @@ class OrderController extends GetxController {
       }
     } catch (e) {
       log("Error loading order data: $e");
+      isOrderLoading.value = false;
     } finally {
       isOrderLoading.value = false;
     }

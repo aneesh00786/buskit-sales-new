@@ -59,24 +59,24 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     switch (index) {
       case 0:
         return notificationController
-            .recentOrderCountData.mainNotification?.recentOrders??0
-            .toInt();
+                .recentOrderCountData.mainNotification?.recentOrders ??
+            0.toInt();
       case 1:
         return notificationController
-            .recentOrderCountData.mainNotification?.waitingForApproval??0
-            .toInt();
+                .recentOrderCountData.mainNotification?.waitingForApproval ??
+            0.toInt();
       case 2:
         return notificationController
-            .recentOrderCountData.mainNotification?.quickSale??0
-            .toInt();
+                .recentOrderCountData.mainNotification?.quickSale ??
+            0.toInt();
       case 3:
         return notificationController
-            .recentOrderCountData.mainNotification?.processingOrders??0
-            .toInt();
+                .recentOrderCountData.mainNotification?.processingOrders ??
+            0.toInt();
       case 4:
-        return notificationController
-            .recentOrderCountData.mainNotification?.packedAndReadyForDelivery??0
-            .toInt();
+        return notificationController.recentOrderCountData.mainNotification
+                ?.packedAndReadyForDelivery ??
+            0.toInt();
       case 5:
         return 0;
       case 6:
@@ -116,7 +116,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                       itemBuilder: (context, index) {
                         bool isSelected = _selectedTabIndex == index;
                         int count = _getCountForTab(index);
-    
+
                         return GestureDetector(
                           onTap: () {
                             setState(() {
@@ -133,9 +133,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                               horizontal: 16,
                             ),
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Colors.cyan
-                                  : Colors.transparent,
+                              color:
+                                  isSelected ? Colors.cyan : Colors.transparent,
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10),
@@ -148,9 +147,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                   duration: const Duration(milliseconds: 300),
                                   curve: Curves.easeInOut,
                                   style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : Colors.cyan,
+                                    color:
+                                        isSelected ? Colors.white : Colors.cyan,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                   ),
@@ -183,32 +181,39 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
             ),
           ),
         ),
-        Obx(() {
-          if (widget.orderController.isLoading.value ||
-              widget.orderController.isCountLoading.value) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.4,
-                ),
-                SpinKitFadingCube(
-                  color: primaryColor,
-                  size: 20.0,
-                ),
-              ],
-            );
-          }
-          return Expanded(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.9,
-              child: OrderBottomWidget(
-                orderController: widget.orderController,
-                selectedTabIndex: _selectedTabIndex,
-              ),
-            ),
-          );
-        }),
+        // Obx(() {
+        //   if (widget.orderController.isLoading.value ||
+        //       widget.orderController.isCountLoading.value) {
+        //     return Column(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         SizedBox(
+        //           height: MediaQuery.of(context).size.height * 0.4,
+        //         ),
+        //         SpinKitFadingCube(
+        //           color: primaryColor,
+        //           size: 20.0,
+        //         ),
+        //       ],
+        //     );
+        //   }
+        //   return Expanded(
+        //     child: SizedBox(
+        //       height: MediaQuery.of(context).size.height * 0.9,
+        //       child: OrderBottomWidget(
+        //         orderController: widget.orderController,
+        //         selectedTabIndex: _selectedTabIndex,
+        //       ),
+        //     ),
+        //   );
+        // }),
+        Expanded(
+          // height: fullScreenHeight(context) * 0.8,
+          child: OrderBottomWidget(
+            orderController: widget.orderController,
+            selectedTabIndex: _selectedTabIndex,
+          ),
+        ),
       ],
     );
   }

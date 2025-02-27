@@ -15,6 +15,399 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:intl/intl.dart';
 
+// class PendingPaymentBottomWidget extends StatefulWidget {
+//   final PendingPaymentController orderController;
+//   final int selectedTabIndex;
+
+//   const PendingPaymentBottomWidget({
+//     super.key,
+//     required this.orderController,
+//     required this.selectedTabIndex,
+//   });
+
+//   @override
+//   State<PendingPaymentBottomWidget> createState() =>
+//       _PendingPaymentBottomWidgetState();
+// }
+
+// class _PendingPaymentBottomWidgetState
+//     extends State<PendingPaymentBottomWidget> {
+//   @override
+//   void didUpdateWidget(covariant PendingPaymentBottomWidget oldWidget) {
+//     super.didUpdateWidget(oldWidget);
+//     if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
+//       print(
+//           "Tab changed: Reloading data for tab index ${widget.selectedTabIndex}");
+//       widget.orderController.loadOrderData(chartIndex: widget.selectedTabIndex);
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Obx(() {
+//       if (widget.orderController.orderDataList.isEmpty) {
+//         return const Center(child: NodataWidget());
+//       }
+
+//       return NkWidgetExceptionHandel(
+//         onRetryPressed: () => {},
+//         data: widget.orderController.orderDataList,
+//         child: Stack(
+//           children: [
+//             _buildHeader(context),
+//             _buildOrderList(context, widget.orderController),
+//           ],
+//         ),
+//       );
+//     });
+//   }
+
+//   Widget _buildHeader(BuildContext context) {
+//     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
+//     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 7 : 11;
+//     if (MediaQuery.of(context).orientation != Orientation.portrait) {
+//       headerHeight = ResponsiveInfo.isMobileDimension(context) ? 50 : 55;
+//       fontSize = ResponsiveInfo.isMobileDimension(context) ? 11 : 13;
+//     }
+
+//     return Align(
+//       alignment: FractionalOffset.topCenter,
+//       child: Container(
+//         width: double.infinity,
+//         height: headerHeight,
+//         color: primaryColor,
+//         child: Padding(
+//           padding:
+//               EdgeInsets.all(ResponsiveInfo.isMobileDimension(context) ? 2 : 4),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Expanded(
+//                   flex: 4, child: _buildHeaderText("Customer List", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 2, child: _buildHeaderText("Order No.", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 2, child: _buildHeaderText("Date", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 2, child: _buildHeaderText("Due Date", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 1, child: _buildHeaderText("Days", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 2, child: _buildHeaderText("Amount", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 3, child: _buildHeaderText("Status", fontSize)),
+//               const SizedBox(width: 10),
+//               Expanded(flex: 3, child: _buildHeaderText("", fontSize)),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildHeaderText(String text, double fontSize) {
+//     return Center(
+//       child: Text(
+//         text,
+//         textAlign: TextAlign.center,
+//         style: const TextStyle(
+//           fontSize: 12,
+//           color: Colors.white,
+//           fontWeight: FontWeight.bold,
+//           fontFamily: 'Poppins_Regular',
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildOrderList(
+//       BuildContext context, PendingPaymentController orderController) {
+//     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
+
+//     return Align(
+//       alignment: FractionalOffset.topCenter,
+//       child: Container(
+//         padding: EdgeInsets.only(
+//           top: headerHeight,
+//         ),
+//         child: ListView.builder(
+//           itemCount: widget.orderController.orderDataList.length + 1,
+//           itemBuilder: (context, index) {
+//             if (index < widget.orderController.orderDataList.length) {
+//               final customerData = widget.orderController.orderDataList[index];
+//               return _buildOrderRow(customerData, context, index);
+//             } else {
+//               return _buildPageChanger(context, orderController);
+//             }
+//           },
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildOrderRow(
+//       CustomerData customerData, BuildContext context, int index) {
+//     double rowHeight = 80;
+
+//     return Container(
+//       color: index.isEven ? Colors.grey[50] : Colors.white,
+//       height: rowHeight,
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Expanded(
+//               flex: 4, child: _buildCustomerDetails(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(flex: 2, child: _buildOrderNumber(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(
+//               flex: 2, child: _buildOrderCreatedDate(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(flex: 2, child: _buildOrderDueDate(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(flex: 1, child: _buildOrderDays(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(flex: 2, child: _buildOrderPrice(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(flex: 3, child: _buildOrderStatus(customerData, context)),
+//           const SizedBox(width: 10),
+//           Expanded(
+//               flex: 3,
+//               child: _buildPaymentCollectionButton(customerData, context)),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildCustomerDetails(
+//       CustomerData customerData, BuildContext context) {
+//     return GestureDetector(
+//       onTap: () => {},
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           const SizedBox(width: 8),
+//           ClipOval(
+//             child: Container(
+//               height: 24,
+//               width: 24,
+//               color: Colors.grey[200],
+//               child: Image.network(
+//                 'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
+//                 fit: BoxFit.cover,
+//                 errorBuilder: (context, error, stackTrace) {
+//                   return Container(
+//                     color: Colors.grey[200],
+//                     child: const Icon(
+//                       Icons.person,
+//                       color: Colors.grey,
+//                       size: 30,
+//                     ),
+//                   );
+//                 },
+//               ),
+//             ),
+//           ),
+//           const SizedBox(width: 8),
+//           Flexible(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 Text(
+//                   customerData.businessName,
+//                   style: const TextStyle(
+//                       color: Colors.black,
+//                       fontFamily: 'Poppins_Regular',
+//                       fontSize: 12,
+//                       fontWeight: FontWeight.w600),
+//                   maxLines: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//                 Text(
+//                   customerData.fullname,
+//                   style: const TextStyle(
+//                     color: Colors.black,
+//                     fontFamily: 'Poppins_Regular',
+//                     fontSize: 10,
+//                   ),
+//                   maxLines: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//                 Text(
+//                   customerData.email,
+//                   style: const TextStyle(
+//                     color: Colors.black,
+//                     fontFamily: 'Poppins_Regular',
+//                     fontSize: 10,
+//                   ),
+//                   maxLines: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildOrderNumber(CustomerData customerData, BuildContext context) {
+//     return Center(
+//         child: _buildRegularText(
+//       customerData.orderId,
+//       context,
+//       maxLines: 1,
+//     ));
+//   }
+
+//   Widget _buildOrderCreatedDate(
+//       CustomerData customerData, BuildContext context) {
+//     return Center(
+//       child: _buildRegularText(
+//         NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
+//           customerData.orderCreatAt.toString(),
+//         )),
+//         context,
+//         maxLines: 1,
+//       ),
+//     );
+//   }
+
+//   Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
+//     int? creditPeriod = customerData.creditPeriod;
+//     String? orderCreatAt = customerData.orderCreatAt.toString();
+//     String? dueDate;
+
+//     DateTime orderDate = DateTime.parse(orderCreatAt);
+
+//     DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
+
+//     dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
+
+//     return Center(
+//       child: _buildRegularText(
+//         dueDate.toString(),
+//         context,
+//         maxLines: 1,
+//       ),
+//     );
+//   }
+
+//   Widget _buildOrderDays(CustomerData customerData, BuildContext context) {
+//     DateTime orderCreatedDate = NKDateUtils.formatStringUTCDateTime(
+//       customerData.orderCreatAt.toString(),
+//     );
+//     DateTime currentDate = DateTime.now();
+//     int daysDifference = currentDate.difference(orderCreatedDate).inDays;
+//     return Center(
+//       child: _buildRegularText('$daysDifference', context),
+//     );
+//   }
+
+//   Widget _buildOrderPrice(CustomerData customerData, BuildContext context) {
+//     return Center(
+//       child: _buildRegularText(formatAmount(customerData.orderTotal), context,
+//           fontWeight: FontWeight.w600, maxLines: 1),
+//     );
+//   }
+
+//   Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.all(8.0),
+//       child: IntrinsicHeight(
+//         child: Container(
+//           padding: const EdgeInsets.all(8),
+//           decoration: BoxDecoration(
+//             color: const Color(0xffffdbb8),
+//             borderRadius: BorderRadius.circular(15),
+//           ),
+//           child: Center(
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 CustomText(
+//                   content: OrderHandlingClass.fromType(customerData.orderStatus)
+//                       .name,
+//                   textAlign: TextAlign.center,
+//                   fontSize: 10,
+//                   fontWeight: FontWeight.w600,
+//                 ),
+//                 if (customerData.orderStatus == 2 &&
+//                     customerData.deliveryDate != null) ...[
+//                   Text(
+//                     NKDateUtils.commonFullDateTimeFormat(
+//                         NKDateUtils.formatStringUTCDateTime(
+//                             customerData.deliveryDate!.toIso8601String())),
+//                     textAlign: TextAlign.center,
+//                     maxLines: 2,
+//                     style: const TextStyle(
+//                       fontSize: 10.0,
+//                       fontWeight: FontWeight.w400,
+//                     ),
+//                   ),
+//                 ]
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildPaymentCollectionButton(
+//       CustomerData customerData, BuildContext context) {
+//     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 5),
+//       child: InkResponse(
+//         onTap: () {
+//           _pendingPaymentCollectionDialog(context, customerData.customerId);
+//         },
+//         child: Container(
+//           height: fontSize * 4,
+//           decoration: BoxDecoration(
+//             color: const Color(0xff5bc0de),
+//             borderRadius: BorderRadius.circular(5),
+//           ),
+//           child: Center(
+//             child: Text(
+//               'Collect Payment',
+//               textAlign: TextAlign.center,
+//               style: TextStyle(
+//                 fontSize: fontSize,
+//                 color: Colors.white,
+//                 fontFamily: 'Poppins_Regular',
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildRegularText(
+//     String label,
+//     BuildContext context, {
+//     FontWeight fontWeight = FontWeight.w700,
+//     TextOverflow overflow = TextOverflow.ellipsis,
+//     int maxLines = 1,
+//   }) {
+//     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 12;
+//     if (MediaQuery.of(context).orientation != Orientation.portrait) {
+//       fontSize = ResponsiveInfo.isMobileDimension(context) ? 10 : 12;
+//     }
+
+//     return MyRegularText(
+//       overflow: overflow,
+//       label: label,
+//       fontSize: fontSize,
+//       fontWeight: fontWeight,
+//       maxlines: maxLines,
+//     );
+//   }
+
 class PendingPaymentBottomWidget extends StatefulWidget {
   final PendingPaymentController orderController;
   final int selectedTabIndex;
@@ -46,7 +439,7 @@ class _PendingPaymentBottomWidgetState
   Widget build(BuildContext context) {
     return Obx(() {
       if (widget.orderController.orderDataList.isEmpty) {
-        return const Center(child: NodataWidget());
+        return const Center(child: CircularProgressIndicator());
       }
 
       return NkWidgetExceptionHandel(
@@ -66,8 +459,8 @@ class _PendingPaymentBottomWidgetState
     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 7 : 11;
     if (MediaQuery.of(context).orientation != Orientation.portrait) {
-      headerHeight = ResponsiveInfo.isMobileDimension(context) ? 50 : 55;
-      fontSize = ResponsiveInfo.isMobileDimension(context) ? 11 : 13;
+      headerHeight = 55;
+      fontSize = 13;
     }
 
     return Align(
@@ -84,19 +477,19 @@ class _PendingPaymentBottomWidgetState
             children: [
               Expanded(
                   flex: 4, child: _buildHeaderText("Customer List", fontSize)),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               Expanded(flex: 2, child: _buildHeaderText("Order No.", fontSize)),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               Expanded(flex: 2, child: _buildHeaderText("Date", fontSize)),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               Expanded(flex: 2, child: _buildHeaderText("Due Date", fontSize)),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               Expanded(flex: 1, child: _buildHeaderText("Days", fontSize)),
-              const SizedBox(width: 10),
-              Expanded(flex: 2, child: _buildHeaderText("Amount", fontSize)),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
+              Expanded(flex: 3, child: _buildHeaderText("Amount", fontSize)),
+              const SizedBox(width: 5),
               Expanded(flex: 3, child: _buildHeaderText("Status", fontSize)),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               Expanded(flex: 3, child: _buildHeaderText("", fontSize)),
             ],
           ),
@@ -157,20 +550,20 @@ class _PendingPaymentBottomWidgetState
         children: [
           Expanded(
               flex: 4, child: _buildCustomerDetails(customerData, context)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           Expanded(flex: 2, child: _buildOrderNumber(customerData, context)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           Expanded(
               flex: 2, child: _buildOrderCreatedDate(customerData, context)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           Expanded(flex: 2, child: _buildOrderDueDate(customerData, context)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           Expanded(flex: 1, child: _buildOrderDays(customerData, context)),
-          const SizedBox(width: 10),
-          Expanded(flex: 2, child: _buildOrderPrice(customerData, context)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
+          Expanded(flex: 3, child: _buildOrderPrice(customerData, context)),
+          const SizedBox(width: 5),
           Expanded(flex: 3, child: _buildOrderStatus(customerData, context)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           Expanded(
               flex: 3,
               child: _buildPaymentCollectionButton(customerData, context)),
@@ -357,28 +750,29 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildPaymentCollectionButton(
       CustomerData customerData, BuildContext context) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: InkResponse(
         onTap: () {
           _pendingPaymentCollectionDialog(context, customerData.customerId);
         },
-        child: Container(
-          height: fontSize * 4,
-          decoration: BoxDecoration(
-            color: const Color(0xff5bc0de),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Center(
-            child: Text(
-              'Collect Payment',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: fontSize,
-                color: Colors.white,
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.bold,
+        child: IntrinsicHeight(
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: const Color(0xff5bc0de),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: const Center(
+              child: Text(
+                'Collect Payment',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.white,
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -390,21 +784,20 @@ class _PendingPaymentBottomWidgetState
   Widget _buildRegularText(
     String label,
     BuildContext context, {
-    FontWeight fontWeight = FontWeight.w700,
+    FontWeight fontWeight = FontWeight.normal,
     TextOverflow overflow = TextOverflow.ellipsis,
     int maxLines = 1,
   }) {
-    double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 12;
-    if (MediaQuery.of(context).orientation != Orientation.portrait) {
-      fontSize = ResponsiveInfo.isMobileDimension(context) ? 10 : 12;
-    }
-
-    return MyRegularText(
+    return Text(
+      label,
+      style: TextStyle(
+        color: Colors.black,
+        fontFamily: 'Poppins_Regular',
+        fontSize: 10,
+        fontWeight: fontWeight,
+      ),
+      maxLines: maxLines,
       overflow: overflow,
-      label: label,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      maxlines: maxLines,
     );
   }
 

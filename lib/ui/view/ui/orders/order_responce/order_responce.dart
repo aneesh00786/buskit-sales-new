@@ -86,6 +86,8 @@ class OrderData {
   String? lastname;
   String? editedFullname;
   String? editedLastname;
+  String? generatedDate;
+
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
   List<CustomerAssignedSalesman>? salesman;
@@ -107,6 +109,7 @@ class OrderData {
     this.lastname,
     this.editedFullname,
     this.editedLastname,
+    this.generatedDate,
     this.cart,
     this.salesman,
     // this.receivableAmount,
@@ -122,12 +125,13 @@ class OrderData {
     cartId = json['cart_id'] as String?;
     orderCreatAt = json['order_creat_at'] as String?;
     deliveryDatetime = json['delivery_datetime'] as String?;
-    orderTotal = num.tryParse(json['order_total'].toString())??0;
+    orderTotal = num.tryParse(json['order_total'].toString()) ?? 0;
     fullname = json['fullname'] as String?;
     lastname = json['lastname'] as String?;
     editedFullname = json['edited_fullname'] as String?;
     editedLastname = json['edited_lastname'] as String?;
-    
+
+    generatedDate = json['generated_date'] as String?;
     invoice = (json['invoice'] as List?)
         ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -141,6 +145,7 @@ class OrderData {
               orderStatus: json['order_status'] as int?,
               orderCreatAt: json['order_creat_at'] as String?,
               deliveryDatetime: json['delivery_datetime'] as String?,
+              generatedDate: json['generated_date'] as String?,
               paymentStatus: json['payment_status'] as int?,
               orderId: json['order_id'] as String?,
               id: json['id'] as int?,
@@ -179,6 +184,7 @@ class OrderData {
     json['lastname'] = lastname;
     json['edited_fullname'] = editedFullname;
     json['edited_lastname'] = editedLastname;
+    json['generated_date'] = generatedDate;
     json['cart'] = cart?.map((e) => e.toJson()).toList();
     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();

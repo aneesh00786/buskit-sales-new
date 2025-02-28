@@ -193,7 +193,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         height: 50,
                         color: Colors.grey[200],
                         child: Row(
-                          children: [OrderPaginationWidget(), const Spacer()],
+                          children: [
+                            OrderPaginationWidget(
+                                orderController: widget.orderController),
+                            const Spacer()
+                          ],
                         ),
                       ),
                     ],
@@ -616,7 +620,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   }
 
   Widget orderNumberWidget(CustomerCart orderData, OrderData orderDetailsData) {
-    log("generatedDate ${orderData.optionOrderData?.generatedDate}");
+    log("generatedDate ${orderDetailsData.generatedDate}");
 
     return Center(
       child: Column(
@@ -630,8 +634,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           if (widget.selectedTabIndex != 0) ...[
             SizedBox(height: 5),
             MyRegularText(
-              label: orderData.optionOrderData?.generatedDate != null
-                  ? "${NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.generatedDate ?? ''))} ${NKDateUtils.commonTimeFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.generatedDate ?? ''))}"
+              label: orderDetailsData.generatedDate != null
+                  ? "${NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderDetailsData.generatedDate ?? ''))} ${NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderDetailsData.generatedDate ?? ''))}"
                   : "N/A",
               fontWeight: FontWeight.w500,
               fontSize: 11,
@@ -666,7 +670,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 ),
                 MyRegularText(
                   label: orderData.optionOrderData?.orderCreatAt != null
-                      ? NKDateUtils.commonTimeFormat(
+                      ? NKDateUtils.commonTimeOnlyFormat(
                           NKDateUtils.formatStringUTCDateTime(
                               orderData.optionOrderData!.orderCreatAt!))
                       : 'N/A',
@@ -679,7 +683,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               children: [
                 MyRegularText(
                   label:
-                      "${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'} ${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonTimeFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'}",
+                      "${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'} ${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'}",
                   fontWeight: FontWeight.w600,
                   fontSize: 11,
                 ),

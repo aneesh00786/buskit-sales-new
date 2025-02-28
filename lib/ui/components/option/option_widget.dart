@@ -18,6 +18,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -1259,9 +1260,9 @@ class OptionWidget extends StatelessWidget {
                                                                               // productsController.selectedCustomerImageUrl.value = customer?.imageUrl??'';
                                                                               // productsController.selectedCustomerId.value = customer?.customerId??'';
                                                                               //  Future.delayed(const Duration(milliseconds: 300), () {
+                                                                              Get.to(ProductScreen(), id: 2);
                                                                               homeController?.sidebarXController.selectIndex(2);
                                                                               homeController?.selectedIndex.value = 2;
-                                                                              Get.offNamed(AppRoutes.order_taking, id: 2);
                                                                               // });
                                                                             },
                                                                           );

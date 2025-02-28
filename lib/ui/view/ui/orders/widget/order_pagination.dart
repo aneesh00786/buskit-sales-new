@@ -1,25 +1,20 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrderPaginationWidget extends StatelessWidget {
-  final OrderController orderController = Get.put(OrderController());
+  final OrderController orderController;
+  
+  OrderPaginationWidget({super.key, required this.orderController});
+
 
   @override
   Widget build(BuildContext context) {
-    log('Total Pages ${orderController.totalPages.value}');
     return Obx(() {
       // Hide pagination if totalPages is 1
       if (orderController.totalPages.value <= 1) {
-        // return SizedBox.shrink();
-        return Container(
-          width: 200,
-          height: 50,
-          // color: Colors.yellow,
-        );
+        return const SizedBox.shrink();
       }
 
       return Container(

@@ -519,7 +519,6 @@ class _OrderTakingState extends State<OrderTaking>
                 }
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
-
                   homeController.selectedIndex.value = 0;
                   Get.toNamed(AppRoutes.dashboard, id: 2);
                   widget.productsController.selectedCustomerName.value = '';

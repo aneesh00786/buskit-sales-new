@@ -519,15 +519,18 @@ class _OrderTakingState extends State<OrderTaking>
                 }
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
+
                   homeController.selectedIndex.value = 0;
                   Get.toNamed(AppRoutes.dashboard, id: 2);
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
+                CartDatabaseManager().getDraftItems();
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
+                CartDatabaseManager().getDraftItems();
                 log('Log 3');
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
@@ -536,6 +539,7 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
+                CartDatabaseManager().getDraftItems();
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);

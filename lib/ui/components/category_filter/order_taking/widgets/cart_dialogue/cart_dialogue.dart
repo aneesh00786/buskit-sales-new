@@ -126,7 +126,7 @@ class CartDialogueState extends State<CartDialogue> {
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value);
       cartItems =
-          await CartDatabaseManager().getCartItems(customerId ?? '');
+          await CartDatabaseManager().getCartItems(customerId);
       log('CartItems Length : ${cartItems.length}');
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
@@ -1133,16 +1133,11 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
                             onTap: () {
-                              if (widget.isFromCustomerDach == true) {
+                              if (widget.isFromCustomerDach == true||widget.isDashboard == true) {
+                                widget.onContinueShopping!();
                                 Navigator.pop(context);
                                 Navigator.of(context, rootNavigator: true)
                                     .pop();
-                                widget.onContinueShopping!();
-                              } else if (widget.isDashboard == true) {
-                                Navigator.pop(context);
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                                widget.onContinueShopping!();
                               } else {
                                 Navigator.pop(context);
                               }

@@ -1253,16 +1253,20 @@ class OptionWidget extends StatelessWidget {
                                                                                 customer?.customerId ?? '',
                                                                             onContinueShopping:
                                                                                 () {
-                                                                              // final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                              // customerOrderController.setCustomerId(customer?.customerId ?? '');
-                                                                              // cartProvider.updateCartCount(customer?.customerId??'');
-                                                                              // productsController.selectedCustomerName.value = customer?.businessName??'';
-                                                                              // productsController.selectedCustomerImageUrl.value = customer?.imageUrl??'';
-                                                                              // productsController.selectedCustomerId.value = customer?.customerId??'';
-                                                                              //  Future.delayed(const Duration(milliseconds: 300), () {
-                                                                              Get.to(ProductScreen(), id: 2);
-                                                                              homeController?.sidebarXController.selectIndex(2);
-                                                                              homeController?.selectedIndex.value = 2;
+                                                                              Future.delayed(const Duration(milliseconds: 300), () {
+                                                                                homeController?.sidebarXController.selectIndex(2);
+                                                                                homeController?.selectedIndex.value = 2;
+                                                                                Get.to(AppRoutes.product, id: 2);
+                                                                              });
+                                                                              final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                              customerOrderController.setCustomerId(customer?.customerId ?? '');
+                                                                              cartProvider.updateCartCount(customer?.customerId ?? '');
+                                                                              productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                              productsController.selectedCustomerImageUrl.value = customer?.imageUrl ?? '';
+                                                                              productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                            
+                                                                              // Future.delayed(const Duration(milliseconds: 300), () {
+                                                                              //   Get.toNamed(name:AppRoutes.product, id: 2);
                                                                               // });
                                                                             },
                                                                           );

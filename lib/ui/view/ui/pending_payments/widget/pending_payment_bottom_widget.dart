@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -14,399 +15,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:intl/intl.dart';
-
-// class PendingPaymentBottomWidget extends StatefulWidget {
-//   final PendingPaymentController orderController;
-//   final int selectedTabIndex;
-
-//   const PendingPaymentBottomWidget({
-//     super.key,
-//     required this.orderController,
-//     required this.selectedTabIndex,
-//   });
-
-//   @override
-//   State<PendingPaymentBottomWidget> createState() =>
-//       _PendingPaymentBottomWidgetState();
-// }
-
-// class _PendingPaymentBottomWidgetState
-//     extends State<PendingPaymentBottomWidget> {
-//   @override
-//   void didUpdateWidget(covariant PendingPaymentBottomWidget oldWidget) {
-//     super.didUpdateWidget(oldWidget);
-//     if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
-//       print(
-//           "Tab changed: Reloading data for tab index ${widget.selectedTabIndex}");
-//       widget.orderController.loadOrderData(chartIndex: widget.selectedTabIndex);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Obx(() {
-//       if (widget.orderController.orderDataList.isEmpty) {
-//         return const Center(child: NodataWidget());
-//       }
-
-//       return NkWidgetExceptionHandel(
-//         onRetryPressed: () => {},
-//         data: widget.orderController.orderDataList,
-//         child: Stack(
-//           children: [
-//             _buildHeader(context),
-//             _buildOrderList(context, widget.orderController),
-//           ],
-//         ),
-//       );
-//     });
-//   }
-
-//   Widget _buildHeader(BuildContext context) {
-//     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
-//     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 7 : 11;
-//     if (MediaQuery.of(context).orientation != Orientation.portrait) {
-//       headerHeight = ResponsiveInfo.isMobileDimension(context) ? 50 : 55;
-//       fontSize = ResponsiveInfo.isMobileDimension(context) ? 11 : 13;
-//     }
-
-//     return Align(
-//       alignment: FractionalOffset.topCenter,
-//       child: Container(
-//         width: double.infinity,
-//         height: headerHeight,
-//         color: primaryColor,
-//         child: Padding(
-//           padding:
-//               EdgeInsets.all(ResponsiveInfo.isMobileDimension(context) ? 2 : 4),
-//           child: Row(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Expanded(
-//                   flex: 4, child: _buildHeaderText("Customer List", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 2, child: _buildHeaderText("Order No.", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 2, child: _buildHeaderText("Date", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 2, child: _buildHeaderText("Due Date", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 1, child: _buildHeaderText("Days", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 2, child: _buildHeaderText("Amount", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 3, child: _buildHeaderText("Status", fontSize)),
-//               const SizedBox(width: 10),
-//               Expanded(flex: 3, child: _buildHeaderText("", fontSize)),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildHeaderText(String text, double fontSize) {
-//     return Center(
-//       child: Text(
-//         text,
-//         textAlign: TextAlign.center,
-//         style: const TextStyle(
-//           fontSize: 12,
-//           color: Colors.white,
-//           fontWeight: FontWeight.bold,
-//           fontFamily: 'Poppins_Regular',
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildOrderList(
-//       BuildContext context, PendingPaymentController orderController) {
-//     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
-
-//     return Align(
-//       alignment: FractionalOffset.topCenter,
-//       child: Container(
-//         padding: EdgeInsets.only(
-//           top: headerHeight,
-//         ),
-//         child: ListView.builder(
-//           itemCount: widget.orderController.orderDataList.length + 1,
-//           itemBuilder: (context, index) {
-//             if (index < widget.orderController.orderDataList.length) {
-//               final customerData = widget.orderController.orderDataList[index];
-//               return _buildOrderRow(customerData, context, index);
-//             } else {
-//               return _buildPageChanger(context, orderController);
-//             }
-//           },
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildOrderRow(
-//       CustomerData customerData, BuildContext context, int index) {
-//     double rowHeight = 80;
-
-//     return Container(
-//       color: index.isEven ? Colors.grey[50] : Colors.white,
-//       height: rowHeight,
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           Expanded(
-//               flex: 4, child: _buildCustomerDetails(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(flex: 2, child: _buildOrderNumber(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(
-//               flex: 2, child: _buildOrderCreatedDate(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(flex: 2, child: _buildOrderDueDate(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(flex: 1, child: _buildOrderDays(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(flex: 2, child: _buildOrderPrice(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(flex: 3, child: _buildOrderStatus(customerData, context)),
-//           const SizedBox(width: 10),
-//           Expanded(
-//               flex: 3,
-//               child: _buildPaymentCollectionButton(customerData, context)),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildCustomerDetails(
-//       CustomerData customerData, BuildContext context) {
-//     return GestureDetector(
-//       onTap: () => {},
-//       child: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           const SizedBox(width: 8),
-//           ClipOval(
-//             child: Container(
-//               height: 24,
-//               width: 24,
-//               color: Colors.grey[200],
-//               child: Image.network(
-//                 'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
-//                 fit: BoxFit.cover,
-//                 errorBuilder: (context, error, stackTrace) {
-//                   return Container(
-//                     color: Colors.grey[200],
-//                     child: const Icon(
-//                       Icons.person,
-//                       color: Colors.grey,
-//                       size: 30,
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//           ),
-//           const SizedBox(width: 8),
-//           Flexible(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Text(
-//                   customerData.businessName,
-//                   style: const TextStyle(
-//                       color: Colors.black,
-//                       fontFamily: 'Poppins_Regular',
-//                       fontSize: 12,
-//                       fontWeight: FontWeight.w600),
-//                   maxLines: 1,
-//                   overflow: TextOverflow.ellipsis,
-//                 ),
-//                 Text(
-//                   customerData.fullname,
-//                   style: const TextStyle(
-//                     color: Colors.black,
-//                     fontFamily: 'Poppins_Regular',
-//                     fontSize: 10,
-//                   ),
-//                   maxLines: 1,
-//                   overflow: TextOverflow.ellipsis,
-//                 ),
-//                 Text(
-//                   customerData.email,
-//                   style: const TextStyle(
-//                     color: Colors.black,
-//                     fontFamily: 'Poppins_Regular',
-//                     fontSize: 10,
-//                   ),
-//                   maxLines: 1,
-//                   overflow: TextOverflow.ellipsis,
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildOrderNumber(CustomerData customerData, BuildContext context) {
-//     return Center(
-//         child: _buildRegularText(
-//       customerData.orderId,
-//       context,
-//       maxLines: 1,
-//     ));
-//   }
-
-//   Widget _buildOrderCreatedDate(
-//       CustomerData customerData, BuildContext context) {
-//     return Center(
-//       child: _buildRegularText(
-//         NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
-//           customerData.orderCreatAt.toString(),
-//         )),
-//         context,
-//         maxLines: 1,
-//       ),
-//     );
-//   }
-
-//   Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
-//     int? creditPeriod = customerData.creditPeriod;
-//     String? orderCreatAt = customerData.orderCreatAt.toString();
-//     String? dueDate;
-
-//     DateTime orderDate = DateTime.parse(orderCreatAt);
-
-//     DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
-
-//     dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
-
-//     return Center(
-//       child: _buildRegularText(
-//         dueDate.toString(),
-//         context,
-//         maxLines: 1,
-//       ),
-//     );
-//   }
-
-//   Widget _buildOrderDays(CustomerData customerData, BuildContext context) {
-//     DateTime orderCreatedDate = NKDateUtils.formatStringUTCDateTime(
-//       customerData.orderCreatAt.toString(),
-//     );
-//     DateTime currentDate = DateTime.now();
-//     int daysDifference = currentDate.difference(orderCreatedDate).inDays;
-//     return Center(
-//       child: _buildRegularText('$daysDifference', context),
-//     );
-//   }
-
-//   Widget _buildOrderPrice(CustomerData customerData, BuildContext context) {
-//     return Center(
-//       child: _buildRegularText(formatAmount(customerData.orderTotal), context,
-//           fontWeight: FontWeight.w600, maxLines: 1),
-//     );
-//   }
-
-//   Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(8.0),
-//       child: IntrinsicHeight(
-//         child: Container(
-//           padding: const EdgeInsets.all(8),
-//           decoration: BoxDecoration(
-//             color: const Color(0xffffdbb8),
-//             borderRadius: BorderRadius.circular(15),
-//           ),
-//           child: Center(
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 CustomText(
-//                   content: OrderHandlingClass.fromType(customerData.orderStatus)
-//                       .name,
-//                   textAlign: TextAlign.center,
-//                   fontSize: 10,
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//                 if (customerData.orderStatus == 2 &&
-//                     customerData.deliveryDate != null) ...[
-//                   Text(
-//                     NKDateUtils.commonFullDateTimeFormat(
-//                         NKDateUtils.formatStringUTCDateTime(
-//                             customerData.deliveryDate!.toIso8601String())),
-//                     textAlign: TextAlign.center,
-//                     maxLines: 2,
-//                     style: const TextStyle(
-//                       fontSize: 10.0,
-//                       fontWeight: FontWeight.w400,
-//                     ),
-//                   ),
-//                 ]
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildPaymentCollectionButton(
-//       CustomerData customerData, BuildContext context) {
-//     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 10;
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 5),
-//       child: InkResponse(
-//         onTap: () {
-//           _pendingPaymentCollectionDialog(context, customerData.customerId);
-//         },
-//         child: Container(
-//           height: fontSize * 4,
-//           decoration: BoxDecoration(
-//             color: const Color(0xff5bc0de),
-//             borderRadius: BorderRadius.circular(5),
-//           ),
-//           child: Center(
-//             child: Text(
-//               'Collect Payment',
-//               textAlign: TextAlign.center,
-//               style: TextStyle(
-//                 fontSize: fontSize,
-//                 color: Colors.white,
-//                 fontFamily: 'Poppins_Regular',
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildRegularText(
-//     String label,
-//     BuildContext context, {
-//     FontWeight fontWeight = FontWeight.w700,
-//     TextOverflow overflow = TextOverflow.ellipsis,
-//     int maxLines = 1,
-//   }) {
-//     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 8 : 12;
-//     if (MediaQuery.of(context).orientation != Orientation.portrait) {
-//       fontSize = ResponsiveInfo.isMobileDimension(context) ? 10 : 12;
-//     }
-
-//     return MyRegularText(
-//       overflow: overflow,
-//       label: label,
-//       fontSize: fontSize,
-//       fontWeight: fontWeight,
-//       maxlines: maxLines,
-//     );
-//   }
 
 class PendingPaymentBottomWidget extends StatefulWidget {
   final PendingPaymentController orderController;
@@ -425,14 +33,33 @@ class PendingPaymentBottomWidget extends StatefulWidget {
 
 class _PendingPaymentBottomWidgetState
     extends State<PendingPaymentBottomWidget> {
+  final ScrollController _headerScrollController = ScrollController();
+  final ScrollController _orderScrollController = ScrollController();
+
   @override
-  void didUpdateWidget(covariant PendingPaymentBottomWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
-      print(
-          "Tab changed: Reloading data for tab index ${widget.selectedTabIndex}");
-      widget.orderController.loadOrderData(chartIndex: widget.selectedTabIndex);
-    }
+  void initState() {
+    super.initState();
+
+    _headerScrollController.addListener(() {
+      if (_orderScrollController.hasClients &&
+          _headerScrollController.offset != _orderScrollController.offset) {
+        _orderScrollController.jumpTo(_headerScrollController.offset);
+      }
+    });
+
+    _orderScrollController.addListener(() {
+      if (_headerScrollController.hasClients &&
+          _orderScrollController.offset != _headerScrollController.offset) {
+        _headerScrollController.jumpTo(_orderScrollController.offset);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _headerScrollController.dispose();
+    _orderScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -473,27 +100,144 @@ class _PendingPaymentBottomWidgetState
           padding:
               EdgeInsets.all(ResponsiveInfo.isMobileDimension(context) ? 2 : 4),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(
+                width: 205,
+                child: _buildHeaderText("Customer List", fontSize),
+              ),
               Expanded(
-                  flex: 4, child: _buildHeaderText("Customer List", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 2, child: _buildHeaderText("Order No.", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 2, child: _buildHeaderText("Date", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 2, child: _buildHeaderText("Due Date", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 1, child: _buildHeaderText("Days", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 3, child: _buildHeaderText("Amount", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 3, child: _buildHeaderText("Status", fontSize)),
-              const SizedBox(width: 5),
-              Expanded(flex: 3, child: _buildHeaderText("", fontSize)),
+                child: SingleChildScrollView(
+                  controller: _headerScrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: fullScreenWidth(context) * 0.9,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            flex: 3,
+                            child: _buildHeaderText("Order No.", fontSize)),
+                        const SizedBox(width: 5),
+                        Expanded(
+                            flex: 3, child: _buildHeaderText("Date", fontSize)),
+                        const SizedBox(width: 5),
+                        Expanded(
+                            flex: 3,
+                            child: _buildHeaderText("Due Date", fontSize)),
+                        const SizedBox(width: 5),
+                        Expanded(
+                            flex: 2, child: _buildHeaderText("Days", fontSize)),
+                        const SizedBox(width: 5),
+                        Expanded(
+                            flex: 3,
+                            child: _buildHeaderText("Amount", fontSize)),
+                        const SizedBox(width: 5),
+                        Expanded(
+                            flex: 3,
+                            child: _buildHeaderText("Status", fontSize)),
+                        const SizedBox(width: 5),
+                        Expanded(
+                            flex: 3, child: _buildHeaderText("", fontSize)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOrderList(
+      BuildContext context, PendingPaymentController orderController) {
+    double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Container(
+        padding: EdgeInsets.only(top: headerHeight),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 210,
+              child: ListView.builder(
+                itemCount: widget.orderController.orderDataList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < widget.orderController.orderDataList.length) {
+                    final customerData =
+                        widget.orderController.orderDataList[index];
+                    return _buildCustomerDetails(customerData, context, index);
+                  } else {
+                    return Container(
+                      height: 58,
+                      color: Colors.grey[200],
+                    );
+                  }
+                },
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _orderScrollController,
+                child: SizedBox(
+                  width: fullScreenWidth(context) * 0.9,
+                  child: ListView.builder(
+                    itemCount: widget.orderController.orderDataList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < widget.orderController.orderDataList.length) {
+                        final customerData =
+                            widget.orderController.orderDataList[index];
+                        return Expanded(
+                            child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SizedBox(
+                                    width: fullScreenWidth(context) * 0.9,
+                                    child: _buildOrderRow(
+                                        customerData, context, index))));
+                      } else {
+                        return _buildPageChanger(context, orderController);
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderRow(
+      CustomerData customerData, BuildContext context, int index) {
+    double rowHeight = 80;
+
+    return Container(
+      color: index.isEven ? Colors.grey[50] : Colors.white,
+      height: rowHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(flex: 3, child: _buildOrderNumber(customerData, context)),
+          const SizedBox(width: 5),
+          Expanded(
+              flex: 3, child: _buildOrderCreatedDate(customerData, context)),
+          const SizedBox(width: 5),
+          Expanded(flex: 3, child: _buildOrderDueDate(customerData, context)),
+          const SizedBox(width: 5),
+          Expanded(flex: 2, child: _buildOrderDays(customerData, context)),
+          const SizedBox(width: 5),
+          Expanded(flex: 3, child: _buildOrderPrice(customerData, context)),
+          const SizedBox(width: 5),
+          Expanded(flex: 3, child: _buildOrderStatus(customerData, context)),
+          const SizedBox(width: 5),
+          Expanded(
+              flex: 3,
+              child: _buildPaymentCollectionButton(customerData, context)),
+        ],
       ),
     );
   }
@@ -513,134 +257,79 @@ class _PendingPaymentBottomWidgetState
     );
   }
 
-  Widget _buildOrderList(
-      BuildContext context, PendingPaymentController orderController) {
-    double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
-
-    return Align(
-      alignment: FractionalOffset.topCenter,
-      child: Container(
-        padding: EdgeInsets.only(
-          top: headerHeight,
-        ),
-        child: ListView.builder(
-          itemCount: widget.orderController.orderDataList.length + 1,
-          itemBuilder: (context, index) {
-            if (index < widget.orderController.orderDataList.length) {
-              final customerData = widget.orderController.orderDataList[index];
-              return _buildOrderRow(customerData, context, index);
-            } else {
-              return _buildPageChanger(context, orderController);
-            }
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrderRow(
-      CustomerData customerData, BuildContext context, int index) {
-    double rowHeight = 80;
-
-    return Container(
-      color: index.isEven ? Colors.grey[50] : Colors.white,
-      height: rowHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-              flex: 4, child: _buildCustomerDetails(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(flex: 2, child: _buildOrderNumber(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(
-              flex: 2, child: _buildOrderCreatedDate(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(flex: 2, child: _buildOrderDueDate(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(flex: 1, child: _buildOrderDays(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(flex: 3, child: _buildOrderPrice(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(flex: 3, child: _buildOrderStatus(customerData, context)),
-          const SizedBox(width: 5),
-          Expanded(
-              flex: 3,
-              child: _buildPaymentCollectionButton(customerData, context)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCustomerDetails(
-      CustomerData customerData, BuildContext context) {
+      CustomerData customerData, BuildContext context, int index) {
     return GestureDetector(
       onTap: () => {},
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(width: 8),
-          ClipOval(
-            child: Container(
-              height: 24,
-              width: 24,
-              color: Colors.grey[200],
-              child: Image.network(
-                'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[200],
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.grey,
-                      size: 30,
-                    ),
-                  );
-                },
+      child: Container(
+        color: index.isEven ? Colors.grey[50] : Colors.white,
+        height: 80,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 8),
+            ClipOval(
+              child: Container(
+                height: 24,
+                width: 24,
+                color: Colors.grey[200],
+                child: Image.network(
+                  'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.grey,
+                        size: 30,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  customerData.businessName,
-                  style: const TextStyle(
+            const SizedBox(width: 8),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    customerData.businessName,
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Poppins_Regular',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    customerData.fullname,
+                    style: const TextStyle(
                       color: Colors.black,
                       fontFamily: 'Poppins_Regular',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  customerData.fullname,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'Poppins_Regular',
-                    fontSize: 10,
+                      fontSize: 10,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  customerData.email,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'Poppins_Regular',
-                    fontSize: 10,
+                  Text(
+                    customerData.email,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 10,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1311,32 +1000,22 @@ class _PendingPaymentBottomWidgetState
   String getFormattedOrderCreatAt(dynamic value) {
     if (value == null || value.toString().isEmpty) {
       print('Error: Invalid date value');
-      return ''; // Return an empty string for null or empty values
+      return ''; 
     }
-
     try {
-      // Check if the value is already in DateTime format
       if (value is DateTime) {
         return DateFormat('dd-MM-yyyy').format(value);
       }
-
-      // Attempt to parse the string as a DateTime object
       DateTime parsedDate = DateTime.parse(value.toString());
-
-      // Return the formatted date
       return DateFormat('dd-MM-yyyy').format(parsedDate);
     } catch (e) {
       print('Error parsing date: $e');
-      return ''; // Return an empty string if parsing fails
+      return '';
     }
   }
 
   Widget _buildPageChanger(
       BuildContext context, PendingPaymentController totalValuesController) {
-    // double fontSize = ResponsiveInfo.isMobileDimension(context) ? 6 : 9;
-    // if (MediaQuery.of(context).orientation != Orientation.portrait) {
-    //   fontSize = ResponsiveInfo.isMobileDimension(context) ? 10 : 12;
-    // }
     return Container(
       height: 58,
       color: Colors.grey[200],
@@ -1344,7 +1023,7 @@ class _PendingPaymentBottomWidgetState
         padding: EdgeInsets.only(
             top: 10,
             bottom: 10,
-            right: MediaQuery.of(context).size.width * 0.28),
+            right: MediaQuery.of(context).size.width * 0.26),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

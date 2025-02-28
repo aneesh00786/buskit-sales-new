@@ -1341,7 +1341,10 @@ class _PendingPaymentBottomWidgetState
       height: 58,
       color: Colors.grey[200],
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: EdgeInsets.only(
+            top: 10,
+            bottom: 10,
+            right: MediaQuery.of(context).size.width * 0.28),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

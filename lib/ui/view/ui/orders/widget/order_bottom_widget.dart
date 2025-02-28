@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -88,7 +89,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           child: Row(
             children: [
               SizedBox(
-                width: 300,
+                width: 250,
                 child: Column(
                   children: [
                     Container(
@@ -615,6 +616,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   }
 
   Widget orderNumberWidget(CustomerCart orderData, OrderData orderDetailsData) {
+    log("generatedDate ${orderData.optionOrderData?.generatedDate}");
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -627,8 +630,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           if (widget.selectedTabIndex != 0) ...[
             SizedBox(height: 5),
             MyRegularText(
-              label:
-                  "${orderData.optionOrderData?.generatedDate != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.generatedDate!)) : 'N/A'} ${orderData.optionOrderData?.generatedDate != null ? NKDateUtils.commonTimeFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.generatedDate!)) : 'N/A'}",
+              label: orderData.optionOrderData?.generatedDate != null
+                  ? "${NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.generatedDate ?? ''))} ${NKDateUtils.commonTimeFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.generatedDate ?? ''))}"
+                  : "N/A",
               fontWeight: FontWeight.w500,
               fontSize: 11,
             ),

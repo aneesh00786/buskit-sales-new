@@ -191,7 +191,12 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SizedBox(
+        height: 150,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
     final isDataInitialized = _weeklyTargetControllers.isNotEmpty &&
         _weeklyTargetControllers.keys.every((week) {
@@ -204,6 +209,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     return Obx(() {
       return widget.staffController.isTargetLoading.value
           ? SizedBox(
+              height: 150,
               child: const Center(
                 child: CircularProgressIndicator(),
               ),
@@ -348,7 +354,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     });
   }
 
-  void _saveTargets() {
+  void _saveTargets() async {
     final selectedMonth = widget.staffController.tabController.index + 1;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
@@ -459,14 +465,33 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     final weeklyProjectionRequest =
         buildProjectionRequestData(categoryIds, relevantWeeks);
 
-    widget.staffController.updateCategoryTarget(
-      SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
-      selectedMonthName,
-      currentYear.toString(),
-      widget.isWeekly ? {} : formattedData,
-      widget.isWeekly ? weeklyTargetRequest : {},
-      widget.isWeekly ? weeklyProjectionRequest : {},
-    );
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await widget.staffController.updateCategoryTarget(
+        SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
+        selectedMonthName,
+        currentYear.toString(),
+        widget.isWeekly ? {} : formattedData,
+        widget.isWeekly ? weeklyTargetRequest : {},
+        widget.isWeekly ? weeklyProjectionRequest : {},
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Targets and Projections updated successfully!')),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating targets: $error')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Widget _buildTableHeader(String text) {

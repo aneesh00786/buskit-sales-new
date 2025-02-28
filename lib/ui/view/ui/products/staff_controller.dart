@@ -64,6 +64,8 @@ class StaffController extends GetxController {
   var targetControllers = <TextEditingController>[].obs;
   var salesmanTargetList = PerformanceData().obs;
   var isLoading = false.obs;
+  var isTopDataLoading = false.obs;
+
   var checkInOutData = Rxn<CheckInOut>();
   var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerData>();
@@ -101,7 +103,7 @@ class StaffController extends GetxController {
   }
 
   Future<void> fetchSalesmanTopBarData(String monthName, int tabStatus) async {
-    isLoading.value = true;
+    isTopDataLoading.value = true;
     try {
       final jsonData =
           await ApiWorker().fetchSalesmanTopBarData(monthName, tabStatus);
@@ -128,7 +130,7 @@ class StaffController extends GetxController {
     } catch (e) {
       log("Error: $e");
     } finally {
-      isLoading.value = false;
+      isTopDataLoading.value = false;
     }
   }
 

@@ -491,46 +491,48 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 
   void _showTileDialog(
       BuildContext context, String monthName, int tabStatus, bool isFull) {
-    // staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Obx(() {
-          if (staffController.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          Widget dialogContent;
-          switch (tabStatus) {
-            case 1:
-              dialogContent = buildCheckInOutDialogContent(
-                  staffController.checkInOutData.value, staffController);
-            case 2:
-              dialogContent = buildCheckInOutDialogContent(
-                  staffController.checkInOutData.value, staffController);
-              break;
-            case 3:
-              dialogContent = buildVisitsDialogContent(
-                  staffController.visitData.value, staffController);
-              break;
-            case 4:
-              dialogContent = buildCustomersDialogContent(
-                  staffController.customerDatas.value, staffController);
-              break;
-            default:
-              dialogContent = const Text('Unknown data.');
-          }
+    staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Obx(() {
+            if (staffController.isTopDataLoading.value) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-          return Padding(
-            padding: isFull
-                ? EdgeInsets.all(10)
-                : EdgeInsets.symmetric(horizontal: 150),
-            child: Row(
-              children: [
-                Container(
-                  child: Expanded(
+            Widget dialogContent;
+            switch (tabStatus) {
+              case 1:
+                dialogContent = buildCheckInOutDialogContent(
+                    staffController.checkInOutData.value, staffController);
+              case 2:
+                dialogContent = buildCheckInOutDialogContent(
+                    staffController.checkInOutData.value, staffController);
+                break;
+              case 3:
+                dialogContent = buildVisitsDialogContent(
+                    staffController.visitData.value, staffController);
+                break;
+              case 4:
+                dialogContent = buildCustomersDialogContent(
+                    staffController.customerDatas.value, staffController);
+                break;
+              default:
+                dialogContent = const Text('Unknown data.');
+            }
+
+            return Padding(
+              padding: isFull
+                  ? EdgeInsets.all(10)
+                  : EdgeInsets.symmetric(horizontal: 150),
+              child: Row(
+                children: [
+                  Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(10),
                         color: white,
                       ),
                       child: ClipRRect(
@@ -538,14 +540,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           child: dialogContent),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        });
-      },
-    );
-    // }
-    // );
+                ],
+              ),
+            );
+          });
+        },
+      );
+    });
   }
 }

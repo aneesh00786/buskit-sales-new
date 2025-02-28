@@ -125,7 +125,7 @@ class CartDialogueState extends State<CartDialogue> {
           (widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value);
-      final cartItems =
+      cartItems =
           await CartDatabaseManager().getCartItems(customerId ?? '');
       log('CartItems Length : ${cartItems.length}');
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
@@ -135,7 +135,6 @@ class CartDialogueState extends State<CartDialogue> {
         0.0,
         (sum, item) => item.isChecked! ? sum + item.totalPrice : sum,
       );
-
       preorderSubtotal = preorderItems.fold(0.0, (sum, item) {
         return sum + (item.totalPrice);
       });
@@ -1134,8 +1133,12 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
                             onTap: () {
-                              if (widget.isFromCustomerDach == true ||
-                                  widget.isDashboard == true) {
+                              if (widget.isFromCustomerDach == true) {
+                                Navigator.pop(context);
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                                widget.onContinueShopping!();
+                              } else if (widget.isDashboard == true) {
                                 Navigator.pop(context);
                                 Navigator.of(context, rootNavigator: true)
                                     .pop();
@@ -1703,7 +1706,7 @@ class CartDialogueState extends State<CartDialogue> {
                 backgroundColor: Colors.red,
               ),
               onPressed: () {
-                _deleteItem(productName, isPreorder: isPreOrder);
+                _deleteProduct(productName, isPreorder: isPreOrder);
                 _loadCartItems();
                 log('Draft Delete Clicked : ${customerId}');
                 Navigator.pop(context);
@@ -1871,43 +1874,43 @@ class CartDialogueState extends State<CartDialogue> {
     log('Cart Item Cleared : $cartItem');
   }
 
-  void _deleteItem(String productName, {bool isPreorder = false}) {
-    setState(() {
-      final itemsToDeleteFromCart = cartItems
-          .where((item) =>
-              item.productName == productName &&
-              ((isPreorder && item.detail.stock == 0) ||
-                  (!isPreorder && item.detail.stock! > 0)))
-          .toList();
-      for (var item in itemsToDeleteFromCart) {
-        CartDatabaseManager().deleteCartItem(item);
-      }
-      cartItems.removeWhere((item) =>
-          item.productName == productName &&
+void _deleteProduct(String productName, {bool isPreorder = false}) {
+  setState(() {
+    final variantsToDelete = cartItems.where((item) {
+      return item.productName == productName &&
           ((isPreorder && item.detail.stock == 0) ||
-              (!isPreorder && item.detail.stock! > 0)));
-      List<int> indicesToRemove = [];
-      for (int i = 0; i < cartItems.length; i++) {
-        if (cartItems[i].productName == productName &&
-            ((isPreorder && cartItems[i].detail.stock == 0) ||
-                (!isPreorder && cartItems[i].detail.stock! > 0))) {
-          indicesToRemove.add(i);
-        }
-      }
-      for (int index in indicesToRemove.reversed) {
-        quantities.removeAt(index);
-      }
-      for (var item in itemsToDeleteFromCart) {
-        item.detail.count = 0;
-        CartDatabaseManager().updateCart(item);
-      }
-      orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTax = Utils().calculateTotalTax(orderItems);
-      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-      preorderTax = Utils().calculateTotalTax(preorderItems);
-    });
-    log('Deleted ${isPreorder ? "preorder" : "order"} items for product: $productName');
-  }
+              (!isPreorder && item.detail.stock! > 0));
+    }).toList();
+
+    if (variantsToDelete.isEmpty) {
+      log('No ${isPreorder ? "preorder" : "order"} variants found for product: $productName');
+      return;
+    }
+
+    for (var variant in variantsToDelete) {
+      variant.detail.count = 0;
+      CartDatabaseManager().deleteCartItem(variant);
+      CartDatabaseManager().updateCart(variant);
+    }
+
+    // Remove the variants from `cartItems`.
+    cartItems.removeWhere((item) =>
+        item.productName == productName &&
+        ((isPreorder && item.detail.stock == 0) || (!isPreorder && item.detail.stock! > 0)));
+
+    // Recalculate subtotals and taxes for orders and preorders.
+    final orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
+    final preorderItems = cartItems.where((item) => item.detail.stock == 0).toList();
+
+    orderSubtotal = Utils().calculateSubtotal(orderItems);
+    orderTax = Utils().calculateTotalTax(orderItems);
+    preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+    preorderTax = Utils().calculateTotalTax(preorderItems);
+  });
+
+  log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
+}
+
 }
 
 class CartTextFields extends StatelessWidget {

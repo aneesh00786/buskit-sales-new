@@ -17,15 +17,13 @@ class ProductScreen extends StatefulWidget {
 }
 
 class _ProductScreenState extends State<ProductScreen> {
-  // Fetching the existing ProductsController and HomeController instances using Get.find
   ProductsController productsController = Get.find<ProductsController>();
   HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
     super.initState();
-    productsController.loadDataOfCategory.whenComplete(() {
-    });
+    productsController.loadDataOfCategory.whenComplete(() {});
   }
 
   @override
@@ -34,7 +32,8 @@ class _ProductScreenState extends State<ProductScreen> {
       builder: (context, orientation) {
         return Scaffold(
           body: Obx(() {
-            if (productsController.customerAndOrderData.value.customerId != null) {
+            if (productsController.customerAndOrderData.value.customerId !=
+                null) {
               return SingleChildScrollView(
                 child: Column(
                   children: [
@@ -49,10 +48,8 @@ class _ProductScreenState extends State<ProductScreen> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                   
                     ProductMiddelWidget(
                       productsController: productsController,
-                    
                     ),
                   ],
                 ),

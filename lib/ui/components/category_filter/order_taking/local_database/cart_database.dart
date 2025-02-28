@@ -347,8 +347,12 @@ class CartDatabaseManager {
     }
   }
 
-  Future<void> updateCart(CartItem updatedItem) async {
-    await cartBox.put(updatedItem.key, updatedItem);
+  Future<void> updateCart(CartItem updatedItem ) async {
+    if(updatedItem.boxType==false){
+      await cartBox.put(updatedItem.key, updatedItem);
+    }else{
+      await draftBox.put(updatedItem.key, updatedItem);
+    }
     _notifyListeners();
   }
 

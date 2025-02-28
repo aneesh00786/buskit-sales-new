@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/common_binding.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/map/nk_google_map.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_binding.dart';
@@ -16,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:get/get.dart';
 
@@ -23,6 +25,7 @@ class AppRoutes {
   static const String initialRoutes = login;
   static const String splash = "/splash";
   static const String home = "/home";
+  static const String order_taking = "/order_taking";
   static const String login = "/login";
   static const String product = "/product";
   static const String dashboard = "/dashboard";
@@ -48,16 +51,21 @@ class AppRoutes {
             page: () => const LoginScreen(),
             binding: LoginBinding()),
         GetPage(
+            name: order_taking,
+            page: () => OrderTaking(
+                  productsController: ProductsController(),
+                ),
+            binding: LoginBinding()),
+        GetPage(
             name: product,
             page: () => const ProductScreen(),
             binding: CommonBinding()),
         GetPage(
-          name: dashboard,
-          page: () => DashBoardScreen(
-            homeController: Get.arguments ?? HomeController(),
-          ),
-          binding: CommonBinding()
-        ),
+            name: dashboard,
+            page: () => DashBoardScreen(
+                  homeController: Get.arguments ?? HomeController(),
+                ),
+            binding: CommonBinding()),
         GetPage(
           name: customersAndOrders,
           page: () => Tableee(),

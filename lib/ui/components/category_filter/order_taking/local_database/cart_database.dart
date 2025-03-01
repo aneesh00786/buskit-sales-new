@@ -17,13 +17,13 @@ class CartDatabaseManager {
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
+  List<CartItem> get draftItems => draftBox.values.toList();
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? '',
       "customer_id": "",
@@ -40,7 +40,6 @@ class CartDatabaseManager {
 
     log('Request Body of FetchAll Order $requestBody');
     final List<CartItem> fetchedItems = [];
-
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();

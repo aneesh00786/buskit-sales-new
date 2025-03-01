@@ -276,10 +276,10 @@ class _OrderTakingState extends State<OrderTaking>
                   !toDash) {
                 log('Log 1');
                 log('To Dash $toDash');
-                List<Detail> detail = CartDatabaseManager()
-                    .cartItems
-                    .map((e) => e.detail)
-                    .toList();
+                List<Detail> detail = [
+                  ...CartDatabaseManager().cartItems.map((e) => e.detail),
+                  ...CartDatabaseManager().draftItems.map((e) => e.detail),
+                ];
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
                 await Future.delayed(const Duration(seconds: 1));
@@ -293,7 +293,7 @@ class _OrderTakingState extends State<OrderTaking>
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId:existingCartId.isNotEmpty?existingCartId: '',
+                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
                           productId: e.productId ??

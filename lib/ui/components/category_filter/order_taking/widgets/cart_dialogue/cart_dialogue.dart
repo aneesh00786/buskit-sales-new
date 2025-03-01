@@ -1393,10 +1393,12 @@ class CartDialogueState extends State<CartDialogue> {
                       TextButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          Navigator.pop(context);
-                          _clearCartItem(itemList);
                           Navigator.of(context, rootNavigator: true).pop();
+                          if(Navigator.canPop(context)){
+                            Navigator.pop(context);
+                          }
                           if (widget.isDashboard == true) {
+                            _clearCartItem(itemList);
                             Provider.of<DashboardProvider>(context,
                                     listen: false)
                                 .fetchData();

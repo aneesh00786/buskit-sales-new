@@ -384,7 +384,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId);
+                                  //CartDatabaseManager().clearCart(customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -476,7 +476,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId);
+                                  //CartDatabaseManager().clearCart(customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -526,7 +526,7 @@ class _OrderTakingState extends State<OrderTaking>
                 });
                 CartDatabaseManager().getDraftItems();
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart(customerId);
+                //CartDatabaseManager().clearCart();
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                 CartDatabaseManager().getDraftItems();
@@ -540,13 +540,13 @@ class _OrderTakingState extends State<OrderTaking>
                 });
                 CartDatabaseManager().getDraftItems();
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart(customerId);
+                //CartDatabaseManager().clearCart(customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');
                 Navigator.pop(context);
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart(customerId);
+                //CartDatabaseManager().clearCart(customerId);
               }
             },
             icon: const Icon(Icons.arrow_back_ios),

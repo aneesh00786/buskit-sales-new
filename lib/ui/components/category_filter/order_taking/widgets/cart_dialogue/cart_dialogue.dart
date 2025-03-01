@@ -21,6 +21,8 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -124,8 +126,7 @@ class CartDialogueState extends State<CartDialogue> {
           (widget.customerOrderController!.customerId.value.isNotEmpty
               ? widget.customerOrderController!.customerId.value
               : widget.productsController.selectedCustomerId.value);
-      cartItems =
-          await CartDatabaseManager().getCartItems(customerId);
+      cartItems = await CartDatabaseManager().getCartItems(customerId);
       log('CartItems Length : ${cartItems.length}');
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
@@ -1132,7 +1133,8 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
                             onTap: () {
-                              if (widget.isFromCustomerDach == true||widget.isDashboard == true) {
+                              if (widget.isFromCustomerDach == true ||
+                                  widget.isDashboard == true) {
                                 widget.onContinueShopping!();
                                 Navigator.pop(context);
                                 Navigator.of(context, rootNavigator: true)
@@ -1271,7 +1273,7 @@ class CartDialogueState extends State<CartDialogue> {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
-          _clearCartItem(itemList);
+
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -1391,15 +1393,23 @@ class CartDialogueState extends State<CartDialogue> {
                       TextButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
-                          // await CartDatabaseManager().getDraftItems(
-                          //     customeController.customerId.isNotEmpty
-                          //         ? customeController.customerId.value
-                          //         : widget.productsController.selectedCustomerId
-                          //             .value);
-                          Provider.of<DashboardProvider>(context, listen: false)
-                              .fetchData();
+                          Navigator.pop(context);
                           _clearCartItem(itemList);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          if (widget.isDashboard == true) {
+                            Provider.of<DashboardProvider>(context,
+                                    listen: false)
+                                .fetchData();
+                          } else {
+                            Provider.of<CustomersProvider>(context,
+                                    listen: false)
+                                .fetchCustomerDashboardCountData(
+                              customeController.customerId.isNotEmpty
+                                  ? customeController.customerId.value
+                                  : widget.productsController.selectedCustomerId
+                                      .value,
+                            );
+                          }
                         },
                         child: const Text('OK'),
                       ),
@@ -1513,7 +1523,7 @@ class CartDialogueState extends State<CartDialogue> {
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop();
-                _clearCartItem(cartItems);
+                //_clearCartItem(itemList);
               },
               child: const Text('OK'),
             ),
@@ -1855,11 +1865,7 @@ class CartDialogueState extends State<CartDialogue> {
   void _clearCartItem(
     List<CartItem> cartItem,
   ) {
-    CartDatabaseManager().clearCart(
-      customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
-    );
+    CartDatabaseManager().clearCart();
 
     setState(() {
       cartItems.remove(cartItem);
@@ -1868,43 +1874,45 @@ class CartDialogueState extends State<CartDialogue> {
     log('Cart Item Cleared : $cartItem');
   }
 
-void _deleteProduct(String productName, {bool isPreorder = false}) {
-  setState(() {
-    final variantsToDelete = cartItems.where((item) {
-      return item.productName == productName &&
+  void _deleteProduct(String productName, {bool isPreorder = false}) {
+    setState(() {
+      final variantsToDelete = cartItems.where((item) {
+        return item.productName == productName &&
+            ((isPreorder && item.detail.stock == 0) ||
+                (!isPreorder && item.detail.stock! > 0));
+      }).toList();
+
+      if (variantsToDelete.isEmpty) {
+        log('No ${isPreorder ? "preorder" : "order"} variants found for product: $productName');
+        return;
+      }
+
+      for (var variant in variantsToDelete) {
+        variant.detail.count = 0;
+        CartDatabaseManager().deleteCartItem(variant);
+        CartDatabaseManager().updateCart(variant);
+      }
+
+      // Remove the variants from `cartItems`.
+      cartItems.removeWhere((item) =>
+          item.productName == productName &&
           ((isPreorder && item.detail.stock == 0) ||
-              (!isPreorder && item.detail.stock! > 0));
-    }).toList();
+              (!isPreorder && item.detail.stock! > 0)));
 
-    if (variantsToDelete.isEmpty) {
-      log('No ${isPreorder ? "preorder" : "order"} variants found for product: $productName');
-      return;
-    }
+      // Recalculate subtotals and taxes for orders and preorders.
+      final orderItems =
+          cartItems.where((item) => item.detail.stock! > 0).toList();
+      final preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
 
-    for (var variant in variantsToDelete) {
-      variant.detail.count = 0;
-      CartDatabaseManager().deleteCartItem(variant);
-      CartDatabaseManager().updateCart(variant);
-    }
+      orderSubtotal = Utils().calculateSubtotal(orderItems);
+      orderTax = Utils().calculateTotalTax(orderItems);
+      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+      preorderTax = Utils().calculateTotalTax(preorderItems);
+    });
 
-    // Remove the variants from `cartItems`.
-    cartItems.removeWhere((item) =>
-        item.productName == productName &&
-        ((isPreorder && item.detail.stock == 0) || (!isPreorder && item.detail.stock! > 0)));
-
-    // Recalculate subtotals and taxes for orders and preorders.
-    final orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
-    final preorderItems = cartItems.where((item) => item.detail.stock == 0).toList();
-
-    orderSubtotal = Utils().calculateSubtotal(orderItems);
-    orderTax = Utils().calculateTotalTax(orderItems);
-    preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-    preorderTax = Utils().calculateTotalTax(preorderItems);
-  });
-
-  log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
-}
-
+    log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
+  }
 }
 
 class CartTextFields extends StatelessWidget {

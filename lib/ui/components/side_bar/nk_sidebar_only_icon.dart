@@ -371,7 +371,7 @@ void handleBackNavigation(
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          CartDatabaseManager().clearCart(customerId);
+                          //CartDatabaseManager().clearCart(customerId);
                           updateTabIndex();
                         },
                         child: const Text('OK'),

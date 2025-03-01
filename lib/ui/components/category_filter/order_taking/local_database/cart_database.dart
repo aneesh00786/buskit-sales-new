@@ -146,14 +146,19 @@ class CartDatabaseManager {
       String customerId) async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": customerId,
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "order_type": 4,
       "payment_type": 1,
-      "start_date": "2025-02-01",
-      "end_date": "2025-02-28",
+      "start_date":
+          "${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}",
+      "end_date":
+          "${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}",
       "limit": 1000,
       "page": 1,
     };
@@ -395,8 +400,10 @@ class CartDatabaseManager {
     _notifyListeners();
   }
 
-  Future<void> clearCart(String customerId) async {
+  Future<void> clearCart() async {
+    
     await cartBox.clear();
+    await draftBox.clear();
     _notifyListeners();
   }
 }

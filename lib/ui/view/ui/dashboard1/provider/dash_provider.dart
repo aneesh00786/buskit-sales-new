@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
@@ -1547,8 +1548,6 @@ class DashboardProvider with ChangeNotifier {
           (startDate.isEmpty || endDate.isEmpty)) {
         throw Exception('Select both start and end dates');
       }
-
-      // Debouncing network requests
       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
           startDate: startDate,
@@ -1833,6 +1832,7 @@ class DashboardProvider with ChangeNotifier {
         //fetchOrders();
       }
       notificationController.loadNotificationData(startDate, endDate);
+      CartDatabaseManager().getDraftItems();
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching data', error: e, stackTrace: stackTrace);

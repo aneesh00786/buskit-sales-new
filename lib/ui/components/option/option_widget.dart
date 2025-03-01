@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -1281,7 +1282,7 @@ class OptionWidget extends StatelessWidget {
                                                                                 _initializeCustomerData(customer, productsController, customerOrderController);
                                                                                 homeController?.sidebarXController.selectIndex(2);
                                                                                 homeController?.selectedIndex.value = 2;
-                                                                                Get.to(ProductScreen(), id: 2);
+                                                                                Get.to(() =>OrderTaking(productsController: productsController,), id: 2);
                                                                               });
                                                                               // final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
                                                                               // customerOrderController.setCustomerId(customer?.customerId ?? '');

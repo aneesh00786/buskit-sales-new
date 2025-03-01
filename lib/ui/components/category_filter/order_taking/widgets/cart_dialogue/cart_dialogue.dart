@@ -1305,13 +1305,10 @@ class CartDialogueState extends State<CartDialogue> {
               ? customeController.customerId.value
               : widget.productsController.selectedCustomerId.value,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: cartId.isNotEmpty ? cartId : '',
+          cartId: '',
           cartList: await Future.wait(detail.map((e) async {
-            String packValue = e.saleBy == 'Pack'
-                ? (await _getPackPiecesValue(
-                        e.productId ?? '', e.count.toInt()))
-                    .toString()
-                : e.count.toString();
+            String packValue =
+                e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
 
             return SendCartData(
                 productId: e.productId ?? '',
@@ -1347,7 +1344,7 @@ class CartDialogueState extends State<CartDialogue> {
                 ? customeController.customerId.value
                 : widget.productsController.selectedCustomerId.value,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
+            cartId: cartOrder.cartId,
             orderStatus: orderStatus,
             orderPrice: finalAmount,
             paymentType: paymentType.toString(),
@@ -1358,7 +1355,7 @@ class CartDialogueState extends State<CartDialogue> {
             draftId: draftId.isNotEmpty ? draftId : '',
           );
           log('ItemList Sent List: ${itemList.map((e) => 'ProductName: ${e.productName}, '
-              'Cart ID: ${e.cartId}, '
+              'Cart ID: ${e.cartId},${cartOrder.cartId} '
               'Customer ID: ${e.customerId}, '
               'Draft ID: ${e.draftId}, '
               'Variation: ${e.detail.variationName}, '
@@ -1394,7 +1391,7 @@ class CartDialogueState extends State<CartDialogue> {
                         onPressed: () async {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
-                          if(Navigator.canPop(context)){
+                          if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
                           if (widget.isDashboard == true) {

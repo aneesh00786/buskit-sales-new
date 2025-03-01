@@ -293,7 +293,7 @@ class _OrderTakingState extends State<OrderTaking>
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: '',
+                  cartId:existingCartId.isNotEmpty?existingCartId: '',
                   cartList: detail
                       .map((e) => SendCartData(
                           productId: e.productId ??
@@ -315,7 +315,7 @@ class _OrderTakingState extends State<OrderTaking>
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
-                log('Add to Cart Datas : ${productBYData.toJson()}');
+                log('Add to Draft Datas : ${productBYData.toJson()}');
                 if (cartOrder != null) {
                   int orderStatus = 4;
                   CartOrderModel order = CartOrderModel(

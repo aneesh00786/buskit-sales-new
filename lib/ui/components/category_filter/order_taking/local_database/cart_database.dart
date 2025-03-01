@@ -401,7 +401,6 @@ class CartDatabaseManager {
   }
 
   Future<void> clearCart() async {
-    
     await cartBox.clear();
     await draftBox.clear();
     _notifyListeners();

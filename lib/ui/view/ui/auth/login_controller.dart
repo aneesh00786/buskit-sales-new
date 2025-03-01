@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -77,118 +78,130 @@ class LoginController extends GetxController {
     _tabController = TabController(length: length, vsync: vsync);
   }
 
-  Future<bool> performLogin(BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
-    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-    String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
-    String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
-    DateTime? initialDay;
-    try {
-      final requestBody = {
-        "email": emailController.text.removeAllWhitespace,
-        "password": passwordController.text,
-      };
-      log("Request Body: $requestBody");
-      loginResponce = await _apiWorker.loginApi(
-        emailController.text.removeAllWhitespace,
-        passwordController.text,
-      );
-      log("Response Body: ${loginResponce?.toJson()}");
-      log("StatusCode: ${loginResponce?.statusCode}");
-      if (loginResponce?.statusCode == 200) {
-        loginButtonController.success();
-        await SessionHelper().setLoginData(loginResponce!.data!);
-        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-        final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-        log("Fetching settings after login...");
-        await Future.delayed(const Duration(seconds: 2));
-        final settings = await _apiWorker.fetchAllSettings(companyId);
-        await Future.delayed(const Duration(microseconds: 500));
-        await Provider.of<CustomersProvider>(context, listen: false)
-            .fetchCustomerData();
-        await customerAndOrderController.loadCustomer();
-        await Future.delayed(const Duration(microseconds: 500));
-        await productsController.fetchCategoryData();
-        await Future.delayed(const Duration(microseconds: 500));
-        await pendingPaymentController.loadOrderData(
-            chartIndex: 0, compId: companyId, isLogin: true);
-        await Future.delayed(const Duration(microseconds: 500));
-        await staffController.loadSalesmanTargetForSelectedTab(
+Future<bool> performLogin(BuildContext context) async {
+  // Show Splash Screen
+  Get.to(() => SplashScreen(message: "Logging in..."), transition: Transition.fade);
+
+  DateTime now = DateTime.now();
+  DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+  DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+  String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+  String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+  DateTime? initialDay;
+
+  try {
+    final requestBody = {
+      "email": emailController.text.removeAllWhitespace,
+      "password": passwordController.text,
+    };
+    log("Request Body: $requestBody");
+    loginResponce = await _apiWorker.loginApi(
+      emailController.text.removeAllWhitespace,
+      passwordController.text,
+    );
+    log("Response Body: ${loginResponce?.toJson()}");
+    log("StatusCode: ${loginResponce?.statusCode}");
+
+    if (loginResponce?.statusCode == 200) {
+      loginButtonController.success();
+      await SessionHelper().setLoginData(loginResponce!.data!);
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+
+      log("Fetching settings after login...");
+      await Future.delayed(const Duration(milliseconds: 500));
+      final settings = await _apiWorker.fetchAllSettings(companyId);
+
+      // Perform all fetch operations in sequence or parallel
+      await Future.wait([
+        Provider.of<CustomersProvider>(context, listen: false).fetchCustomerData(),
+        customerAndOrderController.loadCustomer(),
+        productsController.fetchCategoryData(),
+        pendingPaymentController.loadOrderData(
+            chartIndex: 0, compId: companyId, isLogin: true),
+        staffController.loadSalesmanTargetForSelectedTab(
             currentYear: currentYear.toString(),
             selectedTabIndex: _tabController!.index + 1,
-            staffId: salesmanId);
-        log('First Date $firstDayString LastDay String $lastDayString Salesman ID $salesmanId CompanyId $companyId');
-        await ApiWorker().fetchRecentOrderCount(startDate: '', endDate: '');
-        if (settings != null) {
-          await SessionHelper().setSettingsData(settings);
-        }
-        SubCategoryItem? subCategoryItem =
-            productsController.getInitialSubCategoryIdAndName();
-        if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
-          await productsController.fetchProducts(subCategoryItem.id!);
-        } else {
-          log("No subcategory found. Products not fetched.");
-        }
-        await Future.delayed(const Duration(microseconds: 500));
-        await leadsController.loadLeadsCustomerData;
-        await leadsCustomerController.loadLeadsCustomerData;
-        await leadsRejectedController.loadRejectedLeadsData;
-        await Future.delayed(const Duration(microseconds: 500));
-        ApiWorker()
-            .getRecentOrdersData(
-          searchModel: searchData,
-          orderStatus: 11,
-          isLogin: true,
-          startDate: firstDayString,
-          endDate: lastDayString,
-        )
-            .then((data) {
-          log("Recent orders fetched successfully. Data: ${data}");
-        }).catchError((e) {
-          log("Error while fetching recent orders: $e");
-        });
-        await calenderMapController
-            .fetchCalenderEvents(initialDay ?? DateTime.now());
-        await CartDatabaseManager().getDraftItems();
-        Get.offAllNamed(AppRoutes.home);
-        return true;
-      } else if (loginResponce?.statusCode == 422 ||
-          loginResponce?.statusCode == 409) {
-        return false;
-      } else if (loginResponce?.statusCode == 401) {
-        return false;
-      } else {
-        showErrorDialog(
-          'Login Error',
-          'An unexpected error occurred. Please try again.',
-        );
+            staffId: salesmanId),
+        leadsController.loadLeadsCustomerData,
+        leadsCustomerController.loadLeadsCustomerData,
+        leadsRejectedController.loadRejectedLeadsData,
+        calenderMapController.fetchCalenderEvents(initialDay ?? DateTime.now()),
+        CartDatabaseManager().getDraftItems(),
+      ]);
+
+      // Fetch recent orders data
+      await ApiWorker()
+          .getRecentOrdersData(
+            searchModel: searchData,
+            orderStatus: 11,
+            isLogin: true,
+            startDate: firstDayString,
+            endDate: lastDayString,
+          )
+          .then((data) => log("Recent orders fetched successfully. Data: ${data}"))
+          .catchError((e) => log("Error while fetching recent orders: $e"));
+
+      if (settings != null) {
+        await SessionHelper().setSettingsData(settings);
       }
 
-      return false;
-    } catch (e) {
-      loginButtonController.error();
-      loginButtonController.reset();
-
-      if (e is DioException) {
-        log("DioException: ${e.response?.data}");
-        Get.snackbar(
-          'Login Error',
-          e.response?.data['message'] ?? e.message,
-          snackPosition: SnackPosition.BOTTOM,
-        );
+      SubCategoryItem? subCategoryItem =
+          productsController.getInitialSubCategoryIdAndName();
+      if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
+        await productsController.fetchProducts(subCategoryItem.id!);
       } else {
-        log("Login Error: $e");
-        Get.snackbar(
-          'Login Error',
-          e.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        log("No subcategory found. Products not fetched.");
       }
 
-      return false;
+      // Navigate to Home Screen
+      Get.offAllNamed(AppRoutes.home);
+      return true;
+    } else {
+      return _handleLoginError(loginResponce);
     }
+  } catch (e) {
+    _handleException(e);
+    return false;
   }
+}
+void _handleException(Object e) {
+  log("Login Error: $e");
+  loginButtonController.error();
+  loginButtonController.reset();
+
+  if (e is DioException) {
+    Get.snackbar(
+      'Login Error',
+      e.response?.data['message'] ?? e.message,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  } else {
+    Get.snackbar(
+      'Login Error',
+      e.toString(),
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+}
+
+
+bool _handleLoginError(LoginResponce? response) {
+  if (response?.statusCode == 422 || response?.statusCode == 409) {
+    // Client-side errors like validation or duplicate conflict
+    return false;
+  } else if (response?.statusCode == 401) {
+    // Unauthorized (e.g., incorrect credentials)
+    return false;
+  } else {
+    // Unexpected errors
+    showErrorDialog(
+      'Login Error',
+      'An unexpected error occurred. Please try again.',
+    );
+  }
+  return false; // Default to false in case of error
+}
 
   void showErrorDialog(String title, String message) {
     Get.dialog(

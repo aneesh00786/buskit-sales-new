@@ -17,7 +17,11 @@ class CartDatabaseManager {
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
-  List<CartItem> get draftItems => draftBox.values.toList();
+    List<CartItem> getDraftItemsForCustomer(String customerId) {
+    return draftBox.values
+        .where((item) => item.customerId == customerId)
+        .toList();
+  }
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
@@ -43,7 +47,6 @@ class CartDatabaseManager {
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
-
       if (isOnline) {
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
@@ -223,15 +226,12 @@ class CartDatabaseManager {
     if (localCount <= 0) {
       throw ArgumentError("Error: Count must be greater than zero.");
     }
-
-    // Check if the item exists in the draftBox
     final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
 
     if (existingDraftItemIndex != -1) {
-      // If exists in the draftBox, update the count and total price
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
       existingDraftItem.detail.count += localCount.toDouble();
       existingDraftItem.totalPrice = existingDraftItem.isPack!

@@ -149,6 +149,7 @@ class OptionWidget extends StatelessWidget {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showEstimatesDialog(
                   context, provider, OrderStatus.draft, 'Draft', true);
+              CartDatabaseManager().getDraftItems();
             }),
         OptionData(
             title: 'Cancelled',

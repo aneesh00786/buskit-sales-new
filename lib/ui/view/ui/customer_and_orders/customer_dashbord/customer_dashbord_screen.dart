@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -93,6 +94,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     super.initState();
     log('Is Calender :${widget.isFromCalendar}');
     log('Calender Calender Customer ID :${widget.cusId}');
+    //_initializeCustomerData();
     //_refreshScreen();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -124,6 +126,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 ).then((value) {
                  cartProvider.fetchCustomerDashboardCountData(customerId??'');
+                 
                 });
   }
 
@@ -184,6 +187,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       imageUrl: customerImage,
       id: customerId,
     );
+    await CartDatabaseManager().getDraftItems();
     log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
   }
 

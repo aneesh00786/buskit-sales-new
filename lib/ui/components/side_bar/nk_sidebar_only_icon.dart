@@ -361,9 +361,8 @@ void handleBackNavigation(
                             'assets/images/Animation - 1726906882515.json'),
                       ),
                     ),
-                    content: const Text(
-                      'Your order has been successfully saved as Draft',
-                      style: TextStyle(fontSize: 18),
+                    content:  CustomText(
+                     content:  'Your order has been successfully saved as Draft',
                     ),
                     actions: [
                       TextButton(
@@ -371,7 +370,7 @@ void handleBackNavigation(
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          //CartDatabaseManager().clearCart(customerId);
+                          CartDatabaseManager().clearCart();
                           updateTabIndex();
                         },
                         child: const Text('OK'),

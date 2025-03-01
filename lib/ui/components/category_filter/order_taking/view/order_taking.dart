@@ -277,8 +277,14 @@ class _OrderTakingState extends State<OrderTaking>
                 log('Log 1');
                 log('To Dash $toDash');
                 List<Detail> detail = [
-                  ...CartDatabaseManager().cartItems.map((e) => e.detail),
-                  ...CartDatabaseManager().draftItems.map((e) => e.detail),
+                  ...CartDatabaseManager()
+                      .cartItems
+                      .map((e) => e.detail)
+                      .toList(),
+                  ...CartDatabaseManager()
+                      .getDraftItemsForCustomer(customerId)
+                      .map((e) => e.detail)
+                      .toList(),
                 ];
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
@@ -384,7 +390,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  //CartDatabaseManager().clearCart(customerId);
+                                  CartDatabaseManager().clearCart();
                                 },
                                 child: const Text('OK'),
                               ),
@@ -401,10 +407,16 @@ class _OrderTakingState extends State<OrderTaking>
                   toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
-                List<Detail> detail = CartDatabaseManager()
-                    .cartItems
-                    .map((e) => e.detail)
-                    .toList();
+                List<Detail> detail = [
+                  ...CartDatabaseManager()
+                      .cartItems
+                      .map((e) => e.detail)
+                      .toList(),
+                  ...CartDatabaseManager()
+                      .getDraftItemsForCustomer(customerId)
+                      .map((e) => e.detail)
+                      .toList(),
+                ];
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
                 await Future.delayed(const Duration(seconds: 1));
@@ -476,7 +488,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  //CartDatabaseManager().clearCart(customerId);
+                                  CartDatabaseManager().clearCart();
                                 },
                                 child: const Text('OK'),
                               ),
@@ -524,12 +536,12 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                CartDatabaseManager().getDraftItems();
+                
                 CartDatabaseManager().cartItems.clear();
-                //CartDatabaseManager().clearCart();
+                CartDatabaseManager().clearCart();
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
-                CartDatabaseManager().getDraftItems();
+               
                 log('Log 3');
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
@@ -538,9 +550,9 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                CartDatabaseManager().getDraftItems();
+                
                 CartDatabaseManager().cartItems.clear();
-                //CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().clearCart();
                 Navigator.pop(context);
               } else {
                 log('Log 4');

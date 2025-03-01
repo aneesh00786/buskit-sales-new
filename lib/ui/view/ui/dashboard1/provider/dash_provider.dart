@@ -1832,7 +1832,7 @@ class DashboardProvider with ChangeNotifier {
         //fetchOrders();
       }
       notificationController.loadNotificationData(startDate, endDate);
-      CartDatabaseManager().getDraftItems();
+      await CartDatabaseManager().getDraftItems();
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching data', error: e, stackTrace: stackTrace);

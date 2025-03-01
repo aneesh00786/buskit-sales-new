@@ -224,47 +224,83 @@ class CartDatabaseManager {
     if (localCount <= 0) {
       throw ArgumentError("Error: Count must be greater than zero.");
     }
-    final existingItemIndex = cartBox.values.toList().indexWhere((item) =>
+
+    // Check if the item exists in the draftBox
+    final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
 
-    if (existingItemIndex != -1) {
-      final existingItem = cartBox.getAt(existingItemIndex)!;
-      existingItem.detail.count += localCount.toDouble();
-      existingItem.totalPrice = existingItem.isPack!
-          ? (existingItem.detail.count *
-                  (existingItem.detail.pieces ?? 1) *
-                  (double.tryParse(existingItem.detail.sellPrice ?? '0') ?? 0))
+    if (existingDraftItemIndex != -1) {
+      // If exists in the draftBox, update the count and total price
+      final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
+      existingDraftItem.detail.count += localCount.toDouble();
+      existingDraftItem.totalPrice = existingDraftItem.isPack!
+          ? (existingDraftItem.detail.count *
+                  (existingDraftItem.detail.pieces ?? 1) *
+                  (double.tryParse(existingDraftItem.detail.sellPrice ?? '0') ??
+                      0))
               .toDouble()
-          : (existingItem.detail.count *
-                  (double.tryParse(existingItem.detail.sellPrice ?? '0') ?? 0))
+          : (existingDraftItem.detail.count *
+                  (double.tryParse(existingDraftItem.detail.sellPrice ?? '0') ??
+                      0))
               .toDouble();
-      await cartBox.putAt(existingItemIndex, existingItem);
-      log('Updated product in cart: ${existingItem.detail.variationName}, '
-          'New Count: ${existingItem.detail.count}, Total Price: ${existingItem.totalPrice}');
+      await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
+
+      log('Updated product in draft: ${existingDraftItem.detail.variationName}, '
+          'New Count: ${existingDraftItem.detail.count}, Total Price: ${existingDraftItem.totalPrice}');
     } else {
-      final double price = double.tryParse(detail.sellPrice ?? '0') ?? 0;
-      final num tax = detail.tax ?? 0;
-      final double effectivePrice = inclTax != "incl_tax" ? price + tax : price;
-      final computedTotalAmount = isPack
-          ? (localCount * (detail.pieces ?? 1) * effectivePrice)
-          : (localCount * effectivePrice);
-      log('Incl Tax $inclTax');
-      detail.count += localCount.toDouble();
-      detail.inclTax = inclTax;
-      final newCartItem = CartItem(
-        detail: detail,
-        productName: productName,
-        totalPrice: computedTotalAmount.toDouble(),
-        isPack: isPack,
-        customerId: customerId,
-        count: localCount,
-        boxType: false,
-      );
-      await cartBox.add(newCartItem);
-      log('New product added to cart: ${newCartItem.detail.variationName}, '
-          'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
+      // Check if the item exists in the cartBox
+      final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
+          item.detail.variationName == detail.variationName &&
+          item.detail.sellPrice == detail.sellPrice &&
+          item.customerId == customerId);
+
+      if (existingCartItemIndex != -1) {
+        // If exists in the cartBox, update the count and total price
+        final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
+        existingCartItem.detail.count += localCount.toDouble();
+        existingCartItem.totalPrice = existingCartItem.isPack!
+            ? (existingCartItem.detail.count *
+                    (existingCartItem.detail.pieces ?? 1) *
+                    (double.tryParse(
+                            existingCartItem.detail.sellPrice ?? '0') ??
+                        0))
+                .toDouble()
+            : (existingCartItem.detail.count *
+                    (double.tryParse(
+                            existingCartItem.detail.sellPrice ?? '0') ??
+                        0))
+                .toDouble();
+        await cartBox.putAt(existingCartItemIndex, existingCartItem);
+
+        log('Updated product in cart: ${existingCartItem.detail.variationName}, '
+            'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
+      } else {
+        // If not exists in draftBox or cartBox, add as a new item to the cartBox
+        final double price = double.tryParse(detail.sellPrice ?? '0') ?? 0;
+        final num tax = detail.tax ?? 0;
+        final double effectivePrice =
+            inclTax != "incl_tax" ? price + tax : price;
+        final computedTotalAmount = isPack
+            ? (localCount * (detail.pieces ?? 1) * effectivePrice)
+            : (localCount * effectivePrice);
+        log('Incl Tax $inclTax');
+        detail.count += localCount.toDouble();
+        detail.inclTax = inclTax;
+        final newCartItem = CartItem(
+          detail: detail,
+          productName: productName,
+          totalPrice: computedTotalAmount.toDouble(),
+          isPack: isPack,
+          customerId: customerId,
+          count: localCount,
+          boxType: false,
+        );
+        await cartBox.add(newCartItem);
+        log('New product added to cart: ${newCartItem.detail.variationName}, '
+            'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
+      }
     }
     _notifyListeners();
   }

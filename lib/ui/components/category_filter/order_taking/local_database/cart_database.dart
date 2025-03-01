@@ -20,14 +20,20 @@ class CartDatabaseManager {
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? '',
       "customer_id": "",
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "order_type": 4,
       "payment_type": 1,
-      "start_date": "2025-02-01",
-      "end_date": "2025-02-28",
+      "start_date":
+          "${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}",
+      "end_date":
+          "${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}",
       "limit": 1000,
       "page": 1,
     };
@@ -249,7 +255,7 @@ class CartDatabaseManager {
         isPack: isPack,
         customerId: customerId,
         count: localCount,
-        boxType:false,
+        boxType: false,
       );
       await cartBox.add(newCartItem);
       log('New product added to cart: ${newCartItem.detail.variationName}, '
@@ -344,10 +350,10 @@ class CartDatabaseManager {
     }
   }
 
-  Future<void> updateCart(CartItem updatedItem ) async {
-    if(updatedItem.boxType==false){
+  Future<void> updateCart(CartItem updatedItem) async {
+    if (updatedItem.boxType == false) {
       await cartBox.put(updatedItem.key, updatedItem);
-    }else{
+    } else {
       await draftBox.put(updatedItem.key, updatedItem);
     }
     _notifyListeners();
@@ -355,17 +361,17 @@ class CartDatabaseManager {
 
   void deleteCartItem(CartItem item) {
     final key = item.key;
-    if(item.boxType==false){
+    if (item.boxType == false) {
       if (cartBox.containsKey(key)) {
-      log('Item found with key: $key, proceeding to delete');
-      cartBox.delete(key);
+        log('Item found with key: $key, proceeding to delete');
+        cartBox.delete(key);
       } else {
         log('Item with key: $key does not exist in cartBox');
       }
-    }else{
+    } else {
       if (draftBox.containsKey(key)) {
-      log('Item found with key: $key, proceeding to delete');
-      draftBox.delete(key);
+        log('Item found with key: $key, proceeding to delete');
+        draftBox.delete(key);
       } else {
         log('Item with key: $key does not exist in cartBox');
       }

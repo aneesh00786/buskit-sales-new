@@ -36,7 +36,6 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
-// ignore: must_be_immutable
 class CartDialogue extends StatefulWidget {
   bool? active;
   int cartItemCount;

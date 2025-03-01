@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -835,6 +837,27 @@ class OptionWidget extends StatelessWidget {
     );
   }
 
+  Future<void> _initializeCustomerData(
+      CustomerDash? customer,
+      ProductsController productsController,
+      CustomerAndOrderController customerAndOrderController) async {
+    final customerId = customer?.customerId;
+    final customerName = customer?.businessName;
+    final customerImage = customer?.imageUrl;
+    if (customerId!.isEmpty) {
+      log('Error: Customer ID is empty in CustomerDachScreen.');
+      return;
+    }
+    customerAndOrderController.setCustomerId(customer?.customerId ?? '');
+    productsController.selectedCustomerId.value = customer?.customerId ?? '';
+    productsController.updateSelectedCustomer(
+      name: customerName ?? '',
+      imageUrl: customerImage ?? '',
+      id: customerId,
+    );
+    log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
+  }
+
   void _showEstimatesDialog(BuildContext context, DashboardProvider provider,
       OrderStatus selectedOrderStatus, String orderType, bool isDraft) {
     showDialog(
@@ -1255,19 +1278,20 @@ class OptionWidget extends StatelessWidget {
                                                                             onContinueShopping:
                                                                                 () {
                                                                               Future.delayed(const Duration(milliseconds: 300), () {
+                                                                                _initializeCustomerData(customer, productsController, customerOrderController);
                                                                                 homeController?.sidebarXController.selectIndex(2);
                                                                                 homeController?.selectedIndex.value = 2;
                                                                                 Get.to(ProductScreen(), id: 2);
                                                                               });
-                                                                              final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                              customerOrderController.setCustomerId(customer?.customerId ?? '');
-                                                                              cartProvider.updateCartCount(customer?.customerId ?? '');
-                                                                              productsController.selectedCustomerName.value = customer?.businessName ?? '';
-                                                                              productsController.selectedCustomerImageUrl.value = customer?.imageUrl ?? '';
-                                                                              productsController.selectedCustomerId.value = customer?.customerId ?? '';
-                                                                              CartDatabaseManager().getCartItems(customer?.customerId ?? '');
-                                                                              CartDatabaseManager().getDraftItems();
-                                                                            
+                                                                              // final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                              // customerOrderController.setCustomerId(customer?.customerId ?? '');
+                                                                              // cartProvider.updateCartCount(customer?.customerId ?? '');
+                                                                              // productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                              // productsController.selectedCustomerImageUrl.value = customer?.imageUrl ?? '';
+                                                                              // productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                              // CartDatabaseManager().getCartItems(customer?.customerId ?? '');
+                                                                              // CartDatabaseManager().getDraftItems();
+
                                                                               // Future.delayed(const Duration(milliseconds: 300), () {
                                                                               //   Get.toNamed(name:AppRoutes.product, id: 2);
                                                                               // });
@@ -1450,7 +1474,7 @@ class OptionWidget extends StatelessWidget {
   }
   //   Future<void> _initializeCustomerData(CustomerDash customer) async {
   //   final customerId =  customer.customerId ?? '';
-  //   final customerName = widget.cusName??''; 
+  //   final customerName = widget.cusName??'';
   //   final customerImage =  widget.cusImage ?? '';
   //   log('Customer Id _initializeCustomerData : $customerId');
   //   log('Customer Id _initializeCustomerData : ${widget.cusId}');
@@ -1466,7 +1490,6 @@ class OptionWidget extends StatelessWidget {
   //   );
   //   log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
   // }
-
 
   String _getCountForTitle(String title, OrderCountListt? orderCountList) {
     switch (title.toLowerCase()) {

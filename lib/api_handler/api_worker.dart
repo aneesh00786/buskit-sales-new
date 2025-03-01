@@ -1629,7 +1629,7 @@ class ApiWorker with ApiConstants {
     return SalesmanTargetTableResponse.fromJson(response.data);
   }
 
-  Future<StaffTimesheetResponse> getTimeSheetData({
+    Future<StaffTimesheetResponse> getTimeSheetData({
     String? startDate,
     String? endDate,
   }) async {
@@ -1641,17 +1641,18 @@ class ApiWorker with ApiConstants {
         data: FormData.fromMap({
           "startdate": startDate,
           "enddate": endDate,
-          "id":
-              // 9
-              SessionHelper.loginSavedData?.id,
+          "id": SessionHelper.loginSavedData?.id,
         }),
       );
 
       log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
       return StaffTimesheetResponse.fromJson(response.data);
+    } on DioException catch (error) {
+      log("❌ API Error: ${error.response?.statusCode} - ${error.message}");
+      throw DioExceptionHandler.fromDioError(error);
     } catch (e) {
-      log("❌ API Error: $e");
-      rethrow;
+      log("❌ Unknown API Error: $e");
+      throw e;
     }
   }
 

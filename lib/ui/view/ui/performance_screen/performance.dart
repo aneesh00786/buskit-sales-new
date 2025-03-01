@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
@@ -340,10 +341,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     count: targetContent?.timesheet?.toString() ?? '0',
                     svg: "assets/icons/event.png",
                     svgBgColor: const Color.fromARGB(255, 206, 252, 224),
-                    onTap: () {
-                      Get.dialog(StaffTimeSheetDialog(
-                          staffController: staffController));
-                    }
+                    onTap: targetContent?.timesheet?.toString() == '0'
+                        ? () => showCustomToastDisplay(
+                            context, 'Record Not Found', red, Icons.close)
+                        : () {
+                            Get.dialog(StaffTimeSheetDialog(
+                                staffController: staffController));
+                          }
                     // => _showTileDialog(
                     //     context, _selectedMonthName ?? '', 1, true),
                     ),
@@ -352,19 +356,26 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
                   svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 215, 236, 246),
-                  onTap: () => _showTileDialog(
-                      context, _selectedMonthName ?? '', 2, true),
+                  onTap: targetContent?.salesmanInOut?.length.toString() == '0'
+                      ? () => showCustomToastDisplay(
+                          context, 'Record Not Found', red, Icons.close)
+                      : () => _showTileDialog(
+                          context, _selectedMonthName ?? '', 2, true),
                 ),
                 OptionData(
                     title: 'Visits',
                     count: targetContent?.visit?.toString() ?? '0',
                     svg: "assets/icons/location.png",
                     svgBgColor: const Color.fromARGB(255, 249, 219, 193),
-                    onTap: () {
-                      Get.dialog(
-                        StaffRouteDialog(staffController: staffController),
-                      );
-                    }
+                    onTap: targetContent?.visit?.toString() == '0'
+                        ? () => showCustomToastDisplay(
+                            context, 'Record Not Found', red, Icons.close)
+                        : () {
+                            Get.dialog(
+                              StaffRouteDialog(
+                                  staffController: staffController),
+                            );
+                          }
                     // _showTileDialog(
                     //     context, _selectedMonthName ?? '', 3, false),
                     ),
@@ -373,8 +384,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   count: targetContent?.customer?.toString() ?? '0',
                   svg: "assets/icons/customer.png",
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),
-                  onTap: () => _showTileDialog(
-                      context, _selectedMonthName ?? '', 4, true),
+                  onTap: targetContent?.customer?.toString() == '0'
+                      ? () => showCustomToastDisplay(
+                          context, 'Record Not Found', red, Icons.close)
+                      : () => _showTileDialog(
+                          context, _selectedMonthName ?? '', 4, true),
                 ),
               ],
             );

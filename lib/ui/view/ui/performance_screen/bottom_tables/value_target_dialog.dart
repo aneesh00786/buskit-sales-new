@@ -610,8 +610,15 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
         widget.staffController.isWeekly.value ? weeklyTarget : {},
       );
 
+      widget.staffController.loadSalesmanTargetForSelectedTab(
+        currentYear: widget.staffController.selectedDate.year.toString(),
+        selectedTabIndex: widget.staffController.tabController.index + 1,
+        staffId: SessionHelper.loginSavedData?.salesmanId ?? '',
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Targets updated successfully!')),
+        const SnackBar(
+            content: Text('Targets and Projections updated successfully!')),
       );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

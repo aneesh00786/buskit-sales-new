@@ -16,7 +16,11 @@ class CartDatabaseManager {
   final Box<CartItem> cartBox = Hive.box<CartItem>('cartBox');
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
-  List<CartItem> get cartItems => cartBox.values.toList();
+  List<CartItem> get cartItems => [
+        ...cartBox.values.toList(),
+        ...draftBox.values.toList(),
+      ];
+
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
@@ -277,7 +281,6 @@ class CartDatabaseManager {
         log('Updated product in cart: ${existingCartItem.detail.variationName}, '
             'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
       } else {
-        // If not exists in draftBox or cartBox, add as a new item to the cartBox
         final double price = double.tryParse(detail.sellPrice ?? '0') ?? 0;
         final num tax = detail.tax ?? 0;
         final double effectivePrice =

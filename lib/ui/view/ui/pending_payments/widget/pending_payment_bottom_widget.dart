@@ -83,7 +83,7 @@ class _PendingPaymentBottomWidgetState
   }
 
   Widget _buildHeader(BuildContext context) {
-    double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
+    double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 53 : 58;
     double fontSize = ResponsiveInfo.isMobileDimension(context) ? 7 : 11;
     if (MediaQuery.of(context).orientation != Orientation.portrait) {
       headerHeight = 55;
@@ -103,42 +103,78 @@ class _PendingPaymentBottomWidgetState
             children: [
               SizedBox(
                 width: 205,
-                child: _buildHeaderText("Customer List", fontSize),
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: _buildHeaderText("Customer List", fontSize)),
+                    SizedBox(
+                      height: 8,
+                    )
+                  ],
+                ),
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  controller: _headerScrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: fullScreenWidth(context) * 0.9,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                            flex: 3,
-                            child: _buildHeaderText("Order No.", fontSize)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            flex: 3, child: _buildHeaderText("Date", fontSize)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            flex: 3,
-                            child: _buildHeaderText("Due Date", fontSize)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            flex: 2, child: _buildHeaderText("Days", fontSize)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            flex: 3,
-                            child: _buildHeaderText("Amount", fontSize)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            flex: 3,
-                            child: _buildHeaderText("Status", fontSize)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            flex: 3, child: _buildHeaderText("", fontSize)),
-                      ],
+                child: ScrollbarTheme(
+                  data: ScrollbarThemeData(
+                      radius: Radius.circular(10),
+                      thumbColor: WidgetStatePropertyAll(Colors.cyanAccent)),
+                  child: Scrollbar(
+                    controller: _headerScrollController,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    child: SingleChildScrollView(
+                      controller: _headerScrollController,
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: fullScreenWidth(context) * 0.9,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                      flex: 3,
+                                      child: _buildHeaderText(
+                                          "Order No.", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 3,
+                                      child:
+                                          _buildHeaderText("Date", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 3,
+                                      child: _buildHeaderText(
+                                          "Due Date", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 2,
+                                      child:
+                                          _buildHeaderText("Days", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 3,
+                                      child:
+                                          _buildHeaderText("Amount", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 3,
+                                      child:
+                                          _buildHeaderText("Status", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 3,
+                                      child: _buildHeaderText("", fontSize)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -152,7 +188,7 @@ class _PendingPaymentBottomWidgetState
 
   Widget _buildOrderList(
       BuildContext context, PendingPaymentController orderController) {
-    double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 45 : 50;
+    double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 53 : 58;
 
     return Align(
       alignment: FractionalOffset.topCenter,
@@ -162,49 +198,65 @@ class _PendingPaymentBottomWidgetState
           children: [
             SizedBox(
               width: 210,
-              child: ListView.builder(
-                itemCount: widget.orderController.orderDataList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < widget.orderController.orderDataList.length) {
-                    final customerData =
-                        widget.orderController.orderDataList[index];
-                    return _buildCustomerDetails(customerData, context, index);
-                  } else {
-                    return Container(
-                      height: 58,
-                      color: Colors.grey[200],
-                    );
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller: _orderScrollController,
-                child: SizedBox(
-                  width: fullScreenWidth(context) * 0.9,
-                  child: ListView.builder(
-                    itemCount: widget.orderController.orderDataList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index < widget.orderController.orderDataList.length) {
-                        final customerData =
-                            widget.orderController.orderDataList[index];
-                        return Expanded(
-                            child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: SizedBox(
-                                    width: fullScreenWidth(context) * 0.9,
-                                    child: _buildOrderRow(
-                                        customerData, context, index))));
-                      } else {
-                        return _buildPageChanger(context, orderController);
-                      }
-                    },
-                  ),
+              child: Scrollbar(
+                thumbVisibility: true,
+                child: ListView.builder(
+                  itemCount: widget.orderController.orderDataList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index < widget.orderController.orderDataList.length) {
+                      final customerData =
+                          widget.orderController.orderDataList[index];
+                      return _buildCustomerDetails(
+                          customerData, context, index);
+                    } else {
+                      return Container(
+                        height: 58,
+                        color: Colors.grey[200],
+                      );
+                    }
+                  },
                 ),
               ),
             ),
+            Expanded(
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  trackVisibility: WidgetStatePropertyAll(true),
+                  thumbVisibility: WidgetStatePropertyAll(true),
+                  thumbColor: WidgetStateProperty.all(primaryColor),
+                  trackColor: WidgetStateProperty.all(Colors.grey[300]),
+                  trackBorderColor: WidgetStateProperty.all(Colors.grey[400]),
+                  thickness: WidgetStateProperty.all(5),
+                  radius: const Radius.circular(10),
+                ),
+                child: Scrollbar(
+                  controller: _orderScrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _orderScrollController,
+                    child: SizedBox(
+                      width: fullScreenWidth(context) * 0.9,
+                      child: ListView.builder(
+                        itemCount:
+                            widget.orderController.orderDataList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index <
+                              widget.orderController.orderDataList.length) {
+                            final customerData =
+                                widget.orderController.orderDataList[index];
+                            return _buildOrderRow(customerData, context, index);
+                          } else {
+                            return _buildPageChanger(context, orderController);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
@@ -1000,17 +1052,23 @@ class _PendingPaymentBottomWidgetState
   String getFormattedOrderCreatAt(dynamic value) {
     if (value == null || value.toString().isEmpty) {
       print('Error: Invalid date value');
-      return ''; 
+      return ''; // Return an empty string for null or empty values
     }
+
     try {
+      // Check if the value is already in DateTime format
       if (value is DateTime) {
         return DateFormat('dd-MM-yyyy').format(value);
       }
+
+      // Attempt to parse the string as a DateTime object
       DateTime parsedDate = DateTime.parse(value.toString());
+
+      // Return the formatted date
       return DateFormat('dd-MM-yyyy').format(parsedDate);
     } catch (e) {
       print('Error parsing date: $e');
-      return '';
+      return ''; // Return an empty string if parsing fails
     }
   }
 

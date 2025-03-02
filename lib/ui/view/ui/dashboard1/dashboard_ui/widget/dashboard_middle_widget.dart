@@ -241,18 +241,21 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             ),
                           );
                         } else if (snapshot.hasError) {
-                          return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.error_outline,
-                                    size: 50, color: Colors.red),
-                                SizedBox(height: 10),
-                                Text(
-                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                    textAlign: TextAlign.center),
-                              ],
-                            ),
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } else {
+                                return const Center(
+                                  child: NodataWidget(),
+                                );
+                              }
+                            },
                           );
                         } else if (!snapshot.hasData ||
                             (snapshot.data != null &&
@@ -270,7 +273,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                           sum + (order.orderTotal ?? 0),
                                     ) ==
                                     0)) {
-                          return const NodataWidget();
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } else {
+                                return const Center(
+                                  child: NodataWidget(),
+                                );
+                              }
+                            },
+                          );
+                          ;
                         } else {
                           final responseModel = snapshot.data!;
                           final totalCompletedAmount = responseModel
@@ -512,18 +531,21 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             ),
                           );
                         } else if (snapshot.hasError) {
-                          return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.error_outline,
-                                    size: 50, color: Colors.red),
-                                SizedBox(height: 10),
-                                Text(
-                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                    textAlign: TextAlign.center),
-                              ],
-                            ),
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } else {
+                                return const Center(
+                                  child: NodataWidget(),
+                                );
+                              }
+                            },
                           );
                         } else if (snapshot.hasData) {
                           final categories = snapshot.data!.allCategory;
@@ -603,7 +625,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             ),
                           );
                         } else {
-                          return const NodataWidget();
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } else {
+                                return const Center(
+                                  child: NodataWidget(),
+                                );
+                              }
+                            },
+                          );
+                          ;
                         }
                       },
                     );
@@ -721,16 +759,21 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             ),
                           );
                         } else if (snapshot.hasError || !snapshot.hasData) {
-                          return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.error_outline,
-                                    size: 50, color: Colors.red),
-                                Text(
-                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
-                              ],
-                            ),
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } else {
+                                return const Center(
+                                  child: NodataWidget(),
+                                );
+                              }
+                            },
                           );
                         } else if (snapshot.hasData) {
                           final categories = snapshot.data!.allCategory;
@@ -822,22 +865,26 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               size: 20.0,
                             ),
                           );
-                        } else if (snapshot.hasError) {
-                          return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.error_outline,
-                                    size: 50, color: Colors.red),
-                                Text(
-                                    "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
-                              ],
-                            ),
-                          );
                         } else if (snapshot.hasData) {
                           final categoryPerformance = snapshot.data!.revenue;
                           if (categoryPerformance!.orderRevenueData!.isEmpty) {
-                            return const NodataWidget();
+                            return FutureBuilder(
+                              future:
+                                  Future.delayed(const Duration(seconds: 3)),
+                              builder: (context, delaySnapshot) {
+                                if (delaySnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return SpinKitFadingCube(
+                                    color: primaryColor,
+                                    size: 20.0,
+                                  );
+                                } else {
+                                  return const Center(
+                                    child: NodataWidget(),
+                                  );
+                                }
+                              },
+                            );
                           }
                           final bookingRevenueLength =
                               categoryPerformance.bookingRevenueData!.isNotEmpty
@@ -900,7 +947,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             ),
                           );
                         } else {
-                          return const NodataWidget();
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } else {
+                                return const Center(
+                                  child: NodataWidget(),
+                                );
+                              }
+                            },
+                          );
+                          ;
                         }
                       },
                     );
@@ -1222,7 +1285,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       return Expanded(
                           child: topSellingProductList(topSellingProducts));
                     } else {
-                      return const NodataWidget();
+                      return FutureBuilder(
+                        future: Future.delayed(const Duration(seconds: 3)),
+                        builder: (context, delaySnapshot) {
+                          if (delaySnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return SpinKitFadingCube(
+                              color: primaryColor,
+                              size: 20.0,
+                            );
+                          } else {
+                            return const Center(
+                              child: NodataWidget(),
+                            );
+                          }
+                        },
+                      );
+                      ;
                     }
                   },
                 );
@@ -1633,7 +1712,23 @@ class _ChatScreenState extends State<ChatScreen> {
                   List<Messages> messages =
                       chatProvider.individualChatMessages ?? [];
                   if (messages.isEmpty) {
-                    return Center(child: NodataWidget());
+                    return Center(
+                        child: FutureBuilder(
+                      future: Future.delayed(const Duration(seconds: 3)),
+                      builder: (context, delaySnapshot) {
+                        if (delaySnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return SpinKitFadingCube(
+                            color: primaryColor,
+                            size: 20.0,
+                          );
+                        } else {
+                          return const Center(
+                            child: NodataWidget(),
+                          );
+                        }
+                      },
+                    ));
                   }
                   return ListView.builder(
                     controller: _scrollController,

@@ -1,11 +1,7 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -22,7 +18,8 @@ class OrderProcessInvoiceDialog extends StatefulWidget {
   OrderProcessInvoiceDialog({
     this.invoiceData,
     this.specificData,
-    required this.selectedTabIndex,   required this.orderController,
+    required this.selectedTabIndex,
+    required this.orderController,
   });
 
   @override
@@ -32,97 +29,21 @@ class OrderProcessInvoiceDialog extends StatefulWidget {
 
 class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
   bool isRejecting = false;
-  TextEditingController rejectionController = TextEditingController();
-
-  List<TextEditingController> _priceControllers = [];
-  List<TextEditingController> _quantityControllers = [];
-  List<double> _totalPrices = [];
   bool isChanged = false;
- final List<SpecificOrderData> _updatedOrder = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
-  }
-
-  void _initializeControllers() {
-    if (widget.specificData != null && widget.specificData!.cart != null) {
-      _priceControllers = List.generate(
-          widget.specificData!.cart!.length,
-          (index) => TextEditingController(
-              text:
-                  widget.specificData!.cart![index].price?.toString() ?? '0'));
-      _quantityControllers = List.generate(
-          widget.specificData!.cart!.length,
-          (index) => TextEditingController(
-              text: widget.specificData!.cart![index].quantity?.toString() ??
-                  '1'));
-
-     _totalPrices = List.generate(
-        widget.specificData!.cart!.length,
-        (index) {
-          double price = double.tryParse(
-                  widget.specificData!.cart![index].price?.toString() ?? '0') ??
-              0;
-          int quantity = widget.specificData!.cart![index].quantity ?? 1;
-          double tax = double.tryParse(
-                  widget.specificData!.cart![index].tax?.toString() ?? '0') ??
-              0;
-          return (price * quantity) + tax;
-        },
-      );
-
-      for (int i = 0; i < widget.specificData!.cart!.length; i++) {
-        _priceControllers[i].addListener(() => _updateTotalPrice(i));
-        _quantityControllers[i].addListener(() => _updateTotalPrice(i));
-      }
-    }
-  }
-
-  void _updateTotalPrice(int index) {
-    double price = double.tryParse(_priceControllers[index].text) ?? 0;
-    int quantity = int.tryParse(_quantityControllers[index].text) ?? 1;
-    double tax = widget.specificData!.cart![index].inclTax != "incl_tax"
-        ? double.tryParse(
-                widget.specificData!.cart![index].tax?.toString() ?? '0') ??
-            0
-        : 0;
-
-    setState(() {
-      if (widget.specificData!.cart![index].packType == 'Pack') {
-        int pieces = widget.specificData!.cart![index].pieces ?? 1;
-
-        _totalPrices[index] = (price * quantity * pieces) + tax;
-      } else if (widget.specificData!.cart![index].packType == 'Pcs') {
-        _totalPrices[index] = (price * quantity) + tax;
-      }
-    });
   }
 
   @override
   void dispose() {
-    rejectionController.dispose();
-    _priceControllers.forEach((controller) => controller.dispose());
-    _quantityControllers.forEach((controller) => controller.dispose());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isSpecificData = widget.selectedTabIndex == 0;
     double totalWidth = MediaQuery.of(context).size.width;
-    double totalHeight = MediaQuery.of(context).size.height;
-    // double tax = double.tryParse(isSpecificData
-    //         ? widget.specificData?.cart?.first.tax ?? '0'
-    //         : widget.invoiceData?.cart?.first.tax ?? '0') ??
-    //     0.0;
-
-    // num orderTotal = isSpecificData
-    //     ? widget.specificData?.orderTotal ?? 0.0
-    //     : widget.invoiceData?.orderTotal ?? 0.0;
-
-    // double calculatedAmount = (tax * orderTotal) / 100;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -150,18 +71,18 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                     Row(
                       children: [
                         Text(
-                        widget.selectedTabIndex == 5
-                            ? 'INVOICE DETAILS'
-                            : 'ORDER DETAILS',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                          widget.selectedTabIndex == 5
+                              ? 'INVOICE DETAILS'
+                              : 'ORDER DETAILS',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
                         const Spacer(),
                         Text(
-                          'Created At : ${isSpecificData ? (NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.specificData!.orderCreatAt.toString()))) : (NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt!.toIso8601String())))}',
+                          'Created At : ${(NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt!.toIso8601String())))}',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -177,24 +98,16 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isSpecificData
-                                  ? ("Name :   ${widget.specificData?.fullname}")
-                                  : ("Name :   ${widget.invoiceData?.fullname}"),
+                              ("Name :   ${widget.invoiceData?.fullname}"),
                             ),
                             Text(
-                              isSpecificData
-                                  ? ("Email :   ${widget.specificData?.email}")
-                                  : ("Email :   ${widget.invoiceData?.email}"),
+                              ("Email :   ${widget.invoiceData?.email}"),
                             ),
                             Text(
-                              isSpecificData
-                                  ? ("Phone :   ${widget.specificData?.mobileno}")
-                                  : ("Phone :   ${widget.invoiceData?.mobileNo}"),
+                              ("Phone :   ${widget.invoiceData?.mobileNo}"),
                             ),
                             Text(
-                              isSpecificData
-                                  ? ("Salesman :   ${widget.specificData?.salesmanName}")
-                                  : ("Salesman :   ${widget.invoiceData?.salesmanName}"),
+                              ("Salesman :   ${widget.invoiceData?.salesmanName}"),
                             ),
                           ],
                         ),
@@ -241,7 +154,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ),
                           ),
                         ),
-                        
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
@@ -252,14 +164,14 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           ),
                         ),
                         const DataColumn(
-                        label: Expanded(
-                          flex: 2,
-                          child: Text(
-                            'TAX',
-                            textAlign: TextAlign.center,
+                          label: Expanded(
+                            flex: 2,
+                            child: Text(
+                              'TAX',
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
                         const DataColumn(
                           label: Expanded(
                             flex: 2,
@@ -270,15 +182,10 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           ),
                         ),
                       ],
-                      rows: (isSpecificData
-                              ? widget.specificData?.cart != null &&
-                                  widget.specificData!.cart!.isNotEmpty
-                              : widget.invoiceData?.cart != null &&
-                                  widget.invoiceData!.cart!.isNotEmpty)
+                      rows: (widget.invoiceData?.cart != null &&
+                              widget.invoiceData!.cart!.isNotEmpty)
                           ? List.generate(
-                              isSpecificData
-                                  ? widget.specificData!.cart!.length
-                                  : widget.invoiceData!.cart!.length,
+                              widget.invoiceData!.cart!.length,
                               (index) {
                                 return DataRow(
                                   cells: [
@@ -286,11 +193,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                       SizedBox(
                                         width: totalWidth * 0.2,
                                         child: Text(
-                                          isSpecificData
-                                              ? ('${widget.specificData!.cart![index].productName} - ${widget.specificData!.cart![index].variationName}' ??
-                                                  'No description')
-                                              : ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}' ??
-                                                  'No description'),
+                                          ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}'),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(fontSize: 14),
@@ -299,207 +202,57 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     ),
                                     DataCell(
                                       Center(
-                                        child: isSpecificData
-                                            ? TextField(
-                                                controller:
-                                                    _priceControllers[index],
-                                                readOnly: true,
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: white,
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.all(8),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    borderSide: BorderSide.none,
-                                                  ),
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                onChanged: (value) {
-                                                  final originalPrice = widget
-                                                      .specificData!
-                                                      .cart![index]
-                                                      .price;
-                                                  if (value !=
-                                                      originalPrice
-                                                          ?.toString()) {
-                                                    setState(() {
-                                                      isChanged = true;
-                                                    });
-                                                  }
-                                                  _updateTotalPrice(index);
-                                                },
-                                                onSubmitted: (value) {
-                                                  _updateTotalPrice(index);
-                                                },
-                                              )
-                                            : Text(formatAmount(widget
-                                                    .invoiceData
-                                                    ?.cart?[index]
-                                                    .price
-                                                    ?.toString() ??
-                                                '0')),
+                                        child: Text(formatAmount(widget
+                                                .invoiceData?.cart?[index].price
+                                                ?.toString() ??
+                                            '0')),
                                       ),
                                     ),
                                     // Quantity
                                     DataCell(
                                       Center(
-                                        child: isSpecificData
-                                            ? TextField(
-                                                controller:
-                                                    _quantityControllers[index],
-                                                readOnly: true,
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: white,
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.all(8),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    borderSide: BorderSide.none,
-                                                  ),
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                onChanged: (value) {
-                                                  final originalQuantity =
-                                                      widget
-                                                          .specificData!
-                                                          .cart![index]
-                                                          .quantity;
-                                                  if (value !=
-                                                      originalQuantity
-                                                          ?.toString()) {
-                                                    setState(() {
-                                                      isChanged = true;
-                                                    });
-                                                  }
-                                                  _updateTotalPrice(index);
-                                                },
-                                                onSubmitted: (value) {
-                                                  _updateTotalPrice(index);
-                                                },
-                                              )
-                                            : Text(
-                                              (widget.invoiceData!.cart![index]
-                                                          .packType ==
-                                                      'Pack')
-                                                  ? '${(widget.invoiceData?.cart?[index].pieces ?? 0) * (widget.invoiceData?.cart?[index].quantity?.toInt() ?? 0)}'
-                                                      ' (${widget.invoiceData?.cart?[index].quantity ?? 0} ${widget.invoiceData?.cart?[index].packType})'
-                                                  : '${widget.invoiceData?.cart?[index].quantity ?? 0}',
-                                            ),
+                                        child: Text(
+                                          (widget.invoiceData!.cart![index]
+                                                      .packType ==
+                                                  'Pack')
+                                              ? '${(widget.invoiceData?.cart?[index].pieces ?? 0) * (widget.invoiceData?.cart?[index].quantity?.toInt() ?? 0)}'
+                                                  ' (${widget.invoiceData?.cart?[index].quantity ?? 0} ${widget.invoiceData?.cart?[index].packType})'
+                                              : '${widget.invoiceData?.cart?[index].quantity ?? 0}',
+                                        ),
                                       ),
                                     ),
-                                    // Created At
-                                    // DataCell(
-                                    //   Center(
-                                    //     child: Text(
-                                    //       isSpecificData
-                                    //           ? (NKDateUtils.commonDayFormat2(
-                                    //               NKDateUtils
-                                    //                   .formatStringUTCDateTime(
-                                    //                       widget
-                                    //                           .specificData!
-                                    //                           .cart![index]
-                                    //                           .createdAt
-                                    //                           .toString())))
-                                    //           : (NKDateUtils.commonDayFormat2(
-                                    //               NKDateUtils
-                                    //                   .formatStringUTCDateTime(
-                                    //                       widget
-                                    //                           .invoiceData!
-                                    //                           .cart![index]
-                                    //                           .createdAt
-                                    //                           .toString()))),
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    // DataCell(
-                                    //   Align(
-                                    //     alignment: Alignment.centerRight,
-                                    //     child: Text(
-                                    //       isSpecificData
-                                    //           ? formatAmount(
-                                    //               _totalPrices[index])
-                                    //           : formatAmount((widget
-                                    //                   .invoiceData!
-                                    //                   .cart![index]
-                                    //                   .price) ??
-                                    //               0 *
-                                    //                   (widget
-                                    //                       .invoiceData!
-                                    //                       .cart![index]
-                                    //                       .quantity)!),
-                                    //     ),
-                                    //   ),
-                                    // ),
                                     DataCell(
-                                    Center(
-                                      child: Text(isSpecificData
-                                          ? formatAmount(widget
-                                              .specificData?.cart?[index].tax)
-                                          : formatAmount(widget
-                                              .invoiceData?.cart?[index].tax)),
+                                      Center(
+                                        child: Text(formatAmount(widget
+                                            .invoiceData?.cart?[index].tax)),
+                                      ),
                                     ),
-                                  ),
-                                   DataCell(
-                                    Align(
-                                        alignment: Alignment.centerRight,
-                                        child: isSpecificData
-                                            ? Text.rich(
-                                                TextSpan(
-                                                  text: formatAmount(
-                                                      _totalPrices[index]),
-                                                  children: widget
-                                                              .specificData!
-                                                              .cart![index]
-                                                              .inclTax ==
-                                                          "incl_tax"
-                                                      ? [
-                                                          TextSpan(
-                                                            text:
-                                                                "  (Incl. Tax)",
-                                                            style: TextStyle(
-                                                                fontSize: 10),
-                                                          ),
-                                                        ]
-                                                      : [],
-                                                ),
-                                                maxLines: 1,
-                                              )
-                                            : Text.rich(
-                                                TextSpan(
-                                                  text: formatAmount(widget
-                                                      .invoiceData!
-                                                      .cart![index]
-                                                      .total),
-                                                  children: widget
-                                                              .invoiceData!
-                                                              .cart![index]
-                                                              .inclTax ==
-                                                          "incl_tax"
-                                                      ? [
-                                                          TextSpan(
-                                                            text:
-                                                                "  (Incl. Tax)",
-                                                            style: TextStyle(
-                                                                fontSize: 10),
-                                                          ),
-                                                        ]
-                                                      : [],
-                                                ),
-                                                maxLines: 1,
-                                              )),
-                                  ),
+                                    DataCell(
+                                      Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Text.rich(
+                                            TextSpan(
+                                              text: formatAmount(widget
+                                                  .invoiceData!
+                                                  .cart![index]
+                                                  .total),
+                                              children: widget
+                                                          .invoiceData!
+                                                          .cart![index]
+                                                          .inclTax ==
+                                                      "incl_tax"
+                                                  ? [
+                                                      TextSpan(
+                                                        text: "  (Incl. Tax)",
+                                                        style: TextStyle(
+                                                            fontSize: 10),
+                                                      ),
+                                                    ]
+                                                  : [],
+                                            ),
+                                            maxLines: 1,
+                                          )),
+                                    ),
                                   ],
                                 );
                               },
@@ -520,792 +273,105 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Padding(
-              //   padding: const EdgeInsets.all(20.0),
-              //   child: Column(
-              //     children: [
-              //       Row(
-              //       children: [
-              //         const Text(
-              //           'Subtotal',
-              //           style: TextStyle(
-              //             color: black,
-              //             fontSize: 15,
-              //             fontWeight: FontWeight.w500,
-              //           ),
-              //         ),
-              //         const Spacer(),
-              //         Text(
-              //           formatAmount(isSpecificData
-              //               ? widget.specificData!.orderTotal ?? 0
-              //               : widget.invoiceData!.orderTotal ?? 0),
-              //         ),
-              //       ],
-              //     ),
-              //     if (((isSpecificData
-              //             ? widget.specificData!.tax
-              //             : widget.invoiceData!.tax) !=
-              //         null)) ...[
-              //       ...(isSpecificData
-              //               ? widget.specificData!.tax
-              //               : widget.invoiceData!.tax)!
-              //           .map((taxItem) {
-              //         return Row(
-              //           children: [
-              //             Text(
-              //               '${isSpecificData ? taxItem.tax_name : taxItem.tax_name} - ${isSpecificData ? taxItem.tax : taxItem.tax} %',
-              //               style: const TextStyle(
-              //                 color: black,
-              //                 fontSize: 14,
-              //                 fontWeight: FontWeight.w500,
-              //               ),
-              //             ),
-              //             const Spacer(),
-              //             Text(
-              //               formatAmount(
-              //                 (_getTaxValue(isSpecificData
-              //                         ? taxItem.tax
-              //                         : taxItem.tax)) *
-              //                     (isSpecificData
-              //                         ? widget.specificData!.orderTotal ?? 0
-              //                         : widget.invoiceData!.orderTotal ?? 0) /
-              //                     100,
-              //               ),
-              //             ),
-              //           ],
-              //         );
-              //       })
-              //     ],
-              //     Divider(color: Colors.grey.shade400),
-              //     Row(
-              //       children: [
-              //         const Text(
-              //           'Total',
-              //           style: TextStyle(
-              //             color: black,
-              //             fontSize: 16,
-              //             fontWeight: FontWeight.w600,
-              //           ),
-              //         ),
-              //         const Spacer(),
-              //         Text(
-              //           formatAmount(
-              //             (isSpecificData
-              //                     ? widget.specificData!.orderTotal ?? 0
-              //                     : widget.invoiceData!.orderTotal ?? 0) +
-              //                 ((_getTaxValue(isSpecificData
-              //                         ? widget.specificData!.tax!.fold(0.0,
-              //                             (sum, taxItem) {
-              //                             return sum + taxItem.tax!.toDouble();
-              //                           })
-              //                         : widget.invoiceData!.tax!.fold(0.0,
-              //                             (sum, taxItem) {
-              //                             return sum + taxItem.tax!.toDouble();
-              //                           }))) *
-              //                     (isSpecificData
-              //                         ? widget.specificData!.orderTotal ?? 0
-              //                         : widget.invoiceData!.orderTotal ?? 0) /
-              //                     100),
-              //           ),
-              //           style: const TextStyle(
-              //             fontSize: 16,
-              //             color: red,
-              //             fontWeight: FontWeight.w600,
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //     ],
-              //   ),
-              // ),
               Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        'Subtotal',
-                        style: TextStyle(
-                          color: black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Subtotal',
+                          style: TextStyle(
+                            color: black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        formatAmount(
-                          isSpecificData
-                              ? _totalPrices.reduce((a, b) => a + b)
-                              : widget.invoiceData?.cart?.fold<num>(
-                                  0, (sum, item) => sum + item.total),
+                        const Spacer(),
+                        Text(
+                          formatAmount(
+                            widget.invoiceData?.cart
+                                ?.fold<num>(0, (sum, item) => sum + item.total),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  if ((isSpecificData
-                      ? widget.specificData?.tax != null &&
-                          widget.specificData!.tax!
-                              .any((taxItem) => taxItem.tax != null)
-                      : widget.invoiceData?.tax != null &&
-                          widget.invoiceData!.tax!
-                              .any((taxItem) => taxItem.tax != null))) ...[
-                    ...(isSpecificData
-                            ? widget.specificData!.tax!
-                            : widget.invoiceData!.tax!)
-                        .map((taxItem) {
-                      final orderTotal = isSpecificData
-                          ? _totalPrices.reduce((a, b) => a + b)
-                          : (widget.invoiceData?.orderTotal ?? 0);
-                      final taxPercentage = taxItem.tax ?? 0.0;
-                      final taxAmount = (taxPercentage * orderTotal) / 100;
+                      ],
+                    ),
+                    if ((widget.invoiceData?.tax != null &&
+                        widget.invoiceData!.tax!
+                            .any((taxItem) => taxItem.tax != null))) ...[
+                      ...(widget.invoiceData!.tax!).map((taxItem) {
+                        final orderTotal =
+                            (widget.invoiceData?.orderTotal ?? 0);
+                        final taxPercentage = taxItem.tax ?? 0.0;
+                        final taxAmount = (taxPercentage * orderTotal) / 100;
 
-                      return Row(
-                        children: [
-                          if (taxItem.tax_name != null) ...[
-                            Text(
-                              '${taxItem.tax_name ?? ''} - ${taxPercentage.toStringAsFixed(2)}%',
-                              style: const TextStyle(
-                                color: black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                        return Row(
+                          children: [
+                            if (taxItem.tax_name != null) ...[
+                              Text(
+                                '${taxItem.tax_name ?? ''} - ${taxPercentage.toStringAsFixed(2)}%',
+                                style: const TextStyle(
+                                  color: black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              formatAmount(taxAmount),
-                            ),
-                          ]
-                        ],
-                      );
-                    }),
-                  ],
-                  Divider(color: Colors.grey.shade400),
-                  Row(
-                    children: [
-                      const Text(
-                        'Total',
-                        style: TextStyle(
-                          color: black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        formatAmount(
-                          isSpecificData
-                              ? _totalPrices.reduce((a, b) => a + b)
-                              : widget.invoiceData?.cart?.fold<num>(
-                                  0, (sum, item) => sum + item.total),
-                        ),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: red,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-              const SizedBox(height: 16),
-              // widget.selectedTabIndex == 1
-              //     ? Row(
-              //         mainAxisAlignment: MainAxisAlignment.center,
-              //         children: [
-              //           if (widget.selectedTabIndex == 0 && !isRejecting) ...[
-              //             CustomButton(
-              //               text: 'Accept',
-              //               onPressed: () {
-              //                 if (isChanged) {
-              //                   if (widget.specificData != null) {
-              //                     for (int i = 0;
-              //                         i < widget.specificData!.cart!.length;
-              //                         i++) {
-              //                       widget.specificData!.cart![i].price =
-              //                           _priceControllers[i].text ??
-              //                               widget.specificData!.cart![i].price;
-              //                       widget.specificData!.cart![i]
-              //                           .quantity = int.tryParse(
-              //                               _quantityControllers[i].text) ??
-              //                           widget.specificData!.cart![i].quantity;
-              //                     }
-              //                     setState(() {
-              //                       _updatedOrder.add(widget.specificData!);
-              //                       isChanged = false;
-              //                     });
-              //                   }
-              //                 }
-
-              //                 String jsonOrder = jsonEncode(_updatedOrder
-              //                     .map((order) => order.toJson())
-              //                     .toList());
-              //                 log("JSON Order: $jsonOrder");
-
-              //                 // log(jsonOrder);
-
-              //                 // Call the existing action for accepting the order
-              //                 widget.orderController.acceptButtonAction(
-              //                   context: context,
-              //                   orderId:
-              //                       widget.specificData!.orderId.toString(),
-              //                   updatedOrders:
-              //                       _updatedOrder, // Pass the list directly
-              //                 );
-
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //             nkMediumSizeBox(),
-              //             CustomButton(
-              //               text: 'Reject',
-              //               onPressed: () {
-              //                 setState(() {
-              //                   isRejecting = true;
-              //                 });
-              //               },
-              //             ),
-              //             if (isChanged) ...[
-              //               nkMediumSizeBox(),
-              //               CustomButton(
-              //                 text: 'Send for Customer Approval',
-              //                 onPressed: () {
-              //                   if (isChanged) {
-              //                     // Update specificData with the modified values
-              //                     if (widget.specificData != null) {
-              //                       for (int i = 0;
-              //                           i < widget.specificData!.cart!.length;
-              //                           i++) {
-              //                         // Update price and quantity in specificData's cart
-              //                         widget.specificData!.cart![i].price =
-              //                             _priceControllers[i].text ??
-              //                                 widget
-              //                                     .specificData!.cart![i].price;
-              //                         widget.specificData!.cart![i]
-              //                             .quantity = int.tryParse(
-              //                                 _quantityControllers[i].text) ??
-              //                             widget
-              //                                 .specificData!.cart![i].quantity;
-              //                       }
-
-              //                       // Add the updated specificData to _updatedOrder
-              //                       setState(() {
-              //                         _updatedOrder.add(widget.specificData!);
-              //                         isChanged = false;
-              //                       });
-              //                     }
-              //                   }
-
-              //                   String jsonOrder = jsonEncode(_updatedOrder
-              //                       .map((order) => order.toJson())
-              //                       .toList());
-              //                   log("JSON Order: $jsonOrder");
-
-              //                   // log(jsonOrder);
-
-              //                   // Call the existing action for accepting the order
-              //                   widget.orderController
-              //                       .sendForCustomerApprovalButtonAction(
-              //                     context: context,
-              //                     orderId:
-              //                         widget.specificData!.orderId.toString(),
-              //                     updatedOrders:
-              //                         _updatedOrder, // Pass the list directly
-              //                   );
-
-              //                   // Pop the screen after the action is completed
-              //                   Navigator.pop(context);
-              //                 },
-              //               ),
-              //             ],
-              //           ],
-              //           if (widget.selectedTabIndex == 0 && isRejecting) ...[
-              //             Expanded(
-              //               child: TextField(
-              //                 controller: rejectionController,
-              //                 decoration: const InputDecoration(
-              //                   labelText: 'Rejection Reason',
-              //                   border: OutlineInputBorder(),
-              //                 ),
-              //               ),
-              //             ),
-              //             nkMediumSizeBox(),
-              //             CustomButton(
-              //               text: 'Confirm Reject',
-              //               onPressed: () {
-              //                 widget.orderController.rejectButtonAction(
-              //                   context: context,
-              //                   orderId:
-              //                       widget.specificData!.orderId.toString(),
-              //                   reason: rejectionController.text,
-              //                 );
-              //                 String rejectionReason =
-              //                     rejectionController.text.trim();
-              //                 if (rejectionReason.isNotEmpty) {
-              //                   setState(() {
-              //                     isRejecting = false;
-              //                   });
-              //                 }
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 1 && !isRejecting) ...[
-              //             CustomButton(
-              //               text: 'Accept',
-              //               onPressed: () {
-              //                 widget.orderController.acceptButtonAction(
-              //                   context: context,
-              //                   orderId: widget.invoiceData!.orderId.toString(),
-              //                 );
-              //               },
-              //             ),
-              //             nkMediumSizeBox(),
-              //             CustomButton(
-              //               text: 'Reject',
-              //               onPressed: () {
-              //                 setState(() {
-              //                   isRejecting = true;
-              //                 });
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 1 && isRejecting) ...[
-              //             Expanded(
-              //               child: TextField(
-              //                 controller: rejectionController,
-              //                 decoration: const InputDecoration(
-              //                   labelText: 'Rejection Reason',
-              //                   border: OutlineInputBorder(),
-              //                 ),
-              //               ),
-              //             ),
-              //             nkMediumSizeBox(),
-              //             CustomButton(
-              //               text: 'Confirm Reject',
-              //               onPressed: () {
-              //                 widget.orderController.rejectButtonAction(
-              //                   context: context,
-              //                   orderId: widget.invoiceData!.orderId.toString(),
-              //                   reason: rejectionController.text,
-              //                 );
-              //                 String rejectionReason =
-              //                     rejectionController.text.trim();
-              //                 if (rejectionReason.isNotEmpty) {
-              //                   setState(() {
-              //                     isRejecting = false;
-              //                   });
-              //                 }
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 2 && !isRejecting) ...[
-              //             CustomButton(
-              //               text: 'Accept',
-              //               onPressed: () {
-              //                 widget.orderController.acceptButtonAction(
-              //                   context: context,
-              //                   orderId: widget.invoiceData!.orderId.toString(),
-              //                 );
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //             nkMediumSizeBox(),
-              //             CustomButton(
-              //               text: 'Reject',
-              //               onPressed: () {
-              //                 setState(() {
-              //                   isRejecting = true;
-              //                 });
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 2 && isRejecting) ...[
-              //             Expanded(
-              //               child: TextField(
-              //                 controller: rejectionController,
-              //                 decoration: const InputDecoration(
-              //                   labelText: 'Rejection Reason',
-              //                   border: OutlineInputBorder(),
-              //                 ),
-              //               ),
-              //             ),
-              //             nkMediumSizeBox(),
-              //             CustomButton(
-              //               text: 'Confirm Reject',
-              //               onPressed: () {
-              //                 widget.orderController.rejectButtonAction(
-              //                   context: context,
-              //                   orderId: widget.invoiceData!.orderId.toString(),
-              //                   reason: rejectionController.text,
-              //                 );
-              //                 String rejectionReason =
-              //                     rejectionController.text.trim();
-              //                 if (rejectionReason.isNotEmpty) {
-              //                   setState(() {
-              //                     isRejecting = false;
-              //                   });
-              //                 }
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 3) ...[
-              //             CustomButton(
-              //               text: 'Packed and Ready',
-              //               onPressed: () {
-              //                 widget.orderController.addToPackedAndReady(
-              //                   context: context,
-              //                   orderId: widget.invoiceData!.orderId.toString(),
-              //                   cartid: widget.invoiceData!.cartId.toString(),
-              //                 );
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 4) ...[
-              //             CustomButton(
-              //               text: 'Deliver',
-              //               onPressed: () {
-              //                 widget.orderController.deliverButtonAction(
-              //                   context: context,
-              //                   orderId: widget.invoiceData!.orderId.toString(),
-              //                 );
-              //                 // Pop the screen after the action is completed
-              //                 Navigator.pop(context);
-              //               },
-              //             ),
-              //           ],
-              //           if (widget.selectedTabIndex == 6) ...[
-              //             const Text('Rejection Reason : '),
-              //             nkMediumSizeBox(),
-              //             Text(widget.invoiceData!.rejectionReason.toString()),
-              //             nkMediumSizeBox(),
-              //             Text(NKDateUtils.commonDayFormat2(
-              //                 NKDateUtils.formatStringUTCDateTime(widget
-              //                     .invoiceData!.rejectedDate
-              //                     .toString()))),
-              //           ],
-              //         ],
-              //       )
-              //     : Container()
-              Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (widget.selectedTabIndex == 0 && !isRejecting) ...[
-                  CustomButton(
-                    text: 'Accept',
-                    onPressed: () async {
-                      if (isChanged) {
-                        if (widget.specificData != null) {
-                          for (int i = 0;
-                              i < widget.specificData!.cart!.length;
-                              i++) {
-                            widget.specificData!.cart![i].price =
-                                num.tryParse(_priceControllers[i].text);
-                            widget.specificData!.cart![i].quantity =
-                                int.tryParse(_quantityControllers[i].text) ??
-                                    widget.specificData!.cart![i].quantity;
-                          }
-
-                          setState(() {
-                            _updatedOrder.add(widget.specificData!);
-                            isChanged = false;
-                          });
-                        }
-                      }
-
-                      String jsonOrder = jsonEncode(_updatedOrder
-                          .map((order) => order.toJson())
-                          .toList());
-                      log("JSON Order: $jsonOrder");
-                      await widget.orderController.acceptButtonAction(
-                        context: context,
-                        orderId: widget.specificData!.orderId.toString(),
-                        updatedOrders: _updatedOrder,
-                      );
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Reject',
-                    onPressed: () {
-                      setState(() {
-                        isRejecting = true;
-                      });
-                    },
-                  ),
-                  if (isChanged) ...[
-                    nkMediumSizeBox(),
-                    CustomButton(
-                      text: 'Send for Customer Approval',
-                      onPressed: () async {
-                        if (isChanged) {
-                          if (widget.specificData != null) {
-                            for (int i = 0;
-                                i < widget.specificData!.cart!.length;
-                                i++) {
-                              widget.specificData!.cart![i].price =
-                                  num.tryParse(_priceControllers[i].text);
-                              widget.specificData!.cart![i].quantity =
-                                  int.tryParse(_quantityControllers[i].text) ??
-                                      widget.specificData!.cart![i].quantity;
-                            }
-
-                            setState(() {
-                              _updatedOrder.add(widget.specificData!);
-                              isChanged = false;
-                            });
-                          }
-                        }
-
-                        String jsonOrder = jsonEncode(_updatedOrder
-                            .map((order) => order.toJson())
-                            .toList());
-                        log("JSON Order: $jsonOrder");
-                        await widget.orderController
-                            .sendForCustomerApprovalButtonAction(
-                          context: context,
-                          orderId: widget.specificData!.orderId.toString(),
-                          updatedOrders: _updatedOrder,
+                              const Spacer(),
+                              Text(
+                                formatAmount(taxAmount),
+                              ),
+                            ]
+                          ],
                         );
-                        await widget.orderController.loadOrderData(
-                            selectedIndex: widget.selectedTabIndex);
-                        await widget.orderController.loadOrderCountData();
-                        Navigator.pop(context);
-                      },
+                      }),
+                    ],
+                    Divider(color: Colors.grey.shade400),
+                    Row(
+                      children: [
+                        const Text(
+                          'Total',
+                          style: TextStyle(
+                            color: black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          formatAmount(
+                            widget.invoiceData?.cart
+                                ?.fold<num>(0, (sum, item) => sum + item.total),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: red,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.selectedTabIndex == 6) ...[
+                    const Text('Rejection Reason : '),
+                    // nkMediumSizeBox(),
+                    Text(widget.invoiceData!.rejectionReason.toString()),
+                    nkMediumSizeBox(),
+                    Text(NKDateUtils.commonDayFormat2(
+                        NKDateUtils.formatStringUTCDateTime(
+                            widget.invoiceData!.rejectedDate.toString()))),
+                  ],
                 ],
-                if (widget.selectedTabIndex == 0 && isRejecting) ...[
-                  Expanded(
-                    child: TextField(
-                      controller: rejectionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rejection Reason',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Confirm Reject',
-                    onPressed: () async {
-                      await widget.orderController.rejectButtonAction(
-                        context: context,
-                        orderId: widget.specificData!.orderId.toString(),
-                        reason: rejectionController.text,
-                      );
-                      String rejectionReason = rejectionController.text.trim();
-                      if (rejectionReason.isNotEmpty) {
-                        setState(() {
-                          isRejecting = false;
-                        });
-                      }
-                      // Pop the screen after the action is completed
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 1 && !isRejecting) ...[
-                  CustomButton(
-                    text: 'Accept',
-                    onPressed: () async {
-                      await widget.orderController.acceptButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                      );
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Reject',
-                    onPressed: () {
-                      setState(() {
-                        isRejecting = true;
-                      });
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 1 && isRejecting) ...[
-                  Expanded(
-                    child: TextField(
-                      controller: rejectionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rejection Reason',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  nkMediumSizeBox(),
-                  CustomButton(
-                    text: 'Confirm Reject',
-                    onPressed: () async {
-                      await widget.orderController.rejectButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                        reason: rejectionController.text,
-                      );
-                      String rejectionReason = rejectionController.text.trim();
-                      if (rejectionReason.isNotEmpty) {
-                        setState(() {
-                          isRejecting = false;
-                        });
-                      }
-                      // Pop the screen after the action is completed
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                // if (widget.selectedTabIndex == 2 && !isRejecting) ...[
-                //   CustomButton(
-                //     text: 'Accept',
-                //     onPressed: () {
-                //       widget.orderController.acceptButtonAction(
-                //         context: context,
-                //         orderId: widget.invoiceData!.orderId.toString(),
-                //       );
-                //       // Pop the screen after the action is completed
-                //       Navigator.pop(context);
-                //     },
-                //   ),
-                //   nkMediumSizeBox(),
-                //   CustomButton(
-                //     text: 'Reject',
-                //     onPressed: () {
-                //       setState(() {
-                //         isRejecting = true;
-                //       });
-                //     },
-                //   ),
-                // ],
-                // if (widget.selectedTabIndex == 2 && isRejecting) ...[
-                //   Expanded(
-                //     child: TextField(
-                //       controller: rejectionController,
-                //       decoration: const InputDecoration(
-                //         labelText: 'Rejection Reason',
-                //         border: OutlineInputBorder(),
-                //       ),
-                //     ),
-                //   ),
-                //   nkMediumSizeBox(),
-                //   CustomButton(
-                //     text: 'Confirm Reject',
-                //     onPressed: () {
-                //       widget.orderController.rejectButtonAction(
-                //         context: context,
-                //         orderId: widget.invoiceData!.orderId.toString(),
-                //         reason: rejectionController.text,
-                //       );
-                //       String rejectionReason = rejectionController.text.trim();
-                //       if (rejectionReason.isNotEmpty) {
-                //         setState(() {
-                //           isRejecting = false;
-                //         });
-                //       }
-                //       // Pop the screen after the action is completed
-                //       Navigator.pop(context);
-                //     },
-                //   ),
-                // ],
-                if (widget.selectedTabIndex == 2) ...[
-                  CustomButton(
-                    text: 'Packed and Ready',
-                    onPressed: () async {
-                      await widget.orderController.addToPackedAndReady(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                        cartid: widget.invoiceData!.cartId.toString(),
-                      );
-                      // Pop the screen after the action is completed
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 3) ...[
-                  CustomButton(
-                    text: 'Packed and Ready',
-                    onPressed: () async {
-                      await widget.orderController.addToPackedAndReady(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                        cartid: widget.invoiceData!.cartId.toString(),
-                      );
-                      // Pop the screen after the action is completed
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 4) ...[
-                  CustomButton(
-                    text: 'Deliver',
-                    onPressed: () async {
-                      await widget.orderController.deliverButtonAction(
-                        context: context,
-                        orderId: widget.invoiceData!.orderId.toString(),
-                      );
-                      // Pop the screen after the action is completed
-                      await widget.orderController.loadOrderData(
-                          selectedIndex: widget.selectedTabIndex);
-                      await widget.orderController.loadOrderCountData();
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-                if (widget.selectedTabIndex == 6) ...[
-                  const Text('Rejection Reason : '),
-                  nkMediumSizeBox(),
-                  Text(widget.invoiceData!.rejectionReason.toString()),
-                  nkMediumSizeBox(),
-                  Text(NKDateUtils.commonDayFormat2(
-                      NKDateUtils.formatStringUTCDateTime(
-                          widget.invoiceData!.rejectedDate.toString()))),
-                ],
-              ],
-            )
+              )
             ],
           ),
         ),
       ),
     );
-  }
-
-  double _getTaxValue(dynamic tax) {
-    if (tax is int) {
-      return tax.toDouble(); // If tax is an int, convert it to double
-    } else if (tax is String) {
-      return double.tryParse(tax) ?? 0; // If tax is a String, parse it safely
-    }
-    return 0; // Default to 0 if tax is neither int nor String
   }
 }

@@ -1253,7 +1253,7 @@ class CartDialogueState extends State<CartDialogue> {
   }) async {
     List<CartItem> itemList = isOrder
         ? orderItems.where((item) => item.isChecked ?? true).toList()
-        : orderItems.where((item) => item.isChecked ?? true).toList();
+        : preorderItems.where((item) => item.isChecked ?? true).toList();
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||

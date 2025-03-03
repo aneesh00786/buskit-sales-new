@@ -94,9 +94,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   Widget build(BuildContext context) {
     return Obx(
       () {
-        // if (widget.orderController.isOrderLoading.value) {
-        //   return const Center(child: Text('LOADING'));
-        // }
+        if (widget.orderController.isOrderLoading.value) {
+          return const Center(child: Text('LOADING'));
+        }
         if (widget.orderController.orderDataList.isEmpty) {
           return const Center(child: Text('Record Not Found'));
         }
@@ -510,9 +510,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                                 orderData)),
                                         const SizedBox(width: 5),
                                       ],
-
-                                      // if not received
-
                                       if (widget.selectedTabIndex != 0) ...[
                                         const SizedBox(width: 5),
                                         Expanded(
@@ -527,11 +524,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                               orderData.cart!.first, orderData),
                                         ),
                                         const SizedBox(width: 5),
-                                        // Expanded(
-                                        //   flex: 4,
-                                        //   child:
-                                        //       orderCreatedByWidget(orderData),
-                                        // ),
                                         const SizedBox(width: 5),
                                         Expanded(
                                           flex: 4,
@@ -793,7 +785,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         statusColor = const Color.fromARGB(255, 255, 222, 168);
         break;
       case 14:
-        // statusColor = const Color.fromARGB(255, 192, 226, 254);
         statusColor = const Color.fromARGB(255, 190, 253, 247);
         break;
       case 5:
@@ -813,54 +804,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     }
 
     return
-        // orderData.optionOrderData?.orderStatus == 2
-        //     ? Center(
-        //         child: Padding(
-        //           padding: const EdgeInsets.all(0.0),
-        //           child: IntrinsicHeight(
-        //             child: Container(
-        //               padding: const EdgeInsets.all(5.0),
-        //               decoration: BoxDecoration(
-        //                 color: statusColor,
-        //                 borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-        //               ),
-        //               child: Center(
-        //                 child: Column(
-        //                   mainAxisSize: MainAxisSize.min,
-        //                   children: [
-        //                     CustomText(
-        //                       content: orderData.optionOrderData?.orderStatus !=
-        //                               null
-        //                           ? OrderHandlingClass.fromType(
-        //                                   orderData.optionOrderData!.orderStatus!)
-        //                               .name
-        //                           : 'Unknown',
-        //                       fontSize: 11.0,
-        //                       fontWeight: FontWeight.w600,
-        //                     ),
-        //                     if (orderData.optionOrderData!.orderStatus == 2 &&
-        //                         orderData.optionOrderData!.deliveryDatetime !=
-        //                             null) ...[
-        //                       const SizedBox(height: 3),
-        //                       CustomText(
-        //                         content: NKDateUtils.commonFullDateTimeFormat(
-        //                             NKDateUtils.formatStringUTCDateTime(orderData
-        //                                 .optionOrderData!.deliveryDatetime
-        //                                 .toString())),
-        //                         textAlign: TextAlign.center,
-        //                         maxLine: 2,
-        //                         fontSize: 9,
-        //                         fontWeight: FontWeight.w400,
-        //                       ),
-        //                     ]
-        //                   ],
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //       )
-        //     :
         orderData.optionOrderData?.orderStatus == 14
             ? Center(
                 child: Padding(
@@ -952,29 +895,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     return Center(
       child: IconButton(
         onPressed: () async {
-          if (orderController.selectedTabIndex.value == 0) {
-            try {
-              await orderController.loadSpecificOrderInvoiceData(
-                orderId: orderData.orderId!,
-              );
-              Get.back();
-              if (orderController.orderProcessInvoiceData != null) {
-                Get.dialog(
-                  OrderProcessInvoiceDialog(
-                    specificData: orderController.fetchSpecificOrderData,
-                    selectedTabIndex: orderController.selectedTabIndex.value,
-                    orderController: orderController,
-                  ),
-                  barrierDismissible: true,
-                );
-              } else {
-                throw Exception('No invoice data available');
-              }
-            } catch (e) {
-              Get.back();
-              Get.snackbar('Error', e.toString());
-            }
-          } else if (orderController.selectedTabIndex.value == 1) {
+          if (orderController.selectedTabIndex.value == 1) {
             try {
               await orderController.loadOrderApprovalInvoiceData(
                 orderId: orderData.orderId!,
@@ -996,7 +917,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               Get.back();
               Get.snackbar('Error', e.toString());
             }
-          } else if (orderController.selectedTabIndex >= 1) {
+          } else if (orderController.selectedTabIndex >= 1 ||
+              orderController.selectedTabIndex.value == 0) {
             try {
               await orderController.loadOrderProcessInvoiceData(
                 orderId: orderData.orderId!,

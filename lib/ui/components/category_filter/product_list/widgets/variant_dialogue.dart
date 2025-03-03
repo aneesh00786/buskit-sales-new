@@ -37,6 +37,7 @@ class ProductVariantDialogue extends StatefulWidget {
   @override
   State<ProductVariantDialogue> createState() => _ProductVariantDialogueState();
 }
+
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
@@ -48,6 +49,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     super.initState();
     localCounts = List<int>.filled(widget.detailsCopy.length, 0);
   }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -636,11 +638,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ? customerAndOrderController.customerId.value
                                 : widget
                                     .productController.selectedCustomerId.value;
+
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
-                              // CartDatabaseManager().getDraftItems(customerId);
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
@@ -655,20 +657,19 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     productName:
                                         widget.product.productName ?? '',
                                     inclTax: widget.product.inclTax ?? '',
-                                    
                                   );
                                   log('Product added to cart or draft with ID: ${detail.variationId}');
                                 } else {
                                   log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                 }
                               }
-
-                              widget.onDone();
-                              Navigator.pop(context);
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                widget.onDone();
+                                Navigator.pop(context);
+                              });
                             } else {
                               showDialog(
-                                context: context,
-                                builder: (context) {
+                                context: context,                                builder: (context) {
                                   return AlertDialog(
                                     actions: [
                                       const SizedBox(height: 20),

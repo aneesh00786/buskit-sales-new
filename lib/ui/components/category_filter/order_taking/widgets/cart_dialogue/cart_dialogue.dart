@@ -1194,7 +1194,7 @@ class CartDialogueState extends State<CartDialogue> {
                         showVariantDeleteDialog(
                           context,
                           productName,
-                          false,
+                          !isOrder,
                           false,
                         );
                       },
@@ -1876,9 +1876,11 @@ class CartDialogueState extends State<CartDialogue> {
   void _deleteProduct(String productName, {bool isPreorder = false}) {
     setState(() {
       final variantsToDelete = cartItems.where((item) {
-        return item.productName == productName &&
-            ((isPreorder && item.detail.stock == 0) ||
-                (!isPreorder && item.detail.stock! > 0));
+        final isMatchingProduct = item.productName == productName;
+        final isPreorderItem = item.detail.stock == 0;
+        final isOrderItem = item.detail.stock! > 0;
+        return isMatchingProduct &&
+            ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
       }).toList();
 
       if (variantsToDelete.isEmpty) {
@@ -1891,14 +1893,10 @@ class CartDialogueState extends State<CartDialogue> {
         CartDatabaseManager().deleteCartItem(variant);
         CartDatabaseManager().updateCart(variant);
       }
-
-      // Remove the variants from `cartItems`.
       cartItems.removeWhere((item) =>
           item.productName == productName &&
           ((isPreorder && item.detail.stock == 0) ||
               (!isPreorder && item.detail.stock! > 0)));
-
-      // Recalculate subtotals and taxes for orders and preorders.
       final orderItems =
           cartItems.where((item) => item.detail.stock! > 0).toList();
       final preorderItems =

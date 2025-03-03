@@ -1251,9 +1251,11 @@ class CartDialogueState extends State<CartDialogue> {
     required String cartId,
     required String draftId,
   }) async {
-    List<CartItem> itemList = isOrder
-        ? orderItems.where((item) => item.isChecked ?? true).toList()
-        : preorderItems.where((item) => item.isChecked ?? true).toList();
+    List<CartItem> itemList = [
+      ...orderItems.where((item) => item.isChecked ?? true),
+      ...preorderItems.where((item) => item.isChecked ?? true),
+    ];
+
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
@@ -1369,6 +1371,9 @@ class CartDialogueState extends State<CartDialogue> {
             if (statusCode == 200) {
               log('ItemList Length ${itemList.length}');
               _clearCartItem(itemList);
+              for (var item in itemList) {
+                item.detail.count = 0;
+              }
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -1474,6 +1479,7 @@ class CartDialogueState extends State<CartDialogue> {
         );
       }
     }
+    await CartDatabaseManager().getDraftItems();
   }
 
   Future<int> _getPackPiecesValue(String productId, int quantity) async {

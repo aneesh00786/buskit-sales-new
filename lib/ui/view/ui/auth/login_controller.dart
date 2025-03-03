@@ -80,7 +80,7 @@ class LoginController extends GetxController {
 
 Future<bool> performLogin(BuildContext context) async {
   // Show Splash Screen
-  Get.to(() => SplashScreen(message: "Logging in..."), transition: Transition.fade);
+ 
 
   DateTime now = DateTime.now();
   DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
@@ -104,6 +104,7 @@ Future<bool> performLogin(BuildContext context) async {
 
     if (loginResponce?.statusCode == 200) {
       loginButtonController.success();
+       Get.to(() => SplashScreen(message: "Logging in..."), transition: Transition.fade);
       await SessionHelper().setLoginData(loginResponce!.data!);
       final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
       final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';

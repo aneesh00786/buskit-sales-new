@@ -390,7 +390,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart();
+                                  CartDatabaseManager().clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -488,7 +488,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart();
+                                  CartDatabaseManager().clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -538,7 +538,7 @@ class _OrderTakingState extends State<OrderTaking>
                 });
                 
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart();
+                CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
                
@@ -552,7 +552,7 @@ class _OrderTakingState extends State<OrderTaking>
                 });
                 
                 CartDatabaseManager().cartItems.clear();
-                CartDatabaseManager().clearCart();
+                CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');

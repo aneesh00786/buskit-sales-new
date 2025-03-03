@@ -17,11 +17,12 @@ class CartDatabaseManager {
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
-    List<CartItem> getDraftItemsForCustomer(String customerId) {
+  List<CartItem> getDraftItemsForCustomer(String customerId) {
     return draftBox.values
         .where((item) => item.customerId == customerId)
         .toList();
   }
+
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
@@ -209,11 +210,11 @@ class CartDatabaseManager {
     _listeners.remove(listener);
   }
 
-  void _notifyListeners() {
-    for (var listener in _listeners) {
-      listener();
-    }
-  }
+  // void _notifyListeners() {
+  //   for (var listener in _listeners) {
+  //     listener();
+  //   }
+  // }
 
   Future<void> addToCart({
     required Detail detail,
@@ -300,7 +301,7 @@ class CartDatabaseManager {
             'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
       }
     }
-    _notifyListeners();
+   // _notifyListeners();
   }
 
   Future<void> moveCartItemsToDraft(String customerId) async {
@@ -395,7 +396,7 @@ class CartDatabaseManager {
     } else {
       await draftBox.put(updatedItem.key, updatedItem);
     }
-    _notifyListeners();
+   // _notifyListeners();
   }
 
   void deleteCartItem(CartItem item) {
@@ -415,14 +416,14 @@ class CartDatabaseManager {
         log('Item with key: $key does not exist in cartBox');
       }
     }
-    _notifyListeners();
+   // _notifyListeners();
   }
 
   void clearDraftForCustomer(String customerId) {
     if (draftBox.containsKey(customerId)) {
       draftBox.delete(customerId);
       log('All draft items cleared for customer ID: $customerId');
-      _notifyListeners();
+      //_notifyListeners();
     } else {
       log('No draft found for customer ID: $customerId to clear.');
     }
@@ -431,12 +432,33 @@ class CartDatabaseManager {
   void clearAllDrafts() {
     draftBox.clear();
     log('All drafts cleared.');
-    _notifyListeners();
+   // _notifyListeners();
   }
 
-  Future<void> clearCart() async {
+Future<void> clearCart({required String customerId}) async {
+  final remainingCartItems = cartBox.values
+      .where(
+          (item) => item.customerId == customerId && item.isChecked != true)
+      .toList();
+  final remainingDraftItems = draftBox.values
+      .where(
+          (item) => item.customerId == customerId && item.isChecked != true)
+      .toList();
+  log('Remaining Cart Items for Customer $customerId: ${remainingCartItems.map((e) => e.toJson()).toList()}');
+  log('Remaining Draft Items for Customer $customerId: ${remainingDraftItems.map((e) => e.toJson()).toList()}');
+  await cartBox.clear();
+  await draftBox.clear();
+  await cartBox.putAll(
+      Map.fromIterable(remainingCartItems, key: (e) => e.id, value: (e) => e));
+  await draftBox.putAll(
+      Map.fromIterable(remainingDraftItems, key: (e) => e.id, value: (e) => e));
+ // _notifyListeners();
+}
+
+
+  Future<void> clearCompleteCart() async {
     await cartBox.clear();
     await draftBox.clear();
-    _notifyListeners();
+   // _notifyListeners();
   }
 }

@@ -261,7 +261,7 @@ class HomeController extends GetxController {
                   Navigator.pop(context);
                   await SessionManager.clearData();
                   await SessionHelper().clearSettingsData();
-                  await CartDatabaseManager().clearCart();
+                  await CartDatabaseManager().clearCompleteCart();
                   if (!_isDisposed) {
                     Get.offAllNamed(AppRoutes.login);
                   }

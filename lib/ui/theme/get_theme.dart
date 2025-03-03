@@ -93,7 +93,7 @@ class NkGetXTheme {
       ));
 
   static DataTableThemeData get dataTableTheme => DataTableThemeData(
-        columnSpacing: AppDimensions.instance!.width * .02,
+        columnSpacing: AppDimensions.instance.width * .02,
         //dataRowMaxHeight: height * 0.1,
         headingTextStyle: Get.textTheme.displayLarge!.copyWith(
           inherit: false,

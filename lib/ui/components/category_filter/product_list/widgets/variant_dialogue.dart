@@ -670,6 +670,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     productName:
                                         widget.product.productName ?? '',
                                     inclTax: widget.product.inclTax ?? '',
+                                    isChcked: true,
                                   );
                                   log('Product added to cart or draft with ID: ${detail.variationId}');
                                 } else {

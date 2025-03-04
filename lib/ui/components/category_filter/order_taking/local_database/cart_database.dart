@@ -223,6 +223,7 @@ class CartDatabaseManager {
     required int localCount,
     required String customerId,
     required String inclTax,
+    required bool isChcked,
   }) async {
     if (localCount <= 0) {
       throw ArgumentError("Error: Count must be greater than zero.");
@@ -250,14 +251,11 @@ class CartDatabaseManager {
       log('Updated product in draft: ${existingDraftItem.detail.variationName}, '
           'New Count: ${existingDraftItem.detail.count}, Total Price: ${existingDraftItem.totalPrice}');
     } else {
-      // Check if the item exists in the cartBox
       final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
           item.detail.variationName == detail.variationName &&
           item.detail.sellPrice == detail.sellPrice &&
           item.customerId == customerId);
-
       if (existingCartItemIndex != -1) {
-        // If exists in the cartBox, update the count and total price
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
         existingCartItem.detail.count += localCount.toDouble();
         existingCartItem.totalPrice = existingCartItem.isPack!
@@ -288,26 +286,28 @@ class CartDatabaseManager {
         detail.count += localCount.toDouble();
         detail.inclTax = inclTax;
         final newCartItem = CartItem(
-          detail: detail,
-          productName: productName,
-          totalPrice: computedTotalAmount.toDouble(),
-          isPack: isPack,
-          customerId: customerId,
-          count: localCount,
-          boxType: false,
-        );
+            detail: detail,
+            productName: productName,
+            totalPrice: computedTotalAmount.toDouble(),
+            isPack: isPack,
+            customerId: customerId,
+            count: localCount,
+            boxType: false,
+            isChecked: isChcked);
         await cartBox.add(newCartItem);
         log('New product added to cart: ${newCartItem.detail.variationName}, '
             'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
       }
     }
-   // _notifyListeners();
   }
 
   Future<void> moveCartItemsToDraft(String customerId) async {
-    final List<CartItem> cartItems =
-        cartBox.values.where((item) => item.customerId == customerId).toList();
-    for (final CartItem cartItem in cartItems) {
+    final List<CartItem> uncheckedCartItems = cartBox.values
+        .where(
+            (item) => item.customerId == customerId && item.isChecked != true)
+        .toList();
+
+    for (final CartItem cartItem in uncheckedCartItems) {
       final CartItem draftItem = CartItem(
         detail: cartItem.detail,
         productName: cartItem.productName,
@@ -323,16 +323,17 @@ class CartDatabaseManager {
       );
       await draftBox.add(draftItem);
     }
-    final List<int> indicesToRemove = cartBox.keys
-        .where((key) => cartBox.get(key)?.customerId == customerId)
+    final List<int> keysToRemove = cartBox.keys
+        .where((key) =>
+            cartBox.get(key)?.customerId == customerId &&
+            cartBox.get(key)?.isChecked == true)
         .cast<int>()
         .toList();
-
-    for (final int index in indicesToRemove) {
-      await cartBox.delete(index);
+    for (final int key in keysToRemove) {
+      await cartBox.delete(key);
     }
 
-    log('Cart items moved to draftBox and cartBox cleared for customer: $customerId');
+    log('Unchecked cart items moved to draftBox, and checked items removed for customer: $customerId');
   }
 
   Future<void> updateCartItemCount(Detail detail, int newCount) async {
@@ -396,7 +397,7 @@ class CartDatabaseManager {
     } else {
       await draftBox.put(updatedItem.key, updatedItem);
     }
-   // _notifyListeners();
+    // _notifyListeners();
   }
 
   void deleteCartItem(CartItem item) {
@@ -416,7 +417,7 @@ class CartDatabaseManager {
         log('Item with key: $key does not exist in cartBox');
       }
     }
-   // _notifyListeners();
+    // _notifyListeners();
   }
 
   void clearDraftForCustomer(String customerId) {
@@ -432,33 +433,49 @@ class CartDatabaseManager {
   void clearAllDrafts() {
     draftBox.clear();
     log('All drafts cleared.');
-   // _notifyListeners();
+    // _notifyListeners();
   }
 
-Future<void> clearCart({required String customerId}) async {
-  final remainingCartItems = cartBox.values
-      .where(
-          (item) => item.customerId == customerId && item.isChecked != true)
-      .toList();
-  final remainingDraftItems = draftBox.values
-      .where(
-          (item) => item.customerId == customerId && item.isChecked != true)
-      .toList();
-  log('Remaining Cart Items for Customer $customerId: ${remainingCartItems.map((e) => e.toJson()).toList()}');
-  log('Remaining Draft Items for Customer $customerId: ${remainingDraftItems.map((e) => e.toJson()).toList()}');
-  await cartBox.clear();
-  await draftBox.clear();
-  await cartBox.putAll(
-      Map.fromIterable(remainingCartItems, key: (e) => e.id, value: (e) => e));
-  await draftBox.putAll(
-      Map.fromIterable(remainingDraftItems, key: (e) => e.id, value: (e) => e));
- // _notifyListeners();
-}
+  Future<void> clearCart({required String customerId}) async {
+    try {
+      List<CartItem> remainingCartItems = cartBox.values
+          .where(
+              (item) => item.customerId == customerId && item.isChecked != true)
+          .toList();
 
+      List<CartItem> remainingDraftItems = draftBox.values
+          .where(
+              (item) => item.customerId == customerId && item.isChecked != true)
+          .toList();
+      log('Remaining Cart Items for Customer $customerId: ${remainingCartItems.map((e) => e.toJson()).toList()}');
+      log('Remaining Draft Items for Customer $customerId: ${remainingDraftItems.map((e) => e.toJson()).toList()}');
+      await cartBox.clear();
+      await draftBox.clear();
+      await cartBox.putAll(
+        Map.fromIterable(
+          remainingCartItems,
+          key: (e) => '${e.customerId}-${e.detail.variationId}',
+          value: (e) => e,
+        ),
+      );
+      await draftBox.putAll(
+        Map.fromIterable(
+          remainingDraftItems,
+          key: (e) => '${e.customerId}-${e.detail.variationId}',
+          value: (e) => e,
+        ),
+      );
+
+      log('Cart and Draft cleared for customer $customerId while retaining unchecked items.');
+      getCartItems(customerId);
+    } catch (e) {
+      log('Error in clearCart for customer $customerId: $e');
+    }
+  }
 
   Future<void> clearCompleteCart() async {
     await cartBox.clear();
     await draftBox.clear();
-   // _notifyListeners();
+    // _notifyListeners();
   }
 }

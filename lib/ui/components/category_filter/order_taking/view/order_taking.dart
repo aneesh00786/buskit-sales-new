@@ -390,7 +390,8 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId: customerId);
+                                  CartDatabaseManager()
+                                      .clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -488,7 +489,8 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager().clearCart(customerId: customerId);
+                                  CartDatabaseManager()
+                                      .clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -536,12 +538,11 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                
+
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
-               
                 log('Log 3');
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
@@ -550,7 +551,7 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                
+
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);

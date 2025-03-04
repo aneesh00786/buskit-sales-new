@@ -1704,8 +1704,10 @@ class CartDialogueState extends State<CartDialogue> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              onPressed: () {
+              onPressed: () async {
+                final provider = Provider.of<CustomersProvider>(context,listen:false);
                 _deleteProduct(productName, isPreorder: isPreOrder);
+                await provider.updateCartCount(customerId);
                 _loadCartItems();
                 log('Draft Delete Clicked : ${customerId}');
                 Navigator.pop(context);

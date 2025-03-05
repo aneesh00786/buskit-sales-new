@@ -67,7 +67,6 @@ void main() async {
     systemNavigationBarColor: backgroundColor,
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
-
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
   Get.lazyPut<HomeController>(() => HomeController());
@@ -77,6 +76,7 @@ void main() async {
       bool isOnline = await connectivityService.isOnline();
       if (isOnline) {
         await connectivityService.syncOfflineOrders();
+       // await connectivityService.syncOfflineDrafts();
       }
     }
   });

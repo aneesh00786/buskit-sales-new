@@ -149,6 +149,11 @@ class OptionWidget extends StatelessWidget {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showEstimatesDialog(
                   context, provider, OrderStatus.draft, 'Draft', true);
+              //     final customerId =
+              //     customerOrderController.customerId.isNotEmpty
+              //         ? customerOrderController.customerId.value
+              //         : productsController.selectedCustomerId.value;
+              // CartDatabaseManager().getCartItems(customerId);
               CartDatabaseManager().getDraftItems();
             }),
         OptionData(

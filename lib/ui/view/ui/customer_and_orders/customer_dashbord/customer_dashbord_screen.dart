@@ -187,7 +187,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       imageUrl: customerImage,
       id: customerId,
     );
-    await CartDatabaseManager().getDraftItems();
+    //CartDatabaseManager().getCartItems(customerId);
+    CartDatabaseManager().getDraftItems();
     log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
   }
 

@@ -1571,7 +1571,10 @@ class CartDialogueState extends State<CartDialogue> {
 
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final isQuickSale = _selectedValue == "Quick Sale";
+    final orderId =
+        DateTime.now().millisecondsSinceEpoch.toString(); // Unique ID
     final orderData = {
+      'order_id': orderId, // Add unique identifier
       'customer_id': customeController.customerId.isNotEmpty
           ? customeController.customerId.value
           : widget.productsController.selectedCustomerId.value,
@@ -1599,8 +1602,8 @@ class CartDialogueState extends State<CartDialogue> {
     };
 
     var offlineBox = await Hive.openBox('offlineOrders');
-    await offlineBox.add(orderData);
-    log('[saveOrderOffline] Order saved locally: $orderData');
+    await offlineBox.put(orderId, orderData);
+    log('[saveOrderOffline] Order saved locally with ID $orderId: $orderData');
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {

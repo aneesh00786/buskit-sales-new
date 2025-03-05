@@ -22,7 +22,6 @@ class CartDatabaseManager {
         .where((item) => item.customerId == customerId)
         .toList();
   }
-
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
     final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
@@ -302,12 +301,11 @@ class CartDatabaseManager {
   }
 
   Future<void> moveCartItemsToDraft(String customerId) async {
-    final List<CartItem> uncheckedCartItems = cartBox.values
+    final List<CartItem> cartItemsToMove = cartBox.values
         .where(
-            (item) => item.customerId == customerId && item.isChecked != true)
+            (item) => item.customerId == customerId)
         .toList();
-
-    for (final CartItem cartItem in uncheckedCartItems) {
+    for (final CartItem cartItem in cartItemsToMove) {
       final CartItem draftItem = CartItem(
         detail: cartItem.detail,
         productName: cartItem.productName,
@@ -323,16 +321,8 @@ class CartDatabaseManager {
       );
       await draftBox.add(draftItem);
     }
-    final List<int> keysToRemove = cartBox.keys
-        .where((key) =>
-            cartBox.get(key)?.customerId == customerId &&
-            cartBox.get(key)?.isChecked == true)
-        .cast<int>()
-        .toList();
-    for (final int key in keysToRemove) {
-      await cartBox.delete(key);
-    }
-
+    await cartBox.clear();
+    await getCartItems(customerId);
     log('Unchecked cart items moved to draftBox, and checked items removed for customer: $customerId');
   }
 

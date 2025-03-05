@@ -1705,7 +1705,8 @@ class CartDialogueState extends State<CartDialogue> {
                 backgroundColor: Colors.red,
               ),
               onPressed: () async {
-                final provider = Provider.of<CustomersProvider>(context,listen:false);
+                final provider =
+                    Provider.of<CustomersProvider>(context, listen: false);
                 _deleteProduct(productName, isPreorder: isPreOrder);
                 await provider.updateCartCount(customerId);
                 _loadCartItems();

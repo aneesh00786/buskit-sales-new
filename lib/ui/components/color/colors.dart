@@ -14,8 +14,6 @@ const Color primaryTextColor = Color(0xFF222529);
 const Color secondaryTextColor = Color.fromARGB(255, 52, 54, 55);
 const Color anotherTextColor = Color.fromARGB(255, 99, 99, 99);
 const Color buttonTextColor = Color(0xFFFFFFFF);
-
-/// Container Color
 const Color primaryContainerColor = Color(0xFFFFFFFF);
 
 /// Button Color

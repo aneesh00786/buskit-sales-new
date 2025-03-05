@@ -397,7 +397,6 @@ class CartDatabaseManager {
     } else {
       await draftBox.put(updatedItem.key, updatedItem);
     }
-    // _notifyListeners();
   }
 
   void deleteCartItem(CartItem item) {
@@ -417,24 +416,21 @@ class CartDatabaseManager {
         log('Item with key: $key does not exist in cartBox');
       }
     }
-    // _notifyListeners();
   }
 
-  void clearDraftForCustomer(String customerId) {
-    if (draftBox.containsKey(customerId)) {
-      draftBox.delete(customerId);
-      log('All draft items cleared for customer ID: $customerId');
-      //_notifyListeners();
-    } else {
-      log('No draft found for customer ID: $customerId to clear.');
-    }
-  }
+  // void clearDraftForCustomer(String customerId) {
+  //   if (draftBox.containsKey(customerId)) {
+  //     draftBox.delete(customerId);
+  //     log('All draft items cleared for customer ID: $customerId');
+  //   } else {
+  //     log('No draft found for customer ID: $customerId to clear.');
+  //   }
+  // }
 
-  void clearAllDrafts() {
-    draftBox.clear();
-    log('All drafts cleared.');
-    // _notifyListeners();
-  }
+  // void clearAllDrafts() {
+  //   draftBox.clear();
+  //   log('All drafts cleared.');
+  // }
 
   Future<void> clearCart({required String customerId}) async {
     try {
@@ -476,6 +472,5 @@ class CartDatabaseManager {
   Future<void> clearCompleteCart() async {
     await cartBox.clear();
     await draftBox.clear();
-    // _notifyListeners();
   }
 }

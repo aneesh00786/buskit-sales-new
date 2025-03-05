@@ -127,18 +127,23 @@ class _ProductGridState extends State<ProductGrid> {
                       'No Data Available :${products.length}',
                       style: TextStyle(fontSize: 40),
                     ))
-                  : GridView.builder(
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: desiredItemWidth,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 10 / 9,
-                      ),
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        final product = products[index];
-                       
-                        return LayoutBuilder(
+                  : Scrollbar(
+                      thumbVisibility:
+                          true, 
+                      thickness: 8, 
+                      radius: Radius.circular(8),
+                      child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: desiredItemWidth,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 10 / 9,
+                        ),
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          final product = products[index];
+
+                          return LayoutBuilder(
                             builder: (context, constraints) {
                               final double imageHeight =
                                   constraints.maxHeight * 0.45;
@@ -156,8 +161,8 @@ class _ProductGridState extends State<ProductGrid> {
 
                               List<double> sellPriceValues = product.detail!
                                   .where((e) => e.stock != null
-                                  //  && e.stock! > 0
-                                   )
+                                      //  && e.stock! > 0
+                                      )
                                   .map((e) =>
                                       double.tryParse(
                                           e.sellingPrice.toString()) ??
@@ -319,7 +324,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                   ),
                                                   child: Text(
                                                     '$outOfStockItem Nil',
-                                                    style:TextStyle(
+                                                    style: TextStyle(
                                                       fontSize: 7,
                                                       color: Colors.white,
                                                       fontWeight:
@@ -355,12 +360,12 @@ class _ProductGridState extends State<ProductGrid> {
                                                         child: Text(
                                                           '(incl.tax)',
                                                           style: TextStyle(
-                                                                  fontSize: 6,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600),
+                                                              fontSize: 6,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
                                                         ),
                                                       )
                                                     : Container()
@@ -438,8 +443,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                                   largestSellPrice
                                                               ? '${formatAmount(sellingPackPriceLow)}($piecesLow pcs)'
                                                               : '${formatAmount(sellingPackPriceLow)}($piecesLow pcs) - ${formatAmount(sellingPackPriceHigh)}($piecesHigh pcs)',
-                                                          style:  
-                                                             TextStyle (
+                                                          style: TextStyle(
                                                             fontSize:
                                                                 stockFontSize,
                                                             fontWeight:
@@ -497,7 +501,8 @@ class _ProductGridState extends State<ProductGrid> {
                               );
                             },
                           );
-                      },
+                        },
+                      ),
                     ),
         ),
       ],

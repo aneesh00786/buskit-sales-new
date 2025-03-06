@@ -34,25 +34,13 @@ class _ProductScreenState extends State<ProductScreen> {
           body: Obx(() {
             if (productsController.customerAndOrderData.value.customerId !=
                 null) {
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    CustomerOrderDetailMiddelWidget(
-                      key: const Key("CustomerOrderDetailMiddelWidget"),
-                      productsController: productsController,
-                    ),
-                  ],
-                ),
+              return CustomerOrderDetailMiddelWidget(
+                key: const Key("CustomerOrderDetailMiddelWidget"),
+                productsController: productsController,
               );
             } else {
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ProductMiddelWidget(
-                      productsController: productsController,
-                    ),
-                  ],
-                ),
+              return  ProductMiddelWidget(
+                productsController: productsController,
               );
             }
           }),

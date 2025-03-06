@@ -46,7 +46,6 @@ class OptionWidget extends StatelessWidget {
   final String? startDate;
   final String? endDate;
   HomeController? homeController;
-
   OptionWidget({
     super.key,
     this.optionFun,

@@ -127,383 +127,377 @@ class _ProductGridState extends State<ProductGrid> {
                       'No Data Available :${products.length}',
                       style: TextStyle(fontSize: 40),
                     ))
-                  : Scrollbar(
-                      thumbVisibility:
-                          true, 
-                      thickness: 8, 
-                      radius: Radius.circular(8),
-                      child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: desiredItemWidth,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 10 / 9,
-                        ),
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          final product = products[index];
-
-                          return LayoutBuilder(
-                            builder: (context, constraints) {
-                              final double imageHeight =
-                                  constraints.maxHeight * 0.45;
-                              final double nameFontSize =
-                                  (constraints.maxWidth * 0.06)
-                                      .clamp(11.0, 16.0);
-                              (constraints.maxWidth * 0.05).clamp(10.0, 14.0);
-                              final double stockFontSize =
-                                  (constraints.maxWidth * 0.04).clamp(8, 12.0);
-
-                              int piecesLow = 0;
-                              int piecesHigh = 0;
-                              double sellingPackPriceLow = 0;
-                              double sellingPackPriceHigh = 0;
-
-                              List<double> sellPriceValues = product.detail!
-                                  .where((e) => e.stock != null
-                                      //  && e.stock! > 0
-                                      )
-                                  .map((e) =>
-                                      double.tryParse(
-                                          e.sellingPrice.toString()) ??
-                                      0.0)
-                                  .toList();
-
-                              product.detail?.forEach((e) {
-                                double price = double.tryParse(
-                                        e.sellingPrice.toString()) ??
-                                    0.0;
-                                if (sellPriceValues.isNotEmpty &&
-                                    price ==
-                                        sellPriceValues
-                                            .reduce((a, b) => a < b ? a : b)) {
-                                  piecesLow = e.pieces!.toInt();
-                                  sellingPackPriceLow =
-                                      e.sellingPackPrice?.toDouble() ?? 0;
-                                }
-                                if (sellPriceValues.isNotEmpty &&
-                                    price ==
-                                        sellPriceValues
-                                            .reduce((a, b) => a > b ? a : b)) {
-                                  piecesHigh = e.pieces!.toInt();
-                                  sellingPackPriceHigh =
-                                      e.sellingPackPrice?.toDouble() ?? 0;
-                                }
-                              });
-
-                              double smallestSellPrice =
-                                  sellPriceValues.isNotEmpty
-                                      ? sellPriceValues
-                                          .reduce((a, b) => a < b ? a : b)
-                                      : 0.0;
-                              double largestSellPrice =
-                                  sellPriceValues.isNotEmpty
-                                      ? sellPriceValues
-                                          .reduce((a, b) => a > b ? a : b)
-                                      : 0.0;
-
-                              num lowstockItem = 0;
-                              num outOfStockItem = 0;
-
-                              product.detail?.forEach((detail) {
-                                num stock = detail.stock ?? 0;
-                                num lowstock = detail.lowstock ?? 0;
-                                if (stock == 0) {
-                                  outOfStockItem++;
-                                } else if (stock < lowstock) {
-                                  lowstockItem++;
-                                }
-                              });
-
-                              return GestureDetector(
-                                onTap: () {
-                                  _showProductVariantDialog(
-                                      product.detail ?? [],
-                                      index,
-                                      product,
-                                      products,
-                                      widget.playAddToCartAnimation);
-                                },
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    Container(
-                                      clipBehavior: Clip.antiAlias,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey.shade300),
-                                        borderRadius: BorderRadius.circular(10),
+                  : GridView.builder(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: desiredItemWidth,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 10 / 9,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                  
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          final double imageHeight =
+                              constraints.maxHeight * 0.45;
+                          final double nameFontSize =
+                              (constraints.maxWidth * 0.06)
+                                  .clamp(11.0, 16.0);
+                          (constraints.maxWidth * 0.05).clamp(10.0, 14.0);
+                          final double stockFontSize =
+                              (constraints.maxWidth * 0.04).clamp(8, 12.0);
+                  
+                          int piecesLow = 0;
+                          int piecesHigh = 0;
+                          double sellingPackPriceLow = 0;
+                          double sellingPackPriceHigh = 0;
+                  
+                          List<double> sellPriceValues = product.detail!
+                              .where((e) => e.stock != null
+                                  //  && e.stock! > 0
+                                  )
+                              .map((e) =>
+                                  double.tryParse(
+                                      e.sellingPrice.toString()) ??
+                                  0.0)
+                              .toList();
+                  
+                          product.detail?.forEach((e) {
+                            double price = double.tryParse(
+                                    e.sellingPrice.toString()) ??
+                                0.0;
+                            if (sellPriceValues.isNotEmpty &&
+                                price ==
+                                    sellPriceValues
+                                        .reduce((a, b) => a < b ? a : b)) {
+                              piecesLow = e.pieces!.toInt();
+                              sellingPackPriceLow =
+                                  e.sellingPackPrice?.toDouble() ?? 0;
+                            }
+                            if (sellPriceValues.isNotEmpty &&
+                                price ==
+                                    sellPriceValues
+                                        .reduce((a, b) => a > b ? a : b)) {
+                              piecesHigh = e.pieces!.toInt();
+                              sellingPackPriceHigh =
+                                  e.sellingPackPrice?.toDouble() ?? 0;
+                            }
+                          });
+                  
+                          double smallestSellPrice =
+                              sellPriceValues.isNotEmpty
+                                  ? sellPriceValues
+                                      .reduce((a, b) => a < b ? a : b)
+                                  : 0.0;
+                          double largestSellPrice =
+                              sellPriceValues.isNotEmpty
+                                  ? sellPriceValues
+                                      .reduce((a, b) => a > b ? a : b)
+                                  : 0.0;
+                  
+                          num lowstockItem = 0;
+                          num outOfStockItem = 0;
+                  
+                          product.detail?.forEach((detail) {
+                            num stock = detail.stock ?? 0;
+                            num lowstock = detail.lowstock ?? 0;
+                            if (stock == 0) {
+                              outOfStockItem++;
+                            } else if (stock < lowstock) {
+                              lowstockItem++;
+                            }
+                          });
+                  
+                          return GestureDetector(
+                            onTap: () {
+                              _showProductVariantDialog(
+                                  product.detail ?? [],
+                                  index,
+                                  product,
+                                  products,
+                                  widget.playAddToCartAnimation);
+                            },
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        color: const Color.fromARGB(
+                                            255, 247, 247, 247),
+                                        height: imageHeight,
+                                        width: double.maxFinite,
+                                        child: product.imageUrl != null
+                                            ? CachedNetworkImage(
+                                                imageUrl:
+                                                    '${ApiConstants.imageBaseUrl}/${product.imageUrl}',
+                                                placeholder:
+                                                    (context, url) =>
+                                                        Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(
+                                                          15.0),
+                                                  child: CircleAvatar(
+                                                      radius: 10,
+                                                      child:
+                                                          const CircularProgressIndicator()),
+                                                ),
+                                                errorWidget: (context, url,
+                                                        error) =>
+                                                    Image.asset(
+                                                        'assets/images/Image-not-found.png'),
+                                              )
+                                            : Image.asset(
+                                                'assets/images/Image-not-found.png'),
                                       ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            color: const Color.fromARGB(
-                                                255, 247, 247, 247),
-                                            height: imageHeight,
-                                            width: double.maxFinite,
-                                            child: product.imageUrl != null
-                                                ? CachedNetworkImage(
-                                                    imageUrl:
-                                                        '${ApiConstants.imageBaseUrl}/${product.imageUrl}',
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              15.0),
-                                                      child: CircleAvatar(
-                                                          radius: 10,
-                                                          child:
-                                                              const CircularProgressIndicator()),
-                                                    ),
-                                                    errorWidget: (context, url,
-                                                            error) =>
-                                                        Image.asset(
-                                                            'assets/images/Image-not-found.png'),
-                                                  )
-                                                : Image.asset(
-                                                    'assets/images/Image-not-found.png'),
+                                      // SizedBox(
+                                      //   height: imageHeight,
+                                      // ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          product.productName ?? '',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: nameFontSize,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          // SizedBox(
-                                          //   height: imageHeight,
-                                          // ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              product.productName ?? '',
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets
+                                                  .symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 3),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        30),
+                                                color: Colors.yellow[700],
+                                              ),
+                                              child: Text(
+                                                '$lowstockItem Low',
+                                                style: TextStyle(
+                                                  fontSize: 7,
+                                                  fontWeight:
+                                                      FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Container(
+                                              padding: const EdgeInsets
+                                                  .symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 3),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        30),
+                                                color: Colors.red.shade800,
+                                              ),
+                                              child: Text(
+                                                '$outOfStockItem Nil',
+                                                style: TextStyle(
+                                                  fontSize: 7,
+                                                  color: Colors.white,
+                                                  fontWeight:
+                                                      FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Text(
+                                              smallestSellPrice ==
+                                                      largestSellPrice
+                                                  ? '${formatAmount(smallestSellPrice.toString())} '
+                                                  : '${formatAmount(smallestSellPrice.toString())} - ${formatAmountOnly(largestSellPrice.toString())} ',
                                               style: TextStyle(
-                                                fontSize: nameFontSize,
+                                                fontSize: 9,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                          ),
-                                          const Spacer(),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30),
-                                                    color: Colors.yellow[700],
-                                                  ),
-                                                  child: Text(
-                                                    '$lowstockItem Low',
-                                                    style: TextStyle(
-                                                      fontSize: 7,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                            product.inclTax != '' &&
+                                                    product.inclTax != null
+                                                ? Container(
+                                                    padding:
+                                                        const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 3,
+                                                            vertical: 2),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    5),
+                                                        color: Colors.blue),
+                                                    child: Text(
+                                                      '(incl.tax)',
+                                                      style: TextStyle(
+                                                          fontSize: 6,
+                                                          color:
+                                                              Colors.white,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .w600),
                                                     ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30),
-                                                    color: Colors.red.shade800,
-                                                  ),
-                                                  child: Text(
-                                                    '$outOfStockItem Nil',
-                                                    style: TextStyle(
+                                                  )
+                                                : Container()
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 5,
+                                            right: 5,
+                                            top: 5,
+                                            bottom: 8),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              height: 12,
+                                              width: 12,
+                                              color: Colors.red,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        100),
+                                                color:
+                                                    Colors.green.shade700,
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 3),
+                                                child: Text(
+                                                  'Stock : ${product.stock}',
+                                                  style: TextStyle(
                                                       fontSize: 7,
                                                       color: Colors.white,
                                                       fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                          FontWeight.w600),
                                                 ),
-                                                const Spacer(),
-                                                Text(
-                                                  smallestSellPrice ==
-                                                          largestSellPrice
-                                                      ? '${formatAmount(smallestSellPrice.toString())} '
-                                                      : '${formatAmount(smallestSellPrice.toString())} - ${formatAmountOnly(largestSellPrice.toString())} ',
-                                                  style: TextStyle(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                product.inclTax != '' &&
-                                                        product.inclTax != null
-                                                    ? Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 3,
-                                                                vertical: 2),
-                                                        decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5),
-                                                            color: Colors.blue),
-                                                        child: Text(
-                                                          '(incl.tax)',
-                                                          style: TextStyle(
-                                                              fontSize: 6,
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600),
-                                                        ),
-                                                      )
-                                                    : Container()
-                                              ],
+                                              ),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 5,
-                                                right: 5,
-                                                top: 5,
-                                                bottom: 8),
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  height: 12,
-                                                  width: 12,
-                                                  color: Colors.red,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            100),
-                                                    color:
-                                                        Colors.green.shade700,
+                                            SizedBox(width: 5),
+                                            // Image.asset(
+                                            //     "assets/images/cart_box.png",
+                                            //     height: 10),
+                                            // const SizedBox(width: 5),
+                                            // Flexible(
+                                            //   child: Text(
+                                            //     smallestSellPrice ==
+                                            //             largestSellPrice
+                                            //         ? '${formatAmount(sellingPackPriceLow)}($piecesLow pcs)'
+                                            //         : '${formatAmount(sellingPackPriceLow)}($piecesLow pcs) - ${formatAmount(sellingPackPriceHigh)}($piecesHigh pcs)',
+                                            //     style: GoogleFonts.poppins(
+                                            //       fontSize: stockFontSize,
+                                            //       fontWeight:
+                                            //           FontWeight.w600,
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Image.asset(
+                                                    "assets/images/cart_box.png",
+                                                    height: 10,
                                                   ),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 6,
-                                                            vertical: 3),
+                                                  const SizedBox(width: 5),
+                                                  Flexible(
                                                     child: Text(
-                                                      'Stock : ${product.stock}',
+                                                      smallestSellPrice ==
+                                                              largestSellPrice
+                                                          ? '${formatAmount(sellingPackPriceLow)}($piecesLow pcs)'
+                                                          : '${formatAmount(sellingPackPriceLow)}($piecesLow pcs) - ${formatAmount(sellingPackPriceHigh)}($piecesHigh pcs)',
                                                       style: TextStyle(
-                                                          fontSize: 7,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 5),
-                                                // Image.asset(
-                                                //     "assets/images/cart_box.png",
-                                                //     height: 10),
-                                                // const SizedBox(width: 5),
-                                                // Flexible(
-                                                //   child: Text(
-                                                //     smallestSellPrice ==
-                                                //             largestSellPrice
-                                                //         ? '${formatAmount(sellingPackPriceLow)}($piecesLow pcs)'
-                                                //         : '${formatAmount(sellingPackPriceLow)}($piecesLow pcs) - ${formatAmount(sellingPackPriceHigh)}($piecesHigh pcs)',
-                                                //     style: GoogleFonts.poppins(
-                                                //       fontSize: stockFontSize,
-                                                //       fontWeight:
-                                                //           FontWeight.w600,
-                                                //     ),
-                                                //   ),
-                                                // ),
-                                                Expanded(
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Image.asset(
-                                                        "assets/images/cart_box.png",
-                                                        height: 10,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Flexible(
-                                                        child: Text(
-                                                          smallestSellPrice ==
-                                                                  largestSellPrice
-                                                              ? '${formatAmount(sellingPackPriceLow)}($piecesLow pcs)'
-                                                              : '${formatAmount(sellingPackPriceLow)}($piecesLow pcs) - ${formatAmount(sellingPackPriceHigh)}($piecesHigh pcs)',
-                                                          style: TextStyle(
-                                                            fontSize:
-                                                                stockFontSize,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          maxLines: 1,
-                                                          textAlign:
-                                                              TextAlign.right,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    product.detail!.isEmpty ||
-                                            product.detail!.every(
-                                                (detail) => (detail.stock) == 0)
-                                        ? Positioned(
-                                            top: 20,
-                                            right: -26,
-                                            child: Transform.rotate(
-                                              angle: 0.785398,
-                                              child: ClipPath(
-                                                clipper: RibbonClipper(),
-                                                child: Container(
-                                                  width: 120,
-                                                  color: Colors.red,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(vertical: 4),
-                                                  child: const Center(
-                                                    child: Text(
-                                                      "Not Available",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
+                                                        fontSize:
+                                                            stockFontSize,
                                                         fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 12,
+                                                            FontWeight.w600,
                                                       ),
+                                                      overflow: TextOverflow
+                                                          .ellipsis,
+                                                      maxLines: 1,
+                                                      textAlign:
+                                                          TextAlign.right,
                                                     ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                product.detail!.isEmpty ||
+                                        product.detail!.every(
+                                            (detail) => (detail.stock) == 0)
+                                    ? Positioned(
+                                        top: 20,
+                                        right: -26,
+                                        child: Transform.rotate(
+                                          angle: 0.785398,
+                                          child: ClipPath(
+                                            clipper: RibbonClipper(),
+                                            child: Container(
+                                              width: 120,
+                                              color: Colors.red,
+                                              padding: const EdgeInsets
+                                                  .symmetric(vertical: 4),
+                                              child: const Center(
+                                                child: Text(
+                                                  "Not Available",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                    fontSize: 12,
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          )
-                                        : Container()
-                                  ],
-                                ),
-                              );
-                            },
+                                          ),
+                                        ),
+                                      )
+                                    : Container()
+                              ],
+                            ),
                           );
                         },
-                      ),
-                    ),
+                      );
+                    },
+                  ),
         ),
       ],
     );

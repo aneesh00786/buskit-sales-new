@@ -61,7 +61,7 @@ class SendCartData extends HiveObject {
   String price;
 
   @HiveField(5)
-  String discount;
+  num discount;
 
   @HiveField(6)
   int quantity;

@@ -108,9 +108,9 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-    final customerId= customerAndOrderController.customerId.value.isNotEmpty
-            ? customerAndOrderController.customerId.value
-            : widget.productsController.selectedCustomerId.value;
+    final customerId = customerAndOrderController.customerId.value.isNotEmpty
+        ? customerAndOrderController.customerId.value
+        : widget.productsController.selectedCustomerId.value;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     CartDatabaseManager().getCartItems(customerId);
     cartProvider.getCartItemCounts(customerId);
@@ -312,13 +312,13 @@ class _OrderTakingState extends State<OrderTaking>
                   customerId.isNotEmpty &&
                   !hasDraftId &&
                   !toDash) {
-                          showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(child: CircularProgressIndicator());
-        },
-      );
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                );
                 log('Log 1');
                 log('To Dash $toDash');
                 List<Detail> detail = [
@@ -339,8 +339,8 @@ class _OrderTakingState extends State<OrderTaking>
                     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
                     totalAmount: widget.productsController.finalAmount.value,
                     details: detail,
-                    cartId: '', 
-                    draftId: '', 
+                    cartId: '',
+                    draftId: '',
                   );
                   showDialog(
                     context: context,
@@ -359,7 +359,7 @@ class _OrderTakingState extends State<OrderTaking>
                       ],
                     ),
                   );
-                  return; 
+                  return;
                 }
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
@@ -386,13 +386,13 @@ class _OrderTakingState extends State<OrderTaking>
                               : e.count.toString(),
                           packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                           price: e.sellPrice.toString(),
-                          discount: '0',
+                          discount: e.discount??0,
                           quantity: e.count.toInt(),
                           variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                  discount: '0',
+                  discount: '',
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
@@ -519,13 +519,13 @@ class _OrderTakingState extends State<OrderTaking>
                               : e.count.toString(),
                           packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                           price: e.sellPrice.toString(),
-                          discount: '0',
+                          discount: e.discount??0,
                           quantity: e.count.toInt(),
                           variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                  discount: '0',
+                  discount: '',
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
@@ -1094,12 +1094,14 @@ class _OrderTakingState extends State<OrderTaking>
                         title: entry.categoryName ?? '',
                         options: entry.subCategoryItem ?? [],
                       );
+                      
                     }).toList(),
                     onOptionSelected: (selectedSubcategoryId) {
                       String categoryId =
                           selectedSubCategory(selectedSubcategoryId);
                       log('Selected Subcategory ID: $categoryId');
                       _fetchProductsByCategory(categoryId);
+                      
                     },
                     onDrawerToggle: _toggleDrawer,
                     selectedCategory: _selectedCategory,

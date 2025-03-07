@@ -2819,7 +2819,7 @@ class UpdateCustomer extends StatelessWidget {
                                               businessName:
                                                   bsNameController.text,
                                               businessNo: bsNumController
-                                                  .text, // Provide default or empty values if not applicable
+                                                  .text, 
                                             );
 
                                             try {
@@ -2832,9 +2832,9 @@ class UpdateCustomer extends StatelessWidget {
                                               print(
                                                   "this is admin data from this mdoel $updatedAdmin");
                                               Navigator.of(context)
-                                                  .pop(); // Close the dialog
+                                                  .pop();
                                             } catch (error) {
-                                              // Handle error (e.g., show a message to the user)
+                                           
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(

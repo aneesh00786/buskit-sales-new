@@ -86,7 +86,7 @@ Future<void> syncOfflineOrders() async {
               pack: e['pack']?.toString() ?? '0',
               price: e['price']?.toString() ?? '0.0',
               packType: e['packType'] ?? 'Pack',
-              discount: e['discount']?.toString() ?? '0',
+              discount: e['discount'],
               quantity: e['quantity'] ?? 0,
               variantName: e['variant_name'] ?? '',
             );
@@ -174,7 +174,7 @@ Future<void> syncOfflineDrafts() async {
               pack: e['pack']?.toString() ?? '0',
               price: e['price']?.toString() ?? '0.0',
               packType: e['packType'] ?? 'Pack',
-              discount: e['discount']?.toString() ?? '0',
+              discount: e['discount'],
               quantity: e['quantity'] ?? 0,
               variantName: e['variant_name'] ?? '',
             );

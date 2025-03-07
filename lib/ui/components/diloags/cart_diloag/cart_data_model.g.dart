@@ -71,7 +71,7 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       pack: fields[2] as String,
       packType: fields[3] as String,
       price: fields[4] as String,
-      discount: fields[5] as String,
+      discount: fields[5] as num,
       quantity: fields[6] as int,
       variantName: fields[7] as String,
     );

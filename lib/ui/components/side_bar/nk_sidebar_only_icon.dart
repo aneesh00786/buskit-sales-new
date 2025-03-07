@@ -311,7 +311,7 @@ void handleBackNavigation(
                       : e.count.toString(),
                   packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                   price: e.sellPrice.toString(),
-                  discount: '0',
+                  discount: e.discount??0,
                   quantity: e.count.toInt(),
                   variantName: e.variationName ?? ''))
               .toList(),

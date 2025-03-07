@@ -86,7 +86,7 @@ class ProductDetailsDialog extends Dialog {
                             : e.quntity.toString(),
                         packType: e.packtype == 'Pack' ? 'Pack' : 'Pcs',
                         price: e.price.toString(),
-                        discount: '0',
+                        discount: 0,
                         quantity: e.quntity!.toInt(),
                         variantName: ''
                         ))

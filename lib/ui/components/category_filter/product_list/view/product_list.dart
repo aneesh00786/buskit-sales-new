@@ -128,6 +128,7 @@ class _ProductGridState extends State<ProductGrid> {
                       style: TextStyle(fontSize: 40),
                     ))
                   : GridView.builder(
+                   // physics: BouncingScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: desiredItemWidth,
                       crossAxisSpacing: 10,

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -38,6 +39,8 @@ void main() async {
   Hive.registerAdapter(DraftAdapter());
   Hive.registerAdapter(CategoryDataAdapter());
   Hive.registerAdapter(SubCategoryItemAdapter());
+  Hive.registerAdapter(CustomerDiscountModelAdapter());
+  Hive.registerAdapter(DiscountModelAdapter());
   Hive.registerAdapter(AddToCartModelAdapter());
   Hive.registerAdapter(SendCartDataAdapter());
   await Hive.openBox<CartItem>('cartBox');

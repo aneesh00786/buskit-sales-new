@@ -60,6 +60,15 @@ class CartDatabaseManager {
             for (var order in orders) {
               final List<dynamic> carts = order['cart'] ?? [];
               for (var cart in carts) {
+                final double discountPercentage =
+                    (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0) /
+                        100;
+                final double discountedSellPrice =
+                    (num.tryParse(cart['sell_price']?.toString() ?? '0') ?? 0) *
+                        (1 - discountPercentage);
+                final num discountedTax =
+                    (num.tryParse(cart['total_tax'].toString()) ?? 0) *
+                        (1 - discountPercentage);
                 final detail = Detail(
                   productId: cart['product_id'] as String? ?? '',
                   variationId: cart['variation_id'] as String? ?? '',
@@ -89,24 +98,18 @@ class CartDatabaseManager {
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['product_name'] as String? ?? '',
-                  totalPrice: ((double.tryParse(
-                                  cart['sell_price']?.toString() ?? '0') ??
-                              0)) *
-                          (1 -
-                              (num.tryParse(cart['discount']?.toString() ??
-                                          '0') ??
-                                      0) /
-                                  100) *
+                  totalPrice: (discountedSellPrice *
                           (detail.packtype == 'Pack'
-                              ? (detail.pieces ?? 1) * (cart['quantity'] ?? 0)
-                              : (cart['quantity'] ?? 0)) +
-                      ((cart['incl_tax'] == ""||cart['incl_tax'] == null ? (detail.totaltax ?? 0) : 0)),
+                              ? (detail.pieces ?? 1) * (num.tryParse(cart['quantity'].toString()) ?? 0)
+                              : (num.tryParse(cart['quantity'].toString()) ?? 0)) +
+                      (cart['incl_tax'] == null || cart['incl_tax'] == ""
+                          ? discountedTax
+                          : 0)),
                   customerId: order['customer_id'] as String? ?? '',
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',
                   isPack: (cart['packtype'] as String? ?? '') == "Pack",
                 );
-
                 log('Draft ID : ${cartItem.draftId}');
                 log('Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
@@ -224,12 +227,6 @@ class CartDatabaseManager {
     _listeners.remove(listener);
   }
 
-  // void _notifyListeners() {
-  //   for (var listener in _listeners) {
-  //     listener();
-  //   }
-  // }
-
   double calculateEffectivePrice({
     required Detail detail,
     required bool isPack,
@@ -239,8 +236,7 @@ class CartDatabaseManager {
   }) {
     double effectiveSellingPrice =
         double.tryParse(detail.sellPrice ?? '0') ?? 0;
-    num itemCount =
-        detail.count > 0 ? detail.count : 1;
+    num itemCount = detail.count > 0 ? detail.count : 1;
     double discountSellingPrice = isPack
         ? (effectiveSellingPrice * (detail.pieces ?? 1) * itemCount)
         : (effectiveSellingPrice * itemCount);
@@ -298,9 +294,11 @@ class CartDatabaseManager {
     if (localCount <= 0) {
       throw ArgumentError("Error: Count must be greater than zero.");
     }
+
     final CustomerDiscountModel? discountData =
         await ApiWorker().fetchDiscounts(companyId, salesmanId, customerId);
 
+    // Calculate the effective selling price and applicable discount
     double effectiveSellingPrice = calculateEffectivePrice(
       detail: detail,
       isPack: isPack,
@@ -309,10 +307,18 @@ class CartDatabaseManager {
       discountData: discountData,
     );
 
+    // Calculate discounted tax
+    double discountPercentage =
+        double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
+    double discountedTax = detail.tax != null
+        ? detail.tax! - (detail.tax! * discountPercentage / 100)
+        : 0.0;
+
     final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
+
     if (existingDraftItemIndex != -1) {
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
       existingDraftItem.detail.count += localCount.toDouble();
@@ -330,13 +336,14 @@ class CartDatabaseManager {
           item.detail.variationName == detail.variationName &&
           item.detail.sellPrice == detail.sellPrice &&
           item.customerId == customerId);
+
       if (existingCartItemIndex != -1) {
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
-        final num tax = existingCartItem.detail.tax ?? 0;
         final double priceWithTax =
             existingCartItem.detail.inclTax != "incl_tax"
-                ? effectiveSellingPrice + tax
+                ? effectiveSellingPrice + discountedTax
                 : effectiveSellingPrice;
+
         existingCartItem.detail.count += localCount.toDouble();
         existingCartItem.totalPrice = existingCartItem.isPack!
             ? (existingCartItem.detail.count *
@@ -350,16 +357,18 @@ class CartDatabaseManager {
         log('Updated product in cart: ${existingCartItem.detail.variationName}, '
             'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
       } else {
-        final num tax = detail.tax ?? 0;
         final double priceWithTax = inclTax != "incl_tax"
-            ? effectiveSellingPrice + tax
+            ? effectiveSellingPrice + discountedTax
             : effectiveSellingPrice;
+
         final computedTotalAmount = isPack
             ? (localCount * (detail.pieces ?? 1) * priceWithTax)
             : (localCount * priceWithTax);
+
         log('Incl Tax: $inclTax');
         detail.count += localCount.toDouble();
         detail.inclTax = inclTax;
+
         final newCartItem = CartItem(
           detail: detail,
           productName: productName,
@@ -370,7 +379,9 @@ class CartDatabaseManager {
           boxType: false,
           isChecked: isChcked,
         );
+
         await cartBox.add(newCartItem);
+
         log('New product added to cart: ${newCartItem.detail.variationName}, '
             'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
       }

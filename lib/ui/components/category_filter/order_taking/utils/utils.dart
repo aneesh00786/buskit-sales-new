@@ -9,16 +9,17 @@ class Utils {
       if (item.isChecked == true) {
         double sellingPrice =
             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+        num tax = item.detail.tax ?? 0;
         if ((item.detail.discount ?? 0) > 0) {
           final num discountPercentage = item.detail.discount!;
           sellingPrice -= (sellingPrice * discountPercentage / 100);
+          tax -= (tax * discountPercentage / 100);
           log('Applying discount of $discountPercentage% to selling price.');
           log('Discounted Selling Price: $sellingPrice');
         }
-
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
-        num tax = item.detail.tax ?? 0;
+        
         log('Tax Amount: $tax');
         double totalCount = item.isPack == true ? count * pieces : count;
         sellingPrice = item.detail.inclTax == "incl_tax"
@@ -87,15 +88,17 @@ class Utils {
     if (cartItem.isChecked == true) {
       double sellingPrice =
           double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      num tax = cartItem.detail.tax ?? 0;
       if ((cartItem.detail.discount ?? 0) > 0) {
         final num discountPercentage = cartItem.detail.discount!;
         sellingPrice -= (sellingPrice * discountPercentage / 100);
+        tax -= (tax * discountPercentage / 100);
         log('Applying discount of $discountPercentage% to selling price.');
         log('Discounted Selling Price: $sellingPrice');
       }
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       double count = cartItem.detail.count.toDouble();
-      num tax = cartItem.detail.tax ?? 0;
+      
       log('Tax Amount: $tax');
       double totalCount = cartItem.isPack == true ? count * pieces : count;
       sellingPrice = cartItem.detail.inclTax == "incl_tax"

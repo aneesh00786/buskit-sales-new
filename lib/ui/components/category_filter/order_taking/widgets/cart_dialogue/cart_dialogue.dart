@@ -131,10 +131,9 @@ class CartDialogueState extends State<CartDialogue> {
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
-      orderSubtotal = orderItems.fold(
-        0.0,
-        (sum, item) => item.isChecked! ? sum + (item.totalPrice) : sum,
-      );
+      orderSubtotal = orderItems.fold(0.0, (sum, item) {
+        return item.isChecked! ? sum + (item.totalPrice) : sum;
+      });
       preorderSubtotal = preorderItems.fold(0.0, (sum, item) {
         return sum + (item.totalPrice);
       });
@@ -1784,11 +1783,11 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     if (cartItem.detail.count > 1) {
                       cartItem.detail.count--;
-                      cartItem.totalPrice = 
-                      // cartItem.draftId == null
-                      //     ? 
+                      cartItem.totalPrice =
+                          // cartItem.draftId == null
+                          //     ?
                           Utils().calculateTotalPrice(cartItem);
-                          //: Utils().calculateDraftTotalPrice(cartItem);
+                      //: Utils().calculateDraftTotalPrice(cartItem);
                       calculateAmounts();
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
@@ -1827,10 +1826,10 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    cartItem.totalPrice = 
-                    //cartItem.draftId == null? 
-                    Utils().calculateTotalPrice(cartItem);
-                        //: Utils().calculateDraftTotalPrice(cartItem);
+                    cartItem.totalPrice =
+                        //cartItem.draftId == null?
+                        Utils().calculateTotalPrice(cartItem);
+                    //: Utils().calculateDraftTotalPrice(cartItem);
 
                     calculateAmounts();
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");

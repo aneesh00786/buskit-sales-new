@@ -21,6 +21,31 @@ class GroupedItemDataRows {
     required Function calculateAmount,
   }) {
     return groupedItems.map((groupedItem) {
+      final taxDiscountAmount =  ((groupedItem.detail.tax ?? 0.0) *((groupedItem.isPack == true ||
+                                groupedItem.detail.packtype == 'Pack')
+                            ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+                                groupedItem.detail.count.toDouble()
+                            : groupedItem.detail.count.toDouble())*
+                        ((double.tryParse(
+                                    groupedItem.detail.discount?.toString() ??
+                                        '0') ??
+                                0.0) /
+                            100));
+      final sellPrice = (((double.tryParse(groupedItem.detail.sellPrice?.toString() ??
+                                    '0') ??
+                                0.0) *
+                            ((double.tryParse(groupedItem.detail.discount
+                                            ?.toString() ??
+                                        '0') ??
+                                    0.0) /
+                                100)) *
+                        ((groupedItem.isPack == true ||
+                                groupedItem.detail.packtype == 'Pack')
+                            ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+                                groupedItem.detail.count.toDouble()
+                            : groupedItem.detail.count.toDouble()));
+      log('Tax Discount Row Item : $sellPrice');                     
+      log('Tax Discount Row Item : $taxDiscountAmount');                     
       log('Draft id is Contains or not? == ${groupedItem.draftId}');
       log('Incl Tax  == ${groupedItem.detail.inclTax}');
       log('Discount Amount on Get Rows : ${groupedItem.detail.discount}');
@@ -90,20 +115,7 @@ class GroupedItemDataRows {
               maxLines: 1,
               fontSize: fontSize,
               content: formatAmount(
-                // Calculate the discount value
-                ((double.tryParse(groupedItem.detail.sellPrice?.toString() ??
-                                '0') ??
-                            0.0) *
-                        ((double.tryParse(
-                                    groupedItem.detail.discount?.toString() ??
-                                        '0') ??
-                                0.0) /
-                            100)) *
-                    ((groupedItem.isPack == true ||
-                            groupedItem.detail.packtype == 'Pack')
-                        ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
-                            groupedItem.detail.count.toDouble()
-                        : groupedItem.detail.count.toDouble()),
+                sellPrice +taxDiscountAmount,
               ),
             ),
           ),

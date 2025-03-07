@@ -100,7 +100,7 @@ class CartDatabaseManager {
                           (detail.packtype == 'Pack'
                               ? (detail.pieces ?? 1) * (cart['quantity'] ?? 0)
                               : (cart['quantity'] ?? 0)) +
-                      ((cart['incl_tax'] == null ? (detail.totaltax ?? 0) : 0)),
+                      ((cart['incl_tax'] == ""||cart['incl_tax'] == null ? (detail.totaltax ?? 0) : 0)),
                   customerId: order['customer_id'] as String? ?? '',
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',

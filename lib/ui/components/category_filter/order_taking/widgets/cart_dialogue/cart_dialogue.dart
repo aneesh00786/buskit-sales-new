@@ -78,6 +78,8 @@ class CartDialogueState extends State<CartDialogue> {
   double orderTax = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
+  double totalDiscount = 0.0;
+  double totalDiscountPreorder = 0.0;
   bool isOrder = true;
   String? _selectedValue;
   String? _dropdownValue;
@@ -164,6 +166,54 @@ class CartDialogueState extends State<CartDialogue> {
                   (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
             } else {
               return sum + (itemTax * (item.detail.count));
+            }
+          } else {
+            return 0;
+          }
+        },
+      );
+      totalDiscount = orderItems.fold(
+        0.0,
+        (sum, item) {
+          final discountPrice = (((double.tryParse(
+                          item.detail.sellPrice?.toString() ?? '0') ??
+                      0.0) *
+                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
+                          0.0) /
+                      100)) *
+              ((item.isPack == true || item.detail.packtype == 'Pack')
+                  ? (item.detail.pieces?.toDouble() ?? 1) *
+                      item.detail.count.toDouble()
+                  : item.detail.count.toDouble()));
+          if (item.isChecked == true) {
+            if (item.isPack == true || item.detail.packtype == "Pack") {
+              return sum + discountPrice;
+            } else {
+              return 0;
+            }
+          } else {
+            return 0;
+          }
+        },
+      );
+      totalDiscountPreorder = preorderItems.fold(
+        0.0,
+        (sum, item) {
+          final discountPrice = (((double.tryParse(
+                          item.detail.sellPrice?.toString() ?? '0') ??
+                      0.0) *
+                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
+                          0.0) /
+                      100)) *
+              ((item.isPack == true || item.detail.packtype == 'Pack')
+                  ? (item.detail.pieces?.toDouble() ?? 1) *
+                      item.detail.count.toDouble()
+                  : item.detail.count.toDouble()));
+          if (item.isChecked == true) {
+            if (item.isPack == true || item.detail.packtype == "Pack") {
+              return sum + discountPrice;
+            } else {
+              return 0;
             }
           } else {
             return 0;
@@ -419,7 +469,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               item.productName == productName &&
                                               item.detail.stock! > 0)
                                           .toList();
-
                                       return Padding(
                                         padding:
                                             const EdgeInsets.only(bottom: 20),
@@ -473,6 +522,31 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                       const SizedBox(height: 5.0),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(totalDiscount),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       Container(
                         height: 40,
                         width: double.infinity,
@@ -591,6 +665,31 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                       const SizedBox(height: 5.0),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(totalDiscountPreorder),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       Container(
                         height: 40,
                         width: double.infinity,
@@ -1860,9 +1959,11 @@ class CartDialogueState extends State<CartDialogue> {
       if (isOrder) {
         orderSubtotal = Utils().calculateSubtotal(orderItems);
         orderTax = Utils().calculateTotalTax(orderItems);
+        totalDiscount = Utils().calculateTotalDiscount(orderItems);
       } else {
         preorderSubtotal = Utils().calculateSubtotal(preorderItems);
         preorderTax = Utils().calculateTotalTax(preorderItems);
+        totalDiscountPreorder = Utils().calculateTotalDiscount(preorderItems);
       }
     });
   }

@@ -58,6 +58,28 @@ class Utils {
       return sum;
     });
   }
+double calculateTotalDiscount(List<CartItem> items) {
+  log('Calculating Total Discount');
+  return items.fold(0.0, (sum, item) {
+    if (item.isChecked == true) {
+      // Get the selling price and discount percentage
+      final double sellPrice =
+          double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      final double discountPercentage =
+          (double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0) / 100;
+      final double count = item.isPack == true
+          ? (item.detail.pieces?.toDouble() ?? 1) * item.detail.count.toDouble()
+          : item.detail.count.toDouble();
+
+      // Calculate the total discount price for the item
+      final double discountPrice = sellPrice * discountPercentage * count;
+
+      log('Discount for item: $discountPrice');
+      return sum + discountPrice;
+    }
+    return sum;
+  });
+}
 
   double calculateTotalTax(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {

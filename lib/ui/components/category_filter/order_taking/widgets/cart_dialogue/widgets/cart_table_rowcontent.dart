@@ -29,7 +29,7 @@ class GroupedItemDataRows {
           ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
                   0.0) /
               100));
-      final sellPrice =
+      final discountPrice =
           (((double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
                       0.0) *
                   ((double.tryParse(
@@ -42,11 +42,10 @@ class GroupedItemDataRows {
                       groupedItem.detail.count.toDouble()
                   : groupedItem.detail.count.toDouble()));
       final tax = groupedItem.detail.tax! *
-                    (groupedItem.isPack == true ||
-                            groupedItem.detail.packtype == 'Pack'
-                        ? groupedItem.detail.pieces! * groupedItem.detail.count
-                        : 1);
-      log('Tax Discount Row Item : $sellPrice');
+          (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
+              ? groupedItem.detail.pieces! * groupedItem.detail.count
+              : 1);
+      log('Tax Discount Row Item : $discountPrice');
       log('Tax Discount Row Item : $taxDiscountAmount');
       log('Draft id is Contains or not? == ${groupedItem.draftId}');
       log('Incl Tax  == ${groupedItem.detail.inclTax}');
@@ -107,7 +106,7 @@ class GroupedItemDataRows {
               maxLines: 1,
               fontSize: fontSize,
               content: formatAmount(
-                sellPrice ,
+                discountPrice,
               ),
             ),
           ),
@@ -115,9 +114,8 @@ class GroupedItemDataRows {
             TableContent(
                 maxLines: 1,
                 fontSize: fontSize,
-                content:formatAmount(tax-taxDiscountAmount) ),
+                content: formatAmount(tax - taxDiscountAmount)),
           ),
-          
           DataCell(
             Center(
               child: ConstrainedBox(

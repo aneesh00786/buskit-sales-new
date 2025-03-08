@@ -63,12 +63,17 @@ class CartDatabaseManager {
                 final double discountPercentage =
                     (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0) /
                         100;
+
+// Calculate the discounted selling price
                 final double discountedSellPrice =
                     (num.tryParse(cart['sell_price']?.toString() ?? '0') ?? 0) *
                         (1 - discountPercentage);
-                final num discountedTax =
-                    (num.tryParse(cart['total_tax'].toString()) ?? 0) *
-                        (1 - discountPercentage);
+
+// Use the original tax without applying the discount percentage
+                final num totalTax =
+                    num.tryParse(cart['total_tax'].toString()) ?? 0;
+
+// Create the detail object
                 final detail = Detail(
                   productId: cart['product_id'] as String? ?? '',
                   variationId: cart['variation_id'] as String? ?? '',
@@ -95,21 +100,25 @@ class CartDatabaseManager {
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
                 );
+
+// Calculate the total price, ensuring tax is not discounted
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['product_name'] as String? ?? '',
                   totalPrice: (discountedSellPrice *
                           (detail.packtype == 'Pack'
-                              ? (detail.pieces ?? 1) * (num.tryParse(cart['quantity'].toString()) ?? 0)
-                              : (num.tryParse(cart['quantity'].toString()) ?? 0)) +
-                      (cart['incl_tax'] == null || cart['incl_tax'] == ""
-                          ? discountedTax
-                          : 0)),
+                              ? (detail.pieces ?? 1) *
+                                  (num.tryParse(cart['quantity'].toString()) ??
+                                      0)
+                              : (num.tryParse(cart['quantity'].toString()) ??
+                                  0))) +
+                      totalTax,
                   customerId: order['customer_id'] as String? ?? '',
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',
                   isPack: (cart['packtype'] as String? ?? '') == "Pack",
                 );
+
                 log('Draft ID : ${cartItem.draftId}');
                 log('Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
@@ -297,8 +306,6 @@ class CartDatabaseManager {
 
     final CustomerDiscountModel? discountData =
         await ApiWorker().fetchDiscounts(companyId, salesmanId, customerId);
-
-    // Calculate the effective selling price and applicable discount
     double effectiveSellingPrice = calculateEffectivePrice(
       detail: detail,
       isPack: isPack,
@@ -306,19 +313,15 @@ class CartDatabaseManager {
       customerId: customerId,
       discountData: discountData,
     );
-
-    // Calculate discounted tax
     double discountPercentage =
         double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
     double discountedTax = detail.tax != null
         ? detail.tax! - (detail.tax! * discountPercentage / 100)
         : 0.0;
-
     final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
-
     if (existingDraftItemIndex != -1) {
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
       existingDraftItem.detail.count += localCount.toDouble();

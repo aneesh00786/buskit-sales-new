@@ -62,7 +62,6 @@ class GroupedItemDataRows {
                       groupedItem.isChecked = value ?? false;
                       log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
                     });
-
                     calculateAmount();
                   },
                 );

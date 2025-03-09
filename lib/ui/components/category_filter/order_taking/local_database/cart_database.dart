@@ -63,17 +63,11 @@ class CartDatabaseManager {
                 final double discountPercentage =
                     (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0) /
                         100;
-
-// Calculate the discounted selling price
                 final double discountedSellPrice =
                     (num.tryParse(cart['sell_price']?.toString() ?? '0') ?? 0) *
                         (1 - discountPercentage);
-
-// Use the original tax without applying the discount percentage
                 final num totalTax =
                     num.tryParse(cart['total_tax'].toString()) ?? 0;
-
-// Create the detail object
                 final detail = Detail(
                   productId: cart['product_id'] as String? ?? '',
                   variationId: cart['variation_id'] as String? ?? '',
@@ -100,8 +94,6 @@ class CartDatabaseManager {
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
                 );
-
-// Calculate the total price, ensuring tax is not discounted
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['product_name'] as String? ?? '',
@@ -118,7 +110,6 @@ class CartDatabaseManager {
                   draftId: order['order_id'] as String? ?? '',
                   isPack: (cart['packtype'] as String? ?? '') == "Pack",
                 );
-
                 log('Draft ID : ${cartItem.draftId}');
                 log('Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
@@ -242,6 +233,7 @@ class CartDatabaseManager {
     required int catId,
     required String customerId,
     required CustomerDiscountModel? discountData,
+    required int localCount,
   }) {
     double effectiveSellingPrice =
         double.tryParse(detail.sellPrice ?? '0') ?? 0;
@@ -261,7 +253,7 @@ class CartDatabaseManager {
               'Effective Selling Price: $effectiveSellingPrice, '
               'Discount Value: ${discount.value}');
           return discount.categoriesId == catId.toString() &&
-              discountSellingPrice >
+              discountSellingPrice*localCount >
                   (double.tryParse(discount.value ?? '0') ?? 0);
         },
         orElse: () {
@@ -312,6 +304,7 @@ class CartDatabaseManager {
       catId: catId,
       customerId: customerId,
       discountData: discountData,
+      localCount:localCount,
     );
     double discountPercentage =
         double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;

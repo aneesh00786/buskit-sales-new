@@ -124,6 +124,7 @@ class LoginController extends GetxController {
           leadsRejectedController.loadRejectedLeadsData,
           calenderMapController
               .fetchCalenderEvents(initialDay ?? DateTime.now()),
+          ApiWorker().fetchDiscounts(companyId, salesmanId),
           CartDatabaseManager().getDraftItems(),
         ]);
 

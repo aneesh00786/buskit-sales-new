@@ -109,6 +109,7 @@ class CartDatabaseManager {
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',
                   isPack: (cart['packtype'] as String? ?? '') == "Pack",
+                  catId: cart['catId'] as int? ?? 0,
                 );
                 log('Draft ID : ${cartItem.draftId}');
                 log('Cart Items JSON ${cartItem.toJson()}');

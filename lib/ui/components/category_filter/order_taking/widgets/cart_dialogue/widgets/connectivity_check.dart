@@ -92,7 +92,7 @@ Future<void> syncOfflineOrders() async {
             );
           }).toList(),
           total: order['order_price']?.toString() ?? '0.0',
-          discount: '0',
+          
         );
 
         log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
@@ -180,7 +180,7 @@ Future<void> syncOfflineDrafts() async {
             );
           }).toList(),
           total: draft['total_amount']?.toString() ?? '0.0',
-          discount: '0',
+          
         );
 
         log('[syncOfflineDrafts] Sending API request to save draft with payload: ${draftData.toJson()}');

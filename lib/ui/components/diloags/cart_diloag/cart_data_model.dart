@@ -13,8 +13,6 @@ class AddToCartModel extends HiveObject {
   @HiveField(2)
   String total;
 
-  @HiveField(3)
-  String discount;
 
   @HiveField(4)
   String cartId;
@@ -26,7 +24,6 @@ class AddToCartModel extends HiveObject {
     required this.customerId,
     required this.salesmanId,
     required this.total,
-    required this.discount,
     required this.cartId,
     required this.cartList,
   });
@@ -36,7 +33,6 @@ class AddToCartModel extends HiveObject {
       'customer_id': customerId,
       'salesman_id': salesmanId,
       'total': total,
-      'discount': discount,
       'cart_id': cartId,
       'cart_list': cartList.map((e) => e.toJson()).toList(),
     };

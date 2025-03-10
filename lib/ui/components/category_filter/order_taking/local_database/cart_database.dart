@@ -104,12 +104,12 @@ class CartDatabaseManager {
                                       0)
                               : (num.tryParse(cart['quantity'].toString()) ??
                                   0))) +
-                      totalTax,
+                    (cart['incl_tax']==""||cart['incl_tax']==null?  totalTax:0),
                   customerId: order['customer_id'] as String? ?? '',
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',
                   isPack: (cart['packtype'] as String? ?? '') == "Pack",
-                  catId: cart['catId'] as int? ?? 0,
+                  catId: cart['catId'] as int? ?? 0
                 );
                 log('Draft ID : ${cartItem.draftId}');
                 log('Cart Items JSON ${cartItem.toJson()}');
@@ -320,7 +320,6 @@ Future<void> addToCart({
       item.detail.variationName == detail.variationName &&
       item.detail.sellPrice == detail.sellPrice &&
       item.customerId == customerId);
-
   if (existingDraftItemIndex != -1) {
     final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
     existingDraftItem.detail.count += localCount.toDouble();
@@ -338,14 +337,12 @@ Future<void> addToCart({
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
-
     if (existingCartItemIndex != -1) {
       final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
       final double priceWithTax =
           existingCartItem.detail.inclTax != "incl_tax"
               ? effectiveSellingPrice + discountedTax
               : effectiveSellingPrice;
-
       existingCartItem.detail.count += localCount.toDouble();
       existingCartItem.totalPrice = existingCartItem.isPack!
           ? (existingCartItem.detail.count *
@@ -353,24 +350,19 @@ Future<void> addToCart({
                   priceWithTax)
               .toDouble()
           : (existingCartItem.detail.count * priceWithTax).toDouble();
-
       await cartBox.putAt(existingCartItemIndex, existingCartItem);
-
       log('Updated product in cart: ${existingCartItem.detail.variationName}, '
           'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
     } else {
       final double priceWithTax = inclTax != "incl_tax"
           ? effectiveSellingPrice + discountedTax
           : effectiveSellingPrice;
-
       final computedTotalAmount = isPack
           ? (localCount * (detail.pieces ?? 1) * priceWithTax)
           : (localCount * priceWithTax);
-
       log('Incl Tax: $inclTax');
       detail.count += localCount.toDouble();
       detail.inclTax = inclTax;
-
       final newCartItem = CartItem(
         detail: detail,
         productName: productName,
@@ -382,9 +374,7 @@ Future<void> addToCart({
         isChecked: isChcked,
         catId: catId,
       );
-
       await cartBox.add(newCartItem);
-
       log('New product added to cart: ${newCartItem.detail.variationName}, '
           'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
     }

@@ -316,7 +316,7 @@ void handleBackNavigation(
                   variantName: e.variationName ?? ''))
               .toList(),
           total: productController.finalAmount.value.toStringAsFixed(0),
-          discount: '0',
+          
         );
 
         CartOrderModel? cartOrder =

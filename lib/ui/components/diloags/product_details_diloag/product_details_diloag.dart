@@ -95,7 +95,7 @@ class ProductDetailsDialog extends Dialog {
                     .map((e) => e.price!)
                     .reduce((a, b) => a + b)
                     .toString(),
-                discount: '0',
+                
               );
 
               /////////////////////////////// [Item Selected in Cart Validation]///////////////////////////////////

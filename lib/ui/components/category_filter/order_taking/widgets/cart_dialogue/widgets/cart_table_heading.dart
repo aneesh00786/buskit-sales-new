@@ -53,7 +53,6 @@ class DataTableColumns {
           align: TextAlign.center,
         ),
       ),
-     
       DataColumn(
         label: DialogTableHeaderText(
           text: 'Quantity',

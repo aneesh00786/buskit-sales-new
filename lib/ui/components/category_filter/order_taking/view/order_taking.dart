@@ -392,7 +392,7 @@ class _OrderTakingState extends State<OrderTaking>
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                  discount: '',
+                 
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
@@ -525,7 +525,7 @@ class _OrderTakingState extends State<OrderTaking>
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                  discount: '',
+                 
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());

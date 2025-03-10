@@ -115,6 +115,7 @@ class GroupedItemDataRows {
                 fontSize: fontSize,
                 content: formatAmount(tax - taxDiscountAmount)),
           ),
+
           DataCell(
             Center(
               child: ConstrainedBox(

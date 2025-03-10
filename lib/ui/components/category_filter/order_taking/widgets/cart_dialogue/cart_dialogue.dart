@@ -514,7 +514,8 @@ class CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: formatAmount(orderSubtotal),
+                                content:
+                                    formatAmount(orderSubtotal - totalDiscount),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -577,7 +578,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: orderSubtotal-totalDiscount,
+                        content: orderSubtotal - totalDiscount,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,
@@ -683,7 +684,8 @@ class CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: formatAmount(totalDiscountPreorder),
+                                content: formatAmount(
+                                    preorderSubtotal - totalDiscountPreorder),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -720,7 +722,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: preorderSubtotal-totalDiscountPreorder,
+                        content: preorderSubtotal - totalDiscountPreorder,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,
@@ -1428,7 +1430,6 @@ class CartDialogueState extends State<CartDialogue> {
                 variantName: e.variationName ?? '');
           }).toList()),
           total: finalAmount.toStringAsFixed(0),
-          discount: '0',
         );
         log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
         CartOrderModel? cartOrder =
@@ -1884,8 +1885,8 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     if (cartItem.detail.count > 1) {
                       cartItem.detail.count--;
-                      cartItem.totalPrice =
-                          Utils().calculateTotalPrice(cartItem,cartItem.detail.count.toInt());
+                      cartItem.totalPrice = Utils().calculateTotalPrice(
+                          cartItem, cartItem.detail.count.toInt());
                       calculateAmounts();
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
@@ -1924,7 +1925,8 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    cartItem.totalPrice = Utils().calculateTotalPrice(cartItem,cartItem.detail.count.toInt());
+                    cartItem.totalPrice = Utils().calculateTotalPrice(
+                        cartItem, cartItem.detail.count.toInt());
                     calculateAmounts();
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');

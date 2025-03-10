@@ -515,7 +515,7 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                               CustomText(
                                 content:
-                                    formatAmount(orderSubtotal - totalDiscount),
+                                    formatAmount(orderSubtotal),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -578,7 +578,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: orderSubtotal - totalDiscount,
+                        content: orderSubtotal,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,
@@ -685,7 +685,7 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                               CustomText(
                                 content: formatAmount(
-                                    preorderSubtotal - totalDiscountPreorder),
+                                     totalDiscountPreorder),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -722,7 +722,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: preorderSubtotal - totalDiscountPreorder,
+                        content: preorderSubtotal,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,

@@ -102,9 +102,11 @@ class CartDialogueState extends State<CartDialogue> {
   bool _isLoading = true;
   bool isDraft = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+    localCounts = List<int>.filled(cartItems.length, 0);
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
@@ -575,7 +577,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: orderSubtotal,
+                        content: orderSubtotal-totalDiscount,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,
@@ -718,7 +720,7 @@ class CartDialogueState extends State<CartDialogue> {
                       const Divider(),
                       CartTotalWidget(
                         title: 'Final Amount',
-                        content: preorderSubtotal,
+                        content: preorderSubtotal-totalDiscountPreorder,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color2: Colors.green,
@@ -1883,10 +1885,7 @@ class CartDialogueState extends State<CartDialogue> {
                     if (cartItem.detail.count > 1) {
                       cartItem.detail.count--;
                       cartItem.totalPrice =
-                          // cartItem.draftId == null
-                          //     ?
-                          Utils().calculateTotalPrice(cartItem);
-                      //: Utils().calculateDraftTotalPrice(cartItem);
+                          Utils().calculateTotalPrice(cartItem,cartItem.detail.count.toInt());
                       calculateAmounts();
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
@@ -1925,11 +1924,7 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-                    cartItem.totalPrice =
-                        //cartItem.draftId == null?
-                        Utils().calculateTotalPrice(cartItem);
-                    //: Utils().calculateDraftTotalPrice(cartItem);
-
+                    cartItem.totalPrice = Utils().calculateTotalPrice(cartItem,cartItem.detail.count.toInt());
                     calculateAmounts();
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');

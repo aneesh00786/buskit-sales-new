@@ -858,38 +858,30 @@ Future<List<ProductModel>> getTempProduct(String subCatId) async {
   return filteredProducts;
 }
 
-Future<CustomerDiscountModel?> fetchDiscounts(int companyId, String salesmanId,String customerId) async {
+Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   const String url = 'http://16.50.232.153:3000/fetch_all_discount';
-  Dio dio = Dio();
   try {
     Map<String, dynamic> requestPayload = {
       "companyId": companyId,
       "salesman_id": salesmanId,
     };
     log('Sending POST request to $url with payload: $requestPayload');
-    Response response = await dio.post(url, data: requestPayload);
+    Response response = await dio1.post(url, data: requestPayload);
     log('Response Status Code: ${response.statusCode}');
     log('Response Data: ${response.data}');
-
     if (response.statusCode == 200) {
       if (response.data is Map<String, dynamic> && response.data['data'] is List<dynamic>) {
         List<dynamic> dataList = response.data['data'];
-        
-        // Find the matching customer
-        var matchingCustomer = dataList.firstWhere(
-          (customer) => customer['customer_id'] == customerId, // Match on `salesmanId` or relevant key
-          orElse: () => null,
-        );
-
-        if (matchingCustomer != null) {
-          final parsedData = CustomerDiscountModel.fromJson(matchingCustomer);
-          log('Parsed Customer ID: ${parsedData.customerId}');
-          log('Parsed Discounts: ${parsedData.discounts?.map((discount) => discount.categoriesId).toList()}');
-
-          return parsedData;
-        } else {
-          log('No discounts found for the given salesman ID: $salesmanId');
+        List<CustomerDiscountModel> discountList = dataList.map((data) {
+          return CustomerDiscountModel.fromJson(data);
+        }).toList();
+        log('Parsed ${discountList.length} discounts from the API response.');
+        final discountBox = Hive.box<CustomerDiscountModel>('discounts');
+        await discountBox.clear();
+        for (var discount in discountList) {
+          await discountBox.add(discount);
         }
+        log('Stored ${discountList.length} discounts locally in Hive.');
       } else {
         log('Unexpected response format: ${response.data}');
       }
@@ -899,8 +891,8 @@ Future<CustomerDiscountModel?> fetchDiscounts(int companyId, String salesmanId,S
   } catch (e) {
     log('Error occurred while fetching discounts: $e');
   }
-  return null;
 }
+
 
 
 

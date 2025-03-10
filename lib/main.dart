@@ -43,6 +43,7 @@ void main() async {
   Hive.registerAdapter(DiscountModelAdapter());
   Hive.registerAdapter(AddToCartModelAdapter());
   Hive.registerAdapter(SendCartDataAdapter());
+  await Hive.openBox<CustomerDiscountModel>('discounts');
   await Hive.openBox<CartItem>('cartBox');
   await Hive.openBox<CartItem>('cartPreorderBox');
   await Hive.openBox<CartItem>('draftBox');

@@ -41,7 +41,7 @@ class DataTableColumns {
       ),
        DataColumn(
         label: DialogTableHeaderText(
-          text: 'Discount',
+          text: 'Disc',
           fontSize: fontSize,
           align: TextAlign.center,
         ),

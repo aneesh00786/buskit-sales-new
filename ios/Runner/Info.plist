@@ -57,5 +57,7 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to your photo library to allow you to upload and manage images.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app requires access to your music library to enhance your experience.</string>
 </dict>
 </plist>

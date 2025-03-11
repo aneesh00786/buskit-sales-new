@@ -12,20 +12,16 @@ class ProductMiddelWidget extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth;
-        return SizedBox(
-          height: 1200,
-          width: availableWidth,
-          child: Obx(() {
-            log('isReached state: ${productsController.isReached.value}');  
-            return productsController.isReached.value
-                ? CustomerDachScreen(isFromCalendar: true,)
-                : OrderTaking(productsController: productsController,isDirectDialogue: true,);
-          }),
-        );
-      },
-    );
+    return Obx(() {
+      log('isReached state: ${productsController.isReached.value}');
+      return productsController.isReached.value
+          ? CustomerDachScreen(
+              isFromCalendar: true,
+            )
+          : OrderTaking(
+              productsController: productsController,
+              isDirectDialogue: true,
+            );
+    });
   }
 }

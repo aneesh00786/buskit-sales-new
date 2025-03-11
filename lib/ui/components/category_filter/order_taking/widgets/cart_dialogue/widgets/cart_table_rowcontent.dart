@@ -21,8 +21,35 @@ class GroupedItemDataRows {
     required Function calculateAmount,
   }) {
     return groupedItems.map((groupedItem) {
+      final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
+          ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+              ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+                  groupedItem.detail.count.toDouble()
+              : groupedItem.detail.count.toDouble()) *
+          ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
+                  0.0) /
+              100));
+      final discountPrice =
+          (((double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
+                      0.0) *
+                  ((double.tryParse(
+                              groupedItem.detail.discount?.toString() ?? '0') ??
+                          0.0) /
+                      100)) *
+              ((groupedItem.isPack == true ||
+                      groupedItem.detail.packtype == 'Pack')
+                  ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+                      groupedItem.detail.count.toDouble()
+                  : groupedItem.detail.count.toDouble()));
+      final tax = groupedItem.detail.tax! *
+          (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
+              ? groupedItem.detail.pieces! * groupedItem.detail.count
+              : 1);
+      log('Tax Discount Row Item : $discountPrice');
+      log('Tax Discount Row Item : $taxDiscountAmount');
       log('Draft id is Contains or not? == ${groupedItem.draftId}');
       log('Incl Tax  == ${groupedItem.detail.inclTax}');
+      log('Discount Amount on Get Rows : ${groupedItem.detail.discount}');
       return DataRow(
         cells: [
           DataCell(
@@ -35,7 +62,6 @@ class GroupedItemDataRows {
                       groupedItem.isChecked = value ?? false;
                       log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
                     });
-
                     calculateAmount();
                   },
                 );
@@ -76,14 +102,20 @@ class GroupedItemDataRows {
           ),
           DataCell(
             TableContent(
+              maxLines: 1,
+              fontSize: fontSize,
+              content: formatAmount(
+                discountPrice,
+              ),
+            ),
+          ),
+          DataCell(
+            TableContent(
                 maxLines: 1,
                 fontSize: fontSize,
-                content: formatAmount(groupedItem.detail.tax! *
-                    (groupedItem.isPack == true ||
-                            groupedItem.detail.packtype == 'Pack'
-                        ? groupedItem.detail.pieces! * groupedItem.detail.count
-                        : 1))),
+                content: formatAmount(tax - taxDiscountAmount)),
           ),
+
           DataCell(
             Center(
               child: ConstrainedBox(

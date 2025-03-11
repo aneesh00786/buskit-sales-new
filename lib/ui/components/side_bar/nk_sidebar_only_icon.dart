@@ -57,7 +57,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     super.initState();
     widget.onTap?.call(widget.sidebarXController.selectedIndex);
     cartItemCount = CartDatabaseManager().cartItems.length;
-    CartDatabaseManager().addListener(_updateCartCount);
+   // CartDatabaseManager().addListener(_updateCartCount);
   }
 
   @override
@@ -71,11 +71,11 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     super.dispose();
   }
 
-  void _updateCartCount() {
-    setState(() {
-      cartItemCount = CartDatabaseManager().cartItems.length;
-    });
-  }
+  // void _updateCartCount() {
+  //   setState(() {
+  //     cartItemCount = CartDatabaseManager().cartItems.length;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -289,38 +289,34 @@ void handleBackNavigation(
       try {
         List<Detail> detail =
             CartDatabaseManager().cartItems.map((e) => e.detail).toList();
-
-        final cartDetails = await CartDatabaseManager().getCartAndDraftIds(
-          customerController.customerId.isNotEmpty
-              ? customerController.customerId.value
-              : productController.selectedCustomerId.value,
-        );
+        String customerId = customerController.customerId.isNotEmpty
+            ? customerController.customerId.value
+            : productController.selectedCustomerId.value;
+        final cartDetails =
+            await CartDatabaseManager().getCartAndDraftIds(customerId);
 
         final existingCartId = cartDetails?['cart_id'] ?? '';
         final existingDraftId = cartDetails?['id'] ?? '';
         final productBYData = AddToCartModel(
-          customerId: customerController.customerId.isNotEmpty
-              ? customerController.customerId.value
-              : productController.selectedCustomerId.value,
+          customerId: customerId,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
           cartId: existingCartId.isNotEmpty ? existingCartId : '',
           cartList: detail
               .map((e) => SendCartData(
-                    productId: e.productId ??
-                        productController.selectedCustomerId.value,
-                    variantId: e.variationId ?? '',
-                    pack: e.saleBy == 'Pack'
-                        ? e.pieces.toString()
-                        : e.count.toString(),
-                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                    price: e.sellPrice.toString(),
-                    discount: '0',
-                    quantity: e.count.toInt(),
-                    variantName: e.variationName??''
-                  ))
+                  productId:
+                      e.productId ?? productController.selectedCustomerId.value,
+                  variantId: e.variationId ?? '',
+                  pack: e.saleBy == 'Pack'
+                      ? e.pieces.toString()
+                      : e.count.toString(),
+                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                  price: e.sellPrice.toString(),
+                  discount: e.discount??0,
+                  quantity: e.count.toInt(),
+                  variantName: e.variationName ?? ''))
               .toList(),
           total: productController.finalAmount.value.toStringAsFixed(0),
-          discount: '0',
+          
         );
 
         CartOrderModel? cartOrder =
@@ -329,17 +325,14 @@ void handleBackNavigation(
         if (cartOrder != null) {
           int orderStatus = 4;
           CartOrderModel order = CartOrderModel(
-            customerId: customerController.customerId.isNotEmpty
-                ? customerController.customerId.value
-                : productController.selectedCustomerId.value,
+            customerId: customerId,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: existingCartId.isNotEmpty
-                ? existingCartId
-                : cartOrder.cartId,
+            cartId:
+                existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
             orderStatus: orderStatus,
             draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
           );
-          
+
           await placeOrder(order, (statusCode, message, response) {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -361,9 +354,9 @@ void handleBackNavigation(
                             'assets/images/Animation - 1726906882515.json'),
                       ),
                     ),
-                    content: const Text(
-                      'Your order has been successfully saved as Draft',
-                      style: TextStyle(fontSize: 18),
+                    content: CustomText(
+                      content:
+                          'Your order has been successfully saved as Draft',
                     ),
                     actions: [
                       TextButton(
@@ -371,7 +364,7 @@ void handleBackNavigation(
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          //CartDatabaseManager().clearCart(customerId);
+                          CartDatabaseManager().clearCart(customerId: customerId);
                           updateTabIndex();
                         },
                         child: const Text('OK'),
@@ -418,7 +411,7 @@ void handleBackNavigation(
         }
       } catch (e) {
         if (Navigator.canPop(context)) {
-          Navigator.pop(context); 
+          Navigator.pop(context);
         }
         log('Error: $e');
       } finally {
@@ -431,4 +424,3 @@ void handleBackNavigation(
     updateTabIndex();
   }
 }
-

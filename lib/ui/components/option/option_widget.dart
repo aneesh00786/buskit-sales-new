@@ -46,7 +46,6 @@ class OptionWidget extends StatelessWidget {
   final String? startDate;
   final String? endDate;
   HomeController? homeController;
-
   OptionWidget({
     super.key,
     this.optionFun,
@@ -149,6 +148,12 @@ class OptionWidget extends StatelessWidget {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showEstimatesDialog(
                   context, provider, OrderStatus.draft, 'Draft', true);
+              //     final customerId =
+              //     customerOrderController.customerId.isNotEmpty
+              //         ? customerOrderController.customerId.value
+              //         : productsController.selectedCustomerId.value;
+              // CartDatabaseManager().getCartItems(customerId);
+              CartDatabaseManager().getDraftItems();
             }),
         OptionData(
             title: 'Cancelled',

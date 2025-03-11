@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
@@ -38,21 +39,30 @@ class HomeController extends GetxController {
       GlobalKey<ScaffoldState>();
   final ApiWorker _apiWorker = ApiWorker();
   final ApiService _apiService = ApiService();
+  bool _isDisposed = false;
   @override
   void onInit() {
     super.onInit();
     fetchDashboardData();
   }
 
+  @override
+  void onClose() {
+    _isDisposed = true;
+    super.onClose();
+  }
+
   Future<void> fetchDashboardData() async {
-    final salesmanId  = SessionHelper.loginSavedData?.salesmanId??'';
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     try {
       await _apiService.fetchDashboardData();
       await _apiService.fetchIndividualChatApi(salesmanId, 1);
     } catch (e) {
       if (e.toString().contains('Session expired')) {
         await SessionHelper().clearAll();
-        Get.offAllNamed(AppRoutes.login);
+        if (!_isDisposed) {
+          Get.offAllNamed(AppRoutes.login);
+        }
         await Future.delayed(Duration(milliseconds: 500));
         _handleTokenExpiration();
       }
@@ -61,7 +71,7 @@ class HomeController extends GetxController {
   }
 
   void _handleTokenExpiration() async {
-    if (!Get.isDialogOpen!) {
+    if (!_isDisposed && !Get.isDialogOpen!) {
       await Get.dialog(
         AlertDialog(
           title: Text("Session Expired"),
@@ -69,9 +79,7 @@ class HomeController extends GetxController {
           actions: [
             TextButton(
               child: Text("OK"),
-              onPressed: () async {
-                Get.back();
-              },
+              onPressed: () => Get.back(),
             ),
           ],
         ),
@@ -153,6 +161,8 @@ class HomeController extends GetxController {
 
   changePageRouting() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isDisposed) return;
+      
       if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
         Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
       } else if (sidebarXController.selectedIndex == 1 &&
@@ -228,54 +238,61 @@ class HomeController extends GetxController {
     return SidebarXItem(
       icon: iconData,
       onTap: () async {
-        homeScaffoldKey.currentState?.closeDrawer();
-        if (isLogout) {
-          showDialog(
-            context: context!,
-            builder: (context) {
-              return AlertDialog(
-                title: CustomText(content: 'Log out ?'),
-                content:
-                    CustomText(content: 'Are you sure you want to log out ?'),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: CustomText(content: 'cancel')),
-                  ElevatedButton(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      await SessionManager.clearData();
-                      await SessionHelper().clearSettingsData();
-                      Get.offAllNamed(AppRoutes.login);
-                      if (context != null) {
-                        Provider.of<DashboardProvider>(context, listen: false)
-                            .resetProvider();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                    child: CustomText(
-                      content: 'Confirm',
-                      color: white,
-                    ),
-                  )
-                ],
-              );
-            },
-          );
-        } else {
-          changePageRouting();
-        }
+  homeScaffoldKey.currentState?.closeDrawer();
+  if (isLogout) {
+    showDialog(
+      context: context!,
+      builder: (context) {
+        return AlertDialog(
+          title: CustomText(content: 'Log out ?'),
+          content: CustomText(content: 'Are you sure you want to log out ?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
+              child: CustomText(content: 'Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (!_isDisposed) {
+                  Navigator.pop(context);
+                  await SessionManager.clearData();
+                  await SessionHelper().clearSettingsData();
+                  await CartDatabaseManager().clearCompleteCart();
+                  if (!_isDisposed) {
+                    Get.offAllNamed(AppRoutes.login);
+                  }
+                  if (context != null && !_isDisposed) {
+                    Provider.of<DashboardProvider>(context, listen: false)
+                        .resetProvider();
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+              ),
+              child: CustomText(
+                content: 'Confirm',
+                color: white,
+              ),
+            ),
+          ],
+        );
       },
+    );
+  } else {
+    changePageRouting();
+  }
+},
+
       iconBuilder: (context, extended) {
         return Container(
           padding: const EdgeInsets.symmetric(

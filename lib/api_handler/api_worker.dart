@@ -38,6 +38,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/pagination_model.dart';
 import '../ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import '../ui/components/category_filter/product_list/model/discount_model.dart';
 import '../ui/view/ui/auth/auth_model/login_responce.dart';
 
 class ApiWorker with ApiConstants {
@@ -776,72 +777,124 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ PRODUCT SECTION ***************** ///
-  Future<List<ProductModel>> getTempProduct(String subCatId) async {
-    log('=== getTempProduct called ===');
-    List<ProductModel> allProducts = [];
+Future<List<ProductModel>> getTempProduct(String subCatId) async {
+  log('=== getTempProduct called ===');
+  log('Input subCatId: $subCatId');
 
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool hasNetwork = connectivityResult != ConnectivityResult.none;
-    bool hasInternet = hasNetwork && await isInternetAvailable();
-    log('Has Internet: $hasInternet');
+  List<ProductModel> allProducts = [];
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasNetwork = connectivityResult != ConnectivityResult.none;
+  bool hasInternet = hasNetwork && await isInternetAvailable();
+  log('Network connectivity: $connectivityResult');
+  log('Has Internet: $hasInternet');
 
-    if (hasInternet) {
-      try {
-        final response = await dio.getbycustom(
-          ApiConstants.fetchproduct,
-          queryParameters: {"company_id": companyId},
-        );
+  if (hasInternet) {
+    try {
+      final requestParams = {"company_id": companyId};
+      log('API Request: ${ApiConstants.fetchproduct}');
+      log('Query Parameters: $requestParams');
 
-        if (response.statusCode == 200 && response.data['data'] is List) {
-          for (var item in response.data['data']) {
-            if (item['product'] is List) {
-              allProducts.addAll((item['product'] as List)
-                  .map((productJson) => ProductModel.fromJson(productJson))
-                  .toList());
-            }
+      final response = await dio.getbycustom(
+        ApiConstants.fetchproduct,
+        queryParameters: requestParams,
+      );
+
+      log('API Response Status Code: ${response.statusCode}');
+      log('API Response Data: ${response.data}');
+
+      if (response.statusCode == 200 && response.data['data'] is List) {
+        for (var item in response.data['data']) {
+          if (item['product'] is List) {
+            allProducts.addAll((item['product'] as List)
+                .map((productJson) => ProductModel.fromJson(productJson))
+                .toList());
           }
-          log('Fetched Products from API: ${allProducts.length}');
-          var productBox = await Hive.openBox('productBox');
-          await productBox.put(
-            'products',
-            allProducts.map((product) => product.toJson()).toList(),
-          );
-          log('Products saved to Hive.');
         }
-      } catch (e) {
-        log('Error fetching products from API: $e');
+        log('Fetched Products from API: ${allProducts.length}');
+        var productBox = await Hive.openBox('productBox');
+        await productBox.put(
+          'products',
+          allProducts.map((product) => product.toJson()).toList(),
+        );
+        log('Products saved to Hive.');
+       log('Products category Id : ${allProducts.map((product) => product.catId).toSet().toList()}');
+
+      }
+    } catch (e) {
+      log('Error fetching products from API: $e');
+    }
+  } else {
+    log('No internet. Fetching from Hive...');
+  }
+
+  try {
+    var productBox = await Hive.openBox('productBox');
+    var rawProductList = productBox.get('products');
+    log('Raw Product List from Hive: $rawProductList');
+
+    if (rawProductList is List) {
+      allProducts = rawProductList
+          .map((productJson) {
+            if (productJson is Map) {
+              return ProductModel.fromJson(
+                  ApiService().castToStringDynamic(productJson));
+            }
+            return null;
+          })
+          .whereType<ProductModel>()
+          .toList();
+    }
+    log('Fetched Products from Hive: ${allProducts.length}');
+  } catch (e) {
+    log('Error fetching from Hive: $e');
+  }
+  List<ProductModel> filteredProducts = allProducts.where((product) {
+    return product.scid == subCatId;
+  }).toList();
+
+  log('Filtered Products: ${filteredProducts.length}');
+  log('Filtered Product List: ${filteredProducts.map((e) => e.toJson()).toList()}');
+
+  return filteredProducts;
+}
+
+Future<void> fetchDiscounts(int companyId, String salesmanId) async {
+  const String url = 'http://16.50.232.153:3000/fetch_all_discount';
+  try {
+    Map<String, dynamic> requestPayload = {
+      "companyId": companyId,
+      "salesman_id": salesmanId,
+    };
+    log('Sending POST request to $url with payload: $requestPayload');
+    Response response = await dio1.post(url, data: requestPayload);
+    log('Response Status Code: ${response.statusCode}');
+    log('Response Data: ${response.data}');
+    if (response.statusCode == 200) {
+      if (response.data is Map<String, dynamic> && response.data['data'] is List<dynamic>) {
+        List<dynamic> dataList = response.data['data'];
+        List<CustomerDiscountModel> discountList = dataList.map((data) {
+          return CustomerDiscountModel.fromJson(data);
+        }).toList();
+        log('Parsed ${discountList.length} discounts from the API response.');
+        final discountBox = Hive.box<CustomerDiscountModel>('discounts');
+        await discountBox.clear();
+        for (var discount in discountList) {
+          await discountBox.add(discount);
+        }
+        log('Stored ${discountList.length} discounts locally in Hive.');
+      } else {
+        log('Unexpected response format: ${response.data}');
       }
     } else {
-      log('No internet. Fetching from Hive...');
+      log('Failed to fetch data: ${response.statusMessage}');
     }
-
-    try {
-      var productBox = await Hive.openBox('productBox');
-      var rawProductList = productBox.get('products');
-      if (rawProductList is List) {
-        allProducts = rawProductList
-            .map((productJson) {
-              if (productJson is Map) {
-                return ProductModel.fromJson(
-                    ApiService().castToStringDynamic(productJson));
-              }
-              return null;
-            })
-            .whereType<ProductModel>()
-            .toList();
-      }
-      log('Fetched Products from Hive: ${allProducts.length}');
-    } catch (e) {
-      log('Error fetching from Hive: $e');
-    }
-
-    List<ProductModel> filteredProducts = allProducts.where((product) {
-      return product.scid == subCatId;
-    }).toList();
-
-    log('Filtered Products: ${filteredProducts.length}');
-    return filteredProducts;
+  } catch (e) {
+    log('Error occurred while fetching discounts: $e');
   }
+}
+
+
+
 
   Future<bool> isInternetAvailable() async {
     try {
@@ -1629,7 +1682,7 @@ class ApiWorker with ApiConstants {
     return SalesmanTargetTableResponse.fromJson(response.data);
   }
 
-  Future<StaffTimesheetResponse> getTimeSheetData({
+    Future<StaffTimesheetResponse> getTimeSheetData({
     String? startDate,
     String? endDate,
   }) async {
@@ -1641,17 +1694,18 @@ class ApiWorker with ApiConstants {
         data: FormData.fromMap({
           "startdate": startDate,
           "enddate": endDate,
-          "id":
-              // 9
-              SessionHelper.loginSavedData?.id,
+          "id": SessionHelper.loginSavedData?.id,
         }),
       );
 
       log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
       return StaffTimesheetResponse.fromJson(response.data);
+    } on DioException catch (error) {
+      log("❌ API Error: ${error.response?.statusCode} - ${error.message}");
+      throw DioExceptionHandler.fromDioError(error);
     } catch (e) {
-      log("❌ API Error: $e");
-      rethrow;
+      log("❌ Unknown API Error: $e");
+      throw e;
     }
   }
 

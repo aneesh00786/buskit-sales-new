@@ -9,12 +9,14 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:provider/provider.dart';
 
 class ProductVariantDialogue extends StatefulWidget {
   final int index;
@@ -37,6 +39,7 @@ class ProductVariantDialogue extends StatefulWidget {
   @override
   State<ProductVariantDialogue> createState() => _ProductVariantDialogueState();
 }
+
 class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
@@ -47,7 +50,19 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   void initState() {
     super.initState();
     localCounts = List<int>.filled(widget.detailsCopy.length, 0);
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+    cartProvider.getCartItemCounts(
+        customerAndOrderController.customerId.value.isNotEmpty
+            ? customerAndOrderController.customerId.value
+            : widget.productController.selectedCustomerId.value);
+    CartDatabaseManager().addListener(() {
+      cartProvider.updateCartCount(
+          customerAndOrderController.customerId.value.isNotEmpty
+              ? customerAndOrderController.customerId.value
+              : widget.productController.selectedCustomerId.value);
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -636,11 +651,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 ? customerAndOrderController.customerId.value
                                 : widget
                                     .productController.selectedCustomerId.value;
+
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
-                              // CartDatabaseManager().getDraftItems(customerId);
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
@@ -655,16 +670,23 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     productName:
                                         widget.product.productName ?? '',
                                     inclTax: widget.product.inclTax ?? '',
-                                    
+                                    isChcked: true,
+                                    catId: widget.product.catId??0,
                                   );
                                   log('Product added to cart or draft with ID: ${detail.variationId}');
                                 } else {
                                   log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                 }
                               }
-
-                              widget.onDone();
-                              Navigator.pop(context);
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                final cartProvider =
+                                    Provider.of<CustomersProvider>(context,
+                                        listen: false);
+                                cartProvider.updateCartCount(customerId);
+                                cartProvider.getCartItemCounts(customerId);
+                                widget.onDone();
+                                Navigator.pop(context);
+                              });
                             } else {
                               showDialog(
                                 context: context,

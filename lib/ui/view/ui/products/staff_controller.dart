@@ -328,27 +328,24 @@ class StaffController extends GetxController {
       var response = await ApiWorker()
           .getTimeSheetData(startDate: startDate, endDate: endDate);
 
-      if (response.statusCode == 404) {
-        log('Error: Timesheet data not found (404)');
-        staffTimesheetData.clear(); // ✅ Ensure UI updates by clearing data
-        return {};
-      }
-
-      if (response.data != null) {
+      if (response.data != null && response.data!.isNotEmpty) {
         staffTimesheetData.assignAll(response.data!);
-        log('Fetched Timesheet Data: ${response.toJson()}');
+        log('✅ Fetched Timesheet Data: ${response.toJson()}');
         return response.data!;
       } else {
-        log('Warning: Timesheet data is null');
-        staffTimesheetData.clear(); // ✅ Clear to reflect no data
+        log("⚠️ No timesheet data found.");
+        staffTimesheetData.clear();
         return {};
       }
-    } catch (e) {
-      log('Error fetching timesheet data: $e');
-      staffTimesheetData.clear(); // ✅ Clear in case of API error
+    } catch (e, stackTrace) {
+      log('❌ Error fetching timesheet data: $e\n$stackTrace');
+
+      staffTimesheetData.clear();
       return {};
     } finally {
-      isTimesheetLoading.value = false; // Ensure loading state updates
+      Future.delayed(Duration(milliseconds: 50), () {
+        isTimesheetLoading.value = false;
+      }); // Ensure GetX updates UI
     }
   }
 

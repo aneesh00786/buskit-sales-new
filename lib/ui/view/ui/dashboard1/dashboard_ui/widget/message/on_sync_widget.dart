@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -57,15 +59,17 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
         _isOnline = isConnected;
       });
     }
-    
   }
 
   Future<void> _startSyncing() async {
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     setState(() {
       _isSyncing = true;
     });
     await Future.delayed(const Duration(seconds: 2));
     await CartDatabaseManager().getDraftItems();
+    await ApiWorker().fetchDiscounts(companyId, salesmanId);
     log('This Works Now');
     await _updateLastSyncTime();
     setState(() {

@@ -39,6 +39,13 @@ class DataTableColumns {
           align: TextAlign.center,
         ),
       ),
+       DataColumn(
+        label: DialogTableHeaderText(
+          text: 'Disc',
+          fontSize: fontSize,
+          align: TextAlign.center,
+        ),
+      ),
       DataColumn(
         label: DialogTableHeaderText(
           text: 'Tax',

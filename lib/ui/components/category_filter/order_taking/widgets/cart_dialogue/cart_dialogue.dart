@@ -78,6 +78,8 @@ class CartDialogueState extends State<CartDialogue> {
   double orderTax = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
+  double totalDiscount = 0.0;
+  double totalDiscountPreorder = 0.0;
   bool isOrder = true;
   String? _selectedValue;
   String? _dropdownValue;
@@ -100,9 +102,11 @@ class CartDialogueState extends State<CartDialogue> {
   bool _isLoading = true;
   bool isDraft = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+    localCounts = List<int>.filled(cartItems.length, 0);
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
@@ -131,35 +135,90 @@ class CartDialogueState extends State<CartDialogue> {
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
           cartItems.where((item) => item.detail.stock == 0).toList();
-      orderSubtotal = orderItems.fold(
-        0.0,
-        (sum, item) => item.isChecked! ? sum + item.totalPrice : sum,
-      );
+      orderSubtotal = orderItems.fold(0.0, (sum, item) {
+        return item.isChecked! ? sum + (item.totalPrice) : sum;
+      });
       preorderSubtotal = preorderItems.fold(0.0, (sum, item) {
         return sum + (item.totalPrice);
       });
       orderTax = orderItems.fold(
         0.0,
         (sum, item) {
-          final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-          if (item.isPack == true || item.detail.packtype == "Pack") {
-            log('Item Tax ${itemTax * (item.detail.pieces ?? 1)}');
-            return sum +
-                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+          if (item.isChecked == true) {
+            final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+            if (item.isPack == true || item.detail.packtype == "Pack") {
+              log('Item Tax ${itemTax * (item.detail.pieces ?? 1)}');
+              return sum +
+                  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+            } else {
+              return sum + (itemTax * (item.detail.count));
+            }
           } else {
-            return sum + (itemTax * (item.detail.count));
+            return 0;
           }
         },
       );
       preorderTax = preorderItems.fold(
         0.0,
         (sum, item) {
-          final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-          if (item.isPack == true || item.detail.packtype == "Pack") {
-            return sum +
-                (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+          if (item.isChecked == true) {
+            final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+            if (item.isPack == true || item.detail.packtype == "Pack") {
+              return sum +
+                  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+            } else {
+              return sum + (itemTax * (item.detail.count));
+            }
           } else {
-            return sum + (itemTax * (item.detail.count));
+            return 0;
+          }
+        },
+      );
+      totalDiscount = orderItems.fold(
+        0.0,
+        (sum, item) {
+          final discountPrice = (((double.tryParse(
+                          item.detail.sellPrice?.toString() ?? '0') ??
+                      0.0) *
+                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
+                          0.0) /
+                      100)) *
+              ((item.isPack == true || item.detail.packtype == 'Pack')
+                  ? (item.detail.pieces?.toDouble() ?? 1) *
+                      item.detail.count.toDouble()
+                  : item.detail.count.toDouble()));
+          if (item.isChecked == true) {
+            if (item.isPack == true || item.detail.packtype == "Pack") {
+              return sum + discountPrice;
+            } else {
+              return 0;
+            }
+          } else {
+            return 0;
+          }
+        },
+      );
+      totalDiscountPreorder = preorderItems.fold(
+        0.0,
+        (sum, item) {
+          final discountPrice = (((double.tryParse(
+                          item.detail.sellPrice?.toString() ?? '0') ??
+                      0.0) *
+                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
+                          0.0) /
+                      100)) *
+              ((item.isPack == true || item.detail.packtype == 'Pack')
+                  ? (item.detail.pieces?.toDouble() ?? 1) *
+                      item.detail.count.toDouble()
+                  : item.detail.count.toDouble()));
+          if (item.isChecked == true) {
+            if (item.isPack == true || item.detail.packtype == "Pack") {
+              return sum + discountPrice;
+            } else {
+              return 0;
+            }
+          } else {
+            return 0;
           }
         },
       );
@@ -412,7 +471,6 @@ class CartDialogueState extends State<CartDialogue> {
                                               item.productName == productName &&
                                               item.detail.stock! > 0)
                                           .toList();
-
                                       return Padding(
                                         padding:
                                             const EdgeInsets.only(bottom: 20),
@@ -456,7 +514,8 @@ class CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: formatAmount(orderSubtotal),
+                                content:
+                                    formatAmount(orderSubtotal),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -466,6 +525,31 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                       const SizedBox(height: 5.0),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(totalDiscount),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       Container(
                         height: 40,
                         width: double.infinity,
@@ -584,6 +668,32 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                       const SizedBox(height: 5.0),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(
+                                     totalDiscountPreorder),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       Container(
                         height: 40,
                         width: double.infinity,
@@ -1194,7 +1304,7 @@ class CartDialogueState extends State<CartDialogue> {
                         showVariantDeleteDialog(
                           context,
                           productName,
-                          false,
+                          !isOrder,
                           false,
                         );
                       },
@@ -1251,9 +1361,13 @@ class CartDialogueState extends State<CartDialogue> {
     required String cartId,
     required String draftId,
   }) async {
-    List<CartItem> itemList = isOrder
-        ? orderItems.where((item) => item.isChecked ?? true).toList()
-        : orderItems.where((item) => item.isChecked ?? true).toList();
+    List<CartItem> itemList = [
+      ...orderItems.where((item) => item.isChecked == true),
+      ...preorderItems.where((item) => item.isChecked == true),
+    ];
+    String customerId = customeController.customerId.isNotEmpty
+        ? customeController.customerId.value
+        : widget.productsController.selectedCustomerId.value;
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
@@ -1265,15 +1379,14 @@ class CartDialogueState extends State<CartDialogue> {
           return const Center(child: CircularProgressIndicator());
         },
       );
-
       try {
         log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
+
         if (!isOnline) {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
-
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -1286,7 +1399,7 @@ class CartDialogueState extends State<CartDialogue> {
                     setState(() {
                       Navigator.pop(context);
                       Navigator.of(context, rootNavigator: true).pop();
-                      _clearCartItem(itemList);
+                      _clearCartItem(itemList, customerId);
                     });
                   },
                   child: const Text('OK'),
@@ -1296,37 +1409,28 @@ class CartDialogueState extends State<CartDialogue> {
           );
           return;
         }
-
         log('[processSaveAndSend] Preparing data for API call...');
         List<Detail> detail = itemList.map((e) => e.detail).toList();
         log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
         final productBYData = AddToCartModel(
-          customerId: customeController.customerId.isNotEmpty
-              ? customeController.customerId.value
-              : widget.productsController.selectedCustomerId.value,
+          customerId: customerId,
           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: cartId.isNotEmpty ? cartId : '',
+          cartId: '',
           cartList: await Future.wait(detail.map((e) async {
-            String packValue = e.saleBy == 'Pack'
-                ? (await _getPackPiecesValue(
-                        e.productId ?? '', e.count.toInt()))
-                    .toString()
-                : e.count.toString();
-
+            String packValue =
+                e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
             return SendCartData(
                 productId: e.productId ?? '',
                 variantId: e.variationId ?? '',
                 pack: packValue,
                 price: e.sellPrice.toString(),
                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                discount: '0',
+                discount: e.discount ?? 0,
                 quantity: e.count.toInt(),
                 variantName: e.variationName ?? '');
           }).toList()),
           total: finalAmount.toStringAsFixed(0),
-          discount: '0',
         );
-
         log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
         CartOrderModel? cartOrder =
             await ApiWorker().addToCart(productBYData.toJson());
@@ -1342,12 +1446,11 @@ class CartDialogueState extends State<CartDialogue> {
                   : _selectedValue == 'Estimate'
                       ? 7
                       : 14;
+
           CartOrderModel order = CartOrderModel(
-            customerId: customeController.customerId.isNotEmpty
-                ? customeController.customerId.value
-                : widget.productsController.selectedCustomerId.value,
+            customerId: customerId,
             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId: cartId.isNotEmpty ? cartId : cartOrder.cartId,
+            cartId: cartOrder.cartId,
             orderStatus: orderStatus,
             orderPrice: finalAmount,
             paymentType: paymentType.toString(),
@@ -1357,21 +1460,11 @@ class CartDialogueState extends State<CartDialogue> {
             transactionDate: dateController.text.trim(),
             draftId: draftId.isNotEmpty ? draftId : '',
           );
-          log('ItemList Sent List: ${itemList.map((e) => 'ProductName: ${e.productName}, '
-              'Cart ID: ${e.cartId}, '
-              'Customer ID: ${e.customerId}, '
-              'Draft ID: ${e.draftId}, '
-              'Variation: ${e.detail.variationName}, '
-              'Price: ${e.detail.sellPrice}, '
-              'Quantity: ${e.detail.count}, '
-              'Total: ${e.totalPrice}, '
-              'IsPack: ${e.isPack}, '
-              'Pieces: ${e.detail.pieces ?? 'N/A'}').join('\n')}');
+
           await placeOrder(order, (statusCode, message, response) {
             Navigator.pop(context);
             if (statusCode == 200) {
-              log('ItemList Length ${itemList.length}');
-              _clearCartItem(itemList);
+              _clearCartItem(itemList, customerId);
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -1394,23 +1487,24 @@ class CartDialogueState extends State<CartDialogue> {
                         onPressed: () async {
                           Navigator.pop(context);
                           Navigator.of(context, rootNavigator: true).pop();
-                          if(Navigator.canPop(context)){
+                          final cartProvider = Provider.of<CustomersProvider>(
+                              context,
+                              listen: false);
+                          cartProvider.getCartItemCounts(customerId);
+                          CartDatabaseManager().addListener(() {
+                            cartProvider.updateCartCount(customerId);
+                          });
+                          if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
                           if (widget.isDashboard == true) {
-                            _clearCartItem(itemList);
                             Provider.of<DashboardProvider>(context,
                                     listen: false)
                                 .fetchData();
                           } else {
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
-                                .fetchCustomerDashboardCountData(
-                              customeController.customerId.isNotEmpty
-                                  ? customeController.customerId.value
-                                  : widget.productsController.selectedCustomerId
-                                      .value,
-                            );
+                                .fetchCustomerDashboardCountData(customerId);
                           }
                         },
                         child: const Text('OK'),
@@ -1578,7 +1672,10 @@ class CartDialogueState extends State<CartDialogue> {
 
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final isQuickSale = _selectedValue == "Quick Sale";
+    final orderId =
+        DateTime.now().millisecondsSinceEpoch.toString(); // Unique ID
     final orderData = {
+      'order_id': orderId, // Add unique identifier
       'customer_id': customeController.customerId.isNotEmpty
           ? customeController.customerId.value
           : widget.productsController.selectedCustomerId.value,
@@ -1606,8 +1703,8 @@ class CartDialogueState extends State<CartDialogue> {
     };
 
     var offlineBox = await Hive.openBox('offlineOrders');
-    await offlineBox.add(orderData);
-    log('[saveOrderOffline] Order saved locally: $orderData');
+    await offlineBox.put(orderId, orderData);
+    log('[saveOrderOffline] Order saved locally with ID $orderId: $orderData');
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
@@ -1711,8 +1808,11 @@ class CartDialogueState extends State<CartDialogue> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              onPressed: () {
+              onPressed: () async {
+                final provider =
+                    Provider.of<CustomersProvider>(context, listen: false);
                 _deleteProduct(productName, isPreorder: isPreOrder);
+                await provider.updateCartCount(customerId);
                 _loadCartItems();
                 log('Draft Delete Clicked : ${customerId}');
                 Navigator.pop(context);
@@ -1785,8 +1885,8 @@ class CartDialogueState extends State<CartDialogue> {
                   setState(() {
                     if (cartItem.detail.count > 1) {
                       cartItem.detail.count--;
-                      cartItem.totalPrice =
-                          Utils().calculateTotalPrice(cartItem);
+                      cartItem.totalPrice = Utils().calculateTotalPrice(
+                          cartItem, cartItem.detail.count.toInt());
                       calculateAmounts();
                       log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                       log('Draft ID On Cart ${cartItem.draftId}');
@@ -1825,9 +1925,8 @@ class CartDialogueState extends State<CartDialogue> {
                 onTap: () {
                   setState(() {
                     cartItem.detail.count++;
-
-                    cartItem.totalPrice = Utils().calculateTotalPrice(cartItem);
-
+                    cartItem.totalPrice = Utils().calculateTotalPrice(
+                        cartItem, cartItem.detail.count.toInt());
                     calculateAmounts();
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');
@@ -1857,31 +1956,28 @@ class CartDialogueState extends State<CartDialogue> {
       if (isOrder) {
         orderSubtotal = Utils().calculateSubtotal(orderItems);
         orderTax = Utils().calculateTotalTax(orderItems);
+        totalDiscount = Utils().calculateTotalDiscount(orderItems);
       } else {
         preorderSubtotal = Utils().calculateSubtotal(preorderItems);
         preorderTax = Utils().calculateTotalTax(preorderItems);
+        totalDiscountPreorder = Utils().calculateTotalDiscount(preorderItems);
       }
     });
   }
 
-  void _clearCartItem(
-    List<CartItem> cartItem,
-  ) {
-    CartDatabaseManager().clearCart();
-
-    setState(() {
-      cartItems.remove(cartItem);
-      quantities.remove(cartItem);
-    });
+  void _clearCartItem(List<CartItem> cartItem, String customerId) async {
+    await CartDatabaseManager().clearCart(customerId: customerId);
     log('Cart Item Cleared : $cartItem');
   }
 
   void _deleteProduct(String productName, {bool isPreorder = false}) {
     setState(() {
       final variantsToDelete = cartItems.where((item) {
-        return item.productName == productName &&
-            ((isPreorder && item.detail.stock == 0) ||
-                (!isPreorder && item.detail.stock! > 0));
+        final isMatchingProduct = item.productName == productName;
+        final isPreorderItem = item.detail.stock == 0;
+        final isOrderItem = item.detail.stock! > 0;
+        return isMatchingProduct &&
+            ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
       }).toList();
 
       if (variantsToDelete.isEmpty) {
@@ -1894,14 +1990,10 @@ class CartDialogueState extends State<CartDialogue> {
         CartDatabaseManager().deleteCartItem(variant);
         CartDatabaseManager().updateCart(variant);
       }
-
-      // Remove the variants from `cartItems`.
       cartItems.removeWhere((item) =>
           item.productName == productName &&
           ((isPreorder && item.detail.stock == 0) ||
               (!isPreorder && item.detail.stock! > 0)));
-
-      // Recalculate subtotals and taxes for orders and preorders.
       final orderItems =
           cartItems.where((item) => item.detail.stock! > 0).toList();
       final preorderItems =

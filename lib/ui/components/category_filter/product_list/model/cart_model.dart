@@ -42,6 +42,9 @@ class CartItem extends HiveObject {
   @HiveField(11)
   bool? boxType;
 
+  @HiveField(12)
+  int? catId;
+
 
 
   CartItem({
@@ -57,6 +60,7 @@ class CartItem extends HiveObject {
     this.draftTotal,
     this.salesmanId,
     this.boxType,
+    this.catId,
   });
 
 factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -72,7 +76,8 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
     isChecked: json['isChecked'] as bool? ?? true,
     draftTotal: json['order_total'] as num? ?? 0,
     salesmanId: json['salesman_id'] as String?,
-    boxType: json['boxType']
+    boxType: json['boxType'],
+    catId: json['categories_id'],
   );
 }
 
@@ -91,6 +96,7 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
       'order_total': draftTotal,
       'salesman_id':salesmanId,
       'boxType':boxType,
+      'categories_id':catId
     };
   }
 
@@ -107,6 +113,7 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
     num?draftTotal,
     String?salesmanId,
     bool?boxType,
+    int? catId,
   }) {
     return CartItem(
         detail: detail ?? this.detail,
@@ -121,6 +128,7 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
         draftTotal: draftTotal ?? this.draftTotal,
         salesmanId: salesmanId ?? this.salesmanId,
         boxType: boxType ?? this.boxType,
+        catId: catId ?? this.catId,
         
         );
   }

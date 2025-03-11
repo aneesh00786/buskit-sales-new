@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -107,16 +108,14 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
+    final customerId = customerAndOrderController.customerId.value.isNotEmpty
+        ? customerAndOrderController.customerId.value
+        : widget.productsController.selectedCustomerId.value;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.getCartItemCounts(
-        customerAndOrderController.customerId.value.isNotEmpty
-            ? customerAndOrderController.customerId.value
-            : widget.productsController.selectedCustomerId.value);
+    CartDatabaseManager().getCartItems(customerId);
+    cartProvider.getCartItemCounts(customerId);
     CartDatabaseManager().addListener(() {
-      cartProvider.updateCartCount(
-          customerAndOrderController.customerId.value.isNotEmpty
-              ? customerAndOrderController.customerId.value
-              : widget.productsController.selectedCustomerId.value);
+      cartProvider.updateCartCount(customerId);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -245,6 +244,44 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
+  Future<void> saveDraftOffline({
+    required String customerId,
+    required String salesmanId,
+    required double totalAmount,
+    required List<Detail> details,
+    String cartId = '',
+    String draftId = '',
+  }) async {
+    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+    final draftData = {
+      'order_id': orderId,
+      'customer_id': customerId,
+      'salesman_id': salesmanId,
+      'total_amount': totalAmount,
+      'cart_id': cartId,
+      'draft_id': draftId,
+      'details': details.map((e) {
+        return {
+          'product_id': e.productId ?? '',
+          'variant_id': e.variationId ?? '',
+          'pack': e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
+          'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+          'price': e.sellPrice.toString(),
+          'discount': '0',
+          'quantity': e.count.toInt(),
+          'variant_name': e.variationName ?? '',
+        };
+      }).toList(),
+    };
+    try {
+      var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+      await offlineDraftsBox.put(orderId, draftData);
+      log('[saveDraftOffline] Draft saved locally with ID: $orderId');
+    } catch (e) {
+      log('[saveDraftOffline] Error saving draft locally: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -261,6 +298,7 @@ class _OrderTakingState extends State<OrderTaking>
         leading: SingleChildScrollView(
           child: IconButton(
             onPressed: () async {
+              final connectivityService = ConnectivityService();
               final toDash = widget.isDirectDialogue &&
                   (!widget.isFromOrder || !widget.isFromCalender);
               final customerId =
@@ -274,12 +312,55 @@ class _OrderTakingState extends State<OrderTaking>
                   customerId.isNotEmpty &&
                   !hasDraftId &&
                   !toDash) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                );
                 log('Log 1');
                 log('To Dash $toDash');
-                List<Detail> detail = CartDatabaseManager()
-                    .cartItems
-                    .map((e) => e.detail)
-                    .toList();
+                List<Detail> detail = [
+                  ...CartDatabaseManager()
+                      .cartItems
+                      .map((e) => e.detail)
+                      .toList(),
+                  ...CartDatabaseManager()
+                      .getDraftItemsForCustomer(customerId)
+                      .map((e) => e.detail)
+                      .toList(),
+                ];
+                bool isOnline = await connectivityService.isOnline();
+                if (!isOnline) {
+                  log('[saveDraftOffline] Device is offline. Saving draft locally...');
+                  await saveDraftOffline(
+                    customerId: customerId,
+                    salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+                    totalAmount: widget.productsController.finalAmount.value,
+                    details: detail,
+                    cartId: '',
+                    draftId: '',
+                  );
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Offline Mode'),
+                      content: const Text(
+                          'The draft has been saved locally. It will be synced when the internet is available.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
                 await Future.delayed(const Duration(seconds: 1));
@@ -293,7 +374,7 @@ class _OrderTakingState extends State<OrderTaking>
                 final productBYData = AddToCartModel(
                   customerId: customerId,
                   salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-                  cartId: '',
+                  cartId: existingCartId.isNotEmpty ? existingCartId : '',
                   cartList: detail
                       .map((e) => SendCartData(
                           productId: e.productId ??
@@ -305,17 +386,17 @@ class _OrderTakingState extends State<OrderTaking>
                               : e.count.toString(),
                           packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                           price: e.sellPrice.toString(),
-                          discount: '0',
+                          discount: e.discount??0,
                           quantity: e.count.toInt(),
                           variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                  discount: '0',
+                 
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
-                log('Add to Cart Datas : ${productBYData.toJson()}');
+                log('Add to Draft Datas : ${productBYData.toJson()}');
                 if (cartOrder != null) {
                   int orderStatus = 4;
                   CartOrderModel order = CartOrderModel(
@@ -354,6 +435,7 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
+                                  Navigator.pop(context);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -384,7 +466,8 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  //CartDatabaseManager().clearCart(customerId);
+                                  CartDatabaseManager()
+                                      .clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -401,10 +484,16 @@ class _OrderTakingState extends State<OrderTaking>
                   toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
-                List<Detail> detail = CartDatabaseManager()
-                    .cartItems
-                    .map((e) => e.detail)
-                    .toList();
+                List<Detail> detail = [
+                  ...CartDatabaseManager()
+                      .cartItems
+                      .map((e) => e.detail)
+                      .toList(),
+                  ...CartDatabaseManager()
+                      .getDraftItemsForCustomer(customerId)
+                      .map((e) => e.detail)
+                      .toList(),
+                ];
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
                 await Future.delayed(const Duration(seconds: 1));
@@ -430,13 +519,13 @@ class _OrderTakingState extends State<OrderTaking>
                               : e.count.toString(),
                           packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                           price: e.sellPrice.toString(),
-                          discount: '0',
+                          discount: e.discount??0,
                           quantity: e.count.toInt(),
                           variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                  discount: '0',
+                 
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
@@ -476,7 +565,8 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  //CartDatabaseManager().clearCart(customerId);
+                                  CartDatabaseManager()
+                                      .clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -524,12 +614,11 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                CartDatabaseManager().getDraftItems();
+
                 CartDatabaseManager().cartItems.clear();
-                //CartDatabaseManager().clearCart();
+                CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);
               } else if (hasDraftId && toDash) {
-                CartDatabaseManager().getDraftItems();
                 log('Log 3');
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
@@ -538,9 +627,9 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-                CartDatabaseManager().getDraftItems();
+
                 CartDatabaseManager().cartItems.clear();
-                //CartDatabaseManager().clearCart(customerId);
+                CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);
               } else {
                 log('Log 4');
@@ -1005,12 +1094,14 @@ class _OrderTakingState extends State<OrderTaking>
                         title: entry.categoryName ?? '',
                         options: entry.subCategoryItem ?? [],
                       );
+                      
                     }).toList(),
                     onOptionSelected: (selectedSubcategoryId) {
                       String categoryId =
                           selectedSubCategory(selectedSubcategoryId);
                       log('Selected Subcategory ID: $categoryId');
                       _fetchProductsByCategory(categoryId);
+                      
                     },
                     onDrawerToggle: _toggleDrawer,
                     selectedCategory: _selectedCategory,

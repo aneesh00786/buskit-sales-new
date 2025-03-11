@@ -20,7 +20,6 @@ class AddToCartModelAdapter extends TypeAdapter<AddToCartModel> {
       customerId: fields[0] as String,
       salesmanId: fields[1] as String,
       total: fields[2] as String,
-      discount: fields[3] as String,
       cartId: fields[4] as String,
       cartList: (fields[5] as List).cast<SendCartData>(),
     );
@@ -29,15 +28,13 @@ class AddToCartModelAdapter extends TypeAdapter<AddToCartModel> {
   @override
   void write(BinaryWriter writer, AddToCartModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.customerId)
       ..writeByte(1)
       ..write(obj.salesmanId)
       ..writeByte(2)
       ..write(obj.total)
-      ..writeByte(3)
-      ..write(obj.discount)
       ..writeByte(4)
       ..write(obj.cartId)
       ..writeByte(5)
@@ -71,7 +68,7 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       pack: fields[2] as String,
       packType: fields[3] as String,
       price: fields[4] as String,
-      discount: fields[5] as String,
+      discount: fields[5] as num,
       quantity: fields[6] as int,
       variantName: fields[7] as String,
     );

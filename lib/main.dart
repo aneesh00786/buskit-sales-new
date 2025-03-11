@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -38,8 +39,11 @@ void main() async {
   Hive.registerAdapter(DraftAdapter());
   Hive.registerAdapter(CategoryDataAdapter());
   Hive.registerAdapter(SubCategoryItemAdapter());
+  Hive.registerAdapter(CustomerDiscountModelAdapter());
+  Hive.registerAdapter(DiscountModelAdapter());
   Hive.registerAdapter(AddToCartModelAdapter());
   Hive.registerAdapter(SendCartDataAdapter());
+  await Hive.openBox<CustomerDiscountModel>('discounts');
   await Hive.openBox<CartItem>('cartBox');
   await Hive.openBox<CartItem>('cartPreorderBox');
   await Hive.openBox<CartItem>('draftBox');
@@ -67,7 +71,6 @@ void main() async {
     systemNavigationBarColor: backgroundColor,
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
-
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
   Get.lazyPut<HomeController>(() => HomeController());
@@ -77,6 +80,7 @@ void main() async {
       bool isOnline = await connectivityService.isOnline();
       if (isOnline) {
         await connectivityService.syncOfflineOrders();
+       // await connectivityService.syncOfflineDrafts();
       }
     }
   });

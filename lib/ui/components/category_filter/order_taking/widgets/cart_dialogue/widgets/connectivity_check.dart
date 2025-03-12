@@ -59,7 +59,7 @@ Future<void> syncOfflineOrders() async {
     return;
   }
   _isSyncing = true;
-  Set<String> processedCartIds = {}; // Track processed cart IDs
+  Set<String> processedCartIds = {};
   try {
     var offlineOrdersBox = await Hive.openBox('offlineOrders');
     if (offlineOrdersBox.isEmpty) {
@@ -71,7 +71,7 @@ Future<void> syncOfflineOrders() async {
       try {
         if (processedCartIds.contains(order['cart_id'])) {
           log('[syncOfflineOrders] Skipping already processed cart ID: ${order['cart_id']}');
-          continue; // Skip already processed cart
+          continue;
         }
 
         log('[syncOfflineOrders] Processing offline order: $order');
@@ -94,17 +94,14 @@ Future<void> syncOfflineOrders() async {
           total: order['order_price']?.toString() ?? '0.0',
           
         );
-
         log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
         final CartOrderModel? cartOrder =
             await ApiWorker().addToCart(productBYData.toJson());
-
         if (cartOrder != null) {
-          processedCartIds.add(cartOrder.cartId); // Mark cart ID as processed
+          processedCartIds.add(cartOrder.cartId);
           log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
           final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
           final int orderStatus = 11;
-
           final CartOrderModel orderPayload = CartOrderModel(
             customerId: order['customer_id'] ?? '',
             salesmanId: order['salesman_id'] ?? '',
@@ -148,49 +145,66 @@ Future<void> syncOfflineDrafts() async {
     return;
   }
   _isSyncing = true;
-  Set<String> processedDraftIds = {};
   try {
     var offlineDraftsBox = await Hive.openBox('offlineDrafts');
     if (offlineDraftsBox.isEmpty) {
       log('[syncOfflineDrafts] No offline drafts to sync.');
       return;
     }
+
     var drafts = offlineDraftsBox.values.toList();
     for (var draft in drafts) {
       try {
-        if (processedDraftIds.contains(draft['draft_id'])) {
-          log('[syncOfflineDrafts] Skipping already processed draft ID: ${draft['draft_id']}');
-          continue; 
-        }
         log('[syncOfflineDrafts] Processing offline draft: $draft');
         final AddToCartModel draftData = AddToCartModel(
           customerId: draft['customer_id'] ?? '',
           salesmanId: draft['salesman_id'] ?? '',
-          cartId: draft['cart_id'] ?? '',
-          cartList: (draft['details'] as List).map((e) {
-            return SendCartData(
-              productId: e['product_id'] ?? '',
-              variantId: e['variant_id'] ?? '',
-              pack: e['pack']?.toString() ?? '0',
-              price: e['price']?.toString() ?? '0.0',
-              packType: e['packType'] ?? 'Pack',
-              discount: e['discount'],
-              quantity: e['quantity'] ?? 0,
-              variantName: e['variant_name'] ?? '',
-            );
-          }).toList(),
+          cartId: '', 
+          cartList: (draft['details'] as List?)?.map((e) {
+                return SendCartData(
+                  productId: e['product_id'] ?? '',
+                  variantId: e['variant_id'] ?? '',
+                  pack: e['pack']?.toString() ?? '0',
+                  price: e['price']?.toString() ?? '0.0',
+                  packType: e['packType'] ?? 'Pack',
+                  discount: num.tryParse(e['discount']?.toString() ?? '0') ?? 0,
+                  quantity: e['quantity'] ?? 0,
+                  variantName: e['variant_name'] ?? '',
+                );
+              }).toList() ??
+              [],
           total: draft['total_amount']?.toString() ?? '0.0',
-          
         );
 
         log('[syncOfflineDrafts] Sending API request to save draft with payload: ${draftData.toJson()}');
         final CartOrderModel? savedDraft =
             await ApiWorker().addToDraft(draftData.toJson());
-
         if (savedDraft != null) {
-          processedDraftIds.add(savedDraft.draftId??''); 
           log('[syncOfflineDrafts] Draft synced successfully: ${savedDraft.draftId}');
-          await offlineDraftsBox.delete(draft['order_id']); 
+          final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+          const int orderStatus = 4; 
+          final CartOrderModel orderPayload = CartOrderModel(
+            customerId: draft['customer_id'] ?? '',
+            salesmanId: draft['salesman_id'] ?? '',
+            cartId: savedDraft.cartId,
+            orderStatus: orderStatus,
+            orderPrice: draft['total_amount'] ?? 0.0,
+            paymentType: draft['paymentType']?.toString() ?? 'Cash',
+            companyId: companyId,
+            paymentDetail: draft['paymentDetail'] ?? '',
+            transactionNumber: draft['transactionNumber'] ?? '',
+            transactionDate: draft['transactionDate'] ?? '',
+          );
+
+          log('[syncOfflineDrafts] Sending Place Order payload: ${orderPayload.toJson()}');
+          await placeOrder(orderPayload, (statusCode, message, response) async {
+            if (statusCode == 200) {
+              log('[syncOfflineDrafts] Order placed successfully: ${orderPayload.cartId}');
+              await offlineDraftsBox.delete(draft['order_id']);
+            } else {
+              log('[syncOfflineDrafts] Failed to place order: $message');
+            }
+          });
         } else {
           log('[syncOfflineDrafts] Failed to sync draft.');
         }
@@ -208,6 +222,9 @@ Future<void> syncOfflineDrafts() async {
     _isSyncing = false;
   }
 }
+
+
+
 
 
 

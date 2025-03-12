@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
@@ -284,595 +285,661 @@ class CartDialogueState extends State<CartDialogue> {
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
           double rowHeight = availableHeight / 14;
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: availableWidth,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DialogueHedingWidget(
-                      height: height,
-                      width: width,
-                      title: 'My Cart',
-                    ),
-                    if (orderItems.isNotEmpty || preorderItems.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16),
-                        child: SizedBox(
-                          height: 40,
-                          child: Row(
-                            children: [
-                              if (orderItems.isNotEmpty)
-                                Expanded(
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: primaryColor),
-                                          color: isOrder ? primaryColor : white,
-                                          borderRadius: preorderItems.isNotEmpty
-                                              ? const BorderRadius.only(
-                                                  topLeft: Radius.circular(20),
-                                                  bottomLeft:
-                                                      Radius.circular(20),
-                                                )
-                                              : BorderRadius.circular(20),
-                                        ),
-                                        child: InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              isOrder = true;
-                                              _selectedValue = _options[0];
-                                            });
-                                            setOptions();
-                                          },
-                                          child: Center(
-                                            child: CustomText(
-                                              content: 'ORDERS',
-                                              fontWeight: FontWeight.w700,
-                                              color: isOrder
-                                                  ? white
-                                                  : primaryColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${orderItems.length}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              if (preorderItems.isNotEmpty)
-                                Expanded(
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: primaryColor),
-                                          color:
-                                              !isOrder ? primaryColor : white,
-                                          borderRadius: orderItems.isNotEmpty
-                                              ? const BorderRadius.only(
-                                                  topRight: Radius.circular(20),
-                                                  bottomRight:
-                                                      Radius.circular(20),
-                                                )
-                                              : BorderRadius.circular(20),
-                                        ),
-                                        child: InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              isOrder = false;
-                                              _selectedValue = _options[2];
-                                            });
-                                            setOptions();
-                                          },
-                                          child: Center(
-                                            child: CustomText(
-                                              content: 'PRE-ORDERS',
-                                              fontWeight: FontWeight.w700,
-                                              color: isOrder
-                                                  ? primaryColor
-                                                  : white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${preorderItems.length}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      Container(),
-                    ],
-                    if (isOrder) ...[
-                      (orderItems.isEmpty)
-                          ? SizedBox(
-                              height: 100,
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Your cart is empty.',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: black,
-                                ),
-                              ),
-                            )
-                          : Flexible(
-                              child: SizedBox(
-                                height: dialogHeight * 0.5,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: orderItems
-                                        .where((item) => item.detail.stock! > 0)
-                                        .map((item) => item.productName)
-                                        .toSet()
-                                        .toList()
-                                        .map((productName) {
-                                      List<CartItem> groupedItems = orderItems
-                                          .where((item) =>
-                                              item.productName == productName &&
-                                              item.detail.stock! > 0)
-                                          .toList();
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                        child: _buildGroupedItems(
-                                          productName: productName,
-                                          groupedItems: groupedItems,
-                                          availableWidth: availableWidth,
-                                          fontSize: fontSize,
-                                          rowHeight: rowHeight,
-                                          context: context,
-                                          productQuantityManager:
-                                              productQuantityManager,
-                                          deleteConfirmationDialogue:
-                                              deleteConfirmationDialogue,
-                                          isPreOrder: false,
-                                          calCulateAmount: calculateAmounts,
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: availableWidth,
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DialogueHedingWidget(
+                    height: height,
+                    width: width,
+                    title: 'My Cart',
+                  ),
+                  if (orderItems.isNotEmpty || preorderItems.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16),
+                      child: SizedBox(
                         height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        color: lightPrimaryColor,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Subtotal',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content:
-                                    formatAmount(orderSubtotal),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 5.0),
-                      Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Discount',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(totalDiscount),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Tax',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(orderTax),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Divider(),
-                      CartTotalWidget(
-                        title: 'Final Amount',
-                        content: orderSubtotal,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color2: Colors.green,
-                      ),
-                    ],
-                    if (!isOrder) ...[
-                      (preorderItems.isEmpty)
-                          ? SizedBox(
-                              height: 100,
-                              child: Center(
-                                child: CustomText(
-                                  content: 'No pre-order items available.',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: black,
-                                ),
-                              ),
-                            )
-                          : Flexible(
-                              child: SizedBox(
-                                height: dialogHeight * 0.5,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: preorderItems
-                                        .where((item) => item.detail.stock == 0)
-                                        .map((item) => item.productName)
-                                        .toSet()
-                                        .toList()
-                                        .map((productName) {
-                                      List<CartItem> groupedItems =
-                                          preorderItems
-                                              .where((item) =>
-                                                  item.productName ==
-                                                      productName &&
-                                                  item.detail.stock == 0)
-                                              .toList();
-
-                                      return Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 20),
-                                          child: _buildGroupedItems(
-                                            productName: productName,
-                                            groupedItems: groupedItems,
-                                            availableWidth: availableWidth,
-                                            fontSize: fontSize,
-                                            rowHeight: rowHeight,
-                                            context: context,
-                                            productQuantityManager:
-                                                productQuantityManager,
-                                            deleteConfirmationDialogue:
-                                                deleteConfirmationDialogue,
-                                            isPreOrder: true,
-                                            calCulateAmount: calculateAmounts,
-                                          ));
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        color: lightPrimaryColor,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Subtotal',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(preorderSubtotal),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 5.0),
-                      Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Discount',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(
-                                     totalDiscountPreorder),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Tax',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(preorderTax),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Divider(),
-                      CartTotalWidget(
-                        title: 'Final Amount',
-                        content: preorderSubtotal,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color2: Colors.green,
-                      ),
-                    ],
-                    SizedBox(
-                      height: _selectedValue == "Quick Sale"
-                          ? (_dropdownValue == "Cheque" ||
-                                  _dropdownValue == "Bank Transfer"
-                              ? 210
-                              : (_dropdownValue == null ||
-                                      _dropdownValue == "Cash"
-                                  ? 140
-                                  : 60))
-                          : 60,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: filteredOptions.map((option) {
-                              totalQuickController.text = isOrder
-                                  ? '\$${orderSubtotal?.toStringAsFixed(2) ?? '0.00'}'
-                                  : '\$${preorderSubtotal?.toStringAsFixed(2) ?? '0.00'}';
-
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                        child: Row(
+                          children: [
+                            if (orderItems.isNotEmpty)
+                              Expanded(
+                                child: Stack(
                                   children: [
-                                    Radio<String>(
-                                      splashRadius: 20,
-                                      activeColor: Colors.green,
-                                      value: option,
-                                      groupValue: _selectedValue,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedValue = value!;
-                                          _dropdownValue = null;
-                                          totalQuickController.clear();
-                                        });
-                                      },
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: primaryColor),
+                                        color: isOrder ? primaryColor : white,
+                                        borderRadius: preorderItems.isNotEmpty
+                                            ? const BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                bottomLeft: Radius.circular(20),
+                                              )
+                                            : BorderRadius.circular(20),
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            isOrder = true;
+                                            _selectedValue = _options[0];
+                                          });
+                                          setOptions();
+                                        },
+                                        child: Center(
+                                          child: CustomText(
+                                            content: 'ORDERS',
+                                            fontWeight: FontWeight.w700,
+                                            color:
+                                                isOrder ? white : primaryColor,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    Text(option),
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${orderItems.length}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              );
-                            }).toList(),
-                          ),
-                          if (_selectedValue == "Quick Sale")
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 16.0, left: 40, right: 40),
-                              child: Form(
-                                key: _formKey,
-                                child: Column(
+                              ),
+                            if (preorderItems.isNotEmpty)
+                              Expanded(
+                                child: Stack(
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: primaryColor),
+                                        color: !isOrder ? primaryColor : white,
+                                        borderRadius: orderItems.isNotEmpty
+                                            ? const BorderRadius.only(
+                                                topRight: Radius.circular(20),
+                                                bottomRight:
+                                                    Radius.circular(20),
+                                              )
+                                            : BorderRadius.circular(20),
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            isOrder = false;
+                                            _selectedValue = _options[2];
+                                          });
+                                          setOptions();
+                                        },
+                                        child: Center(
+                                          child: CustomText(
+                                            content: 'PRE-ORDERS',
+                                            fontWeight: FontWeight.w700,
+                                            color:
+                                                isOrder ? primaryColor : white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${preorderItems.length}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    Container(),
+                  ],
+                  if (isOrder) ...[
+                    (orderItems.isEmpty)
+                        ? SizedBox(
+                            height: 100,
+                            child: Center(
+                              child: CustomText(
+                                content: 'Your cart is empty.',
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: black,
+                              ),
+                            ),
+                          )
+                        : Flexible(
+                            child: SizedBox(
+                              height: dialogHeight * 0.5,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: SizedBox(
+                                    width: fullScreenWidth(context) * 1.05,
+                                    child: Row(
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              height: 50,
-                                              width: 130,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: Colors.black),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Center(
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 5.0),
-                                                  child:
-                                                      DropdownButtonFormField<
-                                                          String>(
-                                                    hint: const Text(
-                                                        "Payment method"),
-                                                    value: _dropdownValue,
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        _dropdownValue =
-                                                            newValue!;
-                                                        switch (
-                                                            _dropdownValue) {
-                                                          case 'Cash':
-                                                            paymentType = 0;
-                                                            break;
-                                                          case 'Cheque':
-                                                            paymentType = 1;
-                                                            break;
-                                                          case 'Bank Transfer':
-                                                            paymentType = 2;
-                                                            break;
-                                                          default:
-                                                            paymentType = null;
-                                                        }
-                                                      });
-                                                    },
-                                                    items: <String>[
-                                                      'Cash',
-                                                      'Cheque',
-                                                      'Bank Transfer',
-                                                    ].map<
-                                                            DropdownMenuItem<
-                                                                String>>(
-                                                        (String value) {
-                                                      return DropdownMenuItem<
-                                                          String>(
-                                                        value: value,
-                                                        child: Text(value),
-                                                      );
-                                                    }).toList(),
-                                                    validator: (value) {
-                                                      if (value == null ||
-                                                          value.isEmpty) {
-                                                        return 'Please select a payment method';
+                                        Expanded(
+                                          child: Column(
+                                            children: orderItems
+                                                .where((item) =>
+                                                    item.detail.stock! > 0)
+                                                .map((item) => item.productName)
+                                                .toSet()
+                                                .toList()
+                                                .map((productName) {
+                                              List<CartItem> groupedItems =
+                                                  orderItems
+                                                      .where((item) =>
+                                                          item.productName ==
+                                                              productName &&
+                                                          item.detail.stock! >
+                                                              0)
+                                                      .toList();
+
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 20),
+                                                child: _buildGroupedItems(
+                                                  productName: productName,
+                                                  groupedItems: groupedItems,
+                                                  availableWidth:
+                                                      availableWidth,
+                                                  fontSize: fontSize,
+                                                  rowHeight: rowHeight,
+                                                  context: context,
+                                                  productQuantityManager:
+                                                      productQuantityManager,
+                                                  deleteConfirmationDialogue:
+                                                      deleteConfirmationDialogue,
+                                                  isPreOrder: false,
+                                                  calCulateAmount:
+                                                      calculateAmounts,
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      color: lightPrimaryColor,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Subtotal',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(orderSubtotal),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5.0),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Discount',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(totalDiscount),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Tax',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(orderTax),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    CartTotalWidget(
+                      title: 'Final Amount',
+                      content: orderSubtotal,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color2: Colors.green,
+                    ),
+                  ],
+                  if (!isOrder) ...[
+                    (preorderItems.isEmpty)
+                        ? SizedBox(
+                            height: 100,
+                            child: Center(
+                              child: CustomText(
+                                content: 'No pre-order items available.',
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: black,
+                              ),
+                            ),
+                          )
+                        : Flexible(
+                            child: SizedBox(
+                              height: dialogHeight * 0.5,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SizedBox(
+                                  width: fullScreenWidth(context) * 1.05,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          children: preorderItems
+                                              .where((item) =>
+                                                  item.detail.stock == 0)
+                                              .map((item) => item.productName)
+                                              .toSet()
+                                              .toList()
+                                              .map((productName) {
+                                            List<CartItem> groupedItems =
+                                                preorderItems
+                                                    .where((item) =>
+                                                        item.productName ==
+                                                            productName &&
+                                                        item.detail.stock == 0)
+                                                    .toList();
+
+                                            return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 20),
+                                                child: _buildGroupedItems(
+                                                  productName: productName,
+                                                  groupedItems: groupedItems,
+                                                  availableWidth:
+                                                      availableWidth,
+                                                  fontSize: fontSize,
+                                                  rowHeight: rowHeight,
+                                                  context: context,
+                                                  productQuantityManager:
+                                                      productQuantityManager,
+                                                  deleteConfirmationDialogue:
+                                                      deleteConfirmationDialogue,
+                                                  isPreOrder: true,
+                                                  calCulateAmount:
+                                                      calculateAmounts,
+                                                ));
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      color: lightPrimaryColor,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Subtotal',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(preorderSubtotal),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5.0),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Discount',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(totalDiscountPreorder),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Tax',
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(preorderTax),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    CartTotalWidget(
+                      title: 'Final Amount',
+                      content: preorderSubtotal,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color2: Colors.green,
+                    ),
+                  ],
+                  SizedBox(
+                    height: _selectedValue == "Quick Sale"
+                        ? (_dropdownValue == "Cheque" ||
+                                _dropdownValue == "Bank Transfer"
+                            ? 210
+                            : (_dropdownValue == null ||
+                                    _dropdownValue == "Cash"
+                                ? 140
+                                : 60))
+                        : 60,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: filteredOptions.map((option) {
+                            totalQuickController.text = isOrder
+                                ? '\$${orderSubtotal?.toStringAsFixed(2) ?? '0.00'}'
+                                : '\$${preorderSubtotal?.toStringAsFixed(2) ?? '0.00'}';
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Radio<String>(
+                                    splashRadius: 20,
+                                    activeColor: Colors.green,
+                                    value: option,
+                                    groupValue: _selectedValue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedValue = value!;
+                                        _dropdownValue = null;
+                                        totalQuickController.clear();
+                                      });
+                                    },
+                                  ),
+                                  Text(option),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        if (_selectedValue == "Quick Sale")
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 16.0, left: 40, right: 40),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            height: 50,
+                                            width: 130,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Center(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5.0),
+                                                child: DropdownButtonFormField<
+                                                    String>(
+                                                  hint: const Text(
+                                                      "Payment method"),
+                                                  value: _dropdownValue,
+                                                  onChanged:
+                                                      (String? newValue) {
+                                                    setState(() {
+                                                      _dropdownValue =
+                                                          newValue!;
+                                                      switch (_dropdownValue) {
+                                                        case 'Cash':
+                                                          paymentType = 0;
+                                                          break;
+                                                        case 'Cheque':
+                                                          paymentType = 1;
+                                                          break;
+                                                        case 'Bank Transfer':
+                                                          paymentType = 2;
+                                                          break;
+                                                        default:
+                                                          paymentType = null;
                                                       }
-                                                      return null;
-                                                    },
-                                                    decoration:
-                                                        const InputDecoration
-                                                            .collapsed(
-                                                            hintText: ''),
-                                                  ),
+                                                    });
+                                                  },
+                                                  items: <String>[
+                                                    'Cash',
+                                                    'Cheque',
+                                                    'Bank Transfer',
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please select a payment method';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  decoration:
+                                                      const InputDecoration
+                                                          .collapsed(
+                                                          hintText: ''),
                                                 ),
                                               ),
                                             ),
-                                          ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      SizedBox(
+                                        width: 150,
+                                        child: MyFormField(
+                                          controller: totalQuickController,
+                                          labelText: "Total Amount",
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 8),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.blue, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            border: const OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.black,
+                                                  width: 1),
+                                            ),
+                                          ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please enter the total amount';
+                                            }
+                                            return null;
+                                          },
                                         ),
-                                        const SizedBox(width: 8),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      if (_dropdownValue == "Cheque" ||
+                                          _dropdownValue == "Bank Transfer")
                                         SizedBox(
                                           width: 150,
-                                          child: MyFormField(
-                                            controller: totalQuickController,
-                                            labelText: "Total Amount",
+                                          child: TextFormField(
+                                            controller:
+                                                chequeOrTransactionNumberController,
                                             decoration: InputDecoration(
                                               contentPadding:
                                                   const EdgeInsets.symmetric(
                                                       vertical: 10,
                                                       horizontal: 8),
+                                              labelText:
+                                                  _dropdownValue == "Cheque"
+                                                      ? "Cheque Number"
+                                                      : "Transaction Number",
                                               enabledBorder: OutlineInputBorder(
                                                 borderSide: const BorderSide(
                                                     color: Colors.black,
@@ -887,378 +954,316 @@ class CartDialogueState extends State<CartDialogue> {
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                               ),
-                                              border: const OutlineInputBorder(
-                                                borderSide: BorderSide(
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
                                                     color: Colors.black,
                                                     width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
                                             ),
                                             validator: (value) {
                                               if (value == null ||
                                                   value.isEmpty) {
-                                                return 'Please enter the total amount';
+                                                return 'Please enter the number';
                                               }
                                               return null;
                                             },
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
-                                        if (_dropdownValue == "Cheque" ||
-                                            _dropdownValue == "Bank Transfer")
-                                          SizedBox(
-                                            width: 150,
-                                            child: TextFormField(
-                                              controller:
-                                                  chequeOrTransactionNumberController,
-                                              decoration: InputDecoration(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 8),
-                                                labelText:
-                                                    _dropdownValue == "Cheque"
-                                                        ? "Cheque Number"
-                                                        : "Transaction Number",
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.blue,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
+                                      if (_dropdownValue == "Cash" ||
+                                          _dropdownValue == null)
+                                        SizedBox(
+                                          width: 200,
+                                          child: TextFormField(
+                                            controller: remarkController,
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 8),
+                                              labelText: "Remark",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please enter the number';
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        if (_dropdownValue == "Cash" ||
-                                            _dropdownValue == null)
-                                          SizedBox(
-                                            width: 200,
-                                            child: TextFormField(
-                                              controller: remarkController,
-                                              decoration: InputDecoration(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 8),
-                                                labelText: "Remark",
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.blue,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please provide a remark';
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        const SizedBox(width: 8),
-                                        if (_dropdownValue == "Cheque" ||
-                                            _dropdownValue == "Bank Transfer")
-                                          Expanded(
-                                            child: TextFormField(
-                                              controller: dateController,
-                                              readOnly: true,
-                                              decoration: InputDecoration(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 8),
-                                                labelText: "Date",
-                                                suffixIcon: IconButton(
-                                                  icon: const Icon(
-                                                      Icons.calendar_today),
-                                                  onPressed: () async {
-                                                    DateTime? pickedDate =
-                                                        await showDatePicker(
-                                                      context: context,
-                                                      initialDate:
-                                                          DateTime.now(),
-                                                      firstDate: DateTime(2000),
-                                                      lastDate: DateTime(2100),
-                                                    );
-                                                    if (pickedDate != null) {
-                                                      setState(() {
-                                                        dateController
-                                                            .text = DateFormat(
-                                                                'dd/MM/yyyy')
-                                                            .format(pickedDate);
-                                                      });
-                                                    }
-                                                  },
-                                                ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.blue,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please select a date';
-                                                }
-                                                return null;
-                                              },
                                             ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please provide a remark';
+                                              }
+                                              return null;
+                                            },
                                           ),
+                                        ),
+                                      const SizedBox(width: 8),
+                                      if (_dropdownValue == "Cheque" ||
+                                          _dropdownValue == "Bank Transfer")
+                                        Expanded(
+                                          child: TextFormField(
+                                            controller: dateController,
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 8),
+                                              labelText: "Date",
+                                              suffixIcon: IconButton(
+                                                icon: const Icon(
+                                                    Icons.calendar_today),
+                                                onPressed: () async {
+                                                  DateTime? pickedDate =
+                                                      await showDatePicker(
+                                                    context: context,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime(2000),
+                                                    lastDate: DateTime(2100),
+                                                  );
+                                                  if (pickedDate != null) {
+                                                    setState(() {
+                                                      dateController
+                                                          .text = DateFormat(
+                                                              'dd/MM/yyyy')
+                                                          .format(pickedDate);
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please select a date';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  if (_dropdownValue == "Cheque" ||
+                                      _dropdownValue == "Bank Transfer")
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 250,
+                                          child: TextFormField(
+                                            controller: remarkController,
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 8),
+                                              labelText: "Remark",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Please provide a remark';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
-                                    if (_dropdownValue == "Cheque" ||
-                                        _dropdownValue == "Bank Transfer")
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: 250,
-                                            child: TextFormField(
-                                              controller: remarkController,
-                                              decoration: InputDecoration(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 8),
-                                                labelText: "Remark",
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.blue,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please provide a remark';
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
+                                ],
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CustomCartButton(
-                              text: 'Save & Send',
-                              size: width > 1200 ? 14 : 10,
-                              onTap: () async {
-                                if (widget.active == true) {
-                                  final sanitizedText = totalQuickController
-                                      .text
-                                      .replaceAll(RegExp(r'[^\d.]'), '')
-                                      .trim();
-                                  if (sanitizedText.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: Colors.red,
-                                        content: Text('Invalid amount entered'),
-                                        duration: Duration(seconds: 3),
-                                      ),
-                                    );
-                                    return;
-                                  }
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomCartButton(
+                            text: 'Save & Send',
+                            size: width > 1200 ? 14 : 10,
+                            onTap: () async {
+                              if (widget.active == true) {
+                                final sanitizedText = totalQuickController.text
+                                    .replaceAll(RegExp(r'[^\d.]'), '')
+                                    .trim();
+                                if (sanitizedText.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.red,
+                                      content: Text('Invalid amount entered'),
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                                  final finalAmount =
-                                      double.parse(sanitizedText);
-                                  final customerId =
-                                      customeController.customerId.isNotEmpty
-                                          ? customeController.customerId.value
-                                          : widget.productsController
-                                              .selectedCustomerId.value;
-                                  final fetchedCartDraftData =
-                                      await CartDatabaseManager()
-                                          .getDraftAndCartIdsFromApi(
-                                              customerId);
-                                  final cartIdApi = fetchedCartDraftData
-                                          .isNotEmpty
-                                      ? fetchedCartDraftData.first['cart_id'] ??
-                                          ''
-                                      : '';
-                                  final draftIdApi =
-                                      fetchedCartDraftData.isNotEmpty
-                                          ? fetchedCartDraftData
-                                                  .first['draft_id'] ??
-                                              ''
-                                          : '';
-                                  if (_selectedValue == "Quick Sale") {
-                                    if (_formKey.currentState?.validate() ??
-                                        false) {
-                                      await processSaveAndSend(
-                                        finalAmount: finalAmount,
-                                        paymentType: paymentType,
-                                        context: context,
-                                        cartId: cartIdApi,
-                                        draftId: draftIdApi,
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          backgroundColor: Colors.red,
-                                          content: Text(
-                                              'Please fill all required fields'),
-                                          duration: Duration(seconds: 3),
-                                        ),
-                                      );
-                                    }
-                                  } else {
-                                    log('CustomerId : $customerId');
+                                final finalAmount = double.parse(sanitizedText);
+                                final customerId =
+                                    customeController.customerId.isNotEmpty
+                                        ? customeController.customerId.value
+                                        : widget.productsController
+                                            .selectedCustomerId.value;
+                                final fetchedCartDraftData =
+                                    await CartDatabaseManager()
+                                        .getDraftAndCartIdsFromApi(customerId);
+                                final cartIdApi = fetchedCartDraftData
+                                        .isNotEmpty
+                                    ? fetchedCartDraftData.first['cart_id'] ??
+                                        ''
+                                    : '';
+                                final draftIdApi = fetchedCartDraftData
+                                        .isNotEmpty
+                                    ? fetchedCartDraftData.first['draft_id'] ??
+                                        ''
+                                    : '';
+                                if (_selectedValue == "Quick Sale") {
+                                  if (_formKey.currentState?.validate() ??
+                                      false) {
                                     await processSaveAndSend(
                                       finalAmount: finalAmount,
+                                      paymentType: paymentType,
                                       context: context,
                                       cartId: cartIdApi,
                                       draftId: draftIdApi,
                                     );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text(
+                                            'Please fill all required fields'),
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
                                   }
                                 } else {
-                                  showDialog(
+                                  log('CustomerId : $customerId');
+                                  await processSaveAndSend(
+                                    finalAmount: finalAmount,
                                     context: context,
-                                    barrierDismissible: false,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Center(
-                                          child: Icon(
-                                            Icons.warning_amber_rounded,
-                                            color: Colors.red,
-                                            size: 60,
-                                          ),
-                                        ),
-                                        content: CustomText(
-                                          content:
-                                              'Please check-in before processing the order',
-                                          fontSize: 18,
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              Navigator.of(context,
-                                                      rootNavigator: true)
-                                                  .pop();
-                                            },
-                                            child: const Text('OK'),
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                    cartId: cartIdApi,
+                                    draftId: draftIdApi,
                                   );
                                 }
-                              }),
-                          const SizedBox(width: 30),
-                          CustomCartButton(
-                            text: 'Continue Shopping',
-                            size: width > 1200 ? 14 : 10,
-                            color: primaryColor,
-                            onTap: () {
-                              if (widget.isFromCustomerDach == true ||
-                                  widget.isDashboard == true) {
-                                widget.onContinueShopping!();
-                                Navigator.pop(context);
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
                               } else {
-                                Navigator.pop(context);
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Center(
+                                        child: Icon(
+                                          Icons.warning_amber_rounded,
+                                          color: Colors.red,
+                                          size: 60,
+                                        ),
+                                      ),
+                                      content: CustomText(
+                                        content:
+                                            'Please check-in before processing the order',
+                                        fontSize: 18,
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
+                                                .pop();
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
                               }
-                            },
-                          ),
-                        ],
-                      ),
+                            }),
+                        const SizedBox(width: 30),
+                        CustomCartButton(
+                          text: 'Continue Shopping',
+                          size: width > 1200 ? 14 : 10,
+                          color: primaryColor,
+                          onTap: () {
+                            if (widget.isFromCustomerDach == true ||
+                                widget.isDashboard == true) {
+                              widget.onContinueShopping!();
+                              Navigator.pop(context);
+                              Navigator.of(context, rootNavigator: true).pop();
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );

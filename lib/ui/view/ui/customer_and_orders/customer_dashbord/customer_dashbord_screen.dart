@@ -171,27 +171,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   //   });
   // }
 
-  Future<void> _initializeCustomerData() async {
-    final customerId =  widget.cusId ?? '';
-    final customerName = widget.cusName??''; 
-    final customerImage =  widget.cusImage ?? '';
-    log('Customer Id _initializeCustomerData : $customerId');
-    log('Customer Id _initializeCustomerData : ${widget.cusId}');
-    log('Customer Id _initializeCustomerData : ${widget.productsController?.selectedCustomerId.value}');
-    if (customerId.isEmpty) {
-      log('Error: Customer ID is empty in CustomerDachScreen.');
-      return;
-    }
-    widget.productsController?.updateSelectedCustomer(
-      name: customerName,
-      imageUrl: customerImage,
-      id: customerId,
-    );
-    //CartDatabaseManager().getCartItems(customerId);
-    CartDatabaseManager().getDraftItems();
-    log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $customerName, Image: $customerImage');
-  }
-
   @override
   void dispose() {
     _tabController.dispose();

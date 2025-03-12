@@ -13,7 +13,6 @@ class AddToCartModel extends HiveObject {
   @HiveField(2)
   String total;
 
-
   @HiveField(4)
   String cartId;
 

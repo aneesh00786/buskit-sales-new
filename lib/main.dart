@@ -80,7 +80,7 @@ void main() async {
       bool isOnline = await connectivityService.isOnline();
       if (isOnline) {
         await connectivityService.syncOfflineOrders();
-       // await connectivityService.syncOfflineDrafts();
+        await connectivityService.syncOfflineDrafts();
       }
     }
   });

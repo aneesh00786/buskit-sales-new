@@ -249,17 +249,14 @@ class _OrderTakingState extends State<OrderTaking>
     required String salesmanId,
     required double totalAmount,
     required List<Detail> details,
-    String cartId = '',
-    String draftId = '',
   }) async {
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
     final draftData = {
       'order_id': orderId,
       'customer_id': customerId,
       'salesman_id': salesmanId,
       'total_amount': totalAmount,
-      'cart_id': cartId,
-      'draft_id': draftId,
       'details': details.map((e) {
         return {
           'product_id': e.productId ?? '',
@@ -273,6 +270,7 @@ class _OrderTakingState extends State<OrderTaking>
         };
       }).toList(),
     };
+
     try {
       var offlineDraftsBox = await Hive.openBox('offlineDrafts');
       await offlineDraftsBox.put(orderId, draftData);
@@ -339,8 +337,6 @@ class _OrderTakingState extends State<OrderTaking>
                     salesmanId: SessionHelper.loginSavedData!.salesmanId!,
                     totalAmount: widget.productsController.finalAmount.value,
                     details: detail,
-                    cartId: '',
-                    draftId: '',
                   );
                   showDialog(
                     context: context,
@@ -386,13 +382,12 @@ class _OrderTakingState extends State<OrderTaking>
                               : e.count.toString(),
                           packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                           price: e.sellPrice.toString(),
-                          discount: e.discount??0,
+                          discount: e.discount ?? 0,
                           quantity: e.count.toInt(),
                           variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                 
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
@@ -494,6 +489,45 @@ class _OrderTakingState extends State<OrderTaking>
                       .map((e) => e.detail)
                       .toList(),
                 ];
+                bool isOnline = await connectivityService.isOnline();
+                if (!isOnline) {
+                  log('[saveDraftOffline] Device is offline. Saving draft locally...');
+                  await saveDraftOffline(
+                    customerId: customerId,
+                    salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+                    totalAmount: widget.productsController.finalAmount.value,
+                    details: detail,
+                  );
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Offline Mode'),
+                      content: const Text(
+                          'The draft has been saved locally. It will be synced when the internet is available.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            CartDatabaseManager()
+                                .clearCart(customerId: customerId);
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
+                              homeController.sidebarXController.selectIndex(0);
+                              homeController.selectedIndex.value = 0;
+                              Get.toNamed(AppRoutes.dashboard, id: 2);
+                              widget.productsController.selectedCustomerName
+                                  .value = '';
+                              widget.productsController.selectedCustomerImageUrl
+                                  .value = '';
+                            });
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
                 final cartDetails = await CartDatabaseManager()
                     .getDraftAndCartIdsFromApi(customerId);
                 await Future.delayed(const Duration(seconds: 1));
@@ -519,13 +553,12 @@ class _OrderTakingState extends State<OrderTaking>
                               : e.count.toString(),
                           packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                           price: e.sellPrice.toString(),
-                          discount: e.discount??0,
+                          discount: e.discount ?? 0,
                           quantity: e.count.toInt(),
                           variantName: e.variationName ?? ''))
                       .toList(),
                   total: widget.productsController.finalAmount.value
                       .toStringAsFixed(0),
-                 
                 );
                 CartOrderModel? cartOrder =
                     await ApiWorker().addToDraft(productBYData.toJson());
@@ -607,13 +640,6 @@ class _OrderTakingState extends State<OrderTaking>
                     }
                   });
                 }
-                Future.delayed(const Duration(milliseconds: 300), () {
-                  homeController.sidebarXController.selectIndex(0);
-                  homeController.selectedIndex.value = 0;
-                  Get.toNamed(AppRoutes.dashboard, id: 2);
-                  widget.productsController.selectedCustomerName.value = '';
-                  widget.productsController.selectedCustomerImageUrl.value = '';
-                });
 
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId: customerId);
@@ -1094,14 +1120,12 @@ class _OrderTakingState extends State<OrderTaking>
                         title: entry.categoryName ?? '',
                         options: entry.subCategoryItem ?? [],
                       );
-                      
                     }).toList(),
                     onOptionSelected: (selectedSubcategoryId) {
                       String categoryId =
                           selectedSubCategory(selectedSubcategoryId);
                       log('Selected Subcategory ID: $categoryId');
                       _fetchProductsByCategory(categoryId);
-                      
                     },
                     onDrawerToggle: _toggleDrawer,
                     selectedCategory: _selectedCategory,

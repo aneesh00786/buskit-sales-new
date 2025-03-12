@@ -159,10 +159,21 @@ class ConnectivityService {
       for (var draft in drafts) {
         try {
           log('[syncOfflineDrafts] Processing offline draft: $draft');
+          final customerId = draft['customer_id'] ?? '';
+          final cartDetails =
+              await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+          await Future.delayed(const Duration(seconds: 1));
+          final firstOrder = cartDetails.isNotEmpty
+              ? cartDetails.last
+              : {'cart_id': '', 'draft_id': ''};
+          final existingCartId = firstOrder['cart_id'] ?? '';
+          final existingDraftId = firstOrder['draft_id'] ?? '';
+          log('Existing cart ID $existingCartId');
+          log('Existing Draft ID $existingDraftId');
           final AddToCartModel draftData = AddToCartModel(
             customerId: draft['customer_id'] ?? '',
             salesmanId: draft['salesman_id'] ?? '',
-            cartId: '',
+            cartId: existingCartId.isNotEmpty ? existingCartId : '',
             cartList: (draft['details'] as List?)?.map((e) {
                   return SendCartData(
                     productId: e['product_id'] ?? '',
@@ -181,17 +192,9 @@ class ConnectivityService {
           );
 
           log('[syncOfflineDrafts] Sending API request to save draft with payload: ${draftData.toJson()}');
-          final customerId = draft['customer_id'] ?? '';
-          final cartDetails =
-              await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
-          await Future.delayed(const Duration(seconds: 1));
-          final firstOrder = cartDetails.isNotEmpty
-              ? cartDetails.last
-              : {'cart_id': '', 'draft_id': ''};
-          final existingCartId = firstOrder['cart_id'] ?? '';
-          final existingDraftId = firstOrder['draft_id'] ?? '';
-          log('Existing cart ID $existingCartId');
-          log('Existing Draft ID $existingDraftId');
+          
+          log('Custoimer Id On Sync : $customerId');
+          
           final CartOrderModel? savedDraft =
               await ApiWorker().addToDraft(draftData.toJson());
           if (savedDraft != null) {
@@ -202,10 +205,10 @@ class ConnectivityService {
               customerId: draft['customer_id'] ?? '',
               salesmanId: draft['salesman_id'] ?? '',
               cartId:
-                  existingCartId.isEmpty ? savedDraft.cartId : existingCartId,
-              draftId: existingDraftId.isEmpty
-                  ? savedDraft.draftId
-                  : existingDraftId,
+                  existingCartId.isNotEmpty ?existingCartId: savedDraft.cartId ,
+              draftId: existingDraftId.isNotEmpty
+                  ? existingDraftId
+                  : savedDraft.draftId,
               orderStatus: orderStatus,
               orderPrice: draft['total_amount'] ?? 0.0,
               paymentType: draft['paymentType']?.toString() ?? 'Cash',

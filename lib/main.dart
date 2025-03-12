@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/sqflite_database/database_helper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
@@ -63,7 +64,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
+  bool _isSyncing = false;
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: backgroundColor,
     statusBarIconBrightness: Brightness.dark,
@@ -78,9 +79,16 @@ void main() async {
   connectivityService.startListening((connectivityResult) async {
     if (connectivityResult != ConnectivityResult.none) {
       bool isOnline = await connectivityService.isOnline();
-      if (isOnline) {
-        await connectivityService.syncOfflineOrders();
-        await connectivityService.syncOfflineDrafts();
+      if (isOnline && !_isSyncing) {
+        _isSyncing = true;
+        try {
+          await connectivityService.syncOfflineOrders();
+          await connectivityService.syncOfflineDrafts();
+        } catch (e) {
+          log('Error during sync: $e');
+        } finally {
+          _isSyncing = false;
+        }
       }
     }
   });

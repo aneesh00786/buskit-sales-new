@@ -635,7 +635,6 @@ class CartDialogueState extends State<CartDialogue> {
                                                             productName &&
                                                         item.detail.stock == 0)
                                                     .toList();
-
                                             return Padding(
                                                 padding: const EdgeInsets.only(
                                                     bottom: 20),
@@ -1168,19 +1167,12 @@ class CartDialogueState extends State<CartDialogue> {
                                         ? customeController.customerId.value
                                         : widget.productsController
                                             .selectedCustomerId.value;
-                                final fetchedCartDraftData =
-                                    await CartDatabaseManager()
-                                        .getDraftAndCartIdsFromApi(customerId);
-                                final cartIdApi = fetchedCartDraftData
-                                        .isNotEmpty
-                                    ? fetchedCartDraftData.first['cart_id'] ??
-                                        ''
-                                    : '';
-                                final draftIdApi = fetchedCartDraftData
-                                        .isNotEmpty
-                                    ? fetchedCartDraftData.first['draft_id'] ??
-                                        ''
-                                    : '';
+                                final savedCartDraftData =
+                                    await CartDatabaseManager().getSavedIds();
+                                final cartIdPrefs =
+                                    savedCartDraftData['cartId'] ?? '';
+                                final draftIdPrefs =
+                                    savedCartDraftData['draftId'] ?? '';
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
@@ -1188,8 +1180,8 @@ class CartDialogueState extends State<CartDialogue> {
                                       finalAmount: finalAmount,
                                       paymentType: paymentType,
                                       context: context,
-                                      cartId: cartIdApi,
-                                      draftId: draftIdApi,
+                                      cartId: cartIdPrefs,
+                                      draftId: draftIdPrefs,
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1206,8 +1198,8 @@ class CartDialogueState extends State<CartDialogue> {
                                   await processSaveAndSend(
                                     finalAmount: finalAmount,
                                     context: context,
-                                    cartId: cartIdApi,
-                                    draftId: draftIdApi,
+                                    cartId: cartIdPrefs,
+                                    draftId: draftIdPrefs,
                                   );
                                 }
                               } else {

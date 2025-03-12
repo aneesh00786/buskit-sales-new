@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartDatabaseManager {
   static final CartDatabaseManager _instance = CartDatabaseManager._internal();
@@ -95,22 +96,29 @@ class CartDatabaseManager {
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
                 );
                 final cartItem = CartItem(
-                  detail: detail,
-                  productName: cart['product_name'] as String? ?? '',
-                  totalPrice: (discountedSellPrice *
-                          (detail.packtype == 'Pack'
-                              ? (detail.pieces ?? 1) *
-                                  (num.tryParse(cart['quantity'].toString()) ??
-                                      0)
-                              : (num.tryParse(cart['quantity'].toString()) ??
-                                  0))) +
-                    (cart['incl_tax']==""||cart['incl_tax']==null?  totalTax:0),
-                  customerId: order['customer_id'] as String? ?? '',
-                  cartId: cart['cart_id'] as String? ?? '',
-                  draftId: order['order_id'] as String? ?? '',
-                  isPack: (cart['packtype'] as String? ?? '') == "Pack",
-                  catId: cart['catId'] as int? ?? 0
-                );
+                    detail: detail,
+                    productName: cart['product_name'] as String? ?? '',
+                    totalPrice: (discountedSellPrice *
+                            (detail.packtype == 'Pack'
+                                ? (detail.pieces ?? 1) *
+                                    (num.tryParse(
+                                            cart['quantity'].toString()) ??
+                                        0)
+                                : (num.tryParse(cart['quantity'].toString()) ??
+                                    0))) +
+                        (cart['incl_tax'] == "" || cart['incl_tax'] == null
+                            ? totalTax
+                            : 0),
+                    customerId: order['customer_id'] as String? ?? '',
+                    cartId: cart['cart_id'] as String? ?? '',
+                    draftId: order['order_id'] as String? ?? '',
+                    isPack: (cart['packtype'] as String? ?? '') == "Pack",
+                    catId: cart['catId'] as int? ?? 0);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString(
+                    'cartId', cart['cart_id'] as String? ?? '');
+                await prefs.setString(
+                    'draftId', order['order_id'] as String? ?? '');
                 log('Draft ID : ${cartItem.draftId}');
                 log('Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
@@ -132,6 +140,15 @@ class CartDatabaseManager {
       return [];
     }
   }
+  Future<Map<String, String>> getSavedIds() async {
+  final prefs = await SharedPreferences.getInstance();
+  final cartId = prefs.getString('cartId') ?? '';
+  final draftId = prefs.getString('draftId') ?? '';
+  return {
+    'cartId': cartId,
+    'draftId': draftId,
+  };
+}
 
   Future<List<CartItem>> getCartItems(String customerId) async {
     try {
@@ -254,7 +271,7 @@ class CartDatabaseManager {
               'Effective Selling Price: $effectiveSellingPrice, '
               'Discount Value: ${discount.value}');
           return discount.categoriesId == catId.toString() &&
-              discountSellingPrice*localCount >
+              discountSellingPrice * localCount >
                   (double.tryParse(discount.value ?? '0') ?? 0);
         },
         orElse: () {
@@ -281,106 +298,105 @@ class CartDatabaseManager {
     return effectiveSellingPrice;
   }
 
-Future<void> addToCart({
-  required Detail detail,
-  required String productName,
-  required bool isPack,
-  required int localCount,
-  required String customerId,
-  required String inclTax,
-  required bool isChcked,
-  required int catId,
-}) async {
-  if (localCount <= 0) {
-    throw ArgumentError("Error: Count must be greater than zero.");
-  }
-  final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
-  CustomerDiscountModel? discountData;
-  discountData = discountBox.values.firstWhere(
-    (discount) => discount.customerId == customerId,
-    orElse: () => CustomerDiscountModel(),
-  );
+  Future<void> addToCart({
+    required Detail detail,
+    required String productName,
+    required bool isPack,
+    required int localCount,
+    required String customerId,
+    required String inclTax,
+    required bool isChcked,
+    required int catId,
+  }) async {
+    if (localCount <= 0) {
+      throw ArgumentError("Error: Count must be greater than zero.");
+    }
+    final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
+    CustomerDiscountModel? discountData;
+    discountData = discountBox.values.firstWhere(
+      (discount) => discount.customerId == customerId,
+      orElse: () => CustomerDiscountModel(),
+    );
 
-  double effectiveSellingPrice = calculateEffectivePrice(
-    detail: detail,
-    isPack: isPack,
-    catId: catId,
-    customerId: customerId,
-    discountData: discountData,
-    localCount: localCount,
-  );
+    double effectiveSellingPrice = calculateEffectivePrice(
+      detail: detail,
+      isPack: isPack,
+      catId: catId,
+      customerId: customerId,
+      discountData: discountData,
+      localCount: localCount,
+    );
 
-  double discountPercentage =
-      double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
-  double discountedTax = detail.tax != null
-      ? detail.tax! - (detail.tax! * discountPercentage / 100)
-      : 0.0;
+    double discountPercentage =
+        double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
+    double discountedTax = detail.tax != null
+        ? detail.tax! - (detail.tax! * discountPercentage / 100)
+        : 0.0;
 
-  final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
-      item.detail.variationName == detail.variationName &&
-      item.detail.sellPrice == detail.sellPrice &&
-      item.customerId == customerId);
-  if (existingDraftItemIndex != -1) {
-    final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
-    existingDraftItem.detail.count += localCount.toDouble();
-    existingDraftItem.totalPrice = existingDraftItem.isPack!
-        ? (existingDraftItem.detail.count *
-                (existingDraftItem.detail.pieces ?? 1) *
-                effectiveSellingPrice)
-            .toDouble()
-        : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
-    await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
-    log('Updated product in draft: ${existingDraftItem.detail.variationName}, '
-        'New Count: ${existingDraftItem.detail.count}, Total Price: ${existingDraftItem.totalPrice}');
-  } else {
-    final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
+    final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
-    if (existingCartItemIndex != -1) {
-      final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
-      final double priceWithTax =
-          existingCartItem.detail.inclTax != "incl_tax"
-              ? effectiveSellingPrice + discountedTax
-              : effectiveSellingPrice;
-      existingCartItem.detail.count += localCount.toDouble();
-      existingCartItem.totalPrice = existingCartItem.isPack!
-          ? (existingCartItem.detail.count *
-                  (existingCartItem.detail.pieces ?? 1) *
-                  priceWithTax)
+    if (existingDraftItemIndex != -1) {
+      final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
+      existingDraftItem.detail.count += localCount.toDouble();
+      existingDraftItem.totalPrice = existingDraftItem.isPack!
+          ? (existingDraftItem.detail.count *
+                  (existingDraftItem.detail.pieces ?? 1) *
+                  effectiveSellingPrice)
               .toDouble()
-          : (existingCartItem.detail.count * priceWithTax).toDouble();
-      await cartBox.putAt(existingCartItemIndex, existingCartItem);
-      log('Updated product in cart: ${existingCartItem.detail.variationName}, '
-          'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
+          : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
+      await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
+      log('Updated product in draft: ${existingDraftItem.detail.variationName}, '
+          'New Count: ${existingDraftItem.detail.count}, Total Price: ${existingDraftItem.totalPrice}');
     } else {
-      final double priceWithTax = inclTax != "incl_tax"
-          ? effectiveSellingPrice + discountedTax
-          : effectiveSellingPrice;
-      final computedTotalAmount = isPack
-          ? (localCount * (detail.pieces ?? 1) * priceWithTax)
-          : (localCount * priceWithTax);
-      log('Incl Tax: $inclTax');
-      detail.count += localCount.toDouble();
-      detail.inclTax = inclTax;
-      final newCartItem = CartItem(
-        detail: detail,
-        productName: productName,
-        totalPrice: computedTotalAmount.toDouble(),
-        isPack: isPack,
-        customerId: customerId,
-        count: localCount,
-        boxType: false,
-        isChecked: isChcked,
-        catId: catId,
-      );
-      await cartBox.add(newCartItem);
-      log('New product added to cart: ${newCartItem.detail.variationName}, '
-          'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
+      final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
+          item.detail.variationName == detail.variationName &&
+          item.detail.sellPrice == detail.sellPrice &&
+          item.customerId == customerId);
+      if (existingCartItemIndex != -1) {
+        final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
+        final double priceWithTax =
+            existingCartItem.detail.inclTax != "incl_tax"
+                ? effectiveSellingPrice + discountedTax
+                : effectiveSellingPrice;
+        existingCartItem.detail.count += localCount.toDouble();
+        existingCartItem.totalPrice = existingCartItem.isPack!
+            ? (existingCartItem.detail.count *
+                    (existingCartItem.detail.pieces ?? 1) *
+                    priceWithTax)
+                .toDouble()
+            : (existingCartItem.detail.count * priceWithTax).toDouble();
+        await cartBox.putAt(existingCartItemIndex, existingCartItem);
+        log('Updated product in cart: ${existingCartItem.detail.variationName}, '
+            'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
+      } else {
+        final double priceWithTax = inclTax != "incl_tax"
+            ? effectiveSellingPrice + discountedTax
+            : effectiveSellingPrice;
+        final computedTotalAmount = isPack
+            ? (localCount * (detail.pieces ?? 1) * priceWithTax)
+            : (localCount * priceWithTax);
+        log('Incl Tax: $inclTax');
+        detail.count += localCount.toDouble();
+        detail.inclTax = inclTax;
+        final newCartItem = CartItem(
+          detail: detail,
+          productName: productName,
+          totalPrice: computedTotalAmount.toDouble(),
+          isPack: isPack,
+          customerId: customerId,
+          count: localCount,
+          boxType: false,
+          isChecked: isChcked,
+          catId: catId,
+        );
+        await cartBox.add(newCartItem);
+        log('New product added to cart: ${newCartItem.detail.variationName}, '
+            'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
+      }
     }
   }
-}
-
 
   Future<void> moveCartItemsToDraft(String customerId) async {
     final List<CartItem> cartItemsToMove =

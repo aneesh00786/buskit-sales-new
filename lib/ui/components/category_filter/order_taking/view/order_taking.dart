@@ -509,13 +509,22 @@ class _OrderTakingState extends State<OrderTaking>
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            Navigator.pop(context);
                           },
                           child: const Text('OK'),
                         ),
                       ],
                     ),
                   );
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    homeController.sidebarXController.selectIndex(0);
+                    homeController.selectedIndex.value = 0;
+                    Get.toNamed(AppRoutes.dashboard, id: 2);
+                    widget.productsController.selectedCustomerName.value = '';
+                    widget.productsController.selectedCustomerImageUrl.value =
+                        '';
+                  });
+                  CartDatabaseManager().cartItems.clear();
+                  CartDatabaseManager().clearCart(customerId: customerId);
                   return;
                 }
                 final cartDetails = await CartDatabaseManager()

@@ -264,7 +264,7 @@ class _OrderTakingState extends State<OrderTaking>
           'pack': e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
           'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
           'price': e.sellPrice.toString(),
-          'discount': '0',
+          'discount': e.discount,
           'quantity': e.count.toInt(),
           'variant_name': e.variationName ?? '',
         };

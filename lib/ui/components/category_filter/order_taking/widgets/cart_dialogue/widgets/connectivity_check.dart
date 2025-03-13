@@ -9,6 +9,8 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 class ConnectivityService {
@@ -120,6 +122,7 @@ class ConnectivityService {
             await placeOrder(orderPayload,
                 (statusCode, message, response) async {
               if (statusCode == 200) {
+                showSyncSnackbar("Your order has been successfully placed","Placed Order");
                 log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
                 await offlineOrdersBox.delete(order['order_id']);
               } else {
@@ -221,6 +224,7 @@ class ConnectivityService {
             await placeOrder(orderPayload,
                 (statusCode, message, response) async {
               if (statusCode == 200) {
+                showSyncSnackbar("Your order has been successfully saved as Draft","Saved Draft");
                 log('[syncOfflineDrafts] Order placed successfully: ${orderPayload.cartId}');
                 await offlineDraftsBox.delete(draft['order_id']);
               } else {
@@ -244,4 +248,14 @@ class ConnectivityService {
       _isSyncing = false;
     }
   }
+}
+void showSyncSnackbar(String message,String title) {
+  Get.snackbar(
+    title,
+    message,
+    snackPosition: SnackPosition.BOTTOM, 
+    backgroundColor: Colors.green,
+    colorText: Colors.white,
+    duration: Duration(seconds: 5),
+  );
 }

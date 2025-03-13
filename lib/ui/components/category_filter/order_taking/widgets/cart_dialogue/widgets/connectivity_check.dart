@@ -217,7 +217,6 @@ class ConnectivityService {
               transactionNumber: draft['transactionNumber'] ?? '',
               transactionDate: draft['transactionDate'] ?? '',
             );
-
             log('[syncOfflineDrafts] Sending Place Order payload: ${orderPayload.toJson()}');
             await placeOrder(orderPayload,
                 (statusCode, message, response) async {

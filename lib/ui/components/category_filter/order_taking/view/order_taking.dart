@@ -303,12 +303,9 @@ class _OrderTakingState extends State<OrderTaking>
                   customerAndOrderController.customerId.isNotEmpty
                       ? customerAndOrderController.customerId.value
                       : widget.productsController.selectedCustomerId.value;
-              bool hasDraftId = CartDatabaseManager().cartItems.every(
-                  (item) => item.draftId != null && item.draftId!.isNotEmpty);
               log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
               if (CartDatabaseManager().cartItems.isNotEmpty &&
                   customerId.isNotEmpty &&
-                  !hasDraftId &&
                   !toDash) {
                 showDialog(
                   context: context,
@@ -355,6 +352,9 @@ class _OrderTakingState extends State<OrderTaking>
                       ],
                     ),
                   );
+                  CartDatabaseManager().cartItems.clear();
+                  CartDatabaseManager().clearCart(customerId: customerId);
+                  Navigator.pop(context);
                   return;
                 }
                 final cartDetails = await CartDatabaseManager()
@@ -473,9 +473,10 @@ class _OrderTakingState extends State<OrderTaking>
                     }
                   });
                 }
+                CartDatabaseManager().cartItems.clear();
+                CartDatabaseManager().clearCart(customerId: customerId);
               } else if (CartDatabaseManager().cartItems.isNotEmpty &&
                   customerId.isNotEmpty &&
-                  !hasDraftId &&
                   toDash) {
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
@@ -508,18 +509,7 @@ class _OrderTakingState extends State<OrderTaking>
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            CartDatabaseManager()
-                                .clearCart(customerId: customerId);
-                            Future.delayed(const Duration(milliseconds: 300),
-                                () {
-                              homeController.sidebarXController.selectIndex(0);
-                              homeController.selectedIndex.value = 0;
-                              Get.toNamed(AppRoutes.dashboard, id: 2);
-                              widget.productsController.selectedCustomerName
-                                  .value = '';
-                              widget.productsController.selectedCustomerImageUrl
-                                  .value = '';
-                            });
+                            Navigator.pop(context);
                           },
                           child: const Text('OK'),
                         ),
@@ -598,8 +588,6 @@ class _OrderTakingState extends State<OrderTaking>
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  CartDatabaseManager()
-                                      .clearCart(customerId: customerId);
                                 },
                                 child: const Text('OK'),
                               ),
@@ -641,10 +629,16 @@ class _OrderTakingState extends State<OrderTaking>
                   });
                 }
 
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  homeController.sidebarXController.selectIndex(0);
+                  homeController.selectedIndex.value = 0;
+                  Get.toNamed(AppRoutes.dashboard, id: 2);
+                  widget.productsController.selectedCustomerName.value = '';
+                  widget.productsController.selectedCustomerImageUrl.value = '';
+                });
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId: customerId);
-                Navigator.pop(context);
-              } else if (hasDraftId && toDash) {
+              } else if (toDash) {
                 log('Log 3');
                 Future.delayed(const Duration(milliseconds: 300), () {
                   homeController.sidebarXController.selectIndex(0);
@@ -653,7 +647,6 @@ class _OrderTakingState extends State<OrderTaking>
                   widget.productsController.selectedCustomerName.value = '';
                   widget.productsController.selectedCustomerImageUrl.value = '';
                 });
-
                 CartDatabaseManager().cartItems.clear();
                 CartDatabaseManager().clearCart(customerId: customerId);
                 Navigator.pop(context);

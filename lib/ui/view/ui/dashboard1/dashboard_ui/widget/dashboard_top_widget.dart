@@ -460,6 +460,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                     );
                   },
                 ),
+                SizedBox(width: 20),
                 NotificationWidget(
                   startDate: provider.selectedStartDate,
                   endDate: provider.selectedEndDate,

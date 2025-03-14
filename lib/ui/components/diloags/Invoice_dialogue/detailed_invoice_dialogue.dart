@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -170,38 +171,40 @@ void showDetailedOrderInvoiceDialog(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
-                                  columns: const [
+                                  columns: [
                                     DataColumn(
                                       label: SizedBox(
-                                        width: 250,
-                                        child: Align(
+                                        width: fullScreenWidth(context) > 740
+                                            ? 250
+                                            : 130,
+                                        child: const Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text('ITEMS NAME'),
                                         ),
                                       ),
                                     ),
-                                    DataColumn(
+                                    const DataColumn(
                                       label: Expanded(
                                         child: Align(
                                             alignment: Alignment.center,
                                             child: Text('UNIT PRICE')),
                                       ),
                                     ),
-                                    DataColumn(
+                                    const DataColumn(
                                       label: Expanded(
                                         child: Align(
                                             alignment: Alignment.center,
                                             child: Text('QUANTITY')),
                                       ),
                                     ),
-                                    DataColumn(
+                                    const DataColumn(
                                       label: Expanded(
                                         child: Align(
                                             alignment: Alignment.center,
                                             child: Text('TAX')),
                                       ),
                                     ),
-                                    DataColumn(
+                                    const DataColumn(
                                       label: Expanded(
                                         child: Align(
                                           alignment: Alignment.centerRight,
@@ -216,14 +219,25 @@ void showDetailedOrderInvoiceDialog(
                                       .map((item) {
                                     return DataRow(cells: [
                                       DataCell(
-                                        SizedBox(
-                                          width:
-                                              250, // Adjust width to prevent excessive stretching
-                                          child: Text(
-                                            "${item.productName} - ${item.variationName}",
-                                            overflow: TextOverflow
-                                                .ellipsis, // Ensures text does not expand excessively
-                                            maxLines: 2,
+                                        Tooltip(
+                                          message:
+                                              "${item.productName} - ${item.variationName}",
+                                          preferBelow: false,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black87,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: SizedBox(
+                                            width:
+                                                fullScreenWidth(context) > 740
+                                                    ? 250
+                                                    : 130,
+                                            child: Text(
+                                              "${item.productName} - ${item.variationName}",
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                            ),
                                           ),
                                         ),
                                       ),

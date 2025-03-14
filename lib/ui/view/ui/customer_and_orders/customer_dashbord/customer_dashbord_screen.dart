@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart' as font1;
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
@@ -106,28 +107,27 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     });
   }
-    void _navigateToOrderTaking() {
-      final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-      final customerId = widget.productsController?.selectedCustomerId.value;
-     customerOrderController
-                    .setCustomerId(customerOrderController.customerId.value);
+
+  void _navigateToOrderTaking() {
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+    final customerId = widget.productsController?.selectedCustomerId.value;
+    customerOrderController
+        .setCustomerId(customerOrderController.customerId.value);
     cartProvider.updateCartCount(customerOrderController.customerId.value);
-                log('Customer Id :${customerOrderController.customerId.value}');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderTaking(
-                      productsController:
-                          widget.productsController ?? ProductsController(),
-                      isFromCalender: widget.isFromCalendar,
-                      isDirectDialogue: widget.isDirectDialogue,
-                      isFromOrder: widget.isFromOrder,
-                    ),
-                  ),
-                ).then((value) {
-                 cartProvider.fetchCustomerDashboardCountData(customerId??'');
-                 
-                });
+    log('Customer Id :${customerOrderController.customerId.value}');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderTaking(
+          productsController: widget.productsController ?? ProductsController(),
+          isFromCalender: widget.isFromCalendar,
+          isDirectDialogue: widget.isDirectDialogue,
+          isFromOrder: widget.isFromOrder,
+        ),
+      ),
+    ).then((value) {
+      cartProvider.fetchCustomerDashboardCountData(customerId ?? '');
+    });
   }
 
   // void _refreshScreen() {
@@ -187,12 +187,16 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         : widget.productsController?.selectedCustomerImageUrl.value;
     String? startDate;
     String? endDate;
-    double screenWidth = MediaQuery.of(context).size.width;
+    double screenWidth = fullScreenWidth(context);
+    double screenHeight = fullScreenHeight(context);
     bool isMobile = screenWidth < 600;
+
     return nkMediumSizeBox(
       height: isMobile
-          ? AppDimensions.instance.height * 3
-          : AppDimensions.instance.height * 0.98,
+          ? screenHeight * 0.9
+          : MediaQuery.of(context).orientation == Orientation.portrait
+              ? screenHeight * 0.9
+              : screenHeight * 1.55,
       child: Scaffold(
         appBar: AppBar(
           leading: Padding(
@@ -243,7 +247,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-               _navigateToOrderTaking();
+                _navigateToOrderTaking();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -343,7 +347,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           userId: "",
                           startDate: startDate,
                           endDate: endDate,
-                          productsController:widget.productsController,
+                          productsController: widget.productsController,
                           onContinueShopping: _navigateToOrderTaking,
                         ),
                         const SizedBox(height: 5.7),
@@ -352,22 +356,26 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             child: screenWidth < 600
                                 ? Column(
                                     children: [
-                                      Expanded(
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
                                         child: Category(context),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Expanded(
+                                      const SizedBox(height: 4.7),
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
                                         child: OrdersPayments(
-                                            context, recentOrders??[]),
+                                            context, recentOrders ?? []),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Expanded(
+                                      const SizedBox(height: 4.7),
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
                                         child: TotalSalse(context),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Expanded(
-                                        child: Frequently(
-                                            context, frequentProductLists??[]),
+                                      const SizedBox(height: 4.7),
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
+                                        child: Frequently(context,
+                                            frequentProductLists ?? []),
                                       ),
                                     ],
                                   )
@@ -378,10 +386,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           Expanded(
                                             child: Category(context),
                                           ),
-                                          const SizedBox(width: 2),
+                                          const SizedBox(width: 4.7),
                                           Expanded(
                                             child: OrdersPayments(
-                                                context, recentOrders??[]),
+                                                context, recentOrders ?? []),
                                           ),
                                         ],
                                       ),
@@ -391,10 +399,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           Expanded(
                                             child: TabTab(context),
                                           ),
-                                          const SizedBox(width: 2),
+                                          const SizedBox(width: 4.7),
                                           Expanded(
-                                            child: Frequently(
-                                                context, frequentProductLists??[]),
+                                            child: Frequently(context,
+                                                frequentProductLists ?? []),
                                           ),
                                         ],
                                       ),
@@ -489,7 +497,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     ),
                     const Spacer(),
                     Padding(
-                      padding: const EdgeInsets.only(right: 20, top: 2),
+                      padding: EdgeInsets.only(
+                          right: fullScreenWidth(context) > 630 ? 20 : 2,
+                          top: 2),
                       child: InkWell(
                         onTap: () {
                           showCustomerCategoryChartDialog(
@@ -1102,7 +1112,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
                       showCustomDialog(context, recentOrders);
@@ -1754,7 +1765,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         top: 0,
                         right: -10,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 20, top: 2),
+                          padding: EdgeInsets.only(
+                              right: fullScreenWidth(context) > 630 ? 20 : 2,
+                              top: 2),
                           child: InkWell(
                             onTap: () {
                               showCustomerRevenueChartDialog(
@@ -1811,7 +1824,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 
   // ignore: non_constant_identifier_names
- Widget Frequently(
+  Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
     // frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
     frequentProductLists
@@ -1838,7 +1851,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             children: [
               dashboardContainerHeader("Frequently Bought Products"),
               Padding(
-                padding: const EdgeInsets.only(right: 20, top: 2),
+                padding: EdgeInsets.only(
+                    right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                 child: InkWell(
                   onTap: () {
                     if (frequentProductLists.isNotEmpty) {
@@ -1924,7 +1938,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     return LayoutBuilder(
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
-        double flexWidth = availableWidth * 1.4;
+        double flexWidth = fullScreenWidth(context) > 660
+            ? availableWidth * 1.4
+            : availableWidth * 1.6;
 
         double colWidth0 = flexWidth * 1 / 12;
         double colWidth1 = flexWidth * 2.8 / 12;
@@ -2797,8 +2813,7 @@ class UpdateCustomer extends StatelessWidget {
                                               address: addressController.text,
                                               businessName:
                                                   bsNameController.text,
-                                              businessNo: bsNumController
-                                                  .text, 
+                                              businessNo: bsNumController.text,
                                             );
 
                                             try {
@@ -2810,11 +2825,8 @@ class UpdateCustomer extends StatelessWidget {
 
                                               print(
                                                   "this is admin data from this mdoel $updatedAdmin");
-                                              Navigator.of(context)
-                                                  .pop();
-                                            } catch (error) {
-                                           
-                                            }
+                                              Navigator.of(context).pop();
+                                            } catch (error) {}
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:

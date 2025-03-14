@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -267,7 +268,9 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
     return LayoutBuilder(
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
-        double flexWidth = availableWidth * 1.4;
+        double flexWidth = fullScreenWidth(context) > 660
+            ? availableWidth * 1.4
+            : availableWidth * 1.6;
 
         double colWidth0 = flexWidth * 1 / 12;
         double colWidth1 = flexWidth * 2.8 / 12;

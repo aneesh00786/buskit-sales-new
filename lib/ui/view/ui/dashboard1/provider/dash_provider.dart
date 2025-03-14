@@ -105,6 +105,7 @@ class ApiService {
       "companyId": companyId,
       "targetType": 1,
     };
+    log('Start Date End Date ${startDate}/${endDate}');
     final dashboardBox = Hive.box('dashboardBox');
     try {
       final connectivity = await Connectivity().checkConnectivity();

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -102,27 +103,33 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    double screenWidth = fullScreenWidth(context);
+    double screenHeight = fullScreenHeight(context);
     bool isMobile = screenWidth < 600;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
+      height: isMobile
+          ? screenHeight * 0.9
+          : MediaQuery.of(context).orientation == Orientation.portrait
+              ? screenHeight * 0.9
+              : screenHeight * 1.55,
       child: isMobile
           ? SingleChildScrollView(
               child: Column(
                 children: [
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: middleTopLeftComponet()),
+                  SizedBox(height: screenWidth * 0.7, child: middleTopLeftComponet()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: middleTopRightComponet()),
+                  SizedBox(height: screenWidth * 0.7, child: middleTopRightComponet()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: CommunicationsDisplayWidget()),
+                  SizedBox(height: screenWidth * 0.7, child: CommunicationsDisplayWidget()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: topSellingProductWidget()),
+                  SizedBox(height: screenWidth * 0.7, child: topSellingProductWidget()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: collectionChart(context)),
+                  SizedBox(height: screenWidth * 0.7, child: collectionChart(context)),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: 200, child: orderDeliveryChart(context)),
+                  SizedBox(height: screenWidth * 0.7, child: orderDeliveryChart(context)),
+                  const SizedBox(height: 70),
                 ],
               ),
             )
@@ -197,7 +204,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Collection'),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 2),
+                 padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
                       showCollectionChartDialog(
@@ -209,9 +217,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: primaryColor.withOpacity(0.3)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: const Icon(
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
                           Icons.open_in_new,
                           size: 17,
                           color: primaryColor,
@@ -246,7 +254,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             builder: (context, delaySnapshot) {
                               if (delaySnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return SpinKitFadingCube(
+                                return const SpinKitFadingCube(
                                   color: primaryColor,
                                   size: 20.0,
                                 );
@@ -278,7 +286,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             builder: (context, delaySnapshot) {
                               if (delaySnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return SpinKitFadingCube(
+                                return const SpinKitFadingCube(
                                   color: primaryColor,
                                   size: 20.0,
                                 );
@@ -366,10 +374,13 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     collection: responseModel.collection!,
                                   ),
                                 ),
-                                const SizedBox(height: 8.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
+                                const SizedBox(height: 10.0),
+                                Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: [
                                     InkWell(
                                       onTap: () {
                                         showValueCollectionDialog(
@@ -382,7 +393,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                         completedOrdersLabel,
                                       ),
                                     ),
-                                    const SizedBox(width: 8.3),
                                     InkWell(
                                       onTap: () {
                                         pendingPaymentCollectionDialog(
@@ -395,12 +405,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                         pendingAmountLabel,
                                       ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
                                     InkWell(
                                       onTap: () {
                                         pendingPaymentCollectionDialog(
@@ -414,7 +418,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                         dueAmountLabel,
                                       ),
                                     ),
-                                    const SizedBox(width: 8.3),
                                     InkWell(
                                       onTap: () {
                                         pendingPaymentCollectionDialog(
@@ -448,6 +451,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
 
   Widget _buildLegendItem(Color color, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
           radius: 6,
@@ -487,9 +491,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Order Status'),
                 Padding(
-                  padding: const EdgeInsets.only(
-                    right: 10,
-                  ),
+                 padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
                       showOrderStatusChartDialog(
@@ -501,9 +504,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: primaryColor.withOpacity(0.3)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: const Icon(
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
                           Icons.open_in_new,
                           size: 17,
                           color: primaryColor,
@@ -536,7 +539,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             builder: (context, delaySnapshot) {
                               if (delaySnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return SpinKitFadingCube(
+                                return const SpinKitFadingCube(
                                   color: primaryColor,
                                   size: 20.0,
                                 );
@@ -599,7 +602,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       } else {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
-                                          SnackBar(
+                                          const SnackBar(
                                               content: Text(
                                                   "No data available for this status")),
                                         );
@@ -610,7 +613,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     categoryPerformance: categoryPerformance,
                                     label:
                                         "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
-                                    color: Color(0xff33b4a8),
+                                    color: const Color(0xff33b4a8),
                                     onTap: () {
                                       showValueOrderDialog(
                                           context,
@@ -621,7 +624,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                   ),
                                 ],
                               ),
-                              legend1: SizedBox.shrink(),
+                              legend1: const SizedBox.shrink(),
                             ),
                           );
                         } else {
@@ -630,7 +633,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             builder: (context, delaySnapshot) {
                               if (delaySnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return SpinKitFadingCube(
+                                return const SpinKitFadingCube(
                                   color: primaryColor,
                                   size: 20.0,
                                 );
@@ -661,7 +664,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       displayText = "Category Target / Projection / Actuals";
     } else if (staffProjection == "1" && targetType == "0") {
       displayText = "Category Actuals";
-      // displayText = "Category Projection / Actuals";
     } else if (staffProjection == "0" && targetType == "1") {
       displayText = "Category Target / Actuals";
     } else {
@@ -675,7 +677,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
             blurRadius: 5,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 25,
@@ -687,26 +689,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           children: [
             Stack(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                  ),
-                  padding: const EdgeInsets.only(
-                      right: 20, left: 20, top: 5, bottom: 5),
-                  child: Text(
-                    displayText,
-                    style: cardHeadingTextStyle,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
+                dashboardContainerHeader(displayText),
                 Row(
                   children: [
-                    Spacer(),
+                    const Spacer(),
                     Padding(
                       padding: const EdgeInsets.only(right: 5, top: 2),
                       child: InkWell(
@@ -720,14 +706,15 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 10),
+                       padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 color: primaryColor.withOpacity(0.3)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: const Icon(
+                            child: const Padding(
+                              padding: EdgeInsets.all(5.0),
+                              child: Icon(
                                 Icons.open_in_new,
                                 size: 17,
                                 color: primaryColor,
@@ -764,7 +751,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             builder: (context, delaySnapshot) {
                               if (delaySnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return SpinKitFadingCube(
+                                return const SpinKitFadingCube(
                                   color: primaryColor,
                                   size: 20.0,
                                 );
@@ -827,7 +814,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Revenue'),
                 Padding(
-                  padding: const EdgeInsets.only(right: 10),
+                padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
                       showRevenueChartDialog(context, 'Revenue');
@@ -836,9 +824,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: primaryColor.withOpacity(0.3)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: const Icon(
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
                           Icons.open_in_new,
                           size: 17,
                           color: primaryColor,
@@ -874,7 +862,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               builder: (context, delaySnapshot) {
                                 if (delaySnapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return SpinKitFadingCube(
+                                  return const SpinKitFadingCube(
                                     color: primaryColor,
                                     size: 20.0,
                                   );
@@ -952,7 +940,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             builder: (context, delaySnapshot) {
                               if (delaySnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return SpinKitFadingCube(
+                                return const SpinKitFadingCube(
                                   color: primaryColor,
                                   size: 20.0,
                                 );
@@ -1042,7 +1030,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             BoxShadow(
               color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
               blurRadius: 5,
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
             ),
           ],
           borderRadius: 25,
@@ -1171,7 +1159,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader("Frequently Bought Products"),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 2),
+                  padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
                       if (topSellingProducts.isNotEmpty) {
@@ -1290,7 +1279,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                         builder: (context, delaySnapshot) {
                           if (delaySnapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return SpinKitFadingCube(
+                            return const SpinKitFadingCube(
                               color: primaryColor,
                               size: 20.0,
                             );
@@ -1560,7 +1549,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               NKDateUtils.commonFullDateTimeFormat2(
                 NKDateUtils.formatStringUTCDateTime(
@@ -1590,7 +1579,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   width: MediaQuery.of(context).size.width * 0.25,
                   fit: BoxFit.fitWidth,
                   errorBuilder: (context, error, stackTrace) {
-                    return Text(
+                    return const Text(
                       'Failed to load image',
                       style: TextStyle(color: Colors.red),
                     );
@@ -1621,7 +1610,7 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         } catch (e) {
           debugPrint("Error decoding image: $e");
-          return Text(
+          return const Text(
             'Failed to load image',
             style: TextStyle(color: Colors.red),
           );
@@ -1653,8 +1642,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   fontWeight: FontWeight.w500),
             ),
             if (message.source == 'salesman') ...[
-              SizedBox(width: 4),
-              Icon(Icons.done_all, size: 11, color: Colors.black54),
+              const SizedBox(width: 4),
+              const Icon(Icons.done_all, size: 11, color: Colors.black54),
             ]
           ],
         ),
@@ -1681,11 +1670,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _scrollToBottom() {
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           0.0,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -1718,7 +1707,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       builder: (context, delaySnapshot) {
                         if (delaySnapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return SpinKitFadingCube(
+                          return const SpinKitFadingCube(
                             color: primaryColor,
                             size: 20.0,
                           );
@@ -1736,12 +1725,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     reverse: true,
                     itemBuilder: (context, index) {
                       if (isFetching && index == messages.length) {
-                        return CircleAvatar(
+                        return const CircleAvatar(
                           radius: 20,
                           backgroundColor:
-                              const Color.fromARGB(255, 233, 233, 233),
+                              Color.fromARGB(255, 233, 233, 233),
                           child: Padding(
-                            padding: const EdgeInsets.all(6.0),
+                            padding: EdgeInsets.all(6.0),
                             child: Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.0,
@@ -1759,7 +1748,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Container(
-                          margin: EdgeInsets.symmetric(vertical: 5),
+                          margin: const EdgeInsets.symmetric(vertical: 5),
                           padding: EdgeInsets.all(
                               message.message!.isEmpty || message.message == ''
                                   ? 5
@@ -1772,14 +1761,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ? const Color.fromARGB(255, 206, 241, 219)
                                 : Colors.grey[100],
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
+                              topLeft: const Radius.circular(10),
+                              topRight: const Radius.circular(10),
                               bottomLeft: isSentBySalesman
-                                  ? Radius.circular(10)
+                                  ? const Radius.circular(10)
                                   : Radius.zero,
                               bottomRight: isSentBySalesman
                                   ? Radius.zero
-                                  : Radius.circular(10),
+                                  : const Radius.circular(10),
                             ),
                           ),
                           child: _buildMessageContent(message),
@@ -1821,29 +1810,29 @@ class _ChatScreenState extends State<ChatScreen> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text('Select Method'),
+                                  title: const Text('Select Method'),
                                   actions: [
                                     IconButton(
                                       onPressed: () {
                                         _pickImage(ImageSource.camera);
                                         Navigator.of(context).pop();
                                       },
-                                      icon: Icon(EneftyIcons.camera_outline),
+                                      icon: const Icon(EneftyIcons.camera_outline),
                                     ),
                                     IconButton(
                                       onPressed: () {
                                         _pickImage(ImageSource.gallery);
                                         Navigator.of(context).pop();
                                       },
-                                      icon: Icon(EneftyIcons.gallery_bold),
+                                      icon: const Icon(EneftyIcons.gallery_bold),
                                     ),
                                   ],
                                 );
                               },
                             );
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
                             child: Icon(
                               EneftyIcons.camera_outline,
                               color: white,
@@ -1863,19 +1852,19 @@ class _ChatScreenState extends State<ChatScreen> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
                               borderSide:
-                                  BorderSide(color: Colors.grey, width: 0.5),
+                                  const BorderSide(color: Colors.grey, width: 0.5),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
                               borderSide:
-                                  BorderSide(color: Colors.grey, width: 0.5),
+                                  const BorderSide(color: Colors.grey, width: 0.5),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
                               borderSide:
-                                  BorderSide(color: Colors.blue, width: 1.0),
+                                  const BorderSide(color: Colors.blue, width: 1.0),
                             ),
-                            contentPadding: EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 15),
                           ),
                         ),
@@ -1886,7 +1875,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       radius: 25,
                       child: InkWell(
                           onTap: () => _sendMessage(),
-                          child: Icon(
+                          child: const Icon(
                             EneftyIcons.send_3_outline,
                             size: 25,
                             color: white,
@@ -1924,7 +1913,7 @@ class _CommunicationsDisplayWidgetState
             BoxShadow(
               color: const Color.fromARGB(255, 205, 206, 208).withOpacity(0.2),
               blurRadius: 5,
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
             ),
           ],
           borderRadius: 25,
@@ -1940,7 +1929,7 @@ class _CommunicationsDisplayWidgetState
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 224, 224, 226)
                         .withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25),
                     ),
@@ -1949,14 +1938,14 @@ class _CommunicationsDisplayWidgetState
                 Container(
                   decoration: BoxDecoration(
                     color: primaryColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       bottomRight: Radius.circular(25),
                     ),
                   ),
                   padding: const EdgeInsets.only(
                       right: 20, left: 20, top: 5, bottom: 5),
-                  child: Text(
+                  child: const Text(
                     "Communication",
                     style: cardHeadingTextStyle,
                     maxLines: 1,

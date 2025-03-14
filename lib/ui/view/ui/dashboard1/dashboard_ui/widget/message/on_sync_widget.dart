@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -91,7 +92,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
       children: [
         Container(
           height: 40,
-          width: 100,
+          width: fullScreenWidth(context) > 600 ? 100 : 70,
           decoration: BoxDecoration(
             color: !_isOnline
                 ? const Color.fromARGB(255, 201, 199, 199)
@@ -117,11 +118,13 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                         Text(
                           'Sync',
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: "Poppins_Regular",
+                            fontSize:
+                                fullScreenWidth(context) > 600 ? null : 10,
                           ),
                         ),
                         const SizedBox(width: 5),

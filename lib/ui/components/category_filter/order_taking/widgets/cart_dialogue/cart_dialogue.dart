@@ -1670,9 +1670,9 @@ class CartDialogueState extends State<CartDialogue> {
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final isQuickSale = _selectedValue == "Quick Sale";
     final orderId =
-        DateTime.now().millisecondsSinceEpoch.toString(); // Unique ID
+        DateTime.now().millisecondsSinceEpoch.toString();
     final orderData = {
-      'order_id': orderId, // Add unique identifier
+      'order_id': orderId, 
       'customer_id': customeController.customerId.isNotEmpty
           ? customeController.customerId.value
           : widget.productsController.selectedCustomerId.value,
@@ -1688,7 +1688,7 @@ class CartDialogueState extends State<CartDialogue> {
                     : e.detail.count.toString(),
                 'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                 'price': e.detail.sellPrice.toString(),
-                'discount': '0',
+                'discount': e.detail.discount.toString(),
                 'quantity': e.detail.count.toInt(),
               })
           .toList(),

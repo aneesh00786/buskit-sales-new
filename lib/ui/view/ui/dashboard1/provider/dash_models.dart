@@ -1495,7 +1495,7 @@ class PendingAmount {
 }
 
 class PaymentCollection {
-  final int? payedAmount;
+  final num? payedAmount;
   final List<CompletedOrder>? completedOrders;
 
   PaymentCollection({this.payedAmount, this.completedOrders});

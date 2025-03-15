@@ -244,20 +244,18 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
-  Future<void> saveDraftOffline({
-    required String customerId,
-    required String salesmanId,
-    required double totalAmount,
-    required List<Detail> details,
-  }) async {
-    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
-
-    final draftData = {
-      'order_id': orderId,
-      'customer_id': customerId,
-      'salesman_id': salesmanId,
-      'total_amount': totalAmount,
-      'details': details.map((e) {
+Future<void> saveDraftOffline({
+  required String customerId,
+  required String salesmanId,
+  required double totalAmount,
+  required List<Detail> details,
+}) async {
+  try {
+    var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+    List<dynamic> drafts = offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+    int existingDraftIndex = drafts.indexWhere((draft) => draft['customer_id'] == customerId);
+    if (existingDraftIndex != -1) {
+      drafts[existingDraftIndex]['details'].addAll(details.map((e) {
         return {
           'product_id': e.productId ?? '',
           'variant_id': e.variationId ?? '',
@@ -268,17 +266,37 @@ class _OrderTakingState extends State<OrderTaking>
           'quantity': e.count.toInt(),
           'variant_name': e.variationName ?? '',
         };
-      }).toList(),
-    };
-
-    try {
-      var offlineDraftsBox = await Hive.openBox('offlineDrafts');
-      await offlineDraftsBox.put(orderId, draftData);
-      log('[saveDraftOffline] Draft saved locally with ID: $orderId');
-    } catch (e) {
-      log('[saveDraftOffline] Error saving draft locally: $e');
+      }).toList());
+    } else {
+      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+      final newDraft = {
+        'order_id': orderId,
+        'customer_id': customerId,
+        'salesman_id': salesmanId,
+        'total_amount': totalAmount,
+        'details': details.map((e) {
+          return {
+            'product_id': e.productId ?? '',
+            'variant_id': e.variationId ?? '',
+            'pack': e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
+            'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+            'price': e.sellPrice.toString(),
+            'discount': e.discount,
+            'quantity': e.count.toInt(),
+            'variant_name': e.variationName ?? '',
+          };
+        }).toList(),
+      };
+      drafts.add(newDraft);
     }
+    await offlineDraftsBox.put('drafts', drafts);
+    log('[saveDraftOffline] All drafts after saving: $drafts');
+  } catch (e) {
+    log('[saveDraftOffline] Error saving draft locally: $e');
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {

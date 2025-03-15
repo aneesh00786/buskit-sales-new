@@ -127,8 +127,6 @@ class LoginController extends GetxController {
           ApiWorker().fetchDiscounts(companyId, salesmanId),
           CartDatabaseManager().getDraftItems(),
         ]);
-
-        // Fetch recent orders data
         await ApiWorker()
             .getRecentOrdersData(
               searchModel: searchData,

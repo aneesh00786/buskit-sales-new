@@ -116,7 +116,6 @@ class CartDialogueState extends State<CartDialogue> {
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
   }
-
   void setOptions() {
     setState(() {
       filteredOptions = isOrder
@@ -1167,12 +1166,19 @@ class CartDialogueState extends State<CartDialogue> {
                                         ? customeController.customerId.value
                                         : widget.productsController
                                             .selectedCustomerId.value;
-                                final savedCartDraftData =
-                                    await CartDatabaseManager().getSavedIds();
+                                final cartDetails = await CartDatabaseManager()
+                                    .getDraftAndCartIdsFromApi(customerId);
+                                await Future.delayed(
+                                    const Duration(seconds: 1));
+                                final firstOrder = cartDetails.isNotEmpty
+                                    ? cartDetails.last
+                                    : {'cart_id': '', 'draft_id': ''};
                                 final cartIdPrefs =
-                                    savedCartDraftData['cartId'] ?? '';
+                                    firstOrder['cart_id'] ?? '';
                                 final draftIdPrefs =
-                                    savedCartDraftData['draftId'] ?? '';
+                                    firstOrder['draft_id'] ?? '';
+                                // log('Existing cart ID $existingCartId');
+                                // log('Existing Draft ID $existingDraftId');
                                 if (_selectedValue == "Quick Sale") {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
@@ -1669,10 +1675,9 @@ class CartDialogueState extends State<CartDialogue> {
 
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final isQuickSale = _selectedValue == "Quick Sale";
-    final orderId =
-        DateTime.now().millisecondsSinceEpoch.toString();
+    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
     final orderData = {
-      'order_id': orderId, 
+      'order_id': orderId,
       'customer_id': customeController.customerId.isNotEmpty
           ? customeController.customerId.value
           : widget.productsController.selectedCustomerId.value,

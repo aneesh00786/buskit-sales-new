@@ -505,20 +505,6 @@ class CartDatabaseManager {
     }
   }
 
-  // void clearDraftForCustomer(String customerId) {
-  //   if (draftBox.containsKey(customerId)) {
-  //     draftBox.delete(customerId);
-  //     log('All draft items cleared for customer ID: $customerId');
-  //   } else {
-  //     log('No draft found for customer ID: $customerId to clear.');
-  //   }
-  // }
-
-  // void clearAllDrafts() {
-  //   draftBox.clear();
-  //   log('All drafts cleared.');
-  // }
-
   Future<void> clearCart({required String customerId}) async {
     try {
       List<CartItem> remainingCartItems = cartBox.values

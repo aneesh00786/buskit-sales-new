@@ -255,18 +255,27 @@ Future<void> saveDraftOffline({
     List<dynamic> drafts = offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
     int existingDraftIndex = drafts.indexWhere((draft) => draft['customer_id'] == customerId);
     if (existingDraftIndex != -1) {
-      drafts[existingDraftIndex]['details'].addAll(details.map((e) {
-        return {
-          'product_id': e.productId ?? '',
-          'variant_id': e.variationId ?? '',
-          'pack': e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
-          'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-          'price': e.sellPrice.toString(),
-          'discount': e.discount,
-          'quantity': e.count.toInt(),
-          'variant_name': e.variationName ?? '',
-        };
-      }).toList());
+      var existingDraft = drafts[existingDraftIndex];
+      List<dynamic> existingDetails = existingDraft['details'];
+      for (var detail in details) {
+        int existingVariantIndex = existingDetails.indexWhere(
+          (d) => d['variant_id'] == detail.variationId,
+        );
+        if (existingVariantIndex != -1) {
+          existingDetails[existingVariantIndex]['quantity'] += detail.count.toInt();
+        } else {
+          existingDetails.add({
+            'product_id': detail.productId ?? '',
+            'variant_id': detail.variationId ?? '',
+            'pack': detail.saleBy == 'Pack' ? detail.pieces.toString() : detail.count.toString(),
+            'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+            'price': detail.sellPrice.toString(),
+            'discount': detail.discount,
+            'quantity': detail.count.toInt(),
+            'variant_name': detail.variationName ?? '',
+          });
+        }
+      }
     } else {
       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
       final newDraft = {
@@ -295,9 +304,6 @@ Future<void> saveDraftOffline({
     log('[saveDraftOffline] Error saving draft locally: $e');
   }
 }
-
-
-
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');

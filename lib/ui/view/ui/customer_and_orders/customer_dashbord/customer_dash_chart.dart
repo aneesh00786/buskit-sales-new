@@ -116,10 +116,6 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                   size: 20.0,
                 ),
               );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
             } else if (snapshot.hasData) {
               final chatData = snapshot.data!.data;
               return options(chatData, context, provider);

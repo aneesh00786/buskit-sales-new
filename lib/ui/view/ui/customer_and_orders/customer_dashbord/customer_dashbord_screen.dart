@@ -130,46 +130,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     });
   }
 
-  // void _refreshScreen() {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     bool isConnected = await ConnectivityService().isOnline();
-  //     if (isConnected) {
-  //       await _initializeCustomerData();
-  //       final customerId = widget.productsController?.selectedCustomerId.value;
-  //       if (customerId != null && customerId.isNotEmpty) {
-  //         final customersProvider =
-  //             Provider.of<CustomersProvider>(context, listen: false);
-  //         customersProvider.fetchCustomerDashboardData(
-  //           customerId,
-  //           selectedYear,
-  //           widget.startDate,
-  //           widget.endDate,
-  //         );
-  //         customersProvider.fetchCustomerDashboardRevenueData(
-  //           customerId,
-  //           selectedYear,
-  //           widget.startDate,
-  //           widget.endDate,
-  //         );
-  //         customersProvider.fetchCustomerDashboardDataSalseData(
-  //           customerId,
-  //           selectedYear,
-  //         );
-  //         customersProvider.fetchCustomersDataDash(customerId);
-  //         customersProvider.fetchCustomerDashboardCountData(customerId);
-  //       }
-  //     } else {
-  //       showNoInternetSnackBar(context);
-  //     }
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   });
-  // }
 
   @override
   void dispose() {

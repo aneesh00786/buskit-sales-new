@@ -1,5 +1,7 @@
 //nk Side Bar
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -56,7 +58,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     super.initState();
     widget.onTap?.call(widget.sidebarXController.selectedIndex);
     cartItemCount = CartDatabaseManager().cartItems.length;
-   // CartDatabaseManager().addListener(_updateCartCount);
   }
 
   @override
@@ -69,13 +70,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   void dispose() {
     super.dispose();
   }
-
-  // void _updateCartCount() {
-  //   setState(() {
-  //     cartItemCount = CartDatabaseManager().cartItems.length;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
@@ -242,27 +236,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     );
   }
 }
-
-// final GlobalKey<CartDialogueState> cartDialogKey =
-//     GlobalKey<CartDialogueState>();
-
-// void _showCartDialog(
-//     BuildContext context,
-//     int cartItemCount,
-//     ProductsController productController,
-//     GlobalKey<CartDialogueState> dialogKey) {
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return CartDialogue(
-//         key: dialogKey,
-//         active: false,
-//         cartItemCount: cartItemCount,
-//         productsController: productController,
-//       );
-//     },
-//   );
-// }
 
 void handleBackNavigation(
   BuildContext context,

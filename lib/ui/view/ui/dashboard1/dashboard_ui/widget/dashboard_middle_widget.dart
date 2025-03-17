@@ -51,9 +51,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
+// ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:image/image.dart' as img;
 
+// ignore: must_be_immutable
 class DashBoardMiddleWidget extends StatefulWidget {
   final DashBoardController dashBoardController;
   BuildContext context;
@@ -95,7 +97,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
-      print("Error fetching settings: $e");
+      log("Error fetching settings: $e");
     }
   }
 
@@ -122,7 +124,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   const SizedBox(height: 4.7),
                   SizedBox(height: screenWidth * 0.7, child: middleTopRightComponet()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: CommunicationsDisplayWidget()),
+                  SizedBox(height: screenWidth * 0.7, child: const CommunicationsDisplayWidget()),
                   const SizedBox(height: 4.7),
                   SizedBox(height: screenWidth * 0.7, child: topSellingProductWidget()),
                   const SizedBox(height: 4.7),
@@ -153,7 +155,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                 Flexible(
                   child: Row(
                     children: [
-                      Flexible(child: CommunicationsDisplayWidget()),
+                      const Flexible(child: CommunicationsDisplayWidget()),
                       const SizedBox(
                         width: 4.7,
                       ),
@@ -297,7 +299,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               }
                             },
                           );
-                          ;
+                          
                         } else {
                           final responseModel = snapshot.data!;
                           final totalCompletedAmount = responseModel
@@ -551,7 +553,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             },
                           );
                         } else if (snapshot.hasData) {
-                          final categories = snapshot.data!.allCategory;
+                     
                           final categoryPerformance = snapshot.data!.delivery;
 
                           if (categoryPerformance == null ||
@@ -644,7 +646,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               }
                             },
                           );
-                          ;
+                          
                         }
                       },
                     );
@@ -880,11 +882,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       .map((e) => e.orderTotal ?? 0.0)
                                       .reduce((a, b) => a + b)
                                   : 0.0;
-
-                          // categoryPerformance.bookingRevenueData!.isNotEmpty
-                          //     ? categoryPerformance.bookingRevenueData!.last
-                          //         .totalBookingRevenue
-                          // : 0.0;
                           final orderRevenueLast =
                               categoryPerformance.orderRevenueData!.isNotEmpty
                                   ? categoryPerformance
@@ -951,7 +948,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               }
                             },
                           );
-                          ;
+                          
                         }
                       },
                     );
@@ -1053,10 +1050,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                         ClipOval(
                             child: MyNetworkImage(
                           imageUrl: data["image"],
-                          height: AppDimensions.instance!.height * 0.05,
-                          width: AppDimensions.instance!.height * 0.05,
+                          height: AppDimensions.instance.height * 0.05,
+                          width: AppDimensions.instance.height * 0.05,
                         )),
                         Text(
+                          // ignore: prefer_interpolation_to_compose_strings
                           "   " + data["name"],
                           style: const TextStyle(fontSize: 12),
                         )
@@ -1109,8 +1107,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               ClipOval(
                   child: MyNetworkImage(
                 imageUrl: data["image"],
-                height: AppDimensions.instance!.height * 0.05,
-                width: AppDimensions.instance!.height * 0.05,
+                height: AppDimensions.instance.height * 0.05,
+                width: AppDimensions.instance.height * 0.05,
               )),
               nkSmallSizeBox(),
               Flexible(
@@ -1133,155 +1131,160 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       ),
     );
   }
-
-  Widget topSellingProductWidget() {
-    List<TopSellingProductA> topSellingProducts = [];
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                dashboardContainerHeader("Frequently Bought Products"),
-                Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      if (topSellingProducts.isNotEmpty) {
-                        return showProductListDialog<TopSellingProductA>(
-                          context: widget.context,
-                          productList: topSellingProducts,
-                          getQuantity: (product) =>
-                              product.quantity?.toDouble() ?? 0.0,
-                          getProductName: (product) =>
-                              product.productName ?? '',
-                          getVariationName: (product) =>
-                              product.variationName ?? '',
-                          getFormattedDate: (product) =>
-                              DateFormat('dd-MM-yyyy')
-                                  .format(product.createdAt!.toLocal()),
-                          getPrice: (product) => formatAmount(
+Widget topSellingProductWidget() {
+  List<TopSellingProductA> topSellingProducts = [];
+  return Padding(
+    padding: const EdgeInsets.all(2.0),
+    child: MyCommnonContainer(
+      boxShadow: [
+        BoxShadow(
+          color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+          blurRadius: 5,
+          offset: const Offset(4, 4),
+        ),
+      ],
+      borderRadius: 25,
+      height: 300,
+      width: double.infinity,
+      isCommonBorder: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              dashboardContainerHeader("Frequently Bought Products"),
+              Padding(
+                padding: EdgeInsets.only(
+                    right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                child: InkWell(
+                  onTap: () {
+                    if (topSellingProducts.isNotEmpty) {
+                      return showProductListDialog<TopSellingProductA>(
+                        context: widget.context,
+                        productList: topSellingProducts,
+                        getQuantity: (product) =>
+                            product.quantity?.toDouble() ?? 0.0,
+                        getProductName: (product) =>
+                            product.productName ?? '',
+                        getVariationName: (product) =>
+                            product.variationName ?? '',
+                        getFormattedDate: (product) =>
+                            DateFormat('dd-MM-yyyy')
+                                .format(product.createdAt!.toLocal()),
+                        getPrice: (product) => formatAmount(
+                          product.inclTax == "incl_tax"
+                              ? (double.tryParse(product
+                                      .topSellingProductATotalPrice
+                                      .toString()) ??
+                                  0.0)
+                              : ((double.tryParse(product
+                                          .topSellingProductATotalPrice
+                                          .toString()) ??
+                                      0.0) +
+                                  ((double.tryParse(product.tax.toString()) ??
+                                          0.0) *
+                                      (double.tryParse(
+                                              product.quantity.toString()) ??
+                                          0.0))),
+                        ),
+                        getBuyQuantity: (product) =>
+                            int.tryParse(product.buyquantity ?? '0') ?? 0,
+                        getInNo: (product) => product.inNo ?? '',
+                        onQuantityTap: (context, product) =>
+                            showDashTimesDialogue(
+                          context,
+                          product,
+                          (p) => p.getTimesData ?? [],
+                          (data) => data.businessName,
+                          (data) => formatAmount(data.price),
+                          (data) => formatAmount(data.tax),
+                          (data) => data.quantity.toString(),
+                          (data) => formatAmount(
                             product.inclTax == "incl_tax"
-                                ? (double.tryParse(product
-                                        .topSellingProductATotalPrice
-                                        .toString()) ??
-                                    0.0)
-                                : ((double.tryParse(product
-                                            .topSellingProductATotalPrice
-                                            .toString()) ??
-                                        0.0) +
-                                    ((double.tryParse(product.tax.toString()) ??
-                                            0.0) *
+                                ? ((double.tryParse(
+                                        data.totalPrice.toString()) ??
+                                    0))
+                                : (((double.tryParse(
+                                                data.totalPrice.toString()) ??
+                                            0) *
                                         (double.tryParse(
-                                                product.quantity.toString()) ??
-                                            0.0))),
+                                                data.quantity.toString()) ??
+                                            0)) +
+                                    (double.tryParse(
+                                            data.tax.toString()) ??
+                                        0.0)),
                           ),
-                          getBuyQuantity: (product) =>
-                              int.tryParse(product.buyquantity ?? '0') ?? 0,
-                          getInNo: (product) => product.inNo ?? '',
-                          onQuantityTap: (context, product) =>
-                              showDashTimesDialogue(
-                            context,
-                            product,
-                            (p) => p.getTimesData ?? [],
-                            (data) => data.businessName,
-                            (data) => formatAmount(data.price),
-                            (data) => formatAmount(data.tax),
-                            (data) => data.quantity.toString(),
-                            (data) => formatAmount(
-                              product.inclTax == "incl_tax"
-                                  ? ((double.tryParse(
-                                          data.totalPrice.toString()) ??
-                                      0))
-                                  : (((double.tryParse(
-                                                  data.totalPrice.toString()) ??
-                                              0) *
-                                          (double.tryParse(
-                                                  data.quantity.toString()) ??
-                                              0)) +
-                                      (double.tryParse(data.tax.toString()) ??
-                                          0.0)),
-                            ),
-                            (data) => DateFormat('dd-MM-yyyy')
-                                .format(data.createdAt!),
-                            (data) => data.orderId.toString(),
-                            true,
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(widget.context).showSnackBar(
-                          const SnackBar(
-                            content: Text("No data available"),
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: primaryColor.withOpacity(0.3)),
-                        child: const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Icon(
-                            Icons.open_in_new,
-                            size: 17,
-                            color: primaryColor,
-                          ),
-                        )),
-                  ),
+                          (data) => DateFormat('dd-MM-yyyy')
+                              .format(data.createdAt!),
+                          (data) => data.orderId.toString(),
+                          true,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(widget.context).showSnackBar(
+                        const SnackBar(
+                          content: Text("No data available"),
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
+                        ),
+                      )),
                 ),
-              ],
-            ),
-            nkSmallSizeBox(),
-            Consumer<DashboardProvider>(
-              builder: (context, provider, child) {
-                return FutureBuilder<ResponseModell>(
-                  future: provider.futureResponseModel,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+              ),
+            ],
+          ),
+          nkSmallSizeBox(),
+          Consumer<DashboardProvider>(
+            builder: (context, provider, child) {
+              return FutureBuilder<ResponseModell>(
+                future: provider.futureResponseModel,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Expanded(
+                      child: Center(
                         child: SpinKitFadingCube(
-                          color: primaryColor, // Customize color if needed
+                          color: primaryColor, 
                           size: 20.0,
                         ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error: ${snapshot.error}',
-                          style: const TextStyle(color: red),
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      topSellingProducts =
-                          snapshot.data!.topSellingProducts ?? [];
-                      return Expanded(
-                          child: topSellingProductList(topSellingProducts));
-                    } else {
-                      return FutureBuilder(
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Expanded(
+                      child: Center(
+                        child: NodataWidget(),
+                      ),
+                    );
+                  } else if (snapshot.hasData) {
+                    topSellingProducts =
+                        snapshot.data!.topSellingProducts ?? [];
+                    return Expanded(
+                      child: topSellingProductList(topSellingProducts),
+                    );
+                  } else {
+                    return Expanded(
+                      child: FutureBuilder(
                         future: Future.delayed(const Duration(seconds: 3)),
                         builder: (context, delaySnapshot) {
                           if (delaySnapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const SpinKitFadingCube(
-                              color: primaryColor,
-                              size: 20.0,
+                            return const Center(
+                              child: SpinKitFadingCube(
+                                color: primaryColor,
+                                size: 20.0,
+                              ),
                             );
                           } else {
                             return const Center(
@@ -1289,18 +1292,183 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             );
                           }
                         },
-                      );
-                      ;
-                    }
-                  },
-                );
-              },
-            ),
-          ],
-        ),
+                      ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+  // Widget topSellingProductWidget() {
+  //   List<TopSellingProductA> topSellingProducts = [];
+  //   return Padding(
+  //     padding: const EdgeInsets.all(2.0),
+  //     child: MyCommnonContainer(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+  //           blurRadius: 5,
+  //           offset: const Offset(4, 4),
+  //         ),
+  //       ],
+  //       borderRadius: 25,
+  //       height: 300,
+  //       width: double.infinity,
+  //       isCommonBorder: true,
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               dashboardContainerHeader("Frequently Bought Products"),
+  //               Padding(
+  //                 padding: EdgeInsets.only(
+  //                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+  //                 child: InkWell(
+  //                   onTap: () {
+  //                     if (topSellingProducts.isNotEmpty) {
+  //                       return showProductListDialog<TopSellingProductA>(
+  //                         context: widget.context,
+  //                         productList: topSellingProducts,
+  //                         getQuantity: (product) =>
+  //                             product.quantity?.toDouble() ?? 0.0,
+  //                         getProductName: (product) =>
+  //                             product.productName ?? '',
+  //                         getVariationName: (product) =>
+  //                             product.variationName ?? '',
+  //                         getFormattedDate: (product) =>
+  //                             DateFormat('dd-MM-yyyy')
+  //                                 .format(product.createdAt!.toLocal()),
+  //                         getPrice: (product) => formatAmount(
+  //                           product.inclTax == "incl_tax"
+  //                               ? (double.tryParse(product
+  //                                       .topSellingProductATotalPrice
+  //                                       .toString()) ??
+  //                                   0.0)
+  //                               : ((double.tryParse(product
+  //                                           .topSellingProductATotalPrice
+  //                                           .toString()) ??
+  //                                       0.0) +
+  //                                   ((double.tryParse(product.tax.toString()) ??
+  //                                           0.0) *
+  //                                       (double.tryParse(
+  //                                               product.quantity.toString()) ??
+  //                                           0.0))),
+  //                         ),
+  //                         getBuyQuantity: (product) =>
+  //                             int.tryParse(product.buyquantity ?? '0') ?? 0,
+  //                         getInNo: (product) => product.inNo ?? '',
+  //                         onQuantityTap: (context, product) =>
+  //                             showDashTimesDialogue(
+  //                           context,
+  //                           product,
+  //                           (p) => p.getTimesData ?? [],
+  //                           (data) => data.businessName,
+  //                           (data) => formatAmount(data.price),
+  //                           (data) => formatAmount(data.tax),
+  //                           (data) => data.quantity.toString(),
+  //                           (data) => formatAmount(
+  //                             product.inclTax == "incl_tax"
+  //                                 ? ((double.tryParse(
+  //                                         data.totalPrice.toString()) ??
+  //                                     0))
+  //                                 : (((double.tryParse(
+  //                                                 data.totalPrice.toString()) ??
+  //                                             0) *
+  //                                         (double.tryParse(
+  //                                                 data.quantity.toString()) ??
+  //                                             0)) +
+  //                                     (double.tryParse(data.tax.toString()) ??
+  //                                         0.0)),
+  //                           ),
+  //                           (data) => DateFormat('dd-MM-yyyy')
+  //                               .format(data.createdAt!),
+  //                           (data) => data.orderId.toString(),
+  //                           true,
+  //                         ),
+  //                       );
+  //                     } else {
+  //                       ScaffoldMessenger.of(widget.context).showSnackBar(
+  //                         const SnackBar(
+  //                           content: Text("No data available"),
+  //                         ),
+  //                       );
+  //                     }
+  //                   },
+  //                   child: Container(
+  //                       decoration: BoxDecoration(
+  //                           borderRadius: BorderRadius.circular(10),
+  //                           color: primaryColor.withOpacity(0.3)),
+  //                       child: const Padding(
+  //                         padding: EdgeInsets.all(5.0),
+  //                         child: Icon(
+  //                           Icons.open_in_new,
+  //                           size: 17,
+  //                           color: primaryColor,
+  //                         ),
+  //                       )),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           nkSmallSizeBox(),
+  //           Consumer<DashboardProvider>(
+  //             builder: (context, provider, child) {
+  //               return FutureBuilder<ResponseModell>(
+  //                 future: provider.futureResponseModel,
+  //                 builder: (context, snapshot) {
+  //                   if (snapshot.connectionState == ConnectionState.waiting) {
+  //                     return const Center(
+  //                       child: SpinKitFadingCube(
+  //                         color: primaryColor, // Customize color if needed
+  //                         size: 20.0,
+  //                       ),
+  //                     );
+  //                   } else if (snapshot.hasError) {
+  //                     return Center(
+  //                       child: NodataWidget(),
+  //                     );
+  //                   } else if (snapshot.hasData) {
+  //                     topSellingProducts =
+  //                         snapshot.data!.topSellingProducts ?? [];
+  //                     return Expanded(
+  //                         child: topSellingProductList(topSellingProducts));
+  //                   } else {
+  //                     return FutureBuilder(
+  //                       future: Future.delayed(const Duration(seconds: 3)),
+  //                       builder: (context, delaySnapshot) {
+  //                         if (delaySnapshot.connectionState ==
+  //                             ConnectionState.waiting) {
+  //                           return const SpinKitFadingCube(
+  //                             color: primaryColor,
+  //                             size: 20.0,
+  //                           );
+  //                         } else {
+  //                           return const Center(
+  //                             child: NodataWidget(),
+  //                           );
+  //                         }
+  //                       },
+  //                     )
+  //                     ;
+  //                   }
+  //                 },
+  //               );
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget topSellingProductListComponent(model.TopSellingProduct productData) {
     return SingleChildScrollView(
@@ -1341,7 +1509,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
 
   Widget itemComponet(String title, String subTitle) {
     return nkChildWrappedSizeBox(
-      width: AppDimensions.instance!.width * 0.09,
+      width: AppDimensions.instance.width * 0.09,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1399,13 +1567,16 @@ class OrderStatusLegend extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   late IO.Socket socket;
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final ScrollController _scrollController = ScrollController();
   bool isFetching = false;
@@ -1417,6 +1588,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _initSocket();
     Future.microtask(() {
+      // ignore: use_build_context_synchronously
       Provider.of<DashboardProvider>(context, listen: false)
           .fetch_individual_chat(salesmanId, 1)
           .then((_) {});
@@ -1448,7 +1620,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _initSocket() {
-    socket = IO.io('${ApiConstants.localHost}', <String, dynamic>{
+    socket = IO.io(ApiConstants.localHost, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -1729,6 +1901,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           radius: 20,
                           backgroundColor:
                               Color.fromARGB(255, 233, 233, 233),
+                          foregroundColor: Colors.white,
                           child: Padding(
                             padding: EdgeInsets.all(6.0),
                             child: Center(
@@ -1738,7 +1911,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                             ),
                           ),
-                          foregroundColor: Colors.white,
                         );
                       }
                       final message = messages[index];
@@ -1782,7 +1954,7 @@ class _ChatScreenState extends State<ChatScreen> {
             if (_selectedImage != null)
               Padding(
                 padding: const EdgeInsets.all(4.0),
-                child: Container(
+                child: SizedBox(
                   height: 100,
                   width: 200,
                   child: Image.file(
@@ -1893,19 +2065,19 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class CommunicationsDisplayWidget extends StatefulWidget {
+  const CommunicationsDisplayWidget({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _CommunicationsDisplayWidgetState createState() =>
       _CommunicationsDisplayWidgetState();
 }
 
 class _CommunicationsDisplayWidgetState
     extends State<CommunicationsDisplayWidget> {
-  final TextEditingController _messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final DashboardProvider provider = Provider.of<DashboardProvider>(context);
-
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: MyCommnonContainer(
@@ -1954,7 +2126,7 @@ class _CommunicationsDisplayWidgetState
                 ),
               ],
             ),
-            Expanded(
+            const Expanded(
               child: ChatScreen(),
             ),
             nkSmallSizeBox(),

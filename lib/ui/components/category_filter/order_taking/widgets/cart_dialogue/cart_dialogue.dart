@@ -1332,6 +1332,7 @@ class CartDialogueState extends State<CartDialogue> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: DataTable(
                   headingRowHeight: 30,
+                  // ignore: deprecated_member_use
                   dataRowHeight: rowHeight,
                   horizontalMargin: 5,
                   columnSpacing: 15,

@@ -14,9 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_re
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_pagination.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 class OrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
   final int selectedTabIndex;
@@ -41,7 +39,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
       _debounce?.cancel();
-      _debounce = Timer(Duration(milliseconds: 300), () {
+      _debounce = Timer(const Duration(milliseconds: 300), () {
         widget.orderController
             .loadOrderData(selectedIndex: widget.selectedTabIndex);
         widget.orderController.loadOrderCountData();
@@ -147,11 +145,12 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         ),
                       ),
                     ),
+                    // ignore: unnecessary_null_comparison
                     if (widget.orderController.orderDataList != null) ...[
                       Expanded(
                         child: ListView.builder(
                           scrollDirection: Axis.vertical,
-                          physics: ClampingScrollPhysics(),
+                          physics: const ClampingScrollPhysics(),
                           controller: _scrollController1,
                           itemCount:
                               widget.orderController.orderDataList.length,
@@ -406,14 +405,16 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                             ),
                           ),
                         ),
+                        // ignore: unnecessary_null_comparison
                         if (widget.orderController.orderDataList == null) ...[
                           const Text("Record not found"),
                         ],
+                        // ignore: unnecessary_null_comparison
                         if (widget.orderController.orderDataList != null) ...[
                           Expanded(
                             child: ListView.builder(
                               scrollDirection: Axis.vertical,
-                              physics: ClampingScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               controller: _scrollController2,
                               itemCount:
                                   widget.orderController.orderDataList.length,
@@ -652,7 +653,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             fontSize: 11,
           ),
           if (widget.selectedTabIndex != 0) ...[
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             MyRegularText(
               label: orderDetailsData.generatedDate != null
                   ? "${NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderDetailsData.generatedDate ?? ''))} ${NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderDetailsData.generatedDate ?? ''))}"
@@ -901,6 +902,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 orderId: orderData.orderId!,
               );
               Get.back();
+              // ignore: unnecessary_null_comparison
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(
@@ -925,6 +927,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 orderStatus: orderData.orderStatus!,
               );
               Get.back();
+              // ignore: unnecessary_null_comparison
               if (orderController.orderProcessInvoiceData != null) {
                 Get.dialog(
                   OrderProcessInvoiceDialog(

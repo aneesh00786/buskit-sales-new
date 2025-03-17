@@ -1,5 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -37,7 +38,6 @@ class HomeController extends GetxController {
 
   static final GlobalKey<ScaffoldState> homeScaffoldKey =
       GlobalKey<ScaffoldState>();
-  final ApiWorker _apiWorker = ApiWorker();
   final ApiService _apiService = ApiService();
   bool _isDisposed = false;
   @override
@@ -63,7 +63,7 @@ class HomeController extends GetxController {
         if (!_isDisposed) {
           Get.offAllNamed(AppRoutes.login);
         }
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 500));
         _handleTokenExpiration();
       }
       log('Error fetching dashboard data: $e');
@@ -74,11 +74,11 @@ class HomeController extends GetxController {
     if (!_isDisposed && !Get.isDialogOpen!) {
       await Get.dialog(
         AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
+          title: const Text("Session Expired"),
+          content: const Text("Your session has expired. Please log in again."),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () => Get.back(),
             ),
           ],
@@ -103,7 +103,7 @@ class HomeController extends GetxController {
       return GetPageRoute(
           settings: settings,
           transition: Transition.leftToRightWithFade,
-          page: () => Tableee(),
+          page: () => const Tableee(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.product &&
         sidebarXController.selectedIndex == 2) {
@@ -153,10 +153,11 @@ class HomeController extends GetxController {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
-        page: () => SettingsScreen(),
+        page: () => const SettingsScreen(),
         binding: CommonBinding(),
       );
     }
+    return null;
   }
 
   changePageRouting() {
@@ -265,7 +266,7 @@ class HomeController extends GetxController {
                   if (!_isDisposed) {
                     Get.offAllNamed(AppRoutes.login);
                   }
-                  if (context != null && !_isDisposed) {
+                  if (!_isDisposed) {
                     Provider.of<DashboardProvider>(context, listen: false)
                         .resetProvider();
                   }
@@ -324,7 +325,7 @@ class HomeController extends GetxController {
                       top: -15,
                       left: 200,
                       child: notificationController.isNotificationLoading.value
-                          ? SizedBox.shrink()
+                          ? const SizedBox.shrink()
                           : notificationController
                                       .recentOrderCountData.mainNotification !=
                                   null
@@ -336,14 +337,14 @@ class HomeController extends GetxController {
                                             .mainNotification!.recentOrders
                                             ?.toString() ??
                                         '0',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 10,
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700),
                                     textAlign: TextAlign.center,
                                   ),
                                 )
-                              : SizedBox.shrink(),
+                              : const SizedBox.shrink(),
                     ),
                   if (isLeads)
                     Positioned(

@@ -28,7 +28,7 @@ class SelectCustomerDiloag extends StatefulWidget {
   final List<CalendarEventData<EventData>> eventData;
   final bool istoGoogleMap;
 
-  SelectCustomerDiloag(
+  const SelectCustomerDiloag(
       {super.key,
       required this.dateTime,
       required this.calenderMapController,
@@ -90,8 +90,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                 backgroundImage: NetworkImage(
                     '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
               ),
-              SizedBox(width: 8),
-              Text("${customer.businessName ?? ''}"),
+              const SizedBox(width: 8),
+              Text(customer.businessName ?? ''),
             ],
           ),
           content: CustomText(
@@ -115,7 +115,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                   productsController.selectedCustomerId.value =
                       customer.customerId ?? '';
                   Get.to(
-                    () => CustomerDachScreen(
+                    () => const CustomerDachScreen(
                       isFromCalendar: true,
                       isDirectDialogue: true,
                     ),
@@ -144,7 +144,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                   ]);
                 });
               },
-              child: Text("Go to Customer"),
+              child: const Text("Go to Customer"),
             ),
           ],
         );
@@ -245,7 +245,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                             );
                                           }),
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         SizedBox(
                                           width: 30,
                                           child: IconButton(
@@ -352,7 +352,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                             .toString());
                                               });
                                             },
-                                            icon: Icon(
+                                            icon: const Icon(
                                               EneftyIcons
                                                   .arrow_square_right_outline,
                                               color: primaryColor,
@@ -361,7 +361,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                             highlightColor: white,
                                           ),
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         SizedBox(
                                           width: 30,
                                           child: Obx(
@@ -430,7 +430,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                         },
                       ),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 30),
                 child: ElevatedButton.icon(
@@ -448,9 +448,9 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                     }
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(primaryColor),
+                    backgroundColor: WidgetStateProperty.all(primaryColor),
                   ),
-                  icon: Icon(
+                  icon: const Icon(
                     EneftyIcons.location_outline,
                     color: white,
                     size: 25,

@@ -1,6 +1,7 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -27,7 +28,7 @@ Widget customerOrderDialogueMainDash({
   ];
   List<TableViewRow> rows = filteredOrders.isEmpty
       ? [
-          TableViewRow(
+          const TableViewRow(
             height: 60,
             cells: [
               TableViewCell(child: Text("No Records Found")),
@@ -48,12 +49,12 @@ Widget customerOrderDialogueMainDash({
               TableViewCell(
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 25,
-                      backgroundColor: const Color(0xffe6ecff),
+                      backgroundColor: Color(0xffe6ecff),
                       child: Icon(Icons.person, size: 14.0, color: Colors.blue),
                     ),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +97,7 @@ Widget customerOrderDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderInvoiceDialog(context, order.orderId??'', false);
+                    showDetailedOrderInvoiceDialog(context, order.orderId, false);
                   },
                   child: Text(
                     order.orderId,
@@ -226,14 +227,14 @@ return LayoutBuilder(
 
     return Stack(
       children: [
-        Container(
+        SizedBox(
           width: availableWidth,
           height: containerHeight,
           child: Column(
             children: [
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(15),
                     topRight: Radius.circular(15),
                   ),
@@ -275,8 +276,7 @@ return LayoutBuilder(
                               ),
                             ),
                           ),
-                        )
-                        .toList(),
+                        ),
                   ],
                 ),
               ),
@@ -317,8 +317,7 @@ return LayoutBuilder(
                                     child: cell.child,
                                   ),
                                 ),
-                              )
-                              .toList(),
+                              ),
                         ],
                       ),
                     );

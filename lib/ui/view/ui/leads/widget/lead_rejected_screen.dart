@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
@@ -60,143 +59,141 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
-    return Container(
-      child: Row(
-        children: [
-          SizedBox(
-            width: 270,
-            child: Column(
-              children: [
-                _buildTableHeader1(
-                  Center(
-                    child: CustomText(
-                      content: "Customers",
-                      textAlign: TextAlign.center,
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+    return Row(
+      children: [
+        SizedBox(
+          width: 270,
+          child: Column(
+            children: [
+              _buildTableHeader1(
+                Center(
+                  child: CustomText(
+                    content: "Customers",
+                    textAlign: TextAlign.center,
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  270,
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    controller: vertical,
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      children: widget
-                          .rejectedLeadsController.rejectedLeadsDataList
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                        int index = entry.key;
-                        LeadCustomerData leadCustomerData = entry.value;
-
-                        return Container(
-                          height: fixedRowHeight,
-                          decoration: BoxDecoration(
-                         
-                            color:
-                                index.isEven ? Colors.grey[50] : Colors.white,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Row(
-                                    children: [
-                                      ClipOval(
-                                        child: Container(
-                                          height: 40,
-                                          width: 40,
-                                          color: Colors.grey[200],
-                                          child: Image.network(
-                                            'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
-                                            fit: BoxFit.cover,
-                                            width: 25,
-                                            height: 25,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[200],
-                                                child: const Icon(
-                                                  Icons.person,
-                                                  color: Colors.blue,
-                                                  size: 34,
-                                                ),
-                                              );
-                                            },
-                                          ),
+                270,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  controller: vertical,
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    children: widget
+                        .rejectedLeadsController.rejectedLeadsDataList
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                      int index = entry.key;
+                      LeadCustomerData leadCustomerData = entry.value;
+    
+                      return Container(
+                        height: fixedRowHeight,
+                        decoration: BoxDecoration(
+                       
+                          color:
+                              index.isEven ? Colors.grey[50] : Colors.white,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  children: [
+                                    ClipOval(
+                                      child: Container(
+                                        height: 40,
+                                        width: 40,
+                                        color: Colors.grey[200],
+                                        child: Image.network(
+                                          'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                          fit: BoxFit.cover,
+                                          width: 25,
+                                          height: 25,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.person,
+                                                color: Colors.blue,
+                                                size: 34,
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      CustomText(
-                                        content:
-                                            leadCustomerData.businessName ?? '',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    CustomText(
+                                      content:
+                                          leadCustomerData.businessName ?? '',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      }).toList(),
-                    ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: totalTableWidth,
-                child: Column(
-                  children: [
-                    SizedBox(child: _buildTableHeader()),
-                    widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
-                        ? SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4)
-                        : Container(),
-                    widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
-                        ? Center(
-                            child: NodataWidget(),
-                          )
-                        : Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              physics: const ClampingScrollPhysics(),
-                              controller: vertical1,
-                              child: Column(
-                                children: widget.rejectedLeadsController
-                                    .rejectedLeadsDataList
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  int index = entry.key;
-                                  LeadCustomerData leadCustomerData =
-                                      entry.value;
-                                  return _buildTableRow(leadCustomerData,
-                                      context, index, fixedRowHeight);
-                                }).toList(),
-                              ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: totalTableWidth,
+              child: Column(
+                children: [
+                  SizedBox(child: _buildTableHeader()),
+                  widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.4)
+                      : Container(),
+                  widget.rejectedLeadsController.rejectedLeadsDataList.isEmpty
+                      ? const Center(
+                          child: NodataWidget(),
+                        )
+                      : Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            physics: const ClampingScrollPhysics(),
+                            controller: vertical1,
+                            child: Column(
+                              children: widget.rejectedLeadsController
+                                  .rejectedLeadsDataList
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                int index = entry.key;
+                                LeadCustomerData leadCustomerData =
+                                    entry.value;
+                                return _buildTableRow(leadCustomerData,
+                                    context, index, fixedRowHeight);
+                              }).toList(),
                             ),
                           ),
-                  ],
-                ),
+                        ),
+                ],
               ),
             ),
-          )
-        ],
-      ),
+          ),
+        )
+      ],
     );
   }
 
@@ -207,7 +204,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(child: _buildHeaderText('Address', 13)),
           Expanded(child: _buildHeaderText('Mobile No.', 13)),
           Expanded(child: _buildHeaderText('Town', 12)),
@@ -217,37 +214,9 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
           Expanded(child: _buildHeaderText('Contact Person', 12)),
           Expanded(child: _buildHeaderText('Contact Number', 12)),
           Expanded(child: _buildHeaderText('Status', 13)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
       ),
-    );
-  }
-  Widget _defaultNoadata() {
-    return Column(
-      children: [
-        Container(
-          color: primaryColor,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(width: 10),
-              Expanded(child: _buildHeaderText('Customers', 13)),
-              Expanded(child: _buildHeaderText('Address', 13)),
-              Expanded(child: _buildHeaderText('Mobile No.', 13)),
-              Expanded(child: _buildHeaderText('Town', 12)),
-              Expanded(child: _buildHeaderText('State', 12)),
-              Expanded(child: _buildHeaderText('Zip Code', 12)),
-              Expanded(child: _buildHeaderText('Email', 12)),
-              Expanded(child: _buildHeaderText('Contact Person', 12)),
-              Expanded(child: _buildHeaderText('Contact Number', 12)),
-              Expanded(child: _buildHeaderText('Status', 13)),
-              SizedBox(width: 10),
-            ],
-          ),
-        ),
-        NodataWidget(),
-      ],
     );
   }
 
@@ -277,7 +246,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.address ?? '',),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.town ?? '',),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.state ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.zipcode.toString() ?? '',),
+          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.zipcode.toString(),),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.businessNo ?? '',),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.email ?? '',),
           LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.fullname ?? '',),

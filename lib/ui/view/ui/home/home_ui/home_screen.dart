@@ -1,9 +1,7 @@
 import 'dart:developer';
-
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarX_sidebar.dart';
+import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebar_only_icon.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -13,7 +11,7 @@ import 'package:get/get.dart';
 import '../../../../../routes/routes.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -28,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SessionHelper().getLoginData().then((value) {
       setState(() {
         homeController.userDetails = value;
-        log('User details updated: ${value}');
+        log('User details updated: $value');
       });
     }).catchError((error) {
       log('Error fetching login data: $error');

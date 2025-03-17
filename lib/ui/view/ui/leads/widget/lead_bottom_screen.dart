@@ -1,15 +1,9 @@
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
@@ -68,139 +62,135 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
-    return Container(
-      child: Row(
-        children: [
-          SizedBox(
-            width: 270,
-            child: Column(
-              children: [
-                _buildTableHeader1(
-                  Center(
-                    child: CustomText(
-                      content: "Leads",
-                      textAlign: TextAlign.center,
-                      fontSize: 12.5,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+    return Row(
+      children: [
+        SizedBox(
+          width: 270,
+          child: Column(
+            children: [
+              _buildTableHeader1(
+                Center(
+                  child: CustomText(
+                    content: "Leads",
+                    textAlign: TextAlign.center,
+                    fontSize: 12.5,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  270,
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    controller: vertical,
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      children: widget.leadsController.leadsCustomerDataList
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                        int index = entry.key;
-                        LeadCustomerData leadCustomerData = entry.value;
+                270,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  controller: vertical,
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    children: widget.leadsController.leadsCustomerDataList
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                      int index = entry.key;
+                      LeadCustomerData leadCustomerData = entry.value;
 
-                        return Container(
-                          height: fixedRowHeight,
-                          decoration: BoxDecoration(
-                            color:
-                                index.isEven ? Colors.grey[50] : Colors.white,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Row(
-                                    children: [
-                                      ClipOval(
-                                        child: Container(
-                                          height: 40,
-                                          width: 40,
-                                          color: Colors.grey[200],
-                                          child: Image.network(
-                                            'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
-                                            fit: BoxFit.cover,
-                                            width: 25,
-                                            height: 25,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[200],
-                                                child: const Icon(
-                                                  Icons.person,
-                                                  color: Colors.blue,
-                                                  size: 34,
-                                                ),
-                                              );
-                                            },
-                                          ),
+                      return Container(
+                        height: fixedRowHeight,
+                        decoration: BoxDecoration(
+                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  children: [
+                                    ClipOval(
+                                      child: Container(
+                                        height: 40,
+                                        width: 40,
+                                        color: Colors.grey[200],
+                                        child: Image.network(
+                                          'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                          fit: BoxFit.cover,
+                                          width: 25,
+                                          height: 25,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.person,
+                                                color: Colors.blue,
+                                                size: 34,
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      CustomText(
-                                        content:
-                                            leadCustomerData.businessName ?? '',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    CustomText(
+                                      content:
+                                          leadCustomerData.businessName ?? '',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      }).toList(),
-                    ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: totalTableWidth,
-                child: Column(
-                  children: [
-                    SizedBox(child: _buildTableHeader()),
-                    widget.leadsController.leadsCustomerDataList.isEmpty
-                        ? SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4)
-                        : Container(),
-                    widget.leadsController.leadsCustomerDataList.isEmpty
-                        ? Center(child: NodataWidget())
-                        : Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              physics: const ClampingScrollPhysics(),
-                              controller: vertical1,
-                              child: Column(
-                                children: widget
-                                    .leadsController.leadsCustomerDataList
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  int index = entry.key;
-                                  LeadCustomerData leadCustomerData =
-                                      entry.value;
-                                  return _buildTableRow(leadCustomerData,
-                                      context, index, fixedRowHeight);
-                                }).toList(),
-                              ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: totalTableWidth,
+              child: Column(
+                children: [
+                  SizedBox(child: _buildTableHeader()),
+                  widget.leadsController.leadsCustomerDataList.isEmpty
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.4)
+                      : Container(),
+                  widget.leadsController.leadsCustomerDataList.isEmpty
+                      ? const Center(child: NodataWidget())
+                      : Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            physics: const ClampingScrollPhysics(),
+                            controller: vertical1,
+                            child: Column(
+                              children: widget
+                                  .leadsController.leadsCustomerDataList
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                int index = entry.key;
+                                LeadCustomerData leadCustomerData = entry.value;
+                                return _buildTableRow(leadCustomerData, context,
+                                    index, fixedRowHeight);
+                              }).toList(),
                             ),
                           ),
-                  ],
-                ),
+                        ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -273,7 +263,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
-            content: leadCustomerData.zipcode.toString() ?? '',
+            content: leadCustomerData.zipcode.toString(),
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
@@ -293,7 +283,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
           ),
           Expanded(
               child: Container(
-                  decoration: BoxDecoration(),
+                  decoration: const BoxDecoration(),
                   child: Center(
                       child: Padding(
                     padding: const EdgeInsets.only(left: 9, right: 9),
@@ -315,7 +305,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                           EditLeadsDialog.showEditLeadsDialog(
                               context, leadCustomerData);
                         },
-                        padding: EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2),
                         constraints: const BoxConstraints(),
                         icon: const Icon(EneftyIcons.edit_outline, size: 20),
                       ),
@@ -378,15 +368,14 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
 
 class EditLeadsDialog extends StatelessWidget {
   final LeadCustomerData leadCustomerData;
-  EditLeadsDialog({
+  const EditLeadsDialog({
+    super.key,
     required this.leadCustomerData,
   });
   @override
   Widget build(BuildContext context) {
     final TextEditingController nameController =
         TextEditingController(text: leadCustomerData.fullname);
-
-    // TextEditingController nameController = TextEditingController();
     TextEditingController phoneController =
         TextEditingController(text: leadCustomerData.mobileno);
     TextEditingController emailController =
@@ -406,7 +395,7 @@ class EditLeadsDialog extends StatelessWidget {
     TextEditingController remarkController =
         TextEditingController(text: leadCustomerData.remark);
     String imageFile =
-        'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl}' ?? '';
+        'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl}';
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -470,7 +459,7 @@ class EditLeadsDialog extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: Colors.white,
@@ -749,6 +738,7 @@ class EditLeadsDialog extends StatelessWidget {
                                           color: Colors.grey),
                                       const SizedBox(height: 12.0),
                                       Text(
+                                        // ignore: unnecessary_null_comparison
                                         imageFile == null
                                             ? 'Pick an image from gallery'
                                             : 'Image selected',
@@ -758,6 +748,7 @@ class EditLeadsDialog extends StatelessWidget {
                                       ),
                                     ],
                                   ),
+                                  // ignore: unnecessary_null_comparison
                                   if (imageFile != null) ...[
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -797,39 +788,12 @@ class EditLeadsDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
-                          // final updatedAdmin = CustomerDashMo(
-                          //   fullname: nameController.text,
-                          //   mobileno: phoneController.text,
-                          //   email: emailController.text,
-                          //   town: townController.text,
-                          //   state: stateController.text,
-                          //   zipcode: int.parse(
-                          //       zipcodeController.text),
-                          //   address: addressController.text,
-                          //   businessName:
-                          //       bsNameController.text,
-                          //   businessNo: bsNumController
-                          //       .text,
-                          // );
-
-                          // try {
-                          //   await provider.addLead(
-                          //       admin: updatedAdmin,
-                          //       salsmanId: customer!
-                          //           .salesmanId
-                          //           .toString());
-                          //   Navigator.of(context)
-                          //       .pop(); // Close the dialog
-                          // } catch (error) {
-                          //   // Handle error (e.g., show a message to the user)
-                          // }
-                        },
+                        onPressed: () async {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(238, 205, 110, 1),
+                          backgroundColor:
+                              const Color.fromRGBO(238, 205, 110, 1),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(4.0), // Border radius
+                            borderRadius: BorderRadius.circular(4.0),
                           ),
                         ),
                         child: const Text(
@@ -849,17 +813,12 @@ class EditLeadsDialog extends StatelessWidget {
   }
 
   static Future<void> showEditLeadsDialog(
-      BuildContext context, LeadCustomerData leadCustomerData
-      // , String leadName, String leadDetails, Function(String, String) onSave
-      ) {
+      BuildContext context, LeadCustomerData leadCustomerData) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return EditLeadsDialog(
           leadCustomerData: leadCustomerData,
-          // leadName: leadName,
-          // leadDetails: leadDetails,
-          // onSave: onSave,
         );
       },
     );

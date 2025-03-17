@@ -27,7 +27,7 @@ class CustomerDashboardBottomWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return nkMediumSizeBox(
       width: double.maxFinite,
-      height: AppDimensions.instance!.height * 0.5,
+      height: AppDimensions.instance.height * 0.5,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -235,7 +235,7 @@ class CustomerDashboardBottomWidget extends StatelessWidget {
 
   Widget itemComponet(String title, String subTitle) {
     return nkChildWrappedSizeBox(
-      width: AppDimensions.instance!.width * 0.09,
+      width: AppDimensions.instance.width * 0.09,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

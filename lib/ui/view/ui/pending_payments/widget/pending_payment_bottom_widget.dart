@@ -1,5 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
@@ -10,7 +11,6 @@ import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -107,7 +107,7 @@ class _PendingPaymentBottomWidgetState
                   children: [
                     Expanded(
                         child: _buildHeaderText("Customer List", fontSize)),
-                    SizedBox(
+                    const SizedBox(
                       height: 8,
                     )
                   ],
@@ -115,7 +115,7 @@ class _PendingPaymentBottomWidgetState
               ),
               Expanded(
                 child: ScrollbarTheme(
-                  data: ScrollbarThemeData(
+                  data: const ScrollbarThemeData(
                       radius: Radius.circular(10),
                       thumbColor: WidgetStatePropertyAll(Colors.cyanAccent)),
                   child: Scrollbar(
@@ -169,7 +169,7 @@ class _PendingPaymentBottomWidgetState
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             )
                           ],
@@ -221,8 +221,8 @@ class _PendingPaymentBottomWidgetState
             Expanded(
               child: ScrollbarTheme(
                 data: ScrollbarThemeData(
-                  trackVisibility: WidgetStatePropertyAll(true),
-                  thumbVisibility: WidgetStatePropertyAll(true),
+                  trackVisibility: const WidgetStatePropertyAll(true),
+                  thumbVisibility: const WidgetStatePropertyAll(true),
                   thumbColor: WidgetStateProperty.all(primaryColor),
                   trackColor: WidgetStateProperty.all(Colors.grey[300]),
                   trackBorderColor: WidgetStateProperty.all(Colors.grey[400]),
@@ -572,7 +572,7 @@ class _PendingPaymentBottomWidgetState
           final receivable =
               controller.individualPendingPayments[i].receivableAmount;
           if (receivable == null) {
-            total += controller.individualPendingPayments[i].orderTotal ?? 0;
+            total += controller.individualPendingPayments[i].orderTotal;
           } else {
             total += receivable;
           }
@@ -888,13 +888,14 @@ class _PendingPaymentBottomWidgetState
                                     dropdownColor: Colors.white,
                                     items: const [
                                       DropdownMenuItem(
-                                          child: Text('Cash'), value: 'Cash'),
+                                          value: 'Cash',
+                                          child: Text('Cash')),
                                       DropdownMenuItem(
-                                          child: Text('Cheque'),
-                                          value: 'Cheque'),
+                                          value: 'Cheque',
+                                          child: Text('Cheque')),
                                       DropdownMenuItem(
-                                          child: Text('Bank Transfer'),
-                                          value: 'Bank Transfer'),
+                                          value: 'Bank Transfer',
+                                          child: Text('Bank Transfer')),
                                     ],
                                     onChanged: (value) {
                                       if (value != null) {
@@ -925,7 +926,7 @@ class _PendingPaymentBottomWidgetState
                                   Row(
                                     children: [
                                       Text(addCurrencySymbol()),
-                                      SizedBox(width: 5),
+                                      const SizedBox(width: 5),
                                       Expanded(
                                         child: TextField(
                                           readOnly: true,
@@ -952,7 +953,7 @@ class _PendingPaymentBottomWidgetState
                                   Row(
                                     children: [
                                       Text(addCurrencySymbol()),
-                                      SizedBox(width: 5),
+                                      const SizedBox(width: 5),
                                       Expanded(
                                         child: TextField(
                                           controller: receivedAmountController,
@@ -1002,25 +1003,17 @@ class _PendingPaymentBottomWidgetState
                                                 receivedAmountController
                                                     .text) ??
                                             0;
-                                        print("Entered Amount: $enteredAmount");
 
                                         if (enteredAmount > 0) {
-                                          // Get the list of selected items from the selection logic
+                       
                                           List<IndividualPendingData>
                                               selectedItemsList =
                                               controller.getSelectedItems();
-                                          print(
-                                              "Selected Items List: $selectedItemsList");
-
-                                          // Call the processPayments function
                                           controller.processPayments(
                                               selectedItemsList, enteredAmount);
                                         } else {
-                                          print("Please enter a valid amount.");
                                         }
                                       },
-                                      child: const Text('Submit',
-                                          style: TextStyle(fontSize: 14)),
                                       style: ElevatedButton.styleFrom(
                                         shadowColor: Colors.transparent,
                                         backgroundColor:
@@ -1030,6 +1023,8 @@ class _PendingPaymentBottomWidgetState
                                               BorderRadius.circular(10.0),
                                         ),
                                       ),
+                                      child: const Text('Submit',
+                                          style: TextStyle(fontSize: 14)),
                                     ),
                                   ),
                                 ),
@@ -1051,24 +1046,17 @@ class _PendingPaymentBottomWidgetState
 
   String getFormattedOrderCreatAt(dynamic value) {
     if (value == null || value.toString().isEmpty) {
-      print('Error: Invalid date value');
-      return ''; // Return an empty string for null or empty values
+      return '';
     }
 
     try {
-      // Check if the value is already in DateTime format
       if (value is DateTime) {
         return DateFormat('dd-MM-yyyy').format(value);
       }
-
-      // Attempt to parse the string as a DateTime object
       DateTime parsedDate = DateTime.parse(value.toString());
-
-      // Return the formatted date
       return DateFormat('dd-MM-yyyy').format(parsedDate);
     } catch (e) {
-      print('Error parsing date: $e');
-      return ''; // Return an empty string if parsing fails
+      return '';
     }
   }
 

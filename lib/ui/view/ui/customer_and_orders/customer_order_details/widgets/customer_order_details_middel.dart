@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/category_filter_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -21,8 +20,7 @@ class CustomerOrderDetailMiddelWidget extends StatefulWidget {
   final ProductsController productsController;
 
   const CustomerOrderDetailMiddelWidget(
-      {Key? key, required this.productsController})
-      : super(key: key);
+      {super.key, required this.productsController});
 
   @override
   State<CustomerOrderDetailMiddelWidget> createState() =>
@@ -39,75 +37,61 @@ class _CustomerOrderDetailMiddelWidgetState
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-
-      child:Row(
+      scrollDirection: Axis.horizontal,
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Obx(() {
             return Container();
-          })
-          ,
+          }),
           nkMediumSizeBox(),
-
           MyCommnonContainer(
-          isCommonBorder: true,
-    padding: nkRegularPadding(),
-    width: AppDimensions.instance!.width * 0.3,
-    //decoration: decoration,
-    child:
-          productListWidget(widget.productsController.productList),)
+            isCommonBorder: true,
+            padding: nkRegularPadding(),
+            width: AppDimensions.instance.width * 0.3,
+            child: productListWidget(widget.productsController.productList),
+          )
         ],
-      ) ,
-      scrollDirection: Axis.horizontal,
-    )
-
-
-      ;
+      ),
+    );
   }
 
   Widget productListWidget(List<ProductList> productData) {
     return Obx(() {
       return NkWidgetExceptionHandel(
-          data: productData,
-          isShowRetrySection: false,
-          onRetryPressed: () {
-            //widget.productsController.loadDataOfProduct();
-          },
-          replaceWidget: widget.productsController.emptyProductWidget(),
-          child: GridView.builder(
-              shrinkWrap: true,
-              physics: NkGeneralSize.commonPysics(),
-              itemCount: productData.length,
-              cacheExtent: 300,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount:
-                AppDimensions.instance.updateGridCount(Get.context!),
-                mainAxisExtent: AppDimensions.instance.height * 0.26,
-                crossAxisSpacing: AppDimensions.instance.width * 0.012,
-                mainAxisSpacing: AppDimensions.instance.width * 0.018,
-              ),
-              itemBuilder: (context, index) {
-                var data = productData[index];
-                return productComponent(data);
-              }),
+        data: productData,
+        isShowRetrySection: false,
+        onRetryPressed: () {
+          //widget.productsController.loadDataOfProduct();
+        },
+        replaceWidget: widget.productsController.emptyProductWidget(),
+        child: GridView.builder(
+            shrinkWrap: true,
+            physics: NkGeneralSize.commonPysics(),
+            itemCount: productData.length,
+            cacheExtent: 300,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount:
+                  AppDimensions.instance.updateGridCount(Get.context!),
+              mainAxisExtent: AppDimensions.instance.height * 0.26,
+              crossAxisSpacing: AppDimensions.instance.width * 0.012,
+              mainAxisSpacing: AppDimensions.instance.width * 0.018,
+            ),
+            itemBuilder: (context, index) {
+              var data = productData[index];
+              return productComponent(data);
+            }),
+      );
 
-
-
-        ) ;
-
-
-
-
-        ;
+      
     });
   }
 
   Widget productComponent(ProductList data) {
     return MyCommnonContainer(
       isCommonBorder: true,
-      width:300,
-
+      width: 300,
       padding: nkSmallPadding(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -116,7 +100,7 @@ class _CustomerOrderDetailMiddelWidgetState
             child: MyNetworkImage(
               imageUrl: data.imagePath ?? '',
               fit: BoxFit.cover,
-              height: AppDimensions.instance!.height * 0.14,
+              height: AppDimensions.instance.height * 0.14,
             ),
           ),
           MyRegularText(
@@ -142,7 +126,7 @@ class _CustomerOrderDetailMiddelWidgetState
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
                     NkGeneralSize.nkCommonBorderRadius(borderRadius: 8))),
-            height: AppDimensions.instance!.height * 0.02,
+            height: AppDimensions.instance.height * 0.02,
             fontSize: NkFontSize.smallFont(),
             buttonText: addToCart,
             onPressed: () {

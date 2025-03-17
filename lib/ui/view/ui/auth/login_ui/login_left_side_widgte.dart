@@ -1,12 +1,11 @@
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 
 class LoginLeftSideWidget extends StatefulWidget {
-  const LoginLeftSideWidget({Key? key}) : super(key: key);
+  const LoginLeftSideWidget({super.key});
 
   @override
   State<LoginLeftSideWidget> createState() => _LoginLeftSideWidgetState();
@@ -31,7 +30,7 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
   ]),
   image: DecorationImage(
     fit: BoxFit.fill,
-    image: AssetImage("assets/images/dollor.png"),
+    image: const AssetImage("assets/images/dollor.png"),
     colorFilter: ColorFilter.mode(
       Colors.black.withOpacity(0.03), 
       BlendMode.dstATop,        
@@ -48,19 +47,19 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
                   Image.asset("assets/images/loginImage 6.png",height: 100,),
                 ],
               ),
-              Container(height: 1,width: 250,decoration: BoxDecoration(
+              Container(height: 1,width: 250,decoration: const BoxDecoration(
                 boxShadow: [
                   BoxShadow(color: primaryButtonColor,blurRadius: 10,spreadRadius: 2,)
                 ]
               ),),
-              SizedBox(height: 30,),
-             Padding(
-               padding: const EdgeInsets.symmetric(horizontal: 20),
+              const SizedBox(height: 30,),
+             const Padding(
+               padding: EdgeInsets.symmetric(horizontal: 20),
                child: Text("Welcome!",style: TextStyle(color: white, fontSize: 45, fontWeight: FontWeight.bold),),
              ),
-             Center(
+             const Center(
                child: Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 20),
+                 padding: EdgeInsets.symmetric(horizontal: 20),
                  child: Text(
                   "Empower Your Sales, Anywhere, Anytime!",
                   textAlign: TextAlign.center,

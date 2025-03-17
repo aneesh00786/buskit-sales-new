@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';

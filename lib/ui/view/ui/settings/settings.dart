@@ -5,30 +5,20 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
-import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
-import 'package:busskit_salesexecutive/ui/components/file_picking/nk_file_picker_option_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 
 class SettingsScreen extends StatefulWidget {
   final StaffController? staffController;
@@ -110,7 +100,7 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
+                  SizedBox(
                     width: 200,
                     child: idAndImagePicWidget(
                         file: photoId,
@@ -122,7 +112,7 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                   nkSmallSizeBox(),
                   nkSmallSizeBox(),
                   nkSmallSizeBox(),
-                  Container(
+                  SizedBox(
                     width: 200,
                     child: idAndImagePicWidget(
                         file: photoId,
@@ -250,8 +240,8 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
     return SvgPicture.asset(
       svgIconPath,
       fit: BoxFit.scaleDown,
-      height: AppDimensions.instance!.height * 0.014,
-      width: AppDimensions.instance!.width * 0.014,
+      height: AppDimensions.instance.height * 0.014,
+      width: AppDimensions.instance.width * 0.014,
     );
   }
 
@@ -305,9 +295,9 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
             color: Colors.blue,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Center(
+          child: const Center(
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: EdgeInsets.all(15.0),
               child: Text(
                 'Change Password',
                 style: TextStyle(
@@ -319,7 +309,7 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: 10,
         )
       ],
@@ -328,23 +318,6 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
 
   Widget idAndImagePicWidget(
       {String? lable, String? imageUrl, File? file, String? text}) {
-    Column imageTextCollumn = Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(Assets.iconsIcImagePic),
-          nkSmallSizeBox(),
-          RichText(
-              text: TextSpan(
-                  style: TextStyle(
-                      fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                      color: primaryTextColor),
-                  children: [
-                TextSpan(
-                  text: "$lable ",
-                ),
-              ])),
-        ]);
     return Column(
       children: [
         MyCommnonContainer(
@@ -366,10 +339,10 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                       height: 180,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Center(
+                      placeholder: (context, url) => const Center(
                         child: CircularProgressIndicator(),
                       ),
-                      errorWidget: (context, url, error) => Center(
+                      errorWidget: (context, url, error) => const Center(
                         child: Icon(
                           Icons.broken_image,
                           color: Colors.grey,

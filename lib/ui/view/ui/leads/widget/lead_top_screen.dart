@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -7,15 +6,11 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -36,8 +31,8 @@ class LeadTopScreen extends StatelessWidget {
           children: [
             // AddLeadsBt(),
             addLeads(context),
-            Spacer(),
-            NotificationWidget(
+            const Spacer(),
+            const NotificationWidget(
               startDate: '',
               endDate: '',
             ),
@@ -47,41 +42,6 @@ class LeadTopScreen extends StatelessWidget {
       ],
     );
   }
-
-  // Widget get leadTopLeadsWidget {
-  //   return GestureDetector(
-  //     onTap: () => Get.dialog(AddLeadsDiloag(
-  //       leadsController: leadsController,
-  //     )),
-  //     child: Container(
-  //       width: 90,
-  //       height: 40,
-  //       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: Colors.blue),
-  //         borderRadius: BorderRadius.circular(4.0), // Border radius
-  //       ),
-  //       child: const Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Text(
-  //             leads,
-  //             style: TextStyle(
-  //               color: primaryColor,
-  //               fontSize: 13,
-  //             ),
-  //           ),
-  //           SizedBox(width: 10),
-  //           Icon(
-  //             Icons.add_circle_outline,
-  //             color: Colors.black,
-  //             size: 14,
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 }
 
 Widget profiloe() {
@@ -104,7 +64,7 @@ Widget profiloe() {
           final admin = snapshot.data!.data.first;
           return SizedBox(
             width: 110,
-            child: Container(
+            child: SizedBox(
               height: 44,
               width: double.infinity,
               child: Padding(
@@ -120,9 +80,9 @@ Widget profiloe() {
                               imageUrl:
                                   '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
                               placeholder: (context, url) =>
-                                  CircularProgressIndicator(),
+                                  const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
+                                  const Icon(Icons.error),
                               imageBuilder: (context, imageProvider) =>
                                   Container(
                                 decoration: BoxDecoration(
@@ -134,7 +94,7 @@ Widget profiloe() {
                                 ),
                               ),
                             )
-                          : Icon(Icons.person),
+                          : const Icon(Icons.person),
                     ),
                     const SizedBox(
                       width: 4.5,
@@ -145,10 +105,7 @@ Widget profiloe() {
                         MyRegularText(
                             label: homeController.userDetails?.fullname ?? '',
                             fontSize: 10.5),
-                        // SizedBox(
-                        //   height: 2.5,
-                        // ),
-                        MyRegularText(
+                        const MyRegularText(
                           label: "Salesman",
                           fontSize: 8.5,
                           color: Colors.grey,
@@ -162,7 +119,7 @@ Widget profiloe() {
             ),
           );
         } else {
-          return NodataWidget();
+          return const NodataWidget();
         }
       },
     );

@@ -1,11 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,11 +30,7 @@ class StaffValueTargetDialog extends StatefulWidget {
 
 class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     with SingleTickerProviderStateMixin {
-  // late final TabController _tabController;
-  // List<TextEditingController> _targetControllers = [];
   List<TextEditingController> _projectionControllers = [];
-
-  List<TextEditingController> _weeklyTargetControllers = [];
   List<TextEditingController> _weeklyProjectionControllers = [];
 
   final int currentMonth = DateTime.now().month;
@@ -58,7 +52,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     final weeklyType = await ApiWorker().getWeeklyType();
     widget.staffController.isWeekly.value = weeklyType == "true";
     log("Weekly state : $weeklyType : ${widget.staffController.isWeekly.value}");
-    Future.delayed(Duration(seconds: 1));
+    Future.delayed(const Duration(seconds: 1));
   }
 
   @override
@@ -153,87 +147,13 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     });
   }
 
-  // void _loadSalesmanValueTarget() async {
-  //   setState(() {
-  //     _isLoading = true; // Show loading state
-  //   });
-
-  //   await widget.staffController.loadSalesmanValueTarget(
-  //     SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
-  //     currentYear.toString(),
-  //     widget.isWeekly
-  //         ? DateFormat.MMMM().format(
-  //             DateTime(0, widget.staffController.tabController.index + 1))
-  //         : null,
-  //   );
-
-  //   if (mounted) {
-  //     final salesData =
-  //         widget.staffController.salesmanValueTargetList.isNotEmpty
-  //             ? widget.staffController.salesmanValueTargetList.first
-  //             : null;
-
-  //     if (salesData != null) {
-  //       final weeklyTargetProjection =
-  //           salesData.weeklyTargetProjection?.toJson() ?? {};
-
-  //       // Initialize controllers only once
-  //       if (_projectionControllers.isEmpty) {
-  //         _projectionControllers = List.generate(
-  //           12,
-  //           (index) => TextEditingController(text: '0'),
-  //         );
-  //       }
-
-  //       for (int i = 0;
-  //           i < widget.staffController.salesmanValueTargetList.length;
-  //           i++) {
-  //         _projectionControllers[i].text = widget
-  //             .staffController.salesmanValueTargetList[i].projection
-  //             .toString();
-  //       }
-
-  //       final relevantWeeks = getWeeksForMonth(
-  //         int.parse(salesData.year.toString()),
-  //         widget.staffController.tabController.index + 1,
-  //       );
-
-  //       if (_weeklyProjectionControllers.isEmpty) {
-  //         _weeklyProjectionControllers = List.generate(
-  //           relevantWeeks.length,
-  //           (index) => TextEditingController(text: '0'),
-  //         );
-  //       }
-
-  //       for (var i = 0; i < relevantWeeks.length; i++) {
-  //         final weekKey = "week${relevantWeeks[i]}";
-  //         final weekData = weeklyTargetProjection[weekKey];
-
-  //         int projection = 0;
-  //         if (weekData is Map<String, dynamic>) {
-  //           projection = weekData["projection"] ?? 0;
-  //         }
-
-  //         _weeklyProjectionControllers[i].text = projection.toString();
-  //       }
-  //     }
-
-  //     setState(() {
-  //       _isLoading = false; // Hide loading state when done
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return _isLoading || widget.staffController.isValueTargetLoading.value
-        ? SizedBox(
-            // width: MediaQuery.of(context).size.width * 0.7,
+        ? const SizedBox(
             height: 150,
-            child: const Center(
-              child: CircularProgressIndicator(
-                  // color: red,
-                  ),
+            child: Center(
+              child: CircularProgressIndicator(),
             ),
           )
         : SingleChildScrollView(
@@ -250,10 +170,10 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                       topRight: Radius.circular(10),
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Target by value',
                         style: TextStyle(
                           color: white,
@@ -385,8 +305,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
             _buildTableCell(monthName),
             _buildTableCell(widget
                     .staffController.salesmanValueTargetList[index].target
-                    .toString() ??
-                ''),
+                    .toString()),
             if (widget.isProjection)
               _buildTableTextField(index, _projectionControllers[index]),
           ],
@@ -400,7 +319,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
         return TableRow(
           children: [
             _buildTableCell(targetData.month.toString()),
-            // _buildTableTextField(index, _targetControllers[index]),
             Container(
               height: 50,
               padding: const EdgeInsets.all(8.0),

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-//import 'package:charts_flutter/flutter.dart';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -49,7 +48,7 @@ class ApiService {
       onResponse: (response, handler) {
         return handler.next(response);
       },
-      onError: (DioError error, handler) async {
+      onError: (DioException error, handler) async {
         if (error.response?.statusCode == 401 ||
             error.response?.statusCode == 400) {
           _handleTokenExpiration();
@@ -87,89 +86,112 @@ class ApiService {
     }
   }
 
-  Future<ResponseModell> fetchDashboardData({
-    String? salesmanId,
-    String? startDate,
-    String? endDate,
-  }) async {
-    final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    final String jsonString =
-        await SessionManager.getStringValue(SpString.spLogin);
-    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    final String createdToken = jsonMap['createdToken'];
-    const String url = '$_baseUrl${ApiConstants.dashboardList}';
-    final Map<String, dynamic> requestBody = {
-      "salesman_id": salesmanId,
-      "start_date": startDate,
-      "end_date": endDate,
-      "companyId": companyId,
-      "targetType": 1,
-    };
-    log('Start Date End Date ${startDate}/${endDate}');
-    final dashboardBox = Hive.box('dashboardBox');
-    try {
-      final connectivity = await Connectivity().checkConnectivity();
-      if (connectivity == ConnectivityResult.none) {
-        final cachedData = dashboardBox.get('dashboardData');
-        if (cachedData != null) {
-          try {
-            if (cachedData is Map<String, dynamic>) {
-              return _mapJsonToResponseModel(cachedData);
-            } else if (cachedData is List<dynamic>) {
-              final Map<String, dynamic> wrappedData = {'data': cachedData};
-              return _mapJsonToResponseModel(wrappedData);
-            } else {
-              throw Exception('Invalid cached data format.');
-            }
-          } catch (e) {
-            throw Exception(
-                'Failed to process cached data due to type mismatch.');
-          }
-        } else {
-          throw Exception('No cached data available.');
-        }
-      }
-      final response = await Dio().post(
-        url,
-        options: Options(
-          headers: {'Authorization': 'Bearer $createdToken'},
-        ),
-        data: jsonEncode(requestBody),
-      );
+Future<ResponseModell> fetchDashboardData({
+  String? salesmanId,
+  String? startDate,
+  String? endDate,
+}) async {
+  final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  final String jsonString =
+      await SessionManager.getStringValue(SpString.spLogin);
+  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  final String createdToken = jsonMap['createdToken'];
+  const String url = '$_baseUrl${ApiConstants.dashboardList}';
+  final Map<String, dynamic> requestBody = {
+    "salesman_id": salesmanId,
+    "start_date": startDate,
+    "end_date": endDate,
+    "companyId": companyId,
+    "targetType": 1,
+  };
+  log('Start Date End Date $startDate/$endDate');
+  final dashboardBox = Hive.box('dashboardBox');
 
-      if (response.statusCode == 200) {
-        final jsonResponse = response.data;
-        await dashboardBox.put(
-            'dashboardData', Map<String, dynamic>.from(jsonResponse));
-
-        return _mapJsonToResponseModel(jsonResponse);
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
-      } else {
-        throw Exception(
-            'Failed to load data with status code: ${response.statusCode}');
-      }
-    } on DioError catch (e) {
+  try {
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity == ConnectivityResult.none) {
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
         try {
-          if (cachedData is Map) {
-            final safeCachedData =
-                castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-            return _mapJsonToResponseModel(safeCachedData);
+          if (cachedData is Map<String, dynamic>) {
+            return _mapJsonToResponseModel(cachedData);
+          } else if (cachedData is List<dynamic>) {
+            final Map<String, dynamic> wrappedData = {'data': cachedData};
+            return _mapJsonToResponseModel(wrappedData);
           } else {
             throw Exception('Invalid cached data format.');
           }
         } catch (e) {
-          throw Exception(
-              'Failed to process cached data due to type mismatch.');
+          showErrorSnackBar(
+              'Failed to process cached data due to type mismatch.', 'Error');
+          throw Exception('Failed to process cached data due to type mismatch.');
         }
       } else {
+        showErrorSnackBar('No cached data available.', 'Error');
         throw Exception('No cached data available.');
       }
     }
+
+    final response = await Dio().post(
+      url,
+      options: Options(
+        headers: {'Authorization': 'Bearer $createdToken'},
+      ),
+      data: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = response.data;
+      await dashboardBox.put(
+          'dashboardData', Map<String, dynamic>.from(jsonResponse));
+      return _mapJsonToResponseModel(jsonResponse);
+    } else if (response.statusCode == 400 || response.statusCode == 401) {
+      _handleTokenExpiration();
+      showErrorSnackBar('Session expired. Please login again.', 'Session Expired');
+      throw Exception('Session expired');
+    } else {
+      showErrorSnackBar(
+          'Failed to load data with status code: ${response.statusCode}', 'Error');
+      throw Exception(
+          'Failed to load data with status code: ${response.statusCode}');
+    }
+  } on DioException catch (e) {
+    final cachedData = dashboardBox.get('dashboardData');
+    if (cachedData != null) {
+      try {
+        if (cachedData is Map) {
+          final safeCachedData =
+              castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+          return _mapJsonToResponseModel(safeCachedData);
+        } else {
+          showErrorSnackBar('Invalid cached data format.', 'Error');
+          throw Exception('Invalid cached data format.');
+        }
+      } catch (e) {
+        showErrorSnackBar(
+            'Failed to process cached data due to type mismatch.', 'Error');
+        throw Exception('Failed to process cached data due to type mismatch.');
+      }
+    } else {
+      showErrorSnackBar('No cached data available.', 'Error');
+      throw Exception('No cached data available.');
+    }
+  } catch (e) {
+    showErrorSnackBar(e.toString(), 'Error');
+    throw Exception(e.toString());
   }
+}
+
+void showErrorSnackBar(String message, String title) {
+  Get.snackbar(
+    title,
+    message,
+    snackPosition: SnackPosition.BOTTOM,
+    backgroundColor: Colors.red.withOpacity(0.5),
+    colorText: Colors.white,
+    duration: const Duration(seconds: 5),
+  );
+}
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
     return input.map((key, value) {
@@ -234,11 +256,11 @@ class ApiService {
     if (!Get.isDialogOpen!) {
       await Get.dialog(
         AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
+          title: const Text("Session Expired"),
+          content: const Text("Your session has expired. Please log in again."),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () async {
                 await SessionHelper().clearAll();
                 Get.offAllNamed(AppRoutes.login);
@@ -268,24 +290,16 @@ class ApiService {
     };
 
     try {
-      print('API URL: $url');
-      print('Request Body: $requestBody');
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
 
-      print('fetchDashboardCategoruPerformenceData ${response.statusCode}');
-      print('fetchDashboardCategoruPerformenceData Body: ${response.body}');
       log('Salesman ID :$salesmanId');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-
-        print(
-            'sabik kavungal ponmala plluippad i. .. .  . .. . . . .. . . . . .   ${jsonResponse['data']}');
 
         var allCategoryList = jsonResponse['data'] as List;
         List<Salesmanvn> allCategory =
@@ -297,11 +311,9 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allCategory);
       } else {
-        print('Request failed with status: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred1: $e');
       throw Exception('Failed to fetch data: sabikk  kavungal $e');
     }
   }
@@ -326,17 +338,11 @@ class ApiService {
     };
 
     try {
-      print('API URL: $url');
-      print('Request Body: $requestBody');
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -351,11 +357,9 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allproductDetail);
       } else {
-        print('Request failed with status 2: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred 2: $e');
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -363,7 +367,7 @@ class ApiService {
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
     final requestBody = {"salesman_id": salesmanId, "companyId": companyId};
-    log('Request Body : ${requestBody}');
+    log('Request Body : $requestBody');
     try {
       final response = await http.post(
         url,
@@ -373,11 +377,11 @@ class ApiService {
         final List<dynamic> rawData = json.decode(response.body)['data'];
 
         List<SalesmanChat> salesmanChats = [];
-        rawData.forEach((chatList) {
+        for (var chatList in rawData) {
           chatList.forEach((json) {
             salesmanChats.add(SalesmanChat.fromJson(json));
           });
-        });
+        }
         return SalesmenResponse(
           statusCode: json.decode(response.body)['status_code'],
           status: json.decode(response.body)['status'],
@@ -511,7 +515,7 @@ class ApiService {
       "page": 1,
       "companyId": companyId,
     };
-    log("Request body of Order : ${requestBody}");
+    log("Request body of Order : $requestBody");
     try {
       final response = await http.post(
         url,
@@ -520,7 +524,7 @@ class ApiService {
       );
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        log('Fetch All Orders Response: ${jsonResponse}');
+        log('Fetch All Orders Response: $jsonResponse');
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         log('Fetch All Orders Pagination: ${pagination.totalRecord}');
@@ -542,7 +546,6 @@ class ApiService {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
-      print('Failed to fetch orders: $e');
       throw Exception('Failed to fetch orders: $e');
     }
   }
@@ -568,7 +571,7 @@ class ApiService {
       "limit": 1000,
       "page": 1,
     };
-    log("Request Body Of ${requestBody}");
+    log("Request Body Of $requestBody");
     try {
       final response = await http.post(
         url,
@@ -602,7 +605,6 @@ class ApiService {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
-      print('Failed to fetch orders: $e');
       throw Exception('Failed to fetch orders: $e');
     }
   }
@@ -627,7 +629,7 @@ class ApiService {
       "limit": 1000,
       "page": 1,
     };
-    log("Request Body Of ${requestBody}");
+    log("Request Body Of $requestBody");
     try {
       final response = await http.post(
         url,
@@ -661,7 +663,6 @@ class ApiService {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
-      print('Failed to fetch orders: $e');
       throw Exception('Failed to fetch orders: $e');
     }
   }
@@ -669,9 +670,7 @@ class ApiService {
   Future<void> changeOrderStatus(
       String orderId, OrderStatus orderStatus) async {
     String orderStatusString = '';
-    if (orderStatus != null) {
-      orderStatusString = orderStatus.type.toString();
-    }
+    orderStatusString = orderStatus.type.toString();
     final requestBody = {'order_id': orderId, 'status': orderStatusString};
 
     try {
@@ -683,26 +682,13 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
 
-      print("sssss require new data from ${requestBody}");
-
-      print(
-          'ponmlaa response :  : :  : : :  : :. . . . . .  . . ..response  . .  . : ${response}');
-
-      print(
-          'ponmlaa pllippadi :  : :  : : :  : :. . . . . .  . . ..requires  . .  . : ${response.request}');
-
       if (response.statusCode == 200) {
-        print(
-            'ponmlaa pllippadi :  : :  : : :  : :. . . . . .  . . .. . .  . : ${response.body}');
         // Successful status change
-        print('Order status updated successfully');
       } else {
         // Handle other status codes if needed
-        print('Failed to update order status: ${response.statusCode}');
       }
     } catch (e) {
       // Handle network errors or exceptions
-      print('Exception during order status update: $e');
       throw Exception('Failed to update order status: $e');
     }
   }
@@ -710,26 +696,19 @@ class ApiService {
   Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.adminOnPopUp}');
     final requestBody = {"token": token};
-    final hiveKey = 'salesmanDetails';
+    const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');
     final connectivityResult = await Connectivity().checkConnectivity();
     bool hasNetwork = connectivityResult != ConnectivityResult.none;
     bool hasInternet = hasNetwork && await ApiWorker().isInternetAvailable();
-    print('Has Internet: $hasInternet');
 
     if (hasInternet) {
       try {
-        print('API URL: $url');
-        print('Request Body: $requestBody');
-
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(requestBody),
         );
-
-        print('fetchSalesmanDetails : ${response.statusCode}');
-        print('fetchSalesmanDetails Body: ${response.body}');
 
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
@@ -740,7 +719,6 @@ class ApiService {
             hiveKey,
             adminDetails.map((admin) => admin.toJson()).toList(),
           );
-          print('Salesman details saved to Hive.');
           return AdminResponse(
             statusCode: jsonResponse['status_code'],
             status: jsonResponse['status'],
@@ -748,26 +726,21 @@ class ApiService {
             data: adminDetails,
           );
         } else {
-          print('Request failed with status: ${response.statusCode}');
           throw Exception('Failed to load admin details');
         }
-      } catch (e) {
-        print('Exception occurred3: $e');
-      }
+        // ignore: empty_catches
+      } catch (e) {}
     }
 
     // Fallback to fetching from Hive
-    print('No internet. Fetching from Hive...');
     try {
       final cachedData = adminBox.get(hiveKey);
-      print('Cached Data: $cachedData');
       if (cachedData is List) {
         List<AdminData> adminDetails = cachedData
             .map((data) => AdminData.fromJson(
                   ApiService().castToStringDynamic(data),
                 ))
             .toList();
-        print('Fetched Salesman details from Hive.');
 
         return AdminResponse(
           statusCode: 200,
@@ -776,9 +749,8 @@ class ApiService {
           data: adminDetails,
         );
       }
-    } catch (e) {
-      print('Error fetching from Hive: $e');
-    }
+    // ignore: empty_catches
+    } catch (e) {}
 
     throw Exception('Failed to fetch admin details from API and Hive.');
   }
@@ -933,14 +905,11 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        print("this is repose body : : : : :  ${response.body}");
         return true;
       } else {
-        print('Error: ${response.statusCode} ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Exception: $e');
       return false;
     }
   }
@@ -968,14 +937,6 @@ class ApiService {
       );
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
-        print("Response Data:");
-        print(
-            "Category Performance: ${jsonResponse['data']['category_performance']}");
-        print("Recent Orders: ${jsonResponse['data']['recent_orders']}");
-        print(
-            "Frequent Product Lists: ${jsonResponse['data']['frequantliy_product_lists']}");
-        print("Year List: ${jsonResponse['data']['year_list']}");
-        print("Full Category: ${jsonResponse['data']['fullCategotry']}");
         List<CategoryPerformancez> categoryPerformance = [];
         if (jsonResponse['data']['category_performance'] != null) {
           categoryPerformance =
@@ -989,8 +950,6 @@ class ApiService {
               .map((json) => FullCategory.fromJson(json))
               .toList();
         }
-        print(
-            "sabik ca ca ca caca cc acacac  ,${jsonResponse['data']['fullCategotry']}");
         List<RecentOrder> recentOrders = [];
         if (jsonResponse['data']['recent_orders'] != null) {
           recentOrders = (jsonResponse['data']['recent_orders'] as List)
@@ -1106,10 +1065,7 @@ class ApiService {
       log('Count Response : ${response.body}');
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
-        print("Response Data: ${jsonResponse['data']}");
         OrderDataas orderData = OrderDataas.fromJson(jsonResponse['data']);
-
-        print("Response sabik k k k  kk : ${jsonResponse['data']}");
 
         return ApiResponsees(
             statusCode: jsonResponse['status_code'] ?? 0,
@@ -1139,15 +1095,12 @@ class ApiService {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
 
-        print('sasas json $jsonResponse');
-
         List<CustomerDashMo> customers = [];
         if (jsonResponse['data'] != null) {
           customers = (jsonResponse['data'] as List)
               .map((json) => CustomerDashMo.fromJson(json))
               .toList();
         }
-        print("sui sui sui sui sui : :  - - - - == = $customers");
 
         return CustomerResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
@@ -1204,17 +1157,11 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('updateCustomerDashDetails : ${response.statusCode}');
-      print('updateCustomerDashDetails Body: ${response.body}');
-
       if (response.statusCode == 200) {
-        print('Admin details updated successfully');
       } else {
-        print('Request failed with status: ${response.statusCode}');
         throw Exception('Failed to update admin details');
       }
     } catch (e) {
-      print('Exception occurred5: $e');
       throw Exception('Failed to update admin details: $e');
     }
   }
@@ -1257,17 +1204,11 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('addCustomer : ${response.statusCode}');
-      print('addCustomer Body: ${response.body}');
-
       if (response.statusCode == 200) {
-        print('Admin details updated successfully');
       } else {
-        print('Request failed with status: ${response.statusCode}');
         throw Exception('Failed to update admin details');
       }
     } catch (e) {
-      print('Exception occurred6: $e');
       throw Exception('Failed to update admin details: $e');
     }
   }
@@ -1311,17 +1252,11 @@ class ApiService {
       // Send the request
       var response = await http.Response.fromStream(await request.send());
 
-      print('addLead : ${response.statusCode}');
-      print('addLead Body: ${response.body}');
-
       if (response.statusCode == 200) {
-        print('Admin details updated successfully');
       } else {
-        print('Request failed with status: ${response.statusCode}');
         throw Exception('Failed to update admin details');
       }
     } catch (e) {
-      print('Exception occurred7: $e');
       throw Exception('Failed to update admin details: $e');
     }
   }
@@ -1330,7 +1265,6 @@ class ApiService {
     const String url =
         'http://16.50.232.153:3000/fetch_categories?company_id=1';
     // '$_baseUrl/fetch_categories?company_id=1';
-    print('this is the fetchCategories() function');
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -1347,7 +1281,6 @@ class ApiService {
       }
     } catch (e) {
       // Handle any errors
-      print('Error fetching categories: $e');
       //this is the error we get
       throw Exception('Error fetching categories: $e');
     }
@@ -1465,14 +1398,15 @@ class DashboardProvider with ChangeNotifier {
             (startDate.isEmpty || endDate.isEmpty)) {
           throw Exception('Select both start and end dates');
         }
-        _responseModelCp = Future.delayed(Duration(milliseconds: 300), () {
+        _responseModelCp =
+            Future.delayed(const Duration(milliseconds: 300), () {
           return _apiService.fetchDashboardCategoruPerformenceData(
             catId: catId,
             startDate: startDate,
             endDate: endDate,
           );
         });
-        print("Fetching orders for status: $_selectedStatus");
+        log("Fetching orders for status: $_selectedStatus");
       }
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
@@ -1496,7 +1430,7 @@ class DashboardProvider with ChangeNotifier {
       String startDate;
       String endDate;
 
-      var orderType;
+      Object orderType;
 
       switch (s) {
         case OrderStatus.delivered:
@@ -1549,7 +1483,7 @@ class DashboardProvider with ChangeNotifier {
           (startDate.isEmpty || endDate.isEmpty)) {
         throw Exception('Select both start and end dates');
       }
-      _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
+      _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
           startDate: startDate,
           endDate: endDate,
@@ -1558,10 +1492,10 @@ class DashboardProvider with ChangeNotifier {
         );
       });
       log("Order Response Type : ${s.type}");
-      log("Order Response : ${_orderResponse}");
+      log("Order Response : $_orderResponse");
       notifyListeners();
 
-      log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .${_orderResponse}");
+      log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
 
       notifyListeners();
     } catch (e, stackTrace) {
@@ -1571,132 +1505,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   OrderStatus _selectedStatus = OrderStatus.cancelled;
-  // come back
-  // Future<void> fetchOrders() async {
-  //   try {
-  //     final now = DateTime.now();
-  //     String startDate;
-  //     String endDate;
-  //     for (OrderStatus status in OrderStatus.values) {
-  //       _selectedStatus = status;
-
-  //       switch (_selectedFilter) {
-  //         case FilterDateEnum.thisMonth:
-  //           startDate = DateTime(now.year, now.month, 1)
-  //               .toIso8601String()
-  //               .substring(0, 10);
-  //           endDate = DateTime(now.year, now.month + 1, 0)
-  //               .toIso8601String()
-  //               .substring(0, 10);
-  //           break;
-  //         case FilterDateEnum.today:
-  //           startDate = DateTime(now.year, now.month, now.day)
-  //               .toIso8601String()
-  //               .substring(0, 10);
-  //           endDate = startDate;
-  //           break;
-  //         case FilterDateEnum.thisWeek:
-  //           final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-  //           startDate = startOfWeek.toIso8601String().substring(0, 10);
-  //           endDate = now.toIso8601String().substring(0, 10);
-  //           break;
-  //         case FilterDateEnum.thisYear:
-  //           startDate =
-  //               DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-  //           endDate =
-  //               DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-  //           break;
-  //         case FilterDateEnum.range:
-  //           startDate = _selectedStartDate;
-  //           endDate = _selectedEndDate;
-  //           break;
-  //       }
-
-  //       if (_selectedFilter == FilterDateEnum.range &&
-  //           (startDate.isEmpty || endDate.isEmpty)) {
-  //         throw Exception('Select both start and end dates');
-  //       }
-
-  //       // Debouncing network requests
-  //       _orderResponse = Future.delayed(Duration(milliseconds: 300), () {
-  //         return _apiService.fetchAllOrders(
-  //           startDate: startDate,
-  //           endDate: endDate,
-  //           orderStatus: _selectedStatus, // Pass current status
-  //         );
-  //       });
-
-  //       notifyListeners();
-
-  //       print("Fetching orders for status: $_selectedStatus"); // Debug print
-
-  //       // You might want to await _orderResponse here if needed
-
-  //       notifyListeners();
-  //     }
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
-
-  // Future<void> selectDate(BuildContext context, bool isStartDate) async {
-  //   final DateTime? pickedDate = await showDatePicker(
-  //     context: context,
-  //     initialDate: isStartDate
-  //         ? DateTime.parse(_selectedStartDate)
-  //         : DateTime.parse(_selectedEndDate),
-  //     firstDate: DateTime(2020),
-  //     lastDate: DateTime(2100),
-  //   );
-
-  //   if (pickedDate != null) {
-  //     final formattedDate = pickedDate.toIso8601String().substring(0, 10);
-  //     if (isStartDate) {
-  //       _selectedStartDate = formattedDate;
-  //     } else {
-  //       _selectedEndDate = formattedDate;
-  //     }
-  //     notifyListeners();
-  //   }
-  // }
-  // void fetchDatas() {
-  //   _futureResponseModel = _apiService.fetchDashboardData(
-  //     salesmanId: "",
-  //     startDate: DateTime.now().toIso8601String(),
-  //     endDate: DateTime.now().toIso8601String(),
-  //   ); // Replace with your actual API call
-  //   notifyListeners();
-  // }
-  // void onFilterChanged(FilterDateEnum? selectedFilter) {
-  //   if (selectedFilter != null) {
-  //     _selectedFilter = selectedFilter;
-  //     if (_selectedFilter != FilterDateEnum.range) {
-  //       _selectedStartDate = '2024-06-01';
-  //       _selectedEndDate = '2024-06-30';
-  //     }
-  //     fetchData();
-  //   }
-  // }
-// void onFilterChanged(FilterDateEnum? selectedFilter) {
-//   if (selectedFilter != null) {
-//     _selectedFilter = selectedFilter;
-
-//     // Reset dates if not in range
-//     if (_selectedFilter != FilterDateEnum.range) {
-//       _selectedStartDate = _selectedStartDate;
-//       _selectedEndDate = _selectedEndDate;
-//     }
-
-//     // Fetch data only if the filter is not a range
-//     if (_selectedFilter != FilterDateEnum.range) {
-//       fetchData();  // Fetch data based on the selected filter
-//       fetchOrders(); // Fetch orders based on the selected filter
-//       notifyListeners();
-//     }
-//   }
-// }
-
   void onFilterChanged(FilterDateEnum? selectedFilter) {
     NotificationController notificationController =
         Get.find<NotificationController>();
@@ -1776,9 +1584,6 @@ class DashboardProvider with ChangeNotifier {
     NotificationController notificationController =
         Get.find<NotificationController>();
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    String createdToken = jsonMap['createdToken'];
     if (_dataFetched) return;
     try {
       final now = DateTime.now();
@@ -1820,7 +1625,7 @@ class DashboardProvider with ChangeNotifier {
           }
           break;
       }
-      _futureResponseModel = Future.delayed(Duration(seconds: 2), () {
+      _futureResponseModel = Future.delayed(const Duration(seconds: 2), () {
         Future<ResponseModell> api = _apiService.fetchDashboardData(
           salesmanId: salesmanId,
           startDate: startDate,
@@ -1892,6 +1697,7 @@ class DashboardProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // ignore: non_constant_identifier_names
   Future<MessagesResponse> fetch_individual_chat(
       String chatId, int page) async {
     try {
@@ -1903,6 +1709,7 @@ class DashboardProvider with ChangeNotifier {
       } else {
         _individualChatMessages ??= [];
         if (page == 1) {
+          // ignore: prefer_collection_literals
           _individualChatMessages = [
             ...chatData.data,
             ..._individualChatMessages!,
@@ -1923,6 +1730,7 @@ class DashboardProvider with ChangeNotifier {
 
   void addMessages(List<Messages> newMessages) {
     _individualChatMessages ??= [];
+    // ignore: prefer_collection_literals
     _individualChatMessages = [
       ...newMessages,
       ..._individualChatMessages!,
@@ -1973,13 +1781,10 @@ class DashboardProvider with ChangeNotifier {
     try {
       await _apiService.changeOrderStatus(orderId, newStatus);
       //fetchOrders();
-      print('sabik . . . . .. orderid $orderId');
-      print('sabik  . . . . . . . .newData $newStatus');
       fetchData();
       notifyListeners(); // Notify listeners after successful update
     } catch (e) {
       // Handle errors or exceptions
-      print('Failed to update order status: $e');
       throw Exception('Failed to update order status: $e');
     }
   }
@@ -1998,7 +1803,6 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  File? _imageFileC;
   final ImagePicker _pickerC = ImagePicker();
 
   File? get imageFileC => _imageFile;
@@ -2007,7 +1811,6 @@ class DashboardProvider with ChangeNotifier {
     final pickedFile = await _pickerC.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
-      _imageFileC = File(pickedFile.path);
       notifyListeners();
     }
   }
@@ -2046,7 +1849,10 @@ class DashboardProvider with ChangeNotifier {
 }
 
 class OrdersScreen extends StatefulWidget {
+  const OrdersScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _OrdersScreenState createState() => _OrdersScreenState();
 }
 
@@ -2057,7 +1863,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Orders'),
+        title: const Text('Orders'),
       ),
       body: Consumer<DashboardProvider>(
         builder: (context, provider, child) {
@@ -2065,7 +1871,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             future: provider.orderResponse,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               } else if (snapshot.hasError) {
@@ -2133,7 +1939,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               _selectedOrderStatus = OrderStatus.delivered;
             });
           },
-          child: Text('Delivered'),
+          child: const Text('Delivered'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -2142,7 +1948,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               _selectedOrderStatus = OrderStatus.outOfDelivery;
             });
           },
-          child: Text('outOfDelivery'),
+          child: const Text('outOfDelivery'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -2150,7 +1956,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               _selectedOrderStatus = OrderStatus.preOrder;
             });
           },
-          child: Text('Pre Order'),
+          child: const Text('Pre Order'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -2160,7 +1966,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               _selectedOrderStatus = OrderStatus.cancelled;
             });
           },
-          child: Text('Canccelled'),
+          child: const Text('Canccelled'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -2168,7 +1974,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               _selectedOrderStatus = null; // Clear filter
             });
           },
-          child: Text('Show All'),
+          child: const Text('Show All'),
         ),
       ],
     );
@@ -2214,7 +2020,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
                 'Order Details',
@@ -2235,13 +2041,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             ),
@@ -2255,9 +2061,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
 class ChatScreen extends StatefulWidget {
   final String salesmanId;
 
-  ChatScreen({required this.salesmanId});
+  const ChatScreen({super.key, required this.salesmanId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatScreenState createState() => _ChatScreenState();
 }
 
@@ -2273,7 +2080,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Data'),
+        title: const Text('Chat Data'),
       ),
       body: Consumer<DashboardProvider>(
         builder: (context, provider, child) {
@@ -2281,7 +2088,7 @@ class _ChatScreenState extends State<ChatScreen> {
             future: provider.salesmenResponse,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               } else if (snapshot.hasError) {
@@ -2289,7 +2096,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Text('Error: ${snapshot.error}'),
                 );
               } else if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
-                return Center(
+                return const Center(
                   child: Text('No chat data available'),
                 );
               } else {
@@ -2299,9 +2106,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final chatList = chatData[index];
                     return Card(
-                      margin: EdgeInsets.all(8.0),
+                      margin: const EdgeInsets.all(8.0),
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: chatList.map((chat) {
@@ -2313,7 +2120,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 Text('Message: ${chat.message}'),
                                 Text('Message: ${chat.email}'),
-                                SizedBox(height: 8.0),
+                                const SizedBox(height: 8.0),
                               ],
                             );
                           }).toList(),
@@ -2330,355 +2137,3 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
-
-// class CategoryListScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return ChangeNotifierProvider(
-//       create: (context) => DashboardProvider(
-//         apiService: ApiService(),
-//         logger: Logger(),
-//       ),
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: const Text('Category List'),
-//         ),
-//         body: Consumer<DashboardProvider>(
-//           builder: (context, provider, child) {
-//             return Column(
-//               crossAxisAlignment: CrossAxisAlignment.stretch,
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.all(8.0),
-//                   child: DropdownButton<FilterDateEnum>(
-//                     value: provider.selectedFilter,
-//                     onChanged: provider.onFilterChanged,
-//                     items: const [
-//                       DropdownMenuItem(
-//                         value: FilterDateEnum.thisMonth,
-//                         child: Text('This Month'),
-//                       ),
-//                       DropdownMenuItem(
-//                         value: FilterDateEnum.today,
-//                         child: Text('Today'),
-//                       ),
-//                       DropdownMenuItem(
-//                         value: FilterDateEnum.thisWeek,
-//                         child: Text('This Week'),
-//                       ),
-//                       DropdownMenuItem(
-//                         value: FilterDateEnum.thisYear,
-//                         child: Text('This Year'),
-//                       ),
-//                       DropdownMenuItem(
-//                         value: FilterDateEnum.range,
-//                         child: Text('Range'),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 if (provider.selectedFilter == FilterDateEnum.range)
-//                   Padding(
-//                     padding: const EdgeInsets.all(8.0),
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                       children: [
-//                         ElevatedButton(
-//                           onPressed: () => provider.selectDate(context, true),
-//                           child: const Text('Select Start Date'),
-//                         ),
-//                         Text('Start Date: ${provider.selectedStartDate}'),
-//                         ElevatedButton(
-//                           onPressed: () => provider.selectDate(context, false),
-//                           child: const Text('Select End Date'),
-//                         ),
-//                         Text('End Date: ${provider.selectedEndDate}'),
-//                         ElevatedButton(
-//                           onPressed: provider.fetchData,
-//                           child: const Text('Load Data'),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 Expanded(
-//                   child: FutureBuilder<ResponseModell>(
-//                     future: provider.futureResponseModel,
-//                     builder: (context, snapshot) {
-//                       if (snapshot.connectionState == ConnectionState.waiting) {
-//                         return const Center(child: CircularProgressIndicator());
-//                       } else if (snapshot.hasError) {
-//                         return Center(child: Text('Error: ${snapshot.error}'));
-//                       } else if (snapshot.hasData) {
-//                         final categories = snapshot.data!.allCategory;
-//                         final categoryPerformance =
-//                             snapshot.data!.categoryPerformance;
-//                         final revenu = snapshot.data!.revenue;
-//                         final collection = snapshot.data!.collection;
-//                         final delivery = snapshot.data!.delivery; // Added
-//                         final topSellingProducts =
-//                             snapshot.data!.topSellingProducts; // New
-
-//                         return ListView.builder(
-//                           itemCount: categories?.length,
-//                           itemBuilder: (context, index) {
-//                             final category = categories?[index];
-//                             final categoryPerf =
-//                                 categoryPerformance!.firstWhere(
-//                               (perf) => perf.category == category?.category,
-//                               orElse: () => CategoryPerformancee(
-//                                 // salesmanId: '',
-//                                 cid: 0,
-//                                 category: category!.category,
-//                                 //   count: 0,
-//                                 actualProjection: 0.0,
-//                                 salesman: [], actualTarget: 0,
-//                               ),
-//                             );
-
-//                             return Card(
-//                               margin: const EdgeInsets.symmetric(
-//                                   horizontal: 8.0, vertical: 4.0),
-//                               child: ExpansionTile(
-//                                 title: Text(category!.category!),
-//                                 children: [
-//                                   ListTile(
-//                                     title: const Text('Category Performance'),
-//                                     subtitle: Column(
-//                                       crossAxisAlignment:
-//                                           CrossAxisAlignment.start,
-//                                       children: [
-//                                         Text(
-//                                             'Count: ${categoryPerf.actualProjection}'),
-//                                         Text(
-//                                             'Actual Projection: ${categoryPerf.actualProjection?.toStringAsFixed(2)}'),
-//                                         const Divider(),
-//                                         const Text('Salesmen:'),
-//                                         ...categoryPerf.salesman!
-//                                             .map((salesman) => ListTile(
-//                                                   title: Text(
-//                                                       salesman.fullname ?? ''),
-//                                                   subtitle: Column(
-//                                                     crossAxisAlignment:
-//                                                         CrossAxisAlignment
-//                                                             .start,
-//                                                     children: [
-//                                                       Text(
-//                                                           'Salesman ID: ${salesman.salesmanId}'),
-//                                                       Text(
-//                                                           'Projection Target: ${salesman.projectionTarget}'),
-//                                                       Text(
-//                                                           'Projection Price: ${salesman.projectionPrice?.toStringAsFixed(2)}'),
-//                                                       Text(
-//                                                           'Actual Price: ${salesman.actualPrice?.toStringAsFixed(2)}'),
-//                                                     ],
-//                                                   ),
-//                                                 )),
-//                                       ],
-//                                     ),
-//                                     trailing: IconButton(
-//                                       icon: const Icon(Icons.edit),
-//                                       onPressed: () {
-//                                         // Open the edit dialog or screen
-//                                         // After editing, call provider.updateCategory with the updated category
-//                                       },
-//                                     ),
-//                                   ),
-//                                   ListTile(
-//                                     title: const Text('Revenue Data'),
-//                                     subtitle: Column(
-//                                       crossAxisAlignment:
-//                                           CrossAxisAlignment.start,
-//                                       children: [
-//                                         Text(
-//                                             'Booking Revenue Data: ${revenu!.bookingRevenueData}'),
-//                                         const Divider(),
-//                                         Text('Order Revenue Data:'),
-//                                         ...revenu.orderRevenueData!
-//                                             .map((order) => ListTile(
-//                                                   title:
-//                                                       Text(order.orderId ?? ''),
-//                                                   subtitle: Column(
-//                                                     crossAxisAlignment:
-//                                                         CrossAxisAlignment
-//                                                             .start,
-//                                                     children: [
-//                                                       Text(
-//                                                           'Total: ${order.total}'),
-//                                                       Text(
-//                                                           'Discount: ${order.discount}'),
-//                                                       Text(
-//                                                           'Status: ${order.status}'),
-//                                                       Text(
-//                                                           'Created At: ${order.createdAt}'),
-//                                                       // Add more fields as needed
-//                                                     ],
-//                                                   ),
-//                                                 )),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                   ListTile(
-//                                     title: const Text('Collection Data'),
-//                                     subtitle: Column(
-//                                       crossAxisAlignment:
-//                                           CrossAxisAlignment.start,
-//                                       children: [
-//                                         Text(
-//                                             'Total Pending Amount: ${collection!.order!.pendingAmount?.length}'),
-//                                         const Divider(),
-//                                         Text('Completed Orders:'),
-//                                         ...collection.payment!.completedOrders!
-//                                             .map((order) => ListTile(
-//                                                   title: Text(order.orderId),
-//                                                   subtitle: Column(
-//                                                     crossAxisAlignment:
-//                                                         CrossAxisAlignment
-//                                                             .start,
-//                                                     children: [
-//                                                       Text(
-//                                                           'Total: ${order.orderTotal}'),
-//                                                       Text(
-//                                                           'Received Amount: ${order.receivedAmount}'),
-//                                                       Text(
-//                                                           'Received Amount Date: ${order.receivedAmountDate}'),
-//                                                       // Add more fields as needed
-//                                                     ],
-//                                                   ),
-//                                                 )),
-//                                         const Divider(),
-//                                         Text('Overdue Amount:'),
-//                                         ...collection.overdue!.overdueAmount!
-//                                             .map((order) => ListTile(
-//                                                   title:
-//                                                       Text(order.orderId ?? ''),
-//                                                   subtitle: Column(
-//                                                     crossAxisAlignment:
-//                                                         CrossAxisAlignment
-//                                                             .start,
-//                                                     children: [
-//                                                       Text(
-//                                                           'Total: ${order.amount}'),
-//                                                       Text(
-//                                                           'Due Date: ${order.dueDate}'),
-//                                                       // Add more fields as needed
-//                                                     ],
-//                                                   ),
-//                                                 )),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                   ListTile(
-//                                     title: const Text(
-//                                         'Delivery Data'), // New section for delivery data
-//                                     subtitle: Column(
-//                                       crossAxisAlignment:
-//                                           CrossAxisAlignment.start,
-//                                       children: [
-//                                         Text(
-//                                             'Order Count: ${delivery?.order?.totalOrders?.length}'),
-//                                         const Divider(),
-//                                         Text(
-//                                             'Delivery Percentage: ${delivery?.deliveryOrder?.percentage}'),
-//                                         ...delivery!.order!.totalOrders!
-//                                             .map((orderDetails) => ListTile(
-//                                                   title: Text('Order Details'),
-//                                                   subtitle: Column(
-//                                                     crossAxisAlignment:
-//                                                         CrossAxisAlignment
-//                                                             .start,
-//                                                     children: [
-//                                                       Text(
-//                                                           'Order ID: ${orderDetails.orderId}'),
-//                                                       Text(
-//                                                           'Status: ${orderDetails.orderStatus}'),
-//                                                       Text(
-//                                                           'Total: ${orderDetails.delivered}'),
-//                                                       // Add more fields as needed
-//                                                     ],
-//                                                   ),
-//                                                 )),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                   ListTile(
-//                                     title: const Text('Top Selling Products'),
-//                                     subtitle: Column(
-//                                       crossAxisAlignment:
-//                                           CrossAxisAlignment.start,
-//                                       children: [
-//                                         ...topSellingProducts!.map((product) =>
-//                                             ListTile(
-//                                               title: Text(
-//                                                   'Product ID: ${product.variationId}'),
-//                                               subtitle: Column(
-//                                                 crossAxisAlignment:
-//                                                     CrossAxisAlignment.start,
-//                                                 children: [
-//                                                   Text(
-//                                                       'Created At: ${product.createdAt}'),
-//                                                   const Text('Customers:'),
-//                                                   ...product.customers!.map(
-//                                                       (customer) => ListTile(
-//                                                             title: Text(customer
-//                                                                     .fullname ??
-//                                                                 ''),
-//                                                             subtitle: Column(
-//                                                               crossAxisAlignment:
-//                                                                   CrossAxisAlignment
-//                                                                       .start,
-//                                                               children: [
-//                                                                 Text(
-//                                                                     'Customer ID: ${customer.customerId}'),
-//                                                                 Text(
-//                                                                     'Email: ${customer.email}'),
-//                                                                 Text(
-//                                                                     'Mobile No: ${customer.mobileno}'),
-//                                                                 // Add more fields as needed
-//                                                               ],
-//                                                             ),
-//                                                           )),
-//                                                   const Text('Quantity List:'),
-//                                                   ...product.quantityList!.map(
-//                                                       (quantity) => ListTile(
-//                                                             title: Text(
-//                                                                 'Quantity ID: ${quantity.id}'),
-//                                                             subtitle: Column(
-//                                                               crossAxisAlignment:
-//                                                                   CrossAxisAlignment
-//                                                                       .start,
-//                                                               children: [
-//                                                                 Text(
-//                                                                     'Product ID: ${quantity.productId}'),
-//                                                                 Text(
-//                                                                     'Quantity: ${quantity.quantity}'),
-//                                                                 Text(
-//                                                                     'Price: ${quantity.price}'),
-//                                                                 // Add more fields as needed
-//                                                               ],
-//                                                             ),
-//                                                           )),
-//                                                 ],
-//                                               ),
-//                                             )),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             );
-//                           },
-//                         );
-//                       } else {
-//                         return const Center(child: Text('No data found'));
-//                       }
-//                     },
-//                   ),
-//                 ),
-//               ],
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }

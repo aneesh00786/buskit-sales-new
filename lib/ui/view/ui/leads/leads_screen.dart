@@ -1,8 +1,7 @@
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_bottom_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_tabbar.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,7 @@ import 'package:get/get.dart';
 import 'leads_controller.dart';
 
 class LeadsScreen extends StatefulWidget {
-  const LeadsScreen({Key? key}) : super(key: key);
+  const LeadsScreen({super.key});
 
   @override
   State<LeadsScreen> createState() => _LeadsScreenState();

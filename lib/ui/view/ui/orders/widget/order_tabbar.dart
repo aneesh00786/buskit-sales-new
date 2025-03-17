@@ -3,7 +3,6 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_bottom_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 class OrdersTabBar extends StatefulWidget {
@@ -11,12 +10,13 @@ class OrdersTabBar extends StatefulWidget {
   final int passIndex;
   final NotificationController notificationController;
 
-  OrdersTabBar(
-      {required this.orderController,
+  const OrdersTabBar(
+      {super.key, required this.orderController,
       this.passIndex = 0,
       required this.notificationController});
 
   @override
+  // ignore: library_private_types_in_public_api
   _OrdersTabBarState createState() => _OrdersTabBarState();
 }
 
@@ -49,11 +49,6 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     super.dispose();
   }
 
-  void _onBarTapped(int index) {
-    setState(() {
-      _selectedTabIndex = index;
-    });
-  }
 
   int _getCountForTab(int index) {
     switch (index) {
@@ -99,9 +94,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
             height: 60,
             child: ScrollbarTheme(
               data: ScrollbarThemeData(
-                trackBorderColor: WidgetStatePropertyAll(Colors.transparent),
+                trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
                 thumbColor:
-                    MaterialStatePropertyAll(primaryColor.withOpacity(0.3)),
+                    WidgetStatePropertyAll(primaryColor.withOpacity(0.3)),
                 trackColor: WidgetStatePropertyAll(Colors.grey[100]),
               ),
               child: Scrollbar(
@@ -187,34 +182,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
               ),
             ),
           ),
-          // Obx(() {
-          //   if (widget.orderController.isLoading.value ||
-          //       widget.orderController.isCountLoading.value) {
-          //     return Column(
-          //       mainAxisAlignment: MainAxisAlignment.center,
-          //       children: [
-          //         SizedBox(
-          //           height: MediaQuery.of(context).size.height * 0.4,
-          //         ),
-          //         SpinKitFadingCube(
-          //           color: primaryColor,
-          //           size: 20.0,
-          //         ),
-          //       ],
-          //     );
-          //   }
-          //   return Expanded(
-          //     child: SizedBox(
-          //       height: MediaQuery.of(context).size.height * 0.9,
-          //       child: OrderBottomWidget(
-          //         orderController: widget.orderController,
-          //         selectedTabIndex: _selectedTabIndex,
-          //       ),
-          //     ),
-          //   );
-          // }),
           Expanded(
-            // height: fullScreenHeight(context) * 0.8,
             child: OrderBottomWidget(
               orderController: widget.orderController,
               selectedTabIndex: _selectedTabIndex,

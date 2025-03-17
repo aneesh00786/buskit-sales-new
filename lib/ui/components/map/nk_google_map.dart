@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/map/location_permission.dart';
@@ -54,7 +56,7 @@ class _MapScreenState extends State<MapScreen> {
       });
     } catch (e) {
       NkCommonFunction.showErrorSnakBar(locationPermissionDenied);
-      print("Error getting location: $e");
+      log("Error getting location: $e");
     }
   }
 

@@ -1,12 +1,10 @@
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,22 +20,6 @@ class CustomerDashbordTopWidget extends StatelessWidget {
       children: [
         topHeadingRow(),
         nkMediumSizeBox(),
-        // OptionWidget(
-        //   draftCount:
-        //       customerDashbordController.customerAndOrderData.value.drafts ?? 0,
-        //   orderCount:
-        //       customerDashbordController.customerAndOrderData.value.preOrder ??
-        //           0,
-        //   preOrderCount:
-        //       customerDashbordController.customerAndOrderData.value.delivery ??
-        //           0,
-        //   eastimatesCount:
-        //       customerDashbordController.customerAndOrderData.value.estimates ??
-        //           0,
-        //   userType: UserType.customer,
-        //   userId:
-        //       customerDashbordController.customerAndOrderData.value.customerId!,
-        // ),
       ],
     );
   }

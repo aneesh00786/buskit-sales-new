@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class PerformanceWidget extends StatelessWidget {
   final String title;
@@ -8,12 +7,12 @@ class PerformanceWidget extends StatelessWidget {
   final Color svgBgColor;
 
   const PerformanceWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.count,
     required this.svg,
     required this.svgBgColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +24,13 @@ class PerformanceWidget extends StatelessWidget {
             BoxShadow(
               color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
               blurRadius: 2,
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
             ),
           ],
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Color.fromARGB(255, 205, 204, 204),
+          color: const Color.fromARGB(255, 205, 204, 204),
           width: 0.5,
         ),
       ),

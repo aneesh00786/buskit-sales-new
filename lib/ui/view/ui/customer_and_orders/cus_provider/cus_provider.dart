@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:win32/win32.dart';
 
 import '../csord_model/customers_orders_model.dart';
 
@@ -90,6 +88,7 @@ class CustomersProvider with ChangeNotifier {
 
   Future<ApiResponsees>? get countFuture => _countFuture;
 
+  // ignore: unused_field
   List<CustomerModelxx> _customers = [];
   List<CustomerModelxx> _filteredCustomers = [];
   List<OrderTotalxx> _orderTotalList = [];
@@ -406,12 +405,12 @@ Future<void> updateCartCount(String customerId) async {
             endDate: endDate,
             orderStatus: s);
       });
-      print("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
+      log("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
 
       notifyListeners();
 
-      print(
-          "sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .${_orderResponse}");
+      log(
+          "sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
 
       notifyListeners();
     } catch (e, stackTrace) {
@@ -450,7 +449,7 @@ Future<void> updateCartCount(String customerId) async {
 
   Future<void> fetchCustomerDashboardData(String customerId, int specifiedYear,
       String? startDate, String? endDate) async {
-    log('Start Date End Date ${startDate}, ${endDate}');
+    log('Start Date End Date $startDate, $endDate');
     try {
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(
@@ -475,7 +474,7 @@ Future<void> updateCartCount(String customerId) async {
     notifyListeners();
   }
 
-  List<RecentOrder> _selectedOrders = [];
+  final List<RecentOrder> _selectedOrders = [];
 
   List<RecentOrder> get selectedOrders => _selectedOrders;
 
@@ -611,7 +610,6 @@ Future<void> updateCartCount(String customerId) async {
   void onFilterChanged(FilterDateEnum? selectedFilter) {
     NotificationController notificationController =
         Get.find<NotificationController>();
-    print('dropdown changed $selectedFilter');
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
       if (_selectedFilter != FilterDateEnum.range) {
@@ -691,11 +689,7 @@ Future<void> updateCartCount(String customerId) async {
     final success =
         await _apiService.addEvent(customerId, eventStatus, daysList);
     if (success) {
-      print(success);
-      print(daysList);
-      print('Event added successfully');
     } else {
-      print('Failed to add event');
     }
     notifyListeners();
   }

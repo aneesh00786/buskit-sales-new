@@ -27,7 +27,7 @@ class CartDatabaseManager {
 
   Future<List<CartItem>> getDraftItems() async {
     final dio = Dio();
-    final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+    const apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);

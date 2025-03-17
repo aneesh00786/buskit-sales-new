@@ -52,8 +52,7 @@ class _CategoryListState extends State<CategoryList> {
                   widget.onDrawerToggle();
                 },
               ),
-              // SizedBox(width:20),
-              Text(
+              const Text(
                 'Categories',
                 style: TextStyle(
                   fontSize: 14.0,
@@ -97,7 +96,7 @@ class _CategoryListState extends State<CategoryList> {
                           children: [
                             Text(
                               category.categoryName ?? '',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -142,7 +141,7 @@ class _CategoryListState extends State<CategoryList> {
                                   ),
                                   child: Text(
                                     option.subCategory ?? '',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12.0,
                                       color: Colors.black,
                                     ),

@@ -3,43 +3,22 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CustomerAndOrderController extends GetxController {
-  // final ApiWorker _apiWorker = Get.find();
-
   RxString customerId = ''.obs;
-
 
   RxList<CustomerAndOrderData> customerAndOrderList =
       <CustomerAndOrderData>[].obs;
-
-  // RxString customerVisitScheduleSet = "".obs;
 
   Rx<StaffData> selectedStaff = StaffData().obs;
 
   SearchModel searchData = SearchModel();
 
   PaginationModel customerPage = PaginationModel();
-
-  // RxList<String> coustomerTabelsHeadersList = [
-  //   "Customer",
-  //   "Edit/Delete",
-  //   "Total Sales",
-  //   "Sales",
-  //   "Delivery",
-  //   "Payment",
-  //   "Estimates",
-  //   "Pre-Order",
-  //   "Drafts",
-  //   /* "Cancelled",*/
-  //   "Visit",
-  // ].obs;
 
   RxList<String> coustomerTabelsHeadersList = [
     "Customer",
@@ -50,10 +29,6 @@ class CustomerAndOrderController extends GetxController {
     "Drafts",
     "Cancelled",
     "Visit",
-    // "SE",
-    // "Allocate",
-    //
-    // "Credit Period",
   ].obs;
 
   RxList<String> visitTypeList = [
@@ -64,15 +39,6 @@ class CustomerAndOrderController extends GetxController {
     "This Month",
     "Daily"
   ].obs;
-
-  // Future<Iterable<CustomerAndOrderData>> get loadCustomer async {
-  //   log("SALESMAN ${selectedStaff.value.salesmanId}");
-  //   log("StartDate123++123 ${searchData.endDate}");
-  //   var data = await _apiWorker.getCustomer('', searchData, PaginationModel());
-  //   customerAndOrderList.assignAll(data.custAndOrderdata!);
-  //   refresh();
-  //   return data.custAndOrderdata!;
-  // }
 
   void setCustomerId(String id) {
     customerId.value = id;
@@ -95,8 +61,6 @@ class CustomerAndOrderController extends GetxController {
   }
 
   Future deleteCustomer(String customerId, int index) async {
-    final companyId = SessionHelper.loginSavedData?.company_id??0;
-    var map = {"id": customerId,"companyId":companyId};
     var data = await ApiWorker().deleteCustomer(customerId);
     if (data.statusCode == 200 && data.data["status"] == true) {
       customerAndOrderList.removeAt(index);
@@ -115,10 +79,7 @@ class CustomerAndOrderController extends GetxController {
       "days_list": jsonEncode(selectedWeekDay ?? [])
     };
     var data = await ApiWorker().assignVisit(map);
-    if (data.statusCode == 200 && data.data["status"] == true) {
-      // NkCommonFunction.showSuccessSnakBar(
-      //     customerName.nkStringCapitalizeFirstCaracter);
-    }
+    if (data.statusCode == 200 && data.data["status"] == true) {}
     refresh();
     return data;
   }
@@ -195,7 +156,6 @@ class CustomerAndOrderController extends GetxController {
       'se': '5',
       'creditPeriod': '30 days',
     },
-    // Add more data as needed
   ].obs;
 
   var isAllocated = false.obs;
@@ -208,18 +168,13 @@ class CustomerAndOrderController extends GetxController {
     selectedYear.value = value;
   }
 
-  // List of dropdown items
   final List<String> items = [
     'Weekly',
     'Daily',
     'Fortnightly'
         'Monthly'
   ];
-
-  // Observable variable to store the selected item
   var selectedItem = "Daily".obs;
-
-  // Function to update the selected item
   void updateSelectedItem(String value) {
     selectedItem.value = value;
   }

@@ -1,11 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, library_private_types_in_public_api
 
-import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -260,7 +258,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                 .reduce((a, b) => a > b ? a : b)
             : 0;
 
-        print("Max Bar Value: $maxBarValue");
 
         final int magnitude = pow(
                 10,
@@ -271,7 +268,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
         final double dynamicMaxY =
             ((maxBarValue / magnitude).ceil() * magnitude).toDouble();
 
-        print("Dynamic Max Y: $dynamicMaxY");
 
         final int dynamicInterval;
         if (dynamicMaxY >= 1000000000) {
@@ -306,10 +302,9 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
           dynamicInterval = 5;
         }
 
-        print("Dynamic Interval: $dynamicInterval");
 
         return widget.categoryPerformance.isEmpty
-            ? SizedBox(
+            ? const SizedBox(
                 height: 200,
                 child: Center(
                   child: Text(
@@ -394,11 +389,11 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                                 reservedSize: 40,
                                               ),
                                             ),
-                                            topTitles: AxisTitles(
+                                            topTitles: const AxisTitles(
                                               sideTitles:
                                                   SideTitles(showTitles: false),
                                             ),
-                                            rightTitles: AxisTitles(
+                                            rightTitles: const AxisTitles(
                                               sideTitles:
                                                   SideTitles(showTitles: false),
                                             ),
@@ -419,8 +414,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                                   event is FlTapUpEvent) {
                                                 final int index = touchResponse
                                                     .spot!.touchedBarGroupIndex;
-                                                print(
-                                                    "Touched Bar Index: $index");
 
                                                 CategoryPerformance perf =
                                                     widget.categoryPerformance
@@ -432,8 +425,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                                               index]
                                                           .category,
                                                 );
-                                                print(
-                                                    "Clicked on category: ${perf.category}, ID: ${perf.cid}");
                                                 _showSalesmanPopup(
                                                     perf.cid ?? 0,
                                                     widget
@@ -482,11 +473,11 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                           reservedSize: 40,
                                         ),
                                       ),
-                                      topTitles: AxisTitles(
+                                      topTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
-                                      rightTitles: AxisTitles(
+                                      rightTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),

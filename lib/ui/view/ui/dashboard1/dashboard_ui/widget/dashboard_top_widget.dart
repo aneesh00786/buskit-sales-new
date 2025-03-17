@@ -1,5 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
-import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
@@ -25,7 +26,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
@@ -36,13 +36,10 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../dashboard_controller.dart';
@@ -102,10 +99,10 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       children: [
         calender(),
         nkSmallSizeBox(),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Obx(() {
           if (widget.dashBoardController.isLoading.value) {
-            return Center(
+            return const Center(
               child: SpinKitFadingCube(
                 color: primaryColor,
                 size: 20.0,
@@ -114,9 +111,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
           }
           if (widget.dashBoardController.errorMessage.value.isNotEmpty) {
             log('Error: ${widget.dashBoardController.errorMessage.value}');
-            return Center(
-                child: Text(
-                    'Error: ${widget.dashBoardController.errorMessage.value}'));
+            return const Center(
+                child: NodataWidget());
           }
           final data = widget.dashBoardController.dashbordData.value;
           log('DashBoard data Value ===========${data.orderCountList}');
@@ -166,7 +162,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                                   color: Colors.black.withOpacity(0.1),
                                   spreadRadius: 1,
                                   blurRadius: 3,
-                                  offset: Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
@@ -453,14 +449,14 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                     await calenderMapController
                         .fetchCalenderEvents(initialDay ?? DateTime.now());
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Syncing offline orders...'),
                         backgroundColor: Colors.blue,
                       ),
                     );
                   },
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 NotificationWidget(
                   startDate: provider.selectedStartDate,
                   endDate: provider.selectedEndDate,
@@ -545,7 +541,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       VoidCallback? onTap}) {
     SvgPicture svgComponet = SvgPicture.asset(
       svg,
-      height: AppDimensions.instance!.height * 0.03,
+      height: AppDimensions.instance.height * 0.03,
       fit: BoxFit.contain,
     );
     return MyCommnonContainer(

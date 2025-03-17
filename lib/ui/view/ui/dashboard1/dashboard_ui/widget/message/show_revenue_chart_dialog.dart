@@ -1,10 +1,8 @@
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -15,10 +13,7 @@ import 'package:provider/provider.dart';
 
 void showRevenueChartDialog(
   BuildContext context,
-// Revenuee categoryData,
   String title,
-  // String staffProjection,
-  // String categoryTarget
 ) {
   showDialog(
     context: context,
@@ -32,15 +27,6 @@ void showRevenueChartDialog(
           builder: (BuildContext context, BoxConstraints constraints) {
             double dialogWidth = MediaQuery.of(context).size.width * 0.8;
             double maxDialogHeight = constraints.maxHeight * 0.7;
-            // double rowHeight = 40.0;
-            // double headerHeight = 30.0;
-            // var displayData = title == "Order"
-            //     ? categoryData.orderRevenueData
-            //     : categoryData.bookingRevenueData;
-
-            // double listHeight = (displayData?.length ?? 0) * rowHeight;
-            // double contentHeight =
-            //     listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,

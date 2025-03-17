@@ -56,6 +56,7 @@ class LoginData {
     this.imagePath,
     this.createAt,
     this.token,
+    // ignore: non_constant_identifier_names
     this.company_id,
     this.createdToken,
   });

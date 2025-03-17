@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
@@ -12,7 +10,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:get/get.dart';
 
 class CustomerAndOrderController extends GetxController {
-  // final ApiWorker _apiWorker = Get.find();
    RxString customerId = ''.obs;
 
   RxList<CustomerAndOrderData> customerAndOrderList =

@@ -1,11 +1,8 @@
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_diloag_screen.dart';
-import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/search/search_filter.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_order_details/customer_order_details_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
@@ -25,19 +22,6 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
       children: [
         topHeadingRow(),
         nkMediumSizeBox(),
-        // OptionWidget(
-        //   eastimatesCount: customerOrderDetailsController
-        //       .customerAndOrderData.value.estimates,
-        //   preOrderCount: customerOrderDetailsController
-        //       .customerAndOrderData.value.delivery,
-        //   draftCount:
-        //       customerOrderDetailsController.customerAndOrderData.value.drafts,
-        //   orderCount: customerOrderDetailsController
-        //       .customerAndOrderData.value.preOrder,
-        //   userType: UserType.customer,
-        //   userId: customerOrderDetailsController
-        //       .customerAndOrderData.value.customerId!,
-        // ),
       ],
     );
   }
@@ -49,10 +33,6 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
         InkResponse(
             onTap: () => Get.back(), child: const Icon(Icons.arrow_back_ios)),
         nkMediumSizeBox(),
-        // Flexible(
-        //     child: SearchFilter(
-          
-        // )),
         const Spacer(),
         InkResponse(
             onTap: () {
@@ -91,8 +71,8 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
             child: ClipOval(
                 child: MyNetworkImage(
               imageUrl: imageUrl,
-              height: AppDimensions.instance!.height * 0.05,
-              width: AppDimensions.instance!.height * 0.05,
+              height: AppDimensions.instance.height * 0.05,
+              width: AppDimensions.instance.height * 0.05,
             )),
           ),
           MyRegularText(label: customerName),

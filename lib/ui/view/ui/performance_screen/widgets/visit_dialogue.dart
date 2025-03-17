@@ -1,27 +1,20 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/datacolumn_and_row.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:scrollable_table_view/scrollable_table_view.dart';
 
 Widget buildVisitsDialogContent(
     VisitData? data, StaffController staffController) {
   if (data == null) return const Text('No Visit data available.');
-
-  // Prepare headers for the table
   List<String> headers = [
     "Date",
     "Customer",
     "Status",
   ];
 
-  // Prepare rows based on the visit data
   List<List<String>> rows = (staffController.visitData.value == null ||
           staffController.visitData.value!.data == null ||
           staffController.visitData.value!.data!.isEmpty)
@@ -57,15 +50,15 @@ Widget buildVisitsDialogContent(
 
       return Stack(
         children: [
-          Container(
+          SizedBox(
             width: availableWidth,
             height: containerHeight,
             child: Column(
               children: [
                 // Header
                 Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(15),
                       topRight: Radius.circular(15),
                     ),
@@ -115,30 +108,28 @@ Widget buildVisitsDialogContent(
                             int columnIndex = entry.key;
                             String cellValue = entry.value;
                             TextStyle cellStyle;
-
-                            // Assign specific styles based on column index
                             switch (columnIndex) {
                               case 0:
-                                cellStyle = TextStyle(
+                                cellStyle = const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 );
                                 break;
                               case 3:
-                                cellStyle = TextStyle(
+                                cellStyle = const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.blueGrey,
                                 );
                                 break;
                               case 5:
-                                cellStyle = TextStyle(
+                                cellStyle = const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 );
                                 break;
                               default:
-                                cellStyle = TextStyle(
+                                cellStyle = const TextStyle(
                                   fontSize: 14,
                                   color: Colors.black87,
                                 );

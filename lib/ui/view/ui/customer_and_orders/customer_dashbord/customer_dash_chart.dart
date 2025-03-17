@@ -1,4 +1,5 @@
-import 'dart:developer';
+// ignore_for_file: unnecessary_null_comparison, deprecated_member_use
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -11,9 +12,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_wi
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/option/widgets/option_dialogues/orders_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -21,16 +20,11 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/customer_order_status_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
 import 'package:provider/provider.dart';
-
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class OptionWidgetCustomerDash extends StatefulWidget {
@@ -47,7 +41,7 @@ class OptionWidgetCustomerDash extends StatefulWidget {
   final ProductsController? productsController;
   final VoidCallback onContinueShopping;
 
-   OptionWidgetCustomerDash({
+  const OptionWidgetCustomerDash({
     super.key,
     required this.customerId,
     this.optionFun,
@@ -63,11 +57,12 @@ class OptionWidgetCustomerDash extends StatefulWidget {
   });
 
   @override
-  State<OptionWidgetCustomerDash> createState() => _OptionWidgetCustomerDashState();
+  State<OptionWidgetCustomerDash> createState() =>
+      _OptionWidgetCustomerDashState();
 }
 
 class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
-    CustomerAndOrderController customerOrderController =
+  CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
 
   final ScrollController _scrollController1 = ScrollController();
@@ -231,13 +226,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
         onTap: optionData.onTap,
         margin: nkSymmetricPadding(
           vertical: 0,
-          horizontal: AppDimensions.instance!.width * 0.001,
+          horizontal: AppDimensions.instance.width * 0.001,
         ),
         boxShadow: [
           BoxShadow(
             color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
             blurRadius: 2,
-            offset: Offset(4, 4),
+            offset: const Offset(4, 4),
           ),
         ],
         borderRadius: 20,
@@ -298,15 +293,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   String _getCountForTitle(String title, OrderDataas orderCountList) {
     switch (title.toLowerCase()) {
       case 'order':
-        return orderCountList.totalOrder.toString() ?? "0";
+        return orderCountList.totalOrder.toString();
       case 'estimate':
-        return orderCountList.estimateOrder.toString() ?? "0";
+        return orderCountList.estimateOrder.toString();
       case 'booking':
-        return orderCountList.preorderOrder.toString() ?? "0";
+        return orderCountList.preorderOrder.toString();
       case 'draft':
-        return orderCountList.draftOrder.toString() ?? "0";
+        return orderCountList.draftOrder.toString();
       case 'cancelled':
-        return orderCountList.cancelOrder.toString() ?? "0";
+        return orderCountList.cancelOrder.toString();
       default:
         return "0";
     }
@@ -1128,7 +1123,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   }
 
   void _showOrderTypeDialog(BuildContext context, CustomersProvider provider,
-      OrderStatus selectedOrderStatus, String orderType,{VoidCallback? onContinueShopping}) {
+      OrderStatus selectedOrderStatus, String orderType,
+      {VoidCallback? onContinueShopping}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1368,7 +1364,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   onTap: () {
                                                                     showDetailedOrderInvoiceDialog(
                                                                         context,
-                                                                        order.orderId??'',
+                                                                        order
+                                                                            .orderId,
                                                                         false);
                                                                   },
                                                                   child: Center(

@@ -124,7 +124,7 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
         customerId: customerId ?? this.customerId,
         cartId: cartId ?? this.cartId,
         draftId: draftId ?? this.draftId,
-        isChecked: isChcked ?? this.isChecked,
+        isChecked: isChcked ?? isChecked,
         draftTotal: draftTotal ?? this.draftTotal,
         salesmanId: salesmanId ?? this.salesmanId,
         boxType: boxType ?? this.boxType,

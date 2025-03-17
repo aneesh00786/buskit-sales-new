@@ -60,10 +60,10 @@ class DialogHeaderText extends StatelessWidget {
   final double fontSize;
 
   const DialogHeaderText({
-    Key? key,
+    super.key,
     required this.text,
     this.fontSize = 12.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,11 +90,10 @@ class DialogTableHeaderText extends StatelessWidget {
   final TextAlign align;
 
   const DialogTableHeaderText(
-      {Key? key,
+      {super.key,
       required this.text,
       this.fontSize = 12.0,
-      this.align = TextAlign.center})
-      : super(key: key);
+      this.align = TextAlign.center});
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +112,7 @@ class DialogTableHeaderText extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class CustomText extends StatelessWidget {
   Color? color;
   String? fontFamily;
@@ -140,69 +140,35 @@ class CustomText extends StatelessWidget {
     return Text(
       content ?? '',
       style: TextStyle(
-          color: color != null ? color : Colors.black,
-          fontFamily: fontFamily != null ? fontFamily : 'Poppins_Regular',
+          color: color ?? Colors.black,
+          fontFamily: fontFamily ?? 'Poppins_Regular',
           fontSize: fontSize,
           fontWeight: fontWeight),
-      textAlign: textAlign != null ? textAlign : null,
-      maxLines: maxLine == null ? null : maxLine,
+      textAlign: textAlign,
+      maxLines: maxLine,
       overflow: overflow,
     );
   }
 }
-
-// Widget dialogCloseButton(BuildContext context, Color color) {
-//   return CircleAvatar(
-//     backgroundColor: Colors.transparent,
-//     child: SizedBox(
-//       width: 25.8,
-//       height: 25.8,
-//       child: Container(
-//         decoration: BoxDecoration(
-//           shape: BoxShape.circle,
-//           border: Border.all(
-//             color: color,
-//           ),
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(3.5),
-//           child: IconButton(
-//             icon: Icon(
-//               Icons.close,
-//               color: color,
-//               size: 16,
-//             ),
-//             padding: EdgeInsets.zero,
-//             constraints: const BoxConstraints(),
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//             },
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
-//=============================================================================
+// ignore: must_be_immutable
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   Color? color;
 
   CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.color = Colors.blue,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       style: ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(color),
-        shape: MaterialStatePropertyAll(
+        backgroundColor: WidgetStatePropertyAll(color),
+        shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
@@ -216,7 +182,7 @@ Widget dashboardContainerHeader(String text) {
   return Container(
     decoration: BoxDecoration(
       color: primaryColor.withOpacity(0.2),
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(25),
         bottomRight: Radius.circular(25),
       ),

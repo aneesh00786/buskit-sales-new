@@ -70,12 +70,12 @@ void showValueDialog(
                       Container(
                         color: const Color.fromARGB(255, 247, 247, 247),
                         height: headerHeight,
-                        child: Row(
+                        child: const Row(
                           children: [
                             Expanded(
                               child: Text(
                                 'Date',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
@@ -83,7 +83,7 @@ void showValueDialog(
                             Expanded(
                               child: Text(
                                 'Invoice',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
@@ -91,7 +91,7 @@ void showValueDialog(
                             Expanded(
                               child: Text(
                                 'Status',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
@@ -99,7 +99,7 @@ void showValueDialog(
                             Expanded(
                               child: Text(
                                 'Amount',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
@@ -123,7 +123,7 @@ void showValueDialog(
                               if (displayData?.isEmpty ?? true) {
                                 return buildEmptyRow();
                               } else {
-                                var item = displayData![index];
+                                
                                 return Container(
                                   decoration: BoxDecoration(
                                     border: Border(
@@ -215,13 +215,13 @@ void showValueDialog(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
-                              Expanded(
+                              const Expanded(
                                 flex: 1,
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Total',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.left,
@@ -412,7 +412,7 @@ void showValueDialogCusDash(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          DialogTableHeaderText(
+                          const DialogTableHeaderText(
                             text: 'Total',
                             fontSize: 13,
                           ),

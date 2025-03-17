@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -31,7 +33,7 @@ class CalenderMapController extends GetxController {
   final Rx<LatLng?> currentLatLng = Rxn<LatLng>();
   final Rx<LatLng?> searchedLatLng = Rxn<LatLng>();
   final RxString currentLocationText = 'Current location'.obs;
-  GoogleMapController? mapController = null;
+  GoogleMapController? mapController;
   final customerList = <Customer>[].obs;
   RxList<Customer> selectedCustomers = <Customer>[].obs;
   var sortedCustomer = ''.obs;
@@ -43,12 +45,10 @@ class CalenderMapController extends GetxController {
   RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
-  late ApiWorker _apiWoker;
   @override
   void onInit() {
     super.onInit();
     requestLocationPermission();
-    _apiWoker= Get.put(ApiWorker());
   }
 
   void initializeCheckedList(
@@ -103,7 +103,7 @@ class CalenderMapController extends GetxController {
 void showSelectedCustomerRoute(BuildContext context) {
   if (selectedCustomers.isNotEmpty) {
     log('${selectedCustomers.length}');
-    Get.to(() => CustomerMapScreen());
+    Get.to(() => const CustomerMapScreen());
   } else {
     log('No customers selected');
     Get.snackbar('No Route Available', 'Please select at least one customer.');
@@ -150,7 +150,7 @@ void showSelectedCustomerRoute(BuildContext context) {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print('Location services are disabled.');
+        log('Location services are disabled.');
         return;
       }
       Position position = await Geolocator.getCurrentPosition(
@@ -175,7 +175,7 @@ void showSelectedCustomerRoute(BuildContext context) {
         log('No address found for the provided coordinates.');
       }
     } catch (e) {
-      print('Error getting location: $e');
+      log('Error getting location: $e');
     }
   }
 
@@ -360,7 +360,7 @@ void showSelectedCustomerRoute(BuildContext context) {
           List<LatLng> polylineCoordinates = decodePolyline(points);
           addPolyline(polylineCoordinates);
           createMarkers();
-          log('Points :${points}');
+          log('Points :$points');
         } else {
           log('No routes found');
         }
@@ -405,7 +405,7 @@ void showSelectedCustomerRoute(BuildContext context) {
     polylines.clear();
     polylines.add(
       Polyline(
-        polylineId: PolylineId('route'),
+        polylineId: const PolylineId('route'),
         points: coordinates,
         color: Colors.blue,
         width: 6,
@@ -418,18 +418,18 @@ void showSelectedCustomerRoute(BuildContext context) {
     if (currentLatLng.value != null) {
       markers.add(
         Marker(
-          markerId: MarkerId('Current Location'),
+          markerId: const MarkerId('Current Location'),
           position: currentLatLng.value!,
-          infoWindow: InfoWindow(title: 'Current Location'),
+          infoWindow: const InfoWindow(title: 'Current Location'),
         ),
       );
     }
     if (searchedLatLng.value != null) {
       markers.add(
         Marker(
-          markerId: MarkerId('Searched Location'),
+          markerId: const MarkerId('Searched Location'),
           position: searchedLatLng.value!,
-          infoWindow: InfoWindow(title: 'Destination'),
+          infoWindow: const InfoWindow(title: 'Destination'),
         ),
       );
     }
@@ -476,18 +476,18 @@ void showSelectedCustomerRoute(BuildContext context) {
   void showPermissionDeniedDialog() {
     Get.dialog(
       AlertDialog(
-        title: Text("Permission Denied"),
-        content: Text("Location permission is required to access the map."),
+        title: const Text("Permission Denied"),
+        content: const Text("Location permission is required to access the map."),
         actions: [
           TextButton(
-            child: Text("Go to Settings"),
+            child: const Text("Go to Settings"),
             onPressed: () {
               openAppSettings();
               Get.back();
             },
           ),
           TextButton(
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
             onPressed: () {
               Get.back();
             },
@@ -563,7 +563,7 @@ void showSelectedCustomerRoute(BuildContext context) {
   Future<void> fetchCalenderEvents(
     DateTime initialDay,
   ) async {
-    var salesmanId = await SessionHelper.loginSavedData?.salesmanId;
+    var salesmanId =  SessionHelper.loginSavedData?.salesmanId;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     int companyId = jsonMap['company_id'];

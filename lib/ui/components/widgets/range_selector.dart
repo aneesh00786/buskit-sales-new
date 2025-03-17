@@ -8,7 +8,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/calander_date_range
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_popup_menue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -64,7 +63,7 @@ class RangeSelectorState extends State<RangeSelector> {
                 color: Colors.black.withOpacity(0.1),
                 spreadRadius: 1,
                 blurRadius: 3,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -91,7 +90,7 @@ class RangeSelectorState extends State<RangeSelector> {
                 .toList(),
             buttonChild: Container(
               padding: nkSymmetricPadding(
-                  vertical: AppDimensions.instance!.height * .002),
+                  vertical: AppDimensions.instance.height * .002),
               decoration: decoration,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,7 +132,7 @@ class RangeSelectorState extends State<RangeSelector> {
               ? (ResponsiveInfo.isMobileDimension(context) ? 30 : 45)
               : (ResponsiveInfo.isMobileDimension(context) ? 45 : 50),
           decoration: BoxDecoration(
-            color: Color(0xff747ced),
+            color: const Color(0xff747ced),
             borderRadius: BorderRadius.circular(
                 ResponsiveInfo.isMobileDimension(context) ? 5 : 7),
           ),

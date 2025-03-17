@@ -89,21 +89,21 @@ class ProductModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['id'] = this.id;
-    data['product_id'] = this.productId;
-    data['brandname'] = this.brandname;
-    data['product_name'] = this.productName;
-    data['description'] = this.description;
-    data['reason_by_salesman'] = this.reasonBySalesman;
-    data['image_url'] = this.imageUrl;
-    data['incl_tax'] = this.inclTax;
-    data['status'] = this.status;
-    data['scid'] = this.scid;
-    data['catId'] = this.catId;
-    data['company_id'] = this.companyId;
-    data['stock'] = this.stock;
-    if (this.detail != null) {
-      data['detail'] = this.detail!.map((v) => v.toJson()).toList();
+    data['id'] = id;
+    data['product_id'] = productId;
+    data['brandname'] = brandname;
+    data['product_name'] = productName;
+    data['description'] = description;
+    data['reason_by_salesman'] = reasonBySalesman;
+    data['image_url'] = imageUrl;
+    data['incl_tax'] = inclTax;
+    data['status'] = status;
+    data['scid'] = scid;
+    data['catId'] = catId;
+    data['company_id'] = companyId;
+    data['stock'] = stock;
+    if (detail != null) {
+      data['detail'] = detail!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -302,7 +302,7 @@ class Detail {
       unitTax: unitTax ?? this.unitTax,
       pack: pack ?? this.pack,
       discount: discount ?? this.discount,
-      totaltax: totaltax ?? this.totaltax,
+      totaltax: totaltax ?? totaltax,
     );
   }
 
@@ -341,37 +341,37 @@ class Detail {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['id'] = this.id;
-    data['company_id'] = this.companyId;
-    data['product_id'] = this.productId;
-    data['variation_id'] = this.variationId;
-    data['in_no'] = this.inNo;
-    data['barcode'] = this.barcode;
-    data['variation_name'] = this.variationName;
-    data['unitType'] = this.unitType;
-    data['price'] = this.price;
-    data['sell_price'] = this.sellPrice;
-    data['tax'] = this.tax;
-    data['packtype'] = this.packtype;
-    data['pieces'] = this.pieces;
-    data['stock'] = this.stock;
-    data['lowstock'] = this.lowstock;
-    data['fullstock'] = this.fullstock;
-    data['image_url'] = this.imageUrl;
-    data['status'] = this.status;
-    data['v_status'] = this.vStatus;
-    data['count'] = this.count;
-    data['saleBy'] = this.saleBy;
-    data['totalPrice'] = this.totalPrice;
-    data['selling_price'] = this.sellingPrice;
-    data['pack_price'] = this.packPrice;
-    data['selling_pack_price'] = this.sellingPackPrice;
-    data['incl_tax'] = this.inclTax;
-    data['quantity'] = this.initialQuantity;
-    data['unit_tax'] = this.unitTax;
-    data['packType'] = this.pack;
-    data['discount'] = this.discount;
-    data['total_tax'] = this.totaltax;
+    data['id'] = id;
+    data['company_id'] = companyId;
+    data['product_id'] = productId;
+    data['variation_id'] = variationId;
+    data['in_no'] = inNo;
+    data['barcode'] = barcode;
+    data['variation_name'] = variationName;
+    data['unitType'] = unitType;
+    data['price'] = price;
+    data['sell_price'] = sellPrice;
+    data['tax'] = tax;
+    data['packtype'] = packtype;
+    data['pieces'] = pieces;
+    data['stock'] = stock;
+    data['lowstock'] = lowstock;
+    data['fullstock'] = fullstock;
+    data['image_url'] = imageUrl;
+    data['status'] = status;
+    data['v_status'] = vStatus;
+    data['count'] = count;
+    data['saleBy'] = saleBy;
+    data['totalPrice'] = totalPrice;
+    data['selling_price'] = sellingPrice;
+    data['pack_price'] = packPrice;
+    data['selling_pack_price'] = sellingPackPrice;
+    data['incl_tax'] = inclTax;
+    data['quantity'] = initialQuantity;
+    data['unit_tax'] = unitTax;
+    data['packType'] = pack;
+    data['discount'] = discount;
+    data['total_tax'] = totaltax;
     return data;
   }
 }

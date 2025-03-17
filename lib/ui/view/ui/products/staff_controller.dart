@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -11,11 +10,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/perfo
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/src/response.dart' as respo;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
-
 import '../../../../api_handler/api_worker.dart';
 import '../../../components/diloags/product_details_diloag/model/staff_responce.dart';
 import '../customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
@@ -147,30 +144,6 @@ class StaffController extends GetxController {
         staffId, selectedMonthName, currentYear, selectedMonthName);
   }
 
-  // Future<respo.Response> updateCategoryTarget(
-  //   String salesmanId,
-  //   String month,
-  //   String year,
-  //   Map<dynamic, String> categoryData,
-  //   Map<dynamic, String> weeklyTarget,
-  // ) async {
-  //   try {
-  //     final data = await ApiWorker().updateCategoryTargetValue(
-  //       salesmanId,
-  //       month,
-  //       year,
-  //       categoryData,
-  //       weeklyTarget,
-  //     );
-  //     print(data.statusMessage);
-
-  //     return data;
-  //   } catch (e) {
-  //     print('Error: $e');
-  //     rethrow;
-  //   }
-  // }
-
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
       return IconButton(
@@ -212,10 +185,8 @@ class StaffController extends GetxController {
   ////fetch customer////
   Future<Iterable<CustomerAndOrderData>> loadCustomer(String? id) async {
     log("SALESMAN ${selectedStaff.value.salesmanId}");
-    print("StartDate ${searchModel.startDate}");
-    var data = await _apiWorker.getCustomer(
-        // id, searchModel, PaginationModel()
-        );
+    log("StartDate ${searchModel.startDate}");
+    var data = await _apiWorker.getCustomer();
     customerAndOrderList.assignAll(data.custAndOrderdata!);
     refresh();
     return data.custAndOrderdata!;
@@ -343,7 +314,7 @@ class StaffController extends GetxController {
       staffTimesheetData.clear();
       return {};
     } finally {
-      Future.delayed(Duration(milliseconds: 50), () {
+      Future.delayed(const Duration(milliseconds: 50), () {
         isTimesheetLoading.value = false;
       }); // Ensure GetX updates UI
     }
@@ -359,9 +330,9 @@ class StaffController extends GetxController {
     try {
       var data = await ApiWorker().updateValueBasedTargetValue(
           salesmanId, year, month, monthTarget, weeklyTarget);
-      print(data.statusMessage);
+      log("${data.statusMessage}");
     } catch (e) {
-      print('Error: $e');
+      log('Error: $e');
       rethrow;
     }
   }
@@ -377,9 +348,9 @@ class StaffController extends GetxController {
     try {
       var data = await ApiWorker().updateCategoryTargetValue(salesmanId, month,
           year, categoryData, weeklyTarget, weeklyProjection);
-      print(data.statusMessage);
+      log("${data.statusMessage}");
     } catch (e) {
-      print('Error: $e');
+      log('Error: $e');
       rethrow;
     }
   }

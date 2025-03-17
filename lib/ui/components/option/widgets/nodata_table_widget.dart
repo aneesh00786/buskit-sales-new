@@ -4,22 +4,21 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Container nodataDialogueTable({
+SizedBox nodataDialogueTable({
     required String option,
   }) {
-    return Container(
+    return SizedBox(
       height: 300,
       width: double.infinity,
       child: Stack(
         children: [
           Column(
             children: [
-              // Header Section
               Container(
                 color: primaryColor,
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Table(
-                  columnWidths: {
+                  columnWidths: const {
                     0: FlexColumnWidth(2),
                     1: FlexColumnWidth(2),
                     2: FlexColumnWidth(2),
@@ -41,7 +40,7 @@ Container nodataDialogueTable({
                   ],
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: NodataWidget(),
                 ),
@@ -53,7 +52,7 @@ Container nodataDialogueTable({
             top: 1,
             right: 1,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 EneftyIcons.close_circle_outline,
                 color: Colors.red,
                 size: 24,
@@ -67,8 +66,8 @@ Container nodataDialogueTable({
       ),
     );
   }
-  Container nodataOrderTableDialogue() {
-    return Container(
+  SizedBox nodataOrderTableDialogue() {
+    return SizedBox(
       height: 300,
       width: double.infinity,
       child: Stack(
@@ -77,9 +76,9 @@ Container nodataDialogueTable({
             children: [
               Container(
                 color: primaryColor,
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Table(
-                  columnWidths: {
+                  columnWidths: const {
                     0: FlexColumnWidth(2),
                     1: FlexColumnWidth(2),
                     2: FlexColumnWidth(2),
@@ -105,7 +104,7 @@ Container nodataDialogueTable({
                   ],
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: NodataWidget(),
                 ),
@@ -116,7 +115,7 @@ Container nodataDialogueTable({
             top: 0,
             right: 0,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 EneftyIcons.close_circle_outline,
                 color: Colors.red,
                 size: 24,
@@ -136,7 +135,7 @@ Container nodataDialogueTable({
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           color: Colors.white,
           fontWeight: FontWeight.bold,

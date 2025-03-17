@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
@@ -58,144 +57,142 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
-    return Container(
-      child: Row(
-        children: [
-          SizedBox(
-            width: 270,
-            child: Column(
-              children: [
-                _buildTableHeader1(
-                  Center(
-                    child: CustomText(
-                      content: "Customers",
-                      textAlign: TextAlign.center,
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+    return Row(
+      children: [
+        SizedBox(
+          width: 270,
+          child: Column(
+            children: [
+              _buildTableHeader1(
+                Center(
+                  child: CustomText(
+                    content: "Customers",
+                    textAlign: TextAlign.center,
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  270,
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    controller: vertical,
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      children: widget.leadsCustomerController.customersDataList
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                        int index = entry.key;
-                        LeadCustomerData leadCustomerData = entry.value;
-
-                        return Container(
-                          height: fixedRowHeight,
-                          decoration: BoxDecoration(
-                            color:
-                                index.isEven ? Colors.grey[50] : Colors.white,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Row(
-                                    children: [
-                                      ClipOval(
-                                        child: Container(
-                                          height: 40,
-                                          width: 40,
-                                          color: Colors.grey[200],
-                                          child: Image.network(
-                                            'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
-                                            fit: BoxFit.cover,
-                                            width: 25,
-                                            height: 25,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[200],
-                                                child: const Icon(
-                                                  Icons.person,
-                                                  color: Colors.blue,
-                                                  size: 34,
-                                                ),
-                                              );
-                                            },
-                                          ),
+                270,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  controller: vertical,
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    children: widget.leadsCustomerController.customersDataList
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                      int index = entry.key;
+                      LeadCustomerData leadCustomerData = entry.value;
+    
+                      return Container(
+                        height: fixedRowHeight,
+                        decoration: BoxDecoration(
+                          color:
+                              index.isEven ? Colors.grey[50] : Colors.white,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  children: [
+                                    ClipOval(
+                                      child: Container(
+                                        height: 40,
+                                        width: 40,
+                                        color: Colors.grey[200],
+                                        child: Image.network(
+                                          'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                          fit: BoxFit.cover,
+                                          width: 25,
+                                          height: 25,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.person,
+                                                color: Colors.blue,
+                                                size: 34,
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: CustomText(
-                                          content:
-                                              leadCustomerData.businessName ??
-                                                  '',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: CustomText(
+                                        content:
+                                            leadCustomerData.businessName ??
+                                                '',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: totalTableWidth,
-                child: Column(
-                  children: [
-                    SizedBox(child: _buildTableHeader()),
-                    widget.leadsCustomerController.customersDataList.isEmpty
-                        ? SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4)
-                        : Container(),
-                    widget.leadsCustomerController.customersDataList.isEmpty
-                        ? Center(
-                            child: NodataWidget(),
-                          )
-                        : Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              physics: const ClampingScrollPhysics(),
-                              controller: vertical1,
-                              child: Column(
-                                children: widget
-                                    .leadsCustomerController.customersDataList
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  int index = entry.key;
-                                  LeadCustomerData leadCustomerData =
-                                      entry.value;
-                                  return _buildTableRow(leadCustomerData,
-                                      context, index, fixedRowHeight);
-                                }).toList(),
                               ),
-                            ),
+                            ],
                           ),
-                  ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: totalTableWidth,
+              child: Column(
+                children: [
+                  SizedBox(child: _buildTableHeader()),
+                  widget.leadsCustomerController.customersDataList.isEmpty
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.4)
+                      : Container(),
+                  widget.leadsCustomerController.customersDataList.isEmpty
+                      ? const Center(
+                          child: NodataWidget(),
+                        )
+                      : Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            physics: const ClampingScrollPhysics(),
+                            controller: vertical1,
+                            child: Column(
+                              children: widget
+                                  .leadsCustomerController.customersDataList
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                int index = entry.key;
+                                LeadCustomerData leadCustomerData =
+                                    entry.value;
+                                return _buildTableRow(leadCustomerData,
+                                    context, index, fixedRowHeight);
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                ],
+              ),
             ),
-          )
-        ],
-      ),
+          ),
+        )
+      ],
     );
   }
 
@@ -224,7 +221,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
           Expanded(child: _buildHeaderText('Email', 13)),
           Expanded(child: _buildHeaderText('Contact Person', 13)),
           Expanded(child: _buildHeaderText('Contact Number', 13)),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
       ),
     );
@@ -267,7 +264,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
-            content: leadCustomerData.zipcode.toString() ?? '',
+            content: leadCustomerData.zipcode.toString(),
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -23,7 +25,7 @@ class NkLoadingButton extends StatefulWidget {
   final bool? isRoundedCorner;
 
   const NkLoadingButton({
-    Key? key,
+    super.key,
     @required this.buttonText,
     this.color = primaryButtonColor,
     this.onPressed,
@@ -36,7 +38,7 @@ class NkLoadingButton extends StatefulWidget {
     this.isRoundedCorner = false,
     this.fontColor = buttonTextColor,
     this.btnController,
-  }) : super(key: key);
+  });
 
   @override
   State<NkLoadingButton> createState() => _NkLoadingButtonState();
@@ -88,7 +90,7 @@ class _NkLoadingButtonState extends State<NkLoadingButton> {
           )
         : RoundedLoadingButton(
             height: widget.height ?? 42,
-            width: widget.width ?? AppDimensions.instance!.width,
+            width: widget.width ?? AppDimensions.instance.width,
             onPressed: widget.onPressed,
             errorColor: errorColor,
             successColor: primaryColor,
@@ -98,8 +100,6 @@ class _NkLoadingButtonState extends State<NkLoadingButton> {
             duration: const Duration(milliseconds: 1000),
             borderRadius: NkGeneralSize.nkCommonBorderRadius(borderRadius: 8),
             color: widget.color ?? theme.buttonTheme.colorScheme?.background,
-            /* focusColor: color ??
-                theme.buttonTheme.colorScheme?.background.withOpacity(0.7),*/
             disabledColor:
                 widget.color ?? theme.buttonTheme.colorScheme?.background,
             controller: _btnController!,

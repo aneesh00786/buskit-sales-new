@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -57,7 +59,6 @@ class PendingPaymentController extends GetxController {
 
   Future<void> loadOrderData({required int chartIndex,int? compId,bool? isLogin}) async {
     final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
-    print("Loading data for chartIndex: $chartIndex");
     try {
       var data = await _apiWorker.getPendingPaymentData(
         chartIndex: chartIndex,
@@ -67,20 +68,18 @@ class PendingPaymentController extends GetxController {
         compId: compId,
       );
 
+      // ignore: unnecessary_null_comparison
       if (data.data != null) {
-        orderDataList.assignAll(data.data!);
+        orderDataList.assignAll(data.data);
         chartData.value = data.chartDetails;
         totalAmount.value = data.totalAmount.toDouble();
       nearlyDueAmount.value = data.nearlydueAmount.toDouble();
       dueAmount.value = data.dueAmount.toDouble();
       overdueAmount.value = data.overdueAmount.toDouble();
-        print("Data loaded successfully: ${data.data}");
       } else {
         orderDataList.clear();
-        print("No data received for chartIndex: $chartIndex");
       }
     } catch (e) {
-      print("Error loading data: $e");
     }
   }
 
@@ -90,17 +89,13 @@ class PendingPaymentController extends GetxController {
       var response = await _apiWorker.getAllPendingPaymentIndividual(
         customerId: customerId,
       );
+      // ignore: unnecessary_null_comparison
       if (response.data != null) {
-        individualPendingPayments.assignAll(response.data!);
-        print(response.data);
-        print("Individual Pending Payments loaded successfully");
+        individualPendingPayments.assignAll(response.data);
       } else {
         individualPendingPayments.clear();
-        print(
-            "No individual pending payments found for customerId: $customerId");
       }
     } catch (e) {
-      print("Error loading individual pending payments: $e");
     } finally {
       isLoading.value = false;
     }
@@ -125,7 +120,6 @@ class PendingPaymentController extends GetxController {
   }
   void processPayments(
       List<IndividualPendingData> selectedItemsList, num enteredAmount) {
-    print("Selected Items: $selectedItemsList");
     num remainingAmount = enteredAmount;
 
     for (int i = 0; i < selectedItemsList.length; i++) {
@@ -137,26 +131,19 @@ class PendingPaymentController extends GetxController {
         amountToBePaid = selectedItemsList[i].orderTotal;
       }
 
-      print(
-          "Processing orderId: ${selectedItemsList[i].orderId}, Amount to be paid: $amountToBePaid, Remaining amount: $remainingAmount");
 
       if (remainingAmount <= 0) {
         break;
       }
 
       if (remainingAmount >= amountToBePaid) {
-        print(
-            "Paying $amountToBePaid for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount -= amountToBePaid;
       } else {
-        print(
-            "Paying $remainingAmount for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount = 0;
       }
     }
 
     if (remainingAmount > 0) {
-      print("Remaining balance after payment: $remainingAmount");
     }
   }
 

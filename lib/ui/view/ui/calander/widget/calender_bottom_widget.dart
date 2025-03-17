@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -18,7 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/cal
 class CalenderBottomWidget extends StatefulWidget {
   final CalenderMapController calenderController;
 
-  CalenderBottomWidget({
+  const CalenderBottomWidget({
     super.key,
     required this.calenderController,
   });
@@ -71,7 +70,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
 
     return MonthView(
       cellAspectRatio:
-          AppDimensions.instance!.orientation == Orientation.landscape
+          AppDimensions.instance.orientation == Orientation.landscape
               ? 1.7
               : 0.8,
       headerStyle: HeaderStyle(
@@ -79,7 +78,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
           color: primaryColor.withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
         ),
-        headerTextStyle: TextStyle(
+        headerTextStyle: const TextStyle(
             color: black,
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -131,7 +130,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                     : white,
             padding: nkRegularPadding(),
             child: isCurrentMonth && isWorkingDay
-                ? AppDimensions.instance!.orientation == Orientation.portrait
+                ? AppDimensions.instance.orientation == Orientation.portrait
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,

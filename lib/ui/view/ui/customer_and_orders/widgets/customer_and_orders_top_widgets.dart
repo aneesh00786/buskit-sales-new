@@ -7,13 +7,10 @@ import 'package:busskit_salesexecutive/ui/components/diloags/product_details_dil
 import 'package:busskit_salesexecutive/ui/components/search/search_filter.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_popup_menue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/range_selector.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../utills/const_string.dart';
 
 class CustomerAndOrdersTopWidgets extends StatelessWidget {
   final CustomerAndOrderController customerAndOrderController;
@@ -26,27 +23,6 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Column(
-    //   crossAxisAlignment: CrossAxisAlignment.start,
-    //   children: [
-    //
-    //     SingleChildScrollView(
-    //
-    //       child: Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         children: [
-    //
-    //
-    //
-    //         ],
-    //       ),
-    //       scrollDirection: Axis.horizontal,
-    //     ),
-    //
-    //
-    //   ],
-    // );
-
     return Padding(padding: EdgeInsets.all(ResponsiveInfo.isMobile()?5:8),
 
       child:  SizedBox(
@@ -72,24 +48,9 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
         log("label++++${label.$1}:${label.$1}");
         customerAndOrderController.updateCustomerVisitScheduleSet(
             label.$1, label.$2);
-        //customerAndOrderController.updateCustomerVisitScheduleSet(label);
       },
     );
   }
-
-  // Widget selectSalesman() {
-  //   return MyPopUpMenu(
-  //     items: staffMenuOption(),
-  //     buttonChild: customerAndOrderController.selectedStaff.value.salesmanId !=
-  //             null
-  //         ? staffDetailsWidget(customerAndOrderController.selectedStaff.value)
-  //         : buttonChild,
-  //     onItemSelected: (value) {
-  //       customerAndOrderController.updateSelectedStaff(value);
-  //     },
-  //   );
-  // }
-
   List<PopupMenuItem<StaffData>> staffMenuOption() {
     return List.generate(
         staffDataList.length,
@@ -107,8 +68,8 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
         ClipOval(
           child: MyNetworkImage(
             imageUrl: staffData.imagePath ?? '',
-            height: AppDimensions.instance!.height * 0.06,
-            width: AppDimensions.instance!.height * 0.06,
+            height: AppDimensions.instance.height * 0.06,
+            width: AppDimensions.instance.height * 0.06,
           ),
         ),
         nkSmallSizeBox(),
@@ -137,7 +98,6 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
       child: MyRegularText(
         fontSize: NkFontSize.largeFont(),
         label:'Selected SalesMan',
-        // selectSalesMan,
       ),
     );
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -100,7 +102,7 @@ class LoginController extends GetxController {
 
       if (loginResponce?.statusCode == 200) {
         loginButtonController.success();
-        Get.to(() => SplashScreen(message: "Logging in..."),
+        Get.to(() => const SplashScreen(message: "Logging in..."),
             transition: Transition.fade);
         await SessionHelper().setLoginData(loginResponce!.data!);
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -108,7 +110,7 @@ class LoginController extends GetxController {
         log("Fetching settings after login...");
         await Future.delayed(const Duration(milliseconds: 500));
         final settings = await _apiWorker.fetchAllSettings(companyId);
-        await Future.wait([
+        await Future.wait([ 
           Provider.of<CustomersProvider>(context, listen: false)
               .fetchCustomerData(),
           customerAndOrderController.loadCustomer(),
@@ -136,7 +138,7 @@ class LoginController extends GetxController {
               endDate: lastDayString,
             )
             .then((data) =>
-                log("Recent orders fetched successfully. Data: ${data}"))
+                log("Recent orders fetched successfully. Data: $data"))
             .catchError((e) => log("Error while fetching recent orders: $e"));
 
         if (settings != null) {
@@ -221,11 +223,11 @@ class LoginController extends GetxController {
     if (!Get.isDialogOpen!) {
       await Get.dialog(
         AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
+          title: const Text("Session Expired"),
+          content: const Text("Your session has expired. Please log in again."),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () async {
                 await SessionHelper().clearAll();
                 Get.offAllNamed(AppRoutes.login);

@@ -307,9 +307,9 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
 
                         return Row(
                           children: [
-                            if (taxItem.tax_name != null) ...[
+                            if (taxItem.taxName != null) ...[
                               Text(
-                                '${taxItem.tax_name ?? ''} - ${taxPercentage.toStringAsFixed(2)}%',
+                                '${taxItem.taxName ?? ''} - ${taxPercentage.toStringAsFixed(2)}%',
                                 style: const TextStyle(
                                   color: black,
                                   fontSize: 14,

@@ -85,7 +85,7 @@ class AppRoutes {
           arguments: Get.arguments,
           transitionDuration: NkCommonFunction.longDuration(),
           transition: Transition.rightToLeft,
-          page: () => CustomerDachScreen(
+          page: () => const CustomerDachScreen(
             isFromCalendar: false,
           ),
           binding: CommonBinding(),

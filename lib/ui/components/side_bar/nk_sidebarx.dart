@@ -1,30 +1,19 @@
+// ignore: file_names
 import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
-import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
-import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sidebarx/sidebarx.dart';
-
-import '../../../database/session/sessionmanager.dart';
 
 class NkSidebarXSideBar extends StatefulWidget {
   const NkSidebarXSideBar({
@@ -76,7 +65,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
             color: white,
             borderRadius: BorderRadius.zero,
           ),
-          textStyle: TextStyle(color: primaryTextColor),
+          textStyle: const TextStyle(color: primaryTextColor),
           selectedTextStyle: const TextStyle(color: primaryColor),
           selectedItemDecoration: BoxDecoration(
             color: primaryColor.withOpacity(0.05),
@@ -116,7 +105,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                         color: white,
                       )),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
                 Center(
@@ -140,7 +129,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
                 Padding(
@@ -282,6 +271,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
       if (status.isGranted) {
         return true;
       } else {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Location permission denied')),
         );
@@ -290,6 +280,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     } else if (status.isPermanentlyDenied) {
       // Show dialog to open settings
       bool? openSettings = await showDialog<bool>(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Permission Required'),
@@ -342,6 +333,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     );
 
     if (confirmAction == true) {
+      // ignore: use_build_context_synchronously
       if (!await _handleLocationPermission(context)) {
         return;
       }
@@ -352,6 +344,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
 
       try {
         Position position = await Geolocator.getCurrentPosition(
+          // ignore: deprecated_member_use
           desiredAccuracy: LocationAccuracy.high,
         );
 
@@ -373,7 +366,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
           }
         }
       } catch (e) {
-        print('Error: $e');
+        log('Error: $e');
       } finally {
         if (mounted) {
           setState(() {

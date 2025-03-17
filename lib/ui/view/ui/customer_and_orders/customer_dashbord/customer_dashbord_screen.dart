@@ -1,7 +1,8 @@
-import 'dart:async';
+
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
+
 import 'dart:developer';
 import 'dart:io';
-import 'package:busskit_salesexecutive/common/custom_fonts.dart' as font1;
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
@@ -9,11 +10,8 @@ import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
@@ -24,16 +22,12 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/custom_toast.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dash_chart.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/editabledatacell_new.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/custom_toast.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_category_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_revenue_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/order_payment_enlarge_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -62,7 +56,7 @@ class CustomerDachScreen extends StatefulWidget {
   final bool isFromGoogle;
   final ProductsController? productsController;
 
-  CustomerDachScreen({
+  const CustomerDachScreen({
     super.key,
     this.year,
     this.startDate,
@@ -90,7 +84,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
   ApiWorker apiWorker = Get.put(ApiWorker());
-  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -226,7 +219,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ),
             SizedBox(
               width: 130,
-              child: Container(
+              child: SizedBox(
                 height: 44,
                 width: double.infinity,
                 child: Padding(
@@ -534,472 +527,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ),
     );
   }
-
-  // Expanded Category(BuildContext context) {
-  //   return Expanded(
-  //       child: Padding(
-  //     padding: const EdgeInsets.all(5.0),
-  //     child: MyCommnonContainer(
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-  //           blurRadius: 5,
-  //           offset: Offset(4, 4),
-  //         ),
-  //       ],
-  //       borderRadius: 25,
-  //       height: 300,
-  //       width: double.infinity,
-  //       isCommonBorder: true,
-  //       child: Consumer<CustomersProvider>(builder: (context, provider, child) {
-  //         return Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //             children: [
-  //               Row(
-  //                 children: [
-  //                   InkWell(
-  //                     onTap: () {
-  //                       Navigator.push(
-  //                           context,
-  //                           MaterialPageRoute(
-  //                               builder: (_) => DashboardScreen(
-  //                                     cus: widget.productsController
-  //                                             ?.selectedCategoryId.value ??
-  //                                         '',
-  //                                     y: '2024',
-  //                                   )));
-  //                     },
-  //                     child: Container(
-  //                       decoration: BoxDecoration(
-  //                         color: primaryColor.withOpacity(0.2),
-  //                         borderRadius: BorderRadius.only(
-  //                           topLeft: Radius.circular(25),
-  //                           bottomRight: Radius.circular(25),
-  //                         ),
-  //                       ),
-  //                       padding: const EdgeInsets.only(
-  //                           right: 20, left: 20, top: 5, bottom: 5),
-  //                       child: Text(
-  //                         'Category Sales',
-  //                         style: cardHeadingTextStyle,
-  //                         maxLines: 1,
-  //                         softWrap: false,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   const SizedBox(width: 14),
-  //                   Container(
-  //                     height: MediaQuery.of(context).orientation ==
-  //                             Orientation.portrait
-  //                         ? ResponsiveInfo.isMobileDimension(context)
-  //                             ? 20
-  //                             : 26
-  //                         : ResponsiveInfo.isMobileDimension(context)
-  //                             ? 17
-  //                             : 22,
-  //                     padding: const EdgeInsets.only(left: 6),
-  //                     decoration: BoxDecoration(
-  //                       color: const Color(0xffeef2f7),
-  //                       borderRadius: BorderRadius.circular(4.0),
-  //                     ),
-  //                     child: DropdownButton<int>(
-  //                       iconSize: 12,
-  //                       value: selectedYear,
-  //                       underline: Container(),
-  //                       onChanged: (int? newValue) {
-  //                         setState(() {
-  //                           selectedYear = newValue!;
-  //                           Provider.of<CustomersProvider>(context,
-  //                                   listen: false)
-  //                               .fetchCustomerDashboardData(
-  //                                   widget.productsController
-  //                                           ?.selectedCategoryId.value ??
-  //                                       '',
-  //                                   selectedYear,
-  //                                   widget.startDate,
-  //                                   widget.endDate);
-  //                           Provider.of<CustomersProvider>(context,
-  //                                   listen: false)
-  //                               .fetchCustomerDashboardRevenueData(
-  //                                   widget.productsController
-  //                                           ?.selectedCategoryId.value ??
-  //                                       '',
-  //                                   selectedYear,
-  //                                   widget.startDate,
-  //                                   widget.endDate);
-  //                         });
-  //                       },
-  //                       items: provider.yearList
-  //                           .map((item) => DropdownMenuItem<int>(
-  //                                 value: item.year,
-  //                                 child: Text(
-  //                                   item.year.toString(),
-  //                                   style: cardHeadingTextStyle,
-  //                                 ),
-  //                               ))
-  //                           .toList(),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //               nkSmallSizeBox(),
-  //               Expanded(
-  //                 child: Scrollbar(
-  //                   child: Consumer<CustomersProvider>(
-  //                     builder: (context, provider, child) {
-  //                       return FutureBuilder<ApiResponseModel>(
-  //                         future: provider.customersDashFuture,
-  //                         builder: (context, snapshot) {
-  //                           if (snapshot.connectionState ==
-  //                               ConnectionState.waiting) {
-  //                             return const Center(
-  //                                 child: CircularProgressIndicator());
-  //                           } else if (snapshot.hasError) {
-  //                             return Center(
-  //                                 child: Text('Error: ${snapshot.error}'));
-  //                           } else if (!snapshot.hasData) {
-  //                             return const NodataWidget();
-  //                           } else {
-  //                             final responseModel = snapshot.data!;
-  //                             final categoryPerformance =
-  //                                 snapshot.data!.data.categoryPerformance;
-  //                             // Map categoryPerformance to a list of cids
-
-  //                             return Center(
-  //                               child: CustomBarChartCustomerDash(
-  //                                 categoryPerformance: categoryPerformance,
-  //                                 allCategory: responseModel.data.fullCategory,
-  //                                 customerId: widget.productsController
-  //                                         ?.selectedCategoryId.value ??
-  //                                     '',
-  //                                 year: selectedYear,
-  //                               ),
-  //                             );
-  //                           }
-  //                         },
-  //                       );
-  //                     },
-  //                   ),
-  //                 ),
-  //               ),
-  //             ]);
-  //       }),
-  //     ),
-  //   ));
-  // }
-
-  // ignore: non_constant_identifier_names
-  // Expanded OrdersPayments(
-  //     BuildContext context, List<RecentOrder> recentOrders) {
-  //   return Expanded(
-  //     child: MyCommnonContainer(
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-  //           blurRadius: 5,
-  //           offset: Offset(4, 4),
-  //         ),
-  //       ],
-  //       borderRadius: 25,
-  //       height: 300,
-  //       isCommonBorder: true,
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.center,
-  //         children: [
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //             children: [
-  //               Row(
-  //                 children: [
-  //                   Container(
-  //                     decoration: BoxDecoration(
-  //                       color: primaryColor.withOpacity(0.2),
-  //                       borderRadius: BorderRadius.only(
-  //                         topLeft: Radius.circular(25),
-  //                         bottomRight: Radius.circular(25),
-  //                       ),
-  //                     ),
-  //                     padding: const EdgeInsets.only(
-  //                         right: 20, left: 20, top: 5, bottom: 5),
-  //                     child: Text(
-  //                       'Orders & Payment/s',
-  //                       style: cardHeadingTextStyle,
-  //                       maxLines: 1,
-  //                       softWrap: false,
-  //                     ),
-  //                   ),
-  //                   nkSmallSizeBox(),
-  //                   SizedBox(
-  //                     height: 25,
-  //                     child: ElevatedButton(
-  //                       onPressed: () {
-  //                         List<RecentOrder> selectedOrders = [];
-  //                         for (var order in recentOrders) {
-  //                           if (context
-  //                               .read<CustomersProvider>()
-  //                               .isOrderSelected(order)) {
-  //                             selectedOrders.add(order);
-  //                           }
-  //                         }
-
-  //                         // Show the appropriate dialog or toast based on the selection
-  //                         if (selectedOrders.isNotEmpty) {
-  //                           paymentCollectionDialog(context, selectedOrders);
-  //                         } else {
-  //                           showCustomToast(context);
-  //                         }
-  //                       },
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: const Color(0xff5bc0de),
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(4.0),
-  //                         ),
-  //                       ),
-  //                       child: const Text(
-  //                         'Collection',
-  //                         style: TextStyle(
-  //                           color: Colors.white,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //               Padding(
-  //                 padding: const EdgeInsets.only(right: 20, top: 2),
-  //                 child: InkWell(
-  //                   onTap: () {
-  //                     showCustomDialog(context, recentOrders);
-  //                   },
-  //                   child: Container(
-  //                       decoration: BoxDecoration(
-  //                           borderRadius: BorderRadius.circular(10),
-  //                           color: primaryColor.withOpacity(0.3)),
-  //                       child: Padding(
-  //                         padding: const EdgeInsets.all(5.0),
-  //                         child: const Icon(
-  //                           Icons.open_in_new,
-  //                           size: 17,
-  //                           color: primaryColor,
-  //                         ),
-  //                       )),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           nkSmallSizeBox(),
-  //           Expanded(
-  //             child: Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: LayoutBuilder(
-  //                 builder: (context, constraints) {
-  //                   double availableWidth = constraints.maxWidth;
-  //                   double availableHeight = constraints.maxHeight;
-  //                   double fontSize = 11;
-  //                   return Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.center,
-  //                     children: [
-  //                       const Row(
-  //                         children: [
-  //                           Expanded(
-  //                             child: Center(
-  //                               child: Text(
-  //                                 "Date",
-  //                                 style: TextStyle(
-  //                                   fontFamily: 'Poppins_Regular',
-  //                                   fontWeight: FontWeight.w600,
-  //                                   fontSize: 11,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Expanded(
-  //                             child: Center(
-  //                               child: Text(
-  //                                 "Invoice",
-  //                                 style: TextStyle(
-  //                                   fontFamily: 'Poppins_Regular',
-  //                                   fontWeight: FontWeight.w600,
-  //                                   fontSize: 11,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Expanded(
-  //                             child: Center(
-  //                               child: Text(
-  //                                 "Status",
-  //                                 style: TextStyle(
-  //                                   fontFamily: 'Poppins_Regular',
-  //                                   fontWeight: FontWeight.w600,
-  //                                   fontSize: 11,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Expanded(
-  //                             child: Center(
-  //                               child: Text(
-  //                                 "Amount",
-  //                                 style: TextStyle(
-  //                                   fontFamily: 'Poppins_Regular',
-  //                                   fontWeight: FontWeight.w600,
-  //                                   fontSize: 11,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Expanded(
-  //                             child: Center(
-  //                               child: Text(
-  //                                 "Due By",
-  //                                 style: TextStyle(
-  //                                   fontFamily: 'Poppins_Regular',
-  //                                   fontWeight: FontWeight.w600,
-  //                                   fontSize: 11,
-  //                                 ),
-  //                                 maxLines: 1,
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Expanded(
-  //                             child: Center(
-  //                               child: Text(
-  //                                 "Select",
-  //                                 style: TextStyle(
-  //                                   fontFamily: 'Poppins_Regular',
-  //                                   fontWeight: FontWeight.w600,
-  //                                   fontSize: 11,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                       Padding(
-  //                         padding: const EdgeInsets.only(top: 8.0, bottom: 0),
-  //                         child: Container(
-  //                           height: 1,
-  //                           color: Colors.grey.shade100,
-  //                         ),
-  //                       ),
-  //                       Expanded(
-  //                         child: SingleChildScrollView(
-  //                           scrollDirection: Axis.vertical,
-  //                           child: Column(
-  //                             children: recentOrders.map((order) {
-  //                               return Padding(
-  //                                 padding:
-  //                                     const EdgeInsets.symmetric(vertical: 0.0),
-  //                                 child: Row(
-  //                                   children: [
-  //                                     Expanded(
-  //                                       child: Center(
-  //                                         child: Text(
-  //                                           getFormattedOrderCreatAt(
-  //                                               order.orderCreatAt),
-  //                                           style: TextStyle(
-  //                                             fontSize: fontSize,
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Expanded(
-  //                                       child: Center(
-  //                                         child: Text(
-  //                                           order.orderId,
-  //                                           style: TextStyle(
-  //                                             fontSize: fontSize,
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Expanded(
-  //                                       child: Center(
-  //                                         child: Container(
-  //                                           decoration: const BoxDecoration(
-  //                                             color: Color(0xff008000),
-  //                                             borderRadius: BorderRadius.all(
-  //                                                 Radius.circular(4.0)),
-  //                                           ),
-  //                                           child: Padding(
-  //                                             padding: EdgeInsets.symmetric(
-  //                                               horizontal: availableWidth / 80,
-  //                                               vertical: availableHeight / 100,
-  //                                             ),
-  //                                             child: Text(
-  //                                               getStatusName(
-  //                                                   order.orderStatus),
-  //                                               maxLines: 1,
-  //                                               overflow: TextOverflow.ellipsis,
-  //                                               style: TextStyle(
-  //                                                 color: Colors.white,
-  //                                                 fontSize: fontSize,
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Expanded(
-  //                                       child: Center(
-  //                                         child: Text(
-  //                                           formatAmount(order.orderTotal),
-  //                                           maxLines: 1,
-  //                                           style: TextStyle(
-  //                                             fontSize: fontSize,
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Expanded(
-  //                                       child: Center(
-  //                                         child: Text(
-  //                                           getFormattedOrderCreatAt(
-  //                                               order.orderCreatAt),
-  //                                           style: TextStyle(
-  //                                             fontSize: fontSize,
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Expanded(
-  //                                       child: Center(
-  //                                         child: Consumer<CustomersProvider>(
-  //                                           builder:
-  //                                               (context, provider, child) {
-  //                                             return Checkbox(
-  //                                               value: provider
-  //                                                   .isOrderSelected(order),
-  //                                               onChanged: (bool? isSelected) {
-  //                                                 provider.toggleOrderSelection(
-  //                                                     order);
-  //                                               },
-  //                                             );
-  //                                           },
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ],
-  //                                 ),
-  //                               );
-  //                             }).toList(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Expanded OrdersPayments(
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
@@ -1356,13 +883,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               } else if (snapshot.hasData) {
                 final categoryPerformance = snapshot.data!;
                 final discountDataList = categoryPerformance.data.discountData;
-
-                final paymentCompleted = categoryPerformance
-                    .data.totalSale.paymentCompleted.totalAmount;
-
-                final remaCompleted = categoryPerformance
-                    .data.totalSale.paymentRemaining.totalAmount;
-
                 return MyCommnonContainer(
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: double.infinity,
@@ -1379,11 +899,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Colors.red,
                             Colors.black,
                           ];
-
                           double availableWidth = constraints.maxWidth;
-                          double padding = availableWidth / 50;
-                          double fixedIconSize = 13.0;
-
                           return SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: ConstrainedBox(
@@ -2233,6 +1749,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 }
 
+// ignore: must_be_immutable
 class UpdateCustomer extends StatelessWidget {
   UpdateCustomer({
     super.key,
@@ -2703,60 +2220,7 @@ class UpdateCustomer extends StatelessWidget {
                                                             ),
                                                           ],
                                                         ),
-                                                        // Spacer(),
-                                                        // InkWell(
-                                                        //   onTap: provider
-                                                        //       .pickImage,
-                                                        //   child: Padding(
-                                                        //     padding:
-                                                        //         const EdgeInsets
-                                                        //             .all(8.0),
-                                                        //     child: Container(
-                                                        //       height:
-                                                        //           100.0, // Adjust height as needed
-                                                        //       width:
-                                                        //           120.0, // Adjust width as needed
-                                                        //       decoration:
-                                                        //           BoxDecoration(
-                                                        //         borderRadius:
-                                                        //             BorderRadius
-                                                        //                 .circular(
-                                                        //                     8.0),
-                                                        //         border: Border.all(
-                                                        //             color: Colors
-                                                        //                 .grey),
-                                                        //       ),
-                                                        //       child:
-                                                        //           Image.network(
-                                                        //         'http://16.50.232.153:3000/uploads/${admin.imagePath}',
-                                                        //         loadingBuilder:
-                                                        //             (context,
-                                                        //                 child,
-                                                        //                 loadingProgress) {
-                                                        //           if (loadingProgress ==
-                                                        //               null)
-                                                        //             return child;
-                                                        //           return Center(
-                                                        //             child:
-                                                        //                 CircularProgressIndicator(
-                                                        //               value: loadingProgress.expectedTotalBytes !=
-                                                        //                       null
-                                                        //                   ? loadingProgress.cumulativeBytesLoaded /
-                                                        //                       loadingProgress.expectedTotalBytes!
-                                                        //                   : null,
-                                                        //             ),
-                                                        //           );
-                                                        //         },
-                                                        //         errorBuilder: (context,
-                                                        //                 error,
-                                                        //                 stackTrace) =>
-                                                        //             Center(
-                                                        //                 child: Text(
-                                                        //                     'Failed to load image: $error')),
-                                                        //       ),
-                                                        //     ),
-                                                        //   ),
-                                                        // ),
+                                                        
                                                       ],
                                                     ),
                                                   ),
@@ -2807,8 +2271,6 @@ class UpdateCustomer extends StatelessWidget {
                                             final updatedAdmin = CustomerDashMo(
                                               customerId: productsController
                                                   .selectedCategoryId.value,
-                                              // cartId:
-                                              //     widget.cusId, // Provide default or empty values if not applicable
                                               fullname: nameController.text,
                                               mobileno: phoneController.text,
                                               email: emailController.text,
@@ -2829,18 +2291,18 @@ class UpdateCustomer extends StatelessWidget {
                                                       .selectedCategoryId
                                                       .value);
 
-                                              print(
+                                              log(
                                                   "this is admin data from this mdoel $updatedAdmin");
                                               Navigator.of(context).pop();
                                             } catch (error) {}
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
-                                                primaryColor, // Background color
+                                                primaryColor, 
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(
-                                                      4.0), // Border radius
+                                                      4.0), 
                                             ),
                                           ),
                                           child: const Text(
@@ -2863,7 +2325,7 @@ class UpdateCustomer extends StatelessWidget {
                 },
                 child: SizedBox(
                   width: 110,
-                  child: Container(
+                  child: SizedBox(
                     height: 44,
                     width: double.infinity,
                     //  color: const Color(0xffffffff),
@@ -3009,15 +2471,12 @@ class DashboardScreen extends StatelessWidget {
         return ListTile(
           title: Column(
             children: [
-              Text(item.variationName!),
+              Text(item.variationName),
               const Text("quantityList"),
               Text(item.quantityList.first.quantity.toString()),
               const Text("count"),
-              // Text(item.count.first.count.toString()),
-              // Text(item.count.first.reason.toString()),
             ],
           ),
-          // Display other fields
         );
       }).toList(),
     );
@@ -3029,7 +2488,6 @@ class DashboardScreen extends StatelessWidget {
       children: yearList.map((item) {
         return ListTile(
           title: Text(item.year.toString()),
-          // Display other fields
         );
       }).toList(),
     );
@@ -3041,7 +2499,6 @@ class DashboardScreen extends StatelessWidget {
       children: fullCategory.map((item) {
         return ListTile(
           title: Text(item.categoryName.toString()),
-          // Display other fields
         );
       }).toList(),
     );
@@ -3052,16 +2509,12 @@ class CustomerTotalSalePages extends StatelessWidget {
   final String customerId;
   final int year;
 
-  CustomerTotalSalePages({required this.customerId, required this.year});
+  const CustomerTotalSalePages({required this.customerId, required this.year});
 
   @override
   Widget build(BuildContext context) {
-    // Access CustomersProvider
     final provider = Provider.of<CustomersProvider>(context);
-
-    // Fetch data if not already fetched
     provider.fetchCustomerDashboardDataSalseData(customerId, year);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Customer Total Sale Data'),
@@ -3146,140 +2599,4 @@ class CustomerTotalSalePages extends StatelessWidget {
     );
   }
 }
-
-// class CustomerDashboard extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer<CustomersProvider>(
-//       builder: (context, provider, child) {
-//         // Ensure data fetching happens only once
-//         WidgetsBinding.instance.addPostFrameCallback((_) {
-//           if (provider.countFuture == null) {
-//             provider.fetchCustomerDashboardCountData('CUSTO3');
-//           }
-//         });
-
-//         return FutureBuilder<ApiResponsees>(
-//           future: provider.countFuture,
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               return const Center(child: CircularProgressIndicator());
-//             } else if (snapshot.hasError) {
-//               return Center(child: Text('Error: ${snapshot.error}'));
-//             } else if (snapshot.hasData) {
-//               final data = snapshot.data!.data;
-//               return Padding(
-//                 padding: const EdgeInsets.all(16.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       'Order Count Summary',
-//                       style: Theme.of(context).textTheme.labelLarge,
-//                     ),
-//                     const SizedBox(height: 16),
-//                     DataTable(
-//                       columns: const [
-//                         DataColumn(label: Text('Order Type')),
-//                         DataColumn(label: Text('Count')),
-//                       ],
-//                       rows: [
-//                         DataRow(cells: [
-//                           const DataCell(Text('Total Order')),
-//                           DataCell(Text(data.totalOrder.toString())),
-//                         ]),
-//                         DataRow(cells: [
-//                           const DataCell(Text('Estimate Order')),
-//                           DataCell(Text(data.estimateOrder.toString())),
-//                         ]),
-//                         DataRow(cells: [
-//                           const DataCell(Text('Preorder Order')),
-//                           DataCell(Text(data.preorderOrder.toString())),
-//                         ]),
-//                         DataRow(cells: [
-//                           const DataCell(Text('Draft Order')),
-//                           DataCell(Text(data.draftOrder.toString())),
-//                         ]),
-//                         DataRow(cells: [
-//                           const DataCell(Text('Cancel Order')),
-//                           DataCell(Text(data.cancelOrder.toString())),
-//                         ]),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             } else {
-//               return const NodataWidget();
-//             }
-//           },
-//         );
-//       },
-//     );
-//   }
-// }
-
-// class CustomerDetailScreen extends StatelessWidget {
-//   final String customerId;
-
-//   const CustomerDetailScreen({Key? key, required this.customerId})
-//       : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer<CustomersProvider>(
-//       builder: (context, provider, child) {
-//         // Ensure data fetching happens only once
-//         WidgetsBinding.instance.addPostFrameCallback((_) {
-//           if (provider.customerResponse == null) {
-//             provider.fetchCustomersDataDash('CUSTO3');
-//           }
-//         });
-
-//         return Scaffold(
-//           appBar: AppBar(
-//             title: const Text('Customer Details'),
-//           ),
-//           body: FutureBuilder<CustomerResponse?>(
-//             future: provider.customerResponse,
-//             builder: (context, snapshot) {
-//               if (snapshot.connectionState == ConnectionState.waiting) {
-//                 return const Center(child: CircularProgressIndicator());
-//               } else if (snapshot.hasError) {
-//                 return Center(child: Text('Error: ${snapshot.error}'));
-//               } else if (snapshot.hasData) {
-//                 final customer = snapshot
-//                     .data?.data.first; // Assuming there is only one customer
-//                 return customer != null
-//                     ? Padding(
-//                         padding: const EdgeInsets.all(16.0),
-//                         child: Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               'Full Name: ${customer.fullname}',
-//                               style: const TextStyle(
-//                                   fontSize: 18, fontWeight: FontWeight.bold),
-//                             ),
-//                             const SizedBox(height: 8),
-//                             Text('Email: ${customer.email}'),
-//                             const SizedBox(height: 8),
-//                             Text('Address: ${customer.address}'),
-//                             const SizedBox(height: 8),
-//                             Text('Discount: ${customer.discount}'),
-//                             // Add more fields as needed
-//                           ],
-//                         ),
-//                       )
-//                     : const Center(child: Text('No data available'));
-//               } else {
-//                 return const Center(child: Text('No data available'));
-//               }
-//             },
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
 

@@ -13,8 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 
 class LoginRightSideWidget extends StatefulWidget {
   final LoginController loginController;
-  LoginRightSideWidget({Key? key, required this.loginController})
-      : super(key: key);
+  const LoginRightSideWidget({super.key, required this.loginController});
 
   @override
   State<LoginRightSideWidget> createState() => _LoginRightSideWidgetState();
@@ -64,7 +63,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
             decoration: InputDecoration(
               focusColor: Colors.blue,
               labelText: 'Email',
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 Icons.alternate_email_outlined,
                 color: primaryColor,
               ),
@@ -85,7 +84,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.red, width: 1.5),
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
               ),
             ),
             autocorrect: true,
@@ -100,11 +99,11 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           ),
           widget.loginController.loginResponce?.statusCode == 422 ||
                   widget.loginController.loginResponce?.statusCode == 409
-              ? Text(
+              ? const Text(
                   'Incorrect E-mail',
                   style: TextStyle(color: Colors.red),
                 )
-              : Text(''),
+              : const Text(''),
           nkMediumSizeBox(),
           nkMediumSizeBox(),
           TextFormField(
@@ -112,7 +111,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
             obscureText: widget.loginController.isPasswordVisible.value,
             decoration: InputDecoration(
               labelText: 'Password',
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 EneftyIcons.lock_2_outline,
                 color: primaryColor,
               ),
@@ -131,17 +130,17 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.red, width: 1.5),
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
               ),
               suffixIcon: widget.loginController.getIsPasswordVisible,
             ),
           ),
           widget.loginController.loginResponce?.statusCode == 401
-              ? Text(
+              ? const Text(
                   'Incorrect Password',
                   style: TextStyle(color: Colors.red),
                 )
-              : Text(''),
+              : const Text(''),
           nkMediumSizeBox(),
           Align(
               alignment: Alignment.centerRight, child: ForgotPasswordScreen()),
@@ -177,6 +176,8 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
 }
 
 class ForgotPasswordScreen extends StatelessWidget {
+  const ForgotPasswordScreen({super.key});
+
   void showEmailBottomSheet(BuildContext context) {
     final emailController = TextEditingController();
 
@@ -195,9 +196,9 @@ class ForgotPasswordScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               nkMediumSizeBox(),
-              Icon(
+              const Icon(
                 Icons.email_outlined,
-                color: const Color.fromARGB(255, 249, 140, 132),
+                color: Color.fromARGB(255, 249, 140, 132),
                 size: 60,
               ),
               const SizedBox(height: 16.0),
@@ -212,19 +213,19 @@ class ForgotPasswordScreen extends StatelessWidget {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                    borderSide: const BorderSide(color: Colors.grey, width: 1.5),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide:
-                        BorderSide(color: primaryButtonColor, width: 1.5),
+                        const BorderSide(color: primaryButtonColor, width: 1.5),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: red, width: 1.5),
+                    borderSide: const BorderSide(color: red, width: 1.5),
                   ),
                 ),
                 keyboardType: TextInputType.emailAddress,

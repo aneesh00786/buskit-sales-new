@@ -1,9 +1,7 @@
-import 'dart:developer';
+// ignore_for_file: unnecessary_null_comparison
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -25,7 +23,7 @@ Widget buildOrdersTable(
   ];
   List<TableViewRow> rows = filteredOrders.isEmpty
       ? [
-          TableViewRow(
+          const TableViewRow(
             height: 60,
             cells: [
               TableViewCell(child: Text("No Records Found")),
@@ -47,9 +45,9 @@ Widget buildOrdersTable(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 20,
-                      backgroundColor: const Color(0xffe6ecff),
+                      backgroundColor: Color(0xffe6ecff),
                       child: Icon(
                         Icons.person,
                         size: 14,
@@ -64,7 +62,7 @@ Widget buildOrdersTable(
                         children: [
                           Text(
                             customer?.businessName ?? 'N/A',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -73,13 +71,15 @@ Widget buildOrdersTable(
                           ),
                           Text(
                             customer?.mobileNo ?? 'N/A',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             customer?.email ?? 'N/A',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -92,17 +92,13 @@ Widget buildOrdersTable(
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                    showDetailedOrderDialog(
-                      context,
-                      order,
-                      false
-                    );
+                    showDetailedOrderDialog(context, order, false);
                   },
                   child: Text(
                     order.orderId,
-                    style: TextStyle(fontWeight: FontWeight.w600,color: primaryColor),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, color: primaryColor),
                     textAlign: TextAlign.center,
-                    
                   ),
                 ),
               ),
@@ -123,7 +119,7 @@ Widget buildOrdersTable(
               TableViewCell(
                 child: InkWell(
                     onTap: () {
-                      showDetailedOrderDialog(context, order,false);
+                      showDetailedOrderDialog(context, order, false);
                     },
                     child: text(order.invoice, 14.0)),
               ),
@@ -193,14 +189,14 @@ Widget buildOrdersTable(
 
       return Stack(
         children: [
-          Container(
+          SizedBox(
             width: availableWidth,
             height: containerHeight,
             child: Column(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(15),
                       topRight: Radius.circular(15),
                     ),
@@ -224,9 +220,7 @@ Widget buildOrdersTable(
                           ),
                         ),
                       ),
-                      ...headers
-                          .sublist(1)
-                          .map(
+                      ...headers.sublist(1).map(
                             (label) => Expanded(
                               flex: 1,
                               child: Padding(
@@ -242,8 +236,7 @@ Widget buildOrdersTable(
                                 ),
                               ),
                             ),
-                          )
-                          .toList(),
+                          ),
                     ],
                   ),
                 ),
@@ -284,8 +277,7 @@ Widget buildOrdersTable(
                                       child: cell.child,
                                     ),
                                   ),
-                                )
-                                .toList(),
+                                ),
                           ],
                         ),
                       );
@@ -295,7 +287,6 @@ Widget buildOrdersTable(
               ],
             ),
           ),
-          // Close Button
           Positioned(
             top: 0,
             right: 0,
@@ -326,5 +317,3 @@ String formatNullableDate(DateTime? date, {String format = 'dd/MM/yyyy'}) {
   if (date == null) return 'N/A';
   return DateFormat(format).format(date);
 }
-
-

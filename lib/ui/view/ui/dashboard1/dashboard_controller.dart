@@ -1,37 +1,23 @@
-import 'dart:convert';
-import 'dart:developer';
 
-// import 'package:busskit_admin/api_handler/api_worker.dart';
-// import 'package:busskit_admin/common/search_model.dart';
-// import 'package:busskit_admin/ui/components/common_size/nk_font_size.dart';
-// import 'package:busskit_admin/ui/components/common_size/nk_general_size.dart';
-// import 'package:busskit_admin/ui/components/widgets/my_regular_text.dart';
-// import 'package:busskit_admin/ui/utills/nk_date_utils.dart';
-// import 'package:busskit_admin/ui/view/ui/dashboard1/model/dashboard_response.dart';
+import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
-import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-
 import 'provider/dash_models.dart';
 
 class DashBoardController extends GetxController {
+  RecentOrderCountData recentOrderCountData = RecentOrderCountData();
 
-    RecentOrderCountData recentOrderCountData = RecentOrderCountData();
-    
   RxList<Map<String, dynamic>> communicationList = [
     {
       "image":
@@ -69,6 +55,7 @@ class DashBoardController extends GetxController {
           "Hahapura venubok elivodcu deancij bapo wucte acezehge me Zob gok co aloow zaz kup zecmieji ol je."
     },
   ].obs;
+  @override
   void onInit() {
     fetchDashboardData();
     super.onInit();
@@ -83,11 +70,10 @@ class DashBoardController extends GetxController {
   // // ignore: unused_field
   // final ApiWorker _apiWorker = ApiWorker();
   var dashbordData = ResponseModell().obs;
-  var selectedFilter =
-      FilterDateEnum.thisMonth.obs; 
+  var selectedFilter = FilterDateEnum.thisMonth.obs;
   var selectedStartDate = ''.obs;
   var selectedEndDate = ''.obs;
-  var isLoading = false.obs; 
+  var isLoading = false.obs;
   var errorMessage = ''.obs;
   var allCategory = <Category>[].obs;
   var categoryPerformance = <CategoryPerformancee>[].obs;
@@ -98,18 +84,15 @@ class DashBoardController extends GetxController {
       isLoading.value = true;
       final response = await fetchData();
       dashbordData.value = response;
-      
     } catch (e) {
       errorMessage.value = 'Error fetching dashboard data: $e';
     } finally {
       isLoading.value = false;
     }
   }
+
   Future<ResponseModell> fetchData() async {
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    String createdToken = jsonMap['createdToken'];
     try {
       final now = DateTime.now();
       String startDate;
@@ -156,12 +139,9 @@ class DashBoardController extends GetxController {
       );
 
       log('Api Response: $apiResponse');
-      if (apiResponse == null) {
-        return ResponseModell();
-      }
       return apiResponse;
-    } catch (e, stackTrace) {
-      print('Error fetching data: $e');
+    } catch (e) {
+      log('Error fetching data: $e');
       rethrow;
     }
   }
@@ -188,11 +168,12 @@ class DashBoardController extends GetxController {
       percent: value,
     );
   }
+
   updateCustomerVisitScheduleSet(DateTime? startDate, DateTime? endDate) {
     if (startDate != null && endDate != null) {
       searchModel.startDate = NKDateUtils.apiDayFormat(startDate);
       searchModel.endDate = NKDateUtils.apiDayFormat(endDate);
-      print("start_Date++${searchModel.startDate}");
+      log("start_Date++${searchModel.startDate}");
       loadDahsbordData;
     } else {
       searchModel.startDate = "";
@@ -203,12 +184,7 @@ class DashBoardController extends GetxController {
   }
 
   get loadDahsbordData async {
-    // var data = await _apiWorker.dashboardData();
-    // log("API DASHBORD DATA IS ${data.toJson()}");
-    // dashbordData = data.data!.obs as Rx<Data>;
-    // log("DashBoard Data Load ++++++++++++++ ${dashbordData.value.toJson()}");
-    // log("Loded  DASHBORD DATA encode ${jsonEncode(dashbordData.value)}");
-    // refresh();
+
   }
 
   List<int> colorList = [
@@ -219,38 +195,14 @@ class DashBoardController extends GetxController {
     0xffEff0f0,
     0xffEff0e2
   ];
-
-  // List<ChartSeries<Month, String>> getDashbordData(
-  //     List<CategoryPerformance> categoryData) {
-  //   List<ChartSeries<Month, String>> data = [];
-  //   for (int i = 0; i < categoryData.length; i++) {
-  //     data.add(StackedColumnSeries<Month, String>(
-  //         dataSource: categoryData[i].month!,
-  //         xValueMapper: (Month sales, _) => NKDateUtils.months[_],
-  //         yValueMapper: (Month sales, _) => sales.totalCount,
-  //         color: Color(colorList[i]),
-  //         name: categoryData[i].category,
-  //         markerSettings: MarkerSettings(isVisible: false)));
-  //   }
-
-  //   return data;
-  // }
-
-  // List to store the state of checkboxes
   var checkBoxValues = List<bool>.filled(4, false).obs;
-
-  // Function to update the value of a checkbox
   void updateCheckBox(int index, bool value) {
     checkBoxValues[index] = value;
   }
-
-  // List to store messages for each customer
   var messages = List.generate(
     10,
     (index) => <Message>[].obs,
   ).obs;
-
-  // Function to send a message
   void sendMessage(int customerIndex, String messageText) {
     messages[customerIndex].add(
       Message(text: messageText, isSentByMe: true),
@@ -285,7 +237,7 @@ class DashBoardController extends GetxController {
     isInvoiceLoading(false); // Stop loading
     log('is Invoice Loading : ${isInvoiceLoading.value}');
     return fetchSpecificOrderData!;
-  }  
+  }
 }
 
 class Message {

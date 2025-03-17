@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
+
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -1356,7 +1358,7 @@ class BottomTotalWidget extends StatelessWidget {
                     120,
                   ),
                   _buildTableCell(
-                    SizedBox.shrink(),
+                    const SizedBox.shrink(),
                     20,
                   ),
                   _buildTableCell(
@@ -1998,10 +2000,10 @@ class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2113,6 +2115,7 @@ class EventTypeDropdown extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _EventTypeDropdownState createState() => _EventTypeDropdownState();
 }
 
@@ -2333,8 +2336,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
 class FrozenHeaderTable extends StatefulWidget {
   final ScrollController scrollController;
 
-  const FrozenHeaderTable({required this.scrollController, Key? key})
-      : super(key: key);
+  const FrozenHeaderTable({required this.scrollController, super.key});
 
   @override
   State<FrozenHeaderTable> createState() => _FrozenHeaderTableState();
@@ -2514,7 +2516,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                     .customerId);
                                                         log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
                                                         await Future.delayed(
-                                                            Duration(
+                                                            const Duration(
                                                                 milliseconds:
                                                                     100));
 
@@ -2675,9 +2677,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: Center(
                                                   child: InkWell(
                                                     onTap: () {
-                                                      if (customer.sales == 0 ||
-                                                          customer.sales ==
-                                                              null) {
+                                                      if (customer.sales == 0) {
                                                         showCustomToastDisplay(
                                                             context,
                                                             'Record Not Found',
@@ -2818,7 +2818,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor: Color.fromRGBO(
+                                              bgColor: const Color.fromRGBO(
                                                       239, 240, 207, 1)
                                                   .withOpacity(0.4),
                                               padding: EdgeInsets.zero,
@@ -2858,7 +2858,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor: Color.fromRGBO(
+                                              bgColor: const Color.fromRGBO(
                                                       239, 240, 207, 1)
                                                   .withOpacity(0.4),
                                             ),
@@ -2904,7 +2904,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor: Color.fromRGBO(
+                                              bgColor: const Color.fromRGBO(
                                                       239, 240, 207, 1)
                                                   .withOpacity(0.4),
                                             ),
@@ -2951,7 +2951,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               140,
                                               height: fixedRowHeight,
-                                              bgColor: Color.fromRGBO(
+                                              bgColor: const Color.fromRGBO(
                                                       239, 240, 207, 1)
                                                   .withOpacity(0.4),
                                             ),
@@ -3191,7 +3191,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   onTap: () {
                                                     showDetailedOrderInvoiceDialog(
                                                         context,
-                                                        order.orderId ?? '',
+                                                        order.orderId,
                                                         false);
                                                   },
                                                   child: Center(
@@ -3263,7 +3263,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   onTap: () {
                                                     showDetailedOrderInvoiceDialog(
                                                         context,
-                                                        order.orderId ?? '',
+                                                        order.orderId,
                                                         true);
                                                   },
                                                   child: Center(

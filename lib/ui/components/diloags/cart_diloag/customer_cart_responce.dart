@@ -203,7 +203,7 @@ class CustomerCart {
     updatedAt = json['updated_at'];
     cartId = json['cart_id'];
     quantity = json['quantity'];
-    salesmanReason = json['reason'] != null ? json['reason'] : '';
+    salesmanReason = json['reason'] ?? '';
     discount = discountPrice;
     // total = totalPrice;
     total = json['total_price'];

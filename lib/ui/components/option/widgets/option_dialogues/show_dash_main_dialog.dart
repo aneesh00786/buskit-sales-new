@@ -29,9 +29,9 @@ void showMainDashDialog({
                     future: provider.orderResponse,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SizedBox(
+                        return const SizedBox(
                             height: 300,
-                            child: const Center(
+                            child: Center(
                               child: CircularProgressIndicator(),
                             ));
                       } else if (snapshot.hasError || !snapshot.hasData) {

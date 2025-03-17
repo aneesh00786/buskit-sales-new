@@ -1,10 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
-
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -14,7 +11,6 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -59,44 +55,6 @@ class OrderController extends GetxController {
       isCountLoading(false);
     }
   }
-// Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
-//     orderDataList.clear();
-
-//     switch (selectedIndex) {
-//       case 0:
-//         selectedStatusCountIndex.value = 11;
-//         break;
-//       case 1:
-//         selectedStatusCountIndex.value = 12;
-//         break;
-//       case 2:
-//         selectedStatusCountIndex.value = 14;
-//         break;
-//       case 3:
-//         selectedStatusCountIndex.value = 5;
-//         break;
-//       case 4:
-//         selectedStatusCountIndex.value = 1;
-//         break;
-//       case 5:
-//         selectedStatusCountIndex.value = 2;
-//         break;
-//       case 6:
-//         selectedStatusCountIndex.value = 13;
-//         break;
-//       default:
-//         selectedStatusCountIndex.value = 11;
-//     }
-
-//     var data = await ApiWorker().getRecentOrdersData(
-//       searchModel: searchData,
-//       orderStatus: selectedStatusCountIndex.value,
-//       isLogin: false
-//     );
-//     orderDataList.assignAll(data.data!);
-//     return data.data!;
-//   }
-
   Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
     orderDataList.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -208,8 +166,8 @@ class OrderController extends GetxController {
       orderId: orderId,
       orderStatus: orderStatus,
     );
-    if (data.data != null && data.data!.isNotEmpty) {
-      orderProcessInvoiceData = data.data!.first;
+    if (data.data.isNotEmpty) {
+      orderProcessInvoiceData = data.data.first;
     }
 
     isLoading(false);

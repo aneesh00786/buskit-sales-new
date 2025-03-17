@@ -1,4 +1,4 @@
-  import 'package:busskit_salesexecutive/generated/assets.dart';
+
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:flutter/material.dart';
 

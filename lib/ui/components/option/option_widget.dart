@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -328,7 +330,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                           : fullScreenHeight(context) * 0.7,
                                       child: SingleChildScrollView(
                                         child: DataTable(
-                                          // ignore: deprecated_member_use
+                                      
                                           dataRowHeight: fontSize * 5.5,
                                           headingRowHeight:
                                               fullScreenWidth(context) > 740

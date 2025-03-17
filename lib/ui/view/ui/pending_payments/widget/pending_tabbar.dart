@@ -1,6 +1,6 @@
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
@@ -11,16 +11,17 @@ import 'package:flutter/material.dart';
 class PendingTabBar extends StatefulWidget {
   final PendingPaymentController orderController;
 
-  PendingTabBar({required this.orderController});
+  const PendingTabBar({super.key, required this.orderController});
 
   @override
+  // ignore: library_private_types_in_public_api
   _PendingTabBarState createState() => _PendingTabBarState();
 }
 
 class _PendingTabBarState extends State<PendingTabBar> {
   int _selectedTabIndex = 0;
   final List<String> _tabs = ['All', 'Nearly Due', 'Due', 'Over Due'];
-  List<bool> _visibleTabs = [true, false, false, false];
+  final List<bool> _visibleTabs = [true, false, false, false];
    bool _snackbarShown = false;
   void _onBarTapped(int index) async {
     bool isConnected = await ConnectivityService().isOnline();
@@ -36,7 +37,7 @@ class _PendingTabBarState extends State<PendingTabBar> {
       if (!_snackbarShown) {
         _snackbarShown = true;
         showNoInternetSnackBar(context);
-        Future.delayed(Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 3), () {
           _snackbarShown = false;
         });
       }
@@ -74,8 +75,8 @@ class _PendingTabBarState extends State<PendingTabBar> {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: const SizedBox(height: 20),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 20),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -120,12 +121,7 @@ class _PendingTabBarState extends State<PendingTabBar> {
               ),
             ),
           ),
-          // SliverToBoxAdapter(
-          //   child: PendingPaymentBottomWidget(
-          //     orderController: widget.orderController,
-          //     selectedTabIndex: _selectedTabIndex,
-          //   ),
-          // )
+
         ];
       },
       body: IntrinsicHeight(
@@ -134,7 +130,6 @@ class _PendingTabBarState extends State<PendingTabBar> {
           selectedTabIndex: _selectedTabIndex,
         ),
       ),
-      // body: SizedBox.shrink(),
     );
   }
 }

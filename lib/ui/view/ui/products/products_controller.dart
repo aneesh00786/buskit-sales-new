@@ -2,7 +2,6 @@
 
 import 'dart:developer';
 
-import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -13,7 +12,6 @@ import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_wi
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_diloag_screen.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
@@ -25,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+// ignore: implementation_imports
 import 'package:dio/src/response.dart' as res;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -320,22 +319,6 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
       log('Error placing order: $e');
     }
   }
-
-  // purchasePruduct(CartOrderModel cartOrder) async {
-  //   await _apiWorker
-  //       .buyProduct(cartOrder.toJson())
-  //       .then((value) {
-  //     if (value.statusCode == 200) {
-  //       NkCommonFunction.showSimpleToast(
-  //           value.data["message"] ?? orderPlacedSuccessfully,
-  //           color: Colors.lightGreen);
-  //       log('The Purchase Product Has veen Sucessfull');
-  //     }
-  //   }).onError((error, stackTrace) {
-  //     return Future.error(error.toString());
-  //   });
-  //   Get.back();
-  // }
   sendDraftPruduct(BuyProductResponce buyProductResponce) async {
     await ApiWorker()
         .saveAsDraftProduct(
@@ -407,76 +390,16 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
     return await ApiWorker().deleteCartItem(cartId, variationId);
   }
 
-  // Future<List<ProductList>> loadDataOfProduct() async {
-  //   var data = await _apiWorker.getTempProduct();
-  //   productListTemp.value = data;
-  //   log('loadDataOfProduct${data}');
-  //   log('Product List Length: ${productList.length}');
-  //   for (var category in categoryData.value.data!) {
-  //     if (category.subCategoryItem != null) {
-  //       for (var subCategory in category.subCategoryItem!) {
-  //         data.newarray!.forEach((element) {
-  //           if (subCategory.id == element.scid) {
-  //             subCategory.productList = element.productList;
-  //           }
-  //         });
-  //       }
-  //     }
-  //   }
-  //   BackupDataFunction.categoryAndProductBackup = categoryData.value;
-  //   updateProductList(
-  //       categoryData.value.data![selectedCategoryIndex.value]
-  //               .subCategoryItem?[selectedSubCategoryIndex.value].productList ??
-  //           [],
-  //       isBackupUpdate: true);
-
-  //   refresh();
-
-  //   return productList;
-  // }
-
   addTOServerCart(AddToCartModel data) async {
     await ApiWorker().addToCart(data.toJson());
-    //  .then((value) async {
-    // if (value?.statusCode == 200) {
-    //  // await productsController.loadSelectedCustomer(customerID);
-    //     log('Data added Success');
-    //   // log("Past Changed List ${productList.length}");
-    //   // log("Past Bakup Changed List ${productListBackup.length}");
-    //   // updateProductList(productsController.productListBackup);
-    //   // log("Current Changed List ${productList.length}");
-    //   // log("Current Bakup Changed List ${productListBackup.length}");
 
-    //   //productsController.btnController.success();
-    //   //  NkCommonFunction.showSuccessSnakBar(res.data["message"] ?? "Success");
-
-    //   // if (isChatDiloagShow) {
-    //   //   Get.dialog(CartDiloagScreen(productsController: productsController))
-    //   //       .then((value) async {
-    //   //     //await productsController.loadSelectedCustomer(customerID);
-    //   //   });
-    //   // } else {
-    //   //   Get.back();
-    //   // }
-    // }
-    // }).catchError((error) {
-    //   log("Response ${error}");
-    // });
-
-    /* catch (error) {
-      productsController.btnController.error();
-      productsController.btnController.reset();
-      return Future.error(error.toString());
-    }*/
   }
 
   Future addProductToCart(
       AddToCartModel savedData, ProductsController productsController) async {
     log("SubCategory with match  ${productsController.selectedSubCategoryId.value}");
     return await addTOServerCart(
-      //customerAndOrderData.value.customerId!,
       savedData,
-      //productsController
     );
   }
 
@@ -487,21 +410,8 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
       return Future.error(error.toString());
     });
     updateCustomerAndOrderData(data);
-    //var listData = await loadDataOfProduct();
-
-    //refresh();
     return data;
   }
-
-  /* Future<List<ProductBuyData>> get loadDataForOfflineDataBase async {
-    var listData =
-        await DatabaseHelper.getAllData(collumName: SqlDatabaseKey.buyProduct);
-    cartAddedList.assignAll(listData
-        .map((e) => ProductBuyData.fromJson(jsonDecode(jsonEncode(e))))
-        .toList());
-    log("CHART DATA ${cartAddedList.map((element) => element.toJson()).toList()}");
-    return cartAddedList;
-  }*/
 
   Future searchCustomer(String search) async {
     var data =
@@ -516,8 +426,8 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
       ClipOval(
         child: MyNetworkImage(
           imageUrl: customerSearchData.imageUrl ?? '',
-          height: AppDimensions.instance!.height * 0.06,
-          width: AppDimensions.instance!.height * 0.06,
+          height: AppDimensions.instance.height * 0.06,
+          width: AppDimensions.instance.height * 0.06,
         ),
       ),
       nkSmallSizeBox(),

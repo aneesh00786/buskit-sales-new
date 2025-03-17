@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -165,7 +167,7 @@ void showDetailedOrderDialog(
                 ),
                 Obx(() {
                   return dashBoardController.isInvoiceLoading.value
-                      ? Center(
+                      ? const Center(
                           child: CircularProgressIndicator(),
                         )
                       : Column(
@@ -280,7 +282,7 @@ void showDetailedOrderDialog(
                                       children: [
                                         Text(
                                           '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: black,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w500,
@@ -339,7 +341,7 @@ void showDetailedOrderDialog(
                 const SizedBox(height: 16),
                  Text(
                   'Currency ${formatAmount('')}',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ],
             )

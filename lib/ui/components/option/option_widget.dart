@@ -3,8 +3,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
-import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
@@ -22,7 +21,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,6 +28,7 @@ import 'package:provider/provider.dart';
 import '../../../generated/assets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+// ignore: must_be_immutable
 class OptionWidget extends StatefulWidget {
   final UserType userType;
   final String userId;
@@ -143,7 +142,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             count: widget.orderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color.fromARGB(255, 229, 242, 254),
-            color: Color.fromARGB(255, 55, 74, 134),
+            color: const Color.fromARGB(255, 55, 74, 134),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.delivered);
               _showOrderStatusDialog(context, provider, OrderStatus.delivered);
@@ -153,7 +152,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             count: widget.eastimatesCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardEstimates,
             svgBgColor: const Color.fromARGB(255, 226, 249, 243),
-            color: Color.fromARGB(255, 36, 108, 44),
+            color: const Color.fromARGB(255, 36, 108, 44),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.estimates);
               _showEstimatesDialog(
@@ -164,7 +163,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             count: widget.preOrderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardPreOrder,
             svgBgColor: const Color.fromARGB(255, 230, 247, 251),
-            color: Color.fromARGB(255, 45, 104, 116),
+            color: const Color.fromARGB(255, 45, 104, 116),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.preOrder);
               _showEstimatesDialog(
@@ -175,16 +174,11 @@ class _OptionWidgetState extends State<OptionWidget> {
             count: widget.draftCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardDraft,
             svgBgColor: const Color.fromARGB(255, 255, 227, 255),
-            color: Color.fromARGB(255, 100, 43, 109),
+            color: const Color.fromARGB(255, 100, 43, 109),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.draft);
               _showEstimatesDialog(
                   context, provider, OrderStatus.draft, 'Draft', true);
-              //     final customerId =
-              //     customerOrderController.customerId.isNotEmpty
-              //         ? customerOrderController.customerId.value
-              //         : productsController.selectedCustomerId.value;
-              // CartDatabaseManager().getCartItems(customerId);
               CartDatabaseManager().getDraftItems();
             }),
         OptionData(
@@ -192,7 +186,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             count: widget.cancelledCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardCancel,
             svgBgColor: const Color.fromARGB(255, 255, 228, 228),
-            color: Color.fromARGB(255, 139, 27, 27),
+            color: const Color.fromARGB(255, 139, 27, 27),
             onTap: () {
               provider.fetchOrdersSabik(OrderStatus.cancelled);
               _showEstimatesDialog(
@@ -204,7 +198,7 @@ class _OptionWidgetState extends State<OptionWidget> {
       BuildContext context) {
     Image svgComponent = Image.asset(
       optionData.svg,
-      height: AppDimensions.instance!.height * 0.03,
+      height: AppDimensions.instance.height * 0.03,
       fit: BoxFit.contain,
     );
 
@@ -216,14 +210,14 @@ class _OptionWidgetState extends State<OptionWidget> {
             BoxShadow(
               color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
               blurRadius: 2,
-              offset: Offset(4, 4),
+              offset: const Offset(4, 4),
             ),
           ],
           borderRadius: 20,
           onTap: optionData.onTap,
           margin: nkSymmetricPadding(
             vertical: 0,
-            horizontal: AppDimensions.instance!.width * 0.001,
+            horizontal: AppDimensions.instance.width * 0.001,
           ),
           padding: nkLargePadding(),
           isCommonBorder: true,
@@ -334,6 +328,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                           : fullScreenHeight(context) * 0.7,
                                       child: SingleChildScrollView(
                                         child: DataTable(
+                                          // ignore: deprecated_member_use
                                           dataRowHeight: fontSize * 5.5,
                                           headingRowHeight:
                                               fullScreenWidth(context) > 740
@@ -526,6 +521,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           width: flexWidth * 1,
                                                           child: Center(
                                                             child: Text(
+                                                              // ignore: unnecessary_null_comparison
                                                               order.orderCreatedAt !=
                                                                       null
                                                                   ? getFormattedOrderCreatAt(order
@@ -1126,7 +1122,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       ),
                                                     ),
                                                   )),
-                                                  DataColumn(
+                                                  const DataColumn(
                                                       label: Expanded(
                                                     child: Center(
                                                       child: Text(
@@ -1144,7 +1140,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       ),
                                                     ),
                                                   )),
-                                                  DataColumn(
+                                                  const DataColumn(
                                                       label: Expanded(
                                                     child: Center(
                                                       child: Text(
@@ -1286,8 +1282,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   onTap: () {
                                                                     showDetailedOrderInvoiceDialog(
                                                                       context,
-                                                                      order.orderId ??
-                                                                          '',
+                                                                      order.orderId,
                                                                       false,
                                                                     );
                                                                   },
@@ -1314,6 +1309,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         1,
                                                                 child: Center(
                                                                   child: Text(
+                                                                    // ignore: unnecessary_null_comparison
                                                                     order.orderCreatedAt !=
                                                                             null
                                                                         ? getFormattedOrderCreatAt(order
@@ -1474,18 +1470,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                         ),
                                                                                     id: 2);
                                                                               });
-                                                                              // final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                              // customerOrderController.setCustomerId(customer?.customerId ?? '');
-                                                                              // cartProvider.updateCartCount(customer?.customerId ?? '');
-                                                                              // productsController.selectedCustomerName.value = customer?.businessName ?? '';
-                                                                              // productsController.selectedCustomerImageUrl.value = customer?.imageUrl ?? '';
-                                                                              // productsController.selectedCustomerId.value = customer?.customerId ?? '';
-                                                                              // CartDatabaseManager().getCartItems(customer?.customerId ?? '');
-                                                                              // CartDatabaseManager().getDraftItems();
-
-                                                                              // Future.delayed(const Duration(milliseconds: 300), () {
-                                                                              //   Get.toNamed(name:AppRoutes.product, id: 2);
-                                                                              // });
+                                                                             
                                                                             },
                                                                           );
                                                                         },
@@ -1493,8 +1478,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                     } else {
                                                                       showDetailedOrderInvoiceDialog(
                                                                         context,
-                                                                        order.orderId ??
-                                                                            '',
+                                                                        order.orderId ,
                                                                         true,
                                                                         isButtonNeeded:
                                                                             true,
@@ -1552,7 +1536,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                     ),
                                                   ),
                                                 )),
-                                                DataColumn(
+                                                const DataColumn(
                                                     label: Expanded(
                                                   child: Center(
                                                     child: Text(
@@ -1570,7 +1554,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                     ),
                                                   ),
                                                 )),
-                                                DataColumn(
+                                                const DataColumn(
                                                     label: Expanded(
                                                   child: Center(
                                                     child: Text(
@@ -1683,36 +1667,8 @@ class _OptionWidgetState extends State<OptionWidget> {
   }
 
   // String getOrderStatusString(OrderStatus status) {
-  Widget _buildTableHeader1(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
 }
 
-String _getPaymentTypeName(int paymentType) {
-  switch (paymentType) {
-    case 0:
-      return 'Cash';
-    case 1:
-      return 'Cheque';
-    case 2:
-      return 'Bank Transfer';
-    default:
-      return 'Unknown';
-  }
-}
 
 Text text(List<InvoiceDash> invoices, dynamic s) {
   String invoiceId = invoices.map((invoice) => invoice.invoiceId).join(', ');
@@ -1721,7 +1677,6 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
         fontSize: s,
         color: primaryColor,
         fontWeight: FontWeight.w400,
-        // fontFamily: 'Poppins_Regular',
       ));
 }
 
@@ -1759,7 +1714,7 @@ Widget noDataFoundWidget(String type) {
                   child: DataTable(
                       dataRowHeight: fontSize * 5.5,
                       headingRowHeight: 45,
-                      headingRowColor: MaterialStateProperty.resolveWith<Color>(
+                      headingRowColor: WidgetStateProperty.resolveWith<Color>(
                         (states) => primaryColor,
                       ),
                       columnSpacing: padding * 1.5,
@@ -1786,7 +1741,7 @@ Widget noDataFoundWidget(String type) {
                             ),
                           ),
                         )),
-                        DataColumn(
+                        const DataColumn(
                             label: Expanded(
                           child: Center(
                             child: Text(
@@ -1804,7 +1759,7 @@ Widget noDataFoundWidget(String type) {
                             ),
                           ),
                         )),
-                        DataColumn(
+                        const DataColumn(
                             label: Expanded(
                           child: Center(
                             child: Text(

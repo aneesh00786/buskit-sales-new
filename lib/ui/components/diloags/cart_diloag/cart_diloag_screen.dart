@@ -92,11 +92,11 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
     return OrientationBuilder(builder: (context, ore) {
       return SafeArea(
         minimum: nkSymmetricPadding(
-            vertical: AppDimensions.instance!.height * 0.08,
+            vertical: AppDimensions.instance.height * 0.08,
             horizontal:
-                AppDimensions.instance!.orientation == Orientation.landscape
-                    ? AppDimensions.instance!.width * 0.20
-                    : AppDimensions.instance!.width * 0.05),
+                AppDimensions.instance.orientation == Orientation.landscape
+                    ? AppDimensions.instance.width * 0.20
+                    : AppDimensions.instance.width * 0.05),
         child: ClipRRect(
           borderRadius:
               BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
@@ -219,13 +219,11 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
                           .deleteCartItem(customerCartData.customerId!,
                               cartData.cartId!, cartData.variationId!)
                           .then((value) {
-                        /*setState(() {
-                          customerCartData = CustomerCartData();
-                        });*/
+
 
                         loadDataForServer();
                       });
-                      // deleteTap(cartData);
+
                     },
                     child: SvgPicture.asset(Assets.iconsIcDelete)),
                 nkSmallSizeBox()
@@ -250,17 +248,16 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
             ? Padding(
                 padding: nkSymmetricPadding(
                   vertical: 0,
-                  horizontal: AppDimensions.instance!.width * 0.01,
+                  horizontal: AppDimensions.instance.width * 0.01,
                 ),
                 child: Tooltip(
-                  // Provide a global key with the "TooltipState" type to show
-                  // the tooltip manually when trigger mode is set to manual.
+
                   key: widget.productsController.tooltipkey,
                   triggerMode: TooltipTriggerMode.tap,
                   showDuration: const Duration(minutes: 3),
                   verticalOffset: -70,
                   onTriggered: () {
-                    //productsController.getSalesmanData(data.reasonBySalesman!);
+                    
                   },
                   richMessage: WidgetSpan(
                       child: Column(
@@ -352,20 +349,13 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
     );
   }
 
-  /* deleteTap(ProductBuyData cartData) async {
-    if (await DatabaseHelper.deleteItem(cartData.id!,
-        collumName: SqlDatabaseKey.buyProduct)) {
-      setState(() {
-        cartDataList.remove(cartData);
-      });
-    }
-  }*/
+
 
   Widget tableWidget(CustomerCart cartData) {
     return nkChildWrappedSizeBox(
       width: double.maxFinite,
       child: DataTable(
-          headingRowHeight: AppDimensions.instance!.height * 0.05,
+          headingRowHeight: AppDimensions.instance.height * 0.05,
           columns: productDataCollumList
               .map((e) => DataColumn(
                       label: MyRegularText(
@@ -411,7 +401,7 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
 
   Widget quntityWidget(CustomerCart cartData) {
     return nkChildWrappedSizeBox(
-      height: AppDimensions.instance!.height * 0.03,
+      height: AppDimensions.instance.height * 0.03,
       child: NkIncrementDecrement(
         isSmallSizeBtn: true,
         addBtnColor: primaryColor,
@@ -461,24 +451,6 @@ class _CartDiloagScreenState extends State<CartDiloagScreen> {
                   MyRegularText(
                       label:
                           "$taxString:-   ${tax.toStringAsFixed(2).nkValueWithCurrencySymbol.removeAllWhitespace}"),
-                  /*   if (discount != 0) ...[
-                    MyRegularText(
-                      label:
-                      "$finalAmountString:-   ${calculateAmountWithDiscount(total: total, tax: tax, discount: discount).toString().nkValueWithCurrencySymbol.removeAllWhitespace}",
-                      fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                    ),
-                    MyRegularText(
-                      label:
-                          "$finalAmountString:-   ${calculateAmountWithDiscount(total: total, tax: tax, discount: discount).toString().nkValueWithCurrencySymbol.removeAllWhitespace}",
-                      fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                    ),
-                  ] else ...[
-                    MyRegularText(
-                      label:
-                          "$finalAmountString:-   ${((total + tax)).toString().nkValueWithCurrencySymbol.removeAllWhitespace}",
-                      fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                    )
-                  ]*/
                   MyRegularText(
                     label:
                         "$finalAmountString:-   ${((total + tax)).toStringAsFixed(2).nkValueWithCurrencySymbol.removeAllWhitespace}",

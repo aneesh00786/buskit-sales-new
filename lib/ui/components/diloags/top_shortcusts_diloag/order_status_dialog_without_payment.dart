@@ -12,7 +12,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/order_details_diloa
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -112,11 +111,11 @@ class _OrderStatusDialogWithOutPaymentState
     return OrientationBuilder(builder: (context, ore) {
       return SafeArea(
         minimum: nkSymmetricPadding(
-            vertical: AppDimensions.instance!.height * 0.08,
+            vertical: AppDimensions.instance.height * 0.08,
             horizontal:
-                AppDimensions.instance!.orientation == Orientation.landscape
-                    ? AppDimensions.instance!.width * 0.10
-                    : AppDimensions.instance!.width * 0.05),
+                AppDimensions.instance.orientation == Orientation.landscape
+                    ? AppDimensions.instance.width * 0.10
+                    : AppDimensions.instance.width * 0.05),
         child: Card(
           color: Colors.transparent,
           child: ClipRRect(
@@ -140,8 +139,8 @@ class _OrderStatusDialogWithOutPaymentState
                           withoutBaseUrl: true,
                           imageUrl:
                               "https://i.ibb.co/r5kZLkw/bpnlauwze4-79c04e73-online-video-cutter-com-1-Adobe-Express.gif",
-                          height: AppDimensions.instance!.height * 0.5,
-                          width: AppDimensions.instance!.height * 0.5,
+                          height: AppDimensions.instance.height * 0.5,
+                          width: AppDimensions.instance.height * 0.5,
                         ),
                         MyRegularText(
                           align: TextAlign.center,
@@ -172,16 +171,16 @@ class _OrderStatusDialogWithOutPaymentState
     return SingleChildScrollView(
       // scrollDirection: Axis.horizontal,
       child: nkChildWrappedSizeBox(
-        width: AppDimensions.instance!.width,
+        width: AppDimensions.instance.width,
         child: DataTable(
-          horizontalMargin: AppDimensions.instance!.width * 0.03,
+          horizontalMargin: AppDimensions.instance.width * 0.03,
           headingRowColor:
-              MaterialStateColor.resolveWith((states) => primaryColor),
+              WidgetStateColor.resolveWith((states) => primaryColor),
           headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
               color: buttonTextColor,
               fontSize: NkFontSize.largeFont(),
               fontWeight: FontWeight.bold),
-          dataRowMaxHeight: AppDimensions.instance!.height * 0.11,
+          dataRowMaxHeight: AppDimensions.instance.height * 0.11,
           columns: List.generate(
               orderTableColumCategory.length,
               (index) => index != orderTableColumCategory.length - 1
@@ -197,7 +196,7 @@ class _OrderStatusDialogWithOutPaymentState
                       label: DiloagAppBar(
                       title: widget.heading,
                     ).closeIcon)),
-          rows: [],
+          rows: const [],
         ),
       ),
     );
@@ -205,16 +204,16 @@ class _OrderStatusDialogWithOutPaymentState
 
   Widget get orderBottomTableWidget => SingleChildScrollView(
         child: nkChildWrappedSizeBox(
-          width: AppDimensions.instance!.width,
+          width: AppDimensions.instance.width,
           child: DataTable(
             headingRowHeight: 0,
             headingRowColor:
-                MaterialStateColor.resolveWith((states) => primaryColor),
+                WidgetStateColor.resolveWith((states) => primaryColor),
             headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
                 color: buttonTextColor,
                 fontSize: NkFontSize.largeFont(),
                 fontWeight: FontWeight.bold),
-            dataRowMaxHeight: AppDimensions.instance!.height * 0.11,
+            dataRowMaxHeight: AppDimensions.instance.height * 0.11,
             columns: List.generate(
                 orderTableColumCategory.length,
                 (index) => DataColumn(
@@ -249,13 +248,13 @@ class _OrderStatusDialogWithOutPaymentState
     return GestureDetector(
       onTap: () => {},
       child: SizedBox(
-        width: AppDimensions.instance!.width * 0.12,
+        width: AppDimensions.instance.width * 0.12,
         child: Row(children: [
           ClipOval(
             child: MyNetworkImage(
               imageUrl: orderData.customerDetails?.imageUrl ?? '',
-              height: AppDimensions.instance!.height * 0.06,
-              width: AppDimensions.instance!.height * 0.06,
+              height: AppDimensions.instance.height * 0.06,
+              width: AppDimensions.instance.height * 0.06,
             ),
           ),
           nkSmallSizeBox(),
@@ -270,7 +269,7 @@ class _OrderStatusDialogWithOutPaymentState
                   label: orderData.customerDetails?.mobileno ?? '',
                 ),
                 SizedBox(
-                  width: AppDimensions.instance!.width * 0.07,
+                  width: AppDimensions.instance.width * 0.07,
                   child: MyRegularText(
                     align: TextAlign.start,
                     label: orderData.customerDetails?.email ?? '',
@@ -322,8 +321,6 @@ class _OrderStatusDialogWithOutPaymentState
                 .name,
       ),
     );
-/*    return orderController.orderStatus(
-        orderController.orderStatusToString(orderData.orderStatus!));*/
   }
 
   Widget viewOrder(OptionOrderData orderData) {

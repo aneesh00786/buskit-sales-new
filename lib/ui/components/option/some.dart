@@ -1,5 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -13,7 +15,6 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
-import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -147,7 +148,7 @@ class OptionWidget extends StatelessWidget {
       BuildContext context) {
     SvgPicture svgComponent = SvgPicture.asset(
       optionData.svg,
-      height: AppDimensions.instance!.height * 0.03,
+      height: AppDimensions.instance.height * 0.03,
       fit: BoxFit.contain,
     );
 
@@ -157,7 +158,7 @@ class OptionWidget extends StatelessWidget {
         onTap: optionData.onTap,
         margin: nkSymmetricPadding(
           vertical: 0,
-          horizontal: AppDimensions.instance!.width * 0.001,
+          horizontal: AppDimensions.instance.width * 0.001,
         ),
         padding: nkLargePadding(),
         isCommonBorder: true,
@@ -356,7 +357,7 @@ class OptionWidget extends StatelessWidget {
                                             dataRowHeight: fontSize * 5.5,
                                             headingRowHeight: 45,
                                             headingRowColor:
-                                                MaterialStateProperty
+                                                WidgetStateProperty
                                                     .resolveWith<Color>(
                                               (states) => primaryColor,
                                             ),
@@ -603,6 +604,7 @@ class OptionWidget extends StatelessWidget {
                                                                 flexWidth * 1,
                                                             child: Center(
                                                               child: Text(
+                                                                // ignore: unnecessary_null_comparison
                                                                 order.orderCreatedAt !=
                                                                         null
                                                                     ? getFormattedOrderCreatAt(order
@@ -806,7 +808,7 @@ class OptionWidget extends StatelessWidget {
                                                             ),
                                                           ),
                                                         ),
-                                                        DataCell(Text('')),
+                                                        const DataCell(Text('')),
                                                       ],
                                                     );
                                                   }).toList(),
@@ -893,7 +895,7 @@ class OptionWidget extends StatelessWidget {
                                                   dataRowHeight: fontSize * 5.5,
                                                   headingRowHeight: 45,
                                                   headingRowColor:
-                                                      MaterialStateProperty
+                                                      WidgetStateProperty
                                                           .resolveWith<Color>(
                                                     (states) => primaryColor,
                                                   ),
@@ -1128,6 +1130,7 @@ class OptionWidget extends StatelessWidget {
                                                         DataCell(
                                                           Center(
                                                             child: Text(
+                                                              // ignore: unnecessary_null_comparison
                                                               order.orderCreatedAt !=
                                                                       null
                                                                   ? getFormattedOrderCreatAt(order
@@ -1226,7 +1229,7 @@ class OptionWidget extends StatelessWidget {
                                                             ),
                                                           ),
                                                         ),
-                                                        DataCell(Text('')),
+                                                        const DataCell(Text('')),
                                                       ],
                                                     );
                                                   }).toList(),
@@ -1536,6 +1539,7 @@ class OptionWidget extends StatelessWidget {
                                                               DataCell(
                                                                 Center(
                                                                   child: Text(
+                                                                    // ignore: unnecessary_null_comparison
                                                                     order.orderCreatedAt !=
                                                                             null
                                                                         ? getFormattedOrderCreatAt(order
@@ -1640,7 +1644,7 @@ class OptionWidget extends StatelessWidget {
                                                                   ),
                                                                 ),
                                                               ),
-                                                              DataCell(
+                                                              const DataCell(
                                                                   Text('')),
                                                             ],
                                                           );
@@ -1948,6 +1952,7 @@ class OptionWidget extends StatelessWidget {
                                                               DataCell(
                                                                 Center(
                                                                   child: Text(
+                                                                    // ignore: unnecessary_null_comparison
                                                                     order.orderCreatedAt !=
                                                                             null
                                                                         ? getFormattedOrderCreatAt(order
@@ -2052,7 +2057,7 @@ class OptionWidget extends StatelessWidget {
                                                                   ),
                                                                 ),
                                                               ),
-                                                              DataCell(
+                                                              const DataCell(
                                                                   Text('')),
                                                             ],
                                                           );
@@ -2365,6 +2370,7 @@ class OptionWidget extends StatelessWidget {
                                                         DataCell(
                                                           Center(
                                                             child: Text(
+                                                              // ignore: unnecessary_null_comparison
                                                               order.orderCreatedAt !=
                                                                       null
                                                                   ? getFormattedOrderCreatAt(order
@@ -2463,7 +2469,7 @@ class OptionWidget extends StatelessWidget {
                                                             ),
                                                           ),
                                                         ),
-                                                        DataCell(Text('')),
+                                                        const DataCell(Text('')),
                                                       ],
                                                     );
                                                   }).toList(),
@@ -2500,22 +2506,6 @@ class OptionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTableHeader1(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
 }
 
 
@@ -2700,7 +2690,7 @@ void _showDetailedOrderDialog(
                 ),
                 Obx(() {
                   return dashBoardController.isInvoiceLoading.value
-                      ? Center(
+                      ? const Center(
                           child: CircularProgressIndicator(),
                         )
                       : Column(
@@ -2815,7 +2805,7 @@ void _showDetailedOrderDialog(
                                       children: [
                                         Text(
                                           '${dashBoardController.fetchSpecificOrderData!.cart!.first.taxName} - ${dashBoardController.fetchSpecificOrderData!.cart!.first.tax} %',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: black,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w500,

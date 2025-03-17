@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class CartTotalWidget extends StatelessWidget {
   String title;
   double content;

@@ -1,7 +1,6 @@
 //Cart Database
 
 import 'dart:developer';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
@@ -183,7 +182,7 @@ class CartDatabaseManager {
   Future<List<Map<String, String?>>> getDraftAndCartIdsFromApi(
       String customerId) async {
     final dio = Dio();
-    final apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
+    const apiUrl = 'http://16.50.232.153:3000/fetch_all_order';
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
@@ -521,18 +520,10 @@ class CartDatabaseManager {
       await cartBox.clear();
       await draftBox.clear();
       await cartBox.putAll(
-        Map.fromIterable(
-          remainingCartItems,
-          key: (e) => '${e.customerId}-${e.detail.variationId}',
-          value: (e) => e,
-        ),
+        { for (var e in remainingCartItems) '${e.customerId}-${e.detail.variationId}' : e },
       );
       await draftBox.putAll(
-        Map.fromIterable(
-          remainingDraftItems,
-          key: (e) => '${e.customerId}-${e.detail.variationId}',
-          value: (e) => e,
-        ),
+        { for (var e in remainingDraftItems) '${e.customerId}-${e.detail.variationId}' : e },
       );
 
       log('Cart and Draft cleared for customer $customerId while retaining unchecked items.');

@@ -29,11 +29,11 @@ class ProductDetailsDialog extends Dialog {
     return OrientationBuilder(builder: (context, ore) {
       return SafeArea(
         minimum: nkSymmetricPadding(
-            vertical: AppDimensions.instance!.height * 0.08,
+            vertical: AppDimensions.instance.height * 0.08,
             horizontal:
-                AppDimensions.instance!.orientation == Orientation.landscape
-                    ? AppDimensions.instance!.width * 0.20
-                    : AppDimensions.instance!.width * 0.05),
+                AppDimensions.instance.orientation == Orientation.landscape
+                    ? AppDimensions.instance.width * 0.20
+                    : AppDimensions.instance.width * 0.05),
         child: Card(
           color: Colors.transparent,
           child: ClipRRect(
@@ -58,7 +58,7 @@ class ProductDetailsDialog extends Dialog {
           nkMediumSizeBox(),
           NkLoadingButton(
             //btnController: productsController.btnController,
-            width: AppDimensions.instance!.width * 0.12,
+            width: AppDimensions.instance.width * 0.12,
             padding: nkRegularPadding(),
             onPressed: () {
               var data = productData.variant!
@@ -136,7 +136,7 @@ class ProductDetailsDialog extends Dialog {
           nkMediumSizeBox(),
           MyNetworkImage(
             imageUrl: productData.imagePath ?? '',
-            height: AppDimensions.instance!.height * 0.2,
+            height: AppDimensions.instance.height * 0.2,
           )
         ],
       );
@@ -145,7 +145,7 @@ class ProductDetailsDialog extends Dialog {
         width: double.maxFinite,
         child: DataTable(
             headingRowColor:
-                MaterialStateColor.resolveWith((states) => primaryColor),
+                WidgetStateColor.resolveWith((states) => primaryColor),
             headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
                 color: buttonTextColor, fontSize: NkFontSize.largeFont()),
             columns: productVariantTableColumn,

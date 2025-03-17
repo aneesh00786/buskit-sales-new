@@ -271,6 +271,6 @@ void showSyncSnackbar(String message, String title) {
     snackPosition: SnackPosition.BOTTOM,
     backgroundColor: Colors.green,
     colorText: Colors.white,
-    duration: Duration(seconds: 5),
+    duration: const Duration(seconds: 5),
   );
 }

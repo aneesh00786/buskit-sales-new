@@ -13,14 +13,15 @@ class CustomSwitch extends StatefulWidget {
   final String selectedName;
 
   const CustomSwitch({
-    Key? key,
+    super.key,
     required this.initialValue,
     required this.onChanged,
     required this.active,
     required this.selectedName,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomSwitchState createState() => _CustomSwitchState();
 }
 
@@ -44,7 +45,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
         content: Text(isOn
             ? 'You are successfully checked-in'
             : 'You are successfully checked-out'),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
     log('Active value : $isOn');
@@ -61,11 +62,11 @@ class _CustomSwitchState extends State<CustomSwitch> {
                 builder: (context) {
                   return AlertDialog(
                     actions: [
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      const Padding(
+                        padding: EdgeInsets.all(8.0),
                         child: Center(
                           child: Icon(
                             Icons.warning_amber_rounded,
@@ -83,7 +84,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Ok'))
+                          child: const Text('Ok'))
                     ],
                   );
                 },
@@ -92,7 +93,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
       child: Container(
         width: 140.0,
         height: 50.0,
-        padding: EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25.0),
           color: isOn ? Colors.green : Colors.red,
@@ -101,7 +102,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
           alignment: isOn ? Alignment.centerLeft : Alignment.centerRight,
           children: [
             Padding(
-              padding: isOn ? EdgeInsets.only(left: 8):EdgeInsets.only(right: 8),
+              padding: isOn ? const EdgeInsets.only(left: 8):const EdgeInsets.only(right: 8),
               child: MyRegularText(
                 label: isOn ? "Check-in" : "Check-out",
                 color: white,
@@ -110,13 +111,13 @@ class _CustomSwitchState extends State<CustomSwitch> {
               ),
             ),
             AnimatedAlign(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
               curve: Curves.easeInOut,
               child: Container(
                 width: 40.0,
                 height: 40.0,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
                   boxShadow: [

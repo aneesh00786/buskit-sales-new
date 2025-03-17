@@ -27,11 +27,11 @@ class LoadingToNoDataWidget extends StatelessWidget {
   final Duration delayDuration;
 
   const LoadingToNoDataWidget({
-    Key? key,
+    super.key,
     this.spinnerColor = Colors.blue,
     this.spinnerSize = 20.0,
     this.delayDuration = const Duration(seconds: 2),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class LoadingToNoDataWidget extends StatelessWidget {
             ),
           );
         } else {
-          return Center(child: NodataWidget());
+          return const Center(child: NodataWidget());
         }
       },
     );

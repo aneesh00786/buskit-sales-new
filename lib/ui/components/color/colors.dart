@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 const Color primaryColor = Color(0xFF727CF5);
 const Color lightPrimaryColor = Color.fromARGB(255, 216, 219, 252);

@@ -56,7 +56,7 @@ class CollectionPieChartState extends State<CollectionPieChart> {
       switch (i) {
         case 1:
           return PieChartSectionData(
-            color: Color(0xff5581e7),
+            color: const Color(0xff5581e7),
             value:23.3,
             //widget.collectionData.payment?.percentage?.toString() ?? 0,
             title:
@@ -72,7 +72,7 @@ class CollectionPieChartState extends State<CollectionPieChart> {
           );
         case 0:
           return PieChartSectionData(
-            color: Color(0xff44afd9),
+            color: const Color(0xff44afd9),
             value:12.34,
             title:
                 "${widget.collectionData.order?.percentage.toString() ?? 0}%",

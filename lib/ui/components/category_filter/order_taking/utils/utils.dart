@@ -101,8 +101,7 @@ double calculateTotalPrice(CartItem cartItem, int localCount) {
 
     // Apply discount if applicable
     double appliedDiscountPercentage = 0.0; // Variable to store the applied discount percentage
-    if (discountData != null &&
-        discountData.customerId == cartItem.customerId) {
+    if (discountData.customerId == cartItem.customerId) {
       final applicableDiscount = discountData.discounts?.firstWhere(
         (discount) =>
             discount.categoriesId == cartItem.catId.toString() &&

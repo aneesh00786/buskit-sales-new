@@ -229,7 +229,7 @@ void showValueOrderDialog(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            DialogTableHeaderText(
+                            const DialogTableHeaderText(
                               text: 'Total',
                               fontSize: 12,
                               align: TextAlign.left,

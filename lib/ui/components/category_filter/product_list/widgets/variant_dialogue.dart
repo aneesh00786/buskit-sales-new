@@ -3,11 +3,8 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -15,7 +12,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
 
 class ProductVariantDialogue extends StatefulWidget {
@@ -24,9 +20,9 @@ class ProductVariantDialogue extends StatefulWidget {
   final List<ProductModel> productList;
   final VoidCallback onDone;
   final List<Detail> detailsCopy;
-  final productController;
+  final ProductsController productController;
 
-  ProductVariantDialogue({
+  const ProductVariantDialogue({
     super.key,
     required this.index,
     required this.product,
@@ -68,7 +64,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Dialog(
-      insetPadding: EdgeInsets.all(40),
+      insetPadding: const EdgeInsets.all(40),
       backgroundColor: white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
@@ -156,22 +152,22 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image: widget.product.imageUrl == null
-                                  ? AssetImage('assets/images/otp.png')
+                                  ? const AssetImage('assets/images/otp.png')
                                       as ImageProvider
                                   : NetworkImage(
-                                      '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}' ??
-                                          ''),
+                                      '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}' 
+                                          ),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 20,
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
+                          SizedBox(
                             width: constraints.maxWidth < 800
                                 ? screenWidth * 0.55
                                 : screenWidth * 0.65,
@@ -185,7 +181,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             content: 'Product ID : ${widget.product.id}',
                             fontSize: screenWidth * 0.02,
                           ),
-                          Container(
+                          SizedBox(
                             width: constraints.maxWidth < 800
                                 ? screenWidth * 0.55
                                 : screenWidth * 0.65,
@@ -202,7 +198,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                Container(
+                SizedBox(
                   width: screenWidth * 0.85,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -210,10 +206,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       width: screenWidth * 0.85,
                       child: DataTable(
                         headingRowHeight: screenHeight * 0.03,
+                        // ignore: deprecated_member_use
                         dataRowHeight: screenHeight * 0.05,
                         columnSpacing: columnSpacing,
                         headingRowColor:
-                            const MaterialStatePropertyAll(secondaryColor),
+                            const WidgetStatePropertyAll(secondaryColor),
                         columns: [
                           DataColumn(
                             label: Expanded(
@@ -413,7 +410,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
-                                      color: Color.fromARGB(255, 240, 239, 239),
+                                      color: const Color.fromARGB(255, 240, 239, 239),
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
@@ -480,16 +477,16 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                         ),
                                                         backgroundColor:
                                                             Colors.white,
-                                                        title: Row(
+                                                        title: const Row(
                                                           children: [
                                                             Icon(
                                                                 Icons
                                                                     .info_outline,
                                                                 color:
                                                                     Colors.red),
-                                                            const SizedBox(
+                                                            SizedBox(
                                                                 width: 8),
-                                                            const Text(
+                                                            Text(
                                                               'Out of Stock',
                                                               style: TextStyle(
                                                                 fontSize: 20,
@@ -502,11 +499,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                             ),
                                                           ],
                                                         ),
-                                                        content: Column(
+                                                        content: const Column(
                                                           mainAxisSize:
                                                               MainAxisSize.min,
                                                           children: [
-                                                            const Text(
+                                                            Text(
                                                               'This item is out of stock.',
                                                               style: TextStyle(
                                                                 fontSize: 16,
@@ -517,9 +514,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                   TextAlign
                                                                       .center,
                                                             ),
-                                                            const SizedBox(
+                                                            SizedBox(
                                                                 height: 10),
-                                                            const Text(
+                                                            Text(
                                                               'Do you want to add this as a pre-order?',
                                                               style: TextStyle(
                                                                 fontSize: 16,

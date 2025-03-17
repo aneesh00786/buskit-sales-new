@@ -1,5 +1,5 @@
 
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_widget/product_middel_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_widget/product_top_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';

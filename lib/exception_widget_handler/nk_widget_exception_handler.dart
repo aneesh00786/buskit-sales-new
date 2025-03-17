@@ -19,7 +19,7 @@ class NkWidgetExceptionHandel extends StatefulWidget {
   final void Function()? onRetryPressed;
 
   const NkWidgetExceptionHandel(
-      {Key? key,
+      {super.key,
       required this.data,
       required this.child,
       this.height,
@@ -29,8 +29,7 @@ class NkWidgetExceptionHandel extends StatefulWidget {
       this.onRetryPressed,
       this.isShowRetrySection = true,
       this.replaceWidget,
-      this.errorCustomWidgets})
-      : super(key: key);
+      this.errorCustomWidgets});
 
   @override
   State<NkWidgetExceptionHandel> createState() =>
@@ -157,7 +156,7 @@ class _NkWidgetExceptionHandelState extends State<NkWidgetExceptionHandel> {
   get _timerCallback => _timer =
           Timer.periodic(Duration(milliseconds: (_attemt + 1) * 300), (timer) {
         if (_attemt >= 3 || !widget.isShowRetrySection) {
-          log("Timer Cancel ${_attemt}");
+          log("Timer Cancel $_attemt");
           _timer!.cancel();
           _streamControllerValueIsEmpty(widget.data);
           return;

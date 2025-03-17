@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -29,10 +31,10 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {
       return MyCommnonContainer(
-        margin: AppDimensions.instance!.orientation == Orientation.landscape
+        margin: AppDimensions.instance.orientation == Orientation.landscape
             ? nkExtraLargePadding(
-                right: AppDimensions.instance!.width * .28,
-                left: AppDimensions.instance!.width * .28)
+                right: AppDimensions.instance.width * .28,
+                left: AppDimensions.instance.width * .28)
             : nkExtraLargePadding(),
         child: ClipRRect(
           borderRadius:
@@ -57,7 +59,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
                                   setState(() {
                                     salesmanList;
                                   });
-                                  print(
+                                  log(
                                       "SalesmanCalenderEvent ${salesmanList.length}");
                                 },
                                 child: staffDetailsWidget(
@@ -73,7 +75,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
                           },
                           itemCount: widget.quantityList.length),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
               salesmanList.isNotEmpty
                   ? Flexible(
                       child: ListView.separated(
@@ -105,7 +107,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
                           },
                           itemCount: salesmanList.length),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
             ],
           ),
         ),
@@ -117,7 +119,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
     const String homeLat = "37.3230";
     const String homeLng = "-122.0312";
     const String googleMapslocationUrl =
-        "https://www.google.com/maps/search/?api=1&query=${homeLat},${homeLng}";
+        "https://www.google.com/maps/search/?api=1&query=$homeLat,$homeLng";
     final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
     var uri = Uri.parse(encodedURl);
     await launchUrl(uri);
@@ -153,8 +155,8 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
         ClipOval(
           child: MyNetworkImage(
             imageUrl: customerData.imageUrl ?? '',
-            height: AppDimensions.instance!.height * 0.06,
-            width: AppDimensions.instance!.height * 0.06,
+            height: AppDimensions.instance.height * 0.06,
+            width: AppDimensions.instance.height * 0.06,
           ),
         ),
         nkSmallSizeBox(),

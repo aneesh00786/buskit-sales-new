@@ -14,7 +14,7 @@ class DoughnutDefaultDelivery extends StatefulWidget {
   final bool isBig;
 
   const DoughnutDefaultDelivery({
-    Key? key,
+    super.key,
     required this.deliveryData,
     required this.aColor,
     required this.bColor,
@@ -22,9 +22,10 @@ class DoughnutDefaultDelivery extends StatefulWidget {
     required this.legend1,
     required this.legend2,
     this.isBig = false,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DoughnutDefaultDeliveryState createState() =>
       _DoughnutDefaultDeliveryState();
 }

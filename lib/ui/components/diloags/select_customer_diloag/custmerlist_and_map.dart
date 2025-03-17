@@ -14,14 +14,13 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerMapScreen extends StatefulWidget {
   final bool istoGoogleMap;
-  CustomerMapScreen({this.istoGoogleMap = false, Key? key}) : super(key: key);
+  const CustomerMapScreen({this.istoGoogleMap = false, super.key});
 
   @override
   State<CustomerMapScreen> createState() => _CustomerMapScreenState();
@@ -101,8 +100,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 backgroundImage: NetworkImage(
                     '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}'),
               ),
-              SizedBox(width: 8),
-              Text("${customer.businessName ?? ''}"),
+              const SizedBox(width: 8),
+              Text(customer.businessName ?? ''),
             ],
           ),
           content: CustomText(
@@ -155,7 +154,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   ]);
                 });
               },
-              child: Text("Go to Customer"),
+              child: const Text("Go to Customer"),
             ),
           ],
         );
@@ -175,7 +174,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               homeController.selectedIndex.value = 6;
               Get.toNamed(AppRoutes.calender, id: 2);
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back_ios,
             )),
       ),
@@ -189,11 +188,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.my_location,
                       size: 22,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: TextFormField(
                         decoration: InputDecoration(
@@ -211,17 +210,17 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   ],
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       EneftyIcons.location_outline,
                       color: Colors.red,
                       size: 22,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Obx(
                         () => TextFormField(
@@ -242,11 +241,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   ],
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               _buildSuggestionsList(),
-              Divider(),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Divider(),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -285,12 +284,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                               children: [
                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.location_on,
                                       size: 13,
                                       color: Colors.red,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     SizedBox(
@@ -304,11 +303,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                 ),
                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.call,
                                       size: 13,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Text(
@@ -318,17 +317,17 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                 ),
                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.email_outlined,
                                       size: 13,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Text(customer.email ?? ''),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Row(
@@ -337,12 +336,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           EneftyIcons.routing_outline,
                                           color: primaryColor,
                                           size: 25,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                         CustomText(
@@ -353,12 +352,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                     ),
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           EneftyIcons.clock_2_outline,
                                           color: Colors.red,
                                           size: 25,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                         CustomText(
@@ -374,7 +373,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                           if (_mapController
                                                   .currentLatLng.value ==
                                               null) {
-                                            return CircularProgressIndicator();
+                                            return const CircularProgressIndicator();
                                           }
 
                                           double currentLatitude =
@@ -383,14 +382,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                           double currentLongitude =
                                               _mapController.currentLatLng
                                                   .value!.longitude;
-                                          final customerLatLng = LatLng(
-                                            double.parse(customer.latitude!),
-                                            double.parse(customer.longitude!),
-                                          );
                                           return IconButton(
                                             highlightColor:
                                                 Colors.blue.withOpacity(0.2),
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.near_me_outlined,
                                               size: 25,
                                             ),
@@ -435,9 +430,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   Widget _buildSuggestionsList() {
     return Obx(() {
       if (_mapController.suggestions.isEmpty) {
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
       }
-      return Container(
+      return SizedBox(
         height: 300,
         child: ListView.builder(
           itemCount: _mapController.suggestions.length,

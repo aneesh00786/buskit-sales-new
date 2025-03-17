@@ -10,24 +10,22 @@ mixin class ApiConstants {
   static const String prooduct = "product";
   static const String customer = "customer";
   /// Dashboard API
-  static const String dashboard_list = "dashboard_list";
-  static const String search_customer = "search_customer";
-  static const String delete_customer = "delete_customer";
-  static const String fetch_on_salesman = "fetch_on_salesman";
+  static const String dashboardList = "dashboard_list";
+  static const String searchCustomer = "search_customer";
+  static const String deletCustomer = "delete_customer";
   static const String fetchcustomer = "fetchAllCustomer";
-  static const String customer_dashboard_list = "customer_dashboard_list";
-  static const String customer_total_sale = "customer_total_sale";
-  static const String place_order = "place_order";
-  static const String add_order_draft = "add_order_draft";
-  static const String fetch_cart = "fetch_cart";
-  static const String customer_order_history = "customer_order_history";
-  static const String add_to_cart = "add_to_cart";
-  static const String add_to_draft = "add_to_draft";
-  static const String cart_delete = "cart_delete";
-  static const String fetch_one_customer = "fetch_one_customer";
-  static const String add_events = "add_events";
-  static const String update_product_price = "update_product_price";
-  static const String payment_add_detail = "payment_add_detail";
+  static const String customerDashbordList = "customer_dashboard_list";
+  static const String customerTotalSale = "customer_total_sale";
+  static const String placeOrder = "place_order";
+  static const String addOrderDraft = "add_order_draft";
+  static const String fetchCart = "fetch_cart";
+  static const String customerOrderHistory = "customer_order_history";
+  static const String addToCart = "add_to_cart";
+  static const String addToDraft = "add_to_draft";
+  static const String cartDelete = "cart_delete";
+  static const String fetchOneCustomer = "fetch_one_customer";
+  static const String addEvents = "add_events";
+  static const String updateProductPrice = "update_product_price";
   static const String fetchCategoryPerformance = "fetchCategoryPerformance";
   static const String customerSaleByCategory = "CustomerSaleByCategory";
   static const String fetchChat = "fetch_chat";
@@ -40,45 +38,42 @@ mixin class ApiConstants {
   static const String addEvent = "add_events";
   static const String customeTotalSale = "customer_total_sale";
   static const String fetchOrderCount = "fetch_order_count";
-  static const String fetch_salesman_of_customer = "fetch_salesman_of_customer";
-  static const String get_event = "get_event";
-  static const String handle_lead = "handle_lead";
-  static const String fetch_leads_reject = "fetch_leads_reject";
-  static const String fetch_specific_order = "fetch_specific_order";
-  static const String update_CategorytargetValue = "Update_CategorytargetValue";
-  static const String salesman_dashview = "salesman_dashview";
-  static const String salesman_dash_navcontents = "salesman_dash_navcontents";
+  static const String getEvent = "get_event";
+  static const String handleLeads = "handle_lead";
+  static const String fetchRejectedLeads = "fetch_leads_reject";
+  static const String fetchSpecificOrder = "fetch_specific_order";
+  static const String updateCategoryTargetValue = "Update_CategorytargetValue";
+  static const String salesmanDashView = "salesman_dashview";
+  static const String salesmanDashNavContent = "salesman_dash_navcontents";
   static const String fetchAllSetting = "fetchAllSetting";
   static const String fetchLeadsCount = "fetchLeadsCount";
-  static const String UpdateCheckInOut = "UpdateCheckInOut";
+  static const String updateCheckinOut = "UpdateCheckInOut";
 
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
   
   /// Product Api
   static const String fetchproduct = "fetch_product";
-  static const String fetch_allproduct = "fetch_allproduct";
 
   /// Leads Api
-  static const String add_customer = "add_customer";
-  static const String fetch_leads = "fetch_leads";
-  static const String update_customer = "update_customer";
-  static const String fetch_salesmanTarget = "fetch_salesmanTarget";
-  static const String fetch_leads_customer = "fetch_leads_customer";
+  static const String addCustomer = "add_customer";
+  static const String fetchLeads = "fetch_leads";
+  static const String updateCustomer = "update_customer";
+  static const String fetchSalesmanTarget = "fetch_salesmanTarget";
+  static const String fetchLeadsCustomer = "fetch_leads_customer";
 
   /// CALENDAR API
-  static const String search_salesman = "search_salesman";
-  static const String schedule_customer = "schedule_customer";
-  static const String fetch_schedule_customer = "fetch_schedule_customer";
-  static const String update_events = "update_events";
+  static const String scheduleCustomer = "schedule_customer";
+  static const String fetchScheduleCustomer = "fetch_schedule_customer";
+  static const String updateEvenets = "update_events";
 
   /// ORDER API
-  static const String fetch_order = "fetch_order";
-  static const String fetch_all_order = "fetch_all_order";
+  static const String fetchOrder = "fetch_order";
+  static const String fetchAllOrder = "fetch_all_order";
 
   /// PENDING  PAYMENT API
-  static const String fetch_pending_payments = "fetch_pending_payments";
-  static const String get_all_pending_payment_individual = "get_all_pending_payment_individual";
+  static const String fetchPendingPayments = "fetch_pending_payments";
+  static const String getAllPendingPaymentIndividuals = "get_all_pending_payment_individual";
 
   // DUMMY IMAGE URL
   static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
@@ -95,18 +90,18 @@ mixin class ApiConstants {
   static const String mapPlaceDetailsUrl = "place/details/json?place_id=";
   static const String mapDestinationUrl = "directions/json?destination=";
   static const String distanceMatrix = "distancematrix/json";
-  static const String recent_order_count = "recent_order_count";
-  static const String orders_count_get = "orders_count_get";
-  static const String get_recent_order = "get_recent_orders";
-  static const String order_process_invoice = "order_process_invoice";
-  static const String waiting_for_approval = "waiting_for_approvel";
+  static const String recentOrderCount = "recent_order_count";
+  static const String ordersCountGet = "orders_count_get";
+  static const String getRecentOrder = "get_recent_orders";
+  static const String orderProcessInvoice = "order_process_invoice";
+  static const String waitingForApproval = "waiting_for_approvel";
   static const String localHost = 'http://16.50.232.153:3000/';
   
   //PERFORMANCE
-  static const String fetch_schedule = "fetch_schedule";
-  static const String get_weekly_type = "get_weekly_type";
-  static const String fetch_SalesmanValueTarget = "fetch_SalesmanValueTarget";
-  static const String get_StaffTimesheet = "get_StaffTimesheet";
-  static const String update_ValueBasedtargetValue =
+  static const String fetchSchedule = "fetch_schedule";
+  static const String getWeekelyType = "get_weekly_type";
+  static const String fetchSalesmanValueTarget = "fetch_SalesmanValueTarget";
+  static const String getStaffTimeSheet = "get_StaffTimesheet";
+  static const String updateValueBasedTargetValue =
       "Update_ValueBasedtargetValue";
 }

@@ -97,7 +97,7 @@ class ApiService {
         await SessionManager.getStringValue(SpString.spLogin);
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     final String createdToken = jsonMap['createdToken'];
-    const String url = '$_baseUrl${ApiConstants.dashboard_list}';
+    const String url = '$_baseUrl${ApiConstants.dashboardList}';
     final Map<String, dynamic> requestBody = {
       "salesman_id": salesmanId,
       "start_date": startDate,
@@ -1039,7 +1039,7 @@ class ApiService {
       "year": year,
       "companyId": companyId,
     };
-    log('Request Body: $requestBody');
+    log('Request Body od fetchcustomer totalSale: $requestBody');
     try {
       final response = await http.post(
         url,
@@ -1125,7 +1125,7 @@ class ApiService {
   }
 
   Future<CustomerResponse> fetchOneCustomer(String customerId) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetch_one_customer}');
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchOneCustomer}');
 
     final requestBody = {"customer_id": customerId, "companyId": companyId};
 
@@ -1170,7 +1170,7 @@ class ApiService {
     required File adminProfilePicture,
     required String customerId,
   }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.update_customer}');
+    final url = Uri.parse('$_baseUrl${ApiConstants.updateCustomer}');
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
       var request = http.MultipartRequest('PATCH', url);
@@ -1223,7 +1223,7 @@ class ApiService {
       {required CustomerDashMo model,
       required File adminProfilePicture,
       required String salesmanId}) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.add_customer}');
+    final url = Uri.parse('$_baseUrl${ApiConstants.addCustomer}');
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -1277,7 +1277,7 @@ class ApiService {
     required File adminProfilePicture,
     required String salesmanId,
   }) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.add_customer}');
+    final url = Uri.parse('$_baseUrl${ApiConstants.addCustomer}');
 
     try {
       var request = http.MultipartRequest('POST', url);

@@ -35,11 +35,11 @@ class OrderDetailsDiloag extends StatelessWidget {
     return OrientationBuilder(builder: (context, ore) {
       return SafeArea(
         minimum: nkSymmetricPadding(
-            vertical: AppDimensions.instance!.height * 0.08,
+            vertical: AppDimensions.instance.height * 0.08,
             horizontal:
-                AppDimensions.instance!.orientation == Orientation.landscape
-                    ? AppDimensions.instance!.width * 0.20
-                    : AppDimensions.instance!.width * 0.05),
+                AppDimensions.instance.orientation == Orientation.landscape
+                    ? AppDimensions.instance.width * 0.20
+                    : AppDimensions.instance.width * 0.05),
         child: Card(
           color: Colors.transparent,
           child: ClipRRect(
@@ -65,7 +65,7 @@ class OrderDetailsDiloag extends StatelessWidget {
         children: [
           SvgPicture.asset(
             Assets.iconsIcLoginLogo,
-            height: AppDimensions.instance!.height * 0.12,
+            height: AppDimensions.instance.height * 0.12,
           ),
           topUserDetails(),
           nkMediumSizeBox(),
@@ -76,7 +76,7 @@ class OrderDetailsDiloag extends StatelessWidget {
 
   Widget totalPayableAmountWidget() {
     return nkChildWrappedSizeBox(
-      width: AppDimensions.instance!.width,
+      width: AppDimensions.instance.width,
       child: DataTable(
           horizontalMargin: 0,
           dividerThickness: 5,

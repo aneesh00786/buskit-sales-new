@@ -8,7 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.da
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 
 import '../product_details_diloag/model/staff_responce.dart';
 
@@ -79,7 +79,7 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
                           },
                           itemCount: widget.customerList.length),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
             ],
           ),
         ),
@@ -87,15 +87,6 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
     });
   }
 
-  static void navigateTo(double lat, double lng) async {
-    const String homeLat = "37.3230";
-    const String homeLng = "-122.0312";
-    const String googleMapslocationUrl =
-        "https://www.google.com/maps/search/?api=1&query=${homeLat},${homeLng}";
-    final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
-    var uri = Uri.parse(encodedURl);
-    await launchUrl(uri);
-  }
 
   Widget customerDetailsWidget(Customer customerData) {
     return MyCommnonContainer(
@@ -103,8 +94,8 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
         ClipOval(
           child: MyNetworkImage(
             imageUrl: customerData.imageUrl ?? '',
-            height: AppDimensions.instance!.height * 0.06,
-            width: AppDimensions.instance!.height * 0.06,
+            height: AppDimensions.instance.height * 0.06,
+            width: AppDimensions.instance.height * 0.06,
           ),
         ),
         nkSmallSizeBox(),

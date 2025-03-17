@@ -16,8 +16,8 @@ class CustomHeaderContainer extends StatelessWidget {
       children: [
         Container(
           height: 40,
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
+          padding: const EdgeInsets.all(10),
+          decoration: const BoxDecoration(
             color: lightPrimaryColor,
             borderRadius: BorderRadius.only(topRight: Radius.circular(100))
           ),

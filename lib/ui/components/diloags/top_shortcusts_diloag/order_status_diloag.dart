@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -70,7 +72,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
   void initState() {
     searchModel.startDate = widget.startDate;
     searchModel.endDate = widget.endDate;
-    print("Sel date ${searchModel.startDate} ${searchModel.endDate}");
+    log("Sel date ${searchModel.startDate} ${searchModel.endDate}");
     onUserDetailsGet(widget.userType);
     super.initState();
   }
@@ -168,13 +170,13 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
   Widget _buildDataTableHeader() {
     return SingleChildScrollView(
       child: nkChildWrappedSizeBox(
-        width: AppDimensions.instance!.width,
+        width: AppDimensions.instance.width,
         child: Theme(
           data: NkGetXTheme.lightTheme,
           child: DataTable(
             horizontalMargin: 22,
             headingRowColor:
-                MaterialStateColor.resolveWith((states) => primaryColor),
+                WidgetStateColor.resolveWith((states) => primaryColor),
             headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
                 color: buttonTextColor,
                 fontSize: NkFontSize.largeFont(),
@@ -196,7 +198,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
                         label: DiloagAppBar(
                         title: widget.heading,
                       ).closeIcon)),
-            rows: [],
+            rows: const [],
           ),
         ),
       ),
@@ -205,13 +207,13 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
 
   Widget get orderBottomTableWidget => SingleChildScrollView(
         child: nkChildWrappedSizeBox(
-          width: AppDimensions.instance!.width,
+          width: AppDimensions.instance.width,
           child: Theme(
             data: NkGetXTheme.lightTheme,
             child: DataTable(
               headingRowHeight: 0,
               headingRowColor:
-                  MaterialStateColor.resolveWith((states) => primaryColor),
+                  WidgetStateColor.resolveWith((states) => primaryColor),
               headingTextStyle: Get.theme.textTheme.bodyMedium?.copyWith(
                   color: buttonTextColor,
                   fontSize: NkFontSize.largeFont(),
@@ -240,12 +242,12 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
   List<Widget> orderRowsWidget(OptionOrderData orderData) {
     if (orderData.cart == null || orderData.cart!.isEmpty) {
       return [
-        Text('No Data'),
-        Text('No Data'),
-        Text('No Data'),
-        Text('No Data'),
-        Text('No Data'),
-        Text('No Data'),
+        const Text('No Data'),
+        const Text('No Data'),
+        const Text('No Data'),
+        const Text('No Data'),
+        const Text('No Data'),
+        const Text('No Data'),
         IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {},
@@ -267,7 +269,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
                 color: Colors.blue,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 5,
             ),
             Column(
@@ -282,7 +284,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
           ],
         ),
       ),
-      Text('${cartItem.optionOrderData?.orderId ?? 'N/A'}'),
+      Text(cartItem.optionOrderData?.orderId ?? 'N/A'),
       Text(formatDate(cartItem.createdAt)),
       Text('${cartItem.optionOrderData?.orderTotal ?? 'N/A'}'),
       NkCommonFunction.isPaymentComplete(
@@ -290,7 +292,7 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
           .$1,
       Text('${cartItem.pieces ?? 'N/A'}'),
       Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: SizedBox(
           height: 31,
           child: Container(
@@ -299,8 +301,8 @@ class _OrderStatusDiloagState extends State<OrderStatusDiloag> {
               borderRadius: BorderRadius.circular(4.6),
             ),
             //                                         child:
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
+            child: const Padding(
+              padding: EdgeInsets.all(4.0),
               child: Text('Delivered'),
             ),
           ),

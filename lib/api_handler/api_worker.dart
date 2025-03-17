@@ -117,7 +117,7 @@ class ApiWorker with ApiConstants {
     try {
       final response = await dio
           .getbycustom('http://16.50.232.153:3000/api/get_currencylist')
-          .onError((DioError error, stackTrace) {
+          .onError((DioException error, stackTrace) {
         log(error.toString());
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
@@ -151,17 +151,17 @@ class ApiWorker with ApiConstants {
     return LeadsCountData.fromJson(response.data);
   }
 
-  Future<List<AllCompanySettingsData>?> fetchAllSettings(int company_Id) async {
+  Future<List<AllCompanySettingsData>?> fetchAllSettings(int companyId) async {
     try {
-      log('Fetching settings for company ID: $company_Id');
+      log('Fetching settings for company ID: $companyId');
       final response = await dio1.post(
         "${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}",
         data: {
-          "compay_id": "$company_Id",
+          "compay_id": "$companyId",
         },
       );
       log("Fetch Settings URL : ${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}");
-      log("CompanyId in Settings Function : $company_Id");
+      log("CompanyId in Settings Function : $companyId");
       List<dynamic> dataList = response.data['data'] ?? [];
       List<AllCompanySettingsData> settingsList = dataList
           .map((item) => AllCompanySettingsData.fromJson(item))
@@ -182,7 +182,7 @@ class ApiWorker with ApiConstants {
       String monthName, int tabStatus) async {
     try {
       String apiUrl =
-          '${ApiConstants.baseUrl}${ApiConstants.salesman_dash_navcontents}';
+          '${ApiConstants.baseUrl}${ApiConstants.salesmanDashNavContent}';
       log('API URL of TopTab: $apiUrl');
       final requestPayload = {
         "companyId": companyId,
@@ -226,7 +226,7 @@ class ApiWorker with ApiConstants {
     String? salesId,
     required bool isfromLogin,
   }) async {
-    const apiUrl = '${ApiConstants.baseUrl}${ApiConstants.salesman_dashview}';
+    const apiUrl = '${ApiConstants.baseUrl}${ApiConstants.salesmanDashView}';
     final requestPayload = {
       "companyId": isfromLogin ? compId : companyId,
       "salesman_id": isfromLogin ? salesId : salesmanId,
@@ -330,7 +330,7 @@ class ApiWorker with ApiConstants {
 
     try {
       final response = await dio.postbycustom(
-        ApiConstants.dashboard_list,
+        ApiConstants.dashboardList,
         data: data,
         options: Options(headers: headers),
       );
@@ -339,7 +339,7 @@ class ApiWorker with ApiConstants {
       if (response.data['status_code'] == 400) {
         await SessionHelper().clearAll();
         Get.offAllNamed(AppRoutes.login);
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 500));
         _handleTokenExpiration();
         throw Exception('Session expired');
       }
@@ -355,11 +355,11 @@ class ApiWorker with ApiConstants {
     if (!Get.isDialogOpen!) {
       await Get.dialog(
         AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
+          title: const Text("Session Expired"),
+          content: const Text("Your session has expired. Please log in again."),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () async {
                 Get.back();
               },
@@ -374,7 +374,7 @@ class ApiWorker with ApiConstants {
   Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
     final response = await dio
-        .postbycustom(ApiConstants.fetch_specific_order,
+        .postbycustom(ApiConstants.fetchSpecificOrder,
             data: FormData.fromMap({
               "order_id": orderId,
               "companyId": companyId,
@@ -394,10 +394,10 @@ class ApiWorker with ApiConstants {
     };
     final response = await dio
         .postbycustom(
-      ApiConstants.search_customer,
+      ApiConstants.searchCustomer,
       data: data,
     )
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -484,7 +484,7 @@ class ApiWorker with ApiConstants {
     if (hasInternet) {
       try {
         final response = await dio.postbycustom(
-          ApiConstants.recent_order_count,
+          ApiConstants.recentOrderCount,
           data: requestData,
         );
         log('Fetched Data from API: ${response.data}');
@@ -526,10 +526,10 @@ class ApiWorker with ApiConstants {
     String customerId,
   ) async {
     final response = await dio
-        .postbycustom(ApiConstants.customer_dashboard_list,
+        .postbycustom(ApiConstants.customerDashbordList,
             data: FormData.fromMap(
                 {"customer_id": customerId, "companyId": companyId}))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -541,28 +541,17 @@ class ApiWorker with ApiConstants {
     String year,
   ) async {
     final response = await dio
-        .postbycustom(ApiConstants.customer_total_sale,
+        .postbycustom(ApiConstants.customerTotalSale,
             data: FormData.fromMap({
               "customer_id": customerId,
               "year": year,
             }))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
 
     return CustomerDashboardTotalSaleResponse.fromJson(response.data);
-  }
-
-  Future<Response> buyProduct(Map<String, dynamic> sendData) async {
-    final response = await dio
-        .postbycustom(ApiConstants.place_order,
-            data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
@@ -572,10 +561,10 @@ class ApiWorker with ApiConstants {
     try {
       final response = await dio
           .postbycustom(
-        '${ApiConstants.add_to_cart}',
+        ApiConstants.addToCart,
         data: FormData.fromMap(sendData),
       )
-          .onError((DioError error, stackTrace) {
+          .onError((DioException error, stackTrace) {
         log('[addToCart] DioError occurred.');
         log('[addToCart] Error Type: ${error.type}');
         log('[addToCart] Error Message: ${error.message}');
@@ -606,10 +595,10 @@ class ApiWorker with ApiConstants {
     try {
       final response = await dio
           .postbycustom(
-        '${ApiConstants.add_to_draft}',
+        ApiConstants.addToDraft,
         data: FormData.fromMap(sendData),
       )
-          .onError((DioError error, stackTrace) {
+          .onError((DioException error, stackTrace) {
         log('[addToCart] DioError occurred.');
         log('[addToCart] Error Type: ${error.type}');
         log('[addToCart] Error Message: ${error.message}');
@@ -637,10 +626,10 @@ class ApiWorker with ApiConstants {
 
   Future<Response> deleteCartItem(String cartId, String variationId) async {
     final response = await dio
-        .postbycustom(ApiConstants.cart_delete,
+        .postbycustom(ApiConstants.cartDelete,
             data: FormData.fromMap(
                 {"cart_id": cartId, "variation_id": variationId}))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -650,7 +639,7 @@ class ApiWorker with ApiConstants {
     Future<Response> deleteCustomer(String id) async {
     // sendData['companyId'] = companyId;
     final response =
-        await dio.postbycustom(ApiConstants.delete_customer, data: {
+        await dio.postbycustom(ApiConstants.deletCustomer, data: {
       "companyId": companyId,
       "id": id,
     }).onError((DioException error, stackTrace) {
@@ -663,10 +652,10 @@ class ApiWorker with ApiConstants {
   Future<CustomerCartResponce> getCustomerCart({String? customerId}) async {
     log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
     final response = await dio
-        .postbycustom(ApiConstants.fetch_cart,
+        .postbycustom(ApiConstants.fetchCart,
             data: FormData.fromMap(
                 {"customer_id": customerId, "companyId": companyId}))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -677,10 +666,10 @@ class ApiWorker with ApiConstants {
       {String? customerId}) async {
     log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
     final response = await dio
-        .postbycustom(ApiConstants.customer_order_history,
+        .postbycustom(ApiConstants.customerOrderHistory,
             data: FormData.fromMap(
                 {"customer_id": customerId, "companyId": companyId}))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -690,9 +679,9 @@ class ApiWorker with ApiConstants {
   Future<Response> setUpdateProductPrice(Map<String, dynamic> sendData) async {
     log("Send DATA: ${FormData.fromMap(sendData).fields}");
     final response = await dio
-        .postbycustom(ApiConstants.update_product_price,
+        .postbycustom(ApiConstants.updateProductPrice,
             data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -705,10 +694,10 @@ class ApiWorker with ApiConstants {
     };
     final response = await dio
         .postbycustom(
-      ApiConstants.fetch_one_customer,
+      ApiConstants.fetchOneCustomer,
       data: data,
     )
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -717,12 +706,12 @@ class ApiWorker with ApiConstants {
   }
 
   Future<Response> saveAsDraftProduct(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${sendData}");
+    log("Send DATA: $sendData");
     sendData['companyId'] = companyId;
     final response = await dio
-        .postbycustom(ApiConstants.add_order_draft,
+        .postbycustom(ApiConstants.addOrderDraft,
             data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -732,8 +721,8 @@ class ApiWorker with ApiConstants {
   Future<Response> assignVisit(Map<String, dynamic> sendData) async {
     log("Send DATA: ${FormData.fromMap(sendData).fields}");
     final response = await dio
-        .postbycustom(ApiConstants.add_events, data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .postbycustom(ApiConstants.addEvents, data: FormData.fromMap(sendData))
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -764,7 +753,7 @@ class ApiWorker with ApiConstants {
       final response = await dio.getbycustom(
         ApiConstants.fetchcategories,
         queryParameters: {"company_id": companyId},
-      ).onError((DioError error, stackTrace) {
+      ).onError((DioException error, stackTrace) {
         log(error.toString());
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
@@ -908,9 +897,9 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   /// ************************ LEADS SECTION ***************** ///
   Future<Response> addCustomer(Map<String, dynamic> sendData) async {
     final response = await dio
-        .postbycustom(ApiConstants.add_customer,
+        .postbycustom(ApiConstants.addCustomer,
             data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -920,9 +909,9 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   Future<Response> updateCustomer(Map<String, dynamic> sendData) async {
     log("Send DATA: ${FormData.fromMap(sendData).fields}");
     final response = await dio
-        .postbycustom(ApiConstants.update_customer,
+        .postbycustom(ApiConstants.updateCustomer,
             data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -950,7 +939,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     if (hasInternet) {
       try {
         final response = await dio.postbycustom(
-          ApiConstants.fetch_leads,
+          ApiConstants.fetchLeads,
           data: requestData,
         );
 
@@ -994,7 +983,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       if (hasInternetAvailable) {
         final response = await dio
             .postbycustom(
-          ApiConstants.fetch_leads_reject,
+          ApiConstants.fetchRejectedLeads,
           data: FormData.fromMap({
             "page": paginationModel?.currentPage ?? "",
             "limit": paginationModel?.limit ?? '',
@@ -1050,7 +1039,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     if (hasInternet) {
       try {
         final response = await dio.postbycustom(
-          ApiConstants.get_event,
+          ApiConstants.getEvent,
           data: FormData.fromMap(sendData),
         );
         log('Response received from API: ${response.data}');
@@ -1064,7 +1053,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
               .map((event) => EventData.fromJson(event as Map<String, dynamic>))
               .toList();
         } else {
-          log('Unexpected response format: ${castedResponse}');
+          log('Unexpected response format: $castedResponse');
           return [];
         }
       } catch (e) {
@@ -1104,7 +1093,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   Future<Response> handleLeadStatus(
       int? customerId, String? statusResponce) async {
     final response = await dio
-        .postbycustom(ApiConstants.handle_lead,
+        .postbycustom(ApiConstants.handleLeads,
             data: FormData.fromMap({
               "customer_id": customerId,
               "status": statusResponce,
@@ -1114,16 +1103,15 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
-    print(response);
     return response;
   }
 
   Future<TodayTasksResponse> getTodaySchedule(
       Map<String, dynamic> sendData) async {
     final response = await dio
-        .postbycustom(ApiConstants.fetch_schedule_customer,
+        .postbycustom(ApiConstants.fetchScheduleCustomer,
             showErrorSnakBar: false, data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error,
           showErrorSnakBar: false));
@@ -1132,11 +1120,11 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   }
 
   Future<Response> updateSchedule(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${sendData}");
+    log("Send DATA: $sendData");
     final response = await dio
-        .postbycustom(ApiConstants.schedule_customer,
+        .postbycustom(ApiConstants.scheduleCustomer,
             data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(
         error,
@@ -1146,11 +1134,11 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   }
 
   Future<Response> updateEvent(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${sendData}");
+    log("Send DATA: $sendData");
     final response = await dio
-        .postbycustom(ApiConstants.update_events,
+        .postbycustom(ApiConstants.updateEvenets,
             data: FormData.fromMap(sendData))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(
         error,
@@ -1165,14 +1153,14 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       String? salesmanId,
       SearchModel? searchModel,
       PaginationModel? paginationModel}) async {
-    print(
+    log(
         "startDate++123++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
-    print(
-        "data post ++ ++${salesmanId} : ${customerId ?? ''} : ${searchModel?.startDate} : ${searchModel?.endDate} : ${paginationModel?.limit.toString()} : ${paginationModel?.currentPage.toString()}");
+    log(
+        "data post ++ ++$salesmanId : ${customerId ?? ''} : ${searchModel?.startDate} : ${searchModel?.endDate} : ${paginationModel?.limit.toString()} : ${paginationModel?.currentPage.toString()}");
 
     final response = await dio
         .postbycustom(
-      ApiConstants.fetch_order,
+      ApiConstants.fetchOrder,
       data: FormData.fromMap({
         "salesman_id": salesmanId,
         "customer_id": customerId ?? '',
@@ -1182,7 +1170,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         "page": paginationModel?.currentPage.toString() ?? ''
       }),
     )
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -1197,7 +1185,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       required String orderType}) async {
     final response = await dio
         .postbycustom(
-      ApiConstants.fetch_all_order,
+      ApiConstants.fetchAllOrder,
       data: FormData.fromMap({
         "salesman_id": salesmanId ?? '',
         "customer_id": customerId ?? '',
@@ -1249,7 +1237,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
             ApiService().castToStringDynamic(cachedData));
       }
       final response = await dio1.post(
-        '${ApiConstants.baseUrl}${ApiConstants.fetch_pending_payments}',
+        '${ApiConstants.baseUrl}${ApiConstants.fetchPendingPayments}',
         data: FormData.fromMap(requestData),
         options: Options(
           validateStatus: (status) => status != null && status < 500,
@@ -1268,8 +1256,8 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       }
     } on DioException catch (dioError) {
       log("DioException occurred: $dioError");
-      if (dioError.type == DioErrorType.connectionError ||
-          dioError.type == DioErrorType.unknown) {
+      if (dioError.type == DioExceptionType.connectionError ||
+          dioError.type == DioExceptionType.unknown) {
         log("Connection failed, attempting to fetch cached data for key: $cacheKey");
         final cachedData = pendingPaymentBox.get(cacheKey);
         if (cachedData != null) {
@@ -1281,7 +1269,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
               'Connection failed, and no cached data is available.');
         }
       } else {
-        throw dioError;
+        rethrow;
       }
     } catch (e) {
       log("Unexpected error occurred: $e");
@@ -1293,7 +1281,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       {String? customerId}) async {
     final response = await dio
         .postbycustom(
-      ApiConstants.get_all_pending_payment_individual,
+      ApiConstants.getAllPendingPaymentIndividuals,
       data: FormData.fromMap({
         "customer_id": customerId,
         "companyId": companyId,
@@ -1313,7 +1301,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     log("startDate++1234++Order count : ${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
     final response = await dio
         .postbycustom(
-      ApiConstants.orders_count_get,
+      ApiConstants.ordersCountGet,
       data: FormData.fromMap({
         "start_date": searchModel?.startDate,
         "end_date": searchModel?.endDate,
@@ -1368,7 +1356,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         log('Sending API request for recent orders. Request Body: $requestData');
 
         final response = await dio.postbycustom(
-          ApiConstants.get_recent_order,
+          ApiConstants.getRecentOrder,
           data: requestData,
         );
 
@@ -1417,7 +1405,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   }) async {
     final response = await dio
         .postbycustom(
-      ApiConstants.order_process_invoice,
+      ApiConstants.orderProcessInvoice,
       data: FormData.fromMap({
         "order_id": orderId,
         "order_status": orderStatus,
@@ -1434,7 +1422,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
  Future<FetchSpecificOrderInvoice> fetchSpecificOrder(
       String orderId) async {
     final response = await dio
-        .postbycustom(ApiConstants.fetch_specific_order,
+        .postbycustom(ApiConstants.fetchSpecificOrder,
             data: FormData.fromMap({
               "order_id": orderId,
               "companyId": companyId,
@@ -1452,7 +1440,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   }) async {
     final response = await dio
         .postbycustom(
-      ApiConstants.waiting_for_approval,
+      ApiConstants.waitingForApproval,
       data: FormData.fromMap({
         "order_id": orderId,
         "updatedOrders": [],
@@ -1590,14 +1578,14 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     Future<ScheduleListResponse> fetchSchedule(
       String endDate, String startDate) async {
     final response = await dio
-        .postbycustom(ApiConstants.fetch_schedule,
+        .postbycustom(ApiConstants.fetchSchedule,
             data: FormData.fromMap({
               "end_date": endDate,
               "salesman_id": SessionHelper.loginSavedData?.salesmanId,
               "start_date": startDate,
               "company_id": companyId,
             }))
-        .onError((DioError error, stackTrace) {
+        .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(
         error,
@@ -1609,7 +1597,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
   Future<String> getWeeklyType() async {
     try {
       final response = await dio.postbycustom(
-        ApiConstants.get_weekly_type,
+        ApiConstants.getWeekelyType,
         data: FormData.fromMap({
           "companyId": companyId,
         }),
@@ -1640,7 +1628,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     log("fetchSalesmanValueTarget zzz $request");
 
     final response = await dio.postbycustom(
-      ApiConstants.fetch_SalesmanValueTarget,
+      ApiConstants.fetchSalesmanValueTarget,
       data: {
         "salesman_id": salesmanId,
         "year": year,
@@ -1667,7 +1655,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     log("fetchSalesmanTarget request : $request");
 
     final response = await dio.postbycustom(
-      ApiConstants.fetch_salesmanTarget,
+      ApiConstants.fetchSalesmanTarget,
       data: {
         "salesman_id": salesmanId,
         "year": year,
@@ -1690,7 +1678,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
 
     try {
       final response = await dio.postbycustom(
-        ApiConstants.get_StaffTimesheet,
+        ApiConstants.getStaffTimeSheet,
         data: FormData.fromMap({
           "startdate": startDate,
           "enddate": endDate,
@@ -1705,7 +1693,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       throw DioExceptionHandler.fromDioError(error);
     } catch (e) {
       log("❌ Unknown API Error: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -1729,7 +1717,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     String? long,
   }) async {
     var response = await dio
-        .postbycustom(ApiConstants.UpdateCheckInOut,
+        .postbycustom(ApiConstants.updateCheckinOut,
             data: FormData.fromMap(
               {
                 "companyId": companyId,
@@ -1769,7 +1757,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     log("request: $request");
 
     final response = await dio
-        .postbycustom(ApiConstants.update_ValueBasedtargetValue,
+        .postbycustom(ApiConstants.updateValueBasedTargetValue,
             data: (request))
         .onError((DioException error, stackTrace) {
       log(error.toString());
@@ -1787,7 +1775,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     Map<dynamic, dynamic> weeklyProjection,
   ) async {
     final response = await dio
-        .postbycustom(ApiConstants.update_CategorytargetValue,
+        .postbycustom(ApiConstants.updateCategoryTargetValue,
             data: ({
               "categories": categoryData,
               "weekly_target": weeklyTarget,
@@ -1807,7 +1795,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     Future<LeadResponce> getLeadsCustomerData(String salesManId,
       {PaginationModel? paginationModel}) async {
     final response = await dio
-        .postbycustom(ApiConstants.fetch_leads_customer,
+        .postbycustom(ApiConstants.fetchLeadsCustomer,
             data: FormData.fromMap({
               "page": paginationModel!.currentPage,
               "limit": 10,

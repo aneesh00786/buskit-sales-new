@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -95,7 +94,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               widget.headerWidget ?? const SizedBox(),
-              SizedBox(width: 20),
+              const SizedBox(width: 20),
               listGanrated(widget.itemList),
               widget.footerWidget ?? const SizedBox(),
             ],
@@ -340,7 +339,6 @@ void handleBackNavigation(
 
             if (statusCode == 200) {
               CartDatabaseManager().moveCartItemsToDraft(customerId);
-              final draftId = response?['id'];
               showDialog(
                 context: context,
                 barrierDismissible: false,

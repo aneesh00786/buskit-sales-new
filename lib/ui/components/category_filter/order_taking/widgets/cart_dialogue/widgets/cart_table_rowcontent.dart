@@ -169,6 +169,7 @@ class GroupedItemDataRows {
   }
 }
 
+// ignore: must_be_immutable
 class TableContent extends StatelessWidget {
   double fontSize;
   String content;

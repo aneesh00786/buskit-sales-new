@@ -1,10 +1,8 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -49,12 +47,12 @@ Widget buildDialogueMainDash({
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 20,
-                      backgroundColor: const Color(0xffe6ecff),
+                      backgroundColor: Color(0xffe6ecff),
                       child: Icon(Icons.person, size: 14, color: Colors.blue),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -107,6 +105,7 @@ Widget buildDialogueMainDash({
               ),
               TableViewCell(
                 child: Text(
+                  // ignore: unnecessary_null_comparison
                   order.orderCreatedAt != null
                       ? getFormattedOrderCreatAt(
                           order.orderCreatedAt.toString())
@@ -185,14 +184,14 @@ Widget buildDialogueMainDash({
 
       return Stack(
         children: [
-          Container(
+          SizedBox(
             width: availableWidth,
             height: containerHeight,
             child: Column(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
                     ),
@@ -234,8 +233,7 @@ Widget buildDialogueMainDash({
                                 ),
                               ),
                             ),
-                          )
-                          .toList(),
+                          ),
                     ],
                   ),
                 ),
@@ -276,8 +274,7 @@ Widget buildDialogueMainDash({
                                       child: cell.child,
                                     ),
                                   ),
-                                )
-                                .toList(),
+                                ),
                           ],
                         ),
                       );

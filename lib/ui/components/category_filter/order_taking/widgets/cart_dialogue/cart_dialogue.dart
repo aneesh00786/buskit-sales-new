@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_rowcontent.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -22,8 +21,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -39,6 +36,7 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class CartDialogue extends StatefulWidget {
   bool? active;
   int cartItemCount;
@@ -225,12 +223,12 @@ class CartDialogueState extends State<CartDialogue> {
       setState(() {
         quantities = List.generate(cartItems.length, (index) => 1);
         _isLoading = false;
-        this.orderItems = orderItems;
-        this.preorderItems = preorderItems;
-        this.orderSubtotal = orderSubtotal;
-        this.orderTax = orderTax;
-        this.preorderSubtotal = preorderSubtotal;
-        this.preorderTax = preorderTax;
+        orderItems = orderItems;
+        preorderItems = preorderItems;
+        orderSubtotal = orderSubtotal;
+        orderTax = orderTax;
+        preorderSubtotal = preorderSubtotal;
+        preorderTax = preorderTax;
       });
       if (orderItems.isNotEmpty) {
         isOrder = true;
@@ -241,14 +239,14 @@ class CartDialogueState extends State<CartDialogue> {
       }
       setOptions();
     } catch (e) {
-      print('Error loading cart items: $e');
+      log('Error loading cart items: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     log('preOrder items : ${preorderItems.length}');
-    log('preOrder items : ${isOrder}');
+    log('preOrder items : $isOrder');
     if (_isLoading) {
       return const Center(
         child: SpinKitFadingCube(
@@ -260,16 +258,12 @@ class CartDialogueState extends State<CartDialogue> {
     final Size screenSize = MediaQuery.of(context).size;
     final double width = screenSize.width;
     final double height = screenSize.height;
-    double dialogWidth;
     double dialogHeight;
     if (width > 1200) {
-      dialogWidth = width * 0.6;
       dialogHeight = height * 0.8;
     } else if (width > 650) {
-      dialogWidth = width * 0.85;
       dialogHeight = height * 0.7;
     } else {
-      dialogWidth = width * 0.99;
       dialogHeight = height * 0.5;
     }
     return Dialog(
@@ -507,7 +501,7 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                             ),
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Container(
@@ -769,8 +763,8 @@ class CartDialogueState extends State<CartDialogue> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: filteredOptions.map((option) {
                             totalQuickController.text = isOrder
-                                ? '\$${orderSubtotal?.toStringAsFixed(2) ?? '0.00'}'
-                                : '\$${preorderSubtotal?.toStringAsFixed(2) ?? '0.00'}';
+                                ? '\$${orderSubtotal.toStringAsFixed(2)}'
+                                : '\$${preorderSubtotal.toStringAsFixed(2)}';
 
                             return Padding(
                               padding:
@@ -1185,11 +1179,13 @@ class CartDialogueState extends State<CartDialogue> {
                                     await processSaveAndSend(
                                       finalAmount: finalAmount,
                                       paymentType: paymentType,
+                                      // ignore: use_build_context_synchronously
                                       context: context,
                                       cartId: cartIdPrefs,
                                       draftId: draftIdPrefs,
                                     );
                                   } else {
+                                    // ignore: use_build_context_synchronously
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         backgroundColor: Colors.red,
@@ -1203,6 +1199,7 @@ class CartDialogueState extends State<CartDialogue> {
                                   log('CustomerId : $customerId');
                                   await processSaveAndSend(
                                     finalAmount: finalAmount,
+                                    // ignore: use_build_context_synchronously
                                     context: context,
                                     cartId: cartIdPrefs,
                                     draftId: draftIdPrefs,

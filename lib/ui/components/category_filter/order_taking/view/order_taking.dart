@@ -8,7 +8,6 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
@@ -56,6 +55,7 @@ class OrderTaking extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _OrderTakingState createState() => _OrderTakingState();
 }
 
@@ -244,66 +244,73 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
-Future<void> saveDraftOffline({
-  required String customerId,
-  required String salesmanId,
-  required double totalAmount,
-  required List<Detail> details,
-}) async {
-  try {
-    var offlineDraftsBox = await Hive.openBox('offlineDrafts');
-    List<dynamic> drafts = offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
-    int existingDraftIndex = drafts.indexWhere((draft) => draft['customer_id'] == customerId);
-    if (existingDraftIndex != -1) {
-      var existingDraft = drafts[existingDraftIndex];
-      List<dynamic> existingDetails = existingDraft['details'];
-      for (var detail in details) {
-        int existingVariantIndex = existingDetails.indexWhere(
-          (d) => d['variant_id'] == detail.variationId,
-        );
-        if (existingVariantIndex != -1) {
-          existingDetails[existingVariantIndex]['quantity'] += detail.count.toInt();
-        } else {
-          existingDetails.add({
-            'product_id': detail.productId ?? '',
-            'variant_id': detail.variationId ?? '',
-            'pack': detail.saleBy == 'Pack' ? detail.pieces.toString() : detail.count.toString(),
-            'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-            'price': detail.sellPrice.toString(),
-            'discount': detail.discount,
-            'quantity': detail.count.toInt(),
-            'variant_name': detail.variationName ?? '',
-          });
+  Future<void> saveDraftOffline({
+    required String customerId,
+    required String salesmanId,
+    required double totalAmount,
+    required List<Detail> details,
+  }) async {
+    try {
+      var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+      List<dynamic> drafts =
+          offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+      int existingDraftIndex =
+          drafts.indexWhere((draft) => draft['customer_id'] == customerId);
+      if (existingDraftIndex != -1) {
+        var existingDraft = drafts[existingDraftIndex];
+        List<dynamic> existingDetails = existingDraft['details'];
+        for (var detail in details) {
+          int existingVariantIndex = existingDetails.indexWhere(
+            (d) => d['variant_id'] == detail.variationId,
+          );
+          if (existingVariantIndex != -1) {
+            existingDetails[existingVariantIndex]['quantity'] +=
+                detail.count.toInt();
+          } else {
+            existingDetails.add({
+              'product_id': detail.productId ?? '',
+              'variant_id': detail.variationId ?? '',
+              'pack': detail.saleBy == 'Pack'
+                  ? detail.pieces.toString()
+                  : detail.count.toString(),
+              'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              'price': detail.sellPrice.toString(),
+              'discount': detail.discount,
+              'quantity': detail.count.toInt(),
+              'variant_name': detail.variationName ?? '',
+            });
+          }
         }
+      } else {
+        final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+        final newDraft = {
+          'order_id': orderId,
+          'customer_id': customerId,
+          'salesman_id': salesmanId,
+          'total_amount': totalAmount,
+          'details': details.map((e) {
+            return {
+              'product_id': e.productId ?? '',
+              'variant_id': e.variationId ?? '',
+              'pack':
+                  e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
+              'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              'price': e.sellPrice.toString(),
+              'discount': e.discount,
+              'quantity': e.count.toInt(),
+              'variant_name': e.variationName ?? '',
+            };
+          }).toList(),
+        };
+        drafts.add(newDraft);
       }
-    } else {
-      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
-      final newDraft = {
-        'order_id': orderId,
-        'customer_id': customerId,
-        'salesman_id': salesmanId,
-        'total_amount': totalAmount,
-        'details': details.map((e) {
-          return {
-            'product_id': e.productId ?? '',
-            'variant_id': e.variationId ?? '',
-            'pack': e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
-            'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-            'price': e.sellPrice.toString(),
-            'discount': e.discount,
-            'quantity': e.count.toInt(),
-            'variant_name': e.variationName ?? '',
-          };
-        }).toList(),
-      };
-      drafts.add(newDraft);
+      await offlineDraftsBox.put('drafts', drafts);
+      log('[saveDraftOffline] All drafts after saving: $drafts');
+    } catch (e) {
+      log('[saveDraftOffline] Error saving draft locally: $e');
     }
-    await offlineDraftsBox.put('drafts', drafts);
-    log('[saveDraftOffline] All drafts after saving: $drafts');
-  } catch (e) {
-    log('[saveDraftOffline] Error saving draft locally: $e');
   }
-}
+
   @override
   Widget build(BuildContext context) {
     log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -341,14 +348,10 @@ Future<void> saveDraftOffline({
                 log('Log 1');
                 log('To Dash $toDash');
                 List<Detail> detail = [
-                  ...CartDatabaseManager()
-                      .cartItems
-                      .map((e) => e.detail)
-                      .toList(),
+                  ...CartDatabaseManager().cartItems.map((e) => e.detail),
                   ...CartDatabaseManager()
                       .getDraftItemsForCustomer(customerId)
-                      .map((e) => e.detail)
-                      .toList(),
+                      .map((e) => e.detail),
                 ];
                 bool isOnline = await connectivityService.isOnline();
                 if (!isOnline) {
@@ -360,6 +363,7 @@ Future<void> saveDraftOffline({
                     details: detail,
                   );
                   showDialog(
+                    // ignore: use_build_context_synchronously
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Offline Mode'),
@@ -378,6 +382,7 @@ Future<void> saveDraftOffline({
                   );
                   CartDatabaseManager().cartItems.clear();
                   CartDatabaseManager().clearCart(customerId: customerId);
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                   return;
                 }
@@ -505,14 +510,10 @@ Future<void> saveDraftOffline({
                 log('Log 2');
                 log('Log NO : 4 : Simply popping back');
                 List<Detail> detail = [
-                  ...CartDatabaseManager()
-                      .cartItems
-                      .map((e) => e.detail)
-                      .toList(),
+                  ...CartDatabaseManager().cartItems.map((e) => e.detail),
                   ...CartDatabaseManager()
                       .getDraftItemsForCustomer(customerId)
-                      .map((e) => e.detail)
-                      .toList(),
+                      .map((e) => e.detail),
                 ];
                 bool isOnline = await connectivityService.isOnline();
                 if (!isOnline) {
@@ -524,6 +525,7 @@ Future<void> saveDraftOffline({
                     details: detail,
                   );
                   showDialog(
+                    // ignore: use_build_context_synchronously
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Offline Mode'),
@@ -896,6 +898,7 @@ Future<void> saveDraftOffline({
                                                               '');
                                                       if (active == true) {
                                                         _showWarningDialog(
+                                                          // ignore: use_build_context_synchronously
                                                           context,
                                                           'Please check out from the current customer',
                                                           const Center(

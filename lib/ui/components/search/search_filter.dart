@@ -1,9 +1,9 @@
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 
 class SearchFilter extends StatelessWidget {
   final void Function(String)? onChanged;
@@ -11,38 +11,26 @@ class SearchFilter extends StatelessWidget {
   final Widget Function(BuildContext, String)? listItemBuilder;
   final TextEditingController searchTextController;
   const SearchFilter(BuildContext context, 
-      {Key? key,
+      {super.key,
       this.onChanged,
       this.futureRequest,
       this.listItemBuilder,
-      required this.searchTextController})
-      : super(key: key);
+      required this.searchTextController});
 
   @override
   Widget build(BuildContext context) {
     return Container();
-    // return CustomDropdown.searchRequest(
-    //   controller: searchTextController,
-    //   onChanged: (p0) {
-    //     onChanged?.call(p0);
-    //   },
-    //   selectedStyle: Get.theme.textTheme.bodyMedium,
-    //   listItemBuilder: listItemBuilder,
-    //   hintText: search,
-    //   borderRadius: BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-    //   fieldSuffixIcon: const Icon(Icons.search),
-    //   futureRequest: (string) => futureRequest!(string),
-    // );
+
   }
 
   Widget simpleSearch() {
     return SearchBar(
-      elevation: MaterialStateProperty.all(0),
+      elevation: WidgetStateProperty.all(0),
       controller: searchTextController,
       backgroundColor:
-          MaterialStateColor.resolveWith((states) => textFieldBgColor),
+          WidgetStateColor.resolveWith((states) => textFieldBgColor),
       hintText: search,
-      hintStyle: MaterialStateProperty.all(
+      hintStyle: WidgetStateProperty.all(
           TextStyle(color: secondaryTextColor.withOpacity(0.6))),
       trailing: const [
         Icon(
@@ -50,7 +38,7 @@ class SearchFilter extends StatelessWidget {
           size: 24,
         )
       ],
-      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+      shape: WidgetStateProperty.all(RoundedRectangleBorder(
           side: const BorderSide(color: textFieldBgColor),
           borderRadius: BorderRadius.circular(
             NkGeneralSize.nkCommonBorderRadius(),

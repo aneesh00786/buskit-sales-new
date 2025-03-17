@@ -25,7 +25,7 @@ class AppRoutes {
   static const String initialRoutes = login;
   static const String splash = "/splash";
   static const String home = "/home";
-  static const String order_taking = "/order_taking";
+  static const String orderTaking = "/order_taking";
   static const String login = "/login";
   static const String product = "/product";
   static const String dashboard = "/dashboard";
@@ -51,7 +51,7 @@ class AppRoutes {
             page: () => const LoginScreen(),
             binding: LoginBinding()),
         GetPage(
-            name: order_taking,
+            name: orderTaking,
             page: () => OrderTaking(
                   productsController: ProductsController(),
                 ),
@@ -68,7 +68,7 @@ class AppRoutes {
             binding: CommonBinding()),
         GetPage(
           name: customersAndOrders,
-          page: () => Tableee(),
+          page: () => const Tableee(),
           binding: CommonBinding(),
         ),
         GetPage(
@@ -121,7 +121,7 @@ class AppRoutes {
         ),
         GetPage(
           name: settings,
-          page: () => SettingsScreen(),
+          page: () => const SettingsScreen(),
           binding: CommonBinding(),
         ),
       ];

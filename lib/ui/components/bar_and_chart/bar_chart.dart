@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class BarChartSample2 extends StatefulWidget {
-  BarChartSample2({super.key});
+  const BarChartSample2({super.key});
   final Color leftBarColor = primaryColor;
   final Color rightBarColor = secondaryColor;
   final Color avgColor = Colors.orange;
@@ -108,10 +108,10 @@ class BarChartSample2State extends State<BarChartSample2> {
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: AxisTitles(
+            rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
-            topTitles: AxisTitles(
+            topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
             bottomTitles: AxisTitles(
@@ -138,8 +138,8 @@ class BarChartSample2State extends State<BarChartSample2> {
               show: true,
               drawVerticalLine: false,
               getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: const Color(0x6E9C9EA4),
+                return const FlLine(
+                  color: Color(0x6E9C9EA4),
                 );
               },
               horizontalInterval: 40),

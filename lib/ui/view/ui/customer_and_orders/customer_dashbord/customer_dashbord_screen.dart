@@ -5,7 +5,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart' as font1;
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
@@ -85,6 +85,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
   int selectedYear = 2025;
   late TabController _tabController;
+    late int _tabIndex;
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
@@ -97,6 +98,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     log('Calender Calender Customer ID :${widget.cusId}');
     //_initializeCustomerData();
     //_refreshScreen();
+    Provider.of<CustomersProvider>(context, listen: false)
+          .fetchCustomerDashboardDataSalseData(widget.cusId.toString(), selectedYear);
+    _tabIndex = 0;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
     _tabController.addListener(() {
@@ -1503,8 +1507,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
   }
 
-  Expanded TabTab(BuildContext context) {
-    return Expanded(
+  Widget TabTab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
       child: Consumer<CustomersProvider>(builder: (context, provider, child) {
         return FutureBuilder<CustomerTotalSaleResponse>(
             future: provider.customerTotalSaleResponseFuture,
@@ -1514,113 +1519,154 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
-                final categoryPerformance = snapshot.data!;
-                final discountDataList = categoryPerformance.data.discountData;
-                final paymentCompleted = categoryPerformance
-                    .data.totalSale.paymentCompleted.totalAmount;
-                final remaCompleted = categoryPerformance
-                    .data.totalSale.paymentRemaining.totalAmount;
-
-                return Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: MyCommnonContainer(
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color.fromARGB(255, 211, 211, 211)
-                            .withOpacity(0.2),
-                        blurRadius: 5,
-                        offset: Offset(4, 4),
-                      ),
-                    ],
-                    borderRadius: 25,
-                    height: 320,
-                    width: double.infinity,
-                    isCommonBorder: true,
-                    padding: nkRegularPadding(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 240,
-                              height: 27,
-                              child: TabBar(
-                                controller: _tabController,
-                                indicatorColor: primaryColor,
-                                labelColor: primaryColor,
-                                unselectedLabelColor: Colors.black,
-                                tabs: const [
-                                  Tab(
-                                    child: Text(
-                                      'Revenue',
-                                      style: tabTextStyle,
-                                    ),
-                                  ),
-                                  Tab(
-                                    child: Text(
-                                      'Customer Offer',
-                                      style: tabTextStyle,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              height: 26,
-                              padding: const EdgeInsets.only(left: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffeef2f7),
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              child: DropdownButton<int>(
-                                iconSize: 18,
-                                value: selectedYear,
-                                underline: Container(),
-                                onChanged: (int? newValue) {
-                                  setState(() {
-                                    selectedYear = newValue!;
-                                    Provider.of<CustomersProvider>(context,
-                                            listen: false)
-                                        .fetchCustomerDashboardDataSalseData(
-                                            widget
-                                                    .productsController
-                                                    ?.selectedCategoryId
-                                                    .value ??
-                                                '',
-                                            selectedYear);
-                                  });
-                                },
-                                items: provider.yearList
-                                    .map((item) => DropdownMenuItem<int>(
-                                          value: item.year,
-                                          child: Text(
-                                            item.year.toString(),
-                                            style: TextStyle(fontSize: 10),
-                                          ),
-                                        ))
-                                    .toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
+                return MyCommnonContainer(
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 211, 211, 211)
+                          .withOpacity(0.2),
+                      blurRadius: 5,
+                      offset: const Offset(4, 4),
+                    ),
+                  ],
+                  borderRadius: 25,
+                  height: 320,
+                  width: double.infinity,
+                  isCommonBorder: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              TotalSalse(context),
-                              TotalSalseCustomers(context),
+                              SizedBox(
+                                width: 240,
+                                height: 30,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _tabIndex = 0;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            right: 20,
+                                            left: 20,
+                                            top: 5,
+                                            bottom: 5),
+                                        decoration: _tabIndex == 0
+                                            ? BoxDecoration(
+                                                color: primaryColor.withOpacity(0.2),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft: Radius.circular(25),
+                                                  bottomRight:
+                                                      Radius.circular(25),
+                                                ),
+                                              )
+                                            : null,
+                                        child: Text(
+                                          'Revenue',
+                                          style: _tabIndex == 0
+                                              ? cardHeadingTextStyle
+                                              : tabTextStyle,
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _tabIndex = 1;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            right: 20,
+                                            left: 20,
+                                            top: 5,
+                                            bottom: 5),
+                                        decoration: _tabIndex == 1
+                                            ? BoxDecoration(
+                                                color: primaryColor.withOpacity(0.2),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft: Radius.circular(25),
+                                                  bottomRight:
+                                                      Radius.circular(25),
+                                                ),
+                                              )
+                                            : null,
+                                        child: Text(
+                                          'Customer Offer',
+                                          style: _tabIndex == 1
+                                              ? cardHeadingTextStyle
+                                              : tabTextStyle,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
+                          Positioned(
+                            top: fullScreenWidth(context) > 680 ? 2 : 32,
+                            right: 10,
+                            child: Padding(
+                              padding: const EdgeInsets.all(0.0),
+                              child: Container(
+                                height: 26,
+                                padding: const EdgeInsets.only(left: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xffeef2f7),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                child: DropdownButton<int>(
+                                  iconSize: 18,
+                                  value: selectedYear,
+                                  underline: Container(),
+                                  onChanged: (int? newValue) {
+                                    setState(() {
+                                      selectedYear = newValue!;
+                                      Provider.of<CustomersProvider>(context,
+                                              listen: false)
+                                          .fetchCustomerDashboardDataSalseData(
+                                              widget.cusId.toString(), selectedYear);
+                                    });
+                                  },
+                                  items: provider.yearList
+                                      .map((item) => DropdownMenuItem<int>(
+                                            value: item.year,
+                                            child: Text(
+                                              item.year.toString(),
+                                              style: cardHeadingTextStyle,
+                                            ),
+                                          ))
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: fullScreenWidth(context) > 680 ? 0 : 30,
+                      ),
+                      Expanded(
+                        child: _tabIndex == 0
+                            ? TotalSalse(context)
+                            : TotalSalseCustomers(context),
+                      ),
+                    ],
                   ),
                 );
               } else {
-                return const NodataWidget();
+                return const Center(child: Text('No data available'));
               }
             });
       }),

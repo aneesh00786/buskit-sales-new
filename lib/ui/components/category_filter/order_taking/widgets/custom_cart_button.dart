@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class CustomCartButton extends StatelessWidget {
   String text;
   Color? color;

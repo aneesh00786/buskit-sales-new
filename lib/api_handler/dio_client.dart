@@ -42,7 +42,7 @@ class DioClient with ApiConstants {
           onSendProgress: onSendProgress,
           onReceiveProgress: onReceiveProgress);
       return response;
-    } on DioError catch (err) {
+    } on DioException catch (err) {
       log('Post Requested Path: $path');
       log('DioError: ${err.response?.data}');
       return err.response ?? Future.error("No response from server");
@@ -72,9 +72,9 @@ Future<Response> getbycustom<T>(
         onReceiveProgress: onReceiveProgress,
       );
       return response;
-    } on DioError catch (err) {
+    } on DioException catch (err) {
       retryCount++;
-      if (retryCount >= maxRetries || err.type != DioErrorType.connectionTimeout) {
+      if (retryCount >= maxRetries || err.type != DioExceptionType.connectionTimeout) {
         final errorMessage = DioExceptionHandler.fromDioError(err).toString();
         throw errorMessage;
       }
@@ -95,7 +95,6 @@ class DioExceptionHandler implements Exception {
 
   DioExceptionHandler.fromDioError(DioException dioError,
       {bool showErrorSnakBar = true}) {
-    print('Error: ${dioError.type}, Message: ${dioError.message}');
 
     switch (dioError.type) {
       case DioExceptionType.cancel:
@@ -200,12 +199,13 @@ class LoggerInterceptor extends Interceptor {
       methodCount: 0,
       colors: true,
       printEmojis: true,
+      // ignore: deprecated_member_use
       printTime: false,
     ),
   );
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     final options = err.requestOptions;
     final requestPath = '${options.baseUrl}${options.path}';
     logger.e('${options.method} request => $requestPath'); // Debug log

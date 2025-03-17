@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/measurements/ResponsiveInfo.dart';
+import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/bar_chart_table_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -341,6 +341,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
             },
             // ignore: use_build_context_synchronously
           )
+        // ignore: use_build_context_synchronously
         : showNoInternetSnackBar(context);
   }
 
@@ -453,16 +454,16 @@ class _CustomBarChartState extends State<CustomBarChart> {
               child: ScrollbarTheme(
                 data: ScrollbarThemeData(
                   thumbColor:
-                      MaterialStateProperty.resolveWith<Color>((states) {
-                    if (states.contains(MaterialState.dragged)) {
+                      WidgetStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(WidgetState.dragged)) {
                       return Colors.blueAccent.shade700;
                     }
                     return Colors.blueAccent.shade400;
                   }),
-                  trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                  trackColor: WidgetStateProperty.all(Colors.blue.shade50),
                   trackBorderColor:
-                      MaterialStateProperty.all(Colors.blue.shade100),
-                  thickness: MaterialStateProperty.all(6),
+                      WidgetStateProperty.all(Colors.blue.shade100),
+                  thickness: WidgetStateProperty.all(6),
                   radius: const Radius.circular(10),
                   minThumbLength: 50,
                 ),
@@ -512,10 +513,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                         reservedSize: 40,
                                       ),
                                     ),
-                                    topTitles: AxisTitles(
+                                    topTitles: const AxisTitles(
                                       sideTitles: SideTitles(showTitles: false),
                                     ),
-                                    rightTitles: AxisTitles(
+                                    rightTitles: const AxisTitles(
                                       sideTitles: SideTitles(showTitles: false),
                                     ),
                                   ),
@@ -594,10 +595,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                   reservedSize: 40,
                                 ),
                               ),
-                              topTitles: AxisTitles(
+                              topTitles: const AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
-                              rightTitles: AxisTitles(
+                              rightTitles: const AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
                             ),
@@ -650,10 +651,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 reservedSize: 40,
                               ),
                             ),
-                            topTitles: AxisTitles(
+                            topTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
-                            rightTitles: AxisTitles(
+                            rightTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
@@ -714,10 +715,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 reservedSize: 40,
                               ),
                             ),
-                            topTitles: AxisTitles(
+                            topTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
-                            rightTitles: AxisTitles(
+                            rightTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
@@ -1149,16 +1150,16 @@ class _CustomBarChartCustomerDashState
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thumbColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(MaterialState.dragged)) {
+                        WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.dragged)) {
                         return Colors.blueAccent.shade700;
                       }
                       return Colors.blueAccent.shade400;
                     }),
-                    trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                    trackColor: WidgetStateProperty.all(Colors.blue.shade50),
                     trackBorderColor:
-                        MaterialStateProperty.all(Colors.blue.shade100),
-                    thickness: MaterialStateProperty.all(6),
+                        WidgetStateProperty.all(Colors.blue.shade100),
+                    thickness: WidgetStateProperty.all(6),
                     radius: const Radius.circular(10),
                     minThumbLength: 50,
                   ),
@@ -1205,11 +1206,11 @@ class _CustomBarChartCustomerDashState
                                           reservedSize: 40,
                                         ),
                                       ),
-                                      topTitles: AxisTitles(
+                                      topTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
-                                      rightTitles: AxisTitles(
+                                      rightTitles: const AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
@@ -1297,10 +1298,10 @@ class _CustomBarChartCustomerDashState
                                     reservedSize: 40,
                                   ),
                                 ),
-                                topTitles: AxisTitles(
+                                topTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
-                                rightTitles: AxisTitles(
+                                rightTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
                               ),
@@ -1352,10 +1353,10 @@ class _CustomBarChartCustomerDashState
                                     reservedSize: 40,
                                   ),
                                 ),
-                                topTitles: AxisTitles(
+                                topTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
-                                rightTitles: AxisTitles(
+                                rightTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
                               ),
@@ -1438,10 +1439,10 @@ class _CustomBarChartCustomerDashState
                                   reservedSize: 40,
                                 ),
                               ),
-                              topTitles: AxisTitles(
+                              topTitles: const AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
-                              rightTitles: AxisTitles(
+                              rightTitles: const AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
                             ),

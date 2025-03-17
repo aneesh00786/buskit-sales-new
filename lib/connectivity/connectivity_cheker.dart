@@ -11,14 +11,12 @@ class ConnectivityChecker extends ChangeNotifier {
 
   ConnectivityChecker._internal();
 
-  ConnectivityResult _connectivityResult = ConnectivityResult.none;
+  final ConnectivityResult _connectivityResult = ConnectivityResult.none;
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   ConnectivityResult get connectivityResult => _connectivityResult;
 
-  void startMonitoring() {
-
-  }
+  void startMonitoring() {}
 
   void stopMonitoring() {
     _connectivitySubscription.cancel();

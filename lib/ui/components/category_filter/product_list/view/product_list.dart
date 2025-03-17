@@ -1,16 +1,14 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
+// ignore: must_be_immutable
 class ProductGrid extends StatefulWidget {
   String optionName;
   final ProductsController productsController;
@@ -26,6 +24,7 @@ class ProductGrid extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProductGridState createState() => _ProductGridState();
 }
 
@@ -125,11 +124,11 @@ class _ProductGridState extends State<ProductGrid> {
                   ? Center(
                       child: Text(
                       'No Data Available :${products.length}',
-                      style: TextStyle(fontSize: 40),
+                      style: const TextStyle(fontSize: 40),
                     ))
                   : GridView.builder(
                    // physics: BouncingScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: desiredItemWidth,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
@@ -245,14 +244,14 @@ class _ProductGridState extends State<ProductGrid> {
                                                     '${ApiConstants.imageBaseUrl}/${product.imageUrl}',
                                                 placeholder:
                                                     (context, url) =>
-                                                        Padding(
+                                                        const Padding(
                                                   padding:
-                                                      const EdgeInsets.all(
+                                                      EdgeInsets.all(
                                                           15.0),
                                                   child: CircleAvatar(
                                                       radius: 10,
                                                       child:
-                                                          const CircularProgressIndicator()),
+                                                          CircularProgressIndicator()),
                                                 ),
                                                 errorWidget: (context, url,
                                                         error) =>
@@ -299,7 +298,7 @@ class _ProductGridState extends State<ProductGrid> {
                                               ),
                                               child: Text(
                                                 '$lowstockItem Low',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 7,
                                                   fontWeight:
                                                       FontWeight.w600,
@@ -320,7 +319,7 @@ class _ProductGridState extends State<ProductGrid> {
                                               ),
                                               child: Text(
                                                 '$outOfStockItem Nil',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 7,
                                                   color: Colors.white,
                                                   fontWeight:
@@ -334,7 +333,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                       largestSellPrice
                                                   ? '${formatAmount(smallestSellPrice.toString())} '
                                                   : '${formatAmount(smallestSellPrice.toString())} - ${formatAmountOnly(largestSellPrice.toString())} ',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 9,
                                                 fontWeight: FontWeight.w600,
                                               ),
@@ -353,7 +352,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                                 .circular(
                                                                     5),
                                                         color: Colors.blue),
-                                                    child: Text(
+                                                    child: const Text(
                                                       '(incl.tax)',
                                                       style: TextStyle(
                                                           fontSize: 6,
@@ -392,12 +391,12 @@ class _ProductGridState extends State<ProductGrid> {
                                               ),
                                               child: Padding(
                                                 padding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                         horizontal: 6,
                                                         vertical: 3),
                                                 child: Text(
                                                   'Stock : ${product.stock}',
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                       fontSize: 7,
                                                       color: Colors.white,
                                                       fontWeight:
@@ -405,24 +404,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(width: 5),
-                                            // Image.asset(
-                                            //     "assets/images/cart_box.png",
-                                            //     height: 10),
-                                            // const SizedBox(width: 5),
-                                            // Flexible(
-                                            //   child: Text(
-                                            //     smallestSellPrice ==
-                                            //             largestSellPrice
-                                            //         ? '${formatAmount(sellingPackPriceLow)}($piecesLow pcs)'
-                                            //         : '${formatAmount(sellingPackPriceLow)}($piecesLow pcs) - ${formatAmount(sellingPackPriceHigh)}($piecesHigh pcs)',
-                                            //     style: GoogleFonts.poppins(
-                                            //       fontSize: stockFontSize,
-                                            //       fontWeight:
-                                            //           FontWeight.w600,
-                                            //     ),
-                                            //   ),
-                                            // ),
+                                            const SizedBox(width: 5),
                                             Expanded(
                                               child: Row(
                                                 mainAxisAlignment:
@@ -504,12 +486,6 @@ class _ProductGridState extends State<ProductGrid> {
     );
   }
 
-  String _getFormattedText(String text) {
-    const int maxLength = 30;
-    return text.length > maxLength
-        ? '${text.substring(0, maxLength)}...'
-        : text;
-  }
 
   void _showProductVariantDialog(
       List<Detail> productDetail,

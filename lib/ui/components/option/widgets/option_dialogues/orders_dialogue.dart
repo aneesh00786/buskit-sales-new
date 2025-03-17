@@ -2,12 +2,10 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_customer_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 
 Widget buildOrdersDialogueMainDash({
@@ -27,7 +25,7 @@ Widget buildOrdersDialogueMainDash({
   ];
   List<TableViewRow> rows = filteredOrders.isEmpty
       ? [
-          TableViewRow(
+          const TableViewRow(
             height: 60,
             cells: [
               TableViewCell(child: Text("No Records Found")),
@@ -49,12 +47,12 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 20,
-                      backgroundColor: const Color(0xffe6ecff),
+                      backgroundColor: Color(0xffe6ecff),
                       child: Icon(Icons.person, size: 14, color: Colors.blue),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,6 +112,7 @@ Widget buildOrdersDialogueMainDash({
               ),
               TableViewCell(
                 child: Text(
+                  // ignore: unnecessary_null_comparison
                   order.orderCreatedAt != null
                       ? getFormattedOrderCreatAt(
                           order.orderCreatedAt.toString())
@@ -234,14 +233,14 @@ return LayoutBuilder(
 
     return Stack(
       children: [
-        Container(
+        SizedBox(
           width: availableWidth,
           height: containerHeight,
           child: Column(
             children: [
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(15),
                     topRight: Radius.circular(15),
                   ),
@@ -288,7 +287,7 @@ return LayoutBuilder(
                             ),
                           ),
                         )
-                        .toList(),
+                        ,
                   ],
                 ),
               ),
@@ -329,8 +328,7 @@ return LayoutBuilder(
                                     child: cell.child,
                                   ),
                                 ),
-                              )
-                              .toList(),
+                              ),
                         ],
                       ),
                     );

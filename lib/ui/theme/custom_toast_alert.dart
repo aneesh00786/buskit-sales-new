@@ -9,6 +9,7 @@ class CustomToastPopup extends StatefulWidget {
       {super.key, required this.message, required this.color, required this.icon});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomToastState createState() => _CustomToastState();
 }
 
@@ -26,8 +27,8 @@ class _CustomToastState extends State<CustomToastPopup>
     );
 
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, -1), // Start position (above the screen)
-      end: Offset.zero, // End position (top of the screen)
+      begin: const Offset(0, -1),
+      end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,

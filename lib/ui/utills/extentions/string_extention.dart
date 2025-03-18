@@ -63,7 +63,6 @@ String formatAmount(dynamic value) {
     String formattedAmount = formatter.format(amount);
     return "$currencySymbol $formattedAmount";
   } catch (e) {
-    print('Error in formatAmount: $e');
     rethrow;
   }
 }

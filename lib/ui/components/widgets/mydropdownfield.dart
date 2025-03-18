@@ -32,7 +32,7 @@ class MyDropdownField extends StatefulWidget {
     this.iconEnabledColor,
     this.iconDisabledColor,
     this.itemHeight,
-    Key? key,
+    super.key,
     this.borderRadius,
     this.fontColor,
     this.alignment,
@@ -41,7 +41,7 @@ class MyDropdownField extends StatefulWidget {
     this.icon,
     this.underLineIcon,
     this.isEnable = true,
-  }) : super(key: key);
+  });
 
   @override
   State<MyDropdownField> createState() => _MyDropdownFieldState();

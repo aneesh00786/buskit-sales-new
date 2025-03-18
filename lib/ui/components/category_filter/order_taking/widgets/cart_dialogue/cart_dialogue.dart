@@ -1,5 +1,7 @@
 //Cart Dialog
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -1179,13 +1181,13 @@ class CartDialogueState extends State<CartDialogue> {
                                     await processSaveAndSend(
                                       finalAmount: finalAmount,
                                       paymentType: paymentType,
-                                      // ignore: use_build_context_synchronously
+                                  
                                       context: context,
                                       cartId: cartIdPrefs,
                                       draftId: draftIdPrefs,
                                     );
                                   } else {
-                                    // ignore: use_build_context_synchronously
+                                  
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         backgroundColor: Colors.red,
@@ -1199,7 +1201,7 @@ class CartDialogueState extends State<CartDialogue> {
                                   log('CustomerId : $customerId');
                                   await processSaveAndSend(
                                     finalAmount: finalAmount,
-                                    // ignore: use_build_context_synchronously
+                                    
                                     context: context,
                                     cartId: cartIdPrefs,
                                     draftId: draftIdPrefs,
@@ -1574,31 +1576,6 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
-  Future<int> _getPackPiecesValue(String productId, int quantity) async {
-    var productBox = await Hive.openBox('productBox');
-    var rawProductList = productBox.get('products', defaultValue: []);
-    if (rawProductList is List) {
-      var castedProductList = castToStringDynamic(Map.fromIterable(
-        rawProductList,
-        key: (e) => e['product_id'],
-        value: (e) => e,
-      ));
-      var productJson = castedProductList[productId];
-      if (productJson != null) {
-        var parsedProduct = ProductModel.fromJson(productJson);
-        if (parsedProduct.detail is List<Detail>) {
-          var detailItem = parsedProduct.detail?.firstWhereOrNull(
-            (item) => item.productId == productId,
-          );
-          if (detailItem != null) {
-            int piecesValue = (detailItem.pieces ?? 1).toInt();
-            return piecesValue * quantity;
-          }
-        }
-      }
-    }
-    return quantity;
-  }
 
   void showSuccessDialog(BuildContext context, String message) {
     showDialog(
@@ -1607,7 +1584,7 @@ class CartDialogueState extends State<CartDialogue> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Center(
-            child: Container(
+            child: SizedBox(
               height: 100,
               width: 100,
               child:
@@ -1637,7 +1614,7 @@ class CartDialogueState extends State<CartDialogue> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Center(
-            child: Container(
+            child: SizedBox(
               height: 200,
               width: 200,
               child: Lottie.asset('assets/images/Warning_animation.json'),
@@ -1814,7 +1791,7 @@ class CartDialogueState extends State<CartDialogue> {
                 _deleteProduct(productName, isPreorder: isPreOrder);
                 await provider.updateCartCount(customerId);
                 _loadCartItems();
-                log('Draft Delete Clicked : ${customerId}');
+                log('Draft Delete Clicked : $customerId');
                 Navigator.pop(context);
                 showCustomToastDisplay(
                   context,

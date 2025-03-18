@@ -17,7 +17,7 @@ class MyRegularSelectableText extends StatelessWidget {
   final TextDecorationStyle? textDecorationStyle;
 
   const MyRegularSelectableText({
-    Key? key,
+    super.key,
     required this.label,
     this.color,
     this.fontSize,
@@ -30,7 +30,7 @@ class MyRegularSelectableText extends StatelessWidget {
     this.stepGranularity,
     this.style,
     this.textDecorationStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

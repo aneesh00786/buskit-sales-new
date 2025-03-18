@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class CustomToast extends StatefulWidget {
   final String message;
 
-  CustomToast({required this.message});
+  const CustomToast({super.key, required this.message});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomToastState createState() => _CustomToastState();
 }
 

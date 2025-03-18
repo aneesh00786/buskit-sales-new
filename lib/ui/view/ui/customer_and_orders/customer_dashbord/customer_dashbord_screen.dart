@@ -1,5 +1,5 @@
 
-// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names
 
 import 'dart:developer';
 import 'dart:io';
@@ -231,7 +231,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         radius: 15,
                         child: CachedNetworkImage(
                           imageUrl:
-                              'http://16.50.232.153:3000/uploads/${customerImage}',
+                              'http://16.50.232.153:3000/uploads/$customerImage',
                           placeholder: (context, url) =>
                               const CircularProgressIndicator(),
                           errorWidget: (context, url, error) =>
@@ -256,7 +256,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           children: [
                             ConstrainedBox(
                               constraints:
-                                  BoxConstraints(maxWidth: double.infinity),
+                                  const BoxConstraints(maxWidth: double.infinity),
                               child: MyRegularText(
                                 label: customerName ?? '',
                                 fontSize: 8.8,
@@ -286,7 +286,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   log("Snapshot error : ${snapshot.error}");
-                  return Center(child: NodataWidget());
+                  return const Center(child: NodataWidget());
                 } else {
                   final responseModel = snapshot.data;
                   final frequentProductLists =
@@ -552,14 +552,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     Container(
                       decoration: BoxDecoration(
                         color: primaryColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(25),
                           bottomRight: Radius.circular(25),
                         ),
                       ),
                       padding: const EdgeInsets.only(
                           right: 20, left: 20, top: 5, bottom: 5),
-                      child: Text(
+                      child: const Text(
                         'Orders & Payment/s',
                         style: cardHeadingTextStyle,
                         maxLines: 1,
@@ -613,9 +613,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: primaryColor.withOpacity(0.3)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: const Icon(
+                        child: const Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Icon(
                             Icons.open_in_new,
                             size: 17,
                             color: primaryColor,
@@ -908,7 +908,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               ),
                               child: DataTable(
                                 headingRowColor:
-                                    MaterialStateProperty.all(Colors.grey[100]),
+                                    WidgetStateProperty.all(Colors.grey[100]),
+                                // ignore: deprecated_member_use
                                 dataRowHeight: 40,
                                 headingRowHeight: 45,
                                 columnSpacing: 10,
@@ -968,9 +969,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       : Colors.grey[100]!;
 
                                   return DataRow(
-                                    color: MaterialStateProperty.resolveWith<
+                                    color: WidgetStateProperty.resolveWith<
                                         Color>(
-                                      (Set<MaterialState> states) {
+                                      (Set<WidgetState> states) {
                                         return rowColor;
                                       },
                                     ),
@@ -1344,8 +1345,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ],
     );
   }
-
-  // ignore: non_constant_identifier_names
   Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
     // frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
@@ -2294,6 +2293,7 @@ class UpdateCustomer extends StatelessWidget {
                                               log(
                                                   "this is admin data from this mdoel $updatedAdmin");
                                               Navigator.of(context).pop();
+                                            // ignore: empty_catches
                                             } catch (error) {}
                                           },
                                           style: ElevatedButton.styleFrom(
@@ -2509,7 +2509,7 @@ class CustomerTotalSalePages extends StatelessWidget {
   final String customerId;
   final int year;
 
-  const CustomerTotalSalePages({required this.customerId, required this.year});
+  const CustomerTotalSalePages({super.key, required this.customerId, required this.year});
 
   @override
   Widget build(BuildContext context) {
@@ -2586,7 +2586,7 @@ class CustomerTotalSalePages extends StatelessWidget {
                           trailing: Text('Value: ${discount.value}'),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 );
               } else {

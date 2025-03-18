@@ -43,7 +43,7 @@ class MyFormField extends StatelessWidget {
   final String? initialValue;
 
   const MyFormField({
-    Key? key,
+    super.key,
      this.controller,
     required this.labelText,
     this.initialValue,
@@ -81,7 +81,7 @@ class MyFormField extends StatelessWidget {
     this.decoration,
     this.textAlign,
     this.contentPadding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

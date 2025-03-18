@@ -23,7 +23,7 @@ class MyCommnonContainer extends StatelessWidget {
   final BorderRadiusGeometry? borderRadiusGeometry;
   final List<BoxShadow>? boxShadow;
   const MyCommnonContainer(
-      {Key? key,
+      {super.key,
       this.child,
       this.onTap,
       this.borderRadius,
@@ -42,8 +42,7 @@ class MyCommnonContainer extends StatelessWidget {
       this.isCommonBorder = false,
       this.isShowError = false,
       this.boxShadow,
-      })
-      : super(key: key);
+      });
 
   @override
   Widget build(BuildContext context) {

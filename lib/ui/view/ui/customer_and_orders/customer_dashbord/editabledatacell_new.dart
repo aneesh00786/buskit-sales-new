@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:dio/dio.dart';
@@ -7,18 +9,19 @@ class EditableDataCell extends StatefulWidget {
   final String initialValue;
   final Function(String, int) onValueChanged;
   final int index;
-  final String orderId; // Added parameter for order ID
+  final String orderId; 
   final num orderTotal;
 
-  EditableDataCell({
+  const EditableDataCell({super.key, 
     required this.initialValue,
     required this.onValueChanged,
     required this.index,
-    required this.orderId, // Initialize the order ID
+    required this.orderId, 
     required this.orderTotal,
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _EditableDataCellState createState() => _EditableDataCellState();
 }
 
@@ -56,12 +59,9 @@ class _EditableDataCellState extends State<EditableDataCell> {
       );
 
       if (response.statusCode == 200) {
-        print('API call successful');
       } else {
-        print('API call failed with status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error making API call: $e');
     }
 
     widget.onValueChanged(_controller.text, widget.index);
@@ -93,12 +93,12 @@ class _EditableDataCellState extends State<EditableDataCell> {
                 fontSize: 12,
                 color: Colors.grey.shade600,
               ),
-              contentPadding: EdgeInsets.symmetric(
+              contentPadding: const EdgeInsets.symmetric(
                 vertical: 0.0,
                 horizontal: 10.0,
               ),
             ),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: Colors.black,
             ),
@@ -122,7 +122,7 @@ class _EditableDataCellState extends State<EditableDataCell> {
                 onPressed: () {
                   _updateValue();
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.save,
                   color: primaryColor,
                   size: 14.0,

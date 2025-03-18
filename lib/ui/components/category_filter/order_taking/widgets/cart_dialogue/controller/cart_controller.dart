@@ -1,6 +1,5 @@
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 class CartController extends GetxController {
   var cartItems = <CartItem>[].obs;
@@ -8,7 +7,7 @@ class CartController extends GetxController {
     int index = cartItems.indexWhere((item) => item.detail.id == cartItem.detail.id);
     if (index != -1) {
       cartItems[index].detail.count++;
-      update(); // Notify the UI
+      update(); 
     }
   }
 

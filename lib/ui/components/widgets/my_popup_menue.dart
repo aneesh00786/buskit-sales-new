@@ -9,15 +9,14 @@ class MyPopUpMenu<T> extends StatelessWidget {
   final Offset offset;
   final Color? color;
   const MyPopUpMenu(
-      {Key? key,
+      {super.key,
       required this.items,
       required this.buttonChild,
       this.onItemSelected,
       this.tooltip,
       this.shape,
       this.offset = Offset.zero,
-      this.color})
-      : super(key: key);
+      this.color});
 
   @override
   Widget build(BuildContext context) {

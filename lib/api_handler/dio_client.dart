@@ -52,95 +52,90 @@ class DioClient with ApiConstants {
     }
   }
 
-Future<Response> getbycustom<T>(
-  String path, {
-  Map<String, dynamic>? queryParameters,
-  Options? options,
-  CancelToken? cancelToken,
-  ProgressCallback? onReceiveProgress,
-  int maxRetries = 3, // Retry count
-}) async {
-  int retryCount = 0;
+  Future<Response> getbycustom<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    int maxRetries = 3,
+  }) async {
+    int retryCount = 0;
 
-  while (retryCount < maxRetries) {
-    try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-      );
-      return response;
-    } on DioException catch (err) {
-      retryCount++;
-      if (retryCount >= maxRetries || err.type != DioExceptionType.connectionTimeout) {
-        final errorMessage = DioExceptionHandler.fromDioError(err).toString();
-        throw errorMessage;
+    while (retryCount < maxRetries) {
+      try {
+        final response = await _dio.get(
+          path,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+        );
+        return response;
+      } on DioException catch (err) {
+        retryCount++;
+        if (retryCount >= maxRetries ||
+            err.type != DioExceptionType.connectionTimeout) {
+          final errorMessage = DioExceptionHandler.fromDioError(err).toString();
+          throw errorMessage;
+        }
+        log('Retrying request ($retryCount/$maxRetries): $path');
+      } catch (e) {
+        throw e.toString();
       }
-      log('Retrying request ($retryCount/$maxRetries): $path');
-    } catch (e) {
-      throw e.toString();
     }
+
+    throw 'Failed to complete the request after $maxRetries retries.';
   }
-
-  throw 'Failed to complete the request after $maxRetries retries.';
-}
-
 }
 
 class DioExceptionHandler implements Exception {
   late String errorMessage;
-  late String type;
 
   DioExceptionHandler.fromDioError(DioException dioError,
       {bool showErrorSnakBar = true}) {
-
     switch (dioError.type) {
       case DioExceptionType.cancel:
         errorMessage =
             dioError.response?.data['message'] ?? 'Request was cancelled.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       case DioExceptionType.connectionTimeout:
         errorMessage = 'Connection timed out.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       case DioExceptionType.receiveTimeout:
         errorMessage = 'Receive timeout occurred.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       case DioExceptionType.sendTimeout:
         errorMessage = 'Send timeout occurred.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       case DioExceptionType.badResponse:
-        // Handles HTTP status errors
         errorMessage = dioError.response?.data['message'] ??
             'Received invalid status code: ${dioError.response?.statusCode}.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       case DioExceptionType.connectionError:
         errorMessage = 'Failed to connect to the server.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       case DioExceptionType.badCertificate:
         errorMessage = 'Bad SSL Certificate.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
 
       default:
         errorMessage = 'An unexpected error occurred.';
-        if (showErrorSnakBar) NkCommonFunction.showErrorSnakBar(errorMessage);
         break;
     }
+
+    if (showErrorSnakBar) {
+      NkCommonFunction.showErrorSnakBar(errorMessage);
+    }
+    log('Error occurred: $errorMessage');
   }
+
   @override
   String toString() => errorMessage;
 }

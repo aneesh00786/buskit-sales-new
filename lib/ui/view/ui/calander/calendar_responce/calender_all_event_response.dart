@@ -13,16 +13,16 @@ class CalenderDatas {
     if (json['data'] != null) {
       data = <EventData>[];
       json['data'].forEach((v) {
-        data!.add(new EventData.fromJson(v));
+        data!.add(EventData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status_code'] = this.statusCode;
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status_code'] = statusCode;
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -117,32 +117,32 @@ class EventData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['event_id'] = this.eventId;
-    data['customer_id'] = this.customerId;
-    data['salesman_id'] = this.salesmanId;
-    data['title'] = this.title;
-    data['start'] = this.start;
-    data['end'] = this.end;
-    data['type'] = this.type;
-    data['check_in'] = this.checkIn;
-    data['check_in_longitude'] = this.checkInLongitude;
-    data['check_in_latitude'] = this.checkInLatitude;
-    data['check_out'] = this.checkOut;
-    data['check_out_latitude'] = this.checkOutLatitude;
-    data['check_out_longitude'] = this.checkOutLongitude;
-    data['event_cancel'] = this.eventCancel;
-    data['status'] = this.status;
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    data['business_name'] = this.businessName;
-    data['image_url'] = this.imageUrl;
-    data['email'] = this.email;
-    data['mobileno'] = this.mobileNo;
-    data['address'] = this.address;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['event_id'] = eventId;
+    data['customer_id'] = customerId;
+    data['salesman_id'] = salesmanId;
+    data['title'] = title;
+    data['start'] = start;
+    data['end'] = end;
+    data['type'] = type;
+    data['check_in'] = checkIn;
+    data['check_in_longitude'] = checkInLongitude;
+    data['check_in_latitude'] = checkInLatitude;
+    data['check_out'] = checkOut;
+    data['check_out_latitude'] = checkOutLatitude;
+    data['check_out_longitude'] = checkOutLongitude;
+    data['event_cancel'] = eventCancel;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['business_name'] = businessName;
+    data['image_url'] = imageUrl;
+    data['email'] = email;
+    data['mobileno'] = mobileNo;
+    data['address'] = address;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     return data;
   }
 }

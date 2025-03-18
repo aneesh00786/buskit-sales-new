@@ -23,10 +23,10 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
   ValueNotifier<String> changeNotify = ValueNotifier(Assets.iconsIcLoginLogo);
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    widget.loginController.loginResponce?.statusCode==null;
+    widget.loginController.loginResponce?.statusCode == null;
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -70,17 +70,24 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                    color: widget.loginController.loginResponce?.statusCode == 422 ||
-                            widget.loginController.loginResponce?.statusCode == 409
+                    color: widget.loginController.loginResponce?.statusCode ==
+                                422 ||
+                            widget.loginController.loginResponce?.statusCode ==
+                                409
                         ? Colors.red
                         : Colors.grey,
                     width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color:widget.loginController.loginResponce?.statusCode == 422 ||
-                            widget.loginController.loginResponce?.statusCode == 409
-                        ? Colors.red: primaryButtonColor, width: 1.5),
+                borderSide: BorderSide(
+                    color: widget.loginController.loginResponce?.statusCode ==
+                                422 ||
+                            widget.loginController.loginResponce?.statusCode ==
+                                409
+                        ? Colors.red
+                        : primaryButtonColor,
+                    width: 1.5),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -118,15 +125,20 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                    color: widget.loginController.loginResponce?.statusCode == 401
-                        ? Colors.red
-                        : Colors.grey,
+                    color:
+                        widget.loginController.loginResponce?.statusCode == 401
+                            ? Colors.red
+                            : Colors.grey,
                     width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: widget.loginController.loginResponce?.statusCode == 401
-                        ? Colors.red: primaryButtonColor, width: 1.5),
+                borderSide: BorderSide(
+                    color:
+                        widget.loginController.loginResponce?.statusCode == 401
+                            ? Colors.red
+                            : primaryButtonColor,
+                    width: 1.5),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -142,7 +154,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
                 )
               : const Text(''),
           nkMediumSizeBox(),
-          Align(
+          const Align(
               alignment: Alignment.centerRight, child: ForgotPasswordScreen()),
           nkMediumSizeBox(),
           nkMediumSizeBox(),
@@ -158,7 +170,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           isRoundedCorner: true,
           buttonText: singIn,
           onPressed: () async {
-            widget.loginController.loginResponce==null;
+            widget.loginController.loginResponce == null;
             if (widget.loginController.formKey.currentState!.validate()) {
               bool success = await widget.loginController.performLogin(context);
               if (!success) {
@@ -216,7 +228,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                   border: const OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+                    borderSide:
+                        const BorderSide(color: Colors.grey, width: 1.5),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -236,24 +249,21 @@ class ForgotPasswordScreen extends StatelessWidget {
                 height: 60,
                 width: 200,
                 decoration: BoxDecoration(
-                  color: Colors.blue, 
-                  borderRadius: BorderRadius.circular(20), 
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: TextButton(
                   onPressed: () {
                     String email = emailController.text.trim();
                     if (email.isNotEmpty) {
-                      print("Email submitted: $email");
-                      Navigator.pop(context); 
-                    } else {
-                      print("Email is empty!");
-                    }
+                      Navigator.pop(context);
+                    } else {}
                   },
                   child: const Text(
                     'Submit',
                     style: TextStyle(
-                      color: Colors.white, 
-                      fontSize: 20, 
+                      color: Colors.white,
+                      fontSize: 20,
                     ),
                   ),
                 ),
@@ -271,7 +281,7 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        showEmailBottomSheet(context); 
+        showEmailBottomSheet(context);
       },
       child: const Text(
         'Forgot Password..?',

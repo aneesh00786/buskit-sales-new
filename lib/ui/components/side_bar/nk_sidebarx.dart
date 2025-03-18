@@ -17,13 +17,12 @@ import 'package:sidebarx/sidebarx.dart';
 
 class NkSidebarXSideBar extends StatefulWidget {
   const NkSidebarXSideBar({
-    Key? key,
+    super.key,
     required List<SidebarXItem> itemList,
     required SidebarXController controller,
     required this.userDetails,
   })  : _controller = controller,
-        _itemList = itemList,
-        super(key: key);
+        _itemList = itemList;
 
   final SidebarXController _controller;
   final List<SidebarXItem> _itemList;

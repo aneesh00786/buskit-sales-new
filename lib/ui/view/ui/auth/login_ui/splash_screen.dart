@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SplashScreen extends StatelessWidget {
   final String message;
 
-  const SplashScreen({Key? key, this.message = "Loading..."}) : super(key: key);
+  const SplashScreen({super.key, this.message = "Loading..."});
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +14,11 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: white,),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(color: white,),
+            const SizedBox(height: 16),
             Text(
               message,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: white),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: white),
             ),
           ],
         ),

@@ -18,7 +18,7 @@ class MyRegularText extends StatelessWidget {
   final TextDecorationStyle? textDecorationStyle;
 
   const MyRegularText({
-    Key? key,
+    super.key,
     required this.label,
     this.color,
     this.fontSize,
@@ -32,7 +32,7 @@ class MyRegularText extends StatelessWidget {
     this.style,
     this.textDecorationStyle,
     this.showEmptyError = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

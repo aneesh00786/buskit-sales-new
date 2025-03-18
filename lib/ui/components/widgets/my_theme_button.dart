@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -19,7 +21,7 @@ class MyThemeButton extends StatelessWidget {
   final bool? isRoundedCorner;
 
   const MyThemeButton({
-    Key? key,
+    super.key,
     @required this.buttonText,
     this.color = primaryButtonColor,
     this.onPressed,
@@ -32,7 +34,7 @@ class MyThemeButton extends StatelessWidget {
     this.shape,
     this.isRoundedCorner = false,
     this.fontColor = buttonTextColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

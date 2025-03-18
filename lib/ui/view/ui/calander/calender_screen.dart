@@ -34,7 +34,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
         child: Scaffold(
           appBar: AppBar(
             actions: [
-              NotificationWidget(
+              const NotificationWidget(
                 startDate: '',
                 endDate: '',
               ),

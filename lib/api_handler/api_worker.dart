@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/custome
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/today_tasks_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
@@ -502,6 +503,7 @@ class ApiWorker with ApiConstants {
       return await _getCachedRecentOrderCount(cacheKey);
     }
   }
+
   Future<RecentOrderCountResponse> _getCachedRecentOrderCount(
       String cacheKey) async {
     try {
@@ -589,6 +591,7 @@ class ApiWorker with ApiConstants {
       return null;
     }
   }
+
   Future<CartOrderModel?> addToDraft(Map<String, dynamic> sendData) async {
     sendData['companyId'] = companyId;
     log('[addToDraft] Request Data: ${sendData.toString()}');
@@ -636,10 +639,9 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-    Future<Response> deleteCustomer(String id) async {
+  Future<Response> deleteCustomer(String id) async {
     // sendData['companyId'] = companyId;
-    final response =
-        await dio.postbycustom(ApiConstants.deletCustomer, data: {
+    final response = await dio.postbycustom(ApiConstants.deletCustomer, data: {
       "companyId": companyId,
       "id": id,
     }).onError((DioException error, stackTrace) {
@@ -766,124 +768,127 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ PRODUCT SECTION ***************** ///
-Future<List<ProductModel>> getTempProduct(String subCatId) async {
-  log('=== getTempProduct called ===');
-  log('Input subCatId: $subCatId');
+  Future<List<ProductModel>> getTempProduct(String subCatId) async {
+    log('=== getTempProduct called ===');
+    log('Input subCatId: $subCatId');
 
-  List<ProductModel> allProducts = [];
-  final connectivityResult = await Connectivity().checkConnectivity();
-  bool hasNetwork = connectivityResult != ConnectivityResult.none;
-  bool hasInternet = hasNetwork && await isInternetAvailable();
-  log('Network connectivity: $connectivityResult');
-  log('Has Internet: $hasInternet');
+    List<ProductModel> allProducts = [];
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool hasNetwork = connectivityResult != ConnectivityResult.none;
+    bool hasInternet = hasNetwork && await isInternetAvailable();
+    log('Network connectivity: $connectivityResult');
+    log('Has Internet: $hasInternet');
 
-  if (hasInternet) {
-    try {
-      final requestParams = {"company_id": companyId};
-      log('API Request: ${ApiConstants.fetchproduct}');
-      log('Query Parameters: $requestParams');
+    if (hasInternet) {
+      try {
+        final requestParams = {"company_id": companyId};
+        log('API Request: ${ApiConstants.fetchproduct}');
+        log('Query Parameters: $requestParams');
 
-      final response = await dio.getbycustom(
-        ApiConstants.fetchproduct,
-        queryParameters: requestParams,
-      );
+        try {
+          final response = await dio.getbycustom(
+            ApiConstants.fetchproduct,
+            queryParameters: requestParams,
+          );
 
-      log('API Response Status Code: ${response.statusCode}');
-      log('API Response Data: ${response.data}');
+          log('API Response Status Code: ${response.statusCode}');
+          log('API Response Data: ${response.data}');
 
-      if (response.statusCode == 200 && response.data['data'] is List) {
-        for (var item in response.data['data']) {
-          if (item['product'] is List) {
-            allProducts.addAll((item['product'] as List)
-                .map((productJson) => ProductModel.fromJson(productJson))
-                .toList());
-          }
-        }
-        log('Fetched Products from API: ${allProducts.length}');
-        var productBox = await Hive.openBox('productBox');
-        await productBox.put(
-          'products',
-          allProducts.map((product) => product.toJson()).toList(),
-        );
-        log('Products saved to Hive.');
-       log('Products category Id : ${allProducts.map((product) => product.catId).toSet().toList()}');
-
-      }
-    } catch (e) {
-      log('Error fetching products from API: $e');
-    }
-  } else {
-    log('No internet. Fetching from Hive...');
-  }
-
-  try {
-    var productBox = await Hive.openBox('productBox');
-    var rawProductList = productBox.get('products');
-    log('Raw Product List from Hive: $rawProductList');
-
-    if (rawProductList is List) {
-      allProducts = rawProductList
-          .map((productJson) {
-            if (productJson is Map) {
-              return ProductModel.fromJson(
-                  ApiService().castToStringDynamic(productJson));
+          if (response.statusCode == 200 && response.data['data'] is List) {
+            for (var item in response.data['data']) {
+              if (item['product'] is List) {
+                allProducts.addAll((item['product'] as List)
+                    .map((productJson) => ProductModel.fromJson(productJson))
+                    .toList());
+              }
             }
-            return null;
-          })
-          .whereType<ProductModel>()
-          .toList();
-    }
-    log('Fetched Products from Hive: ${allProducts.length}');
-  } catch (e) {
-    log('Error fetching from Hive: $e');
-  }
-  List<ProductModel> filteredProducts = allProducts.where((product) {
-    return product.scid == subCatId;
-  }).toList();
-
-  log('Filtered Products: ${filteredProducts.length}');
-  log('Filtered Product List: ${filteredProducts.map((e) => e.toJson()).toList()}');
-
-  return filteredProducts;
-}
-
-Future<void> fetchDiscounts(int companyId, String salesmanId) async {
-  const String url = 'http://16.50.232.153:3000/fetch_all_discount';
-  try {
-    Map<String, dynamic> requestPayload = {
-      "companyId": companyId,
-      "salesman_id": salesmanId,
-    };
-    log('Sending POST request to $url with payload: $requestPayload');
-    Response response = await dio1.post(url, data: requestPayload);
-    log('Response Status Code: ${response.statusCode}');
-    log('Response Data: ${response.data}');
-    if (response.statusCode == 200) {
-      if (response.data is Map<String, dynamic> && response.data['data'] is List<dynamic>) {
-        List<dynamic> dataList = response.data['data'];
-        List<CustomerDiscountModel> discountList = dataList.map((data) {
-          return CustomerDiscountModel.fromJson(data);
-        }).toList();
-        log('Parsed ${discountList.length} discounts from the API response.');
-        final discountBox = Hive.box<CustomerDiscountModel>('discounts');
-        await discountBox.clear();
-        for (var discount in discountList) {
-          await discountBox.add(discount);
+            log('Fetched Products from API: ${allProducts.length}');
+            var productBox = await Hive.openBox('productBox');
+            await productBox.put(
+              'products',
+              allProducts.map((product) => product.toJson()).toList(),
+            );
+            log('Products saved to Hive.');
+            log('Products category Id : ${allProducts.map((product) => product.catId).toSet().toList()}');
+          }
+        } on DioException catch (dioError) {
+          DioExceptionHandler.fromDioError(dioError, showErrorSnakBar: true);
+          rethrow;
         }
-        log('Stored ${discountList.length} discounts locally in Hive.');
-      } else {
-        log('Unexpected response format: ${response.data}');
+      } catch (e) {
+        log('Error fetching products from API: $e');
       }
     } else {
-      log('Failed to fetch data: ${response.statusMessage}');
+      log('No internet. Fetching from Hive...');
     }
-  } catch (e) {
-    log('Error occurred while fetching discounts: $e');
+    NkCommonFunction.showErrorSnakBar(
+        'No internet connection. Unable to fetch data.');
+    try {
+      var productBox = await Hive.openBox('productBox');
+      var rawProductList = productBox.get('products');
+      log('Raw Product List from Hive: $rawProductList');
+
+      if (rawProductList is List) {
+        allProducts = rawProductList
+            .map((productJson) {
+              if (productJson is Map) {
+                return ProductModel.fromJson(
+                    ApiService().castToStringDynamic(productJson));
+              }
+              return null;
+            })
+            .whereType<ProductModel>()
+            .toList();
+      }
+      log('Fetched Products from Hive: ${allProducts.length}');
+    } catch (e) {
+      log('Error fetching from Hive: $e');
+    }
+    List<ProductModel> filteredProducts = allProducts.where((product) {
+      return product.scid == subCatId;
+    }).toList();
+
+    log('Filtered Products: ${filteredProducts.length}');
+    log('Filtered Product List: ${filteredProducts.map((e) => e.toJson()).toList()}');
+
+    return filteredProducts;
   }
-}
 
-
-
+  Future<void> fetchDiscounts(int companyId, String salesmanId) async {
+    const String url = 'http://16.50.232.153:3000/fetch_all_discount';
+    try {
+      Map<String, dynamic> requestPayload = {
+        "companyId": companyId,
+        "salesman_id": salesmanId,
+      };
+      log('Sending POST request to $url with payload: $requestPayload');
+      Response response = await dio1.post(url, data: requestPayload);
+      log('Response Status Code: ${response.statusCode}');
+      log('Response Data: ${response.data}');
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic> &&
+            response.data['data'] is List<dynamic>) {
+          List<dynamic> dataList = response.data['data'];
+          List<CustomerDiscountModel> discountList = dataList.map((data) {
+            return CustomerDiscountModel.fromJson(data);
+          }).toList();
+          log('Parsed ${discountList.length} discounts from the API response.');
+          final discountBox = Hive.box<CustomerDiscountModel>('discounts');
+          await discountBox.clear();
+          for (var discount in discountList) {
+            await discountBox.add(discount);
+          }
+          log('Stored ${discountList.length} discounts locally in Hive.');
+        } else {
+          log('Unexpected response format: ${response.data}');
+        }
+      } else {
+        log('Failed to fetch data: ${response.statusMessage}');
+      }
+    } catch (e) {
+      log('Error occurred while fetching discounts: $e');
+    }
+  }
 
   Future<bool> isInternetAvailable() async {
     try {
@@ -955,6 +960,8 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         log('Error fetching data from API: $e');
       }
     } else {
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Unable to fetch data.');
       log('No internet. Fetching from Hive...');
     }
     try {
@@ -1060,6 +1067,8 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         log('Error fetching data from API: $e');
       }
     } else {
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Unable to fetch data.');
       log('No internet connection. Fetching data from Hive...');
     }
     try {
@@ -1153,10 +1162,8 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       String? salesmanId,
       SearchModel? searchModel,
       PaginationModel? paginationModel}) async {
-    log(
-        "startDate++123++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
-    log(
-        "data post ++ ++$salesmanId : ${customerId ?? ''} : ${searchModel?.startDate} : ${searchModel?.endDate} : ${paginationModel?.limit.toString()} : ${paginationModel?.currentPage.toString()}");
+    log("startDate++123++${searchModel?.startDate ?? ''}:${searchModel?.endDate ?? ''}");
+    log("data post ++ ++$salesmanId : ${customerId ?? ''} : ${searchModel?.startDate} : ${searchModel?.endDate} : ${paginationModel?.limit.toString()} : ${paginationModel?.currentPage.toString()}");
 
     final response = await dio
         .postbycustom(
@@ -1232,6 +1239,8 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       log("Retrieving data from cache with key: $cacheKey");
       final cachedData = pendingPaymentBox.get(cacheKey);
       if (cachedData != null) {
+        NkCommonFunction.showErrorSnakBar(
+            'No internet connection. Unable to fetch data.');
         log("Cached data found: $cachedData");
         return PendingPaymentResponse.fromJson(
             ApiService().castToStringDynamic(cachedData));
@@ -1254,14 +1263,17 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         throw Exception(
             "Failed to fetch pending payment data. StatusCode: ${response.statusCode}");
       }
-    } on DioException catch (dioError) {
+    } on DioExceptionHandler catch (dioError) {
       log("DioException occurred: $dioError");
-      if (dioError.type == DioExceptionType.connectionError ||
-          dioError.type == DioExceptionType.unknown) {
+      if (dioError.errorMessage == DioExceptionType.connectionError ||
+          dioError.errorMessage == DioExceptionType.unknown) {
+        NkCommonFunction.showErrorSnakBar(
+            'No internet connection. Unable to fetch data.');
         log("Connection failed, attempting to fetch cached data for key: $cacheKey");
         final cachedData = pendingPaymentBox.get(cacheKey);
         if (cachedData != null) {
           log("Using cached data after connection failure: $cachedData");
+
           return PendingPaymentResponse.fromJson(
               ApiService().castToStringDynamic(cachedData));
         } else {
@@ -1384,7 +1396,6 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         }
       }
     } else {
-      // Offline: Fetch data from cache
       if (ordersBox.containsKey(cacheKey)) {
         log('Fetching data from cache due to no internet connection. Key: $cacheKey');
         final cachedData = ordersBox.get(cacheKey);
@@ -1393,6 +1404,8 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
         log('Cached Data (Parsed): ${OrderResponce.fromJson(castedData).toJson()}');
         return OrderResponce.fromJson(castedData);
       } else {
+        NkCommonFunction.showErrorSnakBar(
+            'No internet connection. Unable to fetch data.');
         log('No internet connection and no cached data available for key: $cacheKey');
         throw Exception("No internet connection and no cached data available.");
       }
@@ -1419,8 +1432,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     return OrderProcessInvoice.fromJson(response.data);
   }
 
- Future<FetchSpecificOrderInvoice> fetchSpecificOrder(
-      String orderId) async {
+  Future<FetchSpecificOrderInvoice> fetchSpecificOrder(String orderId) async {
     final response = await dio
         .postbycustom(ApiConstants.fetchSpecificOrder,
             data: FormData.fromMap({
@@ -1537,6 +1549,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
       rethrow;
     }
   }
+
   Future<Response> packedAndReadyAdd({
     String? cartId,
     String? orderId,
@@ -1575,7 +1588,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     return ButtonAction.fromJson(response.data);
   }
 
-    Future<ScheduleListResponse> fetchSchedule(
+  Future<ScheduleListResponse> fetchSchedule(
       String endDate, String startDate) async {
     final response = await dio
         .postbycustom(ApiConstants.fetchSchedule,
@@ -1670,7 +1683,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     return SalesmanTargetTableResponse.fromJson(response.data);
   }
 
-    Future<StaffTimesheetResponse> getTimeSheetData({
+  Future<StaffTimesheetResponse> getTimeSheetData({
     String? startDate,
     String? endDate,
   }) async {
@@ -1757,8 +1770,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     log("request: $request");
 
     final response = await dio
-        .postbycustom(ApiConstants.updateValueBasedTargetValue,
-            data: (request))
+        .postbycustom(ApiConstants.updateValueBasedTargetValue, data: (request))
         .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
@@ -1792,7 +1804,7 @@ Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     return response;
   }
 
-    Future<LeadResponce> getLeadsCustomerData(String salesManId,
+  Future<LeadResponce> getLeadsCustomerData(String salesManId,
       {PaginationModel? paginationModel}) async {
     final response = await dio
         .postbycustom(ApiConstants.fetchLeadsCustomer,

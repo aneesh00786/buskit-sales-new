@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_connectivity_error_handler.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_Indicator.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_indicator.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:flutter/material.dart';
 

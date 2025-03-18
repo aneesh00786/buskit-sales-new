@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
@@ -13,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -86,112 +88,116 @@ class ApiService {
     }
   }
 
-Future<ResponseModell> fetchDashboardData({
-  String? salesmanId,
-  String? startDate,
-  String? endDate,
-}) async {
-  final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  final String jsonString =
-      await SessionManager.getStringValue(SpString.spLogin);
-  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  final String createdToken = jsonMap['createdToken'];
-  const String url = '$_baseUrl${ApiConstants.dashboardList}';
-  final Map<String, dynamic> requestBody = {
-    "salesman_id": salesmanId,
-    "start_date": startDate,
-    "end_date": endDate,
-    "companyId": companyId,
-    "targetType": 1,
-  };
-  log('Start Date End Date $startDate/$endDate');
-  final dashboardBox = Hive.box('dashboardBox');
+  Future<ResponseModell> fetchDashboardData({
+    String? salesmanId,
+    String? startDate,
+    String? endDate,
+  }) async {
+    final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final String jsonString =
+        await SessionManager.getStringValue(SpString.spLogin);
+    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    final String createdToken = jsonMap['createdToken'];
+    const String url = '$_baseUrl${ApiConstants.dashboardList}';
+    final Map<String, dynamic> requestBody = {
+      "salesman_id": salesmanId,
+      "start_date": startDate,
+      "end_date": endDate,
+      "companyId": companyId,
+      "targetType": 1,
+    };
+    log('Start Date End Date $startDate/$endDate');
+    final dashboardBox = Hive.box('dashboardBox');
 
-  try {
-    final connectivity = await Connectivity().checkConnectivity();
-    if (connectivity == ConnectivityResult.none) {
+    try {
+      final connectivity = await Connectivity().checkConnectivity();
+      if (connectivity == ConnectivityResult.none) {
+        final cachedData = dashboardBox.get('dashboardData');
+        if (cachedData != null) {
+          try {
+            if (cachedData is Map<String, dynamic>) {
+              return _mapJsonToResponseModel(cachedData);
+            } else if (cachedData is List<dynamic>) {
+              final Map<String, dynamic> wrappedData = {'data': cachedData};
+              return _mapJsonToResponseModel(wrappedData);
+            } else {
+              throw Exception('Invalid cached data format.');
+            }
+          } catch (e) {
+            showErrorSnackBar(
+                'Failed to process cached data due to type mismatch.', 'Error');
+            throw Exception(
+                'Failed to process cached data due to type mismatch.');
+          }
+        } else {
+          showErrorSnackBar('No cached data available.', 'Error');
+          throw Exception('No cached data available.');
+        }
+      }
+
+      final response = await Dio().post(
+        url,
+        options: Options(
+          headers: {'Authorization': 'Bearer $createdToken'},
+        ),
+        data: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = response.data;
+        await dashboardBox.put(
+            'dashboardData', Map<String, dynamic>.from(jsonResponse));
+        return _mapJsonToResponseModel(jsonResponse);
+      } else if (response.statusCode == 400 || response.statusCode == 401) {
+        _handleTokenExpiration();
+        showErrorSnackBar(
+            'Session expired. Please login again.', 'Session Expired');
+        throw Exception('Session expired');
+      } else {
+        showErrorSnackBar(
+            'Failed to load data with status code: ${response.statusCode}',
+            'Error');
+        throw Exception(
+            'Failed to load data with status code: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
         try {
-          if (cachedData is Map<String, dynamic>) {
-            return _mapJsonToResponseModel(cachedData);
-          } else if (cachedData is List<dynamic>) {
-            final Map<String, dynamic> wrappedData = {'data': cachedData};
-            return _mapJsonToResponseModel(wrappedData);
+          if (cachedData is Map) {
+            final safeCachedData =
+                castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+            return _mapJsonToResponseModel(safeCachedData);
           } else {
+            showErrorSnackBar('Invalid cached data format.', 'Error');
             throw Exception('Invalid cached data format.');
           }
         } catch (e) {
           showErrorSnackBar(
               'Failed to process cached data due to type mismatch.', 'Error');
-          throw Exception('Failed to process cached data due to type mismatch.');
+          throw Exception(
+              'Failed to process cached data due to type mismatch.');
         }
       } else {
         showErrorSnackBar('No cached data available.', 'Error');
         throw Exception('No cached data available.');
       }
+    } catch (e) {
+      showErrorSnackBar(e.toString(), 'Error');
+      throw Exception(e.toString());
     }
-
-    final response = await Dio().post(
-      url,
-      options: Options(
-        headers: {'Authorization': 'Bearer $createdToken'},
-      ),
-      data: jsonEncode(requestBody),
-    );
-
-    if (response.statusCode == 200) {
-      final jsonResponse = response.data;
-      await dashboardBox.put(
-          'dashboardData', Map<String, dynamic>.from(jsonResponse));
-      return _mapJsonToResponseModel(jsonResponse);
-    } else if (response.statusCode == 400 || response.statusCode == 401) {
-      _handleTokenExpiration();
-      showErrorSnackBar('Session expired. Please login again.', 'Session Expired');
-      throw Exception('Session expired');
-    } else {
-      showErrorSnackBar(
-          'Failed to load data with status code: ${response.statusCode}', 'Error');
-      throw Exception(
-          'Failed to load data with status code: ${response.statusCode}');
-    }
-  } on DioException catch (e) {
-    final cachedData = dashboardBox.get('dashboardData');
-    if (cachedData != null) {
-      try {
-        if (cachedData is Map) {
-          final safeCachedData =
-              castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-          return _mapJsonToResponseModel(safeCachedData);
-        } else {
-          showErrorSnackBar('Invalid cached data format.', 'Error');
-          throw Exception('Invalid cached data format.');
-        }
-      } catch (e) {
-        showErrorSnackBar(
-            'Failed to process cached data due to type mismatch.', 'Error');
-        throw Exception('Failed to process cached data due to type mismatch.');
-      }
-    } else {
-      showErrorSnackBar('No cached data available.', 'Error');
-      throw Exception('No cached data available.');
-    }
-  } catch (e) {
-    showErrorSnackBar(e.toString(), 'Error');
-    throw Exception(e.toString());
   }
-}
 
-void showErrorSnackBar(String message, String title) {
-  Get.snackbar(
-    title,
-    message,
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.red.withOpacity(0.5),
-    colorText: Colors.white,
-    duration: const Duration(seconds: 5),
-  );
-}
+  void showErrorSnackBar(String message, String title) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red.withOpacity(0.5),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 5),
+    );
+  }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
     return input.map((key, value) {
@@ -749,7 +755,7 @@ void showErrorSnackBar(String message, String title) {
           data: adminDetails,
         );
       }
-    // ignore: empty_catches
+      // ignore: empty_catches
     } catch (e) {}
 
     throw Exception('Failed to fetch admin details from API and Hive.');
@@ -775,13 +781,8 @@ void showErrorSnackBar(String message, String title) {
       "page": page,
       "valueFromDw": valueFromDw,
     };
-
     final customerBox = Hive.box('customerBox');
-
     try {
-      log('API URL: $url');
-      log('Request Body: $requestBody');
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -817,8 +818,6 @@ void showErrorSnackBar(String message, String title) {
               .map((json) => YearsListOfAll.fromJson(json))
               .toList();
         }
-
-        // Save to Hive
         await customerBox.put('fetchCustomerData', jsonResponse);
 
         log('Customer List Length : ${customers.length}');
@@ -835,25 +834,24 @@ void showErrorSnackBar(String message, String title) {
       } else {
         throw Exception('Request failed with status: ${response.statusCode}');
       }
-    } catch (e) {
+    } on DioException catch (dioError) {
+      return Future.error(DioExceptionHandler.fromDioError(dioError));
+    }
+     catch (e) {
       log('Exception: $e');
-
-      // Check network status
       final isOnline = await ConnectivityService().isOnline();
       if (isOnline) {
         throw Exception('Failed to fetch data: $e');
       }
-
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Unable to fetch data.');
       log('Using cached data due to offline mode');
       final cachedData = customerBox.get('fetchCustomerData');
-
       if (cachedData != null) {
         final castedData = castToStringDynamic(cachedData);
-
         List<CustomerModelxx> customers = [];
         List<OrderTotalxx> orderTotal = [];
         List<YearsListOfAll> yearList = [];
-
         if (castedData['data'] is List) {
           customers = (castedData['data'] as List)
               .map((json) => CustomerModelxx.fromJson(json))
@@ -869,7 +867,6 @@ void showErrorSnackBar(String message, String title) {
               .map((json) => YearsListOfAll.fromJson(json))
               .toList();
         }
-
         return CustomerResponseModelxx(
           statusCode: castedData['statusCode'] ?? 0,
           status: castedData['status'] ?? false,

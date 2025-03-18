@@ -39,6 +39,7 @@ class LoginData {
   String? imagePath;
   String? createAt;
   String? token;
+  // ignore: non_constant_identifier_names
   int? company_id;
   String? createdToken;
   LoginData({

@@ -15,9 +15,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SyncButtonWidget extends StatefulWidget {
   final Function onSync;
 
-  const SyncButtonWidget({Key? key, required this.onSync}) : super(key: key);
+  const SyncButtonWidget({super.key, required this.onSync});
 
   @override
+  // ignore: library_private_types_in_public_api
   _SyncButtonWidgetState createState() => _SyncButtonWidgetState();
 }
 
@@ -82,7 +83,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
     if (_lastSyncTime == null) {
       return "";
     }
-    return "${DateFormat('dd/MM/yyyy : hh:mm a').format(_lastSyncTime!)}";
+    return DateFormat('dd/MM/yyyy : hh:mm a').format(_lastSyncTime!);
   }
 
   @override
@@ -171,14 +172,14 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
 
 void showNoInternetSnackBar(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
+    const SnackBar(
       content: Row(
         children: [
           Icon(Icons.warning_amber, color: Colors.red),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Text(
             'You are offline. Please check your connection.',
-            style: const TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black),
           ),
         ],
       ),

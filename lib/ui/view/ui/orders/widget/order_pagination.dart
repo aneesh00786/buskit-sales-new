@@ -6,13 +6,12 @@ import 'package:get/get.dart';
 class OrderPaginationWidget extends StatelessWidget {
   final OrderController orderController;
   
-  OrderPaginationWidget({super.key, required this.orderController});
+  const OrderPaginationWidget({super.key, required this.orderController});
 
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // Hide pagination if totalPages is 1
       if (orderController.totalPages.value <= 1) {
         return const SizedBox.shrink();
       }

@@ -2,6 +2,8 @@
 //
 //     final dashboardResponse2 = dashboardResponse2FromJson(jsonString);
 
+// ignore_for_file: constant_identifier_names
+
 import 'dart:convert';
 
 DashboardResponse2 dashboardResponse2FromJson(String str) =>

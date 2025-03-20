@@ -2,6 +2,8 @@
 //
 //     final customerData = customerDataFromJson(jsonString?);
 
+// ignore_for_file: constant_identifier_names
+
 import 'dart:convert';
 
 CustomerData customerDataFromJson(String? str) => CustomerData.fromJson(json.decode(str??''));

@@ -10,7 +10,7 @@ void showCustomToast(BuildContext context) {
             top: MediaQuery.of(context).viewInsets.top + 0.0,
             left: 0,
             right: 0,
-            child: Align(
+            child: const Align(
               alignment: Alignment.topCenter,
               child: Material(
                 color: Colors.transparent,

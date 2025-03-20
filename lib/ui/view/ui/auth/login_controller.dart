@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -108,43 +107,27 @@ class LoginController extends GetxController {
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         log("Fetching settings after login...");
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(seconds: 2));
         final settings = await _apiWorker.fetchAllSettings(companyId);
-        await Future.wait([ 
-          Provider.of<CustomersProvider>(context, listen: false)
-              .fetchCustomerData(),
-          customerAndOrderController.loadCustomer(),
-          productsController.fetchCategoryData(),
-          pendingPaymentController.loadOrderData(
-              chartIndex: 0, compId: companyId, isLogin: true),
-          staffController.loadSalesmanTargetForSelectedTab(
-              currentYear: currentYear.toString(),
-              selectedTabIndex: _tabController!.index + 1,
-              staffId: salesmanId),
-          leadsController.loadLeadsCustomerData,
-          leadsCustomerController.loadLeadsCustomerData,
-          leadsRejectedController.loadRejectedLeadsData,
-          calenderMapController
-              .fetchCalenderEvents(initialDay ?? DateTime.now()),
-          ApiWorker().fetchDiscounts(companyId, salesmanId),
-          CartDatabaseManager().getDraftItems(),
-        ]);
-        await ApiWorker()
-            .getRecentOrdersData(
-              searchModel: searchData,
-              orderStatus: 11,
-              isLogin: true,
-              startDate: firstDayString,
-              endDate: lastDayString,
-            )
-            .then((data) =>
-                log("Recent orders fetched successfully. Data: $data"))
-            .catchError((e) => log("Error while fetching recent orders: $e"));
-
+        await Future.delayed(const Duration(microseconds: 500));
+        await Provider.of<CustomersProvider>(context, listen: false)
+            .fetchCustomerData();
+        await customerAndOrderController.loadCustomer();
+        await Future.delayed(const Duration(microseconds: 500));
+        await productsController.fetchCategoryData();
+        await Future.delayed(const Duration(microseconds: 500));
+        await pendingPaymentController.loadOrderData(
+            chartIndex: 0, compId: companyId, isLogin: true);
+        await Future.delayed(const Duration(microseconds: 500));
+        await staffController.loadSalesmanTargetForSelectedTab(
+            currentYear: currentYear.toString(),
+            selectedTabIndex: _tabController!.index + 1,
+            staffId: salesmanId);
+        log('First Date $firstDayString LastDay String $lastDayString Salesman ID $salesmanId CompanyId $companyId');
+        await ApiWorker().fetchRecentOrderCount(startDate: '', endDate: '');
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }
-
         SubCategoryItem? subCategoryItem =
             productsController.getInitialSubCategoryIdAndName();
         if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
@@ -152,8 +135,33 @@ class LoginController extends GetxController {
         } else {
           log("No subcategory found. Products not fetched.");
         }
-
-        // Navigate to Home Screen
+        await Future.delayed(const Duration(microseconds: 500));
+        await leadsController.loadLeadsCustomerData;
+        await leadsCustomerController.loadLeadsCustomerData;
+        await leadsRejectedController.loadRejectedLeadsData;
+        await Future.delayed(const Duration(microseconds: 500));
+        ApiWorker()
+            .getRecentOrdersData(
+          searchModel: searchData,
+          orderStatus: 11,
+          isLogin: true,
+          startDate: firstDayString,
+          endDate: lastDayString,
+        )
+            .then((data) {
+          log("Recent orders fetched successfully. Data: $data");
+          if (data.pagination != null && data.pagination!.totalPages != null) {
+            orderController.totalPages.value =
+                data.pagination!.totalPages!.toInt();
+          } else {
+            log("Pagination details are missing.");
+            orderController.totalPages.value = 1;
+          }
+        }).catchError((e) {
+          log("Error while fetching recent orders: $e");
+        });
+        await calenderMapController
+            .fetchCalenderEvents(initialDay ?? DateTime.now());
         Get.offAllNamed(AppRoutes.home);
         return true;
       } else {
@@ -164,6 +172,124 @@ class LoginController extends GetxController {
       return false;
     }
   }
+  // Future<bool> performLogin(BuildContext context) async {
+  //   DateTime now = DateTime.now();
+  //   DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+  //   DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+  //   String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+  //   String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+  //   DateTime? initialDay;
+  //   try {
+  //     final requestBody = {
+  //       "email": emailController.text.removeAllWhitespace,
+  //       "password": passwordController.text,
+  //     };
+  //     log("Request Body: $requestBody");
+  //     loginResponce = await _apiWorker.loginApi(
+  //       emailController.text.removeAllWhitespace,
+  //       passwordController.text,
+  //     );
+  //     log("Response Body: ${loginResponce?.toJson()}");
+  //     log("StatusCode: ${loginResponce?.statusCode}");
+  //     if (loginResponce?.statusCode == 200) {
+  //       loginButtonController.success();
+  //       await SessionHelper().setLoginData(loginResponce!.data!);
+  //       final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //       final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //       log("Fetching settings after login...");
+  //       await Future.delayed(const Duration(seconds: 2));
+  //       final settings = await _apiWorker.fetchAllSettings(companyId);
+  //       await Future.delayed(const Duration(microseconds: 500));
+  //       await Provider.of<CustomersProvider>(context, listen: false)
+  //           .fetchCustomerData();
+  //       await customerAndOrderController.loadCustomer();
+  //       await Future.delayed(const Duration(microseconds: 500));
+  //       await productsController.fetchCategoryData();
+  //       await Future.delayed(const Duration(microseconds: 500));
+  //       await pendingPaymentController.loadOrderData(
+  //           chartIndex: 0, compId: companyId, isLogin: true);
+  //       await Future.delayed(const Duration(microseconds: 500));
+  //       await staffController.loadSalesmanTargetForSelectedTab(
+  //           currentYear: currentYear.toString(),
+  //           selectedTabIndex: _tabController!.index + 1,
+  //           staffId: salesmanId);
+  //       log('First Date $firstDayString LastDay String $lastDayString Salesman ID $salesmanId CompanyId $companyId');
+  //       await ApiWorker().fetchRecentOrderCount(startDate: '', endDate: '');
+  //       if (settings != null) {
+  //         await SessionHelper().setSettingsData(settings);
+  //       }
+  //       SubCategoryItem? subCategoryItem =
+  //           productsController.getInitialSubCategoryIdAndName();
+  //       if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
+  //         await productsController.fetchProducts(subCategoryItem.id!);
+  //       } else {
+  //         log("No subcategory found. Products not fetched.");
+  //       }
+  //       await Future.delayed(const Duration(microseconds: 500));
+  //       await leadsController.loadLeadsCustomerData;
+  //       await leadsCustomerController.loadLeadsCustomerData;
+  //       await leadsRejectedController.loadRejectedLeadsData;
+  //       await Future.delayed(const Duration(microseconds: 500));
+  //       ApiWorker()
+  //           .getRecentOrdersData(
+  //         searchModel: searchData,
+  //         orderStatus: 11,
+  //         isLogin: true,
+  //         startDate: firstDayString,
+  //         endDate: lastDayString,
+  //       )
+  //           .then((data) {
+  //         log("Recent orders fetched successfully. Data: $data");
+  //         if (data.pagination != null && data.pagination!.totalPages != null) {
+  //           orderController.totalPages.value =
+  //               data.pagination!.totalPages!.toInt();
+  //         } else {
+  //           log("Pagination details are missing.");
+  //           orderController.totalPages.value = 1;
+  //         }
+  //       }).catchError((e) {
+  //         log("Error while fetching recent orders: $e");
+  //       });
+  //       await calenderMapController
+  //           .fetchCalenderEvents(initialDay ?? DateTime.now());
+  //       Get.offAllNamed(AppRoutes.home);
+  //       return true;
+  //     } else if (loginResponce?.statusCode == 422 ||
+  //         loginResponce?.statusCode == 409) {
+  //       return false;
+  //     } else if (loginResponce?.statusCode == 401) {
+  //       return false;
+  //     } else {
+  //       showErrorDialog(
+  //         'Login Error',
+  //         'An unexpected error occurred. Please try again.',
+  //       );
+  //     }
+
+  //     return false;
+  //   } catch (e) {
+  //     loginButtonController.error();
+  //     loginButtonController.reset();
+
+  //     if (e is DioException) {
+  //       log("DioException: ${e.response?.data}");
+  //       Get.snackbar(
+  //         'Login Error',
+  //         e.response?.data['message'] ?? e.message,
+  //         snackPosition: SnackPosition.BOTTOM,
+  //       );
+  //     } else {
+  //       log("Login Error: $e");
+  //       Get.snackbar(
+  //         'Login Error',
+  //         e.toString(),
+  //         snackPosition: SnackPosition.BOTTOM,
+  //       );
+  //     }
+
+  //     return false;
+  //   }
+  // }
 
   void _handleException(Object e) {
     log("Login Error: $e");

@@ -167,27 +167,20 @@ class PendingPaymentChart extends StatelessWidget {
   final Function(int) onBarTapped;
 
   const PendingPaymentChart({
-    Key? key,
+    super.key,
     required this.chartController,
     required this.onBarTapped,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final barData = chartController;
 
-      print("Total Amount: ${barData.totalAmount.value}");
-      print("Nearly Due Amount: ${barData.nearlyDueAmount.value}");
-      print("Due Amount: ${barData.dueAmount.value}");
-      print("Overdue Amount: ${barData.overdueAmount.value}");
-
       final maxBarValue = max(
         max(barData.totalAmount.value, barData.nearlyDueAmount.value),
         max(barData.dueAmount.value, barData.overdueAmount.value),
       );
-
-      print("Max Bar Value: $maxBarValue");
 
       final int magnitude =
           pow(10, maxBarValue.toInt().toString().length - 1).toInt();
@@ -219,8 +212,6 @@ class PendingPaymentChart extends StatelessWidget {
       } else {
         dynamicInterval = 10;
       }
-
-      print("Dynamic Max Y: $dynamicMaxY");
 
       if (chartController.orderDataList.isEmpty) {
         return const Center(child: CircularProgressIndicator());
@@ -279,9 +270,9 @@ class PendingPaymentChart extends StatelessWidget {
                   },
                 ),
               ),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             gridData: FlGridData(
               show: true,
@@ -325,8 +316,6 @@ class PendingPaymentChart extends StatelessWidget {
                           : touchedIndex == 2
                               ? barData.dueAmount.value
                               : barData.overdueAmount.value;
-
-                  print("Bar tapped: Index $touchedIndex, Value: $tappedValue");
 
                   if (tappedValue > 0) {
                     onBarTapped(touchedIndex);

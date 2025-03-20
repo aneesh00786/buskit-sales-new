@@ -8,14 +8,13 @@ import 'package:get/get.dart';
 class ProductMiddelWidget extends StatelessWidget {
   final ProductsController productsController;
 
-  ProductMiddelWidget({Key? key, required this.productsController})
-      : super(key: key);
+  const ProductMiddelWidget({super.key, required this.productsController});
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       log('isReached state: ${productsController.isReached.value}');
       return productsController.isReached.value
-          ? CustomerDachScreen(
+          ? const CustomerDachScreen(
               isFromCalendar: true,
             )
           : OrderTaking(

@@ -97,7 +97,6 @@ class ProductProvider extends ChangeNotifier {
   Future<void> fetchCategories() async {
     _isLoading = true;
     notifyListeners();
-    print('old fetch categpries');
     try {
       final categoryResponse = await _apiService.fetchCategories();
       if (categoryResponse.status) {

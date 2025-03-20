@@ -99,9 +99,7 @@ class Currency {
         decimals: json["decimals"] != null
             ? int.tryParse(json["decimals"].toString())
             : null,
-        cashRounding: json["cashRounding"] != null
-            ? json["cashRounding"].toDouble()
-            : null,
+        cashRounding: json["cashRounding"]?.toDouble(),
       );
 
   Map<String, dynamic> toJson() => {

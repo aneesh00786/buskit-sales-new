@@ -12,35 +12,26 @@ class LeadsTabBar extends StatefulWidget {
   final CustomersController leadsCustomerController;
   final RejectedLeadsController  rejectedLeadsController;
 
-  LeadsTabBar({required this.leadController, required this.leadsCustomerController,  required this.rejectedLeadsController});
+  const LeadsTabBar({super.key, required this.leadController, required this.leadsCustomerController,  required this.rejectedLeadsController});
 
   @override
+  // ignore: library_private_types_in_public_api
   _LeadsTabBarState createState() => _LeadsTabBarState();
 }
 
 class _LeadsTabBarState extends State<LeadsTabBar> {
   int _selectedTabIndex = 0;
   final List<String> _tabs = ['Leads', 'Customers', 'Rejected Leads'];
-
-  // Function to handle chart tap and update the tabs
-  void _onBarTapped(int index) {
-    setState(() {
-      _selectedTabIndex = index;  // Select the tab that was tapped
-    });
-    // widget.leadController.updateTabIndex(index); // Update the tab index in the controller
-  }
-
-  // Function to return the screen based on selected tab
   Widget _getTabContent() {
     switch (_selectedTabIndex) {
       case 0:
         return LeadBottomScreen(leadsController: widget.leadController);
       case 1:
-        return LeadCustomerScreen(leadsCustomerController: widget.leadsCustomerController,);  // Replace with your Customers screen widget
+        return LeadCustomerScreen(leadsCustomerController: widget.leadsCustomerController,);
       case 2:
-        return LeadRejectedScreen(rejectedLeadsController: widget.rejectedLeadsController,);  // Replace with your Rejected Leads screen widget
+        return LeadRejectedScreen(rejectedLeadsController: widget.rejectedLeadsController,); 
       default:
-        return LeadBottomScreen(leadsController: widget.leadController); // Default case
+        return LeadBottomScreen(leadsController: widget.leadController); 
     }
   }
 
@@ -48,7 +39,7 @@ class _LeadsTabBarState extends State<LeadsTabBar> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 40,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -67,7 +58,7 @@ class _LeadsTabBarState extends State<LeadsTabBar> {
                       left: 16, right: 16, top: 8, bottom: 0),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.cyan : Colors.transparent,
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
                     ),

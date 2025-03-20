@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -44,7 +46,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
       endDate,
     );
 
-    print("Schedule List: ${widget.staffController.scheduleList}");
 
     _loadVisitsForDay(_selectedDay as DateTime);
   }
@@ -58,7 +59,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
   }
 
   void _loadVisitsForDay(DateTime day) {
-    print("Loading visits for day: ${day.toIso8601String()}");
 
     final scheduleDataForDate =
         widget.staffController.scheduleList.firstWhereOrNull((data) {
@@ -78,7 +78,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
     });
 
     if (scheduleDataForDate != null) {
-      print("Found schedule data for date: ${scheduleDataForDate.start}");
 
       if (scheduleDataForDate.customer != null &&
           scheduleDataForDate.customer!.isNotEmpty) {
@@ -88,16 +87,12 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
           return [title, visitDetails];
         }).toList();
       } else {
-        print("No customers found for date: ${day.toIso8601String()}");
         visits = [];
       }
 
       appointmentCount = scheduleDataForDate.customer?.length ?? 0;
 
-      print("Updated visits: $visits");
-      print("Total appointment count: $appointmentCount");
     } else {
-      print("No schedule data found for date: ${day.toIso8601String()}");
       visits = [];
       appointmentCount = 0;
     }

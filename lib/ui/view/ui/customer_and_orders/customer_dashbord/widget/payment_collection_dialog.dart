@@ -1,3 +1,5 @@
+  // ignore_for_file: deprecated_member_use
+
   import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -9,7 +11,7 @@ import 'package:flutter/material.dart';
 
 void paymentCollectionDialog(
       BuildContext context, List<RecentOrder> selectedOrders) {
-    List<num?> _newOrderTotal =
+    List<num?> newOrderTotal =
         selectedOrders.map((order) => order.orderTotal).toList();
 
     // List<int?> _newOrderTotal = [];
@@ -21,7 +23,7 @@ void paymentCollectionDialog(
 
     // Function to calculate the total balance amount from _newOrderTotal
     double calculateTotalBalanceAmount() {
-      return _newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
+      return newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
     }
 
     // Calculate the initial total balance amount
@@ -56,9 +58,9 @@ void paymentCollectionDialog(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Payment',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontFamily: 'Poppins_Regular',
@@ -135,12 +137,12 @@ void paymentCollectionDialog(
                                         BorderRadius.all(Radius.circular(4.0)),
                                   ),
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 5,
                                     ),
                                     child: Text(
                                       getStatusName(order.orderStatus),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
                                       ),
                                     ),
@@ -158,7 +160,7 @@ void paymentCollectionDialog(
                                     orderTotal: order.orderTotal,
                                     onValueChanged: (newValue, index) {
                                      // setState(() {
-                                        _newOrderTotal[index] =
+                                        newOrderTotal[index] =
                                             int.tryParse(newValue);
                                         totalBalanceAmount =
                                             calculateTotalBalanceAmount();
@@ -185,7 +187,7 @@ void paymentCollectionDialog(
                                       ),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(1.0),
+                                      padding: const EdgeInsets.all(1.0),
                                       child: Icon(
                                         order.paymentStatus == 0
                                             ? Icons.close
@@ -212,7 +214,7 @@ void paymentCollectionDialog(
                         child: DataTable(
                           dataRowHeight: 35,
                           headingRowHeight: 30,
-                          columns: [
+                          columns: const [
                             DataColumn(
                               label: DialogTableHeaderText(
                                 text: 'Payment Method',
@@ -247,7 +249,7 @@ void paymentCollectionDialog(
                             DataRow(
                               cells: [
                                 DataCell(
-                                  Container(
+                                  SizedBox(
                                     height: 35,
                                     width: MediaQuery.of(context).size.width *
                                         0.15,
@@ -262,19 +264,20 @@ void paymentCollectionDialog(
                                           borderRadius:
                                               BorderRadius.circular(10.0),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding: const EdgeInsets.symmetric(
                                             horizontal: 8.0),
                                       ),
                                       dropdownColor: Colors.white,
-                                      items: [
+                                      items: const [
                                         DropdownMenuItem(
-                                            child: Text('Cash'), value: 'Cash'),
+                                            value: 'Cash',
+                                            child: Text('Cash')),
                                         DropdownMenuItem(
-                                            child: Text('Cheque'),
-                                            value: 'Cheque'),
+                                            value: 'Cheque',
+                                            child: Text('Cheque')),
                                         DropdownMenuItem(
-                                            child: Text('Bank Transfer'),
-                                            value: 'Bank Transfer'),
+                                            value: 'Bank Transfer',
+                                            child: Text('Bank Transfer')),
                                       ],
                                       onChanged: (value) {
                                         if (value != null) {
@@ -283,10 +286,10 @@ void paymentCollectionDialog(
                                           //});
                                         }
                                       },
-                                      hint: Text('Select'),
-                                      style: TextStyle(
+                                      hint: const Text('Select'),
+                                      style: const TextStyle(
                                           fontSize: 12, color: Colors.black),
-                                      icon: Icon(Icons.arrow_drop_down,
+                                      icon: const Icon(Icons.arrow_drop_down,
                                           size: 24.0, color: Colors.black),
                                       iconSize: 24.0,
                                     ),
@@ -312,10 +315,10 @@ void paymentCollectionDialog(
                                         hintStyle: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey.shade600),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding: const EdgeInsets.symmetric(
                                             vertical: 10.0, horizontal: 10.0),
                                       ),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.black,
                                       ),
@@ -340,10 +343,10 @@ void paymentCollectionDialog(
                                         hintStyle: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey.shade600),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding: const EdgeInsets.symmetric(
                                             vertical: 10.0, horizontal: 10.0),
                                       ),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.black,
                                       ),
@@ -368,10 +371,10 @@ void paymentCollectionDialog(
                                         hintStyle: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey.shade600),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding: const EdgeInsets.symmetric(
                                             vertical: 10.0, horizontal: 10.0),
                                       ),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.black,
                                       ),
@@ -384,10 +387,6 @@ void paymentCollectionDialog(
                                       onPressed: () {
                                         // Save or submit action
                                       },
-                                      child: Text(
-                                        'Submit',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
                                       style: ElevatedButton.styleFrom(
                                         shadowColor: Colors.transparent,
                                         backgroundColor:
@@ -396,6 +395,10 @@ void paymentCollectionDialog(
                                           borderRadius:
                                               BorderRadius.circular(10.0),
                                         ),
+                                      ),
+                                      child: const Text(
+                                        'Submit',
+                                        style: TextStyle(fontSize: 14),
                                       ),
                                     ),
                                   ),

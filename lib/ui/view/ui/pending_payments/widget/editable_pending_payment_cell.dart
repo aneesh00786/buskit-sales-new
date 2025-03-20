@@ -1,3 +1,4 @@
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -14,7 +15,8 @@ class EditablePendingPaymentCell extends StatefulWidget {
   final num? receivable;
   final int? amountEdited;
 
-  const EditablePendingPaymentCell({super.key, 
+  const EditablePendingPaymentCell({
+    super.key,
     required this.initialValue,
     required this.onValueChanged,
     required this.index,
@@ -71,23 +73,16 @@ class _EditablePendingPaymentCellState
       );
 
       if (response.statusCode == 200) {
-        print('API call successful');
-      } else {
-        print('API call failed with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error making API call: $e');
-    }
+      } else {}
+    // ignore: empty_catches
+    } catch (e) {}
 
     widget.onValueChanged(_controller.text, widget.index);
   }
 
   @override
   Widget build(BuildContext context) {
-    // bool isReceivableDifferent = widget.receivable != null &&
-    //     widget.receivable.toString() != widget.initialValue;
     bool isReceivableDifferent = widget.amountEdited == 1 ? true : false;
-
     return Row(
       children: [
         Text(addCurrencySymbol()),
@@ -102,7 +97,6 @@ class _EditablePendingPaymentCellState
             },
             decoration: InputDecoration(
               filled: true,
-              // Fill with green if receivable is different from orderTotal or if value has changed
               fillColor: isChanged || isReceivableDifferent
                   ? Colors.green[100]
                   : Colors.white,
@@ -110,7 +104,6 @@ class _EditablePendingPaymentCellState
                 borderSide: BorderSide(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              // Display receivable in hintText if it's not null, otherwise display initialValue
               hintText: widget.receivable != null
                   ? widget.receivable.toString()
                   : widget.initialValue,

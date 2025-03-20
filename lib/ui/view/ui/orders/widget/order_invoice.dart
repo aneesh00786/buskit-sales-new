@@ -15,7 +15,7 @@ class OrderProcessInvoiceDialog extends StatefulWidget {
   SpecificOrderData? specificData;
   final int selectedTabIndex;
   final OrderController orderController;
-  OrderProcessInvoiceDialog({
+  OrderProcessInvoiceDialog({super.key, 
     this.invoiceData,
     this.specificData,
     required this.selectedTabIndex,
@@ -74,7 +74,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           widget.selectedTabIndex == 5
                               ? 'INVOICE DETAILS'
                               : 'ORDER DETAILS',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -130,6 +130,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                 children: [
                   Expanded(
                     child: DataTable(
+                      // ignore: deprecated_member_use
                       dataRowHeight: 40,
                       headingRowHeight: 40,
                       horizontalMargin: 20,
@@ -242,7 +243,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                           .inclTax ==
                                                       "incl_tax"
                                                   ? [
-                                                      TextSpan(
+                                                      const TextSpan(
                                                         text: "  (Incl. Tax)",
                                                         style: TextStyle(
                                                             fontSize: 10),

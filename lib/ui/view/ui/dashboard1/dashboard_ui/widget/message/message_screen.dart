@@ -6,7 +6,7 @@ class MessageScreen extends StatelessWidget {
   final int customerIndex;
   final DashBoardController checkBoxController = Get.find();
 
-  MessageScreen({required this.customerIndex});
+  MessageScreen({super.key, required this.customerIndex});
 
   final TextEditingController _messageController = TextEditingController();
 
@@ -34,8 +34,8 @@ class MessageScreen extends StatelessWidget {
                         ? Alignment.centerRight
                         : Alignment.centerLeft,
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                      padding: EdgeInsets.all(10),
+                      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: message.isSentByMe
                             ? Colors.green[200]
@@ -65,7 +65,7 @@ class MessageScreen extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
                     if (_messageController.text.trim().isNotEmpty) {
                       checkBoxController.sendMessage(

@@ -124,13 +124,10 @@ class ApiService {
               throw Exception('Invalid cached data format.');
             }
           } catch (e) {
-            showErrorSnackBar(
-                'Failed to process cached data due to type mismatch.', 'Error');
             throw Exception(
                 'Failed to process cached data due to type mismatch.');
           }
         } else {
-          showErrorSnackBar('No cached data available.', 'Error');
           throw Exception('No cached data available.');
         }
       }
@@ -150,17 +147,12 @@ class ApiService {
         return _mapJsonToResponseModel(jsonResponse);
       } else if (response.statusCode == 400 || response.statusCode == 401) {
         _handleTokenExpiration();
-        showErrorSnackBar(
-            'Session expired. Please login again.', 'Session Expired');
         throw Exception('Session expired');
       } else {
-        showErrorSnackBar(
-            'Failed to load data with status code: ${response.statusCode}',
-            'Error');
         throw Exception(
             'Failed to load data with status code: ${response.statusCode}');
       }
-    } on DioException catch (e) {
+    } on DioException {
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
         try {
@@ -169,34 +161,18 @@ class ApiService {
                 castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
             return _mapJsonToResponseModel(safeCachedData);
           } else {
-            showErrorSnackBar('Invalid cached data format.', 'Error');
             throw Exception('Invalid cached data format.');
           }
         } catch (e) {
-          showErrorSnackBar(
-              'Failed to process cached data due to type mismatch.', 'Error');
           throw Exception(
               'Failed to process cached data due to type mismatch.');
         }
       } else {
-        showErrorSnackBar('No cached data available.', 'Error');
         throw Exception('No cached data available.');
       }
     } catch (e) {
-      showErrorSnackBar(e.toString(), 'Error');
       throw Exception(e.toString());
     }
-  }
-
-  void showErrorSnackBar(String message, String title) {
-    Get.snackbar(
-      title,
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.withOpacity(0.5),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 5),
-    );
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
@@ -836,8 +812,7 @@ class ApiService {
       }
     } on DioException catch (dioError) {
       return Future.error(DioExceptionHandler.fromDioError(dioError));
-    }
-     catch (e) {
+    } catch (e) {
       log('Exception: $e');
       final isOnline = await ConnectivityService().isOnline();
       if (isOnline) {

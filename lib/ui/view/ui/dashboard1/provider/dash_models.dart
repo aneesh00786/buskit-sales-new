@@ -165,6 +165,7 @@ class Salesmanvn {
     );
   }
 }
+
 class Revenuee {
   List<BookingRevenueDatum>? bookingRevenueData;
   List<OrderRevenueDatum>? orderRevenueData;
@@ -369,16 +370,16 @@ class ResponseModell {
   final OrderCountListt? orderCountList;
 
   ResponseModell({
-     this.statusCode,
-     this.status,
-     this.message,
-     this.allCategory,
-     this.categoryPerformance,
-     this.revenue,
-     this.collection,
-     this.delivery,
-     this.topSellingProducts,
-     this.orderCountList,
+    this.statusCode,
+    this.status,
+    this.message,
+    this.allCategory,
+    this.categoryPerformance,
+    this.revenue,
+    this.collection,
+    this.delivery,
+    this.topSellingProducts,
+    this.orderCountList,
   });
 
   factory ResponseModell.fromJson(Map<String, dynamic> json) {
@@ -756,6 +757,7 @@ class TopSellingTotalPrice {
         "times": times,
       };
 }
+
 class Customer {
   dynamic cartId;
   String? customerId;
@@ -1095,31 +1097,31 @@ class DeliveryOrder {
 }
 
 class OrderDetails {
-    num? orderTotal;
-    DateTime? orderCreatAt;
-    String? orderId;
-    int? orderStatus;
-    String? businessName;
-    String? invoiceId;
-    num? orderProcessing;
-    num? packedForDelivery;
-    num? deliverd;
-    num? outForDelivery;
+  num? orderTotal;
+  DateTime? orderCreatAt;
+  String? orderId;
+  int? orderStatus;
+  String? businessName;
+  String? invoiceId;
+  num? orderProcessing;
+  num? packedForDelivery;
+  num? deliverd;
+  num? outForDelivery;
 
-    OrderDetails({
-        this.orderTotal,
-        this.orderCreatAt,
-        this.orderId,
-        this.orderStatus,
-        this.businessName,
-        this.invoiceId,
-        this.orderProcessing,
-        this.packedForDelivery,
-        this.deliverd,
-        this.outForDelivery,
-    });
+  OrderDetails({
+    this.orderTotal,
+    this.orderCreatAt,
+    this.orderId,
+    this.orderStatus,
+    this.businessName,
+    this.invoiceId,
+    this.orderProcessing,
+    this.packedForDelivery,
+    this.deliverd,
+    this.outForDelivery,
+  });
 
-    factory OrderDetails.fromJson(Map<String, dynamic> json) => OrderDetails(
+  factory OrderDetails.fromJson(Map<String, dynamic> json) => OrderDetails(
         orderTotal: json["order_total"],
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
         orderId: json["order_id"],
@@ -1130,9 +1132,9 @@ class OrderDetails {
         packedForDelivery: json["packed_for_delivery"],
         deliverd: json["deliverd"],
         outForDelivery: json["outForDelivery"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "order_total": orderTotal,
         "order_creat_at": orderCreatAt!.toIso8601String(),
         "order_id": orderId,
@@ -1143,7 +1145,7 @@ class OrderDetails {
         "packed_for_delivery": packedForDelivery,
         "deliverd": deliverd,
         "outForDelivery": outForDelivery,
-    };
+      };
 }
 
 class Collection {
@@ -1608,9 +1610,9 @@ class OverdueCollection {
     };
   }
 }
+
 String getFormattedOrderCreatAt(dynamic value) {
   if (value == null || value.toString().isEmpty) {
-    print('Error: Invalid date value');
     return '';
   }
 
@@ -1621,7 +1623,6 @@ String getFormattedOrderCreatAt(dynamic value) {
     DateTime parsedDate = DateTime.parse(value.toString());
     return DateFormat('dd-MM-yyyy').format(parsedDate);
   } catch (e) {
-    print('Error parsing date: $e');
     return '';
   }
 }
@@ -1838,6 +1839,7 @@ class AdminMessageRequest {
     };
   }
 }
+
 class OrdersDash {
   final int id;
   final String orderId;
@@ -1960,7 +1962,7 @@ class OrdersDash {
       receivedAmountDate: _parseNullableDateTime(json['received_amount_date']),
       deliveryDate: _parseNullableDateTime(json['delivery_datetime']),
       checkDueDate: _parseDateTime(json['check_due_date']),
-      checkNumber: json['check_number'] != null ? json['check_number'] : 0,
+      checkNumber: json['check_number'] ?? 0,
       transactionDate: _parseNullableDateTime(json['transaction_date']),
       transactionDetails: json['transaction_details'] ?? '',
       fullname: json['fullname'] ?? '',
@@ -1982,9 +1984,8 @@ class OrdersDash {
       if (dateString != null && dateString.isNotEmpty) {
         return DateTime.parse(dateString);
       }
-    } catch (e) {
-      print('Failed to parse date: $dateString, error: $e');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
     return DateTime(1970, 1, 1); // Default fallback date
   }
 
@@ -1993,9 +1994,8 @@ class OrdersDash {
       if (dateString != null && dateString.isNotEmpty) {
         return DateTime.parse(dateString);
       }
-    } catch (e) {
-      print('Failed to parse nullable date: $dateString, error: $e');
-    }
+    // ignore: empty_catches
+    } catch (e) {}
     return null; // Default fallback for nullable dates
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -69,6 +71,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
+      // ignore: avoid_print
       print("Error fetching settings: $e");
     }
   }
@@ -77,7 +80,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     final weeklyType = await ApiWorker().getWeeklyType();
     staffController.isWeekly.value = weeklyType == "true";
     log("Weekly state : $weeklyType : ${staffController.isWeekly.value}");
-    Future.delayed(Duration(seconds: 1));
+    Future.delayed(const Duration(seconds: 1));
   }
 
   @override
@@ -197,7 +200,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                     value: year,
                                     child: Text(
                                       year,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.grey,
                                       ),
                                     ),
@@ -218,7 +221,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                     );
                                   }
                                 },
-                                underline: SizedBox(),
+                                underline: const SizedBox(),
                                 iconEnabledColor: Colors.black,
                               ),
                             ),
@@ -228,7 +231,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     ],
                   ),
                 ),
-                NotificationWidget(
+                const NotificationWidget(
                   startDate: '',
                   endDate: '',
                 ),
@@ -252,13 +255,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         .withOpacity(0.2),
                     blurRadius: 5,
                     spreadRadius: 5,
-                    offset: Offset(4, 4),
+                    offset: const Offset(4, 4),
                   ),
                 ],
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: Color.fromARGB(255, 205, 204, 204),
+                  color: const Color.fromARGB(255, 205, 204, 204),
                   width: 0.5,
                 ),
               ),
@@ -433,13 +436,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   .withOpacity(0.2),
                               blurRadius: 5,
                               spreadRadius: 5,
-                              offset: Offset(4, 4),
+                              offset: const Offset(4, 4),
                             ),
                           ],
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(25),
                           border: Border.all(
-                            color: Color.fromARGB(255, 205, 204, 204),
+                            color: const Color.fromARGB(255, 205, 204, 204),
                             width: 0.5,
                           ),
                         ),
@@ -470,13 +473,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                               .withOpacity(0.2),
                           blurRadius: 4,
                           spreadRadius: 5,
-                          offset: Offset(4, 4),
+                          offset: const Offset(4, 4),
                         ),
                       ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Color.fromARGB(255, 205, 204, 204),
+                        color: const Color.fromARGB(255, 205, 204, 204),
                         width: 0.5,
                       ),
                     ),
@@ -511,7 +514,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         builder: (context) {
           return Obx(() {
             if (staffController.isTopDataLoading.value) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
@@ -539,8 +542,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 
             return Padding(
               padding: isFull
-                  ? EdgeInsets.all(10)
-                  : EdgeInsets.symmetric(horizontal: 150),
+                  ? const EdgeInsets.all(10)
+                  : const EdgeInsets.symmetric(horizontal: 150),
               child: Row(
                 children: [
                   Expanded(

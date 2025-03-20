@@ -185,8 +185,8 @@ class CustomerDashbordController extends GetxController {
       for (var item in categoryData) ...[
         StackedLine100Series<Month, String>(
             dataSource: item.month,
-            xValueMapper: (Month sales, _) => NKDateUtils.months[_],
-            yValueMapper: (Month sales, _) => sales.totalCount,
+            xValueMapper: (Month sales, number) => NKDateUtils.months[number],
+            yValueMapper: (Month sales, number) => sales.totalCount,
             name: item.category,
             markerSettings: const MarkerSettings(isVisible: true))
       ]

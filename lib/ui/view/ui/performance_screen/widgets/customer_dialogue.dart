@@ -20,7 +20,7 @@ Widget buildCustomersDialogContent(
           staffController.customerDatas.value!.data == null ||
           staffController.customerDatas.value!.data!.isEmpty)
       ? [
-          TableViewRow(
+          const TableViewRow(
             height: 60,
             cells: [
               TableViewCell(child: Text("Record Not Found")),
@@ -46,7 +46,7 @@ Widget buildCustomersDialogContent(
                           ? NetworkImage(customer.imageUrl!)
                           : null,
                       child: customer.imageUrl == null
-                          ? Icon(Icons.person, size: 20, color: Colors.grey)
+                          ? const Icon(Icons.person, size: 20, color: Colors.grey)
                           : null,
                     ),
                     const SizedBox(width: 8),
@@ -113,8 +113,8 @@ Widget buildCustomersDialogContent(
       return Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
@@ -122,15 +122,15 @@ Widget buildCustomersDialogContent(
             ),
             height: headerHeight,
           ),
-          Container(
+          SizedBox(
             width: availableWidth,
             height: containerHeight,
             child: Column(
               children: [
                 Container(
                   height: headerHeight,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
                     ),

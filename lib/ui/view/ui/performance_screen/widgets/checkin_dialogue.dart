@@ -21,7 +21,7 @@ Widget buildCheckInOutDialogContent(
           staffController.checkInOutData.value!.data == null ||
           staffController.checkInOutData.value!.data!.isEmpty)
       ? [
-          TableViewRow(
+          const TableViewRow(
             height: 60,
             cells: [
               TableViewCell(child: Text("Record Not Found")),
@@ -41,9 +41,9 @@ Widget buildCheckInOutDialogContent(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 20,
-                      backgroundColor: const Color(0xffe6ecff),
+                      backgroundColor: Color(0xffe6ecff),
                       child: Icon(Icons.person, size: 20, color: Colors.blue),
                     ),
                     const SizedBox(width: 8),
@@ -119,8 +119,8 @@ return LayoutBuilder(
       children: [
         // Header Background
         Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
             ),
@@ -129,7 +129,7 @@ return LayoutBuilder(
           height: headerHeight,
         ),
         // Table Content
-        Container(
+        SizedBox(
           width: availableWidth,
           height: containerHeight,
           child: Column(
@@ -137,8 +137,8 @@ return LayoutBuilder(
               // Table Header
               Container(
                 height: headerHeight,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                   ),
@@ -177,7 +177,7 @@ return LayoutBuilder(
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
@@ -217,8 +217,7 @@ return LayoutBuilder(
                                       padding: const EdgeInsets.all(10),
                                       child: cell.child,
                                     ),
-                                  ))
-                              .toList(),
+                                  )),
                         ],
                       ),
                     );

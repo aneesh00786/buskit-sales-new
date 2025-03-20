@@ -6,9 +6,9 @@ class OptionsWidget extends StatelessWidget {
   final List<OptionData> options;
 
   const OptionsWidget({
-    Key? key,
+    super.key,
     required this.options,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

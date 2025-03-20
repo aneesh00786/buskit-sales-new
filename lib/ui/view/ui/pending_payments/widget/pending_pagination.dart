@@ -1,8 +1,11 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
 class PaginationWidget extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _PaginationWidgetState createState() => _PaginationWidgetState();
 }
 
@@ -29,19 +32,19 @@ class _PaginationWidgetState extends State<PaginationWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: totalPages > 0 ? totalPages * 62.0 : 0, // Adjust width based on pages
+      width: totalPages > 0 ? totalPages * 62.0 : 0,
       decoration: BoxDecoration(
-        color: primaryColor, // Background color
+        color: primaryColor, 
         borderRadius: BorderRadius.circular(3.0),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             height: 40,
             width: 40,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.keyboard_double_arrow_left,
                 size: 20,
                 color: Colors.white,
@@ -84,11 +87,11 @@ class _PaginationWidgetState extends State<PaginationWidget> {
               }),
             ),
           ),
-          Container(
+          SizedBox(
             height: 40,
             width: 40,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.keyboard_double_arrow_right,
                 size: 20,
                 color: Colors.white,

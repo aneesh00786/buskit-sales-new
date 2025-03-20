@@ -15,6 +15,7 @@ class LeadsStatusSelect extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _LeadsStatusSelectState createState() => _LeadsStatusSelectState();
 }
 
@@ -41,8 +42,6 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
       } else if (_selectedValue == 'Reject') {
         _leadsController.handleLeadsStatus(widget.customerId, 'reject');
       }
-      print('Customer ID: ${widget.customerId}');
-      print('Selected value: $newValue');
       _leadsController.loadLeadsCustomerData;
       _leadsCustomerController.loadLeadsCustomerData;
       _leadsRejectController.loadRejectedLeadsData;
@@ -62,9 +61,9 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
         child: DropdownButton<String>(
           value: _selectedValue,
           isExpanded: true,
-          icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
           iconSize: 15,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: Colors.black,
@@ -95,6 +94,7 @@ class LeadsRejectedStatusSelect extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _LeadsRejectedStatusSelectState createState() =>
       _LeadsRejectedStatusSelectState();
 }
@@ -134,8 +134,6 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
         _leadsRejectController.handleRejectedLeadStatus(
             widget.customerId, 'move_lead');
       }
-      print('Customer ID: ${widget.customerId}');
-      print('Selected value: $newValue');
       _leadsController.loadLeadsCustomerData;
       _leadsCustomerController.loadLeadsCustomerData;
       _leadsRejectController.loadRejectedLeadsData;
@@ -155,9 +153,9 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
         child: DropdownButton<String>(
           value: _selectedValue,
           isExpanded: true,
-          icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
           iconSize: 15,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: Colors.black,

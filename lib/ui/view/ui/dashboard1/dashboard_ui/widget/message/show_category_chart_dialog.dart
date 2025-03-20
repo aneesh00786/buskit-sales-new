@@ -1,3 +1,4 @@
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
@@ -276,7 +277,7 @@ void showValueDialogCusDash(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          DialogTableHeaderText(
+                          const DialogTableHeaderText(
                             text: 'Total',
                             fontSize: 13,
                           ),

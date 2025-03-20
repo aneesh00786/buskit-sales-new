@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -32,7 +34,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   List<TextEditingController> _projectionControllers = [];
 
   final Map<String, List<TextEditingController>> _weeklyTargetControllers = {};
-  Map<String, List<TextEditingController>> _weeklyProjectionControllers = {};
+  final Map<String, List<TextEditingController>> _weeklyProjectionControllers = {};
 
   Map<dynamic, String> updatedTargets = {};
   Map<dynamic, String> updatedProjection = {};
@@ -117,7 +119,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     final weeklyType = await ApiWorker().getWeeklyType();
     widget.staffController.isWeekly.value = weeklyType == "true";
     log("Weekly state : $weeklyType : ${widget.staffController.isWeekly.value}");
-    Future.delayed(Duration(seconds: 1));
+    Future.delayed(const Duration(seconds: 1));
   }
 
   void _initializeControllers() {
@@ -208,9 +210,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     }
     return Obx(() {
       return widget.staffController.isTargetLoading.value
-          ? SizedBox(
+          ? const SizedBox(
               height: 150,
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(),
               ),
             )
@@ -228,10 +230,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                         topRight: Radius.circular(10),
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Target by Category',
                           style: TextStyle(
                             color: white,
@@ -552,6 +554,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         currentDay = currentDay.add(const Duration(days: 1));
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error while calculating weeks for month $month in year $year: $e');
     }
 

@@ -819,10 +819,10 @@ class ApiWorker with ApiConstants {
         log('Error fetching products from API: $e');
       }
     } else {
-      log('No internet. Fetching from Hive...');
-    }
     NkCommonFunction.showErrorSnakBar(
         'No internet connection. Unable to fetch data.');
+      log('No internet. Fetching from Hive...');
+    }
     try {
       var productBox = await Hive.openBox('productBox');
       var rawProductList = productBox.get('products');

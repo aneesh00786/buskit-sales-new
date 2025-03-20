@@ -15,6 +15,7 @@ class StaffTimeSheetDialog extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _StaffTimeSheetDialogState createState() => _StaffTimeSheetDialogState();
 }
 
@@ -63,7 +64,7 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
                     height: 200,
                     child: Stack(
                       children: [
-                        Center(
+                        const Center(
                             child: Text('NO TIMESHEET DATA',
                                 style: TextStyle(
                                     fontSize: 16,

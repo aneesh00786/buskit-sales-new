@@ -88,6 +88,92 @@ class ApiService {
     }
   }
 
+  // Future<ResponseModell> fetchDashboardData({
+  //   String? salesmanId,
+  //   String? startDate,
+  //   String? endDate,
+  // }) async {
+  //   final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  //   final String jsonString =
+  //       await SessionManager.getStringValue(SpString.spLogin);
+  //   final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  //   final String createdToken = jsonMap['createdToken'];
+  //   const String url = '$_baseUrl${ApiConstants.dashboardList}';
+  //   final Map<String, dynamic> requestBody = {
+  //     "salesman_id": salesmanId,
+  //     "start_date": startDate,
+  //     "end_date": endDate,
+  //     "companyId": companyId,
+  //     "targetType": 1,
+  //   };
+  //   log('Start Date End Date $startDate/$endDate');
+  //   final dashboardBox = Hive.box('dashboardBox');
+
+  //   try {
+  //     final connectivity = await Connectivity().checkConnectivity();
+  //     if (connectivity == ConnectivityResult.none) {
+  //       final cachedData = dashboardBox.get('dashboardData');
+  //       if (cachedData != null) {
+  //         try {
+  //           if (cachedData is Map<String, dynamic>) {
+  //             return _mapJsonToResponseModel(cachedData);
+  //           } else if (cachedData is List<dynamic>) {
+  //             final Map<String, dynamic> wrappedData = {'data': cachedData};
+  //             return _mapJsonToResponseModel(wrappedData);
+  //           } else {
+  //             throw Exception('Invalid cached data format.');
+  //           }
+  //         } catch (e) {
+  //           throw Exception(
+  //               'Failed to process cached data due to type mismatch.');
+  //         }
+  //       } else {
+  //         throw Exception('No cached data available.');
+  //       }
+  //     }
+
+  //     final response = await Dio().post(
+  //       url,
+  //       options: Options(
+  //         headers: {'Authorization': 'Bearer $createdToken'},
+  //       ),
+  //       data: jsonEncode(requestBody),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final jsonResponse = response.data;
+  //       await dashboardBox.put(
+  //           'dashboardData', Map<String, dynamic>.from(jsonResponse));
+  //       return _mapJsonToResponseModel(jsonResponse);
+  //     } else if (response.statusCode == 400 || response.statusCode == 401) {
+  //       _handleTokenExpiration();
+  //       throw Exception('Session expired');
+  //     } else {
+  //       throw Exception(
+  //           'Failed to load data with status code: ${response.statusCode}');
+  //     }
+  //   } on DioException {
+  //     final cachedData = dashboardBox.get('dashboardData');
+  //     if (cachedData != null) {
+  //       try {
+  //         if (cachedData is Map) {
+  //           final safeCachedData =
+  //               castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+  //           return _mapJsonToResponseModel(safeCachedData);
+  //         } else {
+  //           throw Exception('Invalid cached data format.');
+  //         }
+  //       } catch (e) {
+  //         throw Exception(
+  //             'Failed to process cached data due to type mismatch.');
+  //       }
+  //     } else {
+  //       throw Exception('No cached data available.');
+  //     }
+  //   } catch (e) {
+  //     throw Exception(e.toString());
+  //   }
+  // }
   Future<ResponseModell> fetchDashboardData({
     String? salesmanId,
     String? startDate,
@@ -114,24 +200,20 @@ class ApiService {
       if (connectivity == ConnectivityResult.none) {
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
-          try {
-            if (cachedData is Map<String, dynamic>) {
-              return _mapJsonToResponseModel(cachedData);
-            } else if (cachedData is List<dynamic>) {
-              final Map<String, dynamic> wrappedData = {'data': cachedData};
-              return _mapJsonToResponseModel(wrappedData);
-            } else {
-              throw Exception('Invalid cached data format.');
-            }
-          } catch (e) {
-            throw Exception(
-                'Failed to process cached data due to type mismatch.');
+          NkCommonFunction.showErrorSnakBar(
+              'No internet connection. Displaying cached data.');
+          if (cachedData is Map<String, dynamic>) {
+            return _mapJsonToResponseModel(cachedData);
+          } else if (cachedData is List<dynamic>) {
+            final Map<String, dynamic> wrappedData = {'data': cachedData};
+            return _mapJsonToResponseModel(wrappedData);
+          } else {
+            throw Exception('Invalid cached data format.');
           }
         } else {
           throw Exception('No cached data available.');
         }
       }
-
       final response = await Dio().post(
         url,
         options: Options(
@@ -145,15 +227,16 @@ class ApiService {
         await dashboardBox.put(
             'dashboardData', Map<String, dynamic>.from(jsonResponse));
         return _mapJsonToResponseModel(jsonResponse);
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
       } else {
-        throw Exception(
-            'Failed to load data with status code: ${response.statusCode}');
+        handleHttpResponseError(
+          statusCode: response.statusCode!,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
+        throw Exception('Unexpected Error: ${response.statusCode}');
       }
-    } on DioException {
+    } catch (e) {
       final cachedData = dashboardBox.get('dashboardData');
+      NkCommonFunction.showErrorSnakBar('Failed to fetch Data');
       if (cachedData != null) {
         try {
           if (cachedData is Map) {
@@ -168,10 +251,9 @@ class ApiService {
               'Failed to process cached data due to type mismatch.');
         }
       } else {
-        throw Exception('No cached data available.');
+        NkCommonFunction.showErrorSnakBar('No Catched Data Available');
+        throw Exception(e.toString());
       }
-    } catch (e) {
-      throw Exception(e.toString());
     }
   }
 
@@ -435,10 +517,15 @@ class ApiService {
               .toList(),
         );
       } else {
+        handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception(
             'Failed to fetch individual chat data - ${response.statusCode}');
       }
     } catch (e) {
+      NkCommonFunction.showErrorSnakBar('Failed to fetch Chat');
       log('Error occurred: $e');
       final cachedData = chatBox.get(cacheKey);
       if (cachedData != null) {
@@ -525,6 +612,10 @@ class ApiService {
           pagination: pagination,
         );
       } else {
+        handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
@@ -584,6 +675,10 @@ class ApiService {
           pagination: pagination,
         );
       } else {
+        handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
@@ -642,6 +737,10 @@ class ApiService {
           pagination: pagination,
         );
       } else {
+         handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
@@ -708,13 +807,15 @@ class ApiService {
             data: adminDetails,
           );
         } else {
+           handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
           throw Exception('Failed to load admin details');
         }
         // ignore: empty_catches
       } catch (e) {}
     }
-
-    // Fallback to fetching from Hive
     try {
       final cachedData = adminBox.get(hiveKey);
       if (cachedData is List) {
@@ -808,6 +909,10 @@ class ApiService {
           yearsListOfAll: yearList,
         );
       } else {
+         handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception('Request failed with status: ${response.statusCode}');
       }
     } on DioException catch (dioError) {
@@ -900,7 +1005,6 @@ class ApiService {
       "specifiedYear": specifiedYear,
       "start_date": startDate,
     };
-
     try {
       final response = await http.post(
         url,
@@ -954,10 +1058,15 @@ class ApiService {
           ),
         );
       } else {
+        handleHttpResponseError(
+          statusCode: response.statusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception(
             'Failed to fetch customer dashboard data - ${response.statusCode}');
       }
     } catch (e) {
+      NkCommonFunction.showErrorSnakBar('Un Expected Error Occured');
       throw Exception('Failed to fetch customer dashboard data: $e');
     }
   }

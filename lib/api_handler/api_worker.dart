@@ -1,13 +1,9 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
-import 'package:busskit_salesexecutive/database/session/sp_string.dart';
-import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
@@ -20,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/tod
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_total_sale_response.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
@@ -32,8 +27,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/setti
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -252,6 +245,10 @@ class ApiWorker with ApiConstants {
 
         return PerformanceData.fromJson(jsonData);
       } else {
+        handleHttpResponseError(
+              statusCode: response.statusCode!,
+              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            );
         log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
         final cachedData = performanceBox.get(cacheKey);
         if (cachedData != null) {
@@ -281,94 +278,6 @@ class ApiWorker with ApiConstants {
     } catch (e) {
       log("Error fetching salesman Performance: $e");
       return null;
-    }
-  }
-
-  // Future<Response> updateCategoryTargetValue(
-  //   String salesmanId,
-  //   String month,
-  //   String year,
-  //   Map<dynamic, String> categoryData,
-  //   Map<dynamic, String> weeklyTarget,
-  // ) async {
-  //   log(companyId.toString());
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.update_CategorytargetValue,
-  //           data: ({
-  //             "categories": categoryData,
-  //             "weekly_target": weeklyTarget,
-  //             "sales_id": salesmanId,
-  //             "year": year,
-  //             "month": month,
-  //             "companyId": companyId,
-  //           }))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return response;
-  // }
-
-  /// ************************ DASHBOARD SECTION ***************** ///
-
-  Future<DashboardResponse> dashboardData() async {
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    String createdToken = jsonMap['createdToken'];
-
-    Map<String, dynamic> data = {
-      'salesman_id': salesmanId,
-      'start_date': "2024-09-30",
-      'end_date': "2024-09-01",
-    };
-
-    Map<String, dynamic> headers = {
-      'Authorization': 'Bearer $createdToken',
-    };
-
-    log('Created Token: $createdToken');
-    log('Salesman ID: $salesmanId');
-
-    try {
-      final response = await dio.postbycustom(
-        ApiConstants.dashboardList,
-        data: data,
-        options: Options(headers: headers),
-      );
-
-      log('Dashboard API Response: ${response.data}');
-      if (response.data['status_code'] == 400) {
-        await SessionHelper().clearAll();
-        Get.offAllNamed(AppRoutes.login);
-        await Future.delayed(const Duration(milliseconds: 500));
-        _handleTokenExpiration();
-        throw Exception('Session expired');
-      }
-
-      return DashboardResponse.fromJson(response.data);
-    } catch (e) {
-      log('Error fetching dashboard data: $e');
-      rethrow;
-    }
-  }
-
-  void _handleTokenExpiration() async {
-    if (!Get.isDialogOpen!) {
-      await Get.dialog(
-        AlertDialog(
-          title: const Text("Session Expired"),
-          content: const Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () async {
-                Get.back();
-              },
-            ),
-          ],
-        ),
-        barrierDismissible: false,
-      );
     }
   }
 
@@ -810,6 +719,11 @@ class ApiWorker with ApiConstants {
             );
             log('Products saved to Hive.');
             log('Products category Id : ${allProducts.map((product) => product.catId).toSet().toList()}');
+          } else {
+            handleHttpResponseError(
+              statusCode: response.statusCode!,
+              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            );
           }
         } on DioException catch (dioError) {
           DioExceptionHandler.fromDioError(dioError, showErrorSnakBar: true);
@@ -819,8 +733,8 @@ class ApiWorker with ApiConstants {
         log('Error fetching products from API: $e');
       }
     } else {
-    NkCommonFunction.showErrorSnakBar(
-        'No internet connection. Unable to fetch data.');
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Unable to fetch data.');
       log('No internet. Fetching from Hive...');
     }
     try {
@@ -954,6 +868,10 @@ class ApiWorker with ApiConstants {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
+          handleHttpResponseError(
+              statusCode: response.statusCode!,
+              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            );
           throw Exception('Unexpected API response.');
         }
       } catch (e) {
@@ -1073,8 +991,6 @@ class ApiWorker with ApiConstants {
     }
     try {
       var cachedData = eventsBox.get(cacheKey);
-      // log('Raw Hive Data: $cachedData');
-
       if (cachedData != null && cachedData is List) {
         allEvents = cachedData
             .map((eventJson) {
@@ -1260,6 +1176,10 @@ class ApiWorker with ApiConstants {
         await pendingPaymentBox.put(cacheKey, response.data);
         return PendingPaymentResponse.fromJson(response.data);
       } else {
+        handleHttpResponseError(
+          statusCode: response.statusCode!,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
         throw Exception(
             "Failed to fetch pending payment data. StatusCode: ${response.statusCode}");
       }
@@ -1364,25 +1284,19 @@ class ApiWorker with ApiConstants {
           "companyId": companyId,
           "salesman_id": salesmanId,
         };
-
         log('Sending API request for recent orders. Request Body: $requestData');
-
         final response = await dio.postbycustom(
           ApiConstants.getRecentOrder,
           data: requestData,
         );
-
         log('Response received from API: ${response.data}');
         await ordersBox.put(cacheKey, response.data);
         log('API response successfully cached with key: $cacheKey');
-
         return OrderResponce.fromJson(response.data);
       } on DioException catch (error) {
         log('DioException occurred. Status Code: ${error.response?.statusCode}');
         log('Response Data: ${error.response?.data}');
         log('Request Data: ${error.requestOptions.data}');
-
-        // Attempt to fallback to cached data
         if (ordersBox.containsKey(cacheKey)) {
           log('Using cached data after API failure for key: $cacheKey');
           final cachedData = ordersBox.get(cacheKey);

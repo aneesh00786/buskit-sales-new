@@ -67,7 +67,6 @@ class PendingPaymentController extends GetxController {
         salesmanId: salesmanId,
         compId: compId,
       );
-
       // ignore: unnecessary_null_comparison
       if (data.data != null) {
         orderDataList.assignAll(data.data);

@@ -18,7 +18,6 @@ class DioClient with ApiConstants {
           ]);
 
   late final Dio _dio;
-
   Dio getdio() {
     return _dio;
   }
@@ -138,6 +137,25 @@ class DioExceptionHandler implements Exception {
 
   @override
   String toString() => errorMessage;
+}
+
+void handleHttpResponseError({
+  required int statusCode,
+  required Function(String message) showErrorSnackBar,
+}) {
+  if (statusCode >= 400 && statusCode < 500) {
+    showErrorSnackBar(
+        'Request is not Valid');
+    throw Exception('Client Error: $statusCode');
+  } else if (statusCode >= 500 && statusCode < 600) {
+    showErrorSnackBar(
+        'Server Error: Failed to fetch');
+    throw Exception('Server Error: $statusCode');
+  } else {
+    showErrorSnackBar(
+        'Unexpected Error Occured while fetching');
+    throw Exception('Unexpected Error: $statusCode');
+  }
 }
 
 /*

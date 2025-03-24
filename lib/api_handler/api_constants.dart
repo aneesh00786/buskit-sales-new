@@ -52,7 +52,7 @@ mixin class ApiConstants {
   static const String fetchcategories = "fetch_categories";
   
   /// Product Api
-  static const String fetchproduct = "fetch_product565";
+  static const String fetchproduct = "fetch_product";
 
   /// Leads Api
   static const String addCustomer = "add_customer";
@@ -91,7 +91,7 @@ mixin class ApiConstants {
   static const String distanceMatrix = "distancematrix/json";
   static const String recentOrderCount = "recent_order_count";
   static const String ordersCountGet = "orders_count_get";
-  static const String getRecentOrder = "get_recent_orders";
+  static const String getRecentOrder = "get_recent_orders234";
   static const String orderProcessInvoice = "order_process_invoice";
   static const String waitingForApproval = "waiting_for_approvel";
   static const String localHost = 'http://16.50.232.153:3000/';

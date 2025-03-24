@@ -120,7 +120,9 @@ class LoginController extends GetxController {
           staffController.loadSalesmanTargetForSelectedTab(
               currentYear: currentYear.toString(),
               selectedTabIndex: _tabController!.index + 1,
-              staffId: salesmanId),
+              staffId: salesmanId,
+              isFromLogin: true
+              ),
           leadsController.loadLeadsCustomerData,
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
@@ -129,8 +131,6 @@ class LoginController extends GetxController {
           ApiWorker().fetchDiscounts(companyId, salesmanId),
           CartDatabaseManager().getDraftItems(),
         ]);
-
-        // Fetch recent orders data
         await ApiWorker()
             .getRecentOrdersData(
               searchModel: searchData,

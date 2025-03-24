@@ -148,30 +148,66 @@ class ApiWorker with ApiConstants {
   }
 
   Future<List<AllCompanySettingsData>?> fetchAllSettings(int companyId) async {
-    try {
-      log('Fetching settings for company ID: $companyId');
-      final response = await dio1.post(
-        "${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}",
-        data: {
-          "compay_id": "$companyId",
-        },
-      );
-      log("Fetch Settings URL : ${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}");
-      log("CompanyId in Settings Function : $companyId");
-      List<dynamic> dataList = response.data['data'] ?? [];
-      List<AllCompanySettingsData> settingsList = dataList
-          .map((item) => AllCompanySettingsData.fromJson(item))
-          .toList();
-      await SessionHelper().setSettingsData(settingsList);
-      log('Settings fetched and saved: $settingsList');
-      return settingsList;
-    } on DioException catch (dioError) {
-      log("Dio error of Settings: ${dioError.response?.data}");
-      return Future.error(DioExceptionHandler.fromDioError(dioError));
-    } catch (e) {
-      log("Error fetching settings: $e");
-      return null;
+    const cacheKey = 'all_settings_data';
+    final settingsBox = Hive.box('settingsBox');
+    log('Fetching settings for company ID: $companyId');
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool isOnline = connectivityResult != ConnectivityResult.none;
+
+    if (isOnline) {
+      try {
+        final response = await dio1.post(
+          "${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}",
+          data: {
+            "compay_id": "$companyId",
+          },
+        );
+        log("Fetch Settings URL: ${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}");
+        log("Company ID in Settings Function: $companyId");
+        List<dynamic> dataList = response.data['data'] ?? [];
+        List<AllCompanySettingsData> settingsList = dataList
+            .map((item) => AllCompanySettingsData.fromJson(item))
+            .toList();
+        log('Settings fetched from API: $settingsList');
+        await settingsBox.put(
+          cacheKey,
+          settingsList.map((setting) => setting.toJson()).toList(),
+        );
+        log('Settings saved to Hive.');
+        await SessionHelper().setSettingsData(settingsList);
+        return settingsList;
+      } on DioException catch (dioError) {
+        log("Dio error of Settings: ${dioError.response?.data}");
+        NkCommonFunction.showErrorSnakBar(
+            'Failed to fetch settings. Showing offline data.');
+      } catch (e) {
+        log("Error fetching settings: $e");
+        NkCommonFunction.showErrorSnakBar(
+            'An error occurred while fetching settings.');
+      }
+    } else {
+      log("No internet. Fetching settings from Hive.");
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Showing offline data.');
     }
+    try {
+      final cachedData = settingsBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Fetched settings from Hive: $cachedData');
+        return (cachedData as List)
+            .map((settingJson) => AllCompanySettingsData.fromJson(settingJson))
+            .toList();
+      } else {
+        log("No cached settings data available.");
+        NkCommonFunction.showErrorSnakBar('No offline data available.');
+      }
+    } catch (e) {
+      log('Error fetching settings from Hive: $e');
+      NkCommonFunction.showErrorSnakBar(
+          'Error accessing offline settings data.');
+    }
+
+    return null;
   }
 
   Future<Map<String, dynamic>?> fetchSalesmanTopBarData(
@@ -234,52 +270,81 @@ class ApiWorker with ApiConstants {
     final performanceBox = Hive.box('performanceBox');
     log('Api URL for performance: $apiUrl');
     log('Request body fetchSalesmanPerformance: $requestPayload');
-    try {
-      Response response = await dio1.post(
-        apiUrl,
-        data: requestPayload,
-      );
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool isOnline = connectivityResult != ConnectivityResult.none;
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = response.data['data'];
-        log('Performance Response: $jsonData');
-        await performanceBox.put(cacheKey, jsonData);
-
-        return PerformanceData.fromJson(jsonData);
-      } else {
-        handleHttpResponseError(
-          statusCode: response.statusCode!,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+    if (isOnline) {
+      try {
+        Response response = await dio1.post(
+          apiUrl,
+          data: requestPayload,
         );
-        log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonData = response.data['data'];
+          log('Performance Response: $jsonData');
+          await performanceBox.put(cacheKey, jsonData);
+
+          // Return the parsed data
+          return PerformanceData.fromJson(jsonData);
+        } else {
+          handleHttpResponseError(
+            statusCode: response.statusCode!,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          );
+          log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
+          final cachedData = performanceBox.get(cacheKey);
+          if (cachedData != null) {
+            log('Using cached data for key: $cacheKey');
+            final castedData = LocalStorage().castToStringDynamic(cachedData);
+            return PerformanceData.fromJson(castedData);
+          } else {
+            NkCommonFunction.showErrorSnakBar('No cached data available.');
+            log("No cached data available.");
+            return null;
+          }
+        }
+      } on DioException catch (dioError) {
+        log("Dio error occurred: ${dioError.message}");
+        if (dioError.response != null) {
+          log("Dio error response: ${dioError.response?.data}");
+          log("Dio error status code: ${dioError.response?.statusCode}");
+        }
+        final cachedData = performanceBox.get(cacheKey);
+        if (cachedData != null) {
+          log('Using cached data after API failure for key: $cacheKey');
+          final castedData = LocalStorage().castToStringDynamic(cachedData);
+          return PerformanceData.fromJson(castedData);
+        } else {
+          NkCommonFunction.showErrorSnakBar('No cached data available.');
+          log("No cached data available.");
+          return null;
+        }
+      } catch (e) {
+        log("Error fetching salesman Performance: $e");
+        NkCommonFunction.showErrorSnakBar('Unexpected error occurred.');
+        return null;
+      }
+    } else {
+      log("Offline mode: Fetching data from Hive.");
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Showing offline data.');
+      try {
         final cachedData = performanceBox.get(cacheKey);
         if (cachedData != null) {
           log('Using cached data for key: $cacheKey');
           final castedData = LocalStorage().castToStringDynamic(cachedData);
           return PerformanceData.fromJson(castedData);
         } else {
+          NkCommonFunction.showErrorSnakBar('No cached data available.');
           log("No cached data available.");
           return null;
         }
-      }
-    } on DioException catch (dioError) {
-      log("Dio error occurred: ${dioError.message}");
-      if (dioError.response != null) {
-        log("Dio error response: ${dioError.response?.data}");
-        log("Dio error status code: ${dioError.response?.statusCode}");
-      }
-      final cachedData = performanceBox.get(cacheKey);
-      if (cachedData != null) {
-        log('Using cached data after API failure for key: $cacheKey');
-        final castedData = LocalStorage().castToStringDynamic(cachedData);
-        return PerformanceData.fromJson(castedData);
-      } else {
-        log("No cached data available.");
+      } catch (e) {
+        log("Error fetching from Hive: $e");
+        NkCommonFunction.showErrorSnakBar('Error fetching offline data.');
         return null;
       }
-    } catch (e) {
-      log("Error fetching salesman Performance: $e");
-      return null;
     }
   }
 
@@ -335,8 +400,7 @@ class ApiWorker with ApiConstants {
         );
         log('Company Id === $companyId');
         final customerData = CustomerAndOrderResponce.fromJson(response.data);
-        await localStorage.storeCustomerData(
-            customerData); 
+        await localStorage.storeCustomerData(customerData);
         return customerData;
       } else {
         log('No internet, fetching customer data from Hive...');
@@ -353,8 +417,6 @@ class ApiWorker with ApiConstants {
           'Failed to fetch customer data From API Worker: $error');
     }
   }
-
-
 
   Future<CustomerAndOrderResponce?> retrieveCustomerData() async {
     final box = await Hive.openBox('customerBox');
@@ -751,7 +813,7 @@ class ApiWorker with ApiConstants {
       NkCommonFunction.showErrorSnakBar('Error fetching offline data.');
     }
     List<ProductModel> filteredProducts = allProducts.where((product) {
-    return product.scid == subCatId;
+      return product.scid == subCatId;
     }).toList();
     log('Filtered Products: ${filteredProducts.length}');
     log('Filtered Product List: ${filteredProducts.map((e) => e.toJson()).toList()}');
@@ -793,7 +855,7 @@ class ApiWorker with ApiConstants {
       log('Error occurred while fetching discounts: $e');
     }
   }
-  
+
   Future<bool> isInternetAvailable() async {
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -881,6 +943,7 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch data from API and Hive.');
     }
   }
+
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {
     final cacheKey = 'leads_rejected_${paginationModel?.currentPage ?? ''}';
@@ -947,14 +1010,13 @@ class ApiWorker with ApiConstants {
     log('Has Internet: $hasInternet');
     if (hasInternet) {
       try {
-        final response = await dio.postbycustom(
-          ApiConstants.getEvent,
+        final response = await dio1.post(
+          '${ApiConstants.baseUrl}${ApiConstants.getEvent}',
           data: FormData.fromMap(sendData),
         );
         log('Response received from API: ${response.data}');
         final castedResponse =
             LocalStorage().castToStringDynamic(response.data);
-
         if (castedResponse['data'] is List) {
           List<dynamic> eventsJson = castedResponse['data'];
           await eventsBox.put(cacheKey, eventsJson);
@@ -966,8 +1028,11 @@ class ApiWorker with ApiConstants {
           log('Unexpected response format: $castedResponse');
           return [];
         }
-      } catch (e) {
+      } on DioException catch (e) {
         log('Error fetching data from API: $e');
+        handleHttpResponseError(
+            statusCode: e.response?.statusCode ?? 0,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
       }
     } else {
       NkCommonFunction.showErrorSnakBar(
@@ -989,8 +1054,11 @@ class ApiWorker with ApiConstants {
             .toList();
       }
       log('Fetched Events from Hive: ${allEvents.length}');
-    } catch (e) {
+    } on DioException catch (e) {
       log('Error fetching from Hive: $e');
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
     }
     if (allEvents.isEmpty) {
       log('No events found in cache.');
@@ -1261,8 +1329,8 @@ class ApiWorker with ApiConstants {
           "salesman_id": salesmanId,
         };
         log('Sending API request for recent orders. Request Body: $requestData');
-        final response = await dio.postbycustom(
-          ApiConstants.getRecentOrder,
+        final response = await dio1.post(
+          '${ApiConstants.baseUrl}${ApiConstants.getRecentOrder}',
           data: requestData,
         );
         log('Response received from API: ${response.data}');
@@ -1270,6 +1338,9 @@ class ApiWorker with ApiConstants {
         log('API response successfully cached with key: $cacheKey');
         return OrderResponce.fromJson(response.data);
       } on DioException catch (error) {
+        handleHttpResponseError(
+            statusCode: error.response?.statusCode ?? 0,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
         log('DioException occurred. Status Code: ${error.response?.statusCode}');
         log('Response Data: ${error.response?.data}');
         log('Request Data: ${error.requestOptions.data}');
@@ -1286,6 +1357,8 @@ class ApiWorker with ApiConstants {
         }
       }
     } else {
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Unable to fetch data.');
       if (ordersBox.containsKey(cacheKey)) {
         log('Fetching data from cache due to no internet connection. Key: $cacheKey');
         final cachedData = ordersBox.get(cacheKey);
@@ -1497,25 +1570,79 @@ class ApiWorker with ApiConstants {
     return ScheduleListResponse.fromJson(response.data);
   }
 
-  Future<String> getWeeklyType() async {
-    try {
-      final response = await dio.postbycustom(
-        ApiConstants.getWeekelyType,
-        data: FormData.fromMap({
-          "companyId": companyId,
-        }),
-      );
+  Future<String?> getWeeklyType() async {
+    const cacheKey = 'weekly_type_data';
+    final weeklyTypeBox = Hive.box('weeklyTypeBox');
 
-      // Ensure response is in expected format
-      if (response.data is Map<String, dynamic> &&
-          response.data.containsKey('data')) {
-        return response.data['data'].toString();
-      } else {
-        throw Exception("Unexpected response format");
+    // Check network connectivity
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool isOnline = connectivityResult != ConnectivityResult.none;
+
+    if (isOnline) {
+      try {
+        // API Call
+        final response = await dio.postbycustom(
+          ApiConstants.getWeekelyType,
+          data: FormData.fromMap({
+            "companyId": companyId,
+          }),
+        );
+
+        // Validate API response
+        if (response.data is Map<String, dynamic> &&
+            response.data.containsKey('data')) {
+          final weeklyType = response.data['data'].toString();
+          log('API Response for Weekly Type: $weeklyType');
+
+          // Store the response in Hive
+          await weeklyTypeBox.put(cacheKey, weeklyType);
+          log('Weekly Type data saved to Hive.');
+
+          return weeklyType;
+        } else {
+          // Unexpected response format
+          NkCommonFunction.showErrorSnakBar('Unexpected API response format.');
+          log('Unexpected API response format.');
+
+          // Fetch data from Hive as a fallback
+          return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
+        }
+      } catch (error) {
+        // Handle DioException and log error
+        log("DioException occurred: $error");
+        NkCommonFunction.showErrorSnakBar(
+            'Failed to fetch weekly type. Showing offline data.');
+
+        // Fetch data from Hive as a fallback
+        return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
       }
-    } catch (error) {
-      log(error.toString());
-      throw DioExceptionHandler.fromDioError(error as DioException);
+    } else {
+      // Offline mode
+      log("Offline mode: Fetching weekly type from Hive.");
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Showing offline data.');
+
+      // Fetch data from Hive
+      return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
+    }
+  }
+
+// Helper function to fetch cached data from Hive
+  String? _getCachedWeeklyType(Box box, String cacheKey) {
+    try {
+      final cachedData = box.get(cacheKey);
+      if (cachedData != null) {
+        log('Fetched Weekly Type from Hive: $cachedData');
+        return cachedData as String;
+      } else {
+        log('No cached Weekly Type data available.');
+        NkCommonFunction.showErrorSnakBar('No offline data available.');
+        return null;
+      }
+    } catch (e) {
+      log('Error fetching Weekly Type from Hive: $e');
+      NkCommonFunction.showErrorSnakBar('Error accessing offline data.');
+      return null;
     }
   }
 

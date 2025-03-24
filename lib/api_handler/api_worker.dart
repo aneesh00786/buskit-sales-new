@@ -836,61 +836,50 @@ class ApiWorker with ApiConstants {
       "salesman_id": salesManId,
       "companyId": companyId,
     });
+
     log('Request Body FetchData: ${requestData.fields}');
     final cacheKey =
         'leads_data_${salesManId}_${paginationModel?.currentPage ?? ''}';
-    log('Catched Key : $cacheKey');
     final leadsBox = await Hive.openBox('leadsBox');
-    try {
-      log('Got into Tru Catch');
-      bool isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No internet connection. Unable to fetch data.');
-        log('Offline mode: Fetching data from cache for key: $cacheKey');
-        return storedLeadsData(leadsBox, cacheKey);
-      }
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool hasNetwork = connectivityResult != ConnectivityResult.none;
+    bool hasInternet = hasNetwork && await isInternetAvailable();
+    log('Has Internet: $hasInternet');
 
-      final response = await dio1.post(
-        ApiConstants.fetchLeads,
-        data: requestData,
-        options: Options(
-          validateStatus: (status) => status != null,
-        ),
-      );
-
-      if (response.statusCode == 200 && response.data != null) {
-        log('API data received successfully. Caching data with key: $cacheKey');
-        await leadsBox.put(cacheKey, response.data);
-        return LeadResponce.fromJson(response.data);
-      } else {
-        log('This Worked');
-        handleHttpResponseError(
+    if (hasInternet) {
+      try {
+        final response = await dio1.post(
+          '${ApiConstants.baseUrl}${ApiConstants.fetchLeads}',
+          data: requestData,
+        );
+        if (response.statusCode == 200) {
+          log('Response Body Fetch Leads: ${response.data}');
+          await leadsBox.put(cacheKey, response.data);
+          log('Data saved to Hive for key: $cacheKey');
+          return LeadResponce.fromJson(response.data);
+        } else {
+          handleHttpResponseError(
           statusCode: response.statusCode ?? 0,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
         );
-        log('Fetching cached data due to API error for key: $cacheKey');
-        return storedLeadsData(leadsBox, cacheKey);
+          return localStorage.storedLeadsData(leadsBox, cacheKey);
+        }
+      } on DioException catch (dioError) {
+        handleHttpResponseError(
+          statusCode: dioError.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
+        log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
+        return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
-    } on DioException catch (dioError) {
-      log("DioException occurred: $dioError");
-      handleHttpResponseError(
-        statusCode: dioError.response?.statusCode ?? 0,
-        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-      );
-      log('Fetching cached data due to connection failure for key: $cacheKey');
-      return storedLeadsData(leadsBox, cacheKey);
+    } else {
+      log('No internet. Fetching from Hive...');
+    }
+    try {
+      return localStorage.storedLeadsData(leadsBox, cacheKey);
     } catch (e) {
-      log("Unexpected error occurred: $e");
-      bool isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No internet connection. Unable to fetch data.');
-        log('Using cached data due to offline mode for key: $cacheKey');
-        return storedLeadsData(leadsBox, cacheKey);
-      } else {
-        throw Exception('Unexpected error occurred: $e');
-      }
+      log('Error fetching from Hive: $e');
+      throw Exception('Failed to fetch data from API and Hive.');
     }
   }
 
@@ -1231,7 +1220,6 @@ class ApiWorker with ApiConstants {
       final response = await dio1.post(
         '${ApiConstants.baseUrl}${ApiConstants.fetchPendingPayments}',
         data: FormData.fromMap(requestData),
-        
       );
       log("API Response: ${response.data}");
       if (response.statusCode == 200 && response.data != null) {

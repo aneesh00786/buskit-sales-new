@@ -48,7 +48,6 @@ mixin class ApiConstants {
   static const String fetchAllSetting = "fetchAllSetting";
   static const String fetchLeadsCount = "fetchLeadsCount";
   static const String updateCheckinOut = "UpdateCheckInOut";
-
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
   
@@ -57,7 +56,7 @@ mixin class ApiConstants {
 
   /// Leads Api
   static const String addCustomer = "add_customer";
-  static const String fetchLeads = "fetch_leads2345";
+  static const String fetchLeads = "fetch_leads";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";

@@ -52,7 +52,7 @@ mixin class ApiConstants {
   static const String fetchcategories = "fetch_categories";
   
   /// Product Api
-  static const String fetchproduct = "fetch_product";
+  static const String fetchproduct = "fetch_product565";
 
   /// Leads Api
   static const String addCustomer = "add_customer";

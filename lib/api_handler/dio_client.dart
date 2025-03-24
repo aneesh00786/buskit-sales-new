@@ -158,32 +158,43 @@ class DioExceptionHandler implements Exception {
 void handleHttpResponseError({
   required int statusCode,
   required Function(String message) showErrorSnackBar,
-})async {
+  String? message,
+}) async {
   final isConnected = await ConnectivityService().isOnline();
   switch (statusCode) {
     case 400:
-      showErrorSnackBar('Bad Request');
+      showErrorSnackBar('Bad Request $message');
+      break;
     case 401:
-      showErrorSnackBar('Authentication failed.');
+      showErrorSnackBar('Authentication failed.$message');
+      break;
     case 403:
       showErrorSnackBar(
-          'The authenticated user is not allowed to access the specified API endpoint.');
+          'The authenticated user is not allowed to access the specified API endpoint.$message');
+      break;
     case 404:
-      showErrorSnackBar('The requested resource does not exist.');
+      showErrorSnackBar('The requested resource does not exist.$message');
+      break;
     case 405:
       showErrorSnackBar(
-          'Method not allowed. Please check the Allow header for the allowed HTTP methods.');
+          'Method not allowed. Please check the Allow header for the allowed HTTP methods.$message');
     case 415:
       showErrorSnackBar(
-          'Unsupported media type. The requested content type or version number is invalid.');
+          'Unsupported media type. The requested content type or version number is invalid.$message');
+      break;
     case 422:
-      showErrorSnackBar('Data validation failed.');
+      showErrorSnackBar('Data validation failed.$message');
+      break;
     case 429:
-      showErrorSnackBar('Too many requests.');
-    case 500:
-      showErrorSnackBar('Internal server error.');
+      showErrorSnackBar('Too many requests.$message');
+      break;
+    case >500:
+      showErrorSnackBar('Internal server error.$message');
+      break;
     default:
-     isConnected? showErrorSnackBar('Oops, something went wrong!'):'';
+      isConnected
+          ? showErrorSnackBar('Oops, something went wrong!$message')
+          : '';
   }
 }
 

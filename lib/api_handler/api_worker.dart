@@ -922,6 +922,7 @@ class ApiWorker with ApiConstants {
           handleHttpResponseError(
             statusCode: response.statusCode ?? 0,
             showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Leads"
           );
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
@@ -929,6 +930,7 @@ class ApiWorker with ApiConstants {
         handleHttpResponseError(
           statusCode: dioError.response?.statusCode ?? 0,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Leads"
         );
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
@@ -947,51 +949,62 @@ class ApiWorker with ApiConstants {
   Future<LeadResponce> getLeadsRejectedData(
       {PaginationModel? paginationModel}) async {
     final cacheKey = 'leads_rejected_${paginationModel?.currentPage ?? ''}';
-    final leadsBox = Hive.box('leadsRejectBox');
+    final leadsBox = await Hive.openBox('leadsRejectBox');
     final connectivityResult = await Connectivity().checkConnectivity();
-    bool hasInternet = connectivityResult != ConnectivityResult.none;
-    bool hasInternetAvailable = hasInternet && await isInternetAvailable();
-    try {
-      if (hasInternetAvailable) {
-        final response = await dio
-            .postbycustom(
-          ApiConstants.fetchRejectedLeads,
+    bool hasNetwork = connectivityResult != ConnectivityResult.none;
+    bool hasInternet = hasNetwork && await isInternetAvailable();
+    log('Has Internet: $hasInternet');
+    if (hasInternet) {
+      try {
+        final response = await dio1.post(
+          '${ApiConstants.baseUrl}${ApiConstants.fetchRejectedLeads}',
           data: FormData.fromMap({
             "page": paginationModel?.currentPage ?? "",
             "limit": paginationModel?.limit ?? '',
             "salesman_id": salesmanId,
             "companyId": companyId,
           }),
-        )
-            .onError((DioException error, stackTrace) {
-          log(error.toString());
-          return Future.error(throw DioExceptionHandler.fromDioError(error));
-        });
+        );
 
-        log('Response Body Fetch Leads Rejected: ${response.data}');
-        await leadsBox.put(cacheKey, response.data);
-        return LeadResponce.fromJson(response.data);
-      } else {
-        log('No internet available, fetching from Hive...');
-        final cachedData = leadsBox.get(cacheKey);
-        if (cachedData != null) {
-          log('Using cached data for key: $cacheKey');
-          final castedData = LocalStorage().castToStringDynamic(cachedData);
-          return LeadResponce.fromJson(castedData);
+        if (response.statusCode == 200) {
+          log('Response Body Fetch Leads Rejected: ${response.data}');
+          await leadsBox.put(cacheKey, response.data);
+          log('Data saved to Hive for key: $cacheKey');
+          return LeadResponce.fromJson(response.data);
         } else {
-          throw Exception('No internet and no cached data available.');
+          handleHttpResponseError(
+            statusCode: response.statusCode ?? 0,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Rejected Leads"
+          );
+          return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
+      } on DioException catch (dioError) {
+        handleHttpResponseError(
+          statusCode: dioError.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Rejected Leads"
+        );
+        log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
+        return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
-    } catch (e) {
-      log('Error fetching leads rejected data: $e');
+    } else {
+      log('No internet. Fetching from Hive...');
+    }
+
+    // Fetching data from Hive
+    try {
       final cachedData = leadsBox.get(cacheKey);
       if (cachedData != null) {
-        log('Using cached data after failure for key: $cacheKey');
+        log('Using cached data for key: $cacheKey');
         final castedData = LocalStorage().castToStringDynamic(cachedData);
         return LeadResponce.fromJson(castedData);
       } else {
-        throw Exception('Failed to fetch data and no cached data available.');
+        throw Exception('No internet and no cached data available.');
       }
+    } catch (e) {
+      log('Error fetching data from Hive: $e');
+      throw Exception('Failed to fetch data from API and Hive.');
     }
   }
 
@@ -1821,21 +1834,68 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<LeadResponce> getLeadsCustomerData(String salesManId,
-      {PaginationModel? paginationModel}) async {
-    final response = await dio
-        .postbycustom(ApiConstants.fetchLeadsCustomer,
-            data: FormData.fromMap({
-              "page": paginationModel!.currentPage,
-              "limit": 10,
-              "salesman_id": "",
-              "companyId": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
+Future<LeadResponce> getLeadsCustomerData(String salesManId,
+    {PaginationModel? paginationModel}) async {
+  final cacheKey =
+      'leads_customer_${salesManId}_${paginationModel?.currentPage ?? ''}';
+  final leadsBox = await Hive.openBox('leadsCustomerBox');
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool hasNetwork = connectivityResult != ConnectivityResult.none;
+  bool hasInternet = hasNetwork && await isInternetAvailable();
+  log('Has Internet: $hasInternet');
 
-    return LeadResponce.fromJson(response.data);
+  if (hasInternet) {
+    try {
+      final response = await dio1.post(
+        '${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCustomer}',
+        data: FormData.fromMap({
+          "page": paginationModel?.currentPage ?? 1,
+          "limit": paginationModel?.limit ?? 10,
+          "salesman_id": salesManId,
+          "companyId": companyId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Response Body Fetch Leads Customer: ${response.data}');
+        await leadsBox.put(cacheKey, response.data);
+        log('Data saved to Hive for key: $cacheKey');
+        return LeadResponce.fromJson(response.data);
+      } else {
+        handleHttpResponseError(
+          statusCode: response.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Leads Customer"
+        );
+        return localStorage.storedLeadsData(leadsBox, cacheKey);
+      }
+    } on DioException catch (dioError) {
+      handleHttpResponseError(
+        statusCode: dioError.response?.statusCode ?? 0,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "Leads Customer"
+      );
+      log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
+      return localStorage.storedLeadsData(leadsBox, cacheKey);
+    }
+  } else {
+    log('No internet. Fetching from Hive...');
   }
+
+  // Fetching data from Hive
+  try {
+    final cachedData = leadsBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Using cached data for key: $cacheKey');
+      final castedData = LocalStorage().castToStringDynamic(cachedData);
+      return LeadResponce.fromJson(castedData);
+    } else {
+      throw Exception('No internet and no cached data available.');
+    }
+  } catch (e) {
+    log('Error fetching data from Hive: $e');
+    throw Exception('Failed to fetch data from API and Hive.');
+  }
+}
+
 }

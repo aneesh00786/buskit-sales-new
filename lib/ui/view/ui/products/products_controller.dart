@@ -80,16 +80,13 @@ class ProductsController extends GetxController {
     super.onInit();
     fetchCategoryData();
   }
-
   void closeDialog() {
     showDialog.value = false;
   }
-
   bool onReached(bool reached) {
     isReached.value = reached;
     return isReached.value;
   }
-
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {
     selectedCustomerName.value = name;
@@ -97,7 +94,6 @@ class ProductsController extends GetxController {
     selectedCustomerId.value = id;
     log('Selected Customer Updated: $name, $imageUrl, $id');
   }
-
   void clearSelectedCustomer() {
     selectedCustomerName.value = '';
     selectedCustomerImageUrl.value = '';

@@ -50,37 +50,29 @@ mixin class ApiConstants {
   static const String updateCheckinOut = "UpdateCheckInOut";
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
-  
   /// Product Api
   static const String fetchproduct = "fetch_product";
-
   /// Leads Api
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";
-
   /// CALENDAR API
   static const String scheduleCustomer = "schedule_customer";
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
-
   /// ORDER API
   static const String fetchOrder = "fetch_order";
   static const String fetchAllOrder = "fetch_all_order";
-
   /// PENDING  PAYMENT API
   static const String fetchPendingPayments = "fetch_pending_payments";
   static const String getAllPendingPaymentIndividuals = "get_all_pending_payment_individual";
-
   // DUMMY IMAGE URL
   static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
-
   // GOOGLE MAP API KEY
   static const String kGoogleApiKey = "AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc";
   static const String gGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
-  
   // GOOGLE MAP API'S
   static const String mapBaseUrl = "https://maps.gomaps.pro/maps/api/";
   static const String gmapBaseUrl = "https://maps.googleapis.com/maps/api/";
@@ -91,7 +83,7 @@ mixin class ApiConstants {
   static const String distanceMatrix = "distancematrix/json";
   static const String recentOrderCount = "recent_order_count";
   static const String ordersCountGet = "orders_count_get";
-  static const String getRecentOrder = "get_recent_orders234";
+  static const String getRecentOrder = "get_recent_orders";
   static const String orderProcessInvoice = "order_process_invoice";
   static const String waitingForApproval = "waiting_for_approvel";
   static const String localHost = 'http://16.50.232.153:3000/';

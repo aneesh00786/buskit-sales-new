@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
+import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -180,7 +181,7 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
 
     if (jsonString != null) {
       try {
-        final convertedData = ApiService().castToStringDynamic(
+        final convertedData = LocalStorage().castToStringDynamic(
           Map<String, dynamic>.from(jsonString),
         );
         return CategoryModel.fromJson(convertedData);

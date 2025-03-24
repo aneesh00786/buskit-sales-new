@@ -1,6 +1,7 @@
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -8,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/widgets.dart';
@@ -79,12 +81,17 @@ class DashBoardController extends GetxController {
   var categoryPerformance = <CategoryPerformancee>[].obs;
   var futureResponseModel = Future<ResponseModell>.value(ResponseModell()).obs;
   final _apiService = ApiService();
+  ResponseModell response =ResponseModell();
   Future<void> fetchDashboardData() async {
     try {
       isLoading.value = true;
-      final response = await fetchData();
+      response = await fetchData();
       dashbordData.value = response;
     } catch (e) {
+      handleHttpResponseError(
+          statusCode: response.statusCode!,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
       errorMessage.value = 'Error fetching dashboard data: $e';
     } finally {
       isLoading.value = false;
@@ -138,7 +145,12 @@ class DashBoardController extends GetxController {
         endDate: endDate,
       );
 
-      log('Api Response: $apiResponse');
+      log('Api Response: ${apiResponse.statusCode}');
+       handleHttpResponseError(
+          statusCode: response.statusCode!,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        );
+      
       return apiResponse;
     } catch (e) {
       log('Error fetching data: $e');

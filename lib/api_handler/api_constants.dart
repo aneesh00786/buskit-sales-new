@@ -10,7 +10,7 @@ mixin class ApiConstants {
   static const String prooduct = "product";
   static const String customer = "customer";
   /// Dashboard API
-  static const String dashboardList = "dashboard_listsss";
+  static const String dashboardList = "dashboard_list";
   static const String searchCustomer = "search_customer";
   static const String deletCustomer = "delete_customer";
   static const String fetchcustomer = "fetchAllCustomer";
@@ -57,7 +57,7 @@ mixin class ApiConstants {
 
   /// Leads Api
   static const String addCustomer = "add_customer";
-  static const String fetchLeads = "fetch_leads";
+  static const String fetchLeads = "fetch_leads2345";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";

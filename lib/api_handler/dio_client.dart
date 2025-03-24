@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
@@ -139,51 +140,81 @@ class DioExceptionHandler implements Exception {
   String toString() => errorMessage;
 }
 
+// void handleHttpResponseError({
+//   required int statusCode,
+//   required Function(String message) showErrorSnackBar,
+// }) {
+//   if (statusCode >= 400 && statusCode < 500) {
+//     showErrorSnackBar('Request is not Valid');
+//     throw Exception('Client Error: $statusCode');
+//   } else if (statusCode >= 500 && statusCode < 600) {
+//     showErrorSnackBar('Server Error: Failed to fetch');
+//     throw Exception('Server Error: $statusCode');
+//   } else {
+//     showErrorSnackBar('Unexpected Error Occured while fetching');
+//     throw Exception('Unexpected Error: $statusCode');
+//   }
+// }
 void handleHttpResponseError({
   required int statusCode,
   required Function(String message) showErrorSnackBar,
-}) {
-  if (statusCode >= 400 && statusCode < 500) {
-    showErrorSnackBar(
-        'Request is not Valid');
-    throw Exception('Client Error: $statusCode');
-  } else if (statusCode >= 500 && statusCode < 600) {
-    showErrorSnackBar(
-        'Server Error: Failed to fetch');
-    throw Exception('Server Error: $statusCode');
-  } else {
-    showErrorSnackBar(
-        'Unexpected Error Occured while fetching');
-    throw Exception('Unexpected Error: $statusCode');
+})async {
+  final isConnected = await ConnectivityService().isOnline();
+  switch (statusCode) {
+    case 400:
+      showErrorSnackBar('Bad Request');
+    case 401:
+      showErrorSnackBar('Authentication failed.');
+    case 403:
+      showErrorSnackBar(
+          'The authenticated user is not allowed to access the specified API endpoint.');
+    case 404:
+      showErrorSnackBar('The requested resource does not exist.');
+    case 405:
+      showErrorSnackBar(
+          'Method not allowed. Please check the Allow header for the allowed HTTP methods.');
+    case 415:
+      showErrorSnackBar(
+          'Unsupported media type. The requested content type or version number is invalid.');
+    case 422:
+      showErrorSnackBar('Data validation failed.');
+    case 429:
+      showErrorSnackBar('Too many requests.');
+    case 500:
+      showErrorSnackBar('Internal server error.');
+    default:
+     isConnected? showErrorSnackBar('Oops, something went wrong!'):'';
   }
 }
 
-/*
-  String _handleStatusCode(int? statusCode) {
-    switch (statusCode) {
-      case 400:
-        return 'Bad request.';
-      case 401:
-        return 'Authentication failed.';
-      case 403:
-        return 'The authenticated user is not allowed to access the specified API endpoint.';
-      case 404:
-        return 'The requested resource does not exist.';
-      case 405:
-        return 'Method not allowed. Please check the Allow header for the allowed HTTP methods.';
-      case 415:
-        return 'Unsupported media type. The requested content type or version number is invalid.';
-      case 422:
-        return 'Data validation failed.';
-      case 429:
-        return 'Too many requests.';
-      case 500:
-        return 'Internal server error.';
-      default:
-        return 'Oops something went wrong!';
-    }
-  }
-*/
+// String _handleStatusCode(
+//     {required int statusCode,
+//     required Function(String message) showErrorSnackBar,
+//     dynamic storedFunction}) {
+//   switch (statusCode) {
+//     case 400:
+//       return showErrorSnackBar('Bad Request');
+//       storedFunction
+//     case 401:
+//       return 'Authentication failed.';
+//     case 403:
+//       return 'The authenticated user is not allowed to access the specified API endpoint.';
+//     case 404:
+//       return 'The requested resource does not exist.';
+//     case 405:
+//       return 'Method not allowed. Please check the Allow header for the allowed HTTP methods.';
+//     case 415:
+//       return 'Unsupported media type. The requested content type or version number is invalid.';
+//     case 422:
+//       return 'Data validation failed.';
+//     case 429:
+//       return 'Too many requests.';
+//     case 500:
+//       return 'Internal server error.';
+//     default:
+//       return 'Oops something went wrong!';
+//   }
+// }
 
 class AuthorizationInterceptor extends Interceptor {
   @override

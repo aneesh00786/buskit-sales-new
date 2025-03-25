@@ -1585,81 +1585,101 @@ class ApiWorker with ApiConstants {
     return ScheduleListResponse.fromJson(response.data);
   }
 
-  Future<String?> getWeeklyType() async {
-    const cacheKey = 'weekly_type_data';
-    final weeklyTypeBox = Hive.box('weeklyTypeBox');
+//   Future<String?> getWeeklyType() async {
+//     const cacheKey = 'weekly_type_data';
+//     final weeklyTypeBox = Hive.box('weeklyTypeBox');
 
-    // Check network connectivity
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool isOnline = connectivityResult != ConnectivityResult.none;
+//     // Check network connectivity
+//     final connectivityResult = await Connectivity().checkConnectivity();
+//     bool isOnline = connectivityResult != ConnectivityResult.none;
 
-    if (isOnline) {
-      try {
-        // API Call
-        final response = await dio.postbycustom(
-          ApiConstants.getWeekelyType,
-          data: FormData.fromMap({
-            "companyId": companyId,
-          }),
-        );
+//     if (isOnline) {
+//       try {
+//         // API Call
+//         final response = await dio.postbycustom(
+//           ApiConstants.getWeekelyType,
+//           data: FormData.fromMap({
+//             "companyId": companyId,
+//           }),
+//         );
 
-        // Validate API response
-        if (response.data is Map<String, dynamic> &&
-            response.data.containsKey('data')) {
-          final weeklyType = response.data['data'].toString();
-          log('API Response for Weekly Type: $weeklyType');
+//         // Validate API response
+//         if (response.data is Map<String, dynamic> &&
+//             response.data.containsKey('data')) {
+//           final weeklyType = response.data['data'].toString();
+//           log('API Response for Weekly Type: $weeklyType');
 
-          // Store the response in Hive
-          await weeklyTypeBox.put(cacheKey, weeklyType);
-          log('Weekly Type data saved to Hive.');
+//           // Store the response in Hive
+//           await weeklyTypeBox.put(cacheKey, weeklyType);
+//           log('Weekly Type data saved to Hive.');
 
-          return weeklyType;
-        } else {
-          // Unexpected response format
-          NkCommonFunction.showErrorSnakBar('Unexpected API response format.');
-          log('Unexpected API response format.');
+//           return weeklyType;
+//         } else {
+//           // Unexpected response format
+//           NkCommonFunction.showErrorSnakBar('Unexpected API response format.');
+//           log('Unexpected API response format.');
 
-          // Fetch data from Hive as a fallback
-          return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
-        }
-      } catch (error) {
-        // Handle DioException and log error
-        log("DioException occurred: $error");
-        NkCommonFunction.showErrorSnakBar(
-            'Failed to fetch weekly type. Showing offline data.');
+//           // Fetch data from Hive as a fallback
+//           return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
+//         }
+//       } catch (error) {
+//         // Handle DioException and log error
+//         log("DioException occurred: $error");
+//         NkCommonFunction.showErrorSnakBar(
+//             'Failed to fetch weekly type. Showing offline data.');
 
-        // Fetch data from Hive as a fallback
-        return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
-      }
-    } else {
-      // Offline mode
-      log("Offline mode: Fetching weekly type from Hive.");
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Showing offline data.');
+//         // Fetch data from Hive as a fallback
+//         return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
+//       }
+//     } else {
+//       // Offline mode
+//       log("Offline mode: Fetching weekly type from Hive.");
+//       NkCommonFunction.showErrorSnakBar(
+//           'No internet connection. Showing offline data.');
 
-      // Fetch data from Hive
-      return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
-    }
-  }
+//       // Fetch data from Hive
+//       return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
+//     }
+//   }
 
-// Helper function to fetch cached data from Hive
-  String? _getCachedWeeklyType(Box box, String cacheKey) {
+Future<String> getWeeklyType() async {
     try {
-      final cachedData = box.get(cacheKey);
-      if (cachedData != null) {
-        log('Fetched Weekly Type from Hive: $cachedData');
-        return cachedData as String;
+      final response = await dio.postbycustom(
+        ApiConstants.getWeekelyType,
+        data: FormData.fromMap({
+          "companyId": companyId,
+        }),
+      );
+      if (response.data is Map<String, dynamic> &&
+          response.data.containsKey('data')) {
+        return response.data['data'].toString();
       } else {
-        log('No cached Weekly Type data available.');
-        NkCommonFunction.showErrorSnakBar('No offline data available.');
-        return null;
+        throw Exception("Unexpected response format");
       }
-    } catch (e) {
-      log('Error fetching Weekly Type from Hive: $e');
-      NkCommonFunction.showErrorSnakBar('Error accessing offline data.');
-      return null;
+    } catch (error) {
+      log(error.toString());
+      throw DioExceptionHandler.fromDioError(error as DioException);
     }
   }
+
+// // Helper function to fetch cached data from Hive
+//   String? _getCachedWeeklyType(Box box, String cacheKey) {
+//     try {
+//       final cachedData = box.get(cacheKey);
+//       if (cachedData != null) {
+//         log('Fetched Weekly Type from Hive: $cachedData');
+//         return cachedData as String;
+//       } else {
+//         log('No cached Weekly Type data available.');
+//         NkCommonFunction.showErrorSnakBar('No offline data available.');
+//         return null;
+//       }
+//     } catch (e) {
+//       log('Error fetching Weekly Type from Hive: $e');
+//       NkCommonFunction.showErrorSnakBar('Error accessing offline data.');
+//       return null;
+//     }
+//   }
 
   Future<SalesmanValueTargetResponse> fetchSalesmanValueTarget(
       String salesmanId, String year, String? month) async {

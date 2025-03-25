@@ -43,7 +43,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   final int currentMonth = DateTime.now().month;
   final int currentYear = DateTime.now().year;
 
-  bool isWeekly = false;
+  // bool isWeekly = false;
   bool isLoading = true;
 
   @override
@@ -118,7 +118,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Future<void> _loadWeeklyType() async {
     final weeklyType = await ApiWorker().getWeeklyType();
     widget.staffController.isWeekly.value = weeklyType == "true";
-    log("Weekly state : $weeklyType : ${widget.staffController.isWeekly.value}");
+    log("Weekly state target dialog : $weeklyType : ${widget.staffController.isWeekly.value}");
     Future.delayed(const Duration(seconds: 1));
   }
 
@@ -205,7 +205,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           return _weeklyTargetControllers[week]!.isNotEmpty;
         });
 
-    if (isWeekly && !isDataInitialized) {
+    if (widget.isWeekly && !isDataInitialized) {
       _initializeControllers();
     }
     return Obx(() {
@@ -246,7 +246,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                     ),
                   ),
                   nkSmallSizeBox(),
-                  if (isWeekly == false) ...[
+                  if (widget.isWeekly == false) ...[
                     Container(
                       padding:
                           const EdgeInsets.only(bottom: 8, left: 8, right: 8),
@@ -272,7 +272,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                       ),
                     ),
                   ],
-                  if (isWeekly == true) ...[
+                  if (widget.isWeekly == true) ...[
                     Builder(
                       builder: (context) {
                         final selectedMonth =

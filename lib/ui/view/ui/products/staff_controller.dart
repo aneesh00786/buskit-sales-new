@@ -41,7 +41,6 @@ class StaffController extends GetxController {
     "Status",
     ""
   ].obs;
-
   RxBool isWeekly = true.obs;
   RxInt selectedTabIndex = 0.obs;
   RxBool isPasswordVisible = false.obs;

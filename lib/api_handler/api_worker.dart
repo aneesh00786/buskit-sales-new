@@ -272,25 +272,22 @@ class ApiWorker with ApiConstants {
     log('Request body fetchSalesmanPerformance: $requestPayload');
     final connectivityResult = await Connectivity().checkConnectivity();
     bool isOnline = connectivityResult != ConnectivityResult.none;
-
     if (isOnline) {
       try {
         Response response = await dio1.post(
           apiUrl,
           data: requestPayload,
         );
-
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonData = response.data['data'];
           log('Performance Response: $jsonData');
           await performanceBox.put(cacheKey, jsonData);
-
-          // Return the parsed data
           return PerformanceData.fromJson(jsonData);
         } else {
           handleHttpResponseError(
             statusCode: response.statusCode!,
             showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Salesman performance"
           );
           log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
           final cachedData = performanceBox.get(cacheKey);
@@ -299,8 +296,8 @@ class ApiWorker with ApiConstants {
             final castedData = LocalStorage().castToStringDynamic(cachedData);
             return PerformanceData.fromJson(castedData);
           } else {
-            NkCommonFunction.showErrorSnakBar('No cached data available.');
-            log("No cached data available.");
+            NkCommonFunction.showErrorSnakBar('No cached data available1.');
+            log("No cached data available1.");
             return null;
           }
         }
@@ -316,8 +313,7 @@ class ApiWorker with ApiConstants {
           final castedData = LocalStorage().castToStringDynamic(cachedData);
           return PerformanceData.fromJson(castedData);
         } else {
-          NkCommonFunction.showErrorSnakBar('No cached data available.');
-          log("No cached data available.");
+          log("No cached data available2.");
           return null;
         }
       } catch (e) {
@@ -336,8 +332,8 @@ class ApiWorker with ApiConstants {
           final castedData = LocalStorage().castToStringDynamic(cachedData);
           return PerformanceData.fromJson(castedData);
         } else {
-          NkCommonFunction.showErrorSnakBar('No cached data available.');
-          log("No cached data available.");
+          NkCommonFunction.showErrorSnakBar('No cached data available3.');
+          log("No cached data available3.");
           return null;
         }
       } catch (e) {
@@ -485,7 +481,7 @@ class ApiWorker with ApiConstants {
         return RecentOrderCountResponse.fromJson(parsedData);
       } else {
         log('No cached data available for key: $cacheKey');
-        throw Exception('No cached data available');
+        throw Exception('No cached data available4');
       }
     } catch (e) {
       log('Error fetching from Hive: $e');
@@ -1045,7 +1041,9 @@ class ApiWorker with ApiConstants {
         log('Error fetching data from API: $e');
         handleHttpResponseError(
             statusCode: e.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Calender Event"
+            );
       }
     } else {
       NkCommonFunction.showErrorSnakBar(
@@ -1071,7 +1069,9 @@ class ApiWorker with ApiConstants {
       log('Error fetching from Hive: $e');
       handleHttpResponseError(
           statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Calender Event"
+          );
     }
     if (allEvents.isEmpty) {
       log('No events found in cache.');
@@ -1238,6 +1238,7 @@ class ApiWorker with ApiConstants {
         handleHttpResponseError(
           statusCode: response.statusCode ?? 0,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Pending payment"
         );
         log('Fetching cached data due to API error for key: $cacheKey');
         return localStorage.storedPendingPaymentData(
@@ -1248,6 +1249,7 @@ class ApiWorker with ApiConstants {
       handleHttpResponseError(
         statusCode: dioError.response?.statusCode ?? 0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "Pending payment"
       );
       log('Fetching cached data due to connection failure for key: $cacheKey');
       return localStorage.storedPendingPaymentData(pendingPaymentBox, cacheKey);
@@ -1353,7 +1355,9 @@ class ApiWorker with ApiConstants {
       } on DioException catch (error) {
         handleHttpResponseError(
             statusCode: error.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Recent Order",
+            );
         log('DioException occurred. Status Code: ${error.response?.statusCode}');
         log('Response Data: ${error.response?.data}');
         log('Request Data: ${error.requestOptions.data}');

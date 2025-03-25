@@ -66,6 +66,7 @@ class PendingPaymentController extends GetxController {
         paginationModel: PaginationModel(),
         salesmanId: salesmanId,
         compId: compId,
+        isLogin: isLogin
       );
       // ignore: unnecessary_null_comparison
       if (data.data != null) {

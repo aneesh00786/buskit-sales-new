@@ -838,6 +838,7 @@ class ApiService {
         handleHttpResponseError(
           statusCode: response.statusCode,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: 'fetch customer'
         );
         return LocalStorage().storedCustomerData(customerBox);
       }

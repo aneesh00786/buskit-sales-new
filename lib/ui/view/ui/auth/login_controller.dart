@@ -121,8 +121,7 @@ class LoginController extends GetxController {
               currentYear: currentYear.toString(),
               selectedTabIndex: _tabController!.index + 1,
               staffId: salesmanId,
-              isFromLogin: true
-              ),
+              isFromLogin: true),
           leadsController.loadLeadsCustomerData,
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
@@ -130,18 +129,19 @@ class LoginController extends GetxController {
               .fetchCalenderEvents(initialDay ?? DateTime.now()),
           ApiWorker().fetchDiscounts(companyId, salesmanId),
           CartDatabaseManager().getDraftItems(),
+          ApiWorker()
+              .getRecentOrdersData(
+                searchModel: searchData,
+                orderStatus: 11,
+                isLogin: true,
+                startDate: '',
+                endDate: '',
+                page: 1,
+              )
+              .then((data) =>
+                  log("Recent orders fetched successfully. Data: ${data.data}"))
+              .catchError((e) => log("Error while fetching recent orders: $e"))
         ]);
-        await ApiWorker()
-            .getRecentOrdersData(
-              searchModel: searchData,
-              orderStatus: 11,
-              isLogin: true,
-              startDate: firstDayString,
-              endDate: lastDayString,
-            )
-            .then((data) =>
-                log("Recent orders fetched successfully. Data: ${data}"))
-            .catchError((e) => log("Error while fetching recent orders: $e"));
 
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);

@@ -66,15 +66,15 @@ class StaffController extends GetxController {
   var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerData>();
 
-  Future<void> loadSalesmanTarget(
-      String salesmanId, String month, String year, String monthName,bool isFromLogin) async {
+  Future<void> loadSalesmanTarget(String salesmanId, String month, String year,
+      String monthName, bool isFromLogin) async {
     log("✅ loadSalesmanTarget STARTED:");
     isLoading.value = true;
     try {
       var response = await ApiWorker().fetchSalesmanPerformanceData(
         monthName: monthName,
         year: int.parse(year),
-        isfromLogin:isFromLogin? true:false,
+        isfromLogin: isFromLogin ? true : false,
       );
 
       if (response != null) {
@@ -140,8 +140,8 @@ class StaffController extends GetxController {
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
 
-    await loadSalesmanTarget(
-        staffId, selectedMonthName, currentYear, selectedMonthName,isFromLogin??false);
+    await loadSalesmanTarget(staffId, selectedMonthName, currentYear,
+        selectedMonthName, isFromLogin ?? false);
   }
 
   Widget get getIsPasswordVisible {
@@ -259,8 +259,8 @@ class StaffController extends GetxController {
 
       var data =
           await ApiWorker().fetchSalesmanValueTarget(salesmanId, year, month);
-      salesmanValueTargetList.assignAll(data.data);
-      return data.data;
+      salesmanValueTargetList.assignAll(data?.data ?? []);
+      return data?.data ?? [];
     } finally {
       isValueTargetLoading.value = false;
     }
@@ -269,20 +269,23 @@ class StaffController extends GetxController {
   RxList<SalesmanTargetTableData> salesmanTargetTableList =
       <SalesmanTargetTableData>[].obs;
   RxBool isTargetLoading = false.obs;
-  Future<List<SalesmanTargetTableData>> loadSalesmanTargetTableData(
-      String salesmanId, String month, String year) async {
-    try {
-      isTargetLoading.value = true;
-
-      log("isTargetLoading ${isTargetLoading.value}");
-
-      var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
-      salesmanTargetTableList.assignAll(data.data!);
-      return data.data!;
-    } finally {
-      isTargetLoading.value = false;
-    }
+Future<List<SalesmanTargetTableData>> loadSalesmanTargetTableData(
+    String salesmanId, String month, String year) async {
+  try {
+    isTargetLoading.value = true;
+    log("isTargetLoading ${isTargetLoading.value}");
+    var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
+    salesmanTargetTableList.assignAll(data?.data ?? []);
+    log('Salesman Target List Length :${salesmanTargetTableList.length}');
+    return data?.data ?? [];
+  } catch (e) {
+    log("Error loading target data: $e");
+    return [];
+  } finally {
+    isTargetLoading.value = false;
   }
+}
+
 
   RxBool isTimesheetLoading = false.obs;
   RxMap<String, StaffTimesheetData> staffTimesheetData =

@@ -95,7 +95,7 @@ class ApiService {
     String? startDate,
     String? endDate,
   }) async {
-    final String salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final String salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
     final String jsonString =
         await SessionManager.getStringValue(SpString.spLogin);
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
@@ -110,7 +110,6 @@ class ApiService {
     };
     log('Start Date End Date $startDate/$endDate');
     final dashboardBox = Hive.box('dashboardBox');
-
     try {
       final connectivity = await Connectivity().checkConnectivity();
       if (connectivity == ConnectivityResult.none) {
@@ -152,8 +151,9 @@ class ApiService {
         throw Exception('Session expired');
       } else {
         handleHttpResponseError(
-        statusCode: response.statusCode!,
+        statusCode: response.statusCode??0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: 'Dashboard data'
       );
       return localStorage.storedDashboardData(dashboardBox);
       }
@@ -163,6 +163,7 @@ class ApiService {
       handleHttpResponseError(
         statusCode: statusCode,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: 'Dashboard data'
       );
       return localStorage.storedDashboardData(dashboardBox);
     } catch (e) {
@@ -822,9 +823,7 @@ class ApiService {
               .toList();
         }
         await customerBox.put('fetchCustomerData', jsonResponse);
-
         log('Customer List Length : ${customers.length}');
-
         return CustomerResponseModelxx(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,

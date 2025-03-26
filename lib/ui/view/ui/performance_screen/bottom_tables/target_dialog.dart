@@ -15,7 +15,6 @@ class StaffTargetDialog extends StatefulWidget {
   final bool isTarget;
   final bool isProjection;
   final bool isWeekly;
-
   const StaffTargetDialog({
     super.key,
     required this.staffController,
@@ -23,11 +22,9 @@ class StaffTargetDialog extends StatefulWidget {
     required this.isProjection,
     required this.isWeekly,
   });
-
   @override
   _StaffTargetDialogState createState() => _StaffTargetDialogState();
 }
-
 class _StaffTargetDialogState extends State<StaffTargetDialog>
     with SingleTickerProviderStateMixin {
   List<TextEditingController> _targetControllers = [];
@@ -39,13 +36,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Map<dynamic, String> updatedTargets = {};
   Map<dynamic, String> updatedProjection = {};
   Map<dynamic, String> weeklyTargets = {};
-
   final int currentMonth = DateTime.now().month;
   final int currentYear = DateTime.now().year;
-
   // bool isWeekly = false;
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -415,8 +409,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
 
     final categoryIds = getCategoryIds();
     final relevantWeeks = getWeeksForMonth(currentYear, selectedMonth);
-
-    // Ensure updatedTargets and updatedProjection also capture weekly inputs
     updatedTargets = {};
     updatedProjection = {};
 
@@ -424,17 +416,12 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         categoryIndex < categoryIds.length;
         categoryIndex++) {
       final categoryId = categoryIds[categoryIndex].toString();
-
-      // Monthly target and projection values
       updatedTargets[categoryId] =
           _targetControllers[categoryIndex].text.toString();
       updatedProjection[categoryId] =
           _projectionControllers[categoryIndex].text.toString();
-
-      // Weekly target and projection values
       for (var week in relevantWeeks) {
         final weekKey = 'week$week';
-
         final weeklyTargetControllers = _weeklyTargetControllers[weekKey] ?? [];
         final weeklyProjectionControllers =
             _weeklyProjectionControllers[weekKey] ?? [];
@@ -450,8 +437,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         }
       }
     }
-
-    // Ensure formattedData has all data before API call
     Map<String, dynamic> formattedData = {
       for (var key in updatedTargets.keys)
         key: [
@@ -461,16 +446,13 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           }
         ]
     };
-
     final weeklyTargetRequest =
         buildTargetRequestData(categoryIds, relevantWeeks);
     final weeklyProjectionRequest =
         buildProjectionRequestData(categoryIds, relevantWeeks);
-
     setState(() {
       isLoading = true;
     });
-
     try {
       await widget.staffController.updateCategoryTarget(
         SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
@@ -480,13 +462,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         widget.isWeekly ? weeklyTargetRequest : {},
         widget.isWeekly ? weeklyProjectionRequest : {},
       );
-
       widget.staffController.loadSalesmanTargetForSelectedTab(
         currentYear: widget.staffController.selectedDate.year.toString(),
         selectedTabIndex: widget.staffController.tabController.index + 1,
         staffId: SessionHelper.loginSavedData?.salesmanId ?? '',
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Targets and Projections updated successfully!')),
@@ -501,7 +481,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       });
     }
   }
-
   Widget _buildTableHeader(String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -515,7 +494,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       ),
     );
   }
-
   List<TableRow> _buildCategoryRows() {
     return List.generate(widget.staffController.salesmanTargetTableList.length,
         (index) {
@@ -529,7 +507,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       );
     });
   }
-
   int getWeekNumber(DateTime date) {
     DateTime startOfYear = DateTime(date.year, 1, 1);
     int daysSinceStartOfYear = date.difference(startOfYear).inDays;
@@ -701,151 +678,3 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     );
   }
 }
-
-
-   // final selectedMonth = _tabController!.index + 1;
-    // final selectedMonthName =
-    //     DateFormat.MMMM().format(DateTime(0, selectedMonth));
-
-    // Map<String, String> buildTargetRequestData(
-    //     List<int> categoryIds, List<int> relevantWeeks) {
-    //   final Map<String, String> weeklyTargetRequest = {};
-
-    //   for (var week in relevantWeeks) {
-    //     final weekKey = 'week$week';
-    //     final controllers = _weeklyTargetControllers[weekKey] ?? [];
-
-    //     for (var categoryIndex = 0;
-    //         categoryIndex < categoryIds.length;
-    //         categoryIndex++) {
-    //       final categoryId = categoryIds[categoryIndex];
-    //       final key = 'weekly_${categoryId}_week$week';
-    //       final controller = categoryIndex < controllers.length
-    //           ? controllers[categoryIndex]
-    //           : null;
-    //       weeklyTargetRequest[key] = controller?.text ?? '';
-    //     }
-    //   }
-
-    //   return weeklyTargetRequest;
-    // }
-
-    // Map<String, String> buildProjectionRequestData(
-    //     List<int> categoryIds, List<int> relevantWeeks) {
-    //   final Map<String, String> weeklyTargetRequest = {};
-
-    //   for (var week in relevantWeeks) {
-    //     final weekKey = 'week$week';
-    //     final controllers = _weeklyProjectionControllers[weekKey] ?? [];
-
-    //     for (var categoryIndex = 0;
-    //         categoryIndex < categoryIds.length;
-    //         categoryIndex++) {
-    //       final categoryId = categoryIds[categoryIndex];
-    //       final key = 'projection_category_${categoryId}_week$week';
-    //       final controller = categoryIndex < controllers.length
-    //           ? controllers[categoryIndex]
-    //           : null;
-    //       weeklyTargetRequest[key] = controller?.text ?? '';
-    //     }
-    //   }
-
-    //   return weeklyTargetRequest;
-    // }
-
-    // List<int> getCategoryIds() {
-    //   return widget.staffController.salesmanTargetList
-    //       .map((category) => category.id!)
-    //       .toList();
-    // }
-
-    // final categoryIds = getCategoryIds();
-    // final relevantWeeks = getWeeksForMonth(currentYear, selectedMonth);
-
-    // // Ensure updatedTargets and updatedProjection also capture weekly inputs
-    // updatedTargets = {};
-    // updatedProjection = {};
-
-    // for (var categoryIndex = 0;
-    //     categoryIndex < categoryIds.length;
-    //     categoryIndex++) {
-    //   final categoryId = categoryIds[categoryIndex].toString();
-
-    //   // Monthly target and projection values
-    //   updatedTargets[categoryId] =
-    //       _targetControllers[categoryIndex].text.toString();
-    //   updatedProjection[categoryId] =
-    //       _projectionControllers[categoryIndex].text.toString();
-
-    //   // Weekly target and projection values
-    //   for (var week in relevantWeeks) {
-    //     final weekKey = 'week$week';
-
-    //     final weeklyTargetControllers = _weeklyTargetControllers[weekKey] ?? [];
-    //     final weeklyProjectionControllers =
-    //         _weeklyProjectionControllers[weekKey] ?? [];
-
-    //     if (categoryIndex < weeklyTargetControllers.length) {
-    //       updatedTargets['weekly_${categoryId}_week$week'] =
-    //           weeklyTargetControllers[categoryIndex].text.toString();
-    //     }
-
-    //     if (categoryIndex < weeklyProjectionControllers.length) {
-    //       updatedProjection['projection_category_${categoryId}_week$week'] =
-    //           weeklyProjectionControllers[categoryIndex].text.toString();
-    //     }
-    //   }
-    // }
-
-    // // Ensure formattedData has all data before API call
-    // Map<String, dynamic> formattedData = {
-    //   for (var key in updatedTargets.keys)
-    //     key: [
-    //       {
-    //         "target": updatedTargets[key] ?? "0",
-    //         "projection": updatedProjection[key] ?? "0"
-    //       }
-    //     ]
-    // };
-
-    // log('Formatted Data before API Call: $formattedData');
-
-    // final weeklyTargetRequest =
-    //     buildTargetRequestData(categoryIds, relevantWeeks);
-    // final weeklyProjectionRequest =
-    //     buildProjectionRequestData(categoryIds, relevantWeeks);
-
-    // log('Request Weekly Target Data: $weeklyTargetRequest');
-    // log('Request Weekly Projection Data: $weeklyProjectionRequest');
-
-    // widget.staffController.updateCategoryTarget(
-    //   widget.staffData.salesmanId.toString(),
-    //   selectedMonthName,
-    //   currentYear.toString(),
-    //   formattedData,
-    //   weeklyTargetRequest,
-    //   weeklyProjectionRequest,
-    // );
-
-    // print('Updated Targets Sent to API: $formattedData');
-    // Navigator.of(context).pop();
-
-  //     Widget _buildTableTextField(int index) {
-  //   return Container(
-  //     height: 50,
-  //     padding: const EdgeInsets.all(8.0),
-  //     child: TextField(
-  //       controller: _targetControllers[index],
-  //       textAlign: TextAlign.center,
-  //       decoration: InputDecoration(
-  //         fillColor: Colors.blueGrey.shade50,
-  //         filled: true,
-  //         border: OutlineInputBorder(
-  //           borderRadius: BorderRadius.circular(10),
-  //           borderSide: BorderSide.none,
-  //         ),
-  //         contentPadding: const EdgeInsets.symmetric(vertical: 5),
-  //       ),
-  //     ),
-  //   );
-  // }

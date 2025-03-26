@@ -54,7 +54,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String targetType = '';
 
   Future<void> _loadSettings() async {
-    await _loadWeeklyType();
+    // await _loadWeeklyType();
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
@@ -78,6 +78,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 
   Future<void> _loadWeeklyType() async {
     final weeklyType = await ApiWorker().getWeeklyType();
+    log('Weekely Type in Screen $weeklyType');
     staffController.isWeekly.value = weeklyType == "true";
     log("Weekly state : $weeklyType : ${staffController.isWeekly.value}");
     Future.delayed(const Duration(seconds: 1));
@@ -87,7 +88,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   void initState() {
     super.initState();
     _initializeSettings();
-
     ApiWorker().fetchAllSettings(companyId);
     _loadSettings();
     staffController.tabController = TabController(
@@ -123,14 +123,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   }
 
   Future<void> _initializeSettings() async {
-    setState(() => isLoadingSettings = true); // Set loading state
-
+    setState(() => isLoadingSettings = true);
     await Future.wait([
       _loadSettings(),
       _loadWeeklyType(),
     ]);
-
-    setState(() => isLoadingSettings = false); // Update state when done
+    setState(() => isLoadingSettings = false);
   }
 
   void updateControllers(int count) {
@@ -152,13 +150,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   @override
   Widget build(BuildContext context) {
     bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
-
-    if (isLoadingSettings) {
-      return const Center(
-          child:
-              CircularProgressIndicator()); // Show loader until settings are ready
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,

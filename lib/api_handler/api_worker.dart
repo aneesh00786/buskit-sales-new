@@ -153,7 +153,6 @@ class ApiWorker with ApiConstants {
     log('Fetching settings for company ID: $companyId');
     final connectivityResult = await Connectivity().checkConnectivity();
     bool isOnline = connectivityResult != ConnectivityResult.none;
-
     if (isOnline) {
       try {
         final response = await dio1.post(
@@ -178,8 +177,18 @@ class ApiWorker with ApiConstants {
         return settingsList;
       } on DioException catch (dioError) {
         log("Dio error of Settings: ${dioError.response?.data}");
-        NkCommonFunction.showErrorSnakBar(
-            'Failed to fetch settings. Showing offline data.');
+        final cachedData = settingsBox.get(cacheKey);
+        if (cachedData != null) {
+          log('Fetched settings from Hive: $cachedData');
+          final settingsList = (cachedData as List<dynamic>)
+              .map((item) => AllCompanySettingsData.fromJson(LocalStorage()
+                  .castToStringDynamic(Map<dynamic, dynamic>.from(item))))
+              .toList();
+          return settingsList;
+        } else {
+          log("No cached settings data available.");
+          NkCommonFunction.showErrorSnakBar('No offline data available.');
+        }
       } catch (e) {
         log("Error fetching settings: $e");
         NkCommonFunction.showErrorSnakBar(
@@ -188,15 +197,17 @@ class ApiWorker with ApiConstants {
     } else {
       log("No internet. Fetching settings from Hive.");
       NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Showing offline data.');
+          'No internet connection. Unable to fetch data.');
     }
     try {
       final cachedData = settingsBox.get(cacheKey);
       if (cachedData != null) {
         log('Fetched settings from Hive: $cachedData');
-        return (cachedData as List)
-            .map((settingJson) => AllCompanySettingsData.fromJson(settingJson))
+        final settingsList = (cachedData as List<dynamic>)
+            .map((item) => AllCompanySettingsData.fromJson(LocalStorage()
+                .castToStringDynamic(Map<dynamic, dynamic>.from(item))))
             .toList();
+        return settingsList;
       } else {
         log("No cached settings data available.");
         NkCommonFunction.showErrorSnakBar('No offline data available.');
@@ -227,7 +238,7 @@ class ApiWorker with ApiConstants {
 
       Response response = await dio1.post(apiUrl, data: requestPayload);
       if (response.statusCode == 200) {
-        log('Response Data: ${response.data}');
+        log('Response Data To Bar: ${response.data}');
         return response.data as Map<String, dynamic>;
       } else {
         log("Failed to fetch data. Status: ${response.statusCode}, Message: ${response.statusMessage}");
@@ -270,76 +281,47 @@ class ApiWorker with ApiConstants {
     final performanceBox = Hive.box('performanceBox');
     log('Api URL for performance: $apiUrl');
     log('Request body fetchSalesmanPerformance: $requestPayload');
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool isOnline = connectivityResult != ConnectivityResult.none;
-    if (isOnline) {
-      try {
-        Response response = await dio1.post(
-          apiUrl,
-          data: requestPayload,
-        );
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = response.data['data'];
-          log('Performance Response: $jsonData');
-          await performanceBox.put(cacheKey, jsonData);
-          return PerformanceData.fromJson(jsonData);
-        } else {
-          handleHttpResponseError(
-              statusCode: response.statusCode!,
-              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-              message: "Salesman performance");
-          log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
-          final cachedData = performanceBox.get(cacheKey);
-          if (cachedData != null) {
-            log('Using cached data for key: $cacheKey');
-            final castedData = LocalStorage().castToStringDynamic(cachedData);
-            return PerformanceData.fromJson(castedData);
-          } else {
-            NkCommonFunction.showErrorSnakBar('No cached data available1.');
-            log("No cached data available1.");
-            return null;
-          }
-        }
-      } on DioException catch (dioError) {
-        log("Dio error occurred: ${dioError.message}");
-        if (dioError.response != null) {
-          log("Dio error response: ${dioError.response?.data}");
-          log("Dio error status code: ${dioError.response?.statusCode}");
-        }
-        final cachedData = performanceBox.get(cacheKey);
-        if (cachedData != null) {
-          log('Using cached data after API failure for key: $cacheKey');
-          final castedData = LocalStorage().castToStringDynamic(cachedData);
-          return PerformanceData.fromJson(castedData);
-        } else {
-          log("No cached data available2.");
-          return null;
-        }
-      } catch (e) {
-        log("Error fetching salesman Performance: $e");
-        NkCommonFunction.showErrorSnakBar('Unexpected error occurred.');
-        return null;
-      }
-    } else {
-      log("Offline mode: Fetching data from Hive.");
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Showing offline data.');
-      try {
+    try {
+      Response response = await dio1.post(
+        apiUrl,
+        data: requestPayload,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData = response.data['data'];
+        log('Performance Response: $jsonData');
+        await performanceBox.put(cacheKey, jsonData);
+        return PerformanceData.fromJson(jsonData);
+      } else {
+        log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
         final cachedData = performanceBox.get(cacheKey);
         if (cachedData != null) {
           log('Using cached data for key: $cacheKey');
-          final castedData = LocalStorage().castToStringDynamic(cachedData);
+          final castedData = localStorage.castToStringDynamic(cachedData);
           return PerformanceData.fromJson(castedData);
         } else {
-          NkCommonFunction.showErrorSnakBar('No cached data available3.');
-          log("No cached data available3.");
+          log("No cached data available.");
           return null;
         }
-      } catch (e) {
-        log("Error fetching from Hive: $e");
-        NkCommonFunction.showErrorSnakBar('Error fetching offline data.');
+      }
+    } on DioException catch (dioError) {
+      log("Dio error occurred: ${dioError.message}");
+      if (dioError.response != null) {
+        log("Dio error response: ${dioError.response?.data}");
+        log("Dio error status code: ${dioError.response?.statusCode}");
+      }
+      final cachedData = performanceBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Using cached data after API failure for key: $cacheKey');
+        final castedData = localStorage.castToStringDynamic(cachedData);
+        return PerformanceData.fromJson(castedData);
+      } else {
+        log("No cached data available.");
         return null;
       }
+    } catch (e) {
+      log("Error fetching salesman Performance: $e");
+      return null;
     }
   }
 
@@ -784,7 +766,7 @@ class ApiWorker with ApiConstants {
     } else {
       log('No internet. Fetching from Hive...');
       NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Showing offline data.');
+          'No internet connection. Unable to fetch data.');
     }
     try {
       var productBox = Hive.box('productBox');
@@ -930,6 +912,8 @@ class ApiWorker with ApiConstants {
       }
     } else {
       log('No internet. Fetching from Hive...');
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Unable to fetch data.');
     }
     try {
       return localStorage.storedLeadsData(leadsBox, cacheKey);
@@ -981,9 +965,8 @@ class ApiWorker with ApiConstants {
       }
     } else {
       log('No internet. Fetching from Hive...');
+      
     }
-
-    // Fetching data from Hive
     try {
       final cachedData = leadsBox.get(cacheKey);
       if (cachedData != null) {
@@ -1642,24 +1625,52 @@ class ApiWorker with ApiConstants {
 //     }
 //   }
 
-Future<String> getWeeklyType() async {
+  Future<String?> getWeeklyType() async {
+    const cacheKey = 'weekly_type';
+    final weeklyTypeBox = Hive.box('weeklyTypeBox');
     try {
-      final response = await dio.postbycustom(
-        ApiConstants.getWeekelyType,
-        data: FormData.fromMap({
-          "companyId": companyId,
-        }),
-      );
-      if (response.data is Map<String, dynamic> &&
-          response.data.containsKey('data')) {
-        return response.data['data'].toString();
+      final connectivityResult = await Connectivity().checkConnectivity();
+      bool isOnline = connectivityResult != ConnectivityResult.none;
+      if (isOnline) {
+        final response = await dio.postbycustom(
+          ApiConstants.getWeekelyType,
+          data: FormData.fromMap({
+            "companyId": companyId,
+          }),
+        );
+        if (response.data is Map<String, dynamic> &&
+            response.data.containsKey('data')) {
+          final weeklyType = response.data['data'].toString();
+          log("Weekly Type fetched from API: $weeklyType");
+          await weeklyTypeBox.put(cacheKey, weeklyType);
+          log("Weekly Type saved to Hive with key: $cacheKey");
+          return weeklyType;
+        } else {
+          log("Unexpected response format: ${response.data}");
+          throw Exception("Unexpected response format");
+        }
       } else {
-        throw Exception("Unexpected response format");
+        log("Offline mode: Fetching Weekly Type from Hive.");
       }
     } catch (error) {
-      log(error.toString());
-      throw DioExceptionHandler.fromDioError(error as DioException);
+      log("Error fetching Weekly Type from API: $error");
+      if (error is DioException) {
+        throw DioExceptionHandler.fromDioError(error);
+      }
     }
+    try {
+      if (weeklyTypeBox.containsKey(cacheKey)) {
+        final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
+        log("Weekly Type fetched from Hive: $cachedWeeklyType");
+        return cachedWeeklyType;
+      } else {
+        log("No cached Weekly Type data found for key: $cacheKey");
+      }
+    } catch (e) {
+      log("Error accessing cached Weekly Type data: $e");
+    }
+
+    return null;
   }
 
 // // Helper function to fetch cached data from Hive
@@ -1681,59 +1692,181 @@ Future<String> getWeeklyType() async {
 //     }
 //   }
 
-  Future<SalesmanValueTargetResponse> fetchSalesmanValueTarget(
-      String salesmanId, String year, String? month) async {
-    final request = {
-      "salesman_id": salesmanId,
-      "year": year,
-      if (month != null) "month": month,
-      "companyId": companyId,
-    };
+Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
+    String salesmanId, String year, String? month) async {
+  final requestPayload = {
+    "salesman_id": salesmanId,
+    "year": year,
+    if (month != null) "month": month,
+    "companyId": companyId,
+  };
 
-    log("fetchSalesmanValueTarget zzz $request");
+  final cacheKey =
+      'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
+  final targetBox = Hive.box('salesmanValueTargetBox');
 
-    final response = await dio.postbycustom(
-      ApiConstants.fetchSalesmanValueTarget,
-      data: {
-        "salesman_id": salesmanId,
-        "year": year,
-        if (month != null) "month": month,
-        "companyId": companyId,
-      },
-    ).onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    log(" Salesman Value Target Response : $response");
-    return SalesmanValueTargetResponse.fromJson(response.data);
+  log("fetchSalesmanValueTarget request: $requestPayload");
+
+  try {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool isOnline = connectivityResult != ConnectivityResult.none;
+
+    if (isOnline) {
+      // Online Mode: Fetch data from API
+      final response = await dio
+          .postbycustom(
+        ApiConstants.fetchSalesmanValueTarget,
+        data: requestPayload,
+      )
+          .onError((DioException error, stackTrace) {
+        log(error.toString());
+        throw DioExceptionHandler.fromDioError(error);
+      });
+
+      log("Salesman Value Target Response: $response");
+
+      if (response.statusCode == 200) {
+        final dynamic jsonData = response.data['data'];
+        if (jsonData is Map<String, dynamic>) {
+          log("Salesman Value Target Data: $jsonData");
+          await targetBox.put(cacheKey, jsonData);
+          return SalesmanValueTargetResponse.fromJson(jsonData);
+        } else {
+          log("Unexpected response format from API");
+        }
+      } else {
+        log(
+            "Failed to fetch value target data: ${response.statusCode} ${response.statusMessage}");
+      }
+    } else {
+      log(
+          "Offline mode: Fetching value target data from Hive for key: $cacheKey");
+    }
+  } on DioException catch (dioError) {
+    log("Dio error occurred: ${dioError.message}");
+  } catch (e) {
+    log("Unexpected error occurred Salesman Value Target: $e");
+  }
+  try {
+    if (targetBox.containsKey(cacheKey)) {
+      final cachedData = targetBox.get(cacheKey);
+      log("Using cached data for key: $cacheKey");
+      if (cachedData is Map<String, dynamic>) {
+        return SalesmanValueTargetResponse.fromJson(cachedData);
+      } else {
+        log("Cached data format is invalid.");
+      }
+    } else {
+      log("No cached data available for key: $cacheKey");
+    }
+  } catch (e) {
+    log("Error accessing cached data: $e");
   }
 
-  Future<SalesmanTargetTableResponse> fetchSalesmanTarget(
-      String salesmanId, String month, String year) async {
-    var request = {
-      "salesman_id": salesmanId,
-      "year": year,
-      "month": month,
-      "companyId": companyId,
-    };
+  return null;
+}
 
-    log("fetchSalesmanTarget request : $request");
 
-    final response = await dio.postbycustom(
-      ApiConstants.fetchSalesmanTarget,
-      data: {
-        "salesman_id": salesmanId,
-        "year": year,
-        "month": month,
-        "companyId": companyId,
-      },
-    ).onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    log(" Salesman Target Response : $response");
-    return SalesmanTargetTableResponse.fromJson(response.data);
+Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
+    String salesmanId, String month, String year) async {
+  final requestPayload = {
+    "salesman_id": salesmanId,
+    "year": year,
+    "month": month,
+    "companyId": companyId,
+  };
+
+  final cacheKey = 'salesman_target_${salesmanId}_${year}_$month';
+  final targetBox = Hive.box('salesmanTargetBox');
+
+  log("fetchSalesmanTarget request: $requestPayload");
+
+  try {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    bool isOnline = connectivityResult != ConnectivityResult.none;
+
+    if (isOnline) {
+      // Online Mode: Fetch data from API
+      final response = await dio
+          .postbycustom(
+        ApiConstants.fetchSalesmanTarget,
+        data: requestPayload,
+      )
+          .onError((DioException error, stackTrace) {
+        log(error.toString());
+        throw DioExceptionHandler.fromDioError(error);
+      });
+
+      log("Salesman Target Response: $response");
+
+      if (response.statusCode == 200) {
+        final dynamic jsonData = response.data['data'];
+        log("Salesman Target Data: $jsonData");
+
+        if (jsonData is List) {
+          // Handle the case where 'data' is a list
+          await targetBox.put(cacheKey, jsonData);
+          return SalesmanTargetTableResponse.fromJson({"data": jsonData});
+        } else if (jsonData is Map<String, dynamic>) {
+          // Handle the case where 'data' is a map
+          await targetBox.put(cacheKey, jsonData);
+          return SalesmanTargetTableResponse.fromJson(jsonData);
+        } else {
+          log("Unexpected response format for data.");
+        }
+      } else {
+        log("Failed to fetch target data: ${response.statusCode} ${response.statusMessage}");
+      }
+    } else {
+      try {
+    if (targetBox.containsKey(cacheKey)) {
+      final cachedData = targetBox.get(cacheKey);
+      log("Using cached data for key: $cacheKey");
+      log("Cached Data Salesman Target: $cachedData");
+
+      if (cachedData is List) {
+        return SalesmanTargetTableResponse.fromJson({"data": cachedData});
+      } else if (cachedData is Map<String, dynamic>) {
+        return SalesmanTargetTableResponse.fromJson(cachedData);
+      } else {
+        log("Cached data format is invalid.");
+      }
+    } else {
+      log("No cached data available for key: $cacheKey");
+    }
+  } catch (e) {
+    log("Error accessing cached data: $e");
   }
+      log("Offline mode: Fetching target data from Hive for key: $cacheKey");
+    }
+  } on DioException catch (dioError) {
+    log("Dio error occurred: ${dioError.message}");
+  } catch (e) {
+    log("Unexpected error occurred Salesman target: $e");
+  }
+  try {
+    if (targetBox.containsKey(cacheKey)) {
+      final cachedData = targetBox.get(cacheKey);
+      log("Using cached data for key: $cacheKey");
+      log("Cached Data Salesman Target: $cachedData");
+
+      if (cachedData is List) {
+        return SalesmanTargetTableResponse.fromJson({"data": cachedData});
+      } else if (cachedData is Map<String, dynamic>) {
+        return SalesmanTargetTableResponse.fromJson(cachedData);
+      } else {
+        log("Cached data format is invalid.");
+      }
+    } else {
+      log("No cached data available for key: $cacheKey");
+    }
+  } catch (e) {
+    log("Error accessing cached data: $e");
+  }
+
+  return null;
+}
+
 
   Future<StaffTimesheetResponse> getTimeSheetData({
     String? startDate,

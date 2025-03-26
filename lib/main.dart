@@ -59,6 +59,8 @@ void main() async {
   await Hive.openBox('ordersBox');
   await Hive.openBox('settingsBox');
   await Hive.openBox('calendarEventsBox');
+  await Hive.openBox('salesmanTargetBox');
+  await Hive.openBox('salesmanValueTargetBox');
   DatabaseHelper.database;
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,

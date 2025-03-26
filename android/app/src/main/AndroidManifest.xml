@@ -8,7 +8,7 @@
     <application
         android:label="buskit_sales"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_png_thrive_woo"
         android:networkSecurityConfig="@xml/network_security_config">
 
         <meta-data

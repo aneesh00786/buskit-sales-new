@@ -49,15 +49,21 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                Assets.iconsIcLoginLogo,
-                width: appDimensions.width,
-                height: appDimensions.width / 7.5,
+              Image.asset(
+                Assets.pngThriveWoo,
+                // width: appDimensions!.width,
+                height: appDimensions!.width / 4,
                 fit: BoxFit.contain,
               ),
+              // SvgPicture.asset(
+              //   Assets.iconsIcLoginLogo,
+              //   width: appDimensions.width,
+              //   height: appDimensions.width / 7.5,
+              //   fit: BoxFit.contain,
+              // ),
             ],
           ),
-          nkMediumSizeBox(),
+          // nkMediumSizeBox(),
           TextFormField(
             controller: widget.loginController.emailController,
             decoration: InputDecoration(
@@ -111,8 +117,8 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
                   style: TextStyle(color: Colors.red),
                 )
               : const Text(''),
-          nkMediumSizeBox(),
-          nkMediumSizeBox(),
+          // nkMediumSizeBox(),
+          // nkMediumSizeBox(),
           TextFormField(
             controller: widget.loginController.passwordController,
             obscureText: widget.loginController.isPasswordVisible.value,
@@ -153,7 +159,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
                   style: TextStyle(color: Colors.red),
                 )
               : const Text(''),
-          nkMediumSizeBox(),
+          // nkMediumSizeBox(),
           const Align(
               alignment: Alignment.centerRight, child: ForgotPasswordScreen()),
           nkMediumSizeBox(),

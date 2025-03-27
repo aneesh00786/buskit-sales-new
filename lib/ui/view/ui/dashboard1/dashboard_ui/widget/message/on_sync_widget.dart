@@ -69,6 +69,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
     setState(() {
       _isSyncing = true;
     });
+    widget.onSync();
     await Future.delayed(const Duration(seconds: 2));
     await CartDatabaseManager().getDraftItems();
     await ApiWorker().fetchDiscounts(companyId, salesmanId);
@@ -97,7 +98,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
           decoration: BoxDecoration(
             color: !_isOnline
                 ? const Color.fromARGB(255, 201, 199, 199)
-                : primaryColor.withOpacity(0.7),
+                : const Color.fromARGB(255, 74, 176, 248).withOpacity(0.7),
             borderRadius: BorderRadius.circular(10),
           ),
           child: InkWell(
@@ -143,7 +144,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
         Text(
           _formatLastSyncTime(),
           style: const TextStyle(
-            color: Colors.grey,
+            color: Colors.white,
             fontSize: 11,
           ),
         ),

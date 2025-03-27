@@ -2,17 +2,34 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class NkSidebarXSideBar extends StatefulWidget {
@@ -34,8 +51,25 @@ class NkSidebarXSideBar extends StatefulWidget {
 
 class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   bool _onSwitchSelected = false;
-    bool _isLoading = true;
-
+  bool _isLoading = true;
+  StaffController staffController = Get.put(StaffController());
+  LeadsController leadsController = Get.put(LeadsController());
+  CustomersController leadsCustomerController = Get.put(CustomersController());
+  OrderController orderController = Get.put(OrderController());
+  CalenderMapController calenderMapController =
+      Get.put(CalenderMapController());
+  RejectedLeadsController leadsRejectedController =
+      Get.put(RejectedLeadsController());
+  CustomerAndOrderController customerAndOrderController =
+      Get.put(CustomerAndOrderController());
+  ProductsController productsController = Get.put(ProductsController());
+  PendingPaymentController pendingPaymentController =
+      Get.put(PendingPaymentController());
+    SearchModel searchData = SearchModel();
+  final ApiWorker _apiWorker = ApiWorker();
+  TabController? _tabController;
+  TabController? get tabController => _tabController;
+  final int currentYear = DateTime.now().year;
   @override
   void initState() {
     super.initState();
@@ -53,6 +87,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   @override
   Widget build(BuildContext context) {
     log('ImagePath Side : ${widget.userDetails.imagePath}');
+    final dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
     return OrientationBuilder(builder: (context, orientation) {
       return SidebarX(
         controller: widget._controller,
@@ -91,18 +127,102 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkResponse(
-                      onTap: () => {
-                            HomeController.homeScaffoldKey.currentState
-                                ?.closeDrawer(),
-                          },
-                      child: Icon(
-                        EneftyIcons.menu_outline,
-                        size: ResponsiveInfo.isMobile() ? 24 : 32,
-                        color: white,
-                      )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkResponse(
+                          onTap: () => {
+                                HomeController.homeScaffoldKey.currentState
+                                    ?.closeDrawer(),
+                              },
+                          child: Icon(
+                            EneftyIcons.menu_outline,
+                            size: ResponsiveInfo.isMobile() ? 24 : 32,
+                            color: white,
+                          )),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: SyncButtonWidget(
+                        onSync: () async {
+                          DateTime now = DateTime.now();
+                          DateTime firstDayOfMonth =
+                              DateTime(now.year, now.month, 1);
+                          DateTime lastDayOfMonth =
+                              DateTime(now.year, now.month + 1, 0);
+                          String firstDayString =
+                              DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+                          String lastDayString =
+                              DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+                          DateTime? initialDay;
+                          final companyId =
+                              SessionHelper.loginSavedData?.company_id ?? 0;
+                          final salesmanId =
+                              SessionHelper.loginSavedData?.salesmanId ?? '';
+                      
+                          dashboardProvider.resetProvider();
+                          dashboardProvider.fetchData();
+                          dashboardProvider.fetchChatData(salesmanId);
+                          await Future.delayed(const Duration(seconds: 2));
+                          final settings =
+                              await _apiWorker.fetchAllSettings(companyId);
+                          await Future.delayed(const Duration(microseconds: 500));
+                          await Provider.of<CustomersProvider>(context,
+                                  listen: false)
+                              .fetchCustomerData();
+                          await customerAndOrderController.loadCustomer();
+                          await Future.delayed(const Duration(microseconds: 500));
+                          await productsController.fetchCategoryData();
+                          await Future.delayed(const Duration(microseconds: 500));
+                          await ApiWorker()
+                              .fetchRecentOrderCount(startDate: '', endDate: '');
+                          await Future.delayed(const Duration(microseconds: 500));
+                          await pendingPaymentController.loadOrderData(
+                              chartIndex: 0, compId: companyId, isLogin: true);
+                          await Future.delayed(const Duration(microseconds: 500));
+                          await staffController.loadSalesmanTargetForSelectedTab(
+                              currentYear: currentYear.toString(),
+                              selectedTabIndex: _tabController?.index ?? 0 + 1,
+                              staffId: salesmanId);
+                      
+                          if (settings != null) {
+                            await SessionHelper().setSettingsData(settings);
+                          }
+                          SubCategoryItem? subCategoryItem =
+                              productsController.getInitialSubCategoryIdAndName();
+                          if (subCategoryItem != null &&
+                              (subCategoryItem.id ?? '').isNotEmpty) {
+                            await productsController
+                                .fetchProducts(subCategoryItem.id!);
+                          } else {
+                            log("No subcategory found. Products not fetched.");
+                          }
+                          await Future.delayed(const Duration(microseconds: 500));
+                          await leadsController.loadLeadsCustomerData;
+                          await leadsCustomerController.loadLeadsCustomerData;
+                          await leadsRejectedController.loadRejectedLeadsData;
+                          await Future.delayed(const Duration(microseconds: 500));
+                          ApiWorker().getRecentOrdersData(
+                            searchModel: searchData,
+                            orderStatus: 11,
+                            isLogin: false,
+                            startDate: firstDayString,
+                            endDate: lastDayString,
+                          );
+                          await calenderMapController
+                              .fetchCalenderEvents(initialDay ?? DateTime.now());
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Syncing offline orders...'),
+                              backgroundColor: Colors.blue,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(
                   height: 30,

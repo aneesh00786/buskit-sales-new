@@ -17,7 +17,10 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart'
+    as orderResponseModel;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -217,20 +220,90 @@ class ApiService {
     }
   }
 
+  // Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
+  //   required int catId,
+  //   required String startDate,
+  //   required String endDate,
+  // }) async {
+  //   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  //   final url = Uri.parse('$_baseUrl${ApiConstants.fetchCategoryPerformance}');
+  //   final requestBody = {
+  //     'catId': catId,
+  //     'startdate': startDate,
+  //     'enddate': endDate,
+  //     'targetType': '1',
+  //     'salesman_id': salesmanId,
+  //     'companyId': companyId
+  //   };
+
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(requestBody),
+  //     );
+
+  //     log('Salesman ID :$salesmanId');
+
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = jsonDecode(response.body);
+
+  //       var allCategoryList = jsonResponse['data'] as List;
+  //       List<Salesmanvn> allCategory =
+  //           allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
+
+  //       return ResponseModelCp(
+  //           statusCode: jsonResponse['status_code'] ?? 0,
+  //           status: jsonResponse['status'] ?? false,
+  //           message: jsonResponse['message'] ?? '',
+  //           data: allCategory);
+  //     } else {
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Failed to fetch data: sabikk  kavungal $e');
+  //   }
+  // }
+
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
-    required String startDate,
-    required String endDate,
+    String? fetchType,
+    String? startDate,
+    String? endDate,
+    String? selectedDay,
+    List<String>? selectedMonths,
+    List<String>? selectedWeeks,
+    int? year,
   }) async {
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetchCategoryPerformance}');
+    final url = Uri.parse('$_baseUrl1/fetchCategoryPerformance');
+    var sendData;
+
+    switch (fetchType) {
+      case "Month":
+        sendData = selectedMonths;
+        break;
+      case "Week":
+        sendData = selectedWeeks;
+        break;
+      case "Day":
+        sendData = [selectedDay];
+        break;
+      case "Year":
+        sendData = year;
+        break;
+      case "Range":
+        sendData = [startDate, endDate];
+        break;
+      default:
+        sendData = selectedMonths;
+    }
     final requestBody = {
-      'catId': catId,
-      'startdate': startDate,
-      'enddate': endDate,
-      'targetType': '1',
-      'salesman_id': salesmanId,
-      'companyId': companyId
+      "catId": catId,
+      "time_range": fetchType,
+      "selected_range": sendData,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      "year": 2025,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
     try {
@@ -239,12 +312,8 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
-      log('Salesman ID :$salesmanId');
-
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-
         var allCategoryList = jsonResponse['data'] as List;
         List<Salesmanvn> allCategory =
             allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
@@ -255,10 +324,154 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allCategory);
       } else {
+        print('Request failed with status 1: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      throw Exception('Failed to fetch data: sabikk  kavungal $e');
+      print('Exception occurred 1: $e');
+      throw Exception('Failed to fetch data: $e');
+    }
+  }
+
+  Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
+    required int catId,
+    String? salesmanId,
+    String? fetchType,
+    String? startDate,
+    String? endDate,
+    String? selectedDay,
+    List<String>? selectedMonths,
+    List<String>? selectedWeeks,
+    int? year,
+  }) async {
+    final url = Uri.parse('$_baseUrl1/fetch_orderByRange');
+    var sendData;
+
+    switch (fetchType) {
+      case "Month":
+        sendData = selectedMonths;
+        break;
+      case "Week":
+        sendData = selectedWeeks;
+        break;
+      case "Day":
+        sendData = [selectedDay];
+        break;
+      case "Year":
+        sendData = year;
+        break;
+      case "Range":
+        sendData = [startDate, endDate];
+        break;
+      default:
+        sendData = selectedMonths;
+    }
+
+    final requestBody = {
+      "categories_id": catId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "customer_id": "",
+      "salesman_id":  SessionHelper.loginSavedData?.salesmanId ?? '',
+      "bar_type": fetchType,
+      "range_type": fetchType,
+      "selected_range": sendData,
+      "year": fetchType == "Year" ? year : DateTime.now().year.toString(),
+      "limit": 1000,
+      "page": 1
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        var returnResponse = jsonResponse['data'] as List;
+        List<orderResponseModel.OrderData> orderData = returnResponse
+            .map((e) => orderResponseModel.OrderData.fromJson(e))
+            .toList();
+
+        return orderData;
+      } else {
+        print('Request failed with status 1: ${response.statusCode}');
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Exception occurred 1: $e');
+      throw Exception('Failed to fetch data: $e');
+    }
+  }
+
+  Future<List<TargetDatum>> fetchSalesmanTargetByCategory({
+    required int catId,
+    String? salesmanId,
+    String? fetchType,
+    String? startDate,
+    String? endDate,
+    String? selectedDay,
+    List<String>? selectedMonths,
+    List<String>? selectedWeeks,
+    int? year,
+  }) async {
+    final url = Uri.parse('$_baseUrl1/fetch_SalesmanTargetByCatId');
+    dynamic sendData;
+
+    switch (fetchType) {
+      case "Month":
+        sendData = selectedMonths;
+        break;
+      case "Week":
+        sendData = selectedWeeks;
+        break;
+      case "Day":
+        sendData = selectedDay != null ? [selectedDay] : null;
+        break;
+      case "Year":
+        sendData = year != null ? [year.toString()] : null;
+        break;
+      case "Range":
+        sendData = (startDate != null && endDate != null)
+            ? [startDate, endDate]
+            : null;
+        break;
+      default:
+        sendData = null;
+    }
+
+    final requestBody = {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      "bar_type": "Month",
+      "time_range": fetchType,
+      "selected_range": sendData,
+      "CatId": catId.toString(),
+      "year": fetchType == "Year"
+          ? year?.toString()
+          : DateTime.now().year.toString(),
+    };
+
+    log("Request Body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        var parsedData = SalesmanTargetByCatId.fromJson(jsonResponse);
+        return parsedData.targetData ?? [];
+      } else {
+        log('Request failed: ${response.statusCode} | Response: ${response.body}');
+        throw Exception('Failed to load data');
+      }
+    } catch (e, stackTrace) {
+      log('Exception: $e\nStackTrace: $stackTrace');
+      throw Exception('Failed to fetch data: $e');
     }
   }
 
@@ -1317,6 +1530,13 @@ class DashboardProvider with ChangeNotifier {
   List<String> _selectedFilterMonths = [];
   List<String> get selectedFilterMonths => _selectedFilterMonths;
 
+  
+  List<orderResponseModel.OrderData> _chartOrderData = [];
+  List<orderResponseModel.OrderData> get chartOrderData => _chartOrderData;
+
+  List<TargetDatum> _salesmanTargetByCategory = [];
+  List<TargetDatum> get salesmanTargetByCategory => _salesmanTargetByCategory;
+
   void updateSelectedMonths(List<String> months) {
     _selectedFilterMonths = months;
     notifyListeners();
@@ -1406,62 +1626,153 @@ class DashboardProvider with ChangeNotifier {
     _selectedEndDate = '';
   }
 
+  // Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
+  //   try {
+  //     final now = DateTime.now();
+  //     String startDate;
+  //     String endDate;
+  //     for (OrderStatus status in OrderStatus.values) {
+  //       _selectedStatus = status;
+
+  //       switch (_selectedFilter) {
+  //         case FilterDateEnum.thisMonth:
+  //           startDate = DateTime(now.year, now.month, 1)
+  //               .toIso8601String()
+  //               .substring(0, 10);
+  //           endDate = DateTime(now.year, now.month + 1, 0)
+  //               .toIso8601String()
+  //               .substring(0, 10);
+  //           break;
+  //         case FilterDateEnum.today:
+  //           startDate = DateTime(now.year, now.month, now.day)
+  //               .toIso8601String()
+  //               .substring(0, 10);
+  //           endDate = startDate;
+  //           break;
+  //         case FilterDateEnum.thisWeek:
+  //           final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+  //           startDate = startOfWeek.toIso8601String().substring(0, 10);
+  //           endDate = now.toIso8601String().substring(0, 10);
+  //           break;
+  //         case FilterDateEnum.thisYear:
+  //           startDate =
+  //               DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+  //           endDate =
+  //               DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+  //           break;
+  //         case FilterDateEnum.range:
+  //           startDate = _selectedStartDate;
+  //           endDate = _selectedEndDate;
+  //           break;
+  //       }
+
+  //       if (_selectedFilter == FilterDateEnum.range &&
+  //           (startDate.isEmpty || endDate.isEmpty)) {
+  //         throw Exception('Select both start and end dates');
+  //       }
+  //       _responseModelCp =
+  //           Future.delayed(const Duration(milliseconds: 300), () {
+  //         return _apiService.fetchDashboardCategoruPerformenceData(
+  //           catId: catId,
+  //           startDate: startDate,
+  //           endDate: endDate,
+  //         );
+  //       });
+  //       log("Fetching orders for status: $_selectedStatus");
+  //     }
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
+
   Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
     try {
-      final now = DateTime.now();
-      String startDate;
-      String endDate;
-      for (OrderStatus status in OrderStatus.values) {
-        _selectedStatus = status;
-
-        switch (_selectedFilter) {
-          case FilterDateEnum.thisMonth:
-            startDate = DateTime(now.year, now.month, 1)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = DateTime(now.year, now.month + 1, 0)
-                .toIso8601String()
-                .substring(0, 10);
-            break;
-          case FilterDateEnum.today:
-            startDate = DateTime(now.year, now.month, now.day)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = startDate;
-            break;
-          case FilterDateEnum.thisWeek:
-            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-            startDate = startOfWeek.toIso8601String().substring(0, 10);
-            endDate = now.toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.thisYear:
-            startDate =
-                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-            endDate =
-                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.range:
-            startDate = _selectedStartDate;
-            endDate = _selectedEndDate;
-            break;
-        }
-
-        if (_selectedFilter == FilterDateEnum.range &&
-            (startDate.isEmpty || endDate.isEmpty)) {
-          throw Exception('Select both start and end dates');
-        }
-        _responseModelCp =
-            Future.delayed(const Duration(milliseconds: 300), () {
-          return _apiService.fetchDashboardCategoruPerformenceData(
-            catId: catId,
-            startDate: startDate,
-            endDate: endDate,
-          );
-        });
-        log("Fetching orders for status: $_selectedStatus");
-      }
+      _responseModelCp = Future.delayed(const Duration(milliseconds: 300), () {
+        return _apiService.fetchDashboardCategoruPerformenceData(
+          catId: catId,
+          startDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+          endDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+          fetchType: _selectedFilterName,
+          selectedDay:
+              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+              ? _selectedFilterMonths
+              : [],
+          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+              ? _selectedFilterWeeks
+              : [],
+          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+        );
+      });
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> fetchChartOrderData(String salesmanId, int categoryId) async {
+    try {
+      _chartOrderData =
+          await Future.delayed(const Duration(milliseconds: 300), () {
+        return _apiService.fetchChartSalesmanOrderData(
+          catId: categoryId,
+          salesmanId: salesmanId,
+          startDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+          endDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+          fetchType: _selectedFilterName,
+          selectedDay:
+              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+              ? _selectedFilterMonths
+              : [],
+          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+              ? _selectedFilterWeeks
+              : [],
+          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+        );
+      });
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> loadSalesmanTargetByCategory(
+      String salesmanId, int categoryId) async {
+    try {
+      _salesmanTargetByCategory =
+          await Future.delayed(const Duration(milliseconds: 300), () {
+        return _apiService.fetchSalesmanTargetByCategory(
+          catId: categoryId,
+          salesmanId: salesmanId,
+          startDate: _selectedFilter == FilterDateEnum.range
+              ? _selectedStartDate
+              : null,
+          endDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : null,
+          fetchType: _selectedFilterName,
+          selectedDay:
+              _selectedFilter == FilterDateEnum.today ? _selectedDate : null,
+          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+              ? _selectedFilterMonths
+              : null,
+          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+              ? _selectedFilterWeeks
+              : null,
+          year:
+              _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : null,
+        );
+      });
+
+      log("Response: $_salesmanTargetByCategory");
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching salesman targets',
+          error: e, stackTrace: stackTrace);
       rethrow;
     }
   }

@@ -876,3 +876,86 @@ class OrderProcessInvoiceData {
 //         "tax": tax,
 //       };
 // }
+
+class SalesmanTargetByCatId {
+  int statusCode;
+  bool status;
+  String message;
+  List<TargetDatum>? targetData;
+
+  SalesmanTargetByCatId({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+    required this.targetData,
+  });
+
+  factory SalesmanTargetByCatId.fromJson(Map<String, dynamic> json) =>
+      SalesmanTargetByCatId(
+        statusCode: json["status_code"] ?? 0,
+        status: json["status"] ?? false,
+        message: json["message"] ?? "No message",
+        targetData: (json["TargetData"] as List<dynamic>?)
+            ?.map((x) => TargetDatum.fromJson(x))
+            .toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "TargetData": targetData?.map((x) => x.toJson()).toList() ?? [],
+      };
+}
+
+class TargetDatum {
+  int? id;
+  int? companyId;
+  int? categoryId;
+  int? target;
+  int? projection;
+  String? salesId;
+  String? month;
+  String? year;
+  String? weeklyTarget;
+  String? weeklyProjection;
+
+  TargetDatum({
+    this.id,
+    this.companyId,
+    this.categoryId,
+    this.target,
+    this.projection,
+    this.salesId,
+    this.month,
+    this.year,
+    this.weeklyTarget,
+    this.weeklyProjection,
+  });
+
+  factory TargetDatum.fromJson(Map<String, dynamic> json) => TargetDatum(
+        id: json["id"],
+        companyId: json["company_id"],
+        categoryId: json["category_id"],
+        target: json["target"],
+        projection: json["projection"],
+        salesId: json["sales_id"],
+        month: json["month"],
+        year: json["year"],
+        weeklyTarget: json["weekly_target"],
+        weeklyProjection: json["weekly_projection"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "company_id": companyId,
+        "category_id": categoryId,
+        "target": target,
+        "projection": projection,
+        "sales_id": salesId,
+        "month": month,
+        "year": year,
+        "weekly_target": weeklyTarget,
+        "weekly_projection": weeklyProjection,
+      };
+}

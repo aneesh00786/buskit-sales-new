@@ -1,10 +1,13 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/staffs_order_dialog.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/salesman_target_by_caregory_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 showBarchartDialog(
     BuildContext context,
     String title,
@@ -82,20 +85,20 @@ showBarchartDialog(
                                 fontSize: 13,
                               ),
                             ),
-                            if(targertType=="1")
-                            const Expanded(
-                              child: DialogTableHeaderText(
-                                text: 'Target',
-                                fontSize: 13,
-                              ),
-                            ),
-                            if(staffProjection=="1")
-                            const Expanded(
-                              child: DialogTableHeaderText(
-                                text: 'Projection',
-                                fontSize: 13,
-                              ),
-                            ),
+                           if (!isDayOrRange) ...[
+                              if (targertType == '1') ...[
+                                const DialogTableHeaderText(
+                                  text: 'Target',
+                                  fontSize: 13,
+                                ),
+                              ],
+                              if (staffProjection == '1') ...[
+                                const DialogTableHeaderText(
+                                  text: 'Projection',
+                                  fontSize: 13,
+                                ),
+                              ]
+                            ],
                             const Expanded(
                               child: DialogTableHeaderText(
                                 text: 'Actual',
@@ -138,41 +141,97 @@ showBarchartDialog(
                                         ),
                                       ),
                                     ),
-                                    if(targertType=="1")
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          formatAmount(category.targetTotal),
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: secondaryTextColor,
+                                    if (!isDayOrRange) ...[
+                                    if (targertType == '1') ...[
+                                      Expanded(
+                                        child: Center(
+                                          child: InkWell(
+                                            onTap: () async {
+                                              await dashboardProvider
+                                                  .loadSalesmanTargetByCategory(
+                                                      category.salesmanId,
+                                                      catId);
+                                              Get.dialog(
+                                                  SalesmanTargetByCategoryDialog(
+                                                title: 'Target',
+                                                provider: dashboardProvider,
+                                              ));
+                                            },
+                                            child: Text(
+                                              formatAmount(
+                                                  category.targetTotal),
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: category.targetTotal
+                                                            .toString() ==
+                                                        '0'
+                                                    ? secondaryTextColor
+                                                    : primaryButtonColor,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    if(staffProjection=="1")
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          formatAmount(category.projectionTotal),
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: secondaryTextColor,
+                                    ],
+                                    if (staffProjection == '1') ...[
+                                      Expanded(
+                                        child: Center(
+                                          child: InkWell(
+                                            onTap: () async {
+                                              await dashboardProvider
+                                                  .loadSalesmanTargetByCategory(
+                                                      category.salesmanId,
+                                                      catId);
+                                              Get.dialog(
+                                                  SalesmanTargetByCategoryDialog(
+                                                title: 'Projection',
+                                                provider: dashboardProvider,
+                                              ));
+                                            },
+                                            child: Text(
+                                              formatAmount(
+                                                  category.projectionTotal),
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: category.projectionTotal
+                                                            .toString() ==
+                                                        '0'
+                                                    ? secondaryTextColor
+                                                    : primaryButtonColor,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                    ],
+                                  ],
                                     Expanded(
-                                      child: Center(
+                                    child: Center(
+                                      child: InkWell(
+                                        onTap: () async {
+                                          await dashboardProvider
+                                              .fetchChartOrderData(
+                                                  category.salesmanId, catId);
+                                          Get.dialog(StaffOrdersDialog(
+                                            heading: 'orders',
+                                            orderData: dashboardProvider
+                                                .chartOrderData,
+                                          ));
+                                        },
                                         child: Text(
                                           formatAmount(category.orderTotal),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 13,
-                                            color: secondaryTextColor,
+                                            color: formatAmount(
+                                                        category.orderTotal) ==
+                                                    formatAmount(0)
+                                                ? secondaryTextColor
+                                                : primaryButtonColor,
                                           ),
                                         ),
                                       ),
                                     ),
+                                  ),
                                   ],
                                 ),
                               );

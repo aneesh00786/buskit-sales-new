@@ -22,6 +22,7 @@ class CustomPerfoBarChart extends StatefulWidget {
   final List<CategoryPerformance> categoryPerformance;
   final String staffProjection;
   final String targetType;
+  
   const CustomPerfoBarChart({
     super.key,
     required this.categoryPerformance,
@@ -70,7 +71,8 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
                       );
-                    } else if (snapshot.hasData) {
+                    } 
+                    else if (snapshot.hasData) {
                       final categories = snapshot.data!.data;
                       return SingleChildScrollView(
                         scrollDirection: Axis.vertical,
@@ -199,7 +201,8 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                           ],
                         ),
                       );
-                    } else {
+                    }
+                     else {
                       return const NodataWidget();
                     }
                   },

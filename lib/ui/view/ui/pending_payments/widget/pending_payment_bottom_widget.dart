@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
@@ -61,12 +62,16 @@ class _PendingPaymentBottomWidgetState
     _orderScrollController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      if (widget.orderController.isLoadingPayment.value) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
       if (widget.orderController.orderDataList.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: NodataWidget());
       }
 
       return NkWidgetExceptionHandel(
@@ -888,8 +893,7 @@ class _PendingPaymentBottomWidgetState
                                     dropdownColor: Colors.white,
                                     items: const [
                                       DropdownMenuItem(
-                                          value: 'Cash',
-                                          child: Text('Cash')),
+                                          value: 'Cash', child: Text('Cash')),
                                       DropdownMenuItem(
                                           value: 'Cheque',
                                           child: Text('Cheque')),
@@ -1005,14 +1009,12 @@ class _PendingPaymentBottomWidgetState
                                             0;
 
                                         if (enteredAmount > 0) {
-                       
                                           List<IndividualPendingData>
                                               selectedItemsList =
                                               controller.getSelectedItems();
                                           controller.processPayments(
                                               selectedItemsList, enteredAmount);
-                                        } else {
-                                        }
+                                        } else {}
                                       },
                                       style: ElevatedButton.styleFrom(
                                         shadowColor: Colors.transparent,

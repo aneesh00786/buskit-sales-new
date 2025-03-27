@@ -19,6 +19,11 @@ class PendingTabBar extends StatefulWidget {
 }
 
 class _PendingTabBarState extends State<PendingTabBar> {
+    @override
+  void initState() {
+    super.initState();
+    _startDelay();
+  }
   int _selectedTabIndex = 0;
   final List<String> _tabs = ['All', 'Nearly Due', 'Due', 'Over Due'];
   final List<bool> _visibleTabs = [true, false, false, false];
@@ -43,6 +48,14 @@ class _PendingTabBarState extends State<PendingTabBar> {
       }
     }
   }
+    void _startDelay() {
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        widget.orderController.isLoadingPayment.value = false; 
+      });
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -11,10 +11,11 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+
 class PendingPaymentController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
   RxList<CustomerData> orderDataList = <CustomerData>[].obs;
-  RxInt selectedTabIndex = 0.obs; 
+  RxInt selectedTabIndex = 0.obs;
   Rx<ChartDetails> chartData =
       ChartDetails(nearlyDue: 0, due: 0, all: 0, overdue: 0).obs;
   RxDouble totalAmount = 0.0.obs;
@@ -43,7 +44,7 @@ class PendingPaymentController extends GetxController {
 
   // RxList to track selected items
   RxList<IndividualPendingData> selectedItems = <IndividualPendingData>[].obs;
-
+  RxBool isLoadingPayment = true.obs;
 // Call this method when an item is selected or deselected
   void toggleItemSelection(IndividualPendingData item) {
     if (selectedItems.contains(item)) {
@@ -57,29 +58,30 @@ class PendingPaymentController extends GetxController {
     return selectedItems.toList();
   }
 
-  Future<void> loadOrderData({required int chartIndex,int? compId,bool? isLogin}) async {
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
+  Future<void> loadOrderData(
+      {required int chartIndex, int? compId, bool? isLogin}) async {
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     try {
       var data = await _apiWorker.getPendingPaymentData(
-        chartIndex: chartIndex,
-        searchModel: searchModel,
-        paginationModel: PaginationModel(),
-        salesmanId: salesmanId,
-        compId: compId,
-        isLogin: isLogin
-      );
+          chartIndex: chartIndex,
+          searchModel: searchModel,
+          paginationModel: PaginationModel(),
+          salesmanId: salesmanId,
+          compId: compId,
+          isLogin: isLogin);
       // ignore: unnecessary_null_comparison
       if (data.data != null) {
         orderDataList.assignAll(data.data);
         chartData.value = data.chartDetails;
         totalAmount.value = data.totalAmount.toDouble();
-      nearlyDueAmount.value = data.nearlydueAmount.toDouble();
-      dueAmount.value = data.dueAmount.toDouble();
-      overdueAmount.value = data.overdueAmount.toDouble();
+        nearlyDueAmount.value = data.nearlydueAmount.toDouble();
+        dueAmount.value = data.dueAmount.toDouble();
+        overdueAmount.value = data.overdueAmount.toDouble();
       } else {
         orderDataList.clear();
       }
     } catch (e) {
+      // Handle errors here
     }
   }
 
@@ -118,6 +120,7 @@ class PendingPaymentController extends GetxController {
     }
     refresh();
   }
+
   void processPayments(
       List<IndividualPendingData> selectedItemsList, num enteredAmount) {
     num remainingAmount = enteredAmount;
@@ -131,7 +134,6 @@ class PendingPaymentController extends GetxController {
         amountToBePaid = selectedItemsList[i].orderTotal;
       }
 
-
       if (remainingAmount <= 0) {
         break;
       }
@@ -143,8 +145,7 @@ class PendingPaymentController extends GetxController {
       }
     }
 
-    if (remainingAmount > 0) {
-    }
+    if (remainingAmount > 0) {}
   }
 
   Widget orderStatusWidget(String status, Color color) {

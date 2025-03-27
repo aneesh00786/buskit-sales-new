@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -213,8 +214,13 @@ class PendingPaymentChart extends StatelessWidget {
         dynamicInterval = 10;
       }
 
+      if (chartController.isLoadingPayment.value) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
       if (chartController.orderDataList.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: NodataWidget());
       }
 
       return Padding(
@@ -270,7 +276,8 @@ class PendingPaymentChart extends StatelessWidget {
                   },
                 ),
               ),
-              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles:
                   const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),

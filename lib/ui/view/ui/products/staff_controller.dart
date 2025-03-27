@@ -67,13 +67,15 @@ class StaffController extends GetxController {
   var customerDatas = Rxn<CustomerData>();
 
   Future<void> loadSalesmanTarget(String salesmanId, String month, String year,
-      String monthName, bool isFromLogin) async {
+      String monthName, bool isFromLogin,int compId) async {
     log("✅ loadSalesmanTarget STARTED:");
     isLoading.value = true;
     try {
       var response = await ApiWorker().fetchSalesmanPerformanceData(
         monthName: monthName,
         year: int.parse(year),
+        compId: compId,
+        salesId: salesmanId,
         isfromLogin: isFromLogin ? true : false,
       );
 
@@ -135,13 +137,14 @@ class StaffController extends GetxController {
     required String staffId,
     required String currentYear,
     bool? isFromLogin,
+    int?compId,
   }) async {
     final selectedMonth = selectedTabIndex;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
 
     await loadSalesmanTarget(staffId, selectedMonthName, currentYear,
-        selectedMonthName, isFromLogin ?? false);
+        selectedMonthName, isFromLogin ?? false,compId??0);
   }
 
   Widget get getIsPasswordVisible {

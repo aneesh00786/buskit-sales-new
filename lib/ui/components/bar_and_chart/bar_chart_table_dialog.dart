@@ -3,14 +3,17 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
- showBarchartDialog(
-  BuildContext context,
-  String title,
-  List<Salesmanvn> categories,
-  String staffProjection,
-  String targertType
-) {
+showBarchartDialog(
+    BuildContext context,
+    String title,
+    List<Salesmanvn> categories,
+    String targertType,
+    String staffProjection,
+    DashboardProvider dashboardProvider,
+    int catId,
+    {bool isDayOrRange = false}) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     showDialog(
       context: context,

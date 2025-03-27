@@ -89,61 +89,104 @@ class ApiService {
       throw Exception('Error fetching customer revenue data: $e');
     }
   }
-Future<ResponseModell> fetchDashboardData({
-  String? fetchType,
-  String? startDate,
-  String? endDate,
-  String? selectedDay,
-  List<String>? selectedMonths,
-  List<String>? selectedWeeks,
-  int? year,
-  String? salesmanId,
-}) async {
-  final String jsonString =
-      await SessionManager.getStringValue(SpString.spLogin);
-  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  final String createdToken = jsonMap['createdToken'];
-  Object? sendData;
-  switch (fetchType) {
-    case "Month":
-      sendData = selectedMonths;
-      break;
-    case "Week":
-      sendData = selectedWeeks;
-      break;
-    case "Day":
-      sendData = [selectedDay];
-      break;
-    case "Year":
-      sendData = year.toString();
-      break;
-    case "Range":
-      sendData = [startDate, endDate];
-      break;
-    default:
-      sendData = selectedMonths;
-  }
-  final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
-  log("GET_DASHBOARD_LIST request URL: $url");
-  final Map<String, dynamic> requestBody = {
-  "salesman_id":  SessionHelper.loginSavedData?.salesmanId??"",
-  "selected_range": sendData,
-  "time_range": fetchType == "Year" ? "year" : fetchType,
-  "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  "year": fetchType == "Year" ? year : DateTime.now().year,
-  };
-  log("GET_DASHBOARD_LIST request body: $requestBody");
-  final dashboardBox = Hive.box('dashboardBox');
-  try {
-    final connectivity = await Connectivity().checkConnectivity();
-    if (connectivity == ConnectivityResult.none) {
+
+  Future<ResponseModell> fetchDashboardData({
+    String? fetchType,
+    String? startDate,
+    String? endDate,
+    String? selectedDay,
+    List<String>? selectedMonths,
+    List<String>? selectedWeeks,
+    int? year,
+    String? salesmanId,
+  }) async {
+    final String jsonString =
+        await SessionManager.getStringValue(SpString.spLogin);
+    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    final String createdToken = jsonMap['createdToken'];
+    Object? sendData;
+    switch (fetchType) {
+      case "Month":
+        sendData = selectedMonths;
+        break;
+      case "Week":
+        sendData = selectedWeeks;
+        break;
+      case "Day":
+        sendData = [selectedDay];
+        break;
+      case "Year":
+        sendData = year.toString();
+        break;
+      case "Range":
+        sendData = [startDate, endDate];
+        break;
+      default:
+        sendData = selectedMonths;
+    }
+    final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
+    log("GET_DASHBOARD_LIST request URL: $url");
+    final Map<String, dynamic> requestBody = {
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? "",
+      "selected_range": sendData,
+      "time_range": fetchType == "Year" ? "year" : fetchType,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "year": fetchType == "Year" ? year : DateTime.now().year,
+    };
+    log("GET_DASHBOARD_LIST request body: $requestBody");
+    final dashboardBox = Hive.box('dashboardBox');
+    try {
+      final connectivity = await Connectivity().checkConnectivity();
+      if (connectivity == ConnectivityResult.none) {
+        final cachedData = dashboardBox.get('dashboardData');
+        if (cachedData != null) {
+          log("Returning cached dashboard data.");
+          if (cachedData is Map<String, dynamic>) {
+            return localStorage.mapJsonToResponseModel(cachedData);
+          } else if (cachedData is List<dynamic>) {
+            return localStorage.mapJsonToResponseModel({'data': cachedData});
+          } else {
+            throw Exception('Invalid cached data format.');
+          }
+        } else {
+          throw Exception('No cached data available.');
+        }
+      }
+      final response = await Dio().post(
+        url.toString(),
+        options: Options(
+          headers: {'Authorization': 'Bearer $createdToken'},
+        ),
+        data: jsonEncode(requestBody),
+      );
+
+      log("GET_DASHBOARD_LIST response: ${response.data}");
+
+      if (response.statusCode == 200) {
+        final jsonResponse = response.data;
+        await dashboardBox.put(
+          'dashboardData',
+          Map<String, dynamic>.from(jsonResponse),
+        );
+        return localStorage.mapJsonToResponseModel(jsonResponse);
+      } else if (response.statusCode == 400 || response.statusCode == 401) {
+        _handleTokenExpiration();
+        throw Exception('Session expired');
+      } else {
+        throw Exception(
+            'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
+      }
+    } on DioException catch (e) {
+      log('DioError occurred: ${e.type}');
+      log('Error message: ${e.message}');
+      log('Error response: ${e.response?.data}');
+      log('Request data: ${e.requestOptions.data}');
+      log('Request headers: ${e.requestOptions.headers}');
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
-        log("Returning cached dashboard data.");
+        log("Returning cached dashboard data after error.");
         if (cachedData is Map<String, dynamic>) {
           return localStorage.mapJsonToResponseModel(cachedData);
-        } else if (cachedData is List<dynamic>) {
-          return localStorage.mapJsonToResponseModel({'data': cachedData});
         } else {
           throw Exception('Invalid cached data format.');
         }
@@ -151,49 +194,7 @@ Future<ResponseModell> fetchDashboardData({
         throw Exception('No cached data available.');
       }
     }
-    final response = await Dio().post(
-      url.toString(),
-      options: Options(
-        headers: {'Authorization': 'Bearer $createdToken'},
-      ),
-      data: jsonEncode(requestBody),
-    );
-
-    log("GET_DASHBOARD_LIST response: ${response.data}");
-
-    if (response.statusCode == 200) {
-      final jsonResponse = response.data;
-      await dashboardBox.put(
-        'dashboardData',
-        Map<String, dynamic>.from(jsonResponse),
-      );
-      return localStorage.mapJsonToResponseModel(jsonResponse);
-    } else if (response.statusCode == 400 || response.statusCode == 401) {
-      _handleTokenExpiration();
-      throw Exception('Session expired');
-    } else {
-      throw Exception(
-          'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
-    }
-  } on DioException catch (e) {
-    log('DioError occurred: ${e.type}');
-    log('Error message: ${e.message}');
-    log('Error response: ${e.response?.data}');
-    log('Request data: ${e.requestOptions.data}');
-    log('Request headers: ${e.requestOptions.headers}');
-    final cachedData = dashboardBox.get('dashboardData');
-    if (cachedData != null) {
-      log("Returning cached dashboard data after error.");
-      if (cachedData is Map<String, dynamic>) {
-        return localStorage.mapJsonToResponseModel(cachedData);
-      } else {
-        throw Exception('Invalid cached data format.');
-      }
-    } else {
-      throw Exception('No cached data available.');
-    }
   }
-}
 
   void _handleTokenExpiration() async {
     if (!Get.isDialogOpen!) {
@@ -442,46 +443,136 @@ Future<ResponseModell> fetchDashboardData({
     }
   }
 
+  // Future<OrderResponse> fetchAllOrders({
+  //   required String startDate,
+  //   required String endDate,
+  //   OrderStatus? orderStatus,
+  //   required dynamic orderType,
+  // }) async {
+  //   final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
+  //   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  //   log('FETCH_ALL_ORDER API called');
+  //   final requestBody = {
+  //     "customer_id": "",
+  //     "salesman_id": salesmanId,
+  //     "order_type": orderType,
+  //     "payment_type": 1,
+  //     "start_date": startDate,
+  //     "end_date": endDate,
+  //     "limit": 1000,
+  //     "page": 1,
+  //     "companyId": companyId,
+  //   };
+  //   log("Request body of Order : $requestBody");
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(requestBody),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = jsonDecode(response.body);
+  //       log('Fetch All Orders Response: $jsonResponse');
+  //       Pagination pagination =
+  //           Pagination.fromJson(jsonResponse['pagination'] ?? {});
+  //       log('Fetch All Orders Pagination: ${pagination.totalRecord}');
+  //       List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
+  //       List<OrdersDash> orders = [];
+  //       if (orderData != null) {
+  //         orders = orderData
+  //             .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
+  //             .toList();
+  //       }
+  //       return OrderResponse(
+  //         statusCode: jsonResponse['status_code'] ?? 0,
+  //         status: jsonResponse['status'] ?? false,
+  //         message: jsonResponse['message'] ?? '',
+  //         data: orders,
+  //         pagination: pagination,
+  //       );
+  //     } else {
+  //       handleHttpResponseError(
+  //         statusCode: response.statusCode,
+  //         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+  //       );
+  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Failed to fetch orders: $e');
+  //   }
+  // }
+
   Future<OrderResponse> fetchAllOrders({
-    required String startDate,
-    required String endDate,
+    String? fetchType,
+    String? startDate,
+    String? endDate,
+    String? selectedDay,
+    List<String>? selectedMonths,
+    List<String>? selectedWeeks,
+    int? year,
     OrderStatus? orderStatus,
     required dynamic orderType,
   }) async {
-    final url = Uri.parse('${ApiConstants.baseUrl1}/fetch_all_order');
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+    final url = Uri.parse('$_baseUrl1/fetch_all_orderByRange');
     log('FETCH_ALL_ORDER API called');
+
+    var sendData;
+
+    switch (fetchType) {
+      case "Month":
+        sendData = selectedMonths;
+        break;
+      case "Week":
+        sendData = selectedWeeks;
+        break;
+      case "Day":
+        sendData = [selectedDay];
+        break;
+      case "Year":
+        sendData = year;
+        break;
+      case "Range":
+        sendData = [startDate, endDate];
+        break;
+      default:
+        sendData = selectedMonths;
+    }
     final requestBody = {
-      "customer_id": "",
-      "salesman_id": salesmanId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "order_type": orderType,
-      "payment_type": 1,
-      "start_date": startDate,
-      "end_date": endDate,
+      "categories_id": "",
+      "customer_id": "",
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "time_range": fetchType,
+      "selected_range": sendData,
+      "payment_type": "",
+      "year": 2025,
       "limit": 1000,
-      "page": 1,
-      "companyId": companyId,
+      "page": 1
     };
-    log("Request body of Order : $requestBody");
+    log("Fetch All Orders Request : $requestBody");
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
+
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        log('Fetch All Orders Response: $jsonResponse');
+        print('Fetch All Orders Response: $jsonResponse');
+
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
-        log('Fetch All Orders Pagination: ${pagination.totalRecord}');
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
+
         List<OrdersDash> orders = [];
         if (orderData != null) {
           orders = orderData
               .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
               .toList();
         }
+
         return OrderResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -490,14 +581,11 @@ Future<ResponseModell> fetchDashboardData({
           pagination: pagination,
         );
       } else {
-        handleHttpResponseError(
-          statusCode: response.statusCode,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        );
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch orders: $e');
+      print('Failed to fetch orders 1: $e');
+      throw Exception('Failed to fetch orders 2: $e');
     }
   }
 
@@ -1391,11 +1479,7 @@ class DashboardProvider with ChangeNotifier {
 
   Future<void> fetchOrdersSabik(OrderStatus s) async {
     try {
-      final now = DateTime.now();
-      String startDate;
-      String endDate;
-
-      Object orderType;
+      var orderType;
 
       switch (s) {
         case OrderStatus.delivered:
@@ -1412,55 +1496,26 @@ class DashboardProvider with ChangeNotifier {
           orderType = '';
       }
 
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          startDate = DateTime(now.year, now.month, 1)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = DateTime(now.year, now.month + 1, 0)
-              .toIso8601String()
-              .substring(0, 10);
-          break;
-        case FilterDateEnum.today:
-          startDate = DateTime(now.year, now.month, now.day)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = startDate;
-          break;
-        case FilterDateEnum.thisWeek:
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startDate = startOfWeek.toIso8601String().substring(0, 10);
-          endDate = now.toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.thisYear:
-          startDate =
-              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-          endDate =
-              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.range:
-          startDate = _selectedStartDate;
-          endDate = _selectedEndDate;
-          break;
-      }
-
-      if (_selectedFilter == FilterDateEnum.range &&
-          (startDate.isEmpty || endDate.isEmpty)) {
-        throw Exception('Select both start and end dates');
-      }
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         return _apiService.fetchAllOrders(
-          startDate: startDate,
-          endDate: endDate,
+          startDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+          endDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
           orderStatus: s,
           orderType: orderType,
+          fetchType: _selectedFilterName,
+          selectedDay:
+              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+              ? _selectedFilterMonths
+              : [],
+          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+              ? _selectedFilterWeeks
+              : [],
+          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
         );
       });
-      log("Order Response Type : ${s.type}");
-      log("Order Response : $_orderResponse");
-      notifyListeners();
-
-      log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
 
       notifyListeners();
     } catch (e, stackTrace) {
@@ -1468,6 +1523,86 @@ class DashboardProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  // Future<void> fetchOrdersSabik(OrderStatus s) async {
+  //   try {
+  //     final now = DateTime.now();
+  //     String startDate;
+  //     String endDate;
+
+  //     Object orderType;
+
+  //     switch (s) {
+  //       case OrderStatus.delivered:
+  //         orderType = '';
+  //       case OrderStatus.estimates:
+  //         orderType = 7;
+  //       case OrderStatus.preOrder:
+  //         orderType = 0;
+  //       case OrderStatus.draft:
+  //         orderType = 4;
+  //       case OrderStatus.cancelled:
+  //         orderType = 3;
+  //       default:
+  //         orderType = '';
+  //     }
+
+  //     switch (_selectedFilter) {
+  //       case FilterDateEnum.thisMonth:
+  //         startDate = DateTime(now.year, now.month, 1)
+  //             .toIso8601String()
+  //             .substring(0, 10);
+  //         endDate = DateTime(now.year, now.month + 1, 0)
+  //             .toIso8601String()
+  //             .substring(0, 10);
+  //         break;
+  //       case FilterDateEnum.today:
+  //         startDate = DateTime(now.year, now.month, now.day)
+  //             .toIso8601String()
+  //             .substring(0, 10);
+  //         endDate = startDate;
+  //         break;
+  //       case FilterDateEnum.thisWeek:
+  //         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+  //         startDate = startOfWeek.toIso8601String().substring(0, 10);
+  //         endDate = now.toIso8601String().substring(0, 10);
+  //         break;
+  //       case FilterDateEnum.thisYear:
+  //         startDate =
+  //             DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+  //         endDate =
+  //             DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+  //         break;
+  //       case FilterDateEnum.range:
+  //         startDate = _selectedStartDate;
+  //         endDate = _selectedEndDate;
+  //         break;
+  //     }
+
+  //     if (_selectedFilter == FilterDateEnum.range &&
+  //         (startDate.isEmpty || endDate.isEmpty)) {
+  //       throw Exception('Select both start and end dates');
+  //     }
+  //     _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
+  //       return _apiService.fetchAllOrders(
+  //         startDate: startDate,
+  //         endDate: endDate,
+  //         orderStatus: s,
+  //         orderType: orderType,
+  //       );
+  //     });
+  //     log("Order Response Type : ${s.type}");
+  //     log("Order Response : $_orderResponse");
+  //     notifyListeners();
+
+  //     log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
+
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   OrderStatus _selectedStatus = OrderStatus.cancelled;
 

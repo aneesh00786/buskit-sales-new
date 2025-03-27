@@ -212,6 +212,7 @@ class CustomBarChart extends StatefulWidget {
   String staffProjection;
   String targetType;
   bool isScroll;
+    bool isDayOrRange;
 
   CustomBarChart({
     super.key,
@@ -220,6 +221,7 @@ class CustomBarChart extends StatefulWidget {
     required this.staffProjection,
     required this.targetType,
     this.isScroll = true,
+        this.isDayOrRange = false,
   });
 
   @override
@@ -257,22 +259,24 @@ class _CustomBarChartState extends State<CustomBarChart> {
       return BarChartGroupData(
         x: index,
         barRods: [
-          if (widget.targetType == "1")
-            BarChartRodData(
-              toY: target.toDouble(),
-              color: const Color(0xff3b6491),
-              width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide.none,
-            ),
-          if (widget.staffProjection == "1")
-            BarChartRodData(
-              toY: projection.toDouble(),
-              color: const Color(0xff15396a),
-              width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide.none,
-            ),
+         if (!widget.isDayOrRange) ...[
+            if (widget.targetType == "1")
+              BarChartRodData(
+                toY: target.toDouble(),
+                color: const Color(0xff3b6491),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide.none,
+              ),
+            if (widget.staffProjection == "1")
+              BarChartRodData(
+                toY: projection.toDouble(),
+                color: const Color(0xff15396a),
+                width: 8,
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide.none,
+              ),
+          ],
           BarChartRodData(
             toY: actual.toDouble(),
             color: const Color(0xff7a8f3d),
@@ -316,12 +320,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
                         final categories = snapshot.data!.data;
                         Navigator.of(context).pop();
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          showBarchartDialog(
-                              context,
-                              category,
-                              categories ?? [],
-                              widget.staffProjection,
-                              widget.targetType);
+                          showBarchartDialog(context, category, categories ?? [],
+                        widget.targetType, widget.staffProjection,
+                        provider,
+                        cid,
+                        isDayOrRange: widget.isDayOrRange);
                         });
                         return const SizedBox.shrink();
                       } else {
@@ -739,13 +742,16 @@ class _CustomBarChartState extends State<CustomBarChart> {
             ),
           ),
         ],
-        Row(
+       Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (widget.targetType == "1")
-              _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
-            if (widget.staffProjection == "1")
-              _buildLegend(color: const Color(0xff15396a), label: 'Projection'),
+            if (!widget.isDayOrRange) ...[
+              if (widget.targetType == "1")
+                _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+              if (widget.staffProjection == "1")
+                _buildLegend(
+                    color: const Color(0xff15396a), label: 'Projection'),
+            ],
             _buildLegend(color: const Color(0xff7a8f3d), label: 'Actuals'),
           ],
         ),

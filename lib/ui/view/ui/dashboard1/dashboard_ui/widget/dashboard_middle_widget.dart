@@ -26,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.da
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
@@ -776,6 +777,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               staffProjection:
                                   targetType == '1' ? staffProjection : '0',
                               targetType: targetType == '1' ? '1' : '0',
+                              isDayOrRange: provider.selectedFilter ==
+                                        FilterDateEnum.range ||
+                                    provider.selectedFilter ==
+                                        FilterDateEnum.today,
                             ),
                           );
                         } else {

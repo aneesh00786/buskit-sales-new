@@ -311,7 +311,6 @@ class ApiWorker with ApiConstants {
         log("Dio error status code1: ${dioError.response?.statusCode}");
       }
       final cachedData = performanceBox.get(cacheKey);
-
       if (cachedData != null) {
         log('Using cached data after API failure for key: $cacheKey');
         final castedData = localStorage.castToStringDynamic(cachedData);

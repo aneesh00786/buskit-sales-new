@@ -305,10 +305,10 @@ class ApiWorker with ApiConstants {
         }
       }
     } on DioException catch (dioError) {
-      log("Dio error occurred: ${dioError.message}");
+      log("Dio error occurred1: ${dioError.message}");
       if (dioError.response != null) {
         log("Dio error response: ${dioError.response?.data}");
-        log("Dio error status code: ${dioError.response?.statusCode}");
+        log("Dio error status code1: ${dioError.response?.statusCode}");
       }
       final cachedData = performanceBox.get(cacheKey);
       if (cachedData != null) {
@@ -1743,7 +1743,7 @@ Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
           "Offline mode: Fetching value target data from Hive for key: $cacheKey");
     }
   } on DioException catch (dioError) {
-    log("Dio error occurred: ${dioError.message}");
+    log("Dio error occurred2: ${dioError.message}");
   } catch (e) {
     log("Unexpected error occurred Salesman Value Target: $e");
   }
@@ -1840,7 +1840,7 @@ Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
       log("Offline mode: Fetching target data from Hive for key: $cacheKey");
     }
   } on DioException catch (dioError) {
-    log("Dio error occurred: ${dioError.message}");
+    log("Dio error occurred3: ${dioError.message}");
   } catch (e) {
     log("Unexpected error occurred Salesman target: $e");
   }

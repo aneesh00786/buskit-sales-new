@@ -57,12 +57,12 @@ class Salesmann {
 }
 
 class CategoryPerformancee {
-  int? cid;
-  String? category;
-  double? actualProjection;
-  double? actualTarget;
-  double? actualSales;
-  List<Salesmann>? salesman;
+  final int? cid;
+  final String? category;
+  final num? actualProjection;
+  final num? actualTarget;
+  final num? actualSales;
+  final List<Salesmann>? salesman;
 
   CategoryPerformancee({
     this.cid,
@@ -74,22 +74,16 @@ class CategoryPerformancee {
   });
 
   factory CategoryPerformancee.fromJson(Map<String, dynamic> json) {
-    var salesmanList = json['salesman'] as List;
+    var salesmanList = json['salesman'] as List? ?? [];
     List<Salesmann> salesman =
         salesmanList.map((i) => Salesmann.fromJson(i)).toList();
 
     return CategoryPerformancee(
-      cid: json['cid'] ?? 0,
-      category: json['category'],
-      actualProjection: json['actual_projection'] != null
-          ? double.parse(json['actual_projection'].toString())
-          : 0.0,
-      actualTarget: json['actual_target'] != null
-          ? double.parse(json['actual_target'].toString())
-          : 0.0,
-      actualSales: json['actual_sales'] != null
-          ? double.tryParse(json['actual_sales'].toString())
-          : 0.0,
+      cid: json['cid'] as int?,
+      category: json['category'] as String?,
+      actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
+      actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
+      actualSales: num.tryParse(json['actual_sales'].toString()) ?? 0,
       salesman: salesman.isNotEmpty ? salesman : null,
     );
   }
@@ -98,9 +92,9 @@ class CategoryPerformancee {
     return {
       'cid': cid,
       'category': category,
-      'actual_projection': actualProjection?.toString(),
-      'actual_target': actualTarget?.toString(),
-      'actual_sales': actualSales?.toString(),
+      'actual_projection': actualProjection,
+      'actual_target': actualTarget,
+      'actual_sales': actualSales,
       'salesman': salesman?.map((e) => e.toJson()).toList(),
     };
   }
@@ -383,15 +377,16 @@ class ResponseModell {
   });
 
   factory ResponseModell.fromJson(Map<String, dynamic> json) {
-    var categoryList = json['data']?['all_category'] as List? ?? [];
+    var categoryList = (json['data']?['all_category'] as List?) ?? [];
     List<Category> allCategory =
         categoryList.map((e) => Category.fromJson(e)).toList();
 
-    var performanceList = json['data']?['category_performance'] as List? ?? [];
+    var performanceList =
+        (json['data']?['category_performance'] as List?) ?? [];
     List<CategoryPerformancee> categoryPerformance =
         performanceList.map((e) => CategoryPerformancee.fromJson(e)).toList();
 
-    var topSellingList = json['data']?['top_selling_product'] as List? ?? [];
+    var topSellingList = (json['data']?['top_selling_product'] as List?) ?? [];
     List<TopSellingProductA> topSellingProducts =
         topSellingList.map((e) => TopSellingProductA.fromJson(e)).toList();
 
@@ -401,12 +396,20 @@ class ResponseModell {
       message: json['message'] as String? ?? '',
       allCategory: allCategory,
       categoryPerformance: categoryPerformance,
-      revenue: Revenuee.fromJson(json['data']?['revenu'] ?? {}),
-      collection: Collection.fromJson(json['data']?['collection'] ?? {}),
-      delivery: Delivery.fromJson(json['data']?['delivery'] ?? {}),
-      topSellingProducts: topSellingProducts,
-      orderCountList:
-          OrderCountListt.fromJson(json['data']?['order_count_list'] ?? {}),
+      revenue: json['data']?['revenu'] != null
+          ? Revenuee.fromJson(json['data']?['revenu'])
+          : null,
+      collection: json['data']?['collection'] != null
+          ? Collection.fromJson(json['data']?['collection'])
+          : null,
+      delivery: json['data']?['delivery'] != null
+          ? Delivery.fromJson(json['data']?['delivery'])
+          : null,
+      topSellingProducts:
+          topSellingProducts.isNotEmpty ? topSellingProducts : null,
+      orderCountList: json['data']?['order_count_list'] != null
+          ? OrderCountListt.fromJson(json['data']?['order_count_list'])
+          : null,
     );
   }
 }
@@ -428,11 +431,11 @@ class OrderCountListt {
 
   factory OrderCountListt.fromJson(Map<String, dynamic> json) {
     return OrderCountListt(
-      totalOrder: json['total_order'] ?? 0,
-      estimateOrder: json['estimate_order'] ?? 0,
-      preorderOrder: json['preorder_order'] ?? 0,
-      draftOrder: json['draft_order'] ?? 0,
-      cancelOrder: json['cancel_order'] ?? 0,
+      totalOrder: int.tryParse(json['total_order'].toString()) ?? 0,
+      estimateOrder: int.tryParse(json['estimate_order'].toString()) ?? 0,
+      preorderOrder: int.tryParse(json['preorder_order'].toString()) ?? 0,
+      draftOrder: int.tryParse(json['draft_order'].toString()) ?? 0,
+      cancelOrder: int.tryParse(json['cancel_order'].toString()) ?? 0,
     );
   }
 }
@@ -1332,8 +1335,8 @@ class CompletedOrder {
   int? orderStatus;
   String? cartId;
   DateTime? orderCreatAt;
-  int? orderTotal;
-  int? receivedAmount;
+  num? orderTotal;
+  num? receivedAmount;
   DateTime? receivedAmountDate;
   DateTime? checkDueDate;
   int? checkNumber;
@@ -1449,8 +1452,8 @@ class CompletedOrder {
         orderCreatAt: json["order_creat_at"] != null
             ? DateTime.tryParse(json["order_creat_at"])
             : null,
-        orderTotal: json["order_total"] as int?,
-        receivedAmount: json["received_amount"] as int?,
+        orderTotal: json["order_total"] as num?,
+        receivedAmount: json["received_amount"] as num?,
         receivedAmountDate: json["received_amount_date"] != null
             ? DateTime.tryParse(json["received_amount_date"])
             : null,

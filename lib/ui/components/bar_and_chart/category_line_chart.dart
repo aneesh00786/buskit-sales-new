@@ -251,15 +251,15 @@ class _CustomBarChartState extends State<CustomBarChart> {
           salesman: [],
         ),
       );
-      double target = perf.actualTarget ?? 0.0;
-      double projection = perf.actualProjection ?? 0.0;
-      double actual = perf.actualSales ?? 0.0;
+      num target = perf.actualTarget ?? 0.0;
+      num projection = perf.actualProjection ?? 0.0;
+      num actual = perf.actualSales ?? 0.0;
       return BarChartGroupData(
         x: index,
         barRods: [
           if (widget.targetType == "1")
             BarChartRodData(
-              toY: target,
+              toY: target.toDouble(),
               color: const Color(0xff3b6491),
               width: 8,
               borderRadius: BorderRadius.zero,
@@ -267,14 +267,14 @@ class _CustomBarChartState extends State<CustomBarChart> {
             ),
           if (widget.staffProjection == "1")
             BarChartRodData(
-              toY: projection,
+              toY: projection.toDouble(),
               color: const Color(0xff15396a),
               width: 8,
               borderRadius: BorderRadius.zero,
               borderSide: BorderSide.none,
             ),
           BarChartRodData(
-            toY: actual,
+            toY: actual.toDouble(),
             color: const Color(0xff7a8f3d),
             width: 8,
             borderRadius: BorderRadius.zero,

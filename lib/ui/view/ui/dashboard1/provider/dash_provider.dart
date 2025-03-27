@@ -89,87 +89,112 @@ class ApiService {
       throw Exception('Error fetching customer revenue data: $e');
     }
   }
-
-  Future<ResponseModell> fetchDashboardData({
-    String? salesmanId,
-    String? startDate,
-    String? endDate,
-  }) async {
-    final String salesmanId = SessionHelper.loginSavedData?.salesmanId??'';
-    final String jsonString =
-        await SessionManager.getStringValue(SpString.spLogin);
-    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    final String createdToken = jsonMap['createdToken'];
-    const String url = '$_baseUrl${ApiConstants.dashboardList}';
-    final Map<String, dynamic> requestBody = {
-      "salesman_id": salesmanId,
-      "start_date": startDate,
-      "end_date": endDate,
-      "companyId": companyId,
-      "targetType": 1,
-    };
-    log('Start Date End Date $startDate/$endDate');
-    final dashboardBox = Hive.box('dashboardBox');
-    try {
-      final connectivity = await Connectivity().checkConnectivity();
-      if (connectivity == ConnectivityResult.none) {
-        final cachedData = dashboardBox.get('dashboardData');
-        if (cachedData != null) {
-          try {
-            if (cachedData is Map<String, dynamic>) {
-              return localStorage.mapJsonToResponseModel(cachedData);
-            } else if (cachedData is List<dynamic>) {
-              final Map<String, dynamic> wrappedData = {'data': cachedData};
-              return localStorage.mapJsonToResponseModel(wrappedData);
-            } else {
-              throw Exception('Invalid cached data format.');
-            }
-          } catch (e) {
-            throw Exception(
-                'Failed to process cached data due to type mismatch.');
-          }
+Future<ResponseModell> fetchDashboardData({
+  String? fetchType,
+  String? startDate,
+  String? endDate,
+  String? selectedDay,
+  List<String>? selectedMonths,
+  List<String>? selectedWeeks,
+  int? year,
+  String? salesmanId,
+}) async {
+  final String jsonString =
+      await SessionManager.getStringValue(SpString.spLogin);
+  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  final String createdToken = jsonMap['createdToken'];
+  Object? sendData;
+  switch (fetchType) {
+    case "Month":
+      sendData = selectedMonths;
+      break;
+    case "Week":
+      sendData = selectedWeeks;
+      break;
+    case "Day":
+      sendData = [selectedDay];
+      break;
+    case "Year":
+      sendData = year.toString();
+      break;
+    case "Range":
+      sendData = [startDate, endDate];
+      break;
+    default:
+      sendData = selectedMonths;
+  }
+  final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
+  log("GET_DASHBOARD_LIST request URL: $url");
+  final Map<String, dynamic> requestBody = {
+  "salesman_id":  "",
+  "selected_range": sendData,
+  "time_range": fetchType == "Year" ? "year" : fetchType,
+  "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  "year": fetchType == "Year" ? year : DateTime.now().year,
+  };
+  log("GET_DASHBOARD_LIST request body: $requestBody");
+  final dashboardBox = Hive.box('dashboardBox');
+  try {
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity == ConnectivityResult.none) {
+      final cachedData = dashboardBox.get('dashboardData');
+      if (cachedData != null) {
+        log("Returning cached dashboard data.");
+        if (cachedData is Map<String, dynamic>) {
+          return localStorage.mapJsonToResponseModel(cachedData);
+        } else if (cachedData is List<dynamic>) {
+          return localStorage.mapJsonToResponseModel({'data': cachedData});
         } else {
-          throw Exception('No cached data available.');
+          throw Exception('Invalid cached data format.');
         }
-      }
-
-      final response = await Dio().post(
-        url,
-        options: Options(
-          headers: {'Authorization': 'Bearer $createdToken'},
-        ),
-        data: jsonEncode(requestBody),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonResponse = response.data;
-        await dashboardBox.put(
-            'dashboardData', Map<String, dynamic>.from(jsonResponse));
-        return localStorage.mapJsonToResponseModel(jsonResponse);
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
       } else {
-        handleHttpResponseError(
-        statusCode: response.statusCode??0,
-        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        message: 'Dashboard data'
-      );
-      return localStorage.storedDashboardData(dashboardBox);
+        throw Exception('No cached data available.');
       }
-    } on DioException catch (dioError) {
-      final statusCode = dioError.response?.statusCode ?? 0;
-      log('Dio Error Status Code: $statusCode');
-      handleHttpResponseError(
-        statusCode: statusCode,
-        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        message: 'Dashboard data'
+    }
+    final response = await Dio().post(
+      url.toString(),
+      options: Options(
+        headers: {'Authorization': 'Bearer $createdToken'},
+      ),
+      data: jsonEncode(requestBody),
+    );
+
+    log("GET_DASHBOARD_LIST response: ${response.data}");
+
+    if (response.statusCode == 200) {
+      final jsonResponse = response.data;
+      await dashboardBox.put(
+        'dashboardData',
+        Map<String, dynamic>.from(jsonResponse),
       );
-      return localStorage.storedDashboardData(dashboardBox);
-    } catch (e) {
-      throw Exception(e.toString());
+      return localStorage.mapJsonToResponseModel(jsonResponse);
+    } else if (response.statusCode == 400 || response.statusCode == 401) {
+      _handleTokenExpiration();
+      throw Exception('Session expired');
+    } else {
+      throw Exception(
+          'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
+    }
+  } on DioException catch (e) {
+    log('DioError occurred: ${e.type}');
+    log('Error message: ${e.message}');
+    log('Error response: ${e.response?.data}');
+    log('Request data: ${e.requestOptions.data}');
+    log('Request headers: ${e.requestOptions.headers}');
+    final cachedData = dashboardBox.get('dashboardData');
+    if (cachedData != null) {
+      log("Returning cached dashboard data after error.");
+      if (cachedData is Map<String, dynamic>) {
+        return localStorage.mapJsonToResponseModel(cachedData);
+      } else {
+        throw Exception('Invalid cached data format.');
+      }
+    } else {
+      throw Exception('No cached data available.');
     }
   }
+}
+
   void _handleTokenExpiration() async {
     if (!Get.isDialogOpen!) {
       await Get.dialog(
@@ -293,7 +318,6 @@ class ApiService {
       );
       if (response.statusCode == 200) {
         final List<dynamic> rawData = json.decode(response.body)['data'];
-
         List<SalesmanChat> salesmanChats = [];
         for (var chatList in rawData) {
           chatList.forEach((json) {
@@ -755,10 +779,9 @@ class ApiService {
         );
       } else {
         handleHttpResponseError(
-          statusCode: response.statusCode,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: 'fetch customer'
-        );
+            statusCode: response.statusCode,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: 'fetch customer');
         return LocalStorage().storedCustomerData(customerBox);
       }
     } on DioException catch (dioError) {
@@ -1203,9 +1226,43 @@ class DashboardProvider with ChangeNotifier {
   Future<SalesmenResponse>? _salesmenResponse;
   Future<MessagesResponse>? _individualChatResponse;
 
+  List<String> _selectedFilterMonths = [];
+  List<String> get selectedFilterMonths => _selectedFilterMonths;
+
+  void updateSelectedMonths(List<String> months) {
+    _selectedFilterMonths = months;
+    notifyListeners();
+  }
+
+  List<String> _selectedFilterWeeks = [];
+  List<String> get selectedFilterWeeks => _selectedFilterWeeks;
+
+  void updateSelectedWeeks(List<String> Weeks) {
+    _selectedFilterWeeks = Weeks;
+    notifyListeners();
+  }
+
+  int _selectedYear = DateTime.now().year;
+  int get selectedYear => _selectedYear;
+  void updateSelectedYear(int year) {
+    _selectedYear = year;
+    notifyListeners();
+  }
+
+  String _selectedDate = '';
+  String get selectedDate => _selectedDate;
+  void updateSelectedDate(String date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
   FilterDateEnum _selectedFilter = FilterDateEnum.thisMonth;
+  FilterDateEnum _selectedFilterTemp = FilterDateEnum.thisMonth;
+  String _selectedFilterName = "Month";
+  String _selectedFilterNameTemp = "Month";
   String _selectedStartDate = '';
   String _selectedEndDate = '';
+
   final ApiService _apiService;
   final Logger _logger;
   bool _dataFetched = false;
@@ -1239,12 +1296,24 @@ class DashboardProvider with ChangeNotifier {
   Future<ResponseModelCp>? _responseModelCp;
 
   Future<ResponseModelCp>? get responseModelCp => _responseModelCp;
+
   void resetProvider() {
-    _dataFetched = false;
     _futureResponseModel = null;
     _salesmenResponse = null;
     _individualChatResponse = null;
     _selectedFilter = FilterDateEnum.thisMonth;
+    _selectedFilterTemp = FilterDateEnum.thisMonth;
+    _selectedFilterName = "Month";
+    _selectedFilterNameTemp = "Month";
+    _selectedStartDate = '';
+    _selectedEndDate = '';
+  }
+
+  void resetFilter() {
+    _selectedFilter = FilterDateEnum.thisMonth;
+    _selectedFilterTemp = FilterDateEnum.thisMonth;
+    _selectedFilterName = "Month";
+    _selectedFilterNameTemp = "Month";
     _selectedStartDate = '';
     _selectedEndDate = '';
   }
@@ -1314,6 +1383,7 @@ class DashboardProvider with ChangeNotifier {
   Future<MessagesResponse>? get individualChatResponse =>
       _individualChatResponse;
   FilterDateEnum get selectedFilter => _selectedFilter;
+  FilterDateEnum get selectedFilterTemp => _selectedFilterTemp;
   String get selectedStartDate => _selectedStartDate;
   String get selectedEndDate => _selectedEndDate;
   SalesmanChat? selectedChat;
@@ -1400,64 +1470,39 @@ class DashboardProvider with ChangeNotifier {
   }
 
   OrderStatus _selectedStatus = OrderStatus.cancelled;
-  void onFilterChanged(FilterDateEnum? selectedFilter) {
-    NotificationController notificationController =
-        Get.find<NotificationController>();
+
+  void onFilterChanged(FilterDateEnum? selectedFilterTemp) {
+    switch (selectedFilterTemp) {
+      case FilterDateEnum.today:
+        _selectedFilterNameTemp = "Day";
+        break;
+      case FilterDateEnum.thisWeek:
+        _selectedFilterNameTemp = "Week";
+        break;
+      case FilterDateEnum.thisYear:
+        _selectedFilterNameTemp = "Year";
+        break;
+      case FilterDateEnum.thisMonth:
+        _selectedFilterNameTemp = "Month";
+        break;
+      case FilterDateEnum.range:
+        _selectedFilterNameTemp = "Range";
+        break;
+      default:
+        _selectedFilterNameTemp = "Month";
+        break;
+    }
+
     log('on filter changed');
-
-    if (selectedFilter != null) {
-      _selectedFilter = selectedFilter;
-
-      if (_selectedFilter != FilterDateEnum.range) {
-        _selectedStartDate = '';
-        _selectedEndDate = '';
-      }
-
-      if (_selectedFilter != FilterDateEnum.range) {
-        fetchData();
-        final now = DateTime.now();
-        String startDate;
-        String endDate;
-
-        switch (_selectedFilter) {
-          case FilterDateEnum.thisMonth:
-            startDate = DateTime(now.year, now.month, 1)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = DateTime(now.year, now.month + 1, 0)
-                .toIso8601String()
-                .substring(0, 10);
-            break;
-          case FilterDateEnum.today:
-            startDate = DateTime(now.year, now.month, now.day)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = startDate;
-            break;
-          case FilterDateEnum.thisWeek:
-            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-            startDate = startOfWeek.toIso8601String().substring(0, 10);
-            endDate = now.toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.thisYear:
-            startDate =
-                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-            endDate =
-                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.range:
-            startDate = _selectedStartDate;
-            endDate = _selectedEndDate;
-            if (startDate.isEmpty || endDate.isEmpty) {
-              return;
-            }
-            break;
-        }
-        notificationController.loadNotificationData(startDate, endDate);
-      }
-
+    if (selectedFilterTemp != null) {
+      _selectedFilterTemp = selectedFilterTemp;
       notifyListeners();
     }
+  }
+
+  Future<void> setTempToFilter() async {
+    _selectedFilter = _selectedFilterTemp;
+    _selectedFilterName = _selectedFilterNameTemp;
   }
 
   void selectAllChats(List<SalesmanChat> chatData) {
@@ -1482,56 +1527,33 @@ class DashboardProvider with ChangeNotifier {
     if (_dataFetched) return;
     try {
       final now = DateTime.now();
-      String startDate;
-      String endDate;
+      String startDate =
+          DateTime(now.year, now.month, 1).toIso8601String().substring(0, 10);
+      String endDate = DateTime(now.year, now.month + 1, 0)
+          .toIso8601String()
+          .substring(0, 10);
 
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          startDate = DateTime(now.year, now.month, 1)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = DateTime(now.year, now.month + 1, 0)
-              .toIso8601String()
-              .substring(0, 10);
-          break;
-        case FilterDateEnum.today:
-          startDate = DateTime(now.year, now.month, now.day)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = startDate;
-          break;
-        case FilterDateEnum.thisWeek:
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startDate = startOfWeek.toIso8601String().substring(0, 10);
-          endDate = now.toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.thisYear:
-          startDate =
-              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-          endDate =
-              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.range:
-          startDate = _selectedStartDate;
-          endDate = _selectedEndDate;
-
-          if (startDate.isEmpty || endDate.isEmpty) {
-            return;
-          }
-          break;
-      }
       _futureResponseModel = Future.delayed(const Duration(seconds: 2), () {
         Future<ResponseModell> api = _apiService.fetchDashboardData(
-          salesmanId: salesmanId,
-          startDate: startDate,
-          endDate: endDate,
-        );
-        //log('Future response :++++++++++${api}');
+            fetchType: _selectedFilterName,
+            startDate: _selectedFilter == FilterDateEnum.range
+                ? _selectedStartDate
+                : '',
+            endDate:
+                _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+            selectedDay:
+                _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+            selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+                ? _selectedFilterMonths
+                : [],
+            selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+                ? _selectedFilterWeeks
+                : [],
+            year:
+                _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+            salesmanId: salesmanId);
         return api;
       });
-      if (_selectedFilter != FilterDateEnum.range) {
-        //fetchOrders();
-      }
       notificationController.loadNotificationData(startDate, endDate);
       await CartDatabaseManager().getDraftItems();
       notifyListeners();

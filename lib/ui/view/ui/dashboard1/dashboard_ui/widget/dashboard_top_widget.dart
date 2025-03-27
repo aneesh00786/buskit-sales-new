@@ -25,7 +25,12 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/day_picker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/month_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/range_picker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/week_dropdown.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/year_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
@@ -85,6 +90,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     super.initState();
     final dashboardProvider =
         Provider.of<DashboardProvider>(context, listen: false);
+        dashboardProvider.resetFilter();
     if (!dashboardProvider.dataFetched) {
       dashboardProvider.resetProvider();
       dashboardProvider.fetchData();
@@ -148,240 +154,371 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                 Flexible(
                   child: Row(
                     children: [
+                      const SizedBox(width: 5),
                       SizedBox(
-                        height: isSmallScreen ? 29 : 38,
-                        width: isSmallScreen ? 84 : 104,
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 1,
-                                  blurRadius: 3,
-                                  offset: const Offset(0, 3),
+                        height: isSmallScreen ? 35 : 45,
+                        width: isSmallScreen ? 90 : 120,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                                color: Colors.grey.shade300, width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade50,
+                                blurRadius: 8,
+                                offset: const Offset(2, 4),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+                            child: DropdownButton<FilterDateEnum>(
+                              value: provider.selectedFilterTemp,
+                              onChanged: (newValue) {
+                                if (newValue != null) {
+                                  provider.onFilterChanged(newValue);
+                                }
+                              },
+                              items: [
+                                DropdownMenuItem(
+                                  value: FilterDateEnum.thisMonth,
+                                  child: Text(
+                                    'Month',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: isSmallScreen ? 7.7 : 9.8,
+                                    ),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: FilterDateEnum.thisWeek,
+                                  child: Text(
+                                    'Week',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: isSmallScreen ? 7.7 : 10.5,
+                                    ),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: FilterDateEnum.today,
+                                  child: Text(
+                                    'Day',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: isSmallScreen ? 7.7 : 10.5,
+                                    ),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: FilterDateEnum.thisYear,
+                                  child: Text(
+                                    'Year',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: isSmallScreen ? 7.7 : 10.5,
+                                    ),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: FilterDateEnum.range,
+                                  child: Text(
+                                    'Range',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: isSmallScreen ? 7.7 : 10.5,
+                                    ),
+                                  ),
                                 ),
                               ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
-                              child: DropdownButton<FilterDateEnum>(
-                                value: provider.selectedFilter,
-                                onChanged: (newValue) async {
-                                  bool isConnected =
-                                      await ConnectivityService().isOnline();
-                                  if (newValue != null && isConnected) {
-                                    provider.onFilterChanged(newValue);
-                                  } else {
-                                    showNoInternetSnackBar(context);
-                                  }
-                                },
-                                items: [
-                                  DropdownMenuItem(
-                                    value: FilterDateEnum.thisMonth,
-                                    child: Text(
-                                      'This Month',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Poppins_Regular',
-                                        fontSize: isSmallScreen ? 7.7 : 9.8,
-                                      ),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: FilterDateEnum.today,
-                                    child: Text(
-                                      'Today',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Poppins_Regular',
-                                        fontSize: isSmallScreen ? 7.7 : 10.5,
-                                      ),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: FilterDateEnum.thisWeek,
-                                    child: Text(
-                                      'This Week',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Poppins_Regular',
-                                        fontSize: isSmallScreen ? 7.7 : 10.5,
-                                      ),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: FilterDateEnum.thisYear,
-                                    child: Text(
-                                      'This Year',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Poppins_Regular',
-                                        fontSize: isSmallScreen ? 7.7 : 10.5,
-                                      ),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: FilterDateEnum.range,
-                                    child: Text(
-                                      'Range',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Poppins_Regular',
-                                        fontSize: isSmallScreen ? 7.7 : 10.5,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                isExpanded: true,
-                                borderRadius: BorderRadius.circular(10),
-                                underline: Container(),
-                              ),
+                              isExpanded: true,
+                              borderRadius: BorderRadius.circular(10),
+                              underline: Container(),
                             ),
                           ),
                         ),
                       ),
-                      if (provider.selectedFilter == FilterDateEnum.range)
-                        Expanded(
+                      if (provider.selectedFilterTemp ==
+                          FilterDateEnum.thisMonth) ...[
+                        const SizedBox(width: 10),
+                        const MonthDropdown(),
+                      ],
+                      if (provider.selectedFilterTemp ==
+                          FilterDateEnum.thisWeek) ...[
+                        const SizedBox(width: 10),
+                        const WeekDropdown(),
+                      ],
+                      if (provider.selectedFilterTemp ==
+                          FilterDateEnum.thisYear) ...[
+                        const SizedBox(width: 10),
+                        const YearDropdown(),
+                      ],
+                      if (provider.selectedFilterTemp ==
+                          FilterDateEnum.today) ...[
+                        const SizedBox(width: 10),
+                        const DatePickerWidget(),
+                      ],
+                      if (provider.selectedFilterTemp ==
+                          FilterDateEnum.range) ...[
+                        const SizedBox(width: 10),
+                        const Expanded(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0),
-                                  child: GestureDetector(
-                                    onTap: () =>
-                                        provider.selectDate(context, true),
-                                    child: Container(
-                                      height: isSmallScreen ? 29 : 38,
-                                      width: isSmallScreen ? 62 : 90,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xfff9f9fb),
-                                        border: Border.all(
-                                            color: const Color(0xffd1d1d1),
-                                            width: 1.0),
-                                        borderRadius: BorderRadius.circular(4),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            blurRadius: 2,
-                                            offset: const Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            provider.selectedStartDate.isEmpty
-                                                ? 'DD-MM-YYYY'
-                                                : provider.selectedStartDate,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    isSmallScreen ? 7.7 : 10.5,
-                                                color: Colors.grey[800]),
-                                          ),
-                                          Icon(
-                                            Icons.calendar_today,
-                                            size: isSmallScreen ? 10 : 14,
-                                            color: Colors.grey[700],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0),
-                                  child: GestureDetector(
-                                    onTap: () =>
-                                        provider.selectDate(context, false),
-                                    child: Container(
-                                      height: isSmallScreen ? 29 : 38,
-                                      width: isSmallScreen ? 62 : 90,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xfff9f9fb),
-                                        border: Border.all(
-                                            color: const Color(0xffd1d1d1),
-                                            width: 1.0),
-                                        borderRadius: BorderRadius.circular(4),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            blurRadius: 2,
-                                            offset: const Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            provider.selectedEndDate.isEmpty
-                                                ? 'DD-MM-YYYY'
-                                                : provider.selectedEndDate,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    isSmallScreen ? 7.7 : 10.5,
-                                                color: Colors.grey[800]),
-                                          ),
-                                          Icon(
-                                            Icons.calendar_today,
-                                            size: isSmallScreen ? 10 : 14,
-                                            color: Colors.grey[700],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0),
-                                  child: SizedBox(
-                                    height: isSmallScreen ? 29 : 36.4,
-                                    width: isSmallScreen ? 65 : 68,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        provider.fetchData();
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: primaryColor,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Go',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: SizedBox(
+                              width: 320,
+                              child: RangePickerWidget(),
                             ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                 ),
+                // Flexible(
+                //   child: Row(
+                //     children: [
+                //       SizedBox(
+                //         height: isSmallScreen ? 29 : 38,
+                //         width: isSmallScreen ? 84 : 104,
+                //         child: Padding(
+                //           padding: const EdgeInsets.all(1.0),
+                //           child: Container(
+                //             decoration: BoxDecoration(
+                //               color: Colors.white,
+                //               borderRadius: BorderRadius.circular(5),
+                //               boxShadow: [
+                //                 BoxShadow(
+                //                   color: Colors.black.withOpacity(0.1),
+                //                   spreadRadius: 1,
+                //                   blurRadius: 3,
+                //                   offset: const Offset(0, 3),
+                //                 ),
+                //               ],
+                //             ),
+                //             child: Padding(
+                //               padding: const EdgeInsets.only(
+                //                   left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
+                //               child: DropdownButton<FilterDateEnum>(
+                //                 value: provider.selectedFilter,
+                //                 onChanged: (newValue) async {
+                //                   bool isConnected =
+                //                       await ConnectivityService().isOnline();
+                //                   if (newValue != null && isConnected) {
+                //                     provider.onFilterChanged(newValue);
+                //                   } else {
+                //                     showNoInternetSnackBar(context);
+                //                   }
+                //                 },
+                //                 items: [
+                //                   DropdownMenuItem(
+                //                     value: FilterDateEnum.thisMonth,
+                //                     child: Text(
+                //                       'This Month',
+                //                       style: TextStyle(
+                //                         fontWeight: FontWeight.w400,
+                //                         fontFamily: 'Poppins_Regular',
+                //                         fontSize: isSmallScreen ? 7.7 : 9.8,
+                //                       ),
+                //                     ),
+                //                   ),
+                //                   DropdownMenuItem(
+                //                     value: FilterDateEnum.today,
+                //                     child: Text(
+                //                       'Today',
+                //                       style: TextStyle(
+                //                         fontWeight: FontWeight.w400,
+                //                         fontFamily: 'Poppins_Regular',
+                //                         fontSize: isSmallScreen ? 7.7 : 10.5,
+                //                       ),
+                //                     ),
+                //                   ),
+                //                   DropdownMenuItem(
+                //                     value: FilterDateEnum.thisWeek,
+                //                     child: Text(
+                //                       'This Week',
+                //                       style: TextStyle(
+                //                         fontWeight: FontWeight.w400,
+                //                         fontFamily: 'Poppins_Regular',
+                //                         fontSize: isSmallScreen ? 7.7 : 10.5,
+                //                       ),
+                //                     ),
+                //                   ),
+                //                   DropdownMenuItem(
+                //                     value: FilterDateEnum.thisYear,
+                //                     child: Text(
+                //                       'This Year',
+                //                       style: TextStyle(
+                //                         fontWeight: FontWeight.w400,
+                //                         fontFamily: 'Poppins_Regular',
+                //                         fontSize: isSmallScreen ? 7.7 : 10.5,
+                //                       ),
+                //                     ),
+                //                   ),
+                //                   DropdownMenuItem(
+                //                     value: FilterDateEnum.range,
+                //                     child: Text(
+                //                       'Range',
+                //                       style: TextStyle(
+                //                         fontWeight: FontWeight.w400,
+                //                         fontFamily: 'Poppins_Regular',
+                //                         fontSize: isSmallScreen ? 7.7 : 10.5,
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ],
+                //                 isExpanded: true,
+                //                 borderRadius: BorderRadius.circular(10),
+                //                 underline: Container(),
+                //               ),
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //       if (provider.selectedFilter == FilterDateEnum.range)
+                //         Expanded(
+                //           child: SingleChildScrollView(
+                //             scrollDirection: Axis.horizontal,
+                //             child: Row(
+                //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //               crossAxisAlignment: CrossAxisAlignment.center,
+                //               children: [
+                //                 Padding(
+                //                   padding: const EdgeInsets.symmetric(
+                //                       horizontal: 4.0),
+                //                   child: GestureDetector(
+                //                     onTap: () =>
+                //                         provider.selectDate(context, true),
+                //                     child: Container(
+                //                       height: isSmallScreen ? 29 : 38,
+                //                       width: isSmallScreen ? 62 : 90,
+                //                       decoration: BoxDecoration(
+                //                         color: const Color(0xfff9f9fb),
+                //                         border: Border.all(
+                //                             color: const Color(0xffd1d1d1),
+                //                             width: 1.0),
+                //                         borderRadius: BorderRadius.circular(4),
+                //                         boxShadow: [
+                //                           BoxShadow(
+                //                             color: Colors.grey.withOpacity(0.2),
+                //                             blurRadius: 2,
+                //                             offset: const Offset(0, 1),
+                //                           ),
+                //                         ],
+                //                       ),
+                //                       alignment: Alignment.centerLeft,
+                //                       padding: const EdgeInsets.symmetric(
+                //                           vertical: 4, horizontal: 8),
+                //                       child: Row(
+                //                         mainAxisAlignment:
+                //                             MainAxisAlignment.spaceBetween,
+                //                         children: [
+                //                           Text(
+                //                             provider.selectedStartDate.isEmpty
+                //                                 ? 'DD-MM-YYYY'
+                //                                 : provider.selectedStartDate,
+                //                             style: TextStyle(
+                //                                 fontSize:
+                //                                     isSmallScreen ? 7.7 : 10.5,
+                //                                 color: Colors.grey[800]),
+                //                           ),
+                //                           Icon(
+                //                             Icons.calendar_today,
+                //                             size: isSmallScreen ? 10 : 14,
+                //                             color: Colors.grey[700],
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //                 Padding(
+                //                   padding: const EdgeInsets.symmetric(
+                //                       horizontal: 4.0),
+                //                   child: GestureDetector(
+                //                     onTap: () =>
+                //                         provider.selectDate(context, false),
+                //                     child: Container(
+                //                       height: isSmallScreen ? 29 : 38,
+                //                       width: isSmallScreen ? 62 : 90,
+                //                       decoration: BoxDecoration(
+                //                         color: const Color(0xfff9f9fb),
+                //                         border: Border.all(
+                //                             color: const Color(0xffd1d1d1),
+                //                             width: 1.0),
+                //                         borderRadius: BorderRadius.circular(4),
+                //                         boxShadow: [
+                //                           BoxShadow(
+                //                             color: Colors.grey.withOpacity(0.2),
+                //                             blurRadius: 2,
+                //                             offset: const Offset(0, 1),
+                //                           ),
+                //                         ],
+                //                       ),
+                //                       alignment: Alignment.centerLeft,
+                //                       padding: const EdgeInsets.symmetric(
+                //                           vertical: 4, horizontal: 8),
+                //                       child: Row(
+                //                         mainAxisAlignment:
+                //                             MainAxisAlignment.spaceBetween,
+                //                         children: [
+                //                           Text(
+                //                             provider.selectedEndDate.isEmpty
+                //                                 ? 'DD-MM-YYYY'
+                //                                 : provider.selectedEndDate,
+                //                             style: TextStyle(
+                //                                 fontSize:
+                //                                     isSmallScreen ? 7.7 : 10.5,
+                //                                 color: Colors.grey[800]),
+                //                           ),
+                //                           Icon(
+                //                             Icons.calendar_today,
+                //                             size: isSmallScreen ? 10 : 14,
+                //                             color: Colors.grey[700],
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //                 Padding(
+                //                   padding: const EdgeInsets.symmetric(
+                //                       horizontal: 4.0),
+                //                   child: SizedBox(
+                //                     height: isSmallScreen ? 29 : 36.4,
+                //                     width: isSmallScreen ? 65 : 68,
+                //                     child: ElevatedButton(
+                //                       onPressed: () {
+                //                         provider.fetchData();
+                //                       },
+                //                       style: ElevatedButton.styleFrom(
+                //                         backgroundColor: primaryColor,
+                //                         shape: RoundedRectangleBorder(
+                //                           borderRadius:
+                //                               BorderRadius.circular(4.0),
+                //                         ),
+                //                       ),
+                //                       child: const Text(
+                //                         'Go',
+                //                         style: TextStyle(color: Colors.white),
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         ),
+                //     ],
+                //   ),
+                // ),
                 SyncButtonWidget(
                   onSync: () async {
                     DateTime now = DateTime.now();

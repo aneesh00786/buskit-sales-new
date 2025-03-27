@@ -126,7 +126,7 @@ Future<ResponseModell> fetchDashboardData({
   final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
   log("GET_DASHBOARD_LIST request URL: $url");
   final Map<String, dynamic> requestBody = {
-  "salesman_id":  "",
+  "salesman_id":  SessionHelper.loginSavedData?.salesmanId??"",
   "selected_range": sendData,
   "time_range": fetchType == "Year" ? "year" : fetchType,
   "companyId": SessionHelper.loginSavedData?.company_id ?? 0,

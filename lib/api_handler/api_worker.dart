@@ -311,6 +311,7 @@ class ApiWorker with ApiConstants {
         log("Dio error status code1: ${dioError.response?.statusCode}");
       }
       final cachedData = performanceBox.get(cacheKey);
+
       if (cachedData != null) {
         log('Using cached data after API failure for key: $cacheKey');
         final castedData = localStorage.castToStringDynamic(cachedData);
@@ -1801,10 +1802,8 @@ Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
 
       if (response.statusCode == 200) {
         final dynamic jsonData = response.data['data'];
-        log("Salesman Target Data: $jsonData");
-
+        log("Salesman Target Data: ${response.data}");
         if (jsonData is List) {
-          // Handle the case where 'data' is a list
           await targetBox.put(cacheKey, jsonData);
           return SalesmanTargetTableResponse.fromJson({"data": jsonData});
         } else if (jsonData is Map<String, dynamic>) {

@@ -26,13 +26,11 @@ class StaffTargetDialog extends StatefulWidget {
   _StaffTargetDialogState createState() => _StaffTargetDialogState();
 }
 class _StaffTargetDialogState extends State<StaffTargetDialog>
-    with SingleTickerProviderStateMixin {
+  with SingleTickerProviderStateMixin {
   List<TextEditingController> _targetControllers = [];
   List<TextEditingController> _projectionControllers = [];
-
   final Map<String, List<TextEditingController>> _weeklyTargetControllers = {};
   final Map<String, List<TextEditingController>> _weeklyProjectionControllers = {};
-
   Map<dynamic, String> updatedTargets = {};
   Map<dynamic, String> updatedProjection = {};
   Map<dynamic, String> weeklyTargets = {};
@@ -44,6 +42,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   void initState() {
     super.initState();
     _initializeState();
+    _loadSalesmanTargetForSelectedTab();
   }
 
   void _initializeState() {
@@ -68,7 +67,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   @override
   void didUpdateWidget(covariant StaffTargetDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.staffController.tabController !=
         widget.staffController.tabController) {
       widget.staffController.tabController.addListener(() {

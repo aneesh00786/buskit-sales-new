@@ -40,6 +40,7 @@ class ApiWorker with ApiConstants {
   late DioClient dio;
   Dio dio1 = Dio();
   final LocalStorage localStorage = LocalStorage();
+  final ConnectivityService _connectivityService = ConnectivityService();
   ApiWorker() {
     dio = DioClient();
   }
@@ -965,7 +966,6 @@ class ApiWorker with ApiConstants {
       }
     } else {
       log('No internet. Fetching from Hive...');
-      
     }
     try {
       final cachedData = leadsBox.get(cacheKey);
@@ -1491,7 +1491,6 @@ class ApiWorker with ApiConstants {
         data: {
           "order_id": orderId,
           "updatedOrders": updatedOrders,
-          //added
           "companyId": companyId,
         },
         options: Options(
@@ -1609,8 +1608,8 @@ class ApiWorker with ApiConstants {
 //       } catch (error) {
 //         // Handle DioException and log error
 //         log("DioException occurred: $error");
-//         NkCommonFunction.showErrorSnakBar(
-//             'Failed to fetch weekly type. Showing offline data.');
+  // NkCommonFunction.showErrorSnakBar(
+  //     'Failed to fetch weekly type. Showing offline data.');
 
 //         // Fetch data from Hive as a fallback
 //         return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
@@ -1627,11 +1626,12 @@ class ApiWorker with ApiConstants {
 //   }
 
   Future<String?> getWeeklyType() async {
+    log('Weekely Function has been called');
     const cacheKey = 'weekly_type';
     final weeklyTypeBox = Hive.box('weeklyTypeBox');
     try {
-      final connectivityResult = await Connectivity().checkConnectivity();
-      bool isOnline = connectivityResult != ConnectivityResult.none;
+      bool isOnline = await _connectivityService.isOnline();
+      log('Weekely Function has been called$isOnline');
       if (isOnline) {
         final response = await dio.postbycustom(
           ApiConstants.getWeekelyType,
@@ -1652,11 +1652,30 @@ class ApiWorker with ApiConstants {
         }
       } else {
         log("Offline mode: Fetching Weekly Type from Hive.");
+        try {
+          if (weeklyTypeBox.containsKey(cacheKey)) {
+            final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
+            log("Weekly Type fetched from Hive345: $cachedWeeklyType");
+            return cachedWeeklyType;
+          } else {
+            log("No cached Weekly Type data found for key: $cacheKey");
+          }
+        } catch (e) {
+          log("Error accessing cached Weekly Type data: $e");
+        }
       }
     } catch (error) {
-      log("Error fetching Weekly Type from API: $error");
-      if (error is DioException) {
-        throw DioExceptionHandler.fromDioError(error);
+      try {
+        if (weeklyTypeBox.containsKey(cacheKey)) {
+          final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
+
+          log("Weekly Type fetched from Hive: $cachedWeeklyType");
+          return cachedWeeklyType;
+        } else {
+          log("No cached Weekly Type data found for key: $cacheKey");
+        }
+      } catch (e) {
+        log("Error accessing cached Weekly Type data: $e");
       }
     }
     try {
@@ -1674,198 +1693,142 @@ class ApiWorker with ApiConstants {
     return null;
   }
 
-// // Helper function to fetch cached data from Hive
-//   String? _getCachedWeeklyType(Box box, String cacheKey) {
-//     try {
-//       final cachedData = box.get(cacheKey);
-//       if (cachedData != null) {
-//         log('Fetched Weekly Type from Hive: $cachedData');
-//         return cachedData as String;
-//       } else {
-//         log('No cached Weekly Type data available.');
-//         NkCommonFunction.showErrorSnakBar('No offline data available.');
-//         return null;
-//       }
-//     } catch (e) {
-//       log('Error fetching Weekly Type from Hive: $e');
-//       NkCommonFunction.showErrorSnakBar('Error accessing offline data.');
-//       return null;
-//     }
-//   }
-
-Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
-    String salesmanId, String year, String? month) async {
-  final requestPayload = {
-    "salesman_id": salesmanId,
-    "year": year,
-    if (month != null) "month": month,
-    "companyId": companyId,
-  };
-
-  final cacheKey =
-      'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
-  final targetBox = Hive.box('salesmanValueTargetBox');
-
-  log("fetchSalesmanValueTarget request: $requestPayload");
-
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool isOnline = connectivityResult != ConnectivityResult.none;
-
-    if (isOnline) {
-      // Online Mode: Fetch data from API
-      final response = await dio
-          .postbycustom(
-        ApiConstants.fetchSalesmanValueTarget,
-        data: requestPayload,
-      )
-          .onError((DioException error, stackTrace) {
-        log(error.toString());
-        throw DioExceptionHandler.fromDioError(error);
-      });
-
-      log("Salesman Value Target Response: $response");
-
-      if (response.statusCode == 200) {
-        final dynamic jsonData = response.data['data'];
-        if (jsonData is Map<String, dynamic>) {
-          log("Salesman Value Target Data: $jsonData");
-          await targetBox.put(cacheKey, jsonData);
-          return SalesmanValueTargetResponse.fromJson(jsonData);
+  Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
+      String salesmanId, String year, String? month) async {
+    final requestPayload = {
+      "salesman_id": salesmanId,
+      "year": year,
+      if (month != null) "month": month,
+      "companyId": companyId,
+    };
+    final cacheKey =
+        'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
+    final targetBox = Hive.box('salesmanValueTargetBox');
+    log("fetchSalesmanValueTarget request: $requestPayload");
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      bool isOnline = connectivityResult != ConnectivityResult.none;
+      if (isOnline) {
+        final response = await dio
+            .postbycustom(
+          ApiConstants.fetchSalesmanValueTarget,
+          data: requestPayload,
+        )
+            .onError((DioException error, stackTrace) {
+          log(error.toString());
+          throw DioExceptionHandler.fromDioError(error);
+        });
+        log("Salesman Value Target Response: $response");
+        if (response.statusCode == 200) {
+          final dynamic jsonData = response.data['data'];
+          if (jsonData is Map<String, dynamic>) {
+            log("Salesman Value Target Data: $jsonData");
+            await targetBox.put(cacheKey, jsonData);
+            return SalesmanValueTargetResponse.fromJson(jsonData);
+          } else {
+            log("Unexpected response format from API");
+          }
         } else {
-          log("Unexpected response format from API");
+          log("Failed to fetch value target data: ${response.statusCode} ${response.statusMessage}");
         }
       } else {
-        log(
-            "Failed to fetch value target data: ${response.statusCode} ${response.statusMessage}");
+        log("Offline mode: Fetching value target data from Hive for key: $cacheKey");
+        NkCommonFunction.showErrorSnakBar(
+            'Failed to fetch Sales target. Showing offline data.');
       }
-    } else {
-      log(
-          "Offline mode: Fetching value target data from Hive for key: $cacheKey");
+    } on DioException catch (dioError) {
+      log("Dio error occurred2: ${dioError.message}");
+    } catch (e) {
+      log("Unexpected error occurred Salesman Value Target: $e");
     }
-  } on DioException catch (dioError) {
-    log("Dio error occurred2: ${dioError.message}");
-  } catch (e) {
-    log("Unexpected error occurred Salesman Value Target: $e");
-  }
-  try {
-    if (targetBox.containsKey(cacheKey)) {
-      final cachedData = targetBox.get(cacheKey);
-      log("Using cached data for key: $cacheKey");
-      if (cachedData is Map<String, dynamic>) {
-        return SalesmanValueTargetResponse.fromJson(cachedData);
-      } else {
-        log("Cached data format is invalid.");
-      }
-    } else {
-      log("No cached data available for key: $cacheKey");
-    }
-  } catch (e) {
-    log("Error accessing cached data: $e");
-  }
-
-  return null;
-}
-
-
-Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
-    String salesmanId, String month, String year) async {
-  final requestPayload = {
-    "salesman_id": salesmanId,
-    "year": year,
-    "month": month,
-    "companyId": companyId,
-  };
-
-  final cacheKey = 'salesman_target_${salesmanId}_${year}_$month';
-  final targetBox = Hive.box('salesmanTargetBox');
-
-  log("fetchSalesmanTarget request: $requestPayload");
-
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool isOnline = connectivityResult != ConnectivityResult.none;
-
-    if (isOnline) {
-      // Online Mode: Fetch data from API
-      final response = await dio
-          .postbycustom(
-        ApiConstants.fetchSalesmanTarget,
-        data: requestPayload,
-      )
-          .onError((DioException error, stackTrace) {
-        log(error.toString());
-        throw DioExceptionHandler.fromDioError(error);
-      });
-
-      log("Salesman Target Response: $response");
-
-      if (response.statusCode == 200) {
-        final dynamic jsonData = response.data['data'];
-        log("Salesman Target Data: ${response.data}");
-        if (jsonData is List) {
-          await targetBox.put(cacheKey, jsonData);
-          return SalesmanTargetTableResponse.fromJson({"data": jsonData});
-        } else if (jsonData is Map<String, dynamic>) {
-          // Handle the case where 'data' is a map
-          await targetBox.put(cacheKey, jsonData);
-          return SalesmanTargetTableResponse.fromJson(jsonData);
+    try {
+      if (targetBox.containsKey(cacheKey)) {
+        final cachedData = targetBox.get(cacheKey);
+        log("Using cached data for key: $cacheKey");
+        if (cachedData is Map<String, dynamic>) {
+          return SalesmanValueTargetResponse.fromJson(cachedData);
         } else {
-          log("Unexpected response format for data.");
+          log("Cached data format is invalid.");
         }
       } else {
-        log("Failed to fetch target data: ${response.statusCode} ${response.statusMessage}");
+        log("No cached data available for key: $cacheKey");
       }
-    } else {
+    } catch (e) {
+      log("Error accessing cached data: $e");
+    }
+
+    return null;
+  }
+
+  Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
+      String salesmanId, String month, String year) async {
+    final requestPayload = {
+      "salesman_id": salesmanId,
+      "year": year,
+      "month": month,
+      "companyId": companyId,
+    };
+    final cacheKey = 'salesman_target_${salesmanId}_${year}_$month';
+    final targetBox = Hive.box('salesmanTargetBox');
+    log("fetchSalesmanTarget request345: $requestPayload");
+    try {
+      bool isOnline = await _connectivityService.isOnline();
+      log('Is Online fetch sales target: $isOnline');
+      if (isOnline) {
+        try {
+          final response = await dio.postbycustom(
+            ApiConstants.fetchSalesmanTarget,
+            data: requestPayload,
+          );
+
+          if (response.statusCode == 200) {
+            final dynamic jsonData = response.data['data'];
+            log("Fetched Salesman Target Data: $jsonData");
+            if (jsonData != null) {
+              await targetBox.put(cacheKey, jsonData);
+              return SalesmanTargetTableResponse.fromJson({"data": jsonData});
+            }
+          } else {
+            log("API Error: ${response.statusCode} ${response.statusMessage}");
+          }
+        } catch (apiError) {
+          log("API fetch error: $apiError");
+        }
+      } else {
+        log("Falling back to cached data.");
+        if (targetBox.containsKey(cacheKey)) {
+          final cachedData = targetBox.get(cacheKey);
+          log("Using cached data for key: $cacheKey");
+          if (cachedData != null) {
+            return SalesmanTargetTableResponse.fromJson({"data": cachedData});
+          } else {
+            log("Cached data is null for key: $cacheKey");
+          }
+        } else {
+          log("No cached data available for key: $cacheKey");
+        }
+      }
+    } catch (e) {
+      log("Unexpected error during fetch: $e");
       try {
-    if (targetBox.containsKey(cacheKey)) {
-      final cachedData = targetBox.get(cacheKey);
-      log("Using cached data for key: $cacheKey");
-      log("Cached Data Salesman Target: $cachedData");
+        if (targetBox.containsKey(cacheKey)) {
+          final cachedData = targetBox.get(cacheKey);
+          log("Using cached data for key (fallback): $cacheKey");
 
-      if (cachedData is List) {
-        return SalesmanTargetTableResponse.fromJson({"data": cachedData});
-      } else if (cachedData is Map<String, dynamic>) {
-        return SalesmanTargetTableResponse.fromJson(cachedData);
-      } else {
-        log("Cached data format is invalid.");
+          if (cachedData != null) {
+            return SalesmanTargetTableResponse.fromJson({"data": cachedData});
+          } else {
+            log("Fallback cached data is null for key: $cacheKey");
+          }
+        } else {
+          log("Fallback: No cached data available for key: $cacheKey");
+        }
+      } catch (cacheError) {
+        log("Error accessing fallback cached data: $cacheError");
       }
-    } else {
-      log("No cached data available for key: $cacheKey");
     }
-  } catch (e) {
-    log("Error accessing cached data: $e");
+    return null;
   }
-      log("Offline mode: Fetching target data from Hive for key: $cacheKey");
-    }
-  } on DioException catch (dioError) {
-    log("Dio error occurred3: ${dioError.message}");
-  } catch (e) {
-    log("Unexpected error occurred Salesman target: $e");
-  }
-  try {
-    if (targetBox.containsKey(cacheKey)) {
-      final cachedData = targetBox.get(cacheKey);
-      log("Using cached data for key: $cacheKey");
-      log("Cached Data Salesman Target: $cachedData");
-
-      if (cachedData is List) {
-        return SalesmanTargetTableResponse.fromJson({"data": cachedData});
-      } else if (cachedData is Map<String, dynamic>) {
-        return SalesmanTargetTableResponse.fromJson(cachedData);
-      } else {
-        log("Cached data format is invalid.");
-      }
-    } else {
-      log("No cached data available for key: $cacheKey");
-    }
-  } catch (e) {
-    log("Error accessing cached data: $e");
-  }
-
-  return null;
-}
-
 
   Future<StaffTimesheetResponse> getTimeSheetData({
     String? startDate,

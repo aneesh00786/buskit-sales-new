@@ -273,10 +273,10 @@ class StaffController extends GetxController {
       <SalesmanTargetTableData>[].obs;
   RxBool isTargetLoading = false.obs;
 Future<List<SalesmanTargetTableData>> loadSalesmanTargetTableData(
-    String salesmanId, String month, String year) async {
+  String salesmanId, String month, String year) async {
   try {
     isTargetLoading.value = true;
-    log("isTargetLoading ${isTargetLoading.value}");
+    log("isTargetLoadingforTab: ${isTargetLoading.value}");
     var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
     salesmanTargetTableList.assignAll(data?.data ?? []);
     log('Salesman Target List Length :${salesmanTargetTableList.length}');

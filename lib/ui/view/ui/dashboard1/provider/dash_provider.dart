@@ -1023,16 +1023,38 @@ class ApiService {
     required int page,
     required dynamic valueFromDw,
   }) async {
+        String value;
+    switch (valueFromDw) {
+      case 'Month':
+        value = 'This Month';
+        break;
+      case 'Day':
+        value = 'Today';
+        break;
+      case 'Week':
+        value = 'This Week';
+        break;
+      case 'Year':
+        value = 'This Year';
+        break;
+      case 'Range':
+        value = 'Range';
+        break;
+      default:
+        value = "This Month";
+        break;
+    }
+
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchCustomer}');
     final requestBody = {
       "salesman_id": salesmanId,
       "business_name": customerName,
       "start_date": startDate,
       "end_date": endDate,
-      "companyId": companyId,
       "limit": limit,
       "page": page,
-      "valueFromDw": valueFromDw,
+      "valueFromDw": value,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
     final customerBox = Hive.box('customerBox');
     try {

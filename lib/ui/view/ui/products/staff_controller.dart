@@ -67,7 +67,7 @@ class StaffController extends GetxController {
   var customerDatas = Rxn<CustomerData>();
 
   Future<void> loadSalesmanTarget(String salesmanId, String month, String year,
-      String monthName, bool isFromLogin,int compId) async {
+      String monthName, bool isFromLogin, int compId) async {
     log("✅ loadSalesmanTarget STARTED:");
     isLoading.value = true;
     try {
@@ -137,14 +137,14 @@ class StaffController extends GetxController {
     required String staffId,
     required String currentYear,
     bool? isFromLogin,
-    int?compId,
+    int? compId,
   }) async {
     final selectedMonth = selectedTabIndex;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
 
     await loadSalesmanTarget(staffId, selectedMonthName, currentYear,
-        selectedMonthName, isFromLogin ?? false,compId??0);
+        selectedMonthName, isFromLogin ?? false, compId ?? 0);
   }
 
   Widget get getIsPasswordVisible {
@@ -271,23 +271,22 @@ class StaffController extends GetxController {
   RxList<SalesmanTargetTableData> salesmanTargetTableList =
       <SalesmanTargetTableData>[].obs;
   RxBool isTargetLoading = false.obs;
-Future<List<SalesmanTargetTableData>> loadSalesmanTargetTableData(
-  String salesmanId, String month, String year) async {
-  try {
-    isTargetLoading.value = true;
-    log("isTargetLoadingforTab: ${isTargetLoading.value}");
-    var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
-    salesmanTargetTableList.assignAll(data?.data ?? []);
-    log('Salesman Target List Length :${salesmanTargetTableList.length}');
-    return data?.data ?? [];
-  } catch (e) {
-    log("Error loading target data: $e");
-    return [];
-  } finally {
-    isTargetLoading.value = false;
+  Future<List<SalesmanTargetTableData>> loadSalesmanTargetTableData(
+      String salesmanId, String month, String year) async {
+    try {
+      isTargetLoading.value = true;
+      log("isTargetLoadingforTab: ${isTargetLoading.value}");
+      var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
+      salesmanTargetTableList.assignAll(data?.data ?? []);
+      log('Salesman Target List Length :${salesmanTargetTableList.length}');
+      return data?.data ?? [];
+    } catch (e) {
+      log("Error loading target data: $e");
+      return [];
+    } finally {
+      isTargetLoading.value = false;
+    }
   }
-}
-
 
   RxBool isTimesheetLoading = false.obs;
   RxMap<String, StaffTimesheetData> staffTimesheetData =

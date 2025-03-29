@@ -116,6 +116,7 @@ class CartDialogueState extends State<CartDialogue> {
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
   }
+
   void setOptions() {
     setState(() {
       filteredOptions = isOrder
@@ -449,54 +450,82 @@ class CartDialogueState extends State<CartDialogue> {
                               height: dialogHeight * 0.5,
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: SizedBox(
-                                    width: fullScreenWidth(context) * 1.05,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            children: orderItems
-                                                .where((item) =>
-                                                    item.detail.stock! > 0)
-                                                .map((item) => item.productName)
-                                                .toSet()
-                                                .toList()
-                                                .map((productName) {
-                                              List<CartItem> groupedItems =
-                                                  orderItems
-                                                      .where((item) =>
-                                                          item.productName ==
-                                                              productName &&
-                                                          item.detail.stock! >
-                                                              0)
-                                                      .toList();
+                                child: ScrollbarTheme(
+                                  data: ScrollbarThemeData(
+                                    thumbColor: WidgetStateProperty
+                                        .resolveWith<Color>((states) {
+                                      if (states
+                                          .contains(WidgetState.dragged)) {
+                                        return Colors.blueAccent.shade700;
+                                      }
+                                      return Colors.blueAccent.shade400;
+                                    }),
+                                    trackColor: WidgetStateProperty.all(
+                                        Colors.blue.shade50),
+                                    trackBorderColor: WidgetStateProperty.all(
+                                        Colors.blue.shade100),
+                                    thickness: WidgetStateProperty.all(6),
+                                    radius: const Radius.circular(10),
+                                    minThumbLength: 50,
+                                    thumbVisibility: const WidgetStatePropertyAll(true),
+                                    trackVisibility: const WidgetStatePropertyAll(true),
+                                  ),
+                                  child: Scrollbar(
 
-                                              return Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 20),
-                                                child: _buildGroupedItems(
-                                                  productName: productName,
-                                                  groupedItems: groupedItems,
-                                                  availableWidth:
-                                                      availableWidth,
-                                                  fontSize: fontSize,
-                                                  rowHeight: rowHeight,
-                                                  context: context,
-                                                  productQuantityManager:
-                                                      productQuantityManager,
-                                                  deleteConfirmationDialogue:
-                                                      deleteConfirmationDialogue,
-                                                  isPreOrder: false,
-                                                  calCulateAmount:
-                                                      calculateAmounts,
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: SizedBox(
+                                        width: fullScreenWidth(context) * 1.05,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                children: orderItems
+                                                    .where((item) =>
+                                                        item.detail.stock! > 0)
+                                                    .map((item) =>
+                                                        item.productName)
+                                                    .toSet()
+                                                    .toList()
+                                                    .map((productName) {
+                                                  List<CartItem> groupedItems =
+                                                      orderItems
+                                                          .where((item) =>
+                                                              item.productName ==
+                                                                  productName &&
+                                                              item.detail
+                                                                      .stock! >
+                                                                  0)
+                                                          .toList();
+
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 20),
+                                                    child: _buildGroupedItems(
+                                                      productName: productName,
+                                                      groupedItems:
+                                                          groupedItems,
+                                                      availableWidth:
+                                                          availableWidth,
+                                                      fontSize: fontSize,
+                                                      rowHeight: rowHeight,
+                                                      context: context,
+                                                      productQuantityManager:
+                                                          productQuantityManager,
+                                                      deleteConfirmationDialogue:
+                                                          deleteConfirmationDialogue,
+                                                      isPreOrder: false,
+                                                      calCulateAmount:
+                                                          calculateAmounts,
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1169,8 +1198,7 @@ class CartDialogueState extends State<CartDialogue> {
                                 final firstOrder = cartDetails.isNotEmpty
                                     ? cartDetails.last
                                     : {'cart_id': '', 'draft_id': ''};
-                                final cartIdPrefs =
-                                    firstOrder['cart_id'] ?? '';
+                                final cartIdPrefs = firstOrder['cart_id'] ?? '';
                                 final draftIdPrefs =
                                     firstOrder['draft_id'] ?? '';
                                 // log('Existing cart ID $existingCartId');
@@ -1181,13 +1209,11 @@ class CartDialogueState extends State<CartDialogue> {
                                     await processSaveAndSend(
                                       finalAmount: finalAmount,
                                       paymentType: paymentType,
-                                  
                                       context: context,
                                       cartId: cartIdPrefs,
                                       draftId: draftIdPrefs,
                                     );
                                   } else {
-                                  
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         backgroundColor: Colors.red,
@@ -1201,7 +1227,6 @@ class CartDialogueState extends State<CartDialogue> {
                                   log('CustomerId : $customerId');
                                   await processSaveAndSend(
                                     finalAmount: finalAmount,
-                                    
                                     context: context,
                                     cartId: cartIdPrefs,
                                     draftId: draftIdPrefs,
@@ -1575,7 +1600,6 @@ class CartDialogueState extends State<CartDialogue> {
       }
     }
   }
-
 
   void showSuccessDialog(BuildContext context, String message) {
     showDialog(
